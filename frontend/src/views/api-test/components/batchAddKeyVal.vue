@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-  import { isEmpty } from 'lodash-es';
+  import { cloneDeep, isEmpty } from 'lodash-es';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -87,7 +87,7 @@
       if (key || value) {
         tempObj[key.trim()] = {
           id: new Date().getTime() + i,
-          ...props.defaultParamItem,
+          ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
           key: key.trim(),
           value: value?.trim(),
         };

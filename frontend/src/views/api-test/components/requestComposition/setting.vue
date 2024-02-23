@@ -42,19 +42,19 @@
         />
       </a-form-item> -->
       <a-form-item :label="t('apiTestDebug.redirect')">
-        <a-radio
+        <a-checkbox
           v-model:model-value="settingForm.followRedirects"
           @change="(val) => handleFollowRedirectsChange(val as boolean)"
         >
           {{ t('apiTestDebug.follow') }}
-        </a-radio>
-        <a-radio
+        </a-checkbox>
+        <a-checkbox
           v-model:model-value="settingForm.autoRedirects"
           class="ml-[24px]"
           @change="val => handleAutoRedirectsChange(val as boolean)"
         >
           {{ t('apiTestDebug.auto') }}
-        </a-radio>
+        </a-checkbox>
       </a-form-item>
     </a-form>
   </div>

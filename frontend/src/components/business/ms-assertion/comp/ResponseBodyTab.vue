@@ -17,7 +17,7 @@
         @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
-        <template #expression="{ record }">
+        <template #expression="{ record, rowIndex }">
           <a-popover
             position="tl"
             :disabled="!record.expression || record.expression.trim() === ''"
@@ -35,8 +35,8 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
-              @input="handleExpressionChange"
-              @change="handleExpressionChange"
+              @input="() => handleExpressionChange(rowIndex)"
+              @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
                 <a-tooltip :disabled="!disabledExpressionSuffix">
@@ -102,7 +102,7 @@
         @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
-        <template #expression="{ record }">
+        <template #expression="{ record, rowIndex }">
           <a-popover
             position="tl"
             :disabled="!record.expression || record.expression.trim() === ''"
@@ -120,8 +120,8 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
-              @input="handleExpressionChange"
-              @change="handleExpressionChange"
+              @input="() => handleExpressionChange(rowIndex)"
+              @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
                 <a-tooltip :disabled="!disabledExpressionSuffix">
@@ -209,7 +209,7 @@
         @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
-        <template #expression="{ record }">
+        <template #expression="{ record, rowIndex }">
           <a-popover
             position="tl"
             :disabled="!record.expression || record.expression.trim() === ''"
@@ -227,8 +227,8 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
-              @input="handleExpressionChange"
-              @change="handleExpressionChange"
+              @input="() => handleExpressionChange(rowIndex)"
+              @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
                 <a-tooltip :disabled="!disabledExpressionSuffix">
@@ -434,8 +434,8 @@
   const handleChange = () => {
     emit('change');
   };
-  function handleExpressionChange(val: string) {
-    extractParamsTableRef.value?.addTableLine(val, 'expression');
+  function handleExpressionChange(rowIndex: number) {
+    extractParamsTableRef.value?.addTableLine(rowIndex);
   }
 
   const xPathColumns: ParamTableColumn[] = [

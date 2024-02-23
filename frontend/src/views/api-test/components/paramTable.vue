@@ -48,7 +48,7 @@
       </div>
     </template>
     <!-- 表格列 slot -->
-    <template #key="{ record, columnConfig }">
+    <template #key="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
         :disabled="!record[columnConfig.dataIndex as string] || record[columnConfig.dataIndex as string].trim() === ''"
@@ -67,11 +67,11 @@
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           :max-length="255"
-          @input="(val) => addTableLine(val, 'key')"
+          @input="() => addTableLine(rowIndex)"
         />
       </a-popover>
     </template>
-    <template #paramType="{ record, columnConfig }">
+    <template #paramType="{ record, columnConfig, rowIndex }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
@@ -82,7 +82,7 @@
             record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
             '!mr-[4px] !p-[4px]',
           ]"
-          @click="toggleRequired(record)"
+          @click="toggleRequired(record, rowIndex)"
         >
           <div>*</div>
         </MsButton>
@@ -91,37 +91,37 @@
         v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-full"
-        @change="(val) => handleTypeChange(val, record)"
+        @change="(val) => handleTypeChange(val, record, rowIndex)"
       />
     </template>
-    <template #expressionType="{ record, columnConfig }">
+    <template #expressionType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.expressionType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[110px]"
-        @change="(val) => handleExpressionTypeChange(val)"
+        @change="() => addTableLine(rowIndex)"
       />
     </template>
-    <template #variableType="{ record, columnConfig }">
+    <template #variableType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.variableType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[110px]"
-        @change="(val) => handleVariableTypeChange(val)"
+        @change="() => addTableLine(rowIndex)"
       />
     </template>
-    <template #extractScope="{ record, columnConfig }">
+    <template #extractScope="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractScope"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[180px]"
-        @change="(val) => handleRangeChange(val)"
+        @change="() => addTableLine(rowIndex)"
       />
     </template>
     <template #expression="{ record, rowIndex, columnConfig }">
       <slot name="expression" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
     </template>
-    <template #value="{ record, columnConfig }">
+    <template #value="{ record, columnConfig, rowIndex }">
       <a-popover
         v-if="columnConfig.isNormal"
         position="tl"
@@ -141,7 +141,7 @@
           class="param-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
-          @input="(val) => addTableLine(val, 'value')"
+          @input="() => addTableLine(rowIndex)"
         />
       </a-popover>
       <MsAddAttachment
@@ -156,24 +156,24 @@
         input-class="param-input h-[24px]"
         input-size="small"
         tag-size="small"
-        @change="(files) => handleFileChange(files, record)"
+        @change="(files) => handleFileChange(files, record, rowIndex)"
       />
       <MsParamsInput
         v-else
         v-model:value="record.value"
-        @change="(val) => addTableLine(val, 'value')"
+        @change="() => addTableLine(rowIndex)"
         @dblclick="quickInputParams(record)"
-        @apply="handleParamSettingApply"
+        @apply="() => addTableLine(rowIndex)"
       />
     </template>
-    <template #lengthRange="{ record }">
+    <template #lengthRange="{ record, rowIndex }">
       <div class="flex items-center justify-between">
         <a-input-number
           v-model:model-value="record.minLength"
           :placeholder="t('apiTestDebug.paramMin')"
           :min="0"
           class="param-input param-input-number"
-          @change="(val) => addTableLine(val, 'minLength')"
+          @change="() => addTableLine(rowIndex)"
         />
         <div class="mx-[4px]">{{ t('common.to') }}</div>
         <a-input-number
@@ -181,11 +181,11 @@
           :placeholder="t('apiTestDebug.paramMax')"
           :min="0"
           class="param-input"
-          @change="(val) => addTableLine(val, 'maxLength')"
+          @change="() => addTableLine(rowIndex)"
         />
       </div>
     </template>
-    <template #tag="{ record, columnConfig }">
+    <template #tag="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
         :disabled="record[columnConfig.dataIndex as string].length === 0"
@@ -203,29 +203,32 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :max-tag-count="1"
           input-class="param-input"
-          @change="(val) => addTableLine(val, 'tag')"
+          @change="() => addTableLine(rowIndex)"
         />
       </a-popover>
     </template>
-    <template #description="{ record, columnConfig }">
+    <template #description="{ record, columnConfig, rowIndex }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
-        @input="(val) => addTableLine(val, 'description')"
+        @input="() => addTableLine(rowIndex)"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
       />
     </template>
-    <template #encode="{ record }">
+    <template #encode="{ record, rowIndex }">
       <a-switch
         v-model:model-value="record.encode"
         size="small"
         class="param-input-switch"
         type="line"
-        @change="(val) => addTableLine(val.toString(), 'encode')"
+        @change="() => addTableLine(rowIndex)"
       />
     </template>
-    <template #mustContain="{ record, columnConfig }">
-      <a-checkbox v-model:model-value="record[columnConfig.dataIndex as string]" @change="(val) => addTableLine(val)" />
+    <template #mustContain="{ record, columnConfig, rowIndex }">
+      <a-checkbox
+        v-model:model-value="record[columnConfig.dataIndex as string]"
+        @change="() => addTableLine(rowIndex)"
+      />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <a-switch
@@ -234,7 +237,7 @@
         size="small"
         type="line"
         class="mr-[8px]"
-        @change="(val) => addTableLine(val, 'disable')"
+        @change="() => addTableLine(rowIndex)"
       />
       <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
       <MsTableMoreAction
@@ -251,7 +254,7 @@
               v-model:model-value="record.contentType"
               :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
               allow-create
-              @change="(val) => addTableLine(val as string, 'contentType')"
+              @change="() => addTableLine(rowIndex)"
             />
           </div>
         </template>
@@ -265,24 +268,24 @@
         />
       </div>
     </template>
-    <template #responseHeader="{ record, columnConfig }">
-      <a-select v-model="record.responseHeader" class="param-input" @change="(val) => addTableLine(val as string)">
+    <template #responseHeader="{ record, columnConfig, rowIndex }">
+      <a-select v-model="record.responseHeader" class="param-input" @change="() => addTableLine(rowIndex)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
-    <template #matchCondition="{ record, columnConfig }">
-      <a-select v-model="record.condition" class="param-input" @change="(val) => addTableLine(val as string)">
+    <template #matchCondition="{ record, columnConfig, rowIndex }">
+      <a-select v-model="record.condition" class="param-input" @change="() => addTableLine(rowIndex)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
-    <template #matchValue="{ record }">
-      <a-input v-model="record.matchValue" class="param-input" @change="(val) => addTableLine(val)" />
+    <template #matchValue="{ record, rowIndex }">
+      <a-input v-model="record.matchValue" class="param-input" @change="() => addTableLine(rowIndex)" />
     </template>
-    <template #project="{ record, columnConfig }">
+    <template #project="{ record, columnConfig, rowIndex }">
       <a-select
         v-model="record.projectId"
         class="param-input"
-        @change="(val) => handelProjectChange(val as string, record.projectId)"
+        @change="(val) => handelProjectChange(val as string, record.projectId, rowIndex)"
       >
         <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
       </a-select>
@@ -343,7 +346,7 @@
 </template>
 
 <script async setup lang="ts">
-  import { isEqual } from 'lodash-es';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -359,6 +362,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
+  import useAppStore from '@/store/modules/app';
 
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -426,6 +430,7 @@
     (e: 'projectChange', projectId: string): void;
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const tableStore = useTableStore();
@@ -497,24 +502,13 @@
    * @param key 当前列的 key
    * @param isForce 是否强制添加
    */
-  function addTableLine(
-    val?: string | number | boolean | (string | number | boolean)[],
-    key?: string,
-    isForce?: boolean
-  ) {
-    const lastData = { ...propsRes.value.data[propsRes.value.data.length - 1] };
-    delete lastData.id; // 删除 id 属性，避免影响判断是否有变化
-    lastData.enable = props.defaultParamItem.enable; // enable 是用于判断表格行是否勾选的属性，不参与判断是否有变化
-    // 当不传入输入值或对应列的 key 时，遍历整个数据对象判断是否有变化；当传入输入值或对应列的 key 时，判断对应列的值是否有变化
-    const isNotChange =
-      val === undefined || key === undefined
-        ? isEqual(lastData, props.defaultParamItem)
-        : isEqual(lastData[key], props.defaultParamItem[key]);
-    if (isForce || (val !== '' && !isNotChange)) {
+  function addTableLine(rowIndex: number) {
+    if (rowIndex === propsRes.value.data.length - 1) {
+      // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
       propsRes.value.data.push({
         id,
-        ...props.defaultParamItem,
+        ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
       } as any);
       emit('change', propsRes.value.data);
@@ -525,14 +519,7 @@
     () => props.params,
     (val) => {
       if (val.length > 0) {
-        const lastData = { ...val[val.length - 1] };
-        delete lastData.id; // 删除 id 属性，避免影响判断是否有变化
-        delete lastData.enable; // 删除 enable 属性，避免影响判断是否有变化
-        const isNotChange = isEqual(lastData, props.defaultParamItem);
         propsRes.value.data = val;
-        if (!isNotChange) {
-          addTableLine();
-        }
       } else {
         const id = new Date().getTime().toString();
         propsRes.value.data = [
@@ -550,16 +537,18 @@
     }
   );
 
-  function toggleRequired(record: Record<string, any>) {
+  function toggleRequired(record: Record<string, any>, rowIndex: number) {
     record.required = !record.required;
+    addTableLine(rowIndex);
     emit('change', propsRes.value.data);
   }
 
-  async function handleFileChange(files: MsFileItem[], record: Record<string, any>) {
+  async function handleFileChange(files: MsFileItem[], record: Record<string, any>, rowIndex: number) {
     try {
       if (props.uploadTempFileApi && files.length === 1) {
         // 本地上传单次只能选一个文件
         const fileItem = files[0];
+        appStore.showLoading();
         const res = await props.uploadTempFileApi(fileItem.file);
         record.files = [
           {
@@ -576,10 +565,13 @@
           fileName: e.name || e.fileName || '',
         }));
       }
+      addTableLine(rowIndex);
       emit('change', propsRes.value.data);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      appStore.hideLoading();
     }
   }
 
@@ -601,12 +593,9 @@
   function applyQuickInputParam() {
     activeQuickInputRecord.value.value = quickInputParamValue.value;
     showQuickInputParam.value = false;
+    addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputParam();
     emit('change', propsRes.value.data);
-  }
-
-  function handleParamSettingApply(val: string | number) {
-    addTableLine(val, 'value');
   }
 
   const showQuickInputDesc = ref(false);
@@ -626,6 +615,7 @@
   function applyQuickInputDesc() {
     activeQuickInputRecord.value.description = quickInputDescValue.value;
     showQuickInputDesc.value = false;
+    addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputDesc();
     emit('change', propsRes.value.data);
   }
@@ -636,9 +626,10 @@
 
   function handleTypeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: Record<string, any>
+    record: Record<string, any>,
+    rowIndex: number
   ) {
-    addTableLine(val as string, 'paramType');
+    addTableLine(rowIndex);
     // 根据参数类型自动推断 Content-Type 类型
     if (record.contentType) {
       if (val === 'file') {
@@ -649,24 +640,6 @@
         record.contentType = RequestContentTypeEnum.TEXT;
       }
     }
-  }
-
-  function handleExpressionTypeChange(
-    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) {
-    addTableLine(val as string, 'expressionType');
-  }
-
-  function handleVariableTypeChange(
-    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) {
-    addTableLine(val as string, 'variableType');
-  }
-
-  function handleRangeChange(
-    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) {
-    addTableLine(val as string, 'extractScope');
   }
 
   /**
@@ -689,9 +662,9 @@
     emit('moreActionSelect', event, record);
   }
 
-  function handelProjectChange(val: string, projectId: string) {
+  function handelProjectChange(val: string, projectId: string, rowIndex: number) {
     emit('projectChange', projectId);
-    addTableLine(val as string, 'projectId');
+    addTableLine(rowIndex);
   }
 
   /** 断言-文档-Begin */

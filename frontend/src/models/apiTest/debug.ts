@@ -157,7 +157,13 @@ export interface ScriptCommonConfig {
   scriptId: string; // 脚本id
   scriptName: string; // 脚本名称
   scriptLanguage: Language; // 脚本语言
-  params: KeyValueParam[]; // 公共脚本参数
+  commonScriptInfo: {
+    id: string; // 公共脚本id
+    name: string; // 公共脚本名称
+    script: string; // 公共脚本内容
+    params: KeyValueParam[]; // 公共脚本参数
+    scriptLanguage: Language; // 脚本语言
+  }; // 公共脚本信息
 }
 // 断言-响应体断言
 export interface ResponseBodyAssertion {
