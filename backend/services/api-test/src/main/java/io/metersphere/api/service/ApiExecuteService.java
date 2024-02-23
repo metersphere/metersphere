@@ -37,6 +37,7 @@ import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.util.JMeterUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -396,7 +397,12 @@ public class ApiExecuteService {
         ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
         // 没有配置接口默认资源池
         if (resourcePoolConfig == null || StringUtils.isBlank(resourcePoolConfig.getTypeValue())) {
-            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+            Map<String, Object> configMap = new HashMap<>();
+            projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+            if (MapUtils.isEmpty(configMap)) {
+                throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+            }
+            return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
         }
         return StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
     }
