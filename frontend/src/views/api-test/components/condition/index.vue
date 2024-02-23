@@ -111,7 +111,13 @@
           script: '',
           scriptId: '',
           scriptLanguage: LanguageEnum.BEANSHELL,
-          params: [],
+          commonScriptInfo: {
+            id: '',
+            name: '',
+            script: '',
+            params: [],
+            scriptLanguage: LanguageEnum.BEANSHELL,
+          },
         });
         break;
       // case RequestConditionProcessor.SQL:

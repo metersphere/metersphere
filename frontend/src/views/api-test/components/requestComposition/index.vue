@@ -676,7 +676,7 @@
         headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
         method: requestVModel.value.method,
         otherConfig: requestVModel.value.otherConfig,
-        path: requestVModel.value.url,
+        path: requestVModel.value.url || requestVModel.value.path,
         query: requestVModel.value.query.filter((e, i) => i !== requestVModel.value.query.length - 1), // 去掉最后一行空行
         rest: requestVModel.value.rest.filter((e, i) => i !== requestVModel.value.rest.length - 1), // 去掉最后一行空行
         url: requestVModel.value.url,
@@ -762,6 +762,7 @@
         ...makeRequestParams(),
         protocol: requestVModel.value.protocol,
         method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
+        path: isHttpProtocol.value ? requestVModel.value.url || requestVModel.value.path : undefined,
       });
       Message.success(t('common.updateSuccess'));
       requestVModel.value.unSaved = false;

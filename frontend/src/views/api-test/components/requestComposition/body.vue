@@ -252,7 +252,7 @@
   watch(
     () => props.layout,
     (val) => {
-      heightUsed.value = val === 'horizontal' ? 428 : 428 + props.secondBoxHeight;
+      heightUsed.value = val === 'horizontal' ? 428 : 430 + props.secondBoxHeight;
     },
     {
       immediate: true,
@@ -263,7 +263,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = 428 + val;
+        heightUsed.value = 430 + val;
       }
     },
     {
@@ -327,10 +327,15 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
+    const files = currentTableParams.value.filter((item) => item.paramType === RequestParamsType.FILE);
     if (resultArr.length < currentTableParams.value.length) {
-      currentTableParams.value.splice(0, currentTableParams.value.length - 1, ...resultArr);
+      currentTableParams.value.splice(0, currentTableParams.value.length - 1, ...files, ...resultArr);
     } else {
-      currentTableParams.value = [...resultArr, currentTableParams.value[currentTableParams.value.length - 1]];
+      currentTableParams.value = [
+        ...files,
+        ...resultArr,
+        currentTableParams.value[currentTableParams.value.length - 1],
+      ];
     }
     emit('change');
   }

@@ -23,10 +23,10 @@
         </div>
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <a-tooltip :content="condition.scriptName">
+            <a-tooltip :content="condition.commonScriptInfo?.name">
               <div class="script-name-container">
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
-                  {{ condition.scriptName }}
+                  {{ condition.commonScriptInfo?.name }}
                 </div>
                 <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
               </div>
@@ -127,9 +127,11 @@
         </MsBaseTable>
         <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
           <MsCodeEditor
-            v-model:model-value="condition.script"
+            v-if="condition.commonScriptInfo"
+            v-model:model-value="condition.commonScriptInfo.script"
             theme="vs"
             height="100%"
+            :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL"
             :show-full-screen="false"
             :show-theme-change="false"
             read-only
@@ -240,7 +242,7 @@
         @change="handleExtractParamTableChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
-        <template #expression="{ record }">
+        <template #expression="{ record, rowIndex }">
           <a-popover
             position="tl"
             :disabled="!record.expression || record.expression.trim() === ''"
@@ -258,8 +260,8 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
-              @input="handleExpressionChange"
-              @change="handleExpressionChange"
+              @input="() => handleExpressionChange(rowIndex)"
+              @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
                 <a-tooltip :disabled="!disabledExpressionSuffix">
@@ -451,24 +453,28 @@ if (!result){
   });
 
   watch(
-    () => condition.value.params,
-    (arr) => {
-      propsRes.value.data = arr as any[]; // 查看详情的时候需要赋值一下
+    () => condition.value.commonScriptInfo,
+    (info) => {
+      propsRes.value.data = info?.params as any[]; // 查看详情的时候需要赋值一下
     }
   );
 
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {
-    condition.value.script = item.script;
-    condition.value.scriptId = item.id;
-    condition.value.scriptName = item.name; // TODO:详情接口未返回该字段
-    condition.value.params = (JSON.parse(item.params) || []).map((e: any) => {
-      return {
-        key: e.name,
-        ...e,
-      };
-    });
-    propsRes.value.data = condition.value.params as any[];
+    // TODO:any
+    condition.value.commonScriptInfo = {
+      id: item.id,
+      script: item.script,
+      name: item.name,
+      scriptLanguage: item.type,
+      params: (JSON.parse(item.params) || []).map((e: any) => {
+        return {
+          key: e.name,
+          ...e,
+        };
+      }),
+    };
+    propsRes.value.data = (condition.value.commonScriptInfo?.params as any[]) || [];
     showQuoteDrawer.value = false;
   }
 
@@ -645,8 +651,8 @@ if (!result){
     fastExtractionVisible.value = true;
   }
 
-  function handleExpressionChange(val: string) {
-    extractParamsTableRef.value?.addTableLine(val, 'expression');
+  function handleExpressionChange(rowIndex: number) {
+    extractParamsTableRef.value?.addTableLine(rowIndex);
   }
 
   /**
@@ -693,7 +699,9 @@ if (!result){
     });
     fastExtractionVisible.value = false;
     nextTick(() => {
-      extractParamsTableRef.value?.addTableLine();
+      extractParamsTableRef.value?.addTableLine(
+        condition.value.extractParams?.findIndex((e) => e.id === activeRecord.value.id) || 0
+      );
     });
     emit('change');
   }

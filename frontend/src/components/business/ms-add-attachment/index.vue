@@ -152,7 +152,7 @@
       inputSize?: 'small' | 'medium' | 'large' | 'mini';
       tagSize?: Size;
       fields?: {
-        id: string;
+        id: string; // 自定义文件的 id 字段名，用于详情展示，接口返回的字段名
         name: string;
       };
     }>(),
@@ -193,11 +193,11 @@
         inputFiles.value = defaultFiles.map((item) => ({
           ...item,
           // 这里取自定义的字段名，因为存在查看的场景时不会与刚选择的文件信息一样
-          value: item?.[props.fields.id] || '',
-          label: item?.[props.fields.name] || '',
+          value: item?.[props.fields.id] || item.uid || '', // 取uid是因为有可能是本地上传然后组件卸载然后重新挂载，这时候取自定义 id 会是空的
+          label: item?.[props.fields.name] || item?.name || '',
         }));
       } else {
-        inputFileName.value = defaultFiles[0]?.[props.fields.name] || '';
+        inputFileName.value = defaultFiles[0]?.[props.fields.name] || defaultFiles[0]?.name || '';
       }
       getListFunParams.value.combine.hiddenIds = defaultFiles
         .filter((item) => !item?.local)
@@ -214,6 +214,7 @@
     innerFileList.value = _fileList.map((item) => ({ ...item, local: true }));
     if (props.multiple) {
       inputFiles.value = _fileList.map((item) => ({
+        ...item,
         value: item?.uid || '',
         label: item?.name || '',
       }));
@@ -252,6 +253,7 @@
       innerFileList.value.push(...fileResultList);
       inputFiles.value.push(
         ...fileResultList.map((item) => ({
+          ...item,
           value: item?.uid || '',
           label: item?.name || '',
         }))
@@ -278,8 +280,10 @@
 
   function handleClose(data: TagData) {
     inputFiles.value = inputFiles.value.filter((item) => item.value !== data.value);
-    innerFileList.value = innerFileList.value.filter((item) => item[props.fields.id] !== data.value);
-    if (innerFileList.value.length === 0) {
+    innerFileList.value = innerFileList.value.filter(
+      (item) => (item[props.fields.id] || item.uid) !== (data[props.fields.id] || data.value)
+    );
+    if (inputFiles.value.length === 0) {
       inputFilesPopoverVisible.value = false;
     }
     emit('deleteFile', data.value);
