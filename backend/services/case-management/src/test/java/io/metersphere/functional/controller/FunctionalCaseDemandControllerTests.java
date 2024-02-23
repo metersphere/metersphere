@@ -85,6 +85,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
+        demandDTO.setDemandId("001");
         demandDTO.setDemandName("手动加入1");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
@@ -100,6 +101,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入孩子");
+        demandDTO.setParent("001");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
@@ -358,10 +360,15 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO2.setDemandName("手动加入Tapd1");
         demandDTO2.setDemandUrl("https://www.tapd.cn/55049933/prong/stories/view/1155049933001012783");
         demandList.add(demandDTO2);
+        DemandDTO demandDTO4 = new DemandDTO();
+        demandDTO4.setDemandId("100003");
+        demandDTO4.setParent("100001");
+        demandDTO4.setDemandName("手动加入Tapd2");
+        demandList.add(demandDTO4);
         DemandDTO demandDTO3 = new DemandDTO();
-        demandDTO3.setDemandId("100003");
+        demandDTO3.setDemandId("100004");
         demandDTO3.setParent("100002");
-        demandDTO3.setDemandName("手动加入Tapd2");
+        demandDTO3.setDemandName("手动加入Tapd2-1");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
