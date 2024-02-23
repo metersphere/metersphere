@@ -415,12 +415,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
         copyApiDebugDTO.setMethod(apiDefinition.getMethod());
         copyApiDebugDTO.setPath(apiDefinition.getPath());
-        ApiTestCaseBlob apiDebugBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(apiTestCase.getId()).andUserIdEqualTo("admin");
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         copyApiDebugDTO.setFollow(CollectionUtils.isNotEmpty(followers));
-        copyApiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+        apiCommonService.setLinkFileInfo(apiTestCase.getId(), msTestElement);
+        copyApiDebugDTO.setRequest(msTestElement);
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
         this.requestGetWithOk(GET + anotherApiTestCase.getId())
                 .andReturn();

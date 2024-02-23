@@ -28,10 +28,18 @@ import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.api.processor.ScriptProcessor;
+import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
+import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -93,6 +101,8 @@ public class ApiDebugControllerTests extends BaseTest {
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private CustomFunctionService customFunctionService;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -363,7 +373,7 @@ public class ApiDebugControllerTests extends BaseTest {
         ApiDebugDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiDebugDTO(), apiDebugMapper.selectByPrimaryKey(addApiDebug.getId()));
         ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(addApiDebug.getId());
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
-        apiCommonService.updateLinkFileInfo(addApiDebug.getId(), msTestElement);
+        apiCommonService.setLinkFileInfo(addApiDebug.getId(), msTestElement);
         copyApiDebugDTO.setRequest(msTestElement);
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
 
@@ -477,6 +487,22 @@ public class ApiDebugControllerTests extends BaseTest {
         msAssertionConfig.setAssertions(MsHTTPElementTest.getGeneralXmlAssertions());
         msCommonElement = new MsCommonElement();
         msCommonElement.setAssertionConfig(msAssertionConfig);
+
+        // 测试公共脚本
+        ScriptProcessor scriptProcessor = new ScriptProcessor();
+        scriptProcessor.setEnable(true);
+        scriptProcessor.setName("test");
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.JAVASCRIPT.name());
+        CustomFunction customFunction = addCustomFunction();
+        scriptProcessor.setCommonScriptInfo(new CommonScriptInfo());
+        scriptProcessor.getCommonScriptInfo().setId(customFunction.getId());
+        scriptProcessor.setEnableCommonScript(true);
+        KeyValueParam keyValueParam = new KeyValueParam();
+        keyValueParam.setKey("a");
+        keyValueParam.setValue("bb");
+        scriptProcessor.getCommonScriptInfo().setParams(List.of(keyValueParam));
+        msCommonElement.getPostProcessorConfig().getProcessors().add(scriptProcessor);
+
         linkedList = new LinkedList();
         linkedList.add(msCommonElement);
         msHTTPElement = MsHTTPElementTest.getMsHttpElement();
@@ -484,7 +510,6 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement.setEnable(true);
         request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
-
 
         // 测试请求体
         MockMultipartFile file = getMockMultipartFile();
@@ -511,6 +536,19 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
+    }
+
+    private CustomFunction addCustomFunction() {
+        CustomFunctionRequest request = new CustomFunctionRequest();
+        request.setScript("aaa");
+        KeyValueEnableParam keyValueEnableParam = new KeyValueEnableParam();
+        keyValueEnableParam.setKey("a");
+        keyValueEnableParam.setValue("b");
+        request.setParams(JSON.toJSONString(keyValueEnableParam));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setType(ScriptLanguageType.BEANSHELL.name());
+        request.setName(IDGenerator.nextStr());
+        return customFunctionService.add(request, "admin");
     }
 
     /**

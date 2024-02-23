@@ -7,6 +7,8 @@ import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.Optional;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-12-26  14:49
@@ -17,7 +19,6 @@ public class ScriptPostProcessorConverter extends ScriptProcessorConverter {
         if (!needParse(scriptProcessor, config) || !scriptProcessor.isValid()) {
             return;
         }
-        // todo 处理公共脚本
         TestElement processor;
         if (isJSR233(scriptProcessor)) {
             processor = new JSR223PostProcessor();
@@ -25,6 +26,11 @@ public class ScriptPostProcessorConverter extends ScriptProcessorConverter {
             processor = new BeanShellPostProcessor();
         }
         parse(processor, scriptProcessor);
+
+        // 添加公共脚本的参数
+        Optional.ofNullable(getScriptArguments(scriptProcessor))
+                .ifPresent(hashTree::add);
+
         hashTree.add(processor);
     }
 }

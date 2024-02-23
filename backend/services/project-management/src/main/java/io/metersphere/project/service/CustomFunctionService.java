@@ -2,6 +2,7 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.domain.CustomFunctionBlob;
+import io.metersphere.project.domain.CustomFunctionBlobExample;
 import io.metersphere.project.domain.CustomFunctionExample;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
@@ -162,4 +163,23 @@ public class CustomFunctionService {
         }
     }
 
+    public List<CustomFunctionBlob> getBlobByIds(List<String> commonScriptIds) {
+        if (CollectionUtils.isEmpty(commonScriptIds)) {
+            return List.of();
+        }
+        CustomFunctionBlobExample example = new CustomFunctionBlobExample();
+        example.createCriteria()
+                .andIdIn(commonScriptIds);
+       return customFunctionBlobMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<CustomFunction> getByIds(List<String> commonScriptIds) {
+        if (CollectionUtils.isEmpty(commonScriptIds)) {
+            return List.of();
+        }
+        CustomFunctionExample example = new CustomFunctionExample();
+        example.createCriteria()
+                .andIdIn(commonScriptIds);
+        return customFunctionMapper.selectByExample(example);
+    }
 }

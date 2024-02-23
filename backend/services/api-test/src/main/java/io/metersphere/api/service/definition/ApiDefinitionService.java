@@ -872,13 +872,14 @@ public class ApiDefinitionService {
         Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
         apiDefinitionBlobOptional.ifPresent(blob -> {
             AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
-            apiCommonService.updateLinkFileInfo(id, msTestElement);
+            apiCommonService.setLinkFileInfo(id, msTestElement);
+            apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
             apiDefinitionDTO.setRequest(msTestElement);
             // blob.getResponse() 为 null 时不进行转换
             if (blob.getResponse() != null) {
                 List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class);
                 for (HttpResponse httpResponse : httpResponses) {
-                    apiCommonService.updateLinkFileInfo(id, httpResponse.getBody());
+                    apiCommonService.setLinkFileInfo(id, httpResponse.getBody());
                 }
                 apiDefinitionDTO.setResponse(httpResponses);
             }

@@ -6,6 +6,7 @@ import io.metersphere.project.api.assertion.*;
 import io.metersphere.project.api.assertion.body.*;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.api.processor.ScriptProcessor;
+import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
@@ -409,7 +410,8 @@ public class EnvironmentControllerTests extends BaseTest {
         assertions.add(responseTimeAssertion);
 
         MsScriptAssertion scriptAssertion = new MsScriptAssertion();
-        scriptAssertion.setScriptId("1111");
+        scriptAssertion.setCommonScriptInfo(new CommonScriptInfo());
+        scriptAssertion.getCommonScriptInfo().setId("1111");
         scriptAssertion.setScript("1111");
         scriptAssertion.setName("1111");
         assertions.add(scriptAssertion);
@@ -671,7 +673,7 @@ public class EnvironmentControllerTests extends BaseTest {
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
 
-        //后置脚本 todo
+        //后置脚本
         envConfig.setPostProcessorConfig(createEnvironmentProcessorConfig());
         request.setName("postScript");
         request.setConfig(envConfig);

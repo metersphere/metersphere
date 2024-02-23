@@ -78,7 +78,8 @@ public class ApiDebugService {
         ApiDebugDTO apiDebugDTO = new ApiDebugDTO();
         BeanUtils.copyBean(apiDebugDTO, apiDebug);
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
-        apiCommonService.updateLinkFileInfo(id, msTestElement);
+        apiCommonService.setLinkFileInfo(id, msTestElement);
+        apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         apiDebugDTO.setRequest(msTestElement);
         apiDebugDTO.setResponse(apiDebugDTO.getResponse());
         return apiDebugDTO;
@@ -218,6 +219,10 @@ public class ApiDebugService {
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
         paramConfig.setReportId(reportId);
+
+        // 设置使用脚本前后置的公共脚本信息
+        apiCommonService.setEnableCommonScriptProcessorInfo(runRequest.getTestElement());
+
         apiExecuteService.debug(runRequest, paramConfig);
         return runRequest.getReportId();
     }

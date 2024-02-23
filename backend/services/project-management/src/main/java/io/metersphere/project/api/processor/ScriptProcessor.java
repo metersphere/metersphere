@@ -2,15 +2,14 @@ package io.metersphere.project.api.processor;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.constants.ScriptLanguageType;
-import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 
 /**
@@ -29,6 +28,7 @@ public class ScriptProcessor extends MsProcessor {
      * {@link ScriptLanguageType}
      */
     @Size(max = 20)
+    @NotBlank
     @EnumValue(enumClass = ScriptLanguageType.class)
     private String scriptLanguage;
     /**
@@ -38,20 +38,22 @@ public class ScriptProcessor extends MsProcessor {
      */
     private Boolean enableCommonScript = false;
     /**
-     * 公共脚本ID
-     */
-    @Size(max = 50)
-    private String scriptId;
-    /**
-     * 公共脚本入参
+     * 公共脚本信息
+     * {@link CommonScriptInfo}
      */
     @Valid
-    private List<KeyValueParam> params;
+    private CommonScriptInfo commonScriptInfo;
+
 
     public boolean isValid() {
-        if (BooleanUtils.isTrue(enableCommonScript) && StringUtils.isBlank(scriptId)) {
-            return false;
+        if (isEnableCommonScript()) {
+            return commonScriptInfo != null && StringUtils.isNotBlank(commonScriptInfo.getId());
+        } else {
+            return StringUtils.isNotBlank(script);
         }
-        return StringUtils.isNotBlank(script);
+    }
+
+    public boolean isEnableCommonScript() {
+        return BooleanUtils.isTrue(enableCommonScript);
     }
 }

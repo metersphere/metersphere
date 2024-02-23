@@ -132,9 +132,6 @@ public class ApiExecuteService {
 
         parameterConfig.setGlobalParams(getGlobalParam(request));
 
-        // todo 获取接口插件和jar包
-        // todo 处理公共脚本
-        // todo 接口用例 method 获取定义中的数据库字段
         String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
         doDebug(reportId, testId, taskRequest, executeScript, request.getProjectId());
@@ -318,7 +315,7 @@ public class ApiExecuteService {
         List<FileMetadata> fileMetadataList = fileManagementService.findJarByProjectId(List.of(taskRequest.getProjectId()));
         taskRequest.setFuncJars(fileMetadataList.stream()
                 .map(file -> {
-                    String fileName = file.getName() + "." + file.getType();
+                    String fileName = file.getOriginalName();
                     ApiExecuteFileInfo tempFileInfo = getApiExecuteFileInfo(file.getId(), fileName, file.getProjectId(), file.getStorage());
                     if (StorageType.isGit(file.getStorage())) {
                         // 设置Git信息

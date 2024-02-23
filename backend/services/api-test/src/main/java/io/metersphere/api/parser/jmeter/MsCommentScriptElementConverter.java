@@ -16,6 +16,7 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.USER_PARAMETERS_GUI;
@@ -53,6 +54,9 @@ public class MsCommentScriptElementConverter extends AbstractJmeterElementConver
             scriptElement = new BeanShellSampler();
         }
         ScriptProcessorConverter.parse(scriptElement, scriptProcessor);
+        // 添加公共脚本的参数
+        Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))
+                .ifPresent(hashTree::add);
         hashTree.add(scriptElement);
     }
 

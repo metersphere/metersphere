@@ -1054,11 +1054,11 @@ public class ApiScenarioService {
         Map<String, List<String>> refResourceMap = new HashMap<>();
         buildRefResourceIdMap(steps, refResourceMap);
 
+        ApiScenarioParseParam parseParam = new ApiScenarioParseParam();
         // 查询引用的资源详情
-        Map<String, String> resourceBlobMap = getResourceBlobMap(refResourceMap);
-
+        parseParam.setResourceDetailMap(getResourceDetailMap(refResourceMap));
         // 查询复制的步骤详情
-        Map<String, String> detailMap = getStepDetailMap(steps, request.getStepDetails());
+        parseParam.setStepDetailMap(getStepDetailMap(steps, request.getStepDetails()));
 
         // 解析生成待执行的场景树
         MsScenario msScenario = new MsScenario();
@@ -1068,10 +1068,11 @@ public class ApiScenarioService {
 
         // 获取场景环境相关配置
         ApiScenarioParseEnvInfo scenarioParseEnvInfo = getScenarioParseEnvInfo(refResourceMap, request.getEnvironmentId(), request.getGrouped());
-        Map<String, List<MsHTTPElement>> stepTypeHttpElementMap = new HashMap<>();
-        parseStep2MsElement(msScenario, steps, resourceBlobMap, detailMap, stepTypeHttpElementMap, scenarioParseEnvInfo);
+        parseStep2MsElement(msScenario, steps, parseParam, scenarioParseEnvInfo);
         // 设置 HttpElement 的模块信息
-        setHttpElementModuleId(stepTypeHttpElementMap);
+        setHttpElementModuleId(parseParam.getStepTypeHttpElementMap());
+        // 设置使用脚本前后置的公共脚本信息
+        apiCommonService.setEnableCommonScriptProcessorInfo(parseParam.getCommonElements());
 
         ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
         runRequest.setProjectId(request.getProjectId());
@@ -1230,13 +1231,15 @@ public class ApiScenarioService {
      */
     private void parseStep2MsElement(AbstractMsTestElement parentElement,
                                      List<? extends ApiScenarioStepCommonDTO> steps,
-                                     Map<String, String> resourceBlobMap,
-                                     Map<String, String> stepDetailMap,
-                                     Map<String, List<MsHTTPElement>> stepTypeHttpElementMap,
+                                     ApiScenarioParseParam parseParam,
                                      ApiScenarioParseEnvInfo scenarioParseEnvInfo) {
         if (CollectionUtils.isNotEmpty(steps)) {
             parentElement.setChildren(new LinkedList<>());
         }
+
+        Map<String, String> stepDetailMap = parseParam.getStepDetailMap();
+        Map<String, String> resourceDetailMap = parseParam.getResourceDetailMap();
+        Map<String, List<MsHTTPElement>> stepTypeHttpElementMap = parseParam.getStepTypeHttpElementMap();
         for (ApiScenarioStepCommonDTO step : steps) {
             StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
             if (BooleanUtils.isFalse(step.getEnable())) {
@@ -1245,7 +1248,7 @@ public class ApiScenarioService {
             setPartialRefStepEnable(step, stepDetailMap);
 
             // 将步骤详情解析生成对应的MsTestElement
-            AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
+            AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceDetailMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
                 if (msTestElement instanceof MsHTTPElement msHTTPElement) {
                     // 暂存http类型的步骤
@@ -1255,11 +1258,13 @@ public class ApiScenarioService {
                 msTestElement.setProjectId(step.getProjectId());
                 msTestElement.setResourceId(step.getResourceId());
                 setMsScenarioParam(scenarioParseEnvInfo, step, msTestElement);
+                // 记录 msCommonElement
+                Optional.ofNullable(apiCommonService.getMsCommonElement(msTestElement))
+                        .ifPresent(msCommonElement -> parseParam.getCommonElements().add(msCommonElement));
                 parentElement.getChildren().add(msTestElement);
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                parseStep2MsElement(msTestElement, step.getChildren(), resourceBlobMap,
-                        stepDetailMap, stepTypeHttpElementMap, scenarioParseEnvInfo);
+                parseStep2MsElement(msTestElement, step.getChildren(), parseParam, scenarioParseEnvInfo);
             }
         }
     }
@@ -1383,7 +1388,7 @@ public class ApiScenarioService {
         return stepDetails;
     }
 
-    private Map<String, String> getResourceBlobMap(Map<String, List<String>> refResourceMap) {
+    private Map<String, String> getResourceDetailMap(Map<String, List<String>> refResourceMap) {
         Map<String, String> resourceBlobMap = new HashMap<>();
         List<String> apiIds = refResourceMap.get(ApiScenarioStepType.API.name());
         List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionService.getBlobByIds(apiIds);
@@ -1645,13 +1650,14 @@ public class ApiScenarioService {
         }
         StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
         Object stepDetail = stepParser.parseDetail(step);
-        if (stepDetail instanceof MsHTTPElement msHTTPElement) {
+        if (stepDetail instanceof AbstractMsTestElement msTestElement) {
             // 设置关联的文件的最新信息
             if (isRef(step.getRefType())) {
-                apiCommonService.updateLinkFileInfo(step.getResourceId(), msHTTPElement);
+                apiCommonService.setLinkFileInfo(step.getResourceId(), msTestElement);
             } else {
-                apiCommonService.updateLinkFileInfo(step.getScenarioId(), msHTTPElement);
+                apiCommonService.setLinkFileInfo(step.getScenarioId(), msTestElement);
             }
+            apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         }
         return stepDetail;
     }
