@@ -83,7 +83,7 @@ public class FunctionalCaseRelationshipController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-取消关联")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
-    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public void delete(@PathVariable("id") String id) {
         functionalCaseRelationshipEdgeService.delete(id);
     }
