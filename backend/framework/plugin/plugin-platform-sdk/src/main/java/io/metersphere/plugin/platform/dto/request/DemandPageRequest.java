@@ -32,4 +32,14 @@ public class DemandPageRequest {
      * 每页条数
      */
     private int pageSize;
+
+    /**
+     * 是否查询所有(关联全选需求时传参)
+     */
+    private boolean selectAll;
+
+    /**
+     * 取消勾选的需求ID(关联全选需求时传参)
+     */
+    private List<String> excludeIds;
 }
