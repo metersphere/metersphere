@@ -196,33 +196,51 @@
             <foreach collection="${filter}.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
-                        <when test="key=='review_status'">
+                        <!-- 评审状态 -->
+                        <when test="key=='reviewStatus'">
                             and functional_case.review_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='last_execute_result'">
+                        <!-- 执行结果 -->
+                        <when test="key=='lastExecuteResult'">
                             and functional_case.last_execute_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 版本 -->
                         <when test="key=='version_id'">
                             and functional_case.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 自定义单选 -->
                         <when test="key.startsWith('custom_single')">
                             and functional_case.id in (
-                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) =
+                            select field_id from functional_case_custom_field where concat('custom_single-',field_id) =
                             #{key}
                             and trim(both '"' from `value`) in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             )
                         </when>
+                        <!-- 自定义多选 -->
                         <when test="key.startsWith('custom_multiple')">
                             and functional_case.id in (
-                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) =
+                            select field_id from functional_case_custom_field where concat('custom_multiple-',field_id) =
                             #{key}
                             and JSON_CONTAINS(`value`, json_array(#{value}))
                         </when>
-                        <when test="key=='create_user'">
+                        <!-- 用例等级 -->
+                        <when test="key=='caseLevel'">
+                            and functional_case.id in (
+                            select case_id from functional_case_custom_field where `value` in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <!-- 创建人 -->
+                        <when test="key=='updateUserName'">
+                            and functional_case.update_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 创建人 -->
+                        <when test="key=='createUserName'">
                             and functional_case.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
