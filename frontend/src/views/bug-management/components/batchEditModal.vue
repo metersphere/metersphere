@@ -22,7 +22,7 @@
           :label="t('bugManagement.batchUpdate.attribute')"
           :rules="[{ required: true }]"
         >
-          <a-select v-model:model-value="form.attribute" @change="handleArrtibuteChange">
+          <a-select v-model:model-value="form.attribute" @change="handleAttributeChange">
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
               <a-option v-for="item in systemOptionList" :key="item.value" :value="item.value">{{
                 item.label
@@ -117,24 +117,24 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, reactive, ref } from 'vue';
-  import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
+import {computed, reactive, ref} from 'vue';
+import {type FormInstance, Message, type ValidatedError} from '@arco-design/web-vue';
 
-  import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
-  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import { MsUserSelector } from '@/components/business/ms-user-selector';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+import {BatchActionQueryParams} from '@/components/pure/ms-table/type';
+import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+import {MsUserSelector} from '@/components/business/ms-user-selector';
+import {UserRequestTypeEnum} from '@/components/business/ms-user-selector/utils';
 
-  import { updateBatchBug } from '@/api/modules/bug-management';
-  import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
-  import { tableParamsToRequestParams } from '@/utils';
+import {updateBatchBug} from '@/api/modules/bug-management';
+import {useI18n} from '@/hooks/useI18n';
+import {useAppStore} from '@/store';
+import {tableParamsToRequestParams} from '@/utils';
 
-  import type { BugBatchUpdateFiledType } from '@/models/bug-management';
-  import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
-  import { SelectValue } from '@/models/projectManagement/menuManagement';
+import type {BugBatchUpdateFiledType} from '@/models/bug-management';
+import {BugBatchUpdateFiledForm, BugEditCustomField} from '@/models/bug-management';
+import {SelectValue} from '@/models/projectManagement/menuManagement';
 
-  const { t } = useI18n();
+const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     selectParam: BatchActionQueryParams;
@@ -191,7 +191,7 @@
   };
   const customFiledOption = ref<{ text: string; value: string }[]>([]);
 
-  const handleArrtibuteChange = (value: SelectValue) => {
+  const handleAttributeChange = (value: SelectValue) => {
     form.value = [];
     form.inputValue = '';
     if (value === 'tags') {

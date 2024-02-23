@@ -73,7 +73,7 @@
             </div>
           </a-form-item>
           <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
-          <FileList mode="static" :file-list="fileList">
+          <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static">
             <template #actions="{ item }">
               <!-- 本地文件 -->
               <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
@@ -145,7 +145,7 @@
                 ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
               </span>
             </template>
-          </FileList>
+          </MsFileList>
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
@@ -197,6 +197,7 @@ import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
 import {FormItem, FormRuleItem} from '@/components/pure/ms-form-create/types';
 import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+import MsFileList from "@/components/pure/ms-upload/fileList.vue";
 import MsUpload from '@/components/pure/ms-upload/index.vue';
 import {MsFileItem} from '@/components/pure/ms-upload/types';
 import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
