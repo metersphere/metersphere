@@ -85,6 +85,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
+        demandDTO.setDemandId("001");
         demandDTO.setDemandName("手动加入1");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
@@ -100,6 +101,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入孩子");
+        demandDTO.setParent("001");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
@@ -151,6 +153,21 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertFalse(functionalCaseDemands.isEmpty());
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
+        DemandDTO demandDTO2 = new DemandDTO();
+        demandDTO2.setDemandId("001");
+        demandDTO2.setDemandName("手动加入1");
+        demandList.add(demandDTO2);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertEquals(3,functionalCaseDemands.size());
     }
 
     @Test
@@ -358,10 +375,15 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO2.setDemandName("手动加入Tapd1");
         demandDTO2.setDemandUrl("https://www.tapd.cn/55049933/prong/stories/view/1155049933001012783");
         demandList.add(demandDTO2);
+        DemandDTO demandDTO4 = new DemandDTO();
+        demandDTO4.setDemandId("100003");
+        demandDTO4.setParent("100001");
+        demandDTO4.setDemandName("手动加入Tapd2");
+        demandList.add(demandDTO4);
         DemandDTO demandDTO3 = new DemandDTO();
-        demandDTO3.setDemandId("100003");
+        demandDTO3.setDemandId("100004");
         demandDTO3.setParent("100002");
-        demandDTO3.setDemandName("手动加入Tapd2");
+        demandDTO3.setDemandName("手动加入Tapd2-1");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
@@ -395,9 +417,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
 
-        functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
-        List<FunctionalCaseDemand> functionalCaseDemandOld = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
     }
 
     @Test
@@ -441,6 +460,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     public void batchCaseRelevance() throws Exception {
         FunctionalCaseDemandBatchRequest functionalCaseDemandBatchRequest = new FunctionalCaseDemandBatchRequest();
         functionalCaseDemandBatchRequest.setSelectAll(true);
+        functionalCaseDemandBatchRequest.setExcludeIds(List.of("DEMAND_TEST_FUNCTIONAL_CASE_ID4"));
         functionalCaseDemandBatchRequest.setProjectId("project-case-demand-test");
         functionalCaseDemandBatchRequest.setDemandPlatform("jira");
         List<DemandDTO> demandList = new ArrayList<>();
@@ -464,7 +484,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         String jsonString = JSON.toJSONString(functionalCaseDemands);
         System.out.println(jsonString);
 
-        functionalCaseDemandBatchRequest.setExcludeIds(List.of("DEMAND_TEST_FUNCTIONAL_CASE_ID3"));
+        functionalCaseDemandBatchRequest.setExcludeIds(List.of("DEMAND_TEST_FUNCTIONAL_CASE_ID3","DEMAND_TEST_FUNCTIONAL_CASE_ID4"));
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandId("100009");
@@ -487,9 +507,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
     }
 
-
-
-
     @Test
     @Order(13)
     public void cancelDemandNoLog() throws Exception {
@@ -505,11 +522,72 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         example.createCriteria().andSourceIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_X").andTypeEqualTo(OperationLogType.DISASSOCIATE.name());
         List<OperationLog> operationLogs = operationLogMapper.selectByExample(example);
         Assertions.assertTrue(CollectionUtils.isEmpty(operationLogs));
-
     }
 
     @Test
     @Order(14)
+    public void addNoParent() throws Exception {
+        FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID4");
+        functionalCaseDemandRequest.setDemandPlatform("TAPD");
+        List<DemandDTO> demandList = new ArrayList<>();
+        DemandDTO demandDTO = new DemandDTO();
+        demandDTO.setDemandId("789");
+        demandDTO.setDemandName("单独的孩子");
+        demandDTO.setParent("788");
+        demandList.add(demandDTO);
+        DemandDTO demandDTO2 = new DemandDTO();
+        demandDTO2.setDemandId("790");
+        demandDTO2.setDemandName("单独的孩子2");
+        demandDTO2.setParent("789");
+        demandList.add(demandDTO2);
+        DemandDTO demandDTO7 = new DemandDTO();
+        demandDTO7.setDemandId("792");
+        demandDTO7.setDemandName("单独的孩子3");
+        demandDTO7.setParent("789");
+        demandList.add(demandDTO7);
+        DemandDTO demandDTO3 = new DemandDTO();
+        demandDTO3.setDemandId("666");
+        demandDTO3.setDemandName("单独的父亲");
+        demandList.add(demandDTO3);
+        DemandDTO demandDTO6 = new DemandDTO();
+        demandDTO6.setDemandId("666");
+        demandDTO6.setParent("999");
+        demandDTO6.setDemandName("单独的父亲");
+        demandList.add(demandDTO6);
+        DemandDTO demandDTO4 = new DemandDTO();
+        demandDTO4.setDemandId("888");
+        demandDTO4.setDemandName("单独的另一个");
+        demandDTO4.setParent("uuuu");
+        demandList.add(demandDTO4);
+        DemandDTO demandDTO5 = new DemandDTO();
+        demandDTO5.setDemandId("791");
+        demandDTO5.setDemandName("单独的孩子3");
+        demandDTO5.setParent("790");
+        demandList.add(demandDTO5);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID4");
+        functionalCaseDemandRequest.setDemandPlatform("jira");
+        demandList = new ArrayList<>();
+        demandDTO2.setDemandId("790");
+        demandDTO2.setDemandName("单独的孩子2");
+        demandDTO2.setParent("789");
+        demandList.add(demandDTO2);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+        QueryDemandListRequest queryDemandListRequest = getQueryDemandListRequest("DEMAND_TEST_FUNCTIONAL_CASE_ID4");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
+        Pager<List<FunctionalDemandDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        List<FunctionalDemandDTO> list1 = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
+        Assertions.assertEquals(5, list1.size());
+    }
+
+    @Test
+    @Order(15)
     public void pageDemandSuccess() throws Exception {
         basePluginTestService.addJiraPlugin();
         basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
