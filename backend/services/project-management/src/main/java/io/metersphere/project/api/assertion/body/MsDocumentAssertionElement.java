@@ -63,6 +63,14 @@ public class MsDocumentAssertionElement {
      * 在执行时组装数据用
      */
     private String jsonPath;
+    /**
+     * 分组id
+     */
+    private String groupId;
+    /**
+     * 跨行数
+     */
+    private int rowspan;
 
     /**
      * 文档断言类型

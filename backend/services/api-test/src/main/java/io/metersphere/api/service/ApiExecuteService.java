@@ -393,14 +393,14 @@ public class ApiExecuteService {
         // 查询接口默认资源池
         ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
         // 没有配置接口默认资源池
-        if (resourcePoolConfig == null || StringUtils.isBlank(resourcePoolConfig.getTypeValue())) {
-            Map<String, Object> configMap = new HashMap<>();
-            projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
-            if (MapUtils.isEmpty(configMap)) {
-                throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
-            }
-            return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
+        Map<String, Object> configMap = new HashMap<>();
+        if (resourcePoolConfig != null && StringUtils.isNotBlank(resourcePoolConfig.getTypeValue())) {
+            configMap.put(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), resourcePoolConfig.getTypeValue());
         }
-        return StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
+        projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+        if (MapUtils.isEmpty(configMap)) {
+            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        }
+        return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
     }
 }
