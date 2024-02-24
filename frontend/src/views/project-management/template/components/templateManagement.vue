@@ -53,9 +53,11 @@
       </template>
       <template #name="{ record }">
         <div class="flex items-center">
-          <span class="ml-2 cursor-pointer text-[rgb(var(--primary-5))]" @click="previewDetail(record)">{{
-            record.name
-          }}</span>
+          <span
+            class="one-line-text ml-2 cursor-pointer text-[rgb(var(--primary-5))]"
+            @click="previewDetail(record.id)"
+            >{{ record.name }}</span
+          >
           <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
         </div>
       </template>
@@ -171,6 +173,7 @@
       fixed: 'left',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.defaultTemplate',
@@ -356,13 +359,14 @@
   const titleDetail = ref<string>();
   const defectForm = ref<Record<string, any>>({ ...initDetailForm });
   // 预览详情
-  const previewDetail = async (record: OrdTemplateManagement) => {
+  const previewDetail = async (id: string) => {
     showDetailVisible.value = true;
-    titleDetail.value = record.name;
+
     try {
       totalData.value = await getProjectFieldList({ scopedId: currentProjectId.value, scene: route.query.type });
       getFieldOptionList();
-      const res = await getProjectTemplateInfo(record.id);
+      const res = await getProjectTemplateInfo(id);
+      titleDetail.value = res.name;
       selectData.value = getCustomDetailFields(totalData.value as DefinedFieldItem[], res.customFields);
       res.systemFields.forEach((item: any) => {
         defectForm.value[item.fieldId] = item.defaultValue;
@@ -398,6 +402,12 @@
       return true;
     }
     return route.query.type !== 'BUG';
+  });
+
+  onMounted(() => {
+    if (route.query.id) {
+      previewDetail(route.query.id as string);
+    }
   });
 
   onMounted(() => {

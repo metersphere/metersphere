@@ -392,7 +392,7 @@
         enable: !record.enable,
       };
       await updatePlugin(params);
-      Message.success(t('system.plugin.disablePluginSuccess'));
+      Message.success(t('system.plugin.enablePluginSuccess'));
       loadData();
     } catch (error) {
       console.log(error);

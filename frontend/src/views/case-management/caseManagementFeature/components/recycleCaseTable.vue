@@ -66,8 +66,9 @@
             :filter-config-list="filterConfigList"
             :custom-fields-config-list="searchCustomFields"
             :row-count="filterRowCount"
-            @keyword-search="initRecycleList"
+            @keyword-search="fetchData"
             @adv-search="handleAdvSearch"
+            @refresh="fetchData()"
           >
             <template #left>
               <div class="text-[var(--color-text-1)]"
@@ -196,8 +197,11 @@
                 <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
               </a-tooltip>
             </template>
-            <template #updateUser="{ record }">
+            <template #updateUserName="{ record }">
               <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
+            </template>
+            <template #createUserName="{ record }">
+              <span type="text" class="px-0">{{ record.createUserName || '-' }}</span>
             </template>
             <!-- 回收站自定义字段 -->
             <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
@@ -260,19 +264,14 @@
     recoverRecycleCase,
     restoreCaseList,
   } from '@/api/modules/case-management/featureCase';
-  import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
 
-  import type {
-    BatchMoveOrCopyType,
-    CaseManagementTable,
-    CaseModuleQueryParams,
-    CustomAttributes,
-  } from '@/models/caseManagement/featureCase';
+  import type { BatchMoveOrCopyType, CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -291,7 +290,7 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const scrollWidth = ref<number>(3400);
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setAdvanceFilter } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setAdvanceFilter, setKeyword } = useTable(
     getRecycleListRequest,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE,
@@ -299,7 +298,7 @@
       selectable: true,
       showSetting: true,
       showJumpMethod: true,
-      heightUsed: 340,
+      heightUsed: 380,
       enableDrag: true,
     },
     (record) => ({
@@ -395,7 +394,7 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUser',
+      slotName: 'updateUserName',
       dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
       sortable: {
@@ -421,7 +420,8 @@
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUserName',
-      dataIndex: 'createUserName',
+      dataIndex: 'createUser',
+      titleSlotName: 'createUserFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -562,23 +562,30 @@
       : findNodeByKey<Record<string, any>>(caseTree.value, featureCaseStore.moduleId[0], 'id')?.name;
   });
   const memberOptions = ref<{ label: string; value: string }[]>([]);
+
   const searchParams = ref<TableQueryParams>({
     projectId: currentProjectId.value,
     moduleIds: [],
   });
 
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
+
+  // 用例等级表头检索
   const statusFilters = ref<string[]>(Object.keys(statusIconMap));
   const caseLevelFields = ref<Record<string, any>>({});
-  // 用例等级表头检索
   const caseFilterVisible = ref(false);
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
   const caseFilters = ref<string[]>([]);
   const executeResultFilters = ref(Object.keys(executionResultMap));
-
-  const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
-  const createUserFilters = ref(memberOptions.value.map((item) => item.value));
+  const updateUserFilters = ref<string[]>([]);
+  const createUserFilters = ref<string[]>([]);
 
   function getExecuteResultList() {
     const list: any = [];
@@ -591,39 +598,56 @@
   }
   const executeResultFilterList = ref(getExecuteResultList());
 
-  // 回收站模块树count参数
-  const emitTableParams: CaseModuleQueryParams = {
-    keyword: keyword.value,
-    moduleIds: [],
-    projectId: currentProjectId.value,
-    current: propsRes.value.msPagination?.current,
-    pageSize: propsRes.value.msPagination?.pageSize,
-  };
-
-  // 获取回收站模块数量
-  function initRecycleModulesCount() {
-    featureCaseStore.getRecycleModulesCount(emitTableParams);
-  }
-
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
-    selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
-  });
-
   // 获取批量操作参数
-  function getBatchParams(): BatchMoveOrCopyType {
+  function getBatchParams(): TableQueryParams {
     return {
       excludeIds: batchParams.value.excludeIds,
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds,
-      condition: {
-        keyword: keyword.value,
-      },
       moduleIds: searchParams.value.moduleIds,
       projectId: currentProjectId.value,
+      filter: {
+        reviewStatus: statusFilters.value,
+        caseLevel: caseFilters.value,
+        lastExecuteResult: executeResultFilters.value,
+        updateUserName: updateUserFilters.value,
+        createUserName: createUserFilters.value,
+      },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        combine: batchParams.value.condition,
+      },
     };
+  }
+
+  function initTableParams() {
+    return {
+      keyword: keyword.value,
+      moduleIds: activeFolder.value === 'all' ? [] : [activeFolder.value, ...offspringIds.value],
+      projectId: currentProjectId.value,
+      filter: {
+        reviewStatus: statusFilters.value,
+        caseLevel: caseFilters.value,
+        lastExecuteResult: executeResultFilters.value,
+        updateUserName: updateUserFilters.value,
+        createUserName: createUserFilters.value,
+      },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        combine: batchParams.value.condition,
+      },
+    };
+  }
+
+  // 获取回收站模块数量
+  function initRecycleModulesCount() {
+    featureCaseStore.getRecycleModulesCount({
+      ...initTableParams(),
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+    });
   }
 
   // 获取用例参数
@@ -633,17 +657,7 @@
     } else {
       searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
     }
-    setLoadListParams({
-      ...searchParams.value,
-      keyword: keyword.value,
-      filter: {
-        reviewStatus: statusFilters.value,
-        caseLevel: caseFilters.value,
-        lastExecuteResult: executeResultFilters.value,
-        updateUserName: updateUserFilters.value,
-        createUserName: createUserFilters.value,
-      },
-    });
+    setLoadListParams(initTableParams());
   }
 
   // 执行结果表头检索
@@ -652,19 +666,24 @@
   const createUserFilterVisible = ref(false);
 
   // 初始化回收站列表
-  function initRecycleList() {
+  async function initRecycleList() {
     getLoadListParams();
-    loadList();
+    await loadList();
+    initRecycleModulesCount();
   }
+
+  const fetchData = (keywordStr = '') => {
+    setKeyword(keywordStr);
+    initRecycleList();
+  };
 
   // 批量恢复
   async function handleBatchRecover() {
     try {
       await restoreCaseList(getBatchParams());
       Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
-      initRecycleList();
       resetSelector();
-      initRecycleModulesCount();
+      initRecycleList();
     } catch (error) {
       console.log(error);
     }
@@ -684,9 +703,8 @@
         try {
           await batchDeleteRecycleCase(getBatchParams());
           Message.success(t('common.deleteSuccess'));
-          loadList();
           resetSelector();
-          initRecycleModulesCount();
+          initRecycleList();
         } catch (error) {
           console.log(error);
         }
@@ -723,9 +741,8 @@
     try {
       await recoverRecycleCase(id);
       Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
-      loadList();
       resetSelector();
-      initRecycleModulesCount();
+      initRecycleList();
     } catch (error) {
       console.log(error);
     }
@@ -746,8 +763,8 @@
         try {
           await deleteRecycleCaseList(record.id);
           Message.success(t('common.deleteSuccess'));
-          loadList();
-          initRecycleModulesCount();
+          resetSelector();
+          initRecycleList();
         } catch (error) {
           console.log(error);
         }
@@ -783,7 +800,6 @@
 
   // 处理自定义字段列
   let customFieldsColumns: Record<string, any>[] = [];
-  const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   const initDefaultFields = ref<CustomAttributes[]>([]);
 
@@ -791,6 +807,7 @@
 
   // 处理自定义字段展示
   async function getDefaultFields() {
+    customFieldsColumns = [];
     const result = await getCaseDefaultFields(currentProjectId.value);
     initDefaultFields.value = result.customFields.filter((item: any) => !item.internal);
     customFieldsColumns = initDefaultFields.value.map((item: any) => {
@@ -803,7 +820,7 @@
         width: 300,
       };
     });
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal);
+    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
     caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
@@ -815,7 +832,7 @@
 
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
-    memberOptions.value = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
     memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
@@ -953,11 +970,10 @@
   }
 
   onMounted(async () => {
-    await getDefaultFields();
-    initFilter();
-    initRecycleList();
     getRecycleModules();
-    initRecycleModulesCount();
+    await getDefaultFields();
+    await initFilter();
+    initRecycleList();
   });
 </script>
 

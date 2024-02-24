@@ -39,9 +39,8 @@
             v-model="templateForm.remark"
             :max-length="1000"
             :placeholder="t('system.orgTemplate.resDescription')"
-            :auto-size="{
-              maxRows: 1,
-            }"
+            :auto-size="{ minRows: 1 }"
+            style="resize: vertical"
             class="max-w-[732px]"
           ></a-textarea>
         </a-form-item>
@@ -187,7 +186,7 @@
       const { name, customFields, systemFields } = res;
       templateForm.value = {
         ...res,
-        name: route.params.mode === 'copy' ? `${name}_copy` : name,
+        name: route.params.mode === 'copy' ? `copy_${name}` : name,
       };
       if (route.params.mode === 'copy') {
         templateForm.value.id = undefined;

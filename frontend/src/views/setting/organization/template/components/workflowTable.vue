@@ -173,7 +173,9 @@
           <span class="label">{{ t('system.orgTemplate.description') }}</span>
         </div>
         <div class="flex w-[60%] flex-col">
-          <span class="content">{{ detailInfo?.name }}</span>
+          <a-tooltip position="left" :content="detailInfo?.name">
+            <span class="content">{{ characterLimit(detailInfo?.name) }}</span>
+          </a-tooltip>
           <span class="content">{{ detailInfo?.remark || '-' }}</span>
         </div>
       </div>

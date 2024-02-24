@@ -186,6 +186,12 @@
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
                 <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
               </div>
+              <div class="baseItem">
+                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+                <span>
+                  <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
+                </span>
+              </div>
             </div>
           </template>
         </MsSplitBox>
@@ -216,6 +222,7 @@
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import inputComment from '@/components/business/ms-comment/input.vue';
@@ -365,6 +372,7 @@
 
   async function updateSuccess() {
     detailDrawerRef.value?.initDetail();
+    emit('success');
   }
 
   function updateHandler(type: string) {
@@ -627,6 +635,7 @@
       line-height: 32px;
       @apply flex;
       .label {
+        flex-shrink: 0;
         width: 38%;
         color: var(--color-text-3);
       }

@@ -158,6 +158,7 @@
     formRef.value?.resetFields();
     form.value = { ...initForm };
     formRules.value = [{ ...initDefaultForm }];
+    form.value.tags = [];
   }
 
   async function confirmHandler(enable: boolean | undefined) {
@@ -174,12 +175,12 @@
           });
           const { selectedIds, selectAll } = props.batchParams;
           const params: TableQueryParams = {
-            selectedIds,
+            selectIds: selectAll ? [] : selectedIds,
             selectAll,
             projectId: currentProjectId.value,
             append: enable as boolean,
             tags: form.value.tags,
-            customField,
+            customField: form.value.selectedAttrsId === 'systemTags' ? {} : customField,
           };
           await batchEditAttrs(params);
           Message.success(t('caseManagement.featureCase.editSuccess'));

@@ -309,46 +309,116 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[1],
           },
           {
-            key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模板
-            locale: 'menu.settings.organization.template',
+            key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模板管理
+            locale: 'menu.projectManagement.templateManager',
             route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE,
             permission: [],
             level: MENU_LEVEL[1],
-          },
-          {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING', // 系统设置-模板管理-字段设置
-            locale: 'menu.settings.organization.templateFieldSetting',
-            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
-            permission: [],
-            level: MENU_LEVEL[1],
-          },
-          {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT', // 系统设置-模板管理列表
-            locale: 'menu.settings.organization.templateManagementList',
-            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
-            permission: [],
-            level: MENU_LEVEL[1],
-          },
-          {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CREATE', // 系统设置-模板管理-创建
-            locale: 'menu.settings.organization.templateManagementDetail',
-            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[1],
-          },
-          {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_UPDATE', // 系统设置-模板管理-更新模版
-            locale: 'menu.settings.organization.templateManagementEdit',
-            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[1],
-          },
-          {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW', // 系统设置-模板管理-工作流
-            locale: 'menu.settings.organization.templateManagementWorkFlow',
-            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
-            permission: [],
-            level: MENU_LEVEL[1],
+            children: [
+              {
+                key: 'SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL', // 模板管理-用例模板
+                locale: 'system.orgTemplate.caseTemplates',
+                route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'FUNCTIONAL',
+                },
+                level: MENU_LEVEL[1],
+                children: [
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL_FIELD', // 模板管理-用例模板-用例模板字段管理
+                    locale: 'system.orgTemplate.field',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+                    permission: [],
+                    routeQuery: {
+                      type: 'FUNCTIONAL',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL_TEMPLATE', // 模板管理-用例模板-用例模板管理
+                    locale: 'system.orgTemplate.caseTemplateManagement',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                    permission: [],
+                    routeQuery: {
+                      type: 'FUNCTIONAL',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                ],
+              },
+              {
+                key: 'SETTING_ORGANIZATION_TEMPLATE_API', // 模板管理-接口模板
+                locale: 'system.orgTemplate.APITemplates',
+                route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'API',
+                },
+                level: MENU_LEVEL[1],
+                children: [
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_API_FIELD', // 模板管理-接口模板-接口模板字段管理
+                    locale: 'system.orgTemplate.field',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+                    permission: [],
+                    routeQuery: {
+                      type: 'API',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_API_TEMPLATE', // 模板管理-接口模板-接口模板管理
+                    locale: 'system.orgTemplate.apiTemplateManagement',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                    permission: [],
+                    routeQuery: {
+                      type: 'API',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                ],
+              },
+              {
+                key: 'SETTING_ORGANIZATION_TEMPLATE_BUG', // 模板管理-缺陷模板
+                locale: 'system.orgTemplate.defectTemplates',
+                route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'BUG',
+                },
+                level: MENU_LEVEL[1],
+                children: [
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_BUG_FIELD', // 模板管理-缺陷模板管理-字段管理
+                    locale: 'system.orgTemplate.field',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+                    permission: [],
+                    routeQuery: {
+                      type: 'BUG',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_BUG_TEMPLATE', // 模板管理-缺陷模板-缺陷模板管理
+                    locale: 'system.orgTemplate.bugTemplateManagement',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                    permission: [],
+                    routeQuery: {
+                      type: 'BUG',
+                    },
+                    level: MENU_LEVEL[1],
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TEMPLATE_BUG_WORKFLOW', // 模板管理-缺陷模板-缺陷工作流
+                    locale: 'menu.settings.organization.templateManagementWorkFlow',
+                    route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -406,54 +476,118 @@ export const pathMap: PathMapItem[] = [
         ],
       },
       {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE', // 项目管理-模板管理
-        locale: 'menu.settings.organization.template',
+        key: 'PROJECT_MANAGEMENT_TEMPLATE', // 系统设置-组织-模板管理
+        locale: 'menu.projectManagement.templateManager',
         route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
         permission: [],
-        level: MENU_LEVEL[2],
+        level: MENU_LEVEL[1],
+        children: [
+          {
+            key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL', // 模板管理-用例模板
+            locale: 'system.orgTemplate.caseTemplates',
+            route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            permission: [],
+            routeQuery: {
+              type: 'FUNCTIONAL',
+            },
+            level: MENU_LEVEL[1],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_FIELD', // 模板管理-用例模板-用例模板字段管理
+                locale: 'system.orgTemplate.field',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+                permission: [],
+                routeQuery: {
+                  type: 'FUNCTIONAL',
+                },
+                level: MENU_LEVEL[1],
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_TEMPLATE', // 模板管理-用例模板-用例模板管理
+                locale: 'system.orgTemplate.caseTemplateManagement',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'FUNCTIONAL',
+                },
+                level: MENU_LEVEL[1],
+              },
+            ],
+          },
+          {
+            key: 'PROJECT_MANAGEMENT_TEMPLATE_API', // 模板管理-接口模板
+            locale: 'system.orgTemplate.APITemplates',
+            route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            permission: [],
+            routeQuery: {
+              type: 'API',
+            },
+            level: MENU_LEVEL[1],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_API_FIELD', // 模板管理-接口模板-接口模板字段管理
+                locale: 'system.orgTemplate.field',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+                permission: [],
+                routeQuery: {
+                  type: 'API',
+                },
+                level: MENU_LEVEL[1],
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_API_TEMPLATE', // 模板管理-接口模板-接口模板管理
+                locale: 'system.orgTemplate.apiTemplateManagement',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'API',
+                },
+                level: MENU_LEVEL[1],
+              },
+            ],
+          },
+          {
+            key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG', // 模板管理-缺陷模板
+            locale: 'system.orgTemplate.defectTemplates',
+            route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            permission: [],
+            routeQuery: {
+              type: 'BUG',
+            },
+            level: MENU_LEVEL[1],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_FIELD', // 模板管理-缺陷模板管理-字段管理
+                locale: 'system.orgTemplate.field',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+                permission: [],
+                routeQuery: {
+                  type: 'BUG',
+                },
+                level: MENU_LEVEL[1],
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_TEMPLATE', // 模板管理-缺陷模板-缺陷模板管理
+                locale: 'system.orgTemplate.bugTemplateManagement',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+                permission: [],
+                routeQuery: {
+                  type: 'BUG',
+                },
+                level: MENU_LEVEL[1],
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_WORKFLOW', // 模板管理-缺陷模板-缺陷工作流
+                locale: 'menu.settings.organization.templateManagementWorkFlow',
+                route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
+                permission: [],
+                level: MENU_LEVEL[1],
+              },
+            ],
+          },
+        ],
       },
-      {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING', // 项目管理-模板管理-字段设置
-        locale: 'menu.settings.organization.templateFieldSetting',
-        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'PROJECT_CUSTOM_FIELD', // 项目管理-模板管理-字段设置-新增字段
-        locale: 'system.orgTemplate.addField',
-        route: '',
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT', // 项目管理-模板管理列表
-        locale: 'menu.settings.organization.templateManagementList',
-        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CREATE', // 项目管理-模板管理-创建模版
-        locale: 'menu.settings.organization.templateManagementDetail',
-        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_UPDATE', // 项目管理-模板管理-更新模版
-        locale: 'menu.settings.organization.templateManagementEdit',
-        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW', // 项目管理-模板管理-工作流
-        locale: 'menu.settings.organization.templateManagementWorkFlow',
-        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
+
       {
         key: 'PROJECT_MANAGEMENT_FILE_MANAGEMENT', // 项目管理-文件管理
         locale: 'menu.projectManagement.fileManagement',

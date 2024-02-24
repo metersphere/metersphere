@@ -37,12 +37,14 @@
     @change="changeHandler"
   >
     <template #num="{ record, rowIndex }">
-      <a-button type="text" class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</a-button>
+      <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
     </template>
     <template #name="{ record, rowIndex }">
-      <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</span>
+      <a-button type="text" class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{
+        record.name
+      }}</a-button>
     </template>
-    <template #updateUser="{ record }">
+    <template #updateUserName="{ record }">
       <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
     </template>
     <template #caseLevel="{ record }">
@@ -337,7 +339,7 @@
     getCustomFieldsTable,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
-  import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
@@ -491,6 +493,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
+      dataIndex: 'caseLevel',
       titleSlotName: 'caseLevelFilter',
       showInTable: true,
       width: 200,
@@ -541,7 +544,7 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUser',
+      slotName: 'updateUserName,',
       dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
       sortable: {
@@ -657,9 +660,11 @@
   const searchCustomFields = ref<FilterFormItem[]>([]);
   const scrollWidth = ref<number>(3400);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
+  const updateUserFilters = ref<string[]>([]);
+  const createUserFilters = ref<string[]>([]);
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
-    memberOptions.value = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
     memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
@@ -796,7 +801,7 @@
       selectable: true,
       showJumpMethod: true,
       showSetting: true,
-      heightUsed: 374,
+      heightUsed: 380,
       enableDrag: true,
     },
     (record) => {
@@ -815,13 +820,41 @@
     updateCaseName
   );
 
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
+  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+  const caseFilters = ref<string[]>([]);
+  const executeResultFilters = ref(Object.keys(executionResultMap));
+
+  function initTableParams() {
+    return {
+      keyword: keyword.value,
+      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+      projectId: currentProjectId.value,
+
+      filter: {
+        reviewStatus: statusFilters.value,
+        caseLevel: caseFilters.value,
+        lastExecuteResult: executeResultFilters.value,
+        updateUserName: updateUserFilters.value,
+        createUserName: createUserFilters.value,
+      },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        combine: batchParams.value.condition,
+      },
+    };
+  }
   // 获取父组件模块数量
   function emitTableParams() {
     const moduleIds = props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds];
     emit('init', {
-      keyword: keyword.value,
-      moduleIds,
-      projectId: currentProjectId.value,
+      ...initTableParams(),
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
@@ -837,7 +870,7 @@
     projectId: currentProjectId.value,
     moduleIds: [],
   });
-  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+
   const caseLevelFields = ref<Record<string, any>>({});
   // 用例等级表头检索
   const caseFilterVisible = ref(false);
@@ -845,10 +878,6 @@
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
-
-  const executeResultFilters = ref(Object.keys(executionResultMap));
-  const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
-  const createUserFilters = ref(memberOptions.value.map((item) => item.value));
 
   function getExecuteResultList() {
     const list: any = [];
@@ -860,7 +889,6 @@
     return list;
   }
   const executeResultFilterList = ref(getExecuteResultList());
-  const caseFilters = ref<string[]>([]);
 
   function getLoadListParams() {
     if (props.activeFolder === 'all') {
@@ -868,17 +896,7 @@
     } else {
       searchParams.value.moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
     }
-    setLoadListParams({
-      ...searchParams.value,
-      keyword: keyword.value,
-      filter: {
-        reviewStatus: statusFilters.value,
-        caseLevel: caseFilters.value,
-        lastExecuteResult: executeResultFilters.value,
-        updateUserName: updateUserFilters.value,
-        createUserName: createUserFilters.value,
-      },
-    });
+    setLoadListParams(initTableParams());
   }
 
   // 执行结果表头检索
@@ -971,13 +989,6 @@
   const selectedModuleKeys = ref<string[]>([]); // 移动文件选中节点
   const batchMoveCaseLoading = ref(false);
 
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
-    selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
-  });
-
   const isMove = ref<boolean>(false);
   // 批量移动和复制
   async function handleCaseMoveOrCopy() {
@@ -987,7 +998,11 @@
         selectIds: batchParams.value.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value },
+        condition: {
+          keyword: keyword.value,
+          filter: propsRes.value.filter,
+          combine: batchParams.value.condition,
+        },
         projectId: currentProjectId.value,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         moduleId: selectedModuleKeys.value[0],
@@ -1056,9 +1071,17 @@
       },
       onBeforeOk: async () => {
         try {
+          const { selectedIds, selectAll, excludeIds } = batchParams.value;
           await batchDeleteCase({
-            selectIds: batchParams.value.selectedIds as string[],
             projectId: currentProjectId.value,
+            selectIds: selectAll ? [] : selectedIds,
+            excludeIds: excludeIds || [],
+            condition: {
+              keyword: keyword.value,
+              filter: propsRes.value.filter,
+              combine: batchParams.value.condition,
+            },
+            selectAll,
           });
           resetSelector();
           Message.success(t('common.deleteSuccess'));
@@ -1132,14 +1155,12 @@
 
   const fetchData = (keywordStr = '') => {
     setKeyword(keywordStr);
-    getLoadListParams();
-    loadList();
+    initData();
   };
 
   function successHandler() {
-    initData();
-    emitTableParams();
     resetSelector();
+    initData();
   }
   const showDetailDrawer = ref(false);
   const activeDetailId = ref<string>('');
@@ -1165,6 +1186,7 @@
 
   // 处理自定义字段展示
   async function getDefaultFields() {
+    customFieldsColumns = [];
     const result = await getCaseDefaultFields(currentProjectId.value);
     initDefaultFields.value = result.customFields;
     customFieldsColumns = initDefaultFields.value
@@ -1180,7 +1202,7 @@
         };
       });
 
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal);
+    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
     caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
@@ -1419,7 +1441,7 @@
       showCaseDetail(route.query.id as string, 0);
     }
     await getDefaultFields();
-    initFilter();
+    await initFilter();
     initData();
   });
 

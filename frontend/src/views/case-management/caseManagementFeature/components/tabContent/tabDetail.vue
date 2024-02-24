@@ -157,7 +157,7 @@
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
               <MsButton
-                v-if="item.status !== 'init'"
+                v-if="item.file.type.includes('/image')"
                 type="button"
                 status="primary"
                 class="!mr-[4px]"
@@ -192,7 +192,7 @@
             <!-- 关联文件 -->
             <div v-else class="flex flex-nowrap">
               <MsButton
-                v-if="item.status !== 'init'"
+                v-if="item.file.type.includes('/image')"
                 type="button"
                 status="primary"
                 class="!mr-[4px]"

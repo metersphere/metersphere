@@ -175,4 +175,9 @@ export default {
   'system.orgTemplate.addFieldDesc': '新增一个新的字段',
   'system.orgTemplate.toTop': '上移',
   'system.orgTemplate.toBottom': '下移',
+  'system.orgTemplate.enterStatusDesc': '请输入状态描述',
+  'system.orgTemplate.field': '字段',
+  'system.orgTemplate.caseTemplateManagement': '用例模板管理',
+  'system.orgTemplate.apiTemplateManagement': '接口模板管理',
+  'system.orgTemplate.bugTemplateManagement': '缺陷模板管理',
 };

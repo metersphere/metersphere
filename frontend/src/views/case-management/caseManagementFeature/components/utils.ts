@@ -1,4 +1,5 @@
 import { MsTableColumnData } from '@/components/pure/ms-table/type';
+import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
@@ -91,7 +92,11 @@ export const executionResultMap = {
 export function convertToFile(fileInfo: AssociatedList): MsFileItem {
   const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
   const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
-  const type = fileName.split('.')[1];
+
+  const fileFormatMatch = fileName.match(/\.([a-zA-Z0-9]+)$/);
+  const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
+  const type = getFileEnum(fileFormatType);
+  console.log(type);
   const file = new File([new Blob()], `${fileName}`, {
     type: `application/${type}`,
   });
@@ -132,9 +137,10 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
   );
 
   if (currentColumnData) {
+    let selectValue;
     // 处理多选项
-    if (multipleExcludes.includes(currentColumnData.type)) {
-      const selectValue = JSON.parse(currentColumnData.defaultValue);
+    if (multipleExcludes.includes(currentColumnData.type) && currentColumnData.defaultValue) {
+      selectValue = JSON.parse(currentColumnData.defaultValue);
       return (
         (currentColumnData.options || [])
           .filter((item: any) => selectValue.includes(item.value))

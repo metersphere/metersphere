@@ -184,4 +184,9 @@ export default {
   'system.orgTemplate.associatedField': 'Associated field ',
   'system.orgTemplate.associatedHasField': 'Associate an added field',
   'system.orgTemplate.addFieldDesc': 'Adds a new field',
+  'system.orgTemplate.enterStatusDesc': 'Please enter a status description',
+  'system.orgTemplate.field': 'Field',
+  'system.orgTemplate.caseTemplateManagement': 'Use case template management',
+  'system.orgTemplate.apiTemplateManagement': 'Interface template management',
+  'system.orgTemplate.bugTemplateManagement': 'Defect template management',
 };

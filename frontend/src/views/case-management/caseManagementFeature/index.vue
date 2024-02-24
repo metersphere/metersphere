@@ -146,6 +146,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
+  import { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FileItem } from '@arco-design/web-vue';
@@ -241,7 +242,7 @@
   }
 
   // 表格搜索参数
-  const tableFilterParams = ref<CaseModuleQueryParams>({
+  const tableFilterParams = ref<TableQueryParams>({
     moduleIds: [],
     projectId: '',
   });
@@ -257,7 +258,7 @@
   /**
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
-  function initModulesCount(params: CaseModuleQueryParams) {
+  function initModulesCount(params: TableQueryParams) {
     featureCaseStore.getCaseModulesCount(params);
     featureCaseStore.getRecycleModulesCount(params);
     tableFilterParams.value = { ...params };

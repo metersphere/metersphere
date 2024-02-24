@@ -32,6 +32,8 @@ export default {
   'caseManagement.featureCase.moduleMoveSuccess': 'Move successfully',
   'caseManagement.featureCase.tableColumnID': 'ID',
   'caseManagement.featureCase.tableColumnName': 'Case Name',
+  'caseManagement.featureCase.demandName': 'Demand Name',
+  'caseManagement.featureCase.demandID': 'ID',
   'caseManagement.featureCase.tableColumnLevel': 'Case Level',
   'caseManagement.featureCase.tableColumnCaseState': 'Case State',
   'caseManagement.featureCase.tableColumnReviewResult': 'Review Result',
@@ -253,4 +255,5 @@ export default {
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
   'caseManagement.featureCase.zentao': 'zentao',
   'caseManagement.featureCase.searchPlaceholder': 'Search by ID, name, or tag',
+  'caseManagement.featureCase.ModuleOwned': 'Module owned',
 };

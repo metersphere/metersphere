@@ -7,7 +7,7 @@
       >
     </template>
     <template #operation="{ record }">
-      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('cancel', record)">
+      <MsButton @click="emit('cancel', record)">
         {{ t('caseManagement.featureCase.cancelAssociation') }}
       </MsButton>
       <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">
@@ -77,7 +77,7 @@
       width: 200,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnName',
+      title: 'caseManagement.featureCase.name',
       slotName: 'demandName',
       dataIndex: 'demandName',
       width: 300,
@@ -95,7 +95,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 100,
+      width: 150,
       showInTable: true,
       showDrag: false,
     },
@@ -107,13 +107,13 @@
     scroll: { x: '100%' },
     selectable: false,
     showSetting: false,
+    heightUsed: 360,
   });
 
   const initData = async () => {
     setLoadListParams({ ...props.funParams });
     await loadList();
-    const { msPagination } = propsRes.value;
-    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+    featureCaseStore.getCaseCounts(props.funParams.caseId);
   };
 
   onMounted(() => {
