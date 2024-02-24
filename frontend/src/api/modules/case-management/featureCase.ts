@@ -156,7 +156,7 @@ export function getCaseDetail(id: string) {
   return MSR.get({ url: `${DetailCaseUrl}/${id}` });
 }
 // 批量删除用例
-export function batchDeleteCase(data: BatchDeleteType) {
+export function batchDeleteCase(data: TableQueryParams) {
   return MSR.post({ url: `${BatchDeleteCaseUrl}`, data });
 }
 // 批量编辑属性
@@ -180,7 +180,7 @@ export function getRecycleListRequest(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: GetRecycleCaseListUrl, data });
 }
 // 获取回收站模块数量
-export function getRecycleModulesCounts(data: CaseModuleQueryParams) {
+export function getRecycleModulesCounts(data: TableQueryParams) {
   return MSR.post({ url: GetRecycleCaseModulesCountUrl, data });
 }
 // 获取全部用例模块数量
@@ -188,11 +188,11 @@ export function getCaseModulesCounts(data: TableQueryParams) {
   return MSR.post({ url: GetCaseModulesCountUrl, data });
 }
 // 批量恢复回收站用例表
-export function restoreCaseList(data: BatchMoveOrCopyType) {
+export function restoreCaseList(data: TableQueryParams) {
   return MSR.post({ url: RestoreCaseListUrl, data });
 }
 // 批量彻底删除回收站用例表
-export function batchDeleteRecycleCase(data: BatchMoveOrCopyType) {
+export function batchDeleteRecycleCase(data: TableQueryParams) {
   return MSR.post({ url: BatchDeleteRecycleCaseListUrl, data });
 }
 // 恢复回收站单个用例

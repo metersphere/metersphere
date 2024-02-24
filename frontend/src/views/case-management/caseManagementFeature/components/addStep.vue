@@ -160,10 +160,12 @@
 
   // 复制步骤
   function copyStep(record: StepList) {
-    stepData.value.push({
+    const index = stepData.value.map((item: any) => item.id).indexOf(record.id);
+    const insertItem = {
       ...record,
       id: getGenerateId(),
-    });
+    };
+    stepData.value.splice(index + 1, 0, insertItem);
   }
 
   // 删除步骤

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button v-if="showType === 'preposition'" class="mr-3" type="primary" @click="addCase">
           {{ t('caseManagement.featureCase.addPresetCase') }}
@@ -27,6 +27,9 @@
       </div>
     </div>
     <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
+      <template #num="{ record }">
+        {{ record.num }}
+      </template>
       <template #operation="{ record }">
         <MsRemoveButton
           position="br"
@@ -94,7 +97,8 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
+      slotName: 'num',
       width: 200,
       showInTable: true,
       showTooltip: true,
@@ -140,7 +144,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getDependOnCase, {
     columns,
     scroll: { x: '100%' },
-    heightUsed: 340,
+    heightUsed: 360,
     selectable: false,
     noDisable: true,
     showSetting: false,
@@ -159,8 +163,7 @@
   async function initData() {
     getParams();
     await loadList();
-    const { msPagination } = propsRes.value;
-    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+    featureCaseStore.getCaseCounts(props.caseId);
   }
 
   const cancelLoading = ref<boolean>(false);

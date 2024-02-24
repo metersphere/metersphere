@@ -11,7 +11,7 @@
       <template v-if="showJumpMethod">
         <div class="mb-2 flex items-center">
           <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
-          <a-tooltip>
+          <a-tooltip position="right">
             <template #content>
               <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
               ><br />

@@ -31,7 +31,7 @@
           <a-textarea
             v-model:model-value="form.remark"
             :max-length="1000"
-            :placeholder="t('system.config.auth.descPlaceholder')"
+            :placeholder="t('system.orgTemplate.enterStatusDesc')"
             allow-clear
           ></a-textarea>
         </a-form-item>

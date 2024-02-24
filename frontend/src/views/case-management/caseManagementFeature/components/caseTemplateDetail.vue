@@ -179,7 +179,7 @@
           <a-form-item
             field="moduleId"
             asterisk-position="end"
-            :label="t('system.orgTemplate.modules')"
+            :label="t('caseManagement.featureCase.ModuleOwned')"
             :rules="[{ required: true, message: t('system.orgTemplate.moduleRuleTip') }]"
             @change="changeSelectModule"
           >
@@ -505,7 +505,7 @@
     const { customFields, attachments, steps } = detailResult;
     form.value = {
       ...detailResult,
-      name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
+      name: route.params.mode === 'copy' ? `copy_${detailResult.name}` : detailResult.name,
     };
     // 处理自定义字段
     formRules.value = (customFields || []).map((item: any) => {

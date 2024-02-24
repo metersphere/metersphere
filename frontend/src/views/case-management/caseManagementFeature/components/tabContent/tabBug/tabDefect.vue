@@ -17,14 +17,14 @@
       </div>
       <div v-else class="font-medium">{{ t('caseManagement.featureCase.testPlanLinkList') }}</div>
       <div class="mb-4">
-        <!-- <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
           }}</a-radio>
-          <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
+          <!-- <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.testPlan')
-          }}</a-radio>
-        </a-radio-group> -->
+          }}</a-radio> -->
+        </a-radio-group>
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
@@ -267,8 +267,7 @@
     } else {
       setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
       await testPlanLinkList();
-      const { msPagination } = testPlanPropsRes.value;
-      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+      featureCaseStore.getCaseCounts(props.caseId);
     }
   }
   const cancelLoading = ref<boolean>(false);

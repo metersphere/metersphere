@@ -31,6 +31,8 @@ export default {
   'caseManagement.featureCase.moduleMoveSuccess': '移动成功',
   'caseManagement.featureCase.tableColumnID': 'ID',
   'caseManagement.featureCase.tableColumnName': '用例名称',
+  'caseManagement.featureCase.demandName': '需求名称',
+  'caseManagement.featureCase.demandID': '需求ID',
   'caseManagement.featureCase.tableColumnLevel': '用例等级',
   'caseManagement.featureCase.tableColumnCaseState': '用例状态',
   'caseManagement.featureCase.tableColumnReviewResult': '评审结果',
@@ -248,4 +250,5 @@ export default {
   'caseManagement.featureCase.sortSuccess': '排序成功',
   'caseManagement.featureCase.zentao': '禅道',
   'caseManagement.featureCase.searchPlaceholder': '通过ID、名称或标签搜索',
+  'caseManagement.featureCase.ModuleOwned': '所属模块',
 };

@@ -103,4 +103,12 @@
       width: 428px;
     }
   }
+  :deep(.arco-picker-disabled) {
+    border-color: var(--color-text-n8);
+    background: var(--color-text-n8);
+    &:hover {
+      border-color: var(--color-text-n8);
+      background: var(--color-text-n8);
+    }
+  }
 </style>

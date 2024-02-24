@@ -21,7 +21,7 @@
           <div class="flex flex-1 items-center justify-between">
             <div class="flex items-center">
               <a-tooltip :content="props.title">
-                <span> {{ props.title }}</span>
+                <span> {{ characterLimit(props.title) }}</span>
               </a-tooltip>
 
               <slot name="headerLeft"></slot>
@@ -119,8 +119,8 @@
 
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
   import { getMaxZIndexLayer } from '@/utils/dom';
-
   // 懒加载描述组件
   const MsDescription = defineAsyncComponent(() => import('@/components/pure/ms-description/index.vue'));
 

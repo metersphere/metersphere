@@ -1,9 +1,16 @@
 import { defineStore } from 'pinia';
 
-import { getCaseModulesCounts, getRecycleModulesCounts } from '@/api/modules/case-management/featureCase';
+import {
+  getCaseDefaultFields,
+  getCaseDetail,
+  getCaseModulesCounts,
+  getRecycleModulesCounts,
+} from '@/api/modules/case-management/featureCase';
 
-import type { CaseModuleQueryParams, TabItemType } from '@/models/caseManagement/featureCase';
-import { ModuleTreeNode } from '@/models/common';
+import type { CaseModuleQueryParams, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
+import { ModuleTreeNode, TableQueryParams } from '@/models/common';
+
+import useAppStore from '../app';
 
 const useFeatureCaseStore = defineStore('featureCase', {
   persist: true,
@@ -15,6 +22,8 @@ const useFeatureCaseStore = defineStore('featureCase', {
     operatingState: boolean; // 操作状态
     tabSettingList: TabItemType[]; // 详情tab
     activeTab: string; // 激活tab
+    defaultFields: CustomAttributes[];
+    defaultCount: Record<string, any>;
   } => ({
     moduleId: [],
     caseTree: [],
@@ -23,6 +32,8 @@ const useFeatureCaseStore = defineStore('featureCase', {
     operatingState: false,
     tabSettingList: [],
     activeTab: 'detail',
+    defaultFields: [],
+    defaultCount: {},
   }),
   actions: {
     // 设置选择moduleId
@@ -38,18 +49,17 @@ const useFeatureCaseStore = defineStore('featureCase', {
       this.caseTree = tree;
     },
     // 获取模块数量
-    async getCaseModulesCount(params: CaseModuleQueryParams) {
+    async getCaseModulesCount(params: TableQueryParams) {
       try {
-        this.modulesCount = {};
+        // this.modulesCount = {};
         this.modulesCount = await getCaseModulesCounts(params);
       } catch (error) {
         console.log(error);
       }
     },
     // 获取模块数量
-    async getRecycleModulesCount(params: CaseModuleQueryParams) {
+    async getRecycleModulesCount(params: TableQueryParams) {
       try {
-        this.recycleModulesCount = {};
         this.recycleModulesCount = await getRecycleModulesCounts(params);
       } catch (error) {
         console.log(error);
@@ -89,6 +99,39 @@ const useFeatureCaseStore = defineStore('featureCase', {
           total: countMap[item.key] || 0,
         };
       });
+    },
+    // 获取默认模版
+    async getDefaultTemplate() {
+      try {
+        const appStore = useAppStore();
+        const result = await getCaseDefaultFields(appStore.currentProjectId);
+        this.defaultFields = result.customFields;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    // 获取系统字段用例等级
+    getSystemCaseLevelFields() {
+      return this.defaultFields.find((item: any) => item.internal && item.fieldName === '用例等级')?.options || [];
+    },
+
+    // 获取详情
+    async getCaseCounts(caseId: string) {
+      try {
+        const result = await getCaseDetail(caseId);
+        const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount } = result;
+        const countMap: Record<string, any> = {
+          case: caseCount,
+          dependency: relateEdgeCount,
+          caseReview: caseReviewCount,
+          testPlan: testPlanCount,
+          bug: bugCount,
+          requirement: demandCount,
+        };
+        this.initCountMap(countMap);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 });

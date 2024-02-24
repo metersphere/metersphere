@@ -29,8 +29,8 @@
     <AddDemandModal
       ref="demandModalRef"
       v-model:visible="showAddModel"
+      v-model:form="modelForm"
       :case-id="props.caseId"
-      :form="modelForm"
       :loading="confirmLoading"
       @save="saveHandler"
       @success="searchList()"
@@ -121,10 +121,7 @@
 
   const showAddModel = ref<boolean>(false);
 
-  function addDemand() {
-    showAddModel.value = true;
-  }
-  const modelForm = ref<DemandItem>({
+  const initModelForm: DemandItem = {
     id: '',
     caseId: '', // 功能用例ID
     demandId: '', // 需求ID
@@ -136,6 +133,10 @@
     createUser: '',
     updateUser: '',
     children: [], // 平台下对应的需求
+  };
+
+  const modelForm = ref<DemandItem>({
+    ...initModelForm,
   });
 
   // 更新需求
@@ -181,6 +182,7 @@
     columns: fullColumns.value,
     rowKey: 'demandId',
     scroll: { x: '100%' },
+    heightUsed: 290,
     selectable: true,
     showSetting: false,
   });
@@ -346,6 +348,11 @@
     } finally {
       confirmLoading.value = false;
     }
+  }
+
+  function addDemand() {
+    showAddModel.value = true;
+    modelForm.value = { ...initModelForm };
   }
 
   onMounted(async () => {

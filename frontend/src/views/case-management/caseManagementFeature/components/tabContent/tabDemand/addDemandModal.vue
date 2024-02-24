@@ -71,6 +71,7 @@
 
   const emit = defineEmits<{
     (e: 'update:visible', v: boolean): void;
+    (e: 'update:form', v: CreateOrUpdateDemand): void;
     (e: 'success'): void;
     (e: 'save', params: CreateOrUpdateDemand, isContinue: boolean): void;
   }>();
@@ -84,8 +85,6 @@
   const updateName = ref<string>('');
 
   const showModal = ref<boolean>(false);
-
-  // const confirmLoading = ref<boolean>(false);
 
   const initModelForm: DemandFormList = {
     demandId: '',
@@ -124,6 +123,12 @@
       }
     });
   }
+  const title = ref<string>('');
+  watchEffect(() => {
+    title.value = form.value.id
+      ? t('caseManagement.featureCase.updateDemand', { name: props.form.demandName })
+      : t('caseManagement.featureCase.addDemand');
+  });
 
   watch(
     () => props.visible,
@@ -139,19 +144,22 @@
     }
   );
 
-  const title = ref<string>('');
-  watchEffect(() => {
-    title.value = form.value.id
-      ? t('caseManagement.featureCase.updateDemand', { name: props.form.demandName })
-      : t('caseManagement.featureCase.addDemand');
-  });
-
   watch(
     () => props.form,
     (val) => {
+      form.value.id = '';
       modelForm.value = { ...val };
       form.value.id = val.id;
       updateName.value = val.demandName;
+    }
+  );
+
+  watch(
+    () => form.value,
+    (val) => {
+      if (val) {
+        emit('update:form', val);
+      }
     }
   );
 

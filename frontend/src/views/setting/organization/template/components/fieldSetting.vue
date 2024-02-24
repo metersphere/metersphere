@@ -1,10 +1,23 @@
 <template>
   <div>
-    <a-alert class="mb-6" :type="isEnabledTemplate && props.mode === 'organization' ? 'warning' : 'info'">{{
-      isEnabledTemplate && props.mode === 'organization'
-        ? t('system.orgTemplate.enableDescription')
-        : t('system.orgTemplate.fieldLimit')
-    }}</a-alert>
+    <a-alert
+      v-if="isShowTip"
+      class="mb-6"
+      :type="isEnabledTemplate && props.mode === 'organization' ? 'warning' : 'info'"
+    >
+      <div class="flex items-start justify-between">
+        <span>
+          {{
+            isEnabledTemplate && props.mode === 'organization'
+              ? t('system.orgTemplate.enableDescription')
+              : t('system.orgTemplate.fieldLimit')
+          }}</span
+        >
+        <span class="cursor-pointer text-[var(--color-text-2)]" @click="noRemindHandler">{{
+          t('system.orgTemplate.noReminders')
+        }}</span>
+      </div>
+    </a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnabledTemplate" class="font-medium">{{ t('system.orgTemplate.fieldList') }}</span>
       <a-button v-permission="props.createPermission" type="primary" :disabled="isDisabled" @click="fieldHandler">
@@ -145,6 +158,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useVisit from '@/hooks/useVisit';
   import { useAppStore, useTableStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
@@ -157,6 +171,9 @@
 
   const templateStore = useTemplateStore();
 
+  const visitedKey = 'notRemindField';
+  const { addVisited } = useVisit(visitedKey);
+  const { getIsVisited } = useVisit(visitedKey);
   const { t } = useI18n();
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -363,7 +380,20 @@
     fetchData();
   };
 
+  const isShowTip = ref<boolean>(true);
+
+  // 不再提醒
+  const doCheckIsTip = () => {
+    isShowTip.value = !getIsVisited();
+  };
+
+  const noRemindHandler = () => {
+    isShowTip.value = false;
+    addVisited();
+  };
+
   onMounted(() => {
+    doCheckIsTip();
     isEnableOperation();
     fetchData();
   });

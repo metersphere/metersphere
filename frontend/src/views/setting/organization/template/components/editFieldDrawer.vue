@@ -7,7 +7,7 @@
     :width="800"
     :show-continue="!isEdit"
     @confirm="handleDrawerConfirm"
-    @continue="handleDrawerConfirm(true)"
+    @continue="saveAndContinue"
     @cancel="handleDrawerCancel"
   >
     <div class="form">
@@ -31,9 +31,8 @@
             v-model="fieldForm.remark"
             :max-length="1000"
             :placeholder="t('system.orgTemplate.resDescription')"
-            :auto-size="{
-              maxRows: 1,
-            }"
+            :auto-size="{ minRows: 1 }"
+            style="resize: vertical"
           ></a-textarea>
         </a-form-item>
         <a-form-item
@@ -251,10 +250,8 @@
 
   const { addOrUpdate, detail } = getFieldRequestApi(props.mode);
   // 保存
-  const confirmHandler = async (isContinue: boolean) => {
+  const confirmHandler = async (isContinue = false) => {
     try {
-      drawerLoading.value = true;
-
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
@@ -291,7 +288,7 @@
         params.id = id;
       }
       await addOrUpdate(params);
-      Message.success(isEdit.value ? t('common.updateSuccess') : t('common.addSuccess'));
+      Message.success(isEdit.value ? t('common.updateSuccess') : t('common.newSuccess'));
       if (!isContinue) {
         handleDrawerCancel();
       }
@@ -303,27 +300,48 @@
       drawerLoading.value = false;
     }
   };
+  const fieldDefaultValues = ref<FormItemModel[]>([]);
+  function userFormFiledValidate(cb: () => Promise<any>) {
+    fieldFormRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+      if (errors) {
+        return;
+      }
+      batchFormRef.value?.formValidate(async (list: any) => {
+        try {
+          drawerLoading.value = true;
+          fieldDefaultValues.value = [...list];
+          if (showOptionsSelect) {
+            fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
+              return {
+                ...item,
+                value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
+              };
+            });
+          }
+          await cb();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          drawerLoading.value = false;
+        }
+      });
+    });
+  }
 
   // 新增 || 保存并继续添加
   const handleDrawerConfirm = (isContinue: boolean) => {
-    fieldFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
-      if (!errors) {
-        if (showOptionsSelect) {
-          fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
-            return {
-              ...item,
-              value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
-            };
-          });
-        }
-        confirmHandler(isContinue);
-      }
-    });
+    userFormFiledValidate(confirmHandler);
   };
+  function saveAndContinue() {
+    userFormFiledValidate(async () => {
+      await confirmHandler(true);
+      resetForm();
+    });
+  }
 
   // 字段类型列表选项
   const fieldOptions = ref<fieldIconAndNameModal[]>([]);
-  const fieldDefaultValues = ref([]);
 
   // 获取字段选项详情
   const getFieldDetail = async (id: string) => {

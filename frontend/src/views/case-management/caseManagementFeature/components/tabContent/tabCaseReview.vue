@@ -99,15 +99,14 @@
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_REVIEW,
     scroll: { x: '100%' },
-    heightUsed: 340,
+    heightUsed: 360,
     enableDrag: true,
   });
 
   async function initData() {
     setLoadListParams({ keyword: keyword.value, caseId: props.caseId });
     await loadList();
-    const { msPagination } = propsRes.value;
-    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+    featureCaseStore.getCaseCounts(props.caseId);
   }
 
   const searchList = debounce(() => {

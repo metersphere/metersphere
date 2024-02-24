@@ -6,6 +6,7 @@ import {
   EditProjectMemberUrl,
   GetProjectMemberListUrl,
   ProjectMemberCommentOptions,
+  ProjectMemberList,
   ProjectMemberOptions,
   ProjectUserGroupUrl,
   RemoveProjectMemberUrl,
@@ -51,6 +52,10 @@ export function getProjectUserGroup(projectId: string) {
 // 项目成员下拉选项
 export function getProjectMemberOptions(projectId: string, keyword?: string) {
   return MSR.get({ url: `${ProjectMemberOptions}/${projectId}`, params: { keyword } });
+}
+// 项目成员下拉选项不包含组织
+export function getProjectOptions(projectId: string, keyword?: string) {
+  return MSR.get({ url: `${ProjectMemberList}/${projectId}`, params: { keyword } });
 }
 
 // 项目成员-@成员下拉选项

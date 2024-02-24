@@ -265,8 +265,7 @@
       sourceType: currentSelectCase.value,
     });
     await loadList();
-    const { msPagination } = propsRes.value;
-    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+    featureCaseStore.getCaseCounts(props.caseId);
   }
 
   async function searchCase() {

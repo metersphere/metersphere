@@ -87,6 +87,20 @@
           <template #caseLevel="{ record }">
             <caseLevel :case-level="getCaseLevels(record.customFields)" />
           </template>
+          <template #caseLevelFilter="{ columnConfig }">
+            <TableFilter
+              v-model:visible="caseFilterVisible"
+              v-model:status-filters="caseFilters"
+              :title="(columnConfig.title as string)"
+              :list="caseLevelList"
+              value-key="value"
+              @search="searchCase()"
+            >
+              <template #item="{ item }">
+                <div class="flex"> <caseLevel :case-level="item.text" /></div>
+              </template>
+            </TableFilter>
+          </template>
           <template v-if="(keyword || '').trim() === ''" #empty>
             <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
               {{ t('caseManagement.caseReview.tableNoData') }}
@@ -135,6 +149,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import TableFilter from '../../tableFilter.vue';
 
   import {
     addPrepositionRelation,
@@ -145,9 +160,10 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { mapTree } from '@/utils';
 
-  import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type { CaseManagementTable, CaseModuleQueryParams, OptionsFieldId } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -155,6 +171,7 @@
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
+  const featureStore = useFeatureCaseStore();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -276,7 +293,8 @@
       title: 'ms.case.associate.caseLevel',
       dataIndex: 'caseLevel',
       slotName: 'caseLevel',
-      width: 90,
+      titleSlotName: 'caseLevelFilter',
+      width: 100,
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
@@ -299,7 +317,7 @@
       },
       showSetting: false,
       selectable: true,
-      heightUsed: 300,
+      heightUsed: 380,
       showSelectAll: true,
     },
     (record) => {
@@ -376,6 +394,11 @@
     moduleIds: [],
     excludeIds: [],
   });
+  // 用例等级表头检索
+  const caseLevelFields = ref<Record<string, any>>({});
+  const caseFilterVisible = ref(false);
+  const caseLevelList = ref<OptionsFieldId[]>([]);
+  const caseFilters = ref<string[]>([]);
 
   // 获取用例参数
   function getLoadListParams() {
@@ -389,6 +412,9 @@
       keyword: keyword.value,
       id: props.caseId,
       type: props.showType === 'preposition' ? 'PRE' : 'POST',
+      filter: {
+        caseLevel: caseFilters.value,
+      },
     });
   }
 
@@ -441,10 +467,17 @@
     }
   }
 
+  async function initFilter() {
+    await featureStore.getDefaultTemplate();
+    caseLevelList.value = featureStore.getSystemCaseLevelFields();
+    caseFilters.value = caseLevelList.value.map((item) => item.value);
+  }
+
   watch(
     () => innerVisible.value,
     (val) => {
       if (val) {
+        initFilter();
         searchCase();
       }
     }
