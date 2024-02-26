@@ -21,10 +21,9 @@ import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -104,10 +103,9 @@ public class BaseResourcePoolTestService {
 
     public void insertResourcePoolProject(TestResourcePool resourcePool) {
         ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
-        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePool.getId());
-        List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(projectTestResourcePools)) {
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID)
+                .andTestResourcePoolIdEqualTo(resourcePool.getId());
+        if (projectTestResourcePoolMapper.countByExample(example) == 0) {
             ProjectTestResourcePool projectTestResourcePool = new ProjectTestResourcePool();
             projectTestResourcePool.setTestResourcePoolId(resourcePool.getId());
             projectTestResourcePool.setProjectId(DEFAULT_PROJECT_ID);
@@ -117,10 +115,9 @@ public class BaseResourcePoolTestService {
 
     public void insertResourcePoolOrg(TestResourcePool resourcePool) {
         TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-        example.createCriteria().andOrgIdEqualTo(DEFAULT_ORGANIZATION_ID);
-        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePool.getId());
-        List<TestResourcePoolOrganization> testResourcePoolOrganizations = testResourcePoolOrganizationMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(testResourcePoolOrganizations)) {
+        example.createCriteria().andOrgIdEqualTo(DEFAULT_ORGANIZATION_ID)
+                .andTestResourcePoolIdEqualTo(resourcePool.getId());
+        if (testResourcePoolOrganizationMapper.countByExample(example) == 0) {
             TestResourcePoolOrganization resourcePoolOrganization = new TestResourcePoolOrganization();
             resourcePoolOrganization.setTestResourcePoolId(resourcePool.getId());
             resourcePoolOrganization.setOrgId(DEFAULT_ORGANIZATION_ID);

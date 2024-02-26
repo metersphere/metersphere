@@ -70,15 +70,8 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
             String pluginId = plugin.getDescriptor().getPluginId();
             LogUtils.debug("Reading extensions storages for plugin '{}'", pluginId);
             final Set<String> bucket = new HashSet<>();
-
             try {
-                Enumeration<URL> urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(ServiceProviderExtensionStorage.EXTENSIONS_RESOURCE);
-                if (urls.hasMoreElements()) {
-                    // 如果 ServiceProviderExtensionFinder 无法从 "META-INF/services" 加载，才加载
-                    return result;
-                }
-
-                urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(EXTENSIONS_RESOURCE);
+                Enumeration<URL> urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(EXTENSIONS_RESOURCE);
                 if (urls.hasMoreElements()) {
                     jdbcCollectExtensions(urls, bucket);
                 } else {

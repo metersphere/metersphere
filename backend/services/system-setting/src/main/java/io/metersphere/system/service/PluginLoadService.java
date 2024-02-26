@@ -90,7 +90,7 @@ public class PluginLoadService {
         if (!file.exists()) {
             try (InputStream fileAsStream = FileCenter.getDefaultRepository().getFileAsStream(getDefaultRepositoryFileRequest(fileName))) {
                 FileUtils.copyInputStreamToFile(fileAsStream, file);
-                loadPlugin(filePath);
+                loadPlugin(fileName);
             } catch (Exception e) {
                 LogUtils.error("从对象存储加载插件异常", e);
             }
