@@ -51,6 +51,13 @@
                 </when>
             </choose>
         </if>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            fc.name like concat('%', #{request.keyword},'%')
+            or fc.num like concat('%', #{request.keyword},'%')
+            or fc.tags like concat('%', #{request.keyword},'%')
+            )
+        </if>
         order by
         <if test="sort != null and sort != ''">
             fc.${sort}

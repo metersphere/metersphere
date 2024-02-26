@@ -1,6 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.request.RelationshipAddRequest;
+import io.metersphere.functional.request.RelationshipDeleteRequest;
 import io.metersphere.functional.request.RelationshipPageRequest;
 import io.metersphere.functional.request.RelationshipRequest;
 import io.metersphere.sdk.util.JSON;
@@ -26,7 +27,7 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
     public static final String RELATE_PAGE = "/functional/case/relationship/relate/page";
     public static final String ADD = "/functional/case/relationship/add";
     public static final String PAGE = "/functional/case/relationship/page";
-    public static final String DELETE = "/functional/case/relationship/delete/";
+    public static final String DELETE = "/functional/case/relationship/delete";
     public static final String IDS = "/functional/case/relationship/get-ids/";
 
 
@@ -141,7 +142,11 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testDelete() throws Exception {
-        MvcResult postResult = this.requestGetWithOkAndReturn(DELETE + "relationship_1");
+        RelationshipDeleteRequest request = new RelationshipDeleteRequest();
+        request.setId("relationship_1");
+        request.setCaseId("wx_relationship_1");
+        request.setType("POST");
+        MvcResult postResult = this.requestPostWithOkAndReturn(DELETE, request);
         // 获取返回值
         String postReturnData = postResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder postResultHolder = JSON.parseObject(postReturnData, ResultHolder.class);
@@ -149,7 +154,9 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         Assertions.assertNotNull(postResultHolder);
 
         //异常覆盖
-        assertErrorCode(this.requestGet(DELETE + "test"), MsHttpResultCode.FAILED);
+        request.setId("test");
+        request.setType("PRE");
+        assertErrorCode(this.requestPost(DELETE, request), MsHttpResultCode.FAILED);
     }
 
     @Test
@@ -163,6 +170,10 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         Assertions.assertNotNull(postResultHolder);
 
         //异常覆盖
-        assertErrorCode(this.requestGet(DELETE + "test"), MsHttpResultCode.FAILED);
+        RelationshipDeleteRequest request = new RelationshipDeleteRequest();
+        request.setCaseId("wx_relationship_1");
+        request.setId("test");
+        request.setType("PRE");
+        assertErrorCode(this.requestPost(DELETE, request), MsHttpResultCode.FAILED);
     }
 }
