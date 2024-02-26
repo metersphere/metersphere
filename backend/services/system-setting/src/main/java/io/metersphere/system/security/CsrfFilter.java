@@ -32,10 +32,10 @@ public class CsrfFilter extends AnonymousFilter {
         if (WebUtils.toHttp(request).getRequestURI().equals("/error")) {
             return true;
         }
-        // todo api 过来的请求
-//        if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
-//            return true;
-//        }
+        // api 过来的请求不需要 csrf
+        if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
+            return true;
+        }
         // websocket 不需要csrf
         String websocketKey = httpServletRequest.getHeader("Sec-WebSocket-Key");
         if (StringUtils.isNotBlank(websocketKey)) {
