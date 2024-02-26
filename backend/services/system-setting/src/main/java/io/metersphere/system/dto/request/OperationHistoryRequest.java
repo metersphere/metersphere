@@ -7,9 +7,15 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class OperationHistoryRequest extends BasePageRequest {
+public class OperationHistoryRequest extends BasePageRequest implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_history.project_id.not_blank}")
@@ -24,10 +30,10 @@ public class OperationHistoryRequest extends BasePageRequest {
     private String createUser;
 
     @Schema(description =  "操作类型")
-    private String type;
+    private List<String> types;
 
     @Schema(description =  "操作模块")
-    private String module;
+    private List<String> modules;
 
 
 }
