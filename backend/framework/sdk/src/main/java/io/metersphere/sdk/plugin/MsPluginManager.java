@@ -11,7 +11,6 @@ public class MsPluginManager extends DefaultPluginManager {
     @Override
     protected ExtensionFinder createExtensionFinder() {
         DefaultExtensionFinder extensionFinder = (DefaultExtensionFinder) super.createExtensionFinder();
-        extensionFinder.addServiceProviderExtensionFinder();
         extensionFinder.add(new JdbcDriverServiceProviderExtensionFinder(this));
         return extensionFinder;
     }
