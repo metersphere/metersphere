@@ -3,6 +3,7 @@ export default {
   'caseManagement.caseReview.waitMyReview': '我评审的',
   'caseManagement.caseReview.myCreate': '我创建的',
   'caseManagement.caseReview.searchPlaceholder': '通过 ID 或名称搜索',
+  'caseManagement.caseReview.list.searchPlaceholder': '通过ID、名称或标签搜索',
   'caseManagement.caseReview.archive': '归档',
   'caseManagement.caseReview.tableNoData': '暂无数据，请',
   'caseManagement.caseReview.name': '评审名称',

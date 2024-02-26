@@ -3,6 +3,7 @@ export default {
   'caseManagement.caseReview.waitMyReview': 'I reviewed',
   'caseManagement.caseReview.myCreate': 'I created',
   'caseManagement.caseReview.searchPlaceholder': 'Search by ID or name',
+  'caseManagement.caseReview.list.searchPlaceholder': 'Search by ID, name, or tag',
   'caseManagement.caseReview.archive': 'Archive',
   'caseManagement.caseReview.tableNoData': 'No data yet, please',
   'caseManagement.caseReview.name': 'Review name',

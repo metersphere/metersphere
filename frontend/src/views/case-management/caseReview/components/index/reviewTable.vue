@@ -5,7 +5,7 @@
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
-        :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
+        :search-placeholder="t('caseManagement.caseReview.list.searchPlaceholder')"
         @keyword-search="(val, filter) => searchReview(filter)"
         @adv-search="searchReview"
         @refresh="searchReview"
