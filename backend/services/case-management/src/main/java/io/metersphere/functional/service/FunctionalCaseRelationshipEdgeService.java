@@ -13,12 +13,16 @@ import io.metersphere.functional.dto.FunctionalCaseRelationshipDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseRelationshipEdgeMapper;
 import io.metersphere.functional.mapper.FunctionalCaseRelationshipEdgeMapper;
 import io.metersphere.functional.request.RelationshipAddRequest;
+import io.metersphere.functional.request.RelationshipDeleteRequest;
 import io.metersphere.functional.request.RelationshipRequest;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.RelationshipEdgeDTO;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.RelationshipEdgeUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -180,9 +184,25 @@ public class FunctionalCaseRelationshipEdgeService {
     }
 
 
-    public void delete(String id) {
-        RelationshipEdgeUtils.updateGraphId(id, extFunctionalCaseRelationshipEdgeMapper::getGraphId, extFunctionalCaseRelationshipEdgeMapper::getEdgeByGraphId, extFunctionalCaseRelationshipEdgeMapper::update);
-        functionalCaseRelationshipEdgeMapper.deleteByPrimaryKey(id);
+    public void delete(RelationshipDeleteRequest request) {
+        checkResource(request);
+        RelationshipEdgeUtils.updateGraphId(request.getId(), extFunctionalCaseRelationshipEdgeMapper::getGraphId, extFunctionalCaseRelationshipEdgeMapper::getEdgeByGraphId, extFunctionalCaseRelationshipEdgeMapper::update);
+        functionalCaseRelationshipEdgeMapper.deleteByPrimaryKey(request.getId());
+    }
+
+    private void checkResource(RelationshipDeleteRequest request) {
+        FunctionalCaseRelationshipEdgeExample example = new FunctionalCaseRelationshipEdgeExample();
+        FunctionalCaseRelationshipEdgeExample.Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(request.getId());
+        if(StringUtils.equalsIgnoreCase(request.getType(), "PRE")){
+            criteria.andTargetIdEqualTo(request.getCaseId());
+        }else {
+            criteria.andSourceIdEqualTo(request.getCaseId());
+        }
+
+        if(functionalCaseRelationshipEdgeMapper.countByExample(example) == 0){
+            throw new MSException(Translator.get("resource_not_exist"));
+        }
     }
 
 

@@ -23,6 +23,8 @@
           :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
           allow-clear
           class="mx-[8px] w-[240px]"
+          @search="searchDependCase"
+          @press-enter="searchDependCase"
         ></a-input-search>
       </div>
     </div>
@@ -171,7 +173,12 @@
   async function cancelDependency(record: any) {
     cancelLoading.value = true;
     try {
-      await cancelPreOrPostCase(record.id);
+      const params = {
+        id: record.id,
+        caseId: record.caseId,
+        type: showType.value === 'preposition' ? 'PRE' : 'POST',
+      };
+      await cancelPreOrPostCase(params);
       Message.success(t('caseManagement.featureCase.cancelFollowSuccess'));
       initData();
     } catch (error) {
@@ -192,6 +199,11 @@
 
   function successHandler() {
     initData();
+  }
+
+  async function searchDependCase() {
+    getParams();
+    await loadList();
   }
 
   watch(

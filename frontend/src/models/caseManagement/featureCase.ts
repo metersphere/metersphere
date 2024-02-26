@@ -350,3 +350,9 @@ export interface ChangeHistoryItem {
   createUserName: string;
   versionName: string;
 }
+//取消前后置依赖关系
+export interface DeleteDependencyParams {
+  id: string;
+  caseId: string;
+  type: string;
+}

@@ -83,6 +83,7 @@ import type {
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
   DeleteCaseType,
+  DeleteDependencyParams,
   DemandItem,
   DragCase,
   ImportExcelType,
@@ -340,8 +341,8 @@ export function addPrepositionRelation(data: TableQueryParams) {
   return MSR.post<ModulesTreeType[]>({ url: AddDependOnRelationUrl, data });
 }
 // 取消依赖关系
-export function cancelPreOrPostCase(id: string) {
-  return MSR.get({ url: `${cancelPreAndPostCaseUrl}/${id}` });
+export function cancelPreOrPostCase(data: DeleteDependencyParams) {
+  return MSR.post({ url: cancelPreAndPostCaseUrl, data });
 }
 // 获取抽屉详情已关联用例列表
 export function getAssociatedCasePage(data: TableQueryParams) {
