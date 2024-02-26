@@ -332,7 +332,7 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCaseId(item.getCaseId());
         caseReviewHistory.setReviewId(item.getReviewId());
         caseReviewHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
-        caseReviewHistory.setCreateUser("system");
+        caseReviewHistory.setCreateUser(UserRoleScope.SYSTEM);
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistory.setDeleted(false);
         caseReviewHistoryMapper.insertSelective(caseReviewHistory);
@@ -490,6 +490,10 @@ public class CaseReviewFunctionalCaseService {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
+            //检查是否全部是通过，全是才是PASS,否则是评审中(如果时自动重新提审，会有个system用户，这里需要排出一下)
+            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) !=null) {
+                hasReviewedUserMap.remove(UserRoleScope.SYSTEM);
+            }
             if (unPassCount.get() > 0) {
                 caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
             } else if (caseReviewFunctionalCaseUsersExp != null && caseReviewFunctionalCaseUsersExp.size() > hasReviewedUserMap.size()) {
