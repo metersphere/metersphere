@@ -23,7 +23,8 @@
             fc.version_id versionId,
             pv.`name` versionName,
             u.`name` userName,
-            fc.num
+            fc.num,
+            fc.id caseId
         FROM
             functional_case_relationship_edge fcre
                 <if test="request.type != null and request.type != ''">
