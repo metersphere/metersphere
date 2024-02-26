@@ -82,34 +82,7 @@
       const { t } = useI18n();
       // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
-
       const codeContainerRef = ref();
-
-      const init = () => {
-        // 注册自定义主题 TODO:自定义主题高亮色还没配置
-        Object.keys(MsCodeEditorTheme).forEach((e) => {
-          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
-        });
-        editor = monaco.editor.create(codeContainerRef.value, {
-          value: props.modelValue,
-          automaticLayout: true,
-          padding: {
-            top: 12,
-            bottom: 12,
-          },
-          minimap: {
-            enabled: false, // 将代码块预览隐藏
-          },
-          ...props,
-        });
-
-        // 监听值的变化
-        editor.onDidChangeModelContent(() => {
-          const value = editor.getValue(); // 给父组件实时返回最新文本
-          emit('update:modelValue', value);
-          emit('change', value);
-        });
-      };
 
       // 用于全屏的容器 ref
       const fullRef = ref<HTMLElement | null>();
@@ -235,11 +208,48 @@
       }
 
       function format() {
-        if (editor) {
-          // 格式化代码 TODO:需要额外的格式化插件或编写格式化配置
-          editor.getAction('editor.action.formatDocument')?.run();
+        if (editor && editor.getValue() !== '' && props.language !== LanguageEnum.PLAINTEXT) {
+          editor.updateOptions({ readOnly: false });
+          // 执行格式化代码的动作
+          editor
+            .getAction('editor.action.formatDocument')
+            ?.run()
+            .then(() => {
+              const value = editor.getValue(); // 给父组件实时返回最新文本
+              editor.updateOptions({ readOnly: true });
+              emit('update:modelValue', value);
+              emit('change', value);
+            });
         }
       }
+
+      const init = () => {
+        // 注册自定义主题 TODO:自定义主题高亮色还没配置
+        Object.keys(MsCodeEditorTheme).forEach((e) => {
+          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
+        });
+        editor = monaco.editor.create(codeContainerRef.value, {
+          value: props.modelValue,
+          automaticLayout: true,
+          padding: {
+            top: 12,
+            bottom: 12,
+          },
+          minimap: {
+            enabled: false, // 将代码块预览隐藏
+          },
+          contextmenu: !props.readOnly, // 只读模式下禁用右键菜单
+          ...props,
+          language: props.language.toLowerCase(),
+        });
+
+        // 监听值的变化
+        editor.onDidChangeModelContent(() => {
+          const value = editor.getValue(); // 给父组件实时返回最新文本
+          emit('update:modelValue', value);
+          emit('change', value);
+        });
+      };
 
       watch(
         () => props.modelValue,
@@ -250,7 +260,8 @@
               editor.setValue(newValue);
             }
           }
-        }
+        },
+        { immediate: true }
       );
 
       watch(
@@ -264,6 +275,7 @@
       watch(
         () => props.language,
         (newValue) => {
+          currentLanguage.value = newValue;
           monaco.editor.setModelLanguage(editor.getModel()!, newValue.toLowerCase()); // 设置语言，语言 ENUM 是大写的，但是 monaco 需要小写
         }
       );
@@ -275,6 +287,17 @@
       onMounted(() => {
         init();
         setEditBoxBg();
+        if (props.readOnly) {
+          format();
+        }
+      });
+
+      onUpdated(() => {
+        setTimeout(() => {
+          if (props.readOnly) {
+            format();
+          }
+        }, 100); // TODO:暂未找到准确的格式化时机
       });
 
       return {

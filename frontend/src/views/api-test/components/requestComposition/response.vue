@@ -109,7 +109,7 @@
         <MsCodeEditor
           v-if="activeTab === ResponseComposition.BODY"
           ref="responseEditorRef"
-          :model-value="props.response.requestResults[0]?.responseResult?.body || ''"
+          :model-value="props.response.requestResults[0]?.responseResult?.body"
           :language="responseLanguage"
           theme="vs"
           height="100%"
@@ -130,7 +130,6 @@
         </MsCodeEditor>
         <MsCodeEditor
           v-else-if="activeTab === ResponseComposition.CONSOLE"
-          ref="responseEditorRef"
           :model-value="response.console.trim()"
           :language="LanguageEnum.PLAINTEXT"
           theme="MS-text"
@@ -283,17 +282,6 @@
     return LanguageEnum.PLAINTEXT;
   });
   const responseEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
-
-  watch(
-    () => props.response,
-    (obj) => {
-      if (obj.requestResults[0].responseResult.body.trim() !== '') {
-        nextTick(() => {
-          responseEditorRef.value?.format();
-        });
-      }
-    }
-  );
 
   const responseTabList = [
     {

@@ -121,12 +121,14 @@
                 activeLayout === 'horizontal' ? ' pr-[16px]' : ''
               }`"
             >
-              <MsTab
-                v-model:active-key="requestVModel.activeTab"
-                :content-tab-list="contentTabList"
-                :get-text-func="getTabBadge"
-                class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
-              />
+              <div>
+                <MsTab
+                  v-model:active-key="requestVModel.activeTab"
+                  :content-tab-list="contentTabList"
+                  :get-text-func="getTabBadge"
+                  class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
+                />
+              </div>
               <div class="tab-pane-container">
                 <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
                   <a-spin
