@@ -84,6 +84,10 @@ export default {
       closeAppend: '关闭: 覆盖原有字段',
       handleUser: '处理人',
       tag: '标签',
+      required: {
+        attribute: '属性不能为空',
+        value: '值不能为空',
+      },
     },
     success: {
       countDownTip: '后回到缺陷列表，也可以手动回到缺陷列表',

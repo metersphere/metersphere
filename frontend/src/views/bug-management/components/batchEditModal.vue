@@ -20,7 +20,7 @@
           field="attribute"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.attribute')"
-          :rules="[{ required: true }]"
+          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.attribute') }]"
         >
           <a-select v-model:model-value="form.attribute" @change="handleAttributeChange">
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
@@ -41,7 +41,7 @@
           field="inputValue"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
-          :rules="[{ required: true }]"
+          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.value') }]"
         >
           <template v-if="valueMode === 'input'">
             <a-input v-model:model-value="form.inputValue" :disabled="!form.attribute" />
@@ -62,7 +62,8 @@
           field="value"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
-          :rules="[{ required: true }]"
+          validate-trigger="blur"
+          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.value') }]"
         >
           <template v-if="valueMode === 'tags'">
             <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
