@@ -77,6 +77,7 @@ export default {
       attribute: 'Select attribute',
       update: 'Batch update to',
       updatePlaceholder: 'Choose update option',
+      appendLabel: 'Append label',
       systemFiled: 'System field',
       customFiled: 'Custom field',
       append: 'append',
