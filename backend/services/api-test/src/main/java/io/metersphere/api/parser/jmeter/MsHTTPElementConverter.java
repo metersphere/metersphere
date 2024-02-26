@@ -96,7 +96,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
 
         // 处理认证信息
-        AuthManager authManager = getAuthManager(sampler, authConfig);
+        AuthManager authManager = getAuthManager(authConfig);
         if (authManager != null) {
             httpTree.add(authManager);
         }
@@ -136,17 +136,16 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     /**
      * 获取认证配置
-     * @param sampler
      * @param authConfig
      * @return
      */
-    private AuthManager getAuthManager(HTTPSamplerProxy sampler, HTTPAuthConfig authConfig) {
+    private AuthManager getAuthManager(HTTPAuthConfig authConfig) {
         if (authConfig == null || !authConfig.isHTTPAuthValid()) {
             return null;
         }
 
         Authorization auth = new Authorization();
-        auth.setURL(sampler.getPath());
+        auth.setURL(StringUtils.EMPTY);
         auth.setMechanism(mechanismMap.get(authConfig.getAuthType()));
         authHanlerMap.get(authConfig.getAuthType()).accept(auth, authConfig);
 
