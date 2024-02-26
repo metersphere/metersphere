@@ -81,7 +81,7 @@
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           :max-length="255"
-          @input="() => addTableLine(rowIndex)"
+          @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         />
       </a-popover>
     </template>
@@ -105,7 +105,7 @@
         v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-full"
-        @change="(val) => handleTypeChange(val, record, rowIndex)"
+        @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
     <template #expressionType="{ record, columnConfig, rowIndex }">
@@ -251,7 +251,7 @@
       />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
-      <div class="flex flex-row items-center">
+      <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
           v-model:model-value="record.disable"
@@ -280,12 +280,17 @@
             </div>
           </template>
         </a-trigger>
-
         <icon-minus-circle
-          v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
+          v-if="props.isTreeTable && record.id !== 0"
           class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
           size="20"
-          @click="deleteParam(rowIndex)"
+          @click="deleteParam(record, rowIndex)"
+        />
+        <icon-minus-circle
+          v-else-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
+          class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
+          size="20"
+          @click="deleteParam(record, rowIndex)"
         />
       </div>
     </template>
@@ -300,22 +305,25 @@
       </a-select>
     </template>
     <template #matchValue="{ record, rowIndex, columnConfig }">
-      <a-tooltip
-        v-if="columnConfig.hasRequired"
-        :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
-      >
-        <MsButton
-          type="icon"
-          :class="[
-            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-            '!mr-[4px] !p-[4px]',
-          ]"
-          @click="toggleRequired(record, rowIndex)"
+      <div class="flex flex-row items-center justify-between">
+        <a-tooltip
+          v-if="columnConfig.hasRequired"
+          :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
         >
-          <div>*</div>
-        </MsButton>
-      </a-tooltip>
-      <a-input v-model="record.matchValue" class="param-input" />
+          <MsButton
+            type="icon"
+            :class="[
+              record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
+              '!mr-[4px] !p-[4px]',
+            ]"
+            @click="toggleRequired(record, rowIndex)"
+          >
+            <div>*</div>
+          </MsButton>
+        </a-tooltip>
+        <a-input v-model="record.matchValue" class="param-input" />
+        <slot name="matchValueDelete" v-bind="{ record, rowIndex, columnConfig }"></slot>
+      </div>
     </template>
     <template #project="{ record, columnConfig, rowIndex }">
       <a-select
@@ -418,6 +426,7 @@
     hasDisable?: boolean; // 用于 operation 列区分是否有 enable 开关
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
+    addLineDisabled?: boolean; // 用于 是否禁用添加新行
   };
 
   const props = withDefaults(
@@ -440,6 +449,7 @@
       showSelectorAll?: boolean; // 是否显示全选
       isSimpleSetting?: boolean; // 是否简单Column设置
       response?: string; // 响应内容
+      isTreeTable?: boolean; // 是否树形表格
       spanMethod?: (data: {
         record: TableData;
         column: TableColumnData | TableOperationColumn;
@@ -474,6 +484,7 @@
     (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
+    (e: 'treeDelete', record: Record<string, any>): void;
   }>();
 
   const appStore = useAppStore();
@@ -537,7 +548,11 @@
 
   const paramsLength = computed(() => propsRes.value.data.length);
 
-  function deleteParam(rowIndex: number) {
+  function deleteParam(record: Record<string, any>, rowIndex: number) {
+    if (props.isTreeTable) {
+      emit('treeDelete', record);
+      return;
+    }
     propsRes.value.data.splice(rowIndex, 1);
     emit('change', propsRes.value.data);
   }
@@ -611,7 +626,10 @@
    * @param key 当前列的 key
    * @param isForce 是否强制添加
    */
-  function addTableLine(rowIndex: number) {
+  function addTableLine(rowIndex: number, addLineDisabled?: boolean) {
+    if (addLineDisabled) {
+      return;
+    }
     if (rowIndex === propsRes.value.data.length - 1) {
       // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
@@ -741,9 +759,10 @@
   function handleTypeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
     record: Record<string, any>,
-    rowIndex: number
+    rowIndex: number,
+    addLineDisabled?: boolean
   ) {
-    addTableLine(rowIndex);
+    addTableLine(rowIndex, addLineDisabled);
     // 根据参数类型自动推断 Content-Type 类型
     if (record.contentType) {
       if (val === 'file') {
@@ -754,6 +773,7 @@
         record.contentType = RequestContentTypeEnum.TEXT;
       }
     }
+    emit('change', propsRes.value.data);
   }
 
   /**
