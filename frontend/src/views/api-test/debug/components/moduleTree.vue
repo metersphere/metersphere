@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full flex-col p-[24px]">
+  <div class="flex h-full flex-col p-[12px_16px]">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
       <a-dropdown @select="handleSelect">
@@ -80,19 +80,6 @@
           </div>
         </template>
         <template #extra="nodeData">
-          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
-          <popConfirm
-            v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
-            mode="add"
-            :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
-            :parent-id="nodeData.id"
-            @close="resetFocusNodeKey"
-            @add-finish="() => initModules()"
-          >
-            <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
-              <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </popConfirm>
           <popConfirm
             v-if="nodeData.id !== 'root'"
             mode="rename"
@@ -105,6 +92,19 @@
             @rename-finish="handleRenameFinish"
           >
             <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
+          </popConfirm>
+          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
+          <popConfirm
+            v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
+            mode="add"
+            :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+            :parent-id="nodeData.id"
+            @close="resetFocusNodeKey"
+            @add-finish="() => initModules()"
+          >
+            <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
+              <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
+            </MsButton>
           </popConfirm>
         </template>
       </MsTree>

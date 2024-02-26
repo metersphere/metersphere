@@ -146,7 +146,7 @@
   const props = withDefaults(
     defineProps<{
       mode: 'button' | 'input';
-      fileList: MsFileItem[];
+      fileList: MsFileItem[]; // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性
       multiple?: boolean;
       inputClass?: string;
       inputSize?: 'small' | 'medium' | 'large' | 'mini';
@@ -221,7 +221,7 @@
     } else {
       inputFileName.value = fileItem.name || '';
     }
-    emit('change', _fileList, fileItem);
+    emit('change', _fileList, { ...fileItem, local: true });
   }
 
   function associatedFile() {

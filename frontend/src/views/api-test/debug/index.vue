@@ -1,6 +1,6 @@
 <template>
   <!-- TODO:接口请求超过5S以上可展示取消请求按钮，避免用户过长等待 -->
-  <MsCard :loading="loading" simple no-content-padding>
+  <MsCard :loading="loading" show-full-screen simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
         <moduleTree
@@ -16,7 +16,7 @@
       </template>
       <template #second>
         <div class="flex h-full flex-col">
-          <div class="border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
+          <div class="border-b border-[var(--color-text-n8)] p-[12px_18px]">
             <MsEditableTab
               v-model:active-tab="activeDebug"
               v-model:tabs="debugTabs"
