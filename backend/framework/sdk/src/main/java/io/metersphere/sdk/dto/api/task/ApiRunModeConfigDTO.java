@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.api.task;
 
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import lombok.Data;
 
 import java.io.Serial;
@@ -12,6 +13,7 @@ public class ApiRunModeConfigDTO implements Serializable {
 
     /**
      * 运行模式 串行/并行
+     * {@link ApiExecuteRunMode}
      */
     private String runMode;
 

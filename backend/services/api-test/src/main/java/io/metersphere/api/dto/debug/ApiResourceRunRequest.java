@@ -39,6 +39,10 @@ public class ApiResourceRunRequest {
      */
     private AbstractMsTestElement testElement;
     /**
+     * 是否是本地执行
+     */
+    private Boolean frontendDebug = false;
+    /**
      * 新上传的文件ID
      * 创建时先按ID创建目录，再把文件放入目录
      */

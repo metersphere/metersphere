@@ -31,4 +31,6 @@ public class ApiDebugRunRequest {
     private Object request;
     @Schema(description = "项目ID")
     private String projectId;
+    @Schema(description = "是否是本地执行")
+    private Boolean frontendDebug = false;
 }

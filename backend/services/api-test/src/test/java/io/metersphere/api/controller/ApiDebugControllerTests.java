@@ -43,6 +43,7 @@ import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
@@ -510,6 +511,12 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement.setEnable(true);
         request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
+
+        // 测试本地调试
+        request.setFrontendDebug(true);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(DEBUG, request);
+        TaskRequestDTO taskRequestDTO = getResultData(mvcResult, TaskRequestDTO.class);
+        Assertions.assertEquals(taskRequestDTO.getReportId(), request.getReportId());
 
         // 测试请求体
         MockMultipartFile file = getMockMultipartFile();
