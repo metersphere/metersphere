@@ -111,15 +111,12 @@ public class ApiExecuteService {
         return reportId + "_" + testId;
     }
 
-    public void debug(ApiResourceRunRequest request, ApiParamConfig parameterConfig) {
-        String reportId = request.getReportId();
-        String testId = request.getTestId();
-
+    public TaskRequestDTO debug(ApiResourceRunRequest request, ApiParamConfig parameterConfig) {
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         BeanUtils.copyBean(taskRequest, request);
         taskRequest.setRealTime(true);
         taskRequest.setSaveResult(false);
-        taskRequest.setResourceId(testId);
+        taskRequest.setResourceId(request.getTestId());
         setServerInfoParam(taskRequest);
 
         // 设置执行文件参数
@@ -134,7 +131,7 @@ public class ApiExecuteService {
 
         String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
-        doDebug(reportId, testId, taskRequest, executeScript, request.getProjectId());
+        return doDebug(request, taskRequest, executeScript);
     }
 
     private GlobalParams getGlobalParam(ApiResourceRunRequest request) {
@@ -148,23 +145,33 @@ public class ApiExecuteService {
     /**
      * 发送执行任务
      *
-     * @param reportId      报告ID
-     * @param testId        资源ID
      * @param taskRequest   执行参数
      * @param executeScript 执行脚本
-     * @param projectId     项目ID
      */
-    private void doDebug(String reportId,
-                         String testId,
-                         TaskRequestDTO taskRequest,
-                         String executeScript,
-                         String projectId) {
+    private TaskRequestDTO doDebug(ApiResourceRunRequest request,
+                                   TaskRequestDTO taskRequest,
+                                   String executeScript) {
+        String reportId = request.getReportId();
+        String testId = request.getTestId();
+        String projectId = request.getProjectId();
 
         // 设置插件文件信息
         taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(projectId));
         ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
         runModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        if (request.getFrontendDebug()) {
+            runModeConfig.setRunMode(ApiExecuteRunMode.FRONTEND_DEBUG.name());
+        }
         taskRequest.setRunModeConfig(runModeConfig);
+
+        // 将测试脚本缓存到 redis
+        String scriptRedisKey = getScriptRedisKey(reportId, testId);
+        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
+
+        if (request.getFrontendDebug()) {
+            // 前端调试返回执行参数，由前端调用本地资源池执行
+            return taskRequest;
+        }
 
         TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(projectId);
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
@@ -174,14 +181,11 @@ public class ApiExecuteService {
         }
         taskRequest.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
 
-        // 将测试脚本缓存到 redis
-        String scriptRedisKey = getScriptRedisKey(reportId, testId);
-        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
-
         try {
             String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
             LogUtils.info(String.format("开始发送请求【 %s 】到 %s 节点执行", testId, endpoint), reportId);
             TaskRunnerClient.debugApi(endpoint, taskRequest);
+            return taskRequest;
         } catch (Exception e) {
             LogUtils.error(e);
             // 调用失败清理脚本
@@ -237,7 +241,12 @@ public class ApiExecuteService {
         taskRequest.setResourceId(testId);
         taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
 
-        doDebug(reportId, testId, taskRequest, executeScript, runRequest.getProjectId());
+        ApiResourceRunRequest apiRunRequest = new ApiResourceRunRequest();
+        apiRunRequest.setTestId(testId);
+        apiRunRequest.setReportId(reportId);
+        apiRunRequest.setProjectId(runRequest.getProjectId());
+        apiRunRequest.setFrontendDebug(false);
+        doDebug(apiRunRequest, taskRequest, executeScript);
         return reportId;
     }
 

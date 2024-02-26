@@ -6,6 +6,7 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -81,7 +82,7 @@ public class ApiDebugController {
     @PostMapping("/debug")
     @Operation(summary = "运行接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_EXECUTE)
-    public String debug(@Validated @RequestBody ApiDebugRunRequest request) {
+    public TaskRequestDTO debug(@Validated @RequestBody ApiDebugRunRequest request) {
         return apiDebugService.debug(request);
     }
 

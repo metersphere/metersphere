@@ -22,6 +22,7 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -204,7 +205,7 @@ public class ApiDebugService {
         return apiFileResourceService.uploadTempFile(file);
     }
 
-    public String debug(ApiDebugRunRequest request) {
+    public TaskRequestDTO debug(ApiDebugRunRequest request) {
         String id = request.getId();
         String reportId = request.getReportId();
 
@@ -222,9 +223,7 @@ public class ApiDebugService {
 
         // 设置使用脚本前后置的公共脚本信息
         apiCommonService.setEnableCommonScriptProcessorInfo(runRequest.getTestElement());
-
-        apiExecuteService.debug(runRequest, paramConfig);
-        return runRequest.getReportId();
+        return apiExecuteService.debug(runRequest, paramConfig);
     }
 
     public void checkModuleExist(String moduleId) {
