@@ -23,7 +23,7 @@
         </template>
         <div class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
         <a-radio-group
-          v-if="!props.hideLayoutSwicth"
+          v-if="!props.hideLayoutSwitch"
           v-model:model-value="innerLayout"
           type="button"
           size="small"
@@ -163,9 +163,12 @@
 
   import { ResponseComposition } from '@/enums/apiEnum';
 
+  import type { RequestParam } from './index.vue';
+
   export interface Response {
     requestResults: {
       body: string;
+      headers: string;
       responseResult: {
         body: string;
         contentType: string;
@@ -191,11 +194,12 @@
       activeLayout?: Direction;
       isExpanded: boolean;
       response: Response;
-      hideLayoutSwicth?: boolean; // 隐藏布局切换
+      request?: RequestParam;
+      hideLayoutSwitch?: boolean; // 隐藏布局切换
     }>(),
     {
       activeLayout: 'vertical',
-      hideLayoutSwicth: false,
+      hideLayoutSwitch: false,
     }
   );
   const emit = defineEmits<{
@@ -313,7 +317,9 @@
       case ResponseComposition.HEADER:
         return props.response.requestResults[0].responseResult.headers.trim();
       case ResponseComposition.REAL_REQUEST:
-        return props.response.requestResults[0].body.trim();
+        return `${t('apiTestDebug.requestUrl')}:\n${props.request?.url}\n${t('apiTestDebug.header')}:\n${
+          props.response.requestResults[0].headers
+        }\nBody:\n${props.response.requestResults[0].body.trim()}`;
       case ResponseComposition.CONSOLE:
         return props.response.console.trim();
       // case ResponseComposition.EXTRACT:

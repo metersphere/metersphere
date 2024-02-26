@@ -118,4 +118,5 @@ export default {
   'common.to': 'To',
   'common.tip': 'Tips',
   'common.stay': 'Stay',
+  'common.apply': 'Apply',
 };

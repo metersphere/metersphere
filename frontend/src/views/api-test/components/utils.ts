@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash-es';
+
 import { ExecuteBody } from '@/models/apiTest/debug';
 import { RequestParamsType } from '@/enums/apiEnum';
 
@@ -98,5 +100,38 @@ export function parseRequestBodyFiles(
     linkFileIds: Array.from(linkFileIds),
     deleteFileIds: saveUploadFileIds?.filter((id) => !tempSaveUploadFileIds.has(id)) || [], // 存储对比已保存的文件后，需要删除的文件 id 集合
     unLinkFileIds: saveLinkFileIds?.filter((id) => !tempSaveLinkFileIds.has(id)) || [], // 存储对比已保存的文件后，需要取消关联的文件 id 集合
+  };
+}
+
+/**
+ * 过滤无效参数
+ * @param params 原始参数数组
+ * @param defaultParamItem 默认参数项
+ */
+export function filterKeyValParams(params: Record<string, any>[], defaultParamItem: Record<string, any>) {
+  const lastData = cloneDeep(params[params.length - 1]);
+  const defaultParam = cloneDeep(defaultParamItem);
+  if (!lastData || !defaultParam) {
+    return {
+      lastDataIsDefault: false,
+      validParams: params,
+    };
+  }
+  // id和enable属性不参与比较
+  delete lastData.id;
+  delete lastData.enable;
+  delete defaultParam.id;
+  delete defaultParam.enable;
+  const lastDataIsDefault = JSON.stringify(lastData) === JSON.stringify(defaultParam);
+  let validParams: Record<string, any>[] = [];
+  if (lastDataIsDefault) {
+    // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个
+    validParams = params.slice(0, params.length - 1);
+  } else {
+    validParams = params;
+  }
+  return {
+    lastDataIsDefault,
+    validParams,
   };
 }

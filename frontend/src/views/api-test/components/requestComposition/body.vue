@@ -13,7 +13,7 @@
     <batchAddKeyVal
       v-if="showParamTable"
       :params="currentTableParams"
-      :default-param-item="defaultParamItem"
+      :default-param-item="defaultBodyParamsItem"
       @apply="handleBatchParamApply"
     />
   </div>
@@ -31,7 +31,7 @@
     :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
-    :default-param-item="defaultParamItem"
+    :default-param-item="defaultBodyParamsItem"
     :upload-temp-file-api="props.uploadTempFileApi"
     @change="handleParamTableChange"
   />
@@ -43,7 +43,7 @@
     :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
-    :default-param-item="defaultParamItem"
+    :default-param-item="defaultBodyParamsItem"
     @change="handleParamTableChange"
   />
   <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
@@ -116,9 +116,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ExecuteBody, ExecuteRequestFormBodyFormValue } from '@/models/apiTest/debug';
-  import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
+  import { ExecuteBody } from '@/models/apiTest/debug';
+  import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { defaultBodyParamsItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     params: ExecuteBody;
@@ -135,19 +137,6 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const defaultParamItem: ExecuteRequestFormBodyFormValue = {
-    key: '',
-    value: '',
-    paramType: RequestParamsType.STRING,
-    description: '',
-    required: false,
-    maxLength: undefined,
-    minLength: undefined,
-    encode: false,
-    enable: true,
-    contentType: RequestContentTypeEnum.TEXT,
-    files: [],
-  };
   const fileList = ref<any[]>(
     innerParams.value.binaryBody && innerParams.value.binaryBody.file ? [innerParams.value.binaryBody.file] : []
   );

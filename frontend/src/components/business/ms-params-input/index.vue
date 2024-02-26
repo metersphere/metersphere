@@ -166,7 +166,7 @@
             </template>
           </a-form>
           <div
-            v-if="paramSettingType === 'mock'"
+            v-if="paramSettingType === 'mock' && paramForm.type !== ''"
             class="mb-[16px] flex items-center gap-[16px] bg-[var(--color-text-n9)] p-[5px_8px]"
           >
             <div class="text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>

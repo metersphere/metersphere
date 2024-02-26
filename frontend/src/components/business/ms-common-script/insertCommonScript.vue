@@ -3,7 +3,7 @@
     v-model:visible="insertScriptDrawer"
     :title="
       props.enableRadioSelected
-        ? t('project.commonScript.insertCommonScript')
+        ? t('project.commonScript.quoteCommonScript')
         : t('project.commonScript.insertCommonScript')
     "
     :width="960"
@@ -16,8 +16,7 @@
     @cancel="handleDrawerCancel"
   >
     <div class="mb-4 flex items-center justify-between">
-      <div v-if="propsRes.data.length" class="font-medium">{{ t('project.commonScript.commonScriptList') }}</div>
-      <a-button v-else type="outline" @click="addCommonScript">
+      <a-button type="outline" @click="addCommonScript">
         {{ t('project.commonScript.addPublicScript') }}
       </a-button>
       <a-input-search

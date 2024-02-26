@@ -118,9 +118,12 @@
             }`"
           >
             <div>
-              <a-tabs v-model:active-key="requestVModel.activeTab" class="no-content mb-[16px]">
-                <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
-              </a-tabs>
+              <MsTab
+                v-model:active-key="requestVModel.activeTab"
+                :content-tab-list="contentTabList"
+                :get-text-func="getTabBadge"
+                class="no-content relative mb-[16px]"
+              ></MsTab>
             </div>
             <div class="tab-pane-container">
               <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
@@ -199,7 +202,8 @@
             v-model:active-tab="requestVModel.responseActiveTab"
             :is-expanded="isExpanded"
             :response="requestVModel.response"
-            :hide-layout-swicth="props.hideResponseLayoutSwitch"
+            :hide-layout-switch="props.hideResponseLayoutSwitch"
+            :request="requestVModel"
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
           />
@@ -255,6 +259,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import debugAuth from './auth.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
@@ -275,10 +280,21 @@
   import { PluginConfig } from '@/models/apiTest/common';
   import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestComposition, RequestMethods, RequestParamsType } from '@/enums/apiEnum';
+  import {
+    RequestAuthType,
+    RequestBodyFormat,
+    RequestComposition,
+    RequestMethods,
+    RequestParamsType,
+  } from '@/enums/apiEnum';
 
-  import { parseRequestBodyFiles } from '../utils';
-  import { Api } from '@form-create/arco-design';
+  import {
+    defaultBodyParamsItem,
+    defaultHeaderParamsItem,
+    defaultRequestParamsItem,
+  } from '@/views/api-test/components/config';
+  import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
+  import type { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
   const debugHeader = defineAsyncComponent(() => import('./header.vue'));
@@ -387,11 +403,40 @@
     },
   ];
   // 根据协议类型获取请求内容tab
-  const contentTabList = computed(() =>
-    isHttpProtocol.value
-      ? httpContentTabList
-      : [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))]
-  );
+  const contentTabList = computed(() => {
+    if (isHttpProtocol.value) {
+      // 接口调试无断言
+      return props.isDefinition
+        ? httpContentTabList
+        : httpContentTabList.filter((e) => e.value !== RequestComposition.ASSERTION);
+    }
+    return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
+  });
+
+  function getTabBadge(tabKey: RequestComposition) {
+    switch (tabKey) {
+      case RequestComposition.HEADER:
+        const headerNum = filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams.length;
+        return `${headerNum > 0 ? headerNum : ''}`;
+      case RequestComposition.BODY:
+        return requestVModel.value.body.bodyType !== RequestBodyFormat.NONE ? '1' : '';
+      case RequestComposition.QUERY:
+        const queryNum = filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams.length;
+        return `${queryNum > 0 ? queryNum : ''}`;
+      case RequestComposition.REST:
+        const restNum = filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams.length;
+        return `${restNum > 0 ? restNum : ''}`;
+      case RequestComposition.PRECONDITION:
+        return `${requestVModel.value.children[0].preProcessorConfig.processors.length || ''}`;
+      case RequestComposition.POST_CONDITION:
+        return `${requestVModel.value.children[0].postProcessorConfig.processors.length || ''}`;
+      case RequestComposition.AUTH:
+        return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
+      default:
+        return '';
+    }
+  }
+
   const protocolLoading = ref(false);
   const protocolOptions = ref<SelectOptionData[]>([]);
   async function initProtocolList() {
@@ -655,8 +700,8 @@
     let parseRequestBodyResult;
     let requestParams;
     if (isHttpProtocol.value) {
-      const realFormDataBodyValues = formDataBody.formValues.filter((e, i) => i !== formDataBody.formValues.length - 1); // 去掉最后一行空行
-      const realWwwFormBodyValues = wwwFormBody.formValues.filter((e, i) => i !== wwwFormBody.formValues.length - 1); // 去掉最后一行空行
+      const realFormDataBodyValues = filterKeyValParams(formDataBody.formValues, defaultBodyParamsItem).validParams;
+      const realWwwFormBodyValues = filterKeyValParams(wwwFormBody.formValues, defaultBodyParamsItem).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
         requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
@@ -673,12 +718,12 @@
             formValues: realWwwFormBodyValues,
           },
         },
-        headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
+        headers: filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams,
         method: requestVModel.value.method,
         otherConfig: requestVModel.value.otherConfig,
         path: requestVModel.value.url || requestVModel.value.path,
-        query: requestVModel.value.query.filter((e, i) => i !== requestVModel.value.query.length - 1), // 去掉最后一行空行
-        rest: requestVModel.value.rest.filter((e, i) => i !== requestVModel.value.rest.length - 1), // 去掉最后一行空行
+        query: filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams,
+        rest: filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams,
         url: requestVModel.value.url,
         polymorphicName,
       };

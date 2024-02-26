@@ -412,9 +412,10 @@
     }
   }
 
-  function handleRenameFinish(newName: string, id: string) {
-    initModules();
+  async function handleRenameFinish(newName: string, id: string) {
     emit('renameFinish', newName, id);
+    await initModules();
+    initModuleCount();
   }
 
   onBeforeMount(async () => {

@@ -9,14 +9,18 @@
         />
       </a-tooltip>
     </div>
-    <batchAddKeyVal :params="innerParams" :default-param-item="defaultParamItem" @apply="handleBatchParamApply" />
+    <batchAddKeyVal
+      :params="innerParams"
+      :default-param-item="defaultRequestParamsItem"
+      @apply="handleBatchParamApply"
+    />
   </div>
   <paramTable
     v-model:params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
-    :default-param-item="defaultParamItem"
+    :default-param-item="defaultRequestParamsItem"
     @change="handleParamTableChange"
   />
 </template>
@@ -32,6 +36,8 @@
   import { ExecuteRequestCommonParam } from '@/models/apiTest/debug';
   import { RequestParamsType } from '@/enums/apiEnum';
 
+  import { defaultRequestParamsItem } from '@/views/api-test/components/config';
+
   const props = defineProps<{
     params: ExecuteRequestCommonParam[];
     layout: 'horizontal' | 'vertical';
@@ -45,17 +51,6 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const defaultParamItem = {
-    key: '',
-    value: '',
-    paramType: RequestParamsType.STRING,
-    description: '',
-    required: false,
-    maxLength: undefined,
-    minLength: undefined,
-    encode: false,
-    enable: true,
-  };
 
   const columns: ParamTableColumn[] = [
     {
