@@ -14,7 +14,7 @@
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
-        @change="handleChange"
+        @change="(data, isInit) => handleChange(data, !!isInit, 'jsonPath')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -99,7 +99,7 @@
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="handleChange"
+        @change="(data, isInit) => handleChange(data, !!isInit, 'xPath')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -168,38 +168,64 @@
       </paramsTable>
     </div>
     <div v-if="activeTab === 'document'" class="relative mt-[16px]">
-      <paramsTable
-        v-model:params="innerParams.document.data"
-        :selectable="false"
-        :columns="documentColumns"
-        :scroll="{
-          minWidth: '700px',
-        }"
-        :height-used="580"
-        :default-param-item="documentDefaultParamItem"
-        :span-method="documentSpanMethod"
-        @change="handleChange"
-        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
-      >
-        <template #operationPre="{ record }">
-          <a-tooltip v-if="['object', 'array'].includes(record.paramType)" :content="t('ms.assertion.addChild')">
-            <div
-              class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-              @click="addChild(record)"
+      <div class="text-[var(--color-text-1)]">
+        {{ t('ms.assertion.responseContentType') }}
+      </div>
+      <a-radio-group v-model:model-value="innerParams.document.responseFormat" class="mt-[16px]" size="small">
+        <a-radio value="JSON">JSON</a-radio>
+        <a-radio value="XML">XML</a-radio>
+      </a-radio-group>
+      <div class="mt-[16px]">
+        <a-checkbox v-model:model-value="innerParams.document.followApi">
+          <span class="text-[var(--color-text-1)]">{{ t('ms.assertion.followApi') }}</span>
+        </a-checkbox>
+      </div>
+      <div class="mt-[16px]">
+        <paramsTable
+          v-model:params="innerParams.document.data"
+          :selectable="false"
+          :columns="documentColumns"
+          :scroll="{
+            minWidth: '700px',
+          }"
+          :height-used="580"
+          :default-param-item="documentDefaultParamItem"
+          :span-method="documentSpanMethod"
+          is-tree-table
+          @tree-delete="deleteAllParam"
+          @change="(data, isInit) => handleChange(data, !!isInit, 'document')"
+        >
+          <template #matchValueDelete="{ record }">
+            <icon-minus-circle
+              v-if="showDeleteSingle && (record.rowSpan > 1 || record.groupId)"
+              class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
+              size="20"
+              @click="deleteSingleParam(record)"
+            />
+          </template>
+          <template #operationPre="{ record }">
+            <a-tooltip v-if="['object', 'array'].includes(record.paramType)" :content="t('ms.assertion.addChild')">
+              <div
+                class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
+                @click="addChild(record)"
+              >
+                <icon-plus size="16" />
+              </div>
+            </a-tooltip>
+            <a-tooltip
+              v-else-if="['string', 'integer', 'number', 'boolean'].includes(record.paramType) && record.id !== rootId"
+              :content="t('ms.assertion.validateChild')"
             >
-              <icon-plus size="16" />
-            </div>
-          </a-tooltip>
-          <a-tooltip v-else :content="t('ms.assertion.validateChild')">
-            <div
-              class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-              @click="addValidateChild(record)"
-            >
-              <icon-bookmark size="16" />
-            </div>
-          </a-tooltip>
-        </template>
-      </paramsTable>
+              <div
+                class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
+                @click="addValidateChild(record)"
+              >
+                <icon-bookmark size="16" />
+              </div>
+            </a-tooltip>
+          </template>
+        </paramsTable>
+      </div>
     </div>
     <div v-if="activeTab === 'regular'" class="mt-[16px]">
       <paramsTable
@@ -208,7 +234,7 @@
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="handleChange"
+        @change="(data, isInit) => handleChange(data, !!isInit, 'regular')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -301,7 +327,14 @@
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { findFirstByGroupId, insertTreeByCurrentId, insertTreeByGroupId } from '@/utils/tree';
+  import {
+    countNodes,
+    countNodesByGroupId,
+    deleteNodeById,
+    deleteNodesByGroupId,
+    findFirstByGroupId,
+    insertNode,
+  } from '@/utils/tree';
 
   import {
     ExecuteConditionProcessor,
@@ -332,6 +365,7 @@
     (e: 'change'): void;
   }>();
   const { t } = useI18n();
+  const rootId = 0; // 1970-01-01 00:00:00 UTC
 
   // const innerParams = defineModel<Param>('modelValue', {
   //   default: {
@@ -350,7 +384,17 @@
     jsonPath: [],
     xPath: { responseFormat: 'XML', data: [] },
     document: {
-      data: [],
+      data: [
+        {
+          id: rootId,
+          paramsName: 'root',
+          mustInclude: false,
+          typeChecking: false,
+          paramType: 'object',
+          matchCondition: '',
+          matchValue: '',
+        },
+      ],
       responseFormat: 'JSON',
       followApi: false,
     },
@@ -439,8 +483,19 @@
     matchValue: '',
     enable: true,
   };
-  const handleChange = () => {
-    emit('change');
+  const handleChange = (data: any[], isInit: boolean, type: string) => {
+    if (isInit) {
+      return;
+    }
+    if (type === 'jsonPath') {
+      innerParams.value.jsonPath = data;
+    } else if (type === 'xPath') {
+      innerParams.value.xPath.data = data;
+    } else if (type === 'document') {
+      innerParams.value.document.data = data;
+    } else if (type === 'regular') {
+      innerParams.value.regular = data;
+    }
   };
   function handleExpressionChange(rowIndex: number) {
     extractParamsTableRef.value?.addTableLine(rowIndex);
@@ -481,6 +536,7 @@
       title: 'ms.assertion.paramsName',
       dataIndex: 'paramsName',
       slotName: 'key',
+      addLineDisabled: true,
       width: 300,
     },
     {
@@ -506,6 +562,7 @@
       showInTable: true,
       showDrag: true,
       columnSelectorDisabled: true,
+      addLineDisabled: true,
       typeOptions: [
         { label: 'object', value: 'object' },
         { label: 'array', value: 'array' },
@@ -516,24 +573,27 @@
       ],
       titleSlotName: 'typeTitle',
       typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
+      width: 100,
     },
     {
       title: 'ms.assertion.matchCondition',
       dataIndex: 'matchCondition',
       slotName: 'matchCondition',
       options: statusCodeOptions,
+      width: 120,
     },
     {
       title: 'ms.assertion.matchValue',
       dataIndex: 'matchValue',
       slotName: 'matchValue',
       hasRequired: true,
+      showDelete: true,
     },
     {
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 60,
+      width: 100,
       align: 'right',
     },
   ];
@@ -626,29 +686,65 @@
     if (record.groupId) {
       // 子项点击，找到父级
       const parent = innerParams.value.document.data.find((item: any) => item.id === record.groupId);
-      insertTreeByCurrentId(innerParams.value.document.data, record.id, {
-        ...documentDefaultParamItem,
-        id: new Date().getTime(),
-        groupId: parent ? parent.id : record.groupId,
-      });
+      insertNode(
+        innerParams.value.document.data,
+        { id: record.id, groupId: record.groupId },
+        {
+          ...record,
+          id: new Date().getTime(),
+          groupId: parent ? parent.id : record.groupId,
+          matchValue: '',
+          matchCondition: '',
+        }
+      );
       if (parent) {
         parent.rowSpan = parent.rowSpan ? parent.rowSpan + 1 : 2;
       } else {
         // 找到第一个子节点
         const fisrtChildNode = findFirstByGroupId(innerParams.value.document.data, record.groupId);
         if (fisrtChildNode) {
-          fisrtChildNode.rowSpan = fisrtChildNode.rowSpan ? fisrtChildNode.rowSpan + 1 : 2;
+          fisrtChildNode.rowSpan = fisrtChildNode.rowSpan
+            ? fisrtChildNode.rowSpan + 1
+            : countNodesByGroupId(innerParams.value.document.data, record.groupId) + 1;
         }
       }
     } else {
-      // 父级点击，直接添加到末尾
-      insertTreeByCurrentId(innerParams.value.document.data, record.id, {
-        ...documentDefaultParamItem,
-        id: new Date().getTime(),
-        groupId: record.id,
-      });
+      record.rowSpan = record.rowSpan ? record.rowSpan + 1 : 2;
+      // 父级点击
+      insertNode(
+        innerParams.value.document.data,
+        { id: record.id, groupId: record.groupId },
+        {
+          ...record,
+          id: new Date().getTime(),
+          groupId: record.id,
+          matchValue: '',
+          matchCondition: '',
+        }
+      );
     }
   };
+  const showDeleteSingle = computed(() => {
+    return countNodes(innerParams.value.document.data) > 1;
+  });
+  const deleteSingleParam = (record: Record<string, any>) => {
+    deleteNodeById(innerParams.value.document.data, record.id);
+  };
+  const deleteAllParam = (record: Record<string, any>) => {
+    if (record.groupId) {
+      // 验证子项,根据groupId删除
+      deleteNodesByGroupId(innerParams.value.document.data, record.groupId);
+    } else if (record.rowspan > 2) {
+      // 验证主体, 根据主体的id 作为groupId删除
+      deleteNodesByGroupId(innerParams.value.document.data, record.id);
+      // 删除本体
+      deleteNodeById(innerParams.value.document.data, record.id);
+    } else {
+      // 删除本体
+      deleteNodeById(innerParams.value.document.data, record.id);
+    }
+  };
+
   const documentSpanMethod = (data: {
     record: TableData;
     column: TableColumnData | TableOperationColumn;
@@ -660,25 +756,12 @@
     const { record, column } = data;
     const currentColumn = column as TableColumnData;
     if (record.rowSpan > 1) {
-      if (currentColumn.slotName === 'key') {
+      const mergeColumns = ['key', 'mustContain', 'typeChecking', 'paramType', 'operation'];
+      if (mergeColumns.includes(currentColumn.title as string)) {
         return {
           rowspan: record.rowSpan,
-          colspan: 1,
-        };
-      }
-      if (currentColumn.slotName === 'operation') {
-        return {
-          rowspan: record.rowSpan,
-          colspan: 1,
-        };
-      }
-      if (currentColumn.slotName === 'mustContain') {
-        return {
-          rowspan: record.rowSpan,
-          colspan: 3,
         };
       }
     }
-    return { rowspan: record.rowSpan, colspan: 1 };
   };
 </script>

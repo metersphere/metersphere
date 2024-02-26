@@ -15,7 +15,7 @@ const useProjectEnvStore = defineStore(
   'projectEnv',
   () => {
     // 项目中的key值
-    const currentId = ref<string>(ALL_PARAM);
+    const currentId = ref<string>('1052215449649153');
     // 项目组选中的key值
     const currentGroupId = ref<string>('');
     const currentEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情
