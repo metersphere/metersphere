@@ -56,11 +56,17 @@
             <if test="request.createUser != null and request.createUser != ''">
                 AND operation_history.create_user = #{request.createUser,jdbcType=VARCHAR}
             </if>
-            <if test="request.type != null and request.type != ''">
-                AND operation_history.`type` = #{request.type,jdbcType=VARCHAR}
+            <if test="request.types != null and request.types.size() > 0">
+                AND operation_history.`type` in
+                <foreach collection="request.types" item="type" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
             </if>
-            <if test="request.module != null and request.module != ''">
-                AND operation_history.`module` = #{request.module,jdbcType=VARCHAR}
+            <if test="request.modules != null and request.modules.size() > 0">
+                AND operation_history.`module` in
+                <foreach collection="request.modules" item="module" open="(" close=")" separator=",">
+                    #{module}
+                </foreach>
             </if>
         </where>
     </select>

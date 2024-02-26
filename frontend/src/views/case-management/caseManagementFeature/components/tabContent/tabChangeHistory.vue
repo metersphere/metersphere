@@ -12,7 +12,9 @@
       <template #name="{ record }">
         <a-button type="text" class="px-0">{{ record.name }}</a-button>
       </template>
-      <template #type> </template>
+      <template #type="{ record }">
+        {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
+      </template>
       <template #operation="{ record }">
         <!-- TODO 这一版本不上 -->
         <!-- <MsRemoveButton
@@ -28,6 +30,7 @@
         /> -->
         <MsButton @click="saveAsHandler(record)">{{ t('caseManagement.featureCase.saveAsVersion') }}</MsButton>
       </template>
+
     </ms-base-table>
     <a-modal
       v-model:visible="showModal"
@@ -122,8 +125,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateTime',
-      slotName: 'updateTime',
-      dataIndex: 'updateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
       width: 200,
     },
     {
@@ -134,6 +137,21 @@
       width: 140,
       showInTable: true,
       showDrag: false,
+    },
+  ];
+
+  const typeOptions = [
+    {
+      label: 'system.log.operateType.add',
+      value: 'ADD',
+    },
+    {
+      label: 'system.log.operateType.update',
+      value: 'UPDATE',
+    },
+    {
+      label: 'system.log.operateType.import',
+      value: 'IMPORT',
     },
   ];
 
@@ -222,7 +240,8 @@
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
-      module: 'FUNCTIONAL_CASE',
+      type:['IMPORT','ADD','UPDATE'],
+      module: ['CASE_MANAGEMENT_CASE_CREATE','CASE_MANAGEMENT_CASE_UPDATE'],
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);
