@@ -147,6 +147,7 @@ public class CustomFunctionService {
     private void checkAddExist(CustomFunction customFunction) {
         CustomFunctionExample example = new CustomFunctionExample();
         example.createCriteria()
+                .andProjectIdEqualTo(customFunction.getProjectId())
                 .andNameEqualTo(customFunction.getName());
         if (customFunctionMapper.countByExample(example) > 0) {
             throw new MSException(ProjectResultCode.CUSTOM_FUNCTION_ALREADY_EXIST);
@@ -156,6 +157,7 @@ public class CustomFunctionService {
     private void checkUpdateExist(CustomFunction customFunction) {
         CustomFunctionExample example = new CustomFunctionExample();
         example.createCriteria()
+                .andProjectIdEqualTo(customFunction.getProjectId())
                 .andIdNotEqualTo(customFunction.getId())
                 .andNameEqualTo(customFunction.getName());
         if (customFunctionMapper.countByExample(example) > 0) {

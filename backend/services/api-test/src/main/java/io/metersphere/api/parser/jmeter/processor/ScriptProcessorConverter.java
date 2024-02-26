@@ -53,7 +53,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
             scriptLanguage = scriptProcessor.getCommonScriptInfo().getScriptLanguage();
             script = scriptProcessor.getCommonScriptInfo().getScript();
         }
-        if (scriptLanguage == null) {
+        if (scriptLanguage == null || StringUtils.equalsIgnoreCase(scriptLanguage, ScriptLanguageType.BEANSHELL_JSR233.name())) {
             scriptLanguage = ScriptLanguageType.BEANSHELL.name();
         }
         testElement.setProperty(JmeterProperty.SCRIPT, script);
