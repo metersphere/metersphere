@@ -482,8 +482,12 @@ const { t } = useI18n();
   };
 
   const handleBatchDelete = (params: BatchActionQueryParams) => {
+    let dataCount = params.selectedIds?.length;
+    if(params.selectAll) {
+      dataCount = params.currentSelectCount;
+    }
     openDeleteModal({
-      title: t('bugManagement.deleteCount', { count: params.selectedIds?.length }),
+      title: t('bugManagement.deleteCount', {count: dataCount}),
       content: t('bugManagement.deleteTip'),
       onBeforeOk: async () => {
         try {

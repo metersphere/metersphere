@@ -91,7 +91,7 @@
         <div>
           <div v-if="showAppend" class="flex flex-row items-center gap-[4px]">
             <a-switch v-model:model-value="form.append" size="small" type="line" />
-            <span class="text-[var(--color-text-1)]">{{ t('bugManagement.batchUpdate.update') }}</span>
+            <span class="text-[var(--color-text-1)]">{{ t('bugManagement.batchUpdate.appendLabel') }}</span>
             <a-tooltip position="top">
               <template #content>
                 <div>{{ t('bugManagement.batchUpdate.openAppend') }}</div>
@@ -188,6 +188,7 @@ const { t } = useI18n();
   const handleCancel = () => {
     formReset();
     currentVisible.value = false;
+    showAppend.value=false;
     loading.value = false;
   };
   const customFiledOption = ref<{ text: string; value: string }[]>([]);
@@ -195,12 +196,12 @@ const { t } = useI18n();
   const handleAttributeChange = (value: SelectValue) => {
     form.value = [];
     form.inputValue = '';
+    showAppend.value = false;
     if (value === 'tags') {
       valueMode.value = 'tags';
       showAppend.value = true;
     } else if (value === 'handleUser') {
       valueMode.value = 'user_selector';
-      showAppend.value = true;
     } else {
       // 自定义字段
       const customField = props.customFields.find((item) => item.fieldId === value);
