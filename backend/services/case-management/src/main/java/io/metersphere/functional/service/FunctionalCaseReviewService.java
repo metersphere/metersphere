@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.FunctionalCaseReviewDTO;
 import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewHistoryMapper;
 import io.metersphere.functional.request.FunctionalCaseReviewListRequest;
+import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,7 @@ public class FunctionalCaseReviewService {
     public List<CaseReviewHistoryDTO> getCaseReviewHistory(String caseId) {
         List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.getHistoryListWidthAbandoned(caseId, null);
         for (CaseReviewHistoryDTO caseReviewHistoryDTO : list) {
-            if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), "system")) {
+            if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), UserRoleScope.SYSTEM)) {
                 caseReviewHistoryDTO.setUserName(Translator.get("case_review_history.system"));
             }
             if (caseReviewHistoryDTO.getContent() != null) {

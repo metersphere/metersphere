@@ -158,12 +158,15 @@ public class ReviewFunctionalCaseService {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
+            //检查是否全部是通过，全是才是PASS,否则是评审中(如果时自动重新提审，会有个system用户，这里需要排出一下)
+            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) !=null) {
+                hasReviewedUserMap.remove(UserRoleScope.SYSTEM);
+            }
             if (unPassCount.get() > 0) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UN_PASS.toString();
             } else if (reviewerNum > hasReviewedUserMap.size()) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
             } else {
-                //检查是否全部是通过，全是才是PASS,否则是评审中
                 if (passCount.get() == hasReviewedUserMap.size()) {
                     functionalCaseStatus = FunctionalCaseReviewStatus.PASS.toString();
                 } else {
@@ -209,7 +212,7 @@ public class ReviewFunctionalCaseService {
     public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(String reviewId, String caseId) {
         List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.getHistoryListWidthAbandoned(caseId, reviewId);
         for (CaseReviewHistoryDTO caseReviewHistoryDTO : list) {
-            if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), "system")) {
+            if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), UserRoleScope.SYSTEM)) {
                 caseReviewHistoryDTO.setUserName(Translator.get("case_review_history.system"));
             }
             if (caseReviewHistoryDTO.getContent() != null) {
