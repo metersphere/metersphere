@@ -10,7 +10,10 @@ import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
-import io.metersphere.functional.request.*;
+import io.metersphere.functional.request.BaseAssociateCaseRequest;
+import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.ReviewFunctionalCaseService;
 import io.metersphere.functional.utils.FileBaseUtils;
@@ -25,6 +28,7 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -184,6 +188,14 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewers.add("default-project-member-user-gyq");
         List<CaseReview> caseReviews = addReview("创建用例评审2", caseIds, reviewers, CaseReviewPassRule.MULTIPLE.toString());
         String reviewId = caseReviews.get(0).getId();
+        CaseReviewHistory caseReviewHistory = new CaseReviewHistory();
+        caseReviewHistory.setReviewId(reviewId);
+        caseReviewHistory.setCaseId("gyqReviewCaseTestTwo");
+        caseReviewHistory.setCreateUser("system");
+        caseReviewHistory.setStatus("RE_REVIEWED");
+        caseReviewHistory.setId(IDGenerator.nextStr());
+        caseReviewHistory.setCreateTime(System.currentTimeMillis());
+        caseReviewHistoryMapper.insertSelective(caseReviewHistory);
         ReviewFunctionalCaseRequest reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
         reviewFunctionalCaseRequest.setCaseId("gyqReviewCaseTestTwo");
@@ -197,13 +209,14 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo").andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
-        Assertions.assertEquals(1, caseReviewHistories.size());
+        Assertions.assertEquals(2, caseReviewHistories.size());
         CaseReviewFunctionalCaseExample  caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo");
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审2");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+        System.out.println(caseReviews1.get(0).getStatus());
+        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
 
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -218,7 +231,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo");
         caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
 
 
     }
