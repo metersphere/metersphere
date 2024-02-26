@@ -15,7 +15,7 @@ public class FunctionalCaseRelationshipDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "id")
+    @Schema(description = "关联表id")
     private String id;
 
     @Schema(description = "用例名称")
@@ -32,5 +32,8 @@ public class FunctionalCaseRelationshipDTO implements Serializable {
 
     @Schema(description = "num")
     private String num;
+
+    @Schema(description = "caseId")
+    private String caseId;
 
 }
