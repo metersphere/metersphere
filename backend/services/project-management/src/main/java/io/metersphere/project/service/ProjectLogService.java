@@ -1,9 +1,9 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.ProjectRequest;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -22,7 +22,7 @@ public class ProjectLogService {
      * @param request
      * @return
      */
-    public LogDTO updateLog(UpdateProjectRequest request) {
+    public LogDTO updateLog(ProjectRequest request) {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(

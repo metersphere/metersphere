@@ -1,6 +1,7 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.domain.*;
+import io.metersphere.project.dto.ProjectRequest;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
@@ -17,7 +18,6 @@ import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
@@ -105,7 +105,7 @@ public class ProjectService {
         return commonProjectService.get(id);
     }
 
-    public ProjectDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+    public ProjectDTO update(ProjectRequest updateProjectDto, String updateUser) {
         Project project = new Project();
         ProjectDTO projectDTO = new ProjectDTO();
         project.setId(updateProjectDto.getId());
