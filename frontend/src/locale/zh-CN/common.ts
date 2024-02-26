@@ -121,4 +121,5 @@ export default {
   'common.to': '至',
   'common.tip': '温馨提示',
   'common.stay': '留下',
+  'common.apply': '应用',
 };

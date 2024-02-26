@@ -404,6 +404,7 @@
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
+  import { filterKeyValParams } from './utils';
   import { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
   // 异步加载组件
   const MsAddAttachment = defineAsyncComponent(() => import('@/components/business/ms-add-attachment/index.vue'));
@@ -627,9 +628,12 @@
 
   watch(
     () => props.params,
-    (val) => {
-      if (val.length > 0) {
-        propsRes.value.data = val;
+    (arr) => {
+      if (arr.length > 0) {
+        propsRes.value.data = arr;
+        if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault) {
+          addTableLine(arr.length - 1);
+        }
       } else {
         const id = new Date().getTime().toString();
         propsRes.value.data = [

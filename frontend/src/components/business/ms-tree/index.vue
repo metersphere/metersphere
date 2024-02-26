@@ -29,7 +29,7 @@
           v-if="_props.hideMoreAction !== true"
           :class="[
             'ms-tree-node-extra',
-            innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '',
+            innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '', // TODO:通过下拉菜单的显示隐藏去控制聚焦状态似乎能有更好的性能
           ]"
         >
           <div
@@ -467,6 +467,7 @@
         }
       }
       .arco-tree-node-selected {
+        background-color: rgb(var(--primary-1));
         .arco-tree-node-minus-icon,
         .arco-tree-node-plus-icon {
           border: 1px solid rgb(var(--primary-5));

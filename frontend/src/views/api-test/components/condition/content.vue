@@ -99,7 +99,7 @@
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
         <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
           <div class="text-[var(--color-text-2)]">
-            {{ condition.scriptName || '-' }}
+            {{ condition.commonScriptInfo?.name || '-' }}
           </div>
           <a-divider margin="8px" direction="vertical" />
           <MsButton type="text" class="font-medium" @click="showQuoteDrawer = true">
@@ -320,6 +320,14 @@
     :checked-id="condition.scriptId"
     enable-radio-selected
     @save="saveQuoteScriptHandler"
+    @add-script="showAddScriptDrawer = true"
+  />
+  <AddScriptDrawer
+    v-model:visible="showAddScriptDrawer"
+    v-model:params="paramsList"
+    :confirm-loading="confirmLoading"
+    ok-text="common.apply"
+    :enable-radio-selected="true"
   />
 </template>
 
@@ -336,6 +344,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import InsertCommonScript from '@/components/business/ms-common-script/insertCommonScript.vue';
+  import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
   import MsScriptDefined from '@/components/business/ms-common-script/scriptDefined.vue';
   import fastExtraction from '../fastExtraction/index.vue';
   import moreSetting from '../fastExtraction/moreSetting.vue';
@@ -345,6 +354,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import { ParamsRequestType } from '@/models/projectManagement/commonScript';
   import {
     RequestConditionProcessor,
     RequestExtractEnvType,
@@ -477,6 +487,10 @@ if (!result){
     propsRes.value.data = (condition.value.commonScriptInfo?.params as any[]) || [];
     showQuoteDrawer.value = false;
   }
+
+  const showAddScriptDrawer = ref(false);
+  const paramsList = ref<ParamsRequestType[]>([]);
+  const confirmLoading = ref(false);
 
   const sqlSourceColumns: ParamTableColumn[] = [
     {

@@ -1,14 +1,18 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
-    <batchAddKeyVal :params="innerParams" :default-param-item="defaultParamItem" @apply="handleBatchParamApply" />
+    <batchAddKeyVal
+      :params="innerParams"
+      :default-param-item="defaultHeaderParamsItem"
+      @apply="handleBatchParamApply"
+    />
   </div>
   <paramTable
     v-model:params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="scroll"
-    :default-param-item="defaultParamItem"
+    :default-param-item="defaultHeaderParamsItem"
     draggable
     @change="handleParamTableChange"
   />
@@ -24,6 +28,8 @@
 
   import { EnableKeyValueParam } from '@/models/apiTest/debug';
 
+  import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
+
   const props = defineProps<{
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
@@ -38,12 +44,6 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const defaultParamItem = {
-    key: '',
-    value: '',
-    description: '',
-    enable: true,
-  };
 
   const columns: ParamTableColumn[] = [
     {
