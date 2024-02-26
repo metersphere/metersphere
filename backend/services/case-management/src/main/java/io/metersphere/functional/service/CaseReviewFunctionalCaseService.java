@@ -332,7 +332,7 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCaseId(item.getCaseId());
         caseReviewHistory.setReviewId(item.getReviewId());
         caseReviewHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
-        caseReviewHistory.setCreateUser("system");
+        caseReviewHistory.setCreateUser(UserRoleScope.SYSTEM);
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistory.setDeleted(false);
         caseReviewHistoryMapper.insertSelective(caseReviewHistory);
