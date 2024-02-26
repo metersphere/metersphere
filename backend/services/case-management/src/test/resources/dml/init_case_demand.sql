@@ -22,6 +22,10 @@ VALUES ('DEMAND_TEST_FUNCTIONAL_CASE_ID3', 1, 'DEMAND_TEST_MODULE_ID', 'project-
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('DEMAND_TEST_FUNCTIONAL_CASE_ID4', 1, 'DEMAND_TEST_MODULE_ID', 'project-case-demand-test', '100001', '关联需求测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'DEMAND_TEST_FUNCTIONAL_CASE_ID4', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('DEMAND_TEST_FUNCTIONAL_CASE_ID5', 1, 'DEMAND_TEST_MODULE_ID', 'gyq_project-case-demand-test', '100001', '关联需求测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'DEMAND_TEST_FUNCTIONAL_CASE_ID5', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('DEMAND_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id_demand1', '22');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('DEMAND_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id_demand2', '33');
 

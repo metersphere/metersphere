@@ -5,10 +5,7 @@ import io.metersphere.functional.domain.FunctionalCaseDemandExample;
 import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
-import io.metersphere.functional.request.FunctionalCaseDemandBatchRequest;
-import io.metersphere.functional.request.FunctionalCaseDemandRequest;
-import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
-import io.metersphere.functional.request.QueryDemandListRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -80,6 +77,24 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @Order(1)
     @Sql(scripts = {"/dml/init_case_demand.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void addDemandSuccess() throws Exception {
+        basePluginTestService.addJiraPlugin();
+        basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/rest/api/2/search"))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+
+                );
+        FunctionalDemandBatchRequest functionalDemandBatchRequest = new FunctionalDemandBatchRequest();
+        functionalDemandBatchRequest.setSelectAll(false);
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemandRequest.setDemandPlatform("Metersphere");
@@ -124,6 +139,14 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID").andDemandNameLike("%手动加入孩子超长名字%");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertFalse(functionalCaseDemands.isEmpty());
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setFunctionalDemandBatchRequest(functionalDemandBatchRequest);
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID5");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
+        functionalDemandBatchRequest.setSelectAll(true);
+        functionalCaseDemandRequest.setFunctionalDemandBatchRequest(functionalDemandBatchRequest);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
     }
 
     @Test
@@ -505,6 +528,16 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         System.out.println(jsonString);
         functionalCaseDemandBatchRequest.setDemandList(new ArrayList<>());
         this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+
+        functionalCaseDemandBatchRequest = new FunctionalCaseDemandBatchRequest();
+        functionalCaseDemandBatchRequest.setSelectAll(true);
+        functionalCaseDemandBatchRequest.setProjectId("gyq_project-case-demand-test");
+        functionalCaseDemandBatchRequest.setDemandPlatform("jira");
+        FunctionalDemandBatchRequest functionalDemandBatchRequest = new FunctionalDemandBatchRequest();
+        functionalDemandBatchRequest.setSelectAll(true);
+        functionalCaseDemandBatchRequest.setFunctionalDemandBatchRequest(functionalDemandBatchRequest);
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+
     }
 
     @Test
@@ -589,22 +622,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @Test
     @Order(15)
     public void pageDemandSuccess() throws Exception {
-        basePluginTestService.addJiraPlugin();
-        basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
-        mockServerClient
-                .when(
-                        request()
-                                .withMethod("GET")
-                                .withPath("/rest/api/2/search"))
-                .respond(
-                        response()
-                                .withStatusCode(200)
-                                .withHeaders(
-                                        new Header("Content-Type", "application/json; charset=utf-8"),
-                                        new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
 
-                );
         FunctionalThirdDemandPageRequest functionalThirdDemandPageRequest = new FunctionalThirdDemandPageRequest();
         functionalThirdDemandPageRequest.setProjectId("gyq_project-case-demand-test");
         functionalThirdDemandPageRequest.setPageSize(10);
