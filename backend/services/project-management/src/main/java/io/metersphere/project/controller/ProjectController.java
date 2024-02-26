@@ -1,12 +1,12 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.ProjectRequest;
 import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.project.service.ProjectLogService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
@@ -58,8 +58,8 @@ public class ProjectController {
     @Operation(summary = "项目管理-更新项目")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectLogService.class)
-    @CheckOwner(resourceId = "#request.id", resourceType = "project")
-    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest request) {
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "project")
+    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) ProjectRequest request) {
         return projectService.update(request, SessionUtils.getUserId());
     }
 
