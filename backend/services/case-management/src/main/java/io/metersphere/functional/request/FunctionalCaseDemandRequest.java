@@ -28,4 +28,8 @@ public class FunctionalCaseDemandRequest {
 
     @Schema(description = "需求集合")
     private List<DemandDTO> demandList;
+
+    @Schema(description = "全选需求时的过滤条件")
+    private FunctionalDemandBatchRequest functionalDemandBatchRequest;
+
 }

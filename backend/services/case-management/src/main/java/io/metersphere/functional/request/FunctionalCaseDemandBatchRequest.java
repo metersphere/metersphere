@@ -22,6 +22,11 @@ public class FunctionalCaseDemandBatchRequest extends BaseFunctionalCaseBatchDTO
     @NotBlank(message = "{functional_case_demand.demand_platform.not_blank}")
     private String demandPlatform;
 
-    @Schema(description = "需求集合")
+    @Schema(description = "需求集合(全选时可为空)")
     private List<DemandDTO> demandList;
+
+    @Schema(description = "全选需求时的过滤条件")
+    private FunctionalDemandBatchRequest functionalDemandBatchRequest;
+
+
 }
