@@ -1,6 +1,5 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
     <batchAddKeyVal
       :params="innerParams"
       :default-param-item="defaultHeaderParamsItem"

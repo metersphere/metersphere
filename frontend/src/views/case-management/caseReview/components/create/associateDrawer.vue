@@ -1,8 +1,8 @@
 <template>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:project-id="innerProject"
     v-model:currentSelectCase="currentSelectCase"
+    :project-id="innerProject"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getCaseModuleTree"
     :get-table-func="getCaseList"
@@ -10,6 +10,7 @@
     :associated-ids="[]"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     :table-params="{ reviewId: props.reviewId }"
+    hide-project-select
     @close="emit('close')"
     @save="saveHandler"
   >

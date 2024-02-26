@@ -24,7 +24,6 @@
       no-disable
       filter-icon-align-left
       v-on="propsEvent"
-      @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
       <template #statusFilter="{ columnConfig }">
@@ -139,7 +138,7 @@
       title-align="start"
       class="ms-modal-no-padding ms-modal-small"
       :mask-closable="false"
-      :ok-text="t('caseManagement.caseReview.batchMoveConfirm', { count: tableSelected.length })"
+      :ok-text="t('caseManagement.caseReview.batchMoveConfirm', { count: batchParams.currentSelectCount })"
       :ok-button-props="{ disabled: selectedModuleKeys.length === 0 }"
       :cancel-button-props="{ disabled: batchMoveFileLoading }"
       :on-before-ok="handleReviewMove"
@@ -149,7 +148,7 @@
         <div class="flex items-center">
           {{ t('caseManagement.caseReview.batchMove') }}
           <div class="ml-[4px] text-[var(--color-text-4)]">
-            {{ t('caseManagement.caseReview.batchMoveTitleSub', { count: tableSelected.length }) }}
+            {{ t('caseManagement.caseReview.batchMoveTitleSub', { count: batchParams.currentSelectCount }) }}
           </div>
         </div>
       </template>
@@ -466,6 +465,7 @@
       showSetting: true,
       selectable: true,
       showSelectAll: true,
+      heightUsed: 344,
     },
     (item) => {
       return {
@@ -538,20 +538,12 @@
     }
   }
 
-  const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],
     selectAll: false,
     excludeIds: [],
     currentSelectCount: 0,
   });
-
-  /**
-   * 处理表格选中
-   */
-  function handleTableSelect(arr: (string | number)[]) {
-    tableSelected.value = arr;
-  }
 
   const dialogVisible = ref<boolean>(false);
   const activeRecord = ref({
@@ -638,13 +630,13 @@
         selectIds: batchParams.value?.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
+        currentSelectCount: batchParams.value?.currentSelectCount || 0,
         condition: { keyword: keyword.value },
         projectId: appStore.currentProjectId,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
         moveModuleId: selectedModuleKeys.value[0],
       });
       Message.success(t('caseManagement.caseReview.batchMoveSuccess'));
-      tableSelected.value = [];
       loadList();
       resetSelector();
       emit('init', { ...tableQueryParams.value });
@@ -673,7 +665,6 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
     switch (event.eventTag) {
       case 'move':

@@ -13,6 +13,7 @@
       v-model:model-value="innerValue"
       :max-length="255"
       class="param-input"
+      :size="props.size"
       @input="(val) => emit('input', val)"
       @change="(val) => emit('change', val)"
     />
@@ -26,6 +27,7 @@
 
   const props = defineProps<{
     desc: string;
+    size?: 'small' | 'large' | 'medium' | 'mini';
   }>();
   const emit = defineEmits<{
     (e: 'update:desc', val: string): void;

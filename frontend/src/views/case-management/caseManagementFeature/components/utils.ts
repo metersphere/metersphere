@@ -96,7 +96,6 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
   const fileFormatMatch = fileName.match(/\.([a-zA-Z0-9]+)$/);
   const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
   const type = getFileEnum(fileFormatType);
-  console.log(type);
   const file = new File([new Blob()], `${fileName}`, {
     type: `application/${type}`,
   });

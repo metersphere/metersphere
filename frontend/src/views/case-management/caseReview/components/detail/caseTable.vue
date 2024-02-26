@@ -30,7 +30,6 @@
       no-disable
       filter-icon-align-left
       v-on="propsEvent"
-      @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
       <template #resultTitle>
@@ -113,7 +112,7 @@
             />
           </a-tooltip>
           <div class="ml-[8px] font-normal text-[var(--color-text-4)]">
-            ({{ t('caseManagement.caseReview.selectedCase', { count: tableSelected.length }) }})
+            ({{ t('caseManagement.caseReview.selectedCase', { count: batchParams.currentSelectCount }) }})
           </div>
         </div>
       </template>
@@ -359,7 +358,7 @@
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
-      heightUsed: 484,
+      heightUsed: 472,
       showSetting: true,
       selectable: true,
       showSelectAll: true,
@@ -429,20 +428,13 @@
     }
   );
 
-  const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchApiParams>({
     selectIds: [],
     selectAll: false,
     excludeIds: [] as string[],
     condition: {},
+    currentSelectCount: 0,
   });
-
-  /**
-   * 处理表格选中
-   */
-  function handleTableSelect(arr: (string | number)[]) {
-    tableSelected.value = arr;
-  }
 
   const dialogVisible = ref<boolean>(false);
   const defaultDialogForm = {
@@ -528,7 +520,7 @@
   function batchDisassociate() {
     openModal({
       type: 'warning',
-      title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: tableSelected.value.length }),
+      title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount }),
       content: t('caseManagement.caseReview.disassociateTipContent'),
       okText: t('caseManagement.caseReview.disassociate'),
       cancelText: t('common.cancel'),
@@ -538,11 +530,8 @@
           await batchDisassociateReviewCase({
             reviewId: route.query.id as string,
             userId: props.onlyMine ? userStore.id || '' : '',
-            selectIds: batchParams.value.selectIds,
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value.excludeIds,
-            condition: batchParams.value.condition,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+            ...batchParams.value,
           });
           Message.success(t('common.updateSuccess'));
           resetSelector();
@@ -570,11 +559,8 @@
         status: 'RE_REVIEWED',
         content: dialogForm.value.reason,
         notifier: dialogForm.value.commentIds.join(';'),
-        selectIds: batchParams.value.selectIds,
-        selectAll: batchParams.value.selectAll,
-        excludeIds: batchParams.value.excludeIds,
-        condition: batchParams.value.condition,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+        ...batchParams.value,
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
@@ -600,11 +586,8 @@
             userId: props.onlyMine ? userStore.id || '' : '',
             reviewerId: dialogForm.value.reviewer,
             append: dialogForm.value.isAppend, // 是否追加
-            selectIds: batchParams.value.selectIds,
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value.excludeIds,
-            condition: batchParams.value.condition,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+            ...batchParams.value,
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
@@ -633,11 +616,8 @@
             status: dialogForm.value.result as ReviewResult,
             content: dialogForm.value.reason,
             notifier: dialogForm.value.commentIds.join(';'),
-            selectIds: batchParams.value.selectIds,
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value.excludeIds,
-            condition: batchParams.value.condition,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+            ...batchParams.value,
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
@@ -688,7 +668,6 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
     switch (event.eventTag) {
       case 'review':

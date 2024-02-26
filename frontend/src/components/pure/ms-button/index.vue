@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="`ms-button ms-button-${props.type} ms-button--${props.status} ${
+    :class="`ms-button ms-button-${props.type} ms-button--${props.status} ms-button--${props.size} ${
       props.disabled || props.loading ? `ms-button--disabled ms-button--${props.status}--disabled` : ''
     }`"
     :disabled="props.disabled"
@@ -18,10 +18,12 @@
       status?: 'primary' | 'danger' | 'secondary' | 'default';
       disabled?: boolean;
       loading?: boolean;
+      size?: 'mini' | 'small' | 'medium' | 'large';
     }>(),
     {
       type: 'text',
       status: 'primary',
+      size: 'medium',
     }
   );
 
@@ -98,5 +100,9 @@
   }
   .ms-button--secondary--disabled {
     color: var(--color-text-brand);
+  }
+  .ms-button--mini {
+    padding: 0 2px;
+    font-size: 12px;
   }
 </style>

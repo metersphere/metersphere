@@ -39,24 +39,26 @@
       </div>
     </template>
     <template #second>
-      <div
-        v-if="props.direction === 'horizontal' && props.expandDirection === 'left' && !props.disabled"
-        class="absolute h-full w-[16px]"
-      >
-        <div class="expand-icon" @click="() => changeExpand()">
-          <MsIcon
-            :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
-            class="text-[var(--color-text-brand)]"
-            size="12"
-          />
+      <div class="ms-split-box-second">
+        <div
+          v-if="props.direction === 'horizontal' && props.expandDirection === 'left' && !props.disabled"
+          class="absolute h-full w-[16px]"
+        >
+          <div class="expand-icon" @click="() => changeExpand()">
+            <MsIcon
+              :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
+              class="text-[var(--color-text-brand)]"
+              size="12"
+            />
+          </div>
         </div>
-      </div>
-      <div
-        :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--right' : 'ms-split-box--bottom'} ${
-          props.secondContainerClass
-        }`"
-      >
-        <slot name="second"></slot>
+        <div
+          :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--right' : 'ms-split-box--bottom'} ${
+            props.secondContainerClass
+          }`"
+        >
+          <slot name="second"></slot>
+        </div>
       </div>
     </template>
   </a-split>
@@ -181,13 +183,21 @@
     width: calc(v-bind(innerSize) - 2px);
   }
   .expand-icon {
-    @apply relative z-20 flex cursor-pointer justify-center;
+    @apply invisible relative z-20 flex cursor-pointer justify-center;
 
     top: 25%;
     transform: translateY(50%);
     padding: 12px 2px;
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
-    background-color: var(--color-text-n8);
+    background-color: var(--color-text-n9);
+  }
+  .ms-split-box-second {
+    @apply h-full;
+    &:hover {
+      .expand-icon {
+        @apply visible;
+      }
+    }
   }
   .ms-split-box--right {
     @apply w-full;

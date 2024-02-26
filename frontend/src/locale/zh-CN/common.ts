@@ -122,4 +122,5 @@ export default {
   'common.tip': '温馨提示',
   'common.stay': '留下',
   'common.apply': '应用',
+  'common.stop': '停止',
 };

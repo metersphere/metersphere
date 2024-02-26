@@ -81,6 +81,7 @@
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           :max-length="255"
+          size="mini"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         />
       </a-popover>
@@ -96,6 +97,7 @@
             record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
             '!mr-[4px] !p-[4px]',
           ]"
+          size="mini"
           @click="toggleRequired(record, rowIndex)"
         >
           <div>*</div>
@@ -105,6 +107,7 @@
         v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-full"
+        size="mini"
         @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
@@ -113,6 +116,7 @@
         v-model:model-value="record.expressionType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[110px]"
+        size="mini"
         @change="() => addTableLine(rowIndex)"
       />
     </template>
@@ -121,6 +125,7 @@
         v-model:model-value="record.variableType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[110px]"
+        size="mini"
         @change="() => addTableLine(rowIndex)"
       />
     </template>
@@ -129,6 +134,7 @@
         v-model:model-value="record.extractScope"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[180px]"
+        size="mini"
         @change="() => addTableLine(rowIndex)"
       />
     </template>
@@ -155,6 +161,7 @@
           class="param-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
+          size="mini"
           @input="() => addTableLine(rowIndex)"
         />
       </a-popover>
@@ -170,11 +177,12 @@
         input-class="param-input h-[24px]"
         input-size="small"
         tag-size="small"
-        @change="(files) => handleFileChange(files, record, rowIndex)"
+        @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
       />
       <MsParamsInput
         v-else
         v-model:value="record.value"
+        size="mini"
         @change="() => addTableLine(rowIndex)"
         @dblclick="quickInputParams(record)"
         @apply="() => addTableLine(rowIndex)"
@@ -187,6 +195,7 @@
           :placeholder="t('apiTestDebug.paramMin')"
           :min="0"
           class="param-input param-input-number"
+          size="mini"
           @change="() => addTableLine(rowIndex)"
         />
         <div class="mx-[4px]">{{ t('common.to') }}</div>
@@ -195,6 +204,7 @@
           :placeholder="t('apiTestDebug.paramMax')"
           :min="0"
           class="param-input"
+          size="mini"
           @change="() => addTableLine(rowIndex)"
         />
       </div>
@@ -217,6 +227,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :max-tag-count="1"
           input-class="param-input"
+          size="mini"
           @change="() => addTableLine(rowIndex)"
         />
       </a-popover>
@@ -224,6 +235,7 @@
     <template #description="{ record, columnConfig, rowIndex }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
+        size="mini"
         @input="() => addTableLine(rowIndex)"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
@@ -250,6 +262,50 @@
         @change="handleTypeCheckingColChange(false)"
       />
     </template>
+    <template #responseHeader="{ record, columnConfig, rowIndex }">
+      <a-select v-model="record.responseHeader" class="param-input" size="mini" @change="() => addTableLine(rowIndex)">
+        <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
+      </a-select>
+    </template>
+    <template #matchCondition="{ record, columnConfig }">
+      <a-select v-model="record.condition" size="mini" class="param-input">
+        <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
+      </a-select>
+    </template>
+    <template #matchValue="{ record, rowIndex, columnConfig }">
+      <a-tooltip
+        v-if="columnConfig.hasRequired"
+        :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
+      >
+        <MsButton
+          type="icon"
+          :class="[
+            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
+            '!mr-[4px] !p-[4px]',
+          ]"
+          size="mini"
+          @click="toggleRequired(record, rowIndex)"
+        >
+          <div>*</div>
+        </MsButton>
+      </a-tooltip>
+      <a-input v-model="record.matchValue" size="mini" class="param-input" />
+    </template>
+    <template #project="{ record, columnConfig, rowIndex }">
+      <a-select
+        v-model="record.projectId"
+        class="param-input"
+        size="mini"
+        @change="(val) => handelProjectChange(val as string, record.projectId, rowIndex)"
+      >
+        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
+      </a-select>
+    </template>
+    <template #environment="{ record, columnConfig }">
+      <a-select v-model="record.environmentId" size="mini" class="param-input">
+        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
+      </a-select>
+    </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
@@ -267,7 +323,7 @@
           @select="(e) => handleMoreActionSelect(e, record)"
         />
         <a-trigger v-if="columnConfig.format === RequestBodyFormat.FORM_DATA" trigger="click" position="br">
-          <MsButton type="icon" class="mr-[8px]"><icon-more /></MsButton>
+          <MsButton type="icon" class="!mr-[8px]" size="mini"><icon-more /></MsButton>
           <template #content>
             <div class="content-type-trigger-content">
               <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
@@ -275,6 +331,7 @@
                 v-model:model-value="record.contentType"
                 :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
                 allow-create
+                size="mini"
                 @change="(val) => addTableLine(val as number)"
               />
             </div>
@@ -293,51 +350,6 @@
           @click="deleteParam(record, rowIndex)"
         />
       </div>
-    </template>
-    <template #responseHeader="{ record, columnConfig, rowIndex }">
-      <a-select v-model="record.responseHeader" class="param-input" @change="() => addTableLine(rowIndex)">
-        <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
-      </a-select>
-    </template>
-    <template #matchCondition="{ record, columnConfig }">
-      <a-select v-model="record.condition" class="param-input">
-        <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
-      </a-select>
-    </template>
-    <template #matchValue="{ record, rowIndex, columnConfig }">
-      <div class="flex flex-row items-center justify-between">
-        <a-tooltip
-          v-if="columnConfig.hasRequired"
-          :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
-        >
-          <MsButton
-            type="icon"
-            :class="[
-              record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-              '!mr-[4px] !p-[4px]',
-            ]"
-            @click="toggleRequired(record, rowIndex)"
-          >
-            <div>*</div>
-          </MsButton>
-        </a-tooltip>
-        <a-input v-model="record.matchValue" class="param-input" />
-        <slot name="matchValueDelete" v-bind="{ record, rowIndex, columnConfig }"></slot>
-      </div>
-    </template>
-    <template #project="{ record, columnConfig, rowIndex }">
-      <a-select
-        v-model="record.projectId"
-        class="param-input"
-        @change="(val) => handelProjectChange(val as string, record.projectId, rowIndex)"
-      >
-        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
-      </a-select>
-    </template>
-    <template #environment="{ record, columnConfig }">
-      <a-select v-model="record.environmentId" class="param-input">
-        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
-      </a-select>
     </template>
   </MsBaseTable>
   <a-modal
@@ -391,7 +403,7 @@
 
 <script async setup lang="ts">
   import { TableColumnData, TableData } from '@arco-design/web-vue';
-  import { cloneDeep, isEqual } from 'lodash-es';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -500,7 +512,7 @@
   initColumns();
 
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
-    firstColumnWidth: 24,
+    firstColumnWidth: 32,
     tableKey: props.showSetting ? props.tableKey : undefined,
     scroll: props.scroll,
     heightUsed: props.heightUsed,
@@ -675,9 +687,14 @@
     emit('change', propsRes.value.data);
   }
 
-  async function handleFileChange(files: MsFileItem[], record: Record<string, any>, rowIndex: number) {
+  async function handleFileChange(
+    files: MsFileItem[],
+    record: Record<string, any>,
+    rowIndex: number,
+    file?: MsFileItem
+  ) {
     try {
-      if (props.uploadTempFileApi && files.length === 1) {
+      if (props.uploadTempFileApi && file?.local) {
         // 本地上传单次只能选一个文件
         const fileItem = files[0];
         appStore.showLoading();
@@ -809,18 +826,17 @@
 <style lang="less" scoped>
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);
+    line-height: normal;
+  }
+  :deep(.arco-table .arco-table-cell) {
+    padding: 8px 2px;
   }
   :deep(.arco-table-cell-align-left) {
-    padding: 16px 2px;
-  }
-  :deep(.arco-table-td) {
-    .arco-table-cell {
-      padding: 12px 2px;
-    }
+    padding: 8px;
   }
   :deep(.arco-table-col-fixed-right) {
     .arco-table-cell-align-left {
-      padding: 16px;
+      padding: 8px;
     }
   }
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {

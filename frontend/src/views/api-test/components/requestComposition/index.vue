@@ -9,8 +9,8 @@
     </template>
   </a-empty>
   <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
-    <div class="px-[24px] pt-[16px]">
-      <div class="mb-[8px] flex items-center justify-between">
+    <div class="px-[18px] pt-[8px]">
+      <div class="flex items-center justify-between">
         <div class="flex flex-1 items-center gap-[16px]">
           <a-select
             v-if="requestVModel.isNew"
@@ -28,9 +28,11 @@
               is-tag
               class="flex items-center"
             />
-            <div v-if="!isHttpProtocol">
-              {{ requestVModel.label }}
-            </div>
+            <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.label" :mouse-enter-delay="500">
+              <div class="one-line-text max-w-[350px]">
+                {{ requestVModel.label }}
+              </div>
+            </a-tooltip>
           </div>
           <a-input-group v-if="isHttpProtocol" class="flex-1">
             <apiMethodSelect
@@ -49,7 +51,7 @@
         </div>
         <div class="ml-[16px]">
           <a-dropdown-button
-            :button-props="{ loading: requestVModel.executeLoading }"
+            v-if="!requestVModel.executeLoading"
             :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
             class="exec-btn"
             @click="execute"
@@ -65,6 +67,7 @@
               </a-doption>
             </template>
           </a-dropdown-button>
+          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
           <a-dropdown
             v-if="props.isDefinition"
             :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
@@ -101,114 +104,114 @@
         @change="handleActiveDebugChange"
       />
     </div>
-    <div ref="splitContainerRef" class="h-[calc(100%-52px)]">
-      <MsSplitBox
-        ref="splitBoxRef"
-        v-model:size="splitBoxSize"
-        :max="0.98"
-        min="10px"
-        :direction="activeLayout"
-        second-container-class="!overflow-y-hidden"
-        @expand-change="handleExpandChange"
-      >
-        <template #first>
-          <div
-            :class="`flex h-full min-w-[800px] flex-col px-[24px] pb-[16px] ${
-              activeLayout === 'horizontal' ? ' pr-[16px]' : ''
-            }`"
-          >
-            <div>
+    <div ref="splitContainerRef" class="h-[calc(100%-40px)]">
+      <a-spin class="h-full w-full" :loading="requestVModel.executeLoading">
+        <MsSplitBox
+          ref="splitBoxRef"
+          v-model:size="splitBoxSize"
+          :max="0.98"
+          min="10px"
+          :direction="activeLayout"
+          second-container-class="!overflow-y-hidden"
+          @expand-change="handleExpandChange"
+        >
+          <template #first>
+            <div
+              :class="`flex h-full min-w-[800px] flex-col px-[18px] pb-[16px] ${
+                activeLayout === 'horizontal' ? ' pr-[16px]' : ''
+              }`"
+            >
               <MsTab
                 v-model:active-key="requestVModel.activeTab"
                 :content-tab-list="contentTabList"
                 :get-text-func="getTabBadge"
-                class="no-content relative mb-[16px]"
-              ></MsTab>
+                class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
+              />
+              <div class="tab-pane-container">
+                <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
+                  <a-spin
+                    v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
+                    :loading="pluginLoading"
+                    class="min-h-[100px] w-full"
+                  >
+                    <MsFormCreate
+                      v-model:api="fApi"
+                      :rule="currentPluginScript"
+                      :option="currentPluginOptions"
+                      @mounted="() => (isInitPluginForm = true)"
+                      @change="handlePluginFormChange"
+                    />
+                  </a-spin>
+                </template>
+                <debugHeader
+                  v-if="requestVModel.activeTab === RequestComposition.HEADER"
+                  v-model:params="requestVModel.headers"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <debugBody
+                  v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+                  v-model:params="requestVModel.body"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  :upload-temp-file-api="props.uploadTempFileApi"
+                  @change="handleActiveDebugChange"
+                />
+                <debugQuery
+                  v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+                  v-model:params="requestVModel.query"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <debugRest
+                  v-else-if="requestVModel.activeTab === RequestComposition.REST"
+                  v-model:params="requestVModel.rest"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <precondition
+                  v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+                  v-model:config="requestVModel.children[0].preProcessorConfig"
+                  @change="handleActiveDebugChange"
+                />
+                <postcondition
+                  v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+                  v-model:config="requestVModel.children[0].postProcessorConfig"
+                  :response="requestVModel.response.requestResults[0]?.responseResult.body"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <debugAuth
+                  v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+                  v-model:params="requestVModel.authConfig"
+                  @change="handleActiveDebugChange"
+                />
+                <debugSetting
+                  v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+                  v-model:params="requestVModel.otherConfig"
+                  @change="handleActiveDebugChange"
+                />
+              </div>
             </div>
-            <div class="tab-pane-container">
-              <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
-                <a-spin
-                  v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
-                  :loading="pluginLoading"
-                  class="min-h-[100px] w-full"
-                >
-                  <MsFormCreate
-                    v-model:api="fApi"
-                    :rule="currentPluginScript"
-                    :option="currentPluginOptions"
-                    @mounted="() => (isInitPluginForm = true)"
-                    @change="handlePluginFormChange"
-                  />
-                </a-spin>
-              </template>
-              <debugHeader
-                v-if="requestVModel.activeTab === RequestComposition.HEADER"
-                v-model:params="requestVModel.headers"
-                :layout="activeLayout"
-                :second-box-height="secondBoxHeight"
-                @change="handleActiveDebugChange"
-              />
-              <debugBody
-                v-else-if="requestVModel.activeTab === RequestComposition.BODY"
-                v-model:params="requestVModel.body"
-                :layout="activeLayout"
-                :second-box-height="secondBoxHeight"
-                :upload-temp-file-api="props.uploadTempFileApi"
-                @change="handleActiveDebugChange"
-              />
-              <debugQuery
-                v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
-                v-model:params="requestVModel.query"
-                :layout="activeLayout"
-                :second-box-height="secondBoxHeight"
-                @change="handleActiveDebugChange"
-              />
-              <debugRest
-                v-else-if="requestVModel.activeTab === RequestComposition.REST"
-                v-model:params="requestVModel.rest"
-                :layout="activeLayout"
-                :second-box-height="secondBoxHeight"
-                @change="handleActiveDebugChange"
-              />
-              <precondition
-                v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
-                v-model:config="requestVModel.children[0].preProcessorConfig"
-                @change="handleActiveDebugChange"
-              />
-              <postcondition
-                v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
-                v-model:config="requestVModel.children[0].postProcessorConfig"
-                :response="requestVModel.response.requestResults[0]?.responseResult.body"
-                :layout="activeLayout"
-                :second-box-height="secondBoxHeight"
-                @change="handleActiveDebugChange"
-              />
-              <debugAuth
-                v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
-                v-model:params="requestVModel.authConfig"
-                @change="handleActiveDebugChange"
-              />
-              <debugSetting
-                v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
-                v-model:params="requestVModel.otherConfig"
-                @change="handleActiveDebugChange"
-              />
-            </div>
-          </div>
-        </template>
-        <template #second>
-          <response
-            v-model:active-layout="activeLayout"
-            v-model:active-tab="requestVModel.responseActiveTab"
-            :is-expanded="isExpanded"
-            :response="requestVModel.response"
-            :hide-layout-switch="props.hideResponseLayoutSwitch"
-            :request="requestVModel"
-            @change-expand="changeExpand"
-            @change-layout="handleActiveLayoutChange"
-          />
-        </template>
-      </MsSplitBox>
+          </template>
+          <template #second>
+            <response
+              v-model:active-layout="activeLayout"
+              v-model:active-tab="requestVModel.responseActiveTab"
+              :is-expanded="isExpanded"
+              :response="requestVModel.response"
+              :hide-layout-switch="props.hideResponseLayoutSwitch"
+              :request="requestVModel"
+              @change-expand="changeExpand"
+              @change-layout="handleActiveLayoutChange"
+            />
+          </template>
+        </MsSplitBox>
+      </a-spin>
     </div>
   </div>
   <a-modal
@@ -244,6 +247,12 @@
           v-model:modelValue="saveModalForm.moduleId"
           :data="selectTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
+          :tree-props="{
+            virtualListProps: {
+              height: 200,
+              threshold: 200,
+            },
+          }"
           allow-search
         />
       </a-form-item>
@@ -419,7 +428,7 @@
         const headerNum = filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams.length;
         return `${headerNum > 0 ? headerNum : ''}`;
       case RequestComposition.BODY:
-        return requestVModel.value.body.bodyType !== RequestBodyFormat.NONE ? '1' : '';
+        return requestVModel.value.body?.bodyType !== RequestBodyFormat.NONE ? '1' : '';
       case RequestComposition.QUERY:
         const queryNum = filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams.length;
         return `${queryNum > 0 ? queryNum : ''}`;
@@ -800,6 +809,11 @@
     }
   }
 
+  function stopDebug() {
+    websocket.value?.close();
+    requestVModel.value.executeLoading = false;
+  }
+
   async function updateDebug() {
     try {
       saveLoading.value = true;
@@ -938,5 +952,11 @@
     .arco-tabs-content {
       display: none;
     }
+  }
+  :deep(.arco-tabs-tab:first-child) {
+    margin-left: 0;
+  }
+  :deep(.arco-tabs-tab) {
+    @apply leading-none;
   }
 </style>

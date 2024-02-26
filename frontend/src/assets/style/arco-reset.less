@@ -32,7 +32,12 @@
   font-size: var(--font-size-body-3);
 }
 .arco-tabs-tab {
-  padding: 13px 0 !important;
+  padding: 12px 0 !important;
+  &:hover {
+    .arco-tabs-tab-title::before {
+      background-color: inherit !important;
+    }
+  }
 }
 .arco-tabs-nav-button-left {
   @apply ml-0 !shadow-none;
@@ -638,10 +643,6 @@
 /** 开关 **/
 .arco-switch {
   margin-left: 2px; // 避免开关圆形左边被遮挡
-}
-.arco-switch-type-line.arco-switch-small {
-  height: 14px;
-  line-height: 14px;
 }
 .arco-switch-type-line.arco-switch-small {
   .arco-switch-handle {

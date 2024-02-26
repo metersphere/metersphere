@@ -1,24 +1,28 @@
 <template>
   <div class="flex h-full min-w-[300px] flex-col">
-    <div class="flex flex-wrap items-center justify-between gap-[8px] bg-[var(--color-text-n9)] p-[8px_16px]">
-      <div class="flex items-center">
+    <div
+      class="flex flex-wrap items-center justify-between gap-[8px] border-b border-[var(--color-text-n8)] p-[8px_16px]"
+    >
+      <div class="flex items-center justify-between">
         <template v-if="props.activeLayout === 'vertical'">
           <MsButton
             v-if="props.isExpanded"
             type="icon"
             class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
+            size="small"
             @click="emit('changeExpand', false)"
           >
-            <icon-down :size="12" />
+            <icon-down :size="8" />
           </MsButton>
           <MsButton
             v-else
             type="icon"
             status="secondary"
             class="!mr-0 !rounded-full"
+            size="small"
             @click="emit('changeExpand', true)"
           >
-            <icon-right :size="12" />
+            <icon-right :size="8" />
           </MsButton>
         </template>
         <div class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
@@ -97,8 +101,8 @@
         </a-popover> -->
       </div>
     </div>
-    <div class="h-[calc(100%-42px)] px-[16px] pb-[16px]">
-      <a-tabs v-model:active-key="activeTab" class="no-content">
+    <a-spin :loading="props.loading" class="h-[calc(100%-42px)] w-full px-[18px] pb-[18px]">
+      <a-tabs v-model:active-key="activeTab" class="no-content border-b border-[var(--color-text-n8)]">
         <a-tab-pane v-for="item of responseTabList" :key="item.value" :title="item.label" />
       </a-tabs>
       <div class="response-container">
@@ -124,9 +128,25 @@
             </a-button>
           </template>
         </MsCodeEditor>
+        <MsCodeEditor
+          v-else-if="activeTab === ResponseComposition.CONSOLE"
+          ref="responseEditorRef"
+          :model-value="response.console.trim()"
+          :language="LanguageEnum.PLAINTEXT"
+          theme="MS-text"
+          height="100%"
+          :show-full-screen="false"
+          :show-theme-change="false"
+          :show-language-change="false"
+          :show-charset-change="false"
+          read-only
+        >
+        </MsCodeEditor>
         <div
           v-else-if="
-            activeTab === 'HEADER' || activeTab === 'REAL_REQUEST' || activeTab === 'CONSOLE' || activeTab === 'EXTRACT'
+            activeTab === ResponseComposition.HEADER ||
+            activeTab === ResponseComposition.REAL_REQUEST ||
+            activeTab === ResponseComposition.EXTRACT
           "
           class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
         >
@@ -140,7 +160,7 @@
           </template>
         </MsBaseTable>
       </div>
-    </div>
+    </a-spin>
   </div>
 </template>
 
@@ -196,6 +216,7 @@
       response: Response;
       request?: RequestParam;
       hideLayoutSwitch?: boolean; // 隐藏布局切换
+      loading?: boolean;
     }>(),
     {
       activeLayout: 'vertical',
@@ -317,11 +338,11 @@
       case ResponseComposition.HEADER:
         return props.response.requestResults[0].responseResult.headers.trim();
       case ResponseComposition.REAL_REQUEST:
-        return `${t('apiTestDebug.requestUrl')}:\n${props.request?.url}\n${t('apiTestDebug.header')}:\n${
-          props.response.requestResults[0].headers
-        }\nBody:\n${props.response.requestResults[0].body.trim()}`;
-      case ResponseComposition.CONSOLE:
-        return props.response.console.trim();
+        return props.response.requestResults[0].body
+          ? `${t('apiTestDebug.requestUrl')}:\n${props.request?.url}\n${t('apiTestDebug.header')}:\n${
+              props.response.requestResults[0].headers
+            }\nBody:\n${props.response.requestResults[0].body.trim()}`
+          : '';
       // case ResponseComposition.EXTRACT:
       //   return Object.keys(props.response.extract)
       //     .map((e) => `${e}: ${props.response.extract[e]}`)
@@ -383,17 +404,20 @@
 
 <style lang="less" scoped>
   .response-container {
-    margin-top: 16px;
-    height: calc(100% - 66px);
+    margin-top: 8px;
+    height: calc(100% - 48px);
     .response-header-pre {
       @apply h-full overflow-auto  bg-white;
       .ms-scroll-bar();
 
-      padding: 12px;
+      padding: 8px 12px;
       border-radius: var(--border-radius-small);
     }
   }
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);
+  }
+  :deep(.arco-tabs-tab) {
+    @apply leading-none;
   }
 </style>

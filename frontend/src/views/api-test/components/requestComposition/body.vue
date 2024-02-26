@@ -83,7 +83,7 @@
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
       class="flex-1"
-      theme="vs-dark"
+      theme="MS-text"
       height="100%"
       :show-full-screen="false"
       :language="currentCodeLanguage"
@@ -91,10 +91,7 @@
       <template #rightTitle>
         <div class="flex flex-col">
           <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('apiTestDebug.batchAddParamsTip') }}
-          </div>
-          <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('apiTestDebug.batchAddParamsTip2') }}
+            {{ t('apiTestDebug.batchAddParamsTip1') }}
           </div>
         </div>
       </template>
@@ -231,7 +228,7 @@
         slotName: 'operation',
         fixed: 'right',
         format: innerParams.value.bodyType,
-        width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 90 : 50,
+        width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 60 : 30,
       },
     ];
   });

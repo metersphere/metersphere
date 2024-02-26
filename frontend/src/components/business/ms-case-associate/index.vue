@@ -24,7 +24,11 @@
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
-          <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
+          <MsProjectSelect
+            v-if="innerProject && !props.hideProjectSelect"
+            v-model:project="innerProject"
+            class="mb-[16px]"
+          />
           <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
             <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
           </a-select>
@@ -171,7 +175,7 @@
 
   const props = defineProps<{
     visible: boolean;
-    projectId: string; // 项目id
+    projectId?: string; // 项目id
     caseId?: string; // 用例id  用例评审那边不需要传递
     getModulesFunc: (params: TableQueryParams) => Promise<ModuleTreeNode[]>; // 获取模块树请求
     modulesParams?: Record<string, any>; // 获取模块树请求
@@ -184,6 +188,7 @@
     associatedIds: string[]; // 已关联用例id集合用于去重已关联
     type: RequestModuleEnum[keyof RequestModuleEnum];
     moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
+    hideProjectSelect?: boolean; // 是否隐藏项目选择
   }>();
 
   const emit = defineEmits<{

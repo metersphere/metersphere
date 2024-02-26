@@ -216,6 +216,7 @@
       :class="`ms-params-input ${paramSettingVisible ? 'ms-params-input--focus' : ''}`"
       :trigger-props="{ contentClass: 'ms-params-input-trigger' }"
       :filter-option="false"
+      :size="props.size"
       @search="handleSearchParams"
       @change="(val) => emit('change', val)"
       @select="selectAutoComplete"
@@ -263,6 +264,7 @@
 
   const props = defineProps<{
     value: string;
+    size?: 'small' | 'large' | 'medium' | 'mini';
   }>();
   const emit = defineEmits<{
     (e: 'update:value', val: string): void;
