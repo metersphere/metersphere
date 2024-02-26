@@ -116,6 +116,7 @@
             and (
             case_review.name like concat('%', #{request.keyword},'%')
             or case_review.num like concat('%', #{request.keyword},'%')
+            or case_review.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.createByMe != null">

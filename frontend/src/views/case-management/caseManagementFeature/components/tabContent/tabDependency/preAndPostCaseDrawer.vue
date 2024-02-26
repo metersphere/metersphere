@@ -374,21 +374,6 @@
     }
   }
 
-  async function getModulesCount() {
-    try {
-      const emitTableParams: CaseModuleQueryParams = {
-        keyword: keyword.value,
-        moduleIds: [],
-        projectId: currentProjectId.value,
-        current: propsRes.value.msPagination?.current,
-        pageSize: propsRes.value.msPagination?.pageSize,
-      };
-      modulesCount.value = await getCaseModulesCounts(emitTableParams);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const searchParams = ref<TableQueryParams>({
     projectId: currentProjectId.value,
     moduleIds: [],
@@ -416,6 +401,23 @@
         caseLevel: caseFilters.value,
       },
     });
+  }
+
+  async function getModulesCount() {
+    const { excludeIds } = searchParams.value;
+    try {
+      const emitTableParams: CaseModuleQueryParams = {
+        keyword: keyword.value,
+        moduleIds: [],
+        projectId: currentProjectId.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        excludeIds,
+      };
+      modulesCount.value = await getCaseModulesCounts(emitTableParams);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const setFocusKey = (node: MsTreeNodeData) => {
