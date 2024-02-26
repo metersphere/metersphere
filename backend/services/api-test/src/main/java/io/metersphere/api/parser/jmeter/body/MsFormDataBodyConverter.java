@@ -27,7 +27,10 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
         if (CollectionUtils.isEmpty(formValues)) {
             return;
         }
-        List<FormDataKV> validFormValues = formValues.stream().filter(FormDataKV::isValid).collect(Collectors.toList());
+        List<FormDataKV> validFormValues = formValues.stream()
+                .filter(FormDataKV::getEnable)
+                .filter(FormDataKV::isValid)
+                .collect(Collectors.toList());
         List<FormDataKV> fileFormValues = validFormValues.stream().filter(FormDataKV::isFile).collect(Collectors.toList());
         List<FormDataKV> textFormValues = validFormValues.stream().filter(kv -> !kv.isFile()).collect(Collectors.toList());
         sampler.setHTTPFiles(getHttpFileArg(fileFormValues));
