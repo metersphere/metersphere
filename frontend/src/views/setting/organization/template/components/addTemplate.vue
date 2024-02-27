@@ -1,0 +1,713 @@
+<template>
+  <MsCard
+    :loading="loading"
+    :title="title"
+    :is-edit="isEdit && route.params.mode !== 'copy'"
+    has-breadcrumb
+    :hide-back="true"
+    @save="saveHandler"
+    @save-and-continue="saveHandler(true)"
+  >
+    <template #headerLeft>
+      <a-alert v-if="templateForm.enableThirdPart && route.query.type === 'BUG'" class="mb-[16px] w-full">
+        {{ t('system.orgTemplate.enableApiAlert') }}
+      </a-alert>
+      <a-form ref="formRef" class="mt-1 max-w-[710px]" :model="templateForm">
+        <a-form-item
+          v-if="!templateForm?.internal"
+          field="name"
+          asterisk-position="end"
+          :hide-label="true"
+          hide-asterisk
+          :rules="[{ required: true, message: t('system.orgTemplate.templateNameRules') }]"
+          content-class="contentClass"
+          class="mb-0 max-w-[710px]"
+        >
+          <a-input
+            v-model:model-value="templateForm.name"
+            :placeholder="t('system.orgTemplate.templateNamePlaceholder')"
+            :max-length="255"
+            class="max-w-[732px]"
+            :disabled="templateForm?.internal"
+          ></a-input>
+        </a-form-item>
+        <span v-else class="font-medium text-[var(--color-text-1)] underline">{{ templateForm.name }}</span>
+      </a-form>
+    </template>
+    <template #headerRight>
+      <div class="flex items-center">
+        <!-- <a-select
+          v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
+          v-model="templateForm.platForm"
+          class="!my-0 w-[240px]"
+          :placeholder="t('system.orgTemplate.selectThirdPlatType')"
+        >
+          <a-option v-for="item of platFormList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
+        </a-select> -->
+        <a-checkbox v-if="route.query.type === 'BUG'" v-model="templateForm.enableThirdPart" class="mx-2">{{
+          t('system.orgTemplate.thirdParty')
+        }}</a-checkbox>
+        <MsTag size="large" class="cursor-pointer" theme="outline" @click="brash">
+          <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
+        </MsTag>
+      </div>
+    </template>
+    <div class="wrapper-preview">
+      <div class="preview-left pr-4">
+        <DefectTemplateLeftContent v-if="route.query.type === 'BUG'" :defect-form="defectForm" />
+        <CaseTemplateLeftContent v-else />
+      </div>
+      <div class="preview-right px-4">
+        <!-- 自定义字段开始 -->
+        <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
+          <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
+            <div class="action">
+              <span class="required">
+                <a-checkbox
+                  v-model="formItem.required"
+                  class="mr-1"
+                  @change="(value) => changeState(value, formItem)"
+                  >{{ t('ms.assertion.mustInclude') }}</a-checkbox
+                >
+              </span>
+              <div class="actionList">
+                <a-tooltip :content="t('system.orgTemplate.toTop')">
+                  <MsIcon
+                    type="icon-icon_up_outlined"
+                    size="16"
+                    :class="getColor(index, 'top')"
+                    @click="moveField(formItem as DefinedFieldItem, 'top')"
+                  />
+                </a-tooltip>
+                <a-divider direction="vertical" class="!m-0 !mx-2" />
+                <a-tooltip :content="t('system.orgTemplate.toBottom')">
+                  <MsIcon
+                    :class="getColor(index, 'bottom')"
+                    type="icon-icon_down_outlined"
+                    size="16"
+                    @click="moveField(formItem as DefinedFieldItem, 'bottom')"
+                  />
+                </a-tooltip>
+                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                <a-tooltip :content="t('common.edit')">
+                  <MsIcon
+                    v-if="!formItem.internal"
+                    type="icon-icon_edit_outlined"
+                    size="16"
+                    @click="editField(formItem as DefinedFieldItem)"
+                  />
+                </a-tooltip>
+                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                <a-tooltip :content="t('common.delete')">
+                  <MsIcon
+                    v-if="!formItem.internal"
+                    type="icon-icon_delete-trash_outlined"
+                    size="16"
+                    @click="deleteSelectedField(formItem as DefinedFieldItem)"
+                  />
+                </a-tooltip>
+              </div>
+            </div>
+            <div
+              class="form"
+              :class="{
+                'hover:border-[var(--color-text-n8)]': activeIndex !== index,
+                'activeStyle': activeIndex === index,
+              }"
+              @click="activeHandler(index)"
+            >
+              <!-- 表单 -->
+              <MsFormCreate
+                v-model:api="formItem.api"
+                v-model:rule="formItem.formRules"
+                :option="configOptions"
+                @click="activeHandler(index)"
+              />
+              <a-form
+                v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
+                :ref="(el: refItem) => setStepRefMap(el, formItem as DefinedFieldItem)"
+                :model="formItem"
+              >
+                <a-form-item
+                  row-class="apiFieldIdClass"
+                  hide-asterisk
+                  hide-label
+                  field="apiFieldId"
+                  :rules="[{ required: true, message: t('system.orgTemplate.apiFieldNotEmpty') }]"
+                >
+                  <a-input
+                    v-model:model-value="formItem.apiFieldId"
+                    :placeholder="t('system.orgTemplate.pleaseEnterAPITip')"
+                    class="mt-1"
+                    :max-length="255"
+                /></a-form-item>
+              </a-form>
+            </div>
+          </div>
+        </VueDraggable>
+        <!-- 自定义字段结束 -->
+        <div class="flex items-center">
+          <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
+            <template #icon>
+              <icon-plus class="text-[14px]" />
+            </template>
+            {{ t('system.orgTemplate.associatedField') }}
+          </a-button>
+          <a-tooltip :content="t('system.orgTemplate.associatedHasField')" placement="top" effect="dark">
+            <IconQuestionCircle
+              class="mr-8 mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+            />
+          </a-tooltip>
+
+          <a-button class="mr-1 mt-1 px-0" type="text" :disabled="totalTemplateField.length >= 20" @click="createField">
+            <template #icon>
+              <icon-plus class="text-[14px]" />
+            </template>
+            {{ t('system.orgTemplate.addField') }}
+          </a-button>
+          <a-tooltip :content="t('system.orgTemplate.addFieldDesc')" placement="top" effect="dark">
+            <IconQuestionCircle
+              class="mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+            />
+          </a-tooltip>
+        </div>
+      </div>
+      <!-- 添加字段到模板抽屉 -->
+      <AddFieldToTemplateDrawer
+        ref="fieldSelectRef"
+        v-model:visible="showDrawer"
+        :total-data="(totalTemplateField as DefinedFieldItem[])"
+        :table-select-data="(selectData as DefinedFieldItem[])"
+        :mode="props.mode"
+        @confirm="confirmHandler"
+      />
+      <EditFieldDrawer
+        ref="fieldDrawerRef"
+        v-model:visible="showFieldDrawer"
+        :mode="props.mode"
+        @success="updateFieldHandler"
+      />
+    </div>
+  </MsCard>
+</template>
+
+<script setup lang="ts">
+  /**
+   * @description 模板-创建模板&编辑模板-预览模板
+   */
+  import { ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
+  import { VueDraggable } from 'vue-draggable-plus';
+
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
+  import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import AddFieldToTemplateDrawer from './addFieldToTemplateDrawer.vue';
+  import CaseTemplateLeftContent from './caseTemplateLeftContent.vue';
+  import DefectTemplateLeftContent from './defectTemplateLeftContent.vue';
+  import EditFieldDrawer from './editFieldDrawer.vue';
+
+  import {
+    createOrganizeTemplateInfo,
+    createProjectTemplateInfo,
+    getFieldList,
+    getOrganizeTemplateInfo,
+    getProjectFieldList,
+    getProjectTemplateInfo,
+    updateOrganizeTemplateInfo,
+    updateProjectTemplateInfo,
+  } from '@/api/modules/setting/template';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
+  import { useAppStore } from '@/store';
+  import { sleep } from '@/utils';
+  import { scrollIntoView } from '@/utils/dom';
+
+  import type { ActionTemplateManage, CustomField, DefinedFieldItem, SeneType } from '@/models/setting/template';
+  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
+
+  import { getTemplateName, getTotalFieldOptionList } from './fieldSetting';
+  import { FormInstance } from '@arco-design/web-vue/es/form';
+
+  const props = defineProps<{
+    mode: 'organization' | 'project';
+  }>();
+
+  type refItem = Element | ComponentPublicInstance | null;
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
+
+  const { setState } = useLeaveUnSaveTip();
+
+  setState(false);
+  const { t } = useI18n();
+  const route = useRoute();
+  const router = useRouter();
+
+  const title = ref('');
+  const initTemplateForm: ActionTemplateManage = {
+    id: '',
+    name: '',
+    remark: '',
+    scopeId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
+    enableThirdPart: false,
+    platForm: '',
+  };
+
+  const initBugForm = {
+    name: '',
+    description: '',
+  };
+
+  const defectForm = ref({ ...initBugForm });
+
+  const isEdit = computed(() => !!route.query.id);
+  const loading = ref(false);
+
+  const formRef = ref<FormInstance>();
+  const templateForm = ref<ActionTemplateManage>({ ...initTemplateForm });
+  const isContinueFlag = ref(false);
+
+  const platFormList = ref<{ value: string; label: string }[]>([
+    {
+      value: 'zental',
+      label: '禅道',
+    },
+    {
+      value: 'JIRA',
+      label: 'JIRA',
+    },
+  ]);
+
+  const templateApiMaps: Record<string, any> = {
+    organization: {
+      fieldList: getFieldList,
+      create: createOrganizeTemplateInfo,
+      update: updateOrganizeTemplateInfo,
+      detail: getOrganizeTemplateInfo,
+    },
+    project: {
+      fieldList: getProjectFieldList,
+      create: createProjectTemplateInfo,
+      update: updateProjectTemplateInfo,
+      detail: getProjectTemplateInfo,
+    },
+  };
+
+  const totalTemplateField = ref<DefinedFieldItem[]>([]);
+  const selectData = ref<DefinedFieldItem[]>([]);
+
+  // 获取模板参数
+  function getTemplateParams(): ActionTemplateManage {
+    const result = selectData.value.map((item) => {
+      if (item.formRules?.length) {
+        const { value } = item.formRules[0];
+        return {
+          fieldId: item.id,
+          required: item.required,
+          apiFieldId: item.apiFieldId || '',
+          defaultValue: value || '',
+        };
+      }
+      return [];
+    });
+
+    const { name, remark, enableThirdPart, id } = templateForm.value;
+    return {
+      id,
+      name,
+      remark,
+      enableThirdPart,
+      customFields: result as CustomField[],
+      scopeId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
+      scene: route.query.type,
+    };
+  }
+
+  function resetForm() {
+    templateForm.value = { ...initTemplateForm };
+  }
+
+  // 保存回调
+  async function save() {
+    try {
+      loading.value = true;
+      const params = getTemplateParams();
+      if (isEdit.value && route.params.mode !== 'copy') {
+        await templateApiMaps[props.mode].update(params);
+        Message.success(t('system.orgTemplate.updateSuccess'));
+      } else {
+        await templateApiMaps[props.mode].create(params);
+        Message.success(t('system.orgTemplate.addSuccess'));
+      }
+      if (isContinueFlag.value) {
+        resetForm();
+      } else {
+        await sleep(300);
+        if (props.mode === 'organization') {
+          router.push({ name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT, query: route.query });
+        } else {
+          router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT, query: route.query });
+        }
+
+        setState(true);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+  const refStepMap: Record<string, any> = {};
+  function setStepRefMap(el: refItem, formItem: DefinedFieldItem) {
+    if (el) {
+      refStepMap[`${formItem.id}`] = el;
+    }
+  }
+  // 保存
+  function saveHandler(isContinue = false) {
+    isContinueFlag.value = isContinue;
+    formRef.value?.validate().then((res) => {
+      if (!res) {
+        const allValidatePromises = Object.keys(refStepMap).map((key) => {
+          return refStepMap[key].validate();
+        });
+
+        Promise.all(allValidatePromises).then((results) => {
+          const allValid = results.every((result) => !result);
+          if (allValid) {
+            return save();
+          }
+        });
+      }
+      return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+    });
+  }
+
+  // 处理表单数据格式
+  const getFieldOptionList = () => {
+    totalTemplateField.value = getTotalFieldOptionList(totalTemplateField.value as DefinedFieldItem[]);
+    selectData.value = totalTemplateField.value.filter((item) => item.internal);
+  };
+
+  // 获取字段列表数据
+  const getClassifyField = async () => {
+    try {
+      totalTemplateField.value = await templateApiMaps[props.mode].fieldList({
+        scopedId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
+        scene: route.query.type,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  watchEffect(async () => {
+    if (isEdit.value && route.params.mode === 'copy') {
+      title.value = t('system.orgTemplate.copyTemplate');
+    } else if (isEdit.value) {
+      title.value = t('system.orgTemplate.editTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
+    } else {
+      title.value = t('system.orgTemplate.createTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
+      templateForm.value.name = title.value;
+    }
+  });
+
+  const showFieldDrawer = ref<boolean>(false);
+  function createField() {
+    showFieldDrawer.value = true;
+  }
+
+  const showDrawer = ref<boolean>(false);
+  function associatedField() {
+    showDrawer.value = true;
+  }
+  const selectFiled = ref<DefinedFieldItem[]>([]);
+  const selectedIds = ref<string[]>();
+
+  // 编辑更新已选择字段
+  const isEditField = ref<boolean>(false);
+
+  // 添加字段或编辑字段
+  const updateFieldHandler = async (editFlag: boolean, fieldId: string) => {
+    selectFiled.value = selectData.value;
+    isEditField.value = editFlag;
+    await getClassifyField();
+    totalTemplateField.value = getTotalFieldOptionList(totalTemplateField.value as DefinedFieldItem[]);
+    // 编辑字段
+    if (isEditField.value) {
+      const index = selectData.value.findIndex((e: any) => e.id === fieldId);
+      const newUpdateData = totalTemplateField.value.find((item: any) => item.id === fieldId);
+      if (index > -1 && newUpdateData) {
+        selectData.value.splice(index, 1);
+        selectData.value.splice(index, 0, newUpdateData);
+      }
+    }
+    // 新增字段
+    if (!isEditField.value && fieldId) {
+      const newUpdateData = totalTemplateField.value.find((item: any) => item.id === fieldId);
+      if (newUpdateData) {
+        selectData.value.push(newUpdateData);
+      }
+    }
+  };
+
+  // 删除已选择字段
+  const deleteSelectedField = (record: DefinedFieldItem) => {
+    selectData.value = selectData.value.filter((item) => item.id !== record.id);
+  };
+  const fieldDrawerRef = ref();
+  // 编辑字段
+  const editField = (record: DefinedFieldItem) => {
+    showFieldDrawer.value = true;
+    fieldDrawerRef.value.editHandler(record);
+  };
+
+  // 确定处理字段表单数据
+  const confirmHandler = (dataList: DefinedFieldItem[]) => {
+    const selectFieldIds = selectData.value.map((e) => e.id);
+    const newData = dataList.filter((item) => !selectFieldIds.includes(item.id));
+    selectData.value = [...selectData.value, ...newData];
+  };
+
+  function changeState(value: boolean | (string | number | boolean)[], formItem) {
+    formItem.required = value;
+    formItem.formRules[0].effect.required = value;
+  }
+  const systemFieldData = ref<CustomField[]>([]);
+
+  function getSelectData(customFields: DefinedFieldItem[]) {
+    return customFields.map((item: any) => {
+      const currentFormRules = FieldTypeFormRules[item.type];
+      let selectOptions: any = [];
+      if (item.options && item.options.length) {
+        selectOptions = item.options.map((optionItem: any) => {
+          return {
+            label: optionItem.text,
+            value: optionItem.value,
+          };
+        });
+        currentFormRules.options = selectOptions;
+      }
+      return {
+        ...item,
+        id: item.fieldId,
+        formRules: [
+          {
+            ...currentFormRules,
+            title: item.fieldName,
+            effect: {
+              required: item.required,
+            },
+            value: item.defaultValue,
+            props: { ...currentFormRules.props, options: selectOptions, modelValue: item.defaultValue },
+          },
+        ],
+        fApi: null,
+        required: item.required,
+      };
+    });
+  }
+  // 获取模板详情
+  const getTemplateInfo = async () => {
+    try {
+      loading.value = true;
+      const res = await templateApiMaps[props.mode].detail(route.query.id as string);
+      const { name, customFields, systemFields } = res;
+      templateForm.value = {
+        ...res,
+        name: route.params.mode === 'copy' ? `copy_${name}` : name,
+      };
+      if (route.params.mode === 'copy') {
+        templateForm.value.id = undefined;
+      }
+      selectData.value = getSelectData(customFields);
+      systemFieldData.value = systemFields;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  function moveField(formItem: DefinedFieldItem, type: string) {
+    const moveIndex = selectData.value.findIndex((item: any) => item.id === formItem.id);
+    if (type === 'top') {
+      if (moveIndex === 0) {
+        return;
+      }
+      selectData.value.splice(moveIndex, 1);
+      selectData.value.splice(moveIndex - 1, 0, formItem);
+    } else {
+      if (moveIndex === selectData.value.length - 1) {
+        return;
+      }
+      selectData.value.splice(moveIndex, 1);
+      selectData.value.splice(moveIndex + 1, 0, formItem);
+    }
+  }
+
+  function getColor(index: number, type: string) {
+    if (type === 'top' && index === 0) {
+      return ['text-[rgb(var(--primary-3))]'];
+    }
+    if (type === 'bottom' && index === selectData.value.length - 1) {
+      return ['text-[rgb(var(--primary-3))]'];
+    }
+  }
+
+  onMounted(async () => {
+    await getClassifyField();
+    getFieldOptionList();
+    if (isEdit.value) {
+      getTemplateInfo();
+    }
+  });
+
+  const activeIndex = ref(-1);
+  async function brash() {
+    activeIndex.value = -1;
+    await getClassifyField();
+    getFieldOptionList();
+    if (isEdit.value) {
+      getTemplateInfo();
+    }
+  }
+
+  function activeHandler(index: number) {
+    activeIndex.value = index;
+  }
+
+  function changeDrag() {
+    activeIndex.value = -1;
+  }
+  const configOptions = ref({
+    resetBtn: false,
+    submitBtn: false,
+    on: false,
+    form: {
+      layout: 'vertical',
+      labelAlign: 'left',
+    },
+    row: {
+      gutter: 0,
+    },
+    wrap: {
+      'asterisk-position': 'end',
+      'validate-trigger': ['change'],
+      'row-class': 'selfClass',
+    },
+  });
+</script>
+
+<style scoped lang="less">
+  .wrapper-preview {
+    display: flex;
+    height: 100%;
+    .preview-left {
+      width: 100%;
+      border-right: 1px solid var(--color-text-n8);
+    }
+    .preview-right {
+      padding-top: 8px;
+      width: 428px;
+      min-width: 428px;
+      .customWrapper {
+        position: relative;
+        margin-bottom: 4px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        @apply flex flex-col justify-between;
+        .form {
+          padding: 8px;
+          border: 1px solid transparent;
+          border-radius: 6px;
+        }
+        .form.activeStyle {
+          border-color: rgb(var(--primary-5));
+          background: var(--color-text-n9);
+        }
+        .action {
+          position: absolute;
+          top: -12px;
+          right: 16px;
+          z-index: 99999999 !important;
+          background: white;
+          opacity: 0;
+          @apply flex items-center justify-end;
+          .actionList {
+            padding: 4px;
+            border-radius: 4px;
+            @apply flex items-center justify-center;
+          }
+          .required > .arco-checkbox {
+            padding: 2px 4px;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
+          }
+        }
+        &:hover {
+          border: 1px solid var(--color-text-n8);
+          background: var(--color-text-n9);
+        }
+        &:hover > .action {
+          opacity: 1;
+        }
+        &:hover > .action > .actionList {
+          color: rgb(var(--primary-5));
+          box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
+        }
+      }
+    }
+  }
+  .hoverStyle {
+    .customWrapper:hover > .form {
+      border-color: var(--color-text-n8) !important;
+    }
+  }
+  .activeStyle {
+    .customWrapper:hover .form {
+      border-color: rgb(var(--primary-5));
+    }
+  }
+  :deep(.selfClass) {
+    margin-bottom: 0;
+  }
+  :deep(.contentClass > .arco-input-wrapper) {
+    border-color: transparent;
+    &:hover {
+      border-color: var(--color-text-input-border);
+    }
+    &:hover > .arco-input {
+      font-weight: normal;
+      text-decoration: none;
+      color: var(--color-text-1);
+    }
+    & > .arco-input {
+      font-weight: 500;
+      text-decoration: underline;
+      color: var(--color-text-1);
+    }
+  }
+  :deep(.contentClass > .arco-input-focus) {
+    border-color: rgb(var(--primary-5));
+    & > .arco-input {
+      font-weight: normal;
+      text-decoration: none;
+    }
+  }
+  .ghost {
+    border: 1px solid rgba(var(--primary-5));
+    background-color: var(--color-text-n9);
+  }
+  :deep(.apiFieldIdClass) {
+    margin-bottom: 0;
+  }
+</style>

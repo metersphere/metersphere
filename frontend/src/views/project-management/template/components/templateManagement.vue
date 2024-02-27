@@ -301,11 +301,11 @@
       }
     }
   };
-
+  const routeName = ref<string>('');
   // 创建模板
   const createTemplate = () => {
     router.push({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         type: route.query.type,
       },
@@ -318,7 +318,7 @@
   // 编辑模板
   const editTemplate = (id: string) => {
     router.push({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         id,
         type: route.query.type,
@@ -332,7 +332,7 @@
   // 复制模板
   const copyTemplate = (id: string) => {
     router.push({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         id,
         type: route.query.type,
@@ -413,6 +413,13 @@
   onMounted(() => {
     fetchData();
     updateColumns();
+    if (route.query.type === 'FUNCTIONAL') {
+      routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL;
+    } else if (route.query.type === 'API') {
+      routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL;
+    } else {
+      routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL;
+    }
   });
 </script>
 

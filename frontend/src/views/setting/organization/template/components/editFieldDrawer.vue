@@ -252,6 +252,7 @@
   // 保存
   const confirmHandler = async (isContinue = false) => {
     try {
+      drawerLoading.value = true;
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
@@ -287,13 +288,13 @@
       if (id) {
         params.id = id;
       }
-      await addOrUpdate(params);
+      const res = await addOrUpdate(params);
       Message.success(isEdit.value ? t('common.updateSuccess') : t('common.newSuccess'));
       if (!isContinue) {
         handleDrawerCancel();
       }
       resetForm();
-      emit('success', isEdit.value);
+      emit('success', isEdit.value, res.id);
     } catch (error) {
       console.log(error);
     } finally {
@@ -302,30 +303,34 @@
   };
   const fieldDefaultValues = ref<FormItemModel[]>([]);
   function userFormFiledValidate(cb: () => Promise<any>) {
-    fieldFormRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+    fieldFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
         return;
       }
-      batchFormRef.value?.formValidate(async (list: any) => {
-        try {
-          drawerLoading.value = true;
-          fieldDefaultValues.value = [...list];
-          if (showOptionsSelect) {
-            fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
-              return {
-                ...item,
-                value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
-              };
-            });
+      if (showOptionsSelect.value) {
+        batchFormRef.value?.formValidate(async (list: any) => {
+          try {
+            drawerLoading.value = true;
+            fieldDefaultValues.value = [...list];
+            if (showOptionsSelect.value) {
+              fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
+                return {
+                  ...item,
+                  value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
+                };
+              });
+            }
+            await cb();
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          } finally {
+            drawerLoading.value = false;
           }
-          await cb();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          drawerLoading.value = false;
-        }
-      });
+        });
+      } else {
+        await cb();
+      }
     });
   }
 
@@ -342,21 +347,6 @@
 
   // 字段类型列表选项
   const fieldOptions = ref<fieldIconAndNameModal[]>([]);
-
-  // 获取字段选项详情
-  const getFieldDetail = async (id: string) => {
-    try {
-      const fieldDetail = await detail(id);
-      fieldDefaultValues.value = fieldDetail.options.map((item: any) => {
-        return {
-          ...item,
-        };
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   // 处理特殊情况编辑回显
   const getSpecialHandler = (itemType: FormItemType): FormItemType => {
     switch (itemType) {
@@ -377,16 +367,30 @@
     }
   };
 
+  // 获取字段选项详情
+  const getFieldDetail = async (id: string) => {
+    try {
+      const fieldDetail = await detail(id);
+      fieldForm.value = {
+        ...fieldDetail,
+        type: getSpecialHandler(fieldDetail.type),
+      };
+      fieldDefaultValues.value = fieldDetail.options.map((item: any) => {
+        return {
+          ...item,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // 编辑
   const editHandler = (item: AddOrUpdateField) => {
     showDrawer.value = true;
     isMultipleSelectMember.value = item.type === 'MULTIPLE_MEMBER';
     if (item.id) {
       getFieldDetail(item.id);
-      fieldForm.value = {
-        ...item,
-        type: getSpecialHandler(item.type),
-      };
     }
   };
 

@@ -230,10 +230,12 @@
     await loadList();
   };
 
+  const routeName = ref<string>('');
+
   // 创建模板
   const createTemplate = () => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         type: route.query.type,
       },
@@ -246,7 +248,7 @@
   // 编辑模板
   const editTemplate = (id: string) => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         id,
         type: route.query.type,
@@ -260,7 +262,7 @@
   // 复制模板
   const copyTemplate = (id: string) => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: routeName.value,
       query: {
         id,
         type: route.query.type,
@@ -307,6 +309,13 @@
   onMounted(() => {
     fetchData();
     updateColumns();
+    if (route.query.type === 'FUNCTIONAL') {
+      routeName.value = SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CASE_DETAIL;
+    } else if (route.query.type === 'API') {
+      routeName.value = SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_API_DETAIL;
+    } else {
+      routeName.value = SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_BUG_DETAIL;
+    }
   });
 </script>
 

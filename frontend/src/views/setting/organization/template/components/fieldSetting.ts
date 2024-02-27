@@ -281,11 +281,15 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
       formRules: [
         {
           ...currentFormRules,
+          title: item.name,
+          effect: {
+            required: false,
+          },
           props: { ...currentFormRules.props, options: selectOptions },
         },
       ],
       fApi: null,
-      required: item.internal,
+      required: false,
     };
   });
 };
@@ -305,6 +309,9 @@ export const getCustomDetailFields = (totalData: DefinedFieldItem[], customField
         return {
           ...it,
           value: customFields[currentCustomFieldIndex].defaultValue,
+          effect: {
+            required: item.required,
+          },
         };
       });
       const formItem = item;

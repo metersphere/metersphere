@@ -150,7 +150,7 @@ export const TEXTAREA = {
   props: {
     'placeholder': t('formCreate.PleaseEnter'),
     'max-length': 1000,
-    'auto-size': '{ minRows: 1 }',
+    'auto-size': { minRows: 1 },
   },
 };
 export const JIRAKEY = {

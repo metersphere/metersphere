@@ -177,11 +177,11 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-创建模板和模板详情
     {
-      path: 'templateDetail/:mode?',
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
-      component: () => import('@/views/project-management/template/components/proTemplateDetail.vue'),
+      path: 'templateCaseDetail/:mode?',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL,
+      component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {
-        locale: 'menu.settings.organization.templateManagementDetail',
+        locale: 'system.orgTemplate.createCaseTemplate',
         roles: ['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+ADD'],
         breadcrumbs: [
           {
@@ -194,9 +194,65 @@ const ProjectManagement: AppRouteRecordRaw = {
             query: ['type'],
           },
           {
-            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
-            locale: 'menu.settings.organization.templateManagementDetail',
-            editLocale: 'menu.settings.organization.templateManagementEdit',
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL,
+            locale: 'system.orgTemplate.createCaseTemplate',
+            editLocale: 'system.orgTemplate.updateCaseTemplate',
+            editTag: 'id',
+            query: ['type'],
+          },
+        ],
+      },
+    },
+    // 项目-模板-接口模板
+    {
+      path: 'templateApiDetail/:mode?',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL,
+      component: () => import('@/views/project-management/template/components/detail.vue'),
+      meta: {
+        locale: 'system.orgTemplate.createApiTemplate',
+        roles: ['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+ADD'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.settings.organization.template',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            locale: 'menu.settings.organization.templateManagementList',
+            query: ['type'],
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL,
+            locale: 'system.orgTemplate.createApiTemplate',
+            editLocale: 'system.orgTemplate.updateApiTemplate',
+            editTag: 'id',
+            query: ['type'],
+          },
+        ],
+      },
+    },
+    // 项目-模板-缺陷模板
+    {
+      path: 'templateBugDetail/:mode?',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL,
+      component: () => import('@/views/project-management/template/components/detail.vue'),
+      meta: {
+        locale: 'system.orgTemplate.createDefectTemplate',
+        roles: ['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+ADD'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.settings.organization.template',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            locale: 'menu.settings.organization.templateManagementList',
+            query: ['type'],
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL,
+            locale: 'system.orgTemplate.createDefectTemplate',
+            editLocale: 'system.orgTemplate.updateDefectTemplate',
             editTag: 'id',
             query: ['type'],
           },

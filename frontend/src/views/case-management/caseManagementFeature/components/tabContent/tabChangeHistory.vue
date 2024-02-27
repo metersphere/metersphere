@@ -30,7 +30,6 @@
         /> -->
         <MsButton @click="saveAsHandler(record)">{{ t('caseManagement.featureCase.saveAsVersion') }}</MsButton>
       </template>
-
     </ms-base-table>
     <a-modal
       v-model:visible="showModal"
@@ -129,15 +128,15 @@
       dataIndex: 'createTime',
       width: 200,
     },
-    {
-      title: 'caseManagement.featureCase.tableColumnActions',
-      slotName: 'operation',
-      dataIndex: 'operation',
-      fixed: 'right',
-      width: 140,
-      showInTable: true,
-      showDrag: false,
-    },
+    // {
+    //   title: 'caseManagement.featureCase.tableColumnActions',
+    //   slotName: 'operation',
+    //   dataIndex: 'operation',
+    //   fixed: 'right',
+    //   width: 140,
+    //   showInTable: true,
+    //   showDrag: false,
+    // },
   ];
 
   const typeOptions = [
@@ -159,9 +158,9 @@
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_CHANGE_HISTORY,
     scroll: { x: '100%' },
-    selectable: true,
+    selectable: false,
     heightUsed: 340,
-    enableDrag: true,
+    enableDrag: false,
   });
 
   const form = ref({
@@ -240,8 +239,8 @@
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
-      type:['IMPORT','ADD','UPDATE'],
-      module: ['CASE_MANAGEMENT_CASE_CREATE','CASE_MANAGEMENT_CASE_UPDATE'],
+      type: ['IMPORT', 'ADD', 'UPDATE'],
+      module: ['CASE_MANAGEMENT_CASE_CREATE', 'CASE_MANAGEMENT_CASE_UPDATE'],
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);

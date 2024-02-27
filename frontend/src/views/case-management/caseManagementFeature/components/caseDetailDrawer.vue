@@ -229,15 +229,6 @@
   import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
-  import TabDefect from './tabContent/tabBug/tabDefect.vue';
-  import TabCaseTable from './tabContent/tabCase/tabCaseTable.vue';
-  import TabCaseReview from './tabContent/tabCaseReview.vue';
-  import TabChangeHistory from './tabContent/tabChangeHistory.vue';
-  import TabComment from './tabContent/tabComment/tabCommentIndex.vue';
-  import TabDemand from './tabContent/tabDemand/demand.vue';
-  import TabDependency from './tabContent/tabDependency/tabDependency.vue';
-  import TabDetail from './tabContent/tabDetail.vue';
-  import TabTestPlan from './tabContent/tabTestPlan.vue';
 
   import {
     createCommentList,
@@ -261,6 +252,16 @@
   import { getCaseLevels } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
   import debounce from 'lodash-es/debounce';
+  // 异步加载组件
+  const TabDefect = defineAsyncComponent(() => import('./tabContent/tabBug/tabDefect.vue'));
+  const TabCaseTable = defineAsyncComponent(() => import('./tabContent/tabCase/tabCaseTable.vue'));
+  const TabCaseReview = defineAsyncComponent(() => import('./tabContent/tabCaseReview.vue'));
+  const TabChangeHistory = defineAsyncComponent(() => import('./tabContent/tabChangeHistory.vue'));
+  const TabComment = defineAsyncComponent(() => import('./tabContent/tabComment/tabCommentIndex.vue'));
+  const TabDemand = defineAsyncComponent(() => import('./tabContent/tabDemand/demand.vue'));
+  const TabDependency = defineAsyncComponent(() => import('./tabContent/tabDependency/tabDependency.vue'));
+  const TabDetail = defineAsyncComponent(() => import('./tabContent/tabDetail.vue'));
+  const TabTestPlan = defineAsyncComponent(() => import('./tabContent/tabTestPlan.vue'));
 
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();

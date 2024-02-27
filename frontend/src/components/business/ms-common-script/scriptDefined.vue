@@ -61,7 +61,6 @@
     v-model:visible="showInsertDrawer"
     :script-language="innerLanguagesType"
     :enable-radio-selected="props.enableRadioSelected"
-    @add-script="insertCommonScript"
     @save="saveHandler"
   />
   <FormApiImportDrawer
@@ -168,6 +167,7 @@ ${item.script}
 `;
       });
       codeEditorRef.value?.insertContent(scriptStr);
+      showInsertDrawer.value = false;
     }
   }
 

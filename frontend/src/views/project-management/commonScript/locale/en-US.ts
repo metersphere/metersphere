@@ -1,6 +1,7 @@
 export default {
   'project.commonScript.searchByNameAndId': 'Search by name',
   'project.commonScript.addPublicScript': 'Add public Script',
+  'project.commonScript.editPublicScript': 'Edit public Script',
   'project.commonScript.name': 'Name',
   'project.commonScript.description': 'Description',
   'project.commonScript.enable': 'Enable',

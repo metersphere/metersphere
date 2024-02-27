@@ -77,7 +77,7 @@
       width: 200,
     },
     {
-      title: 'caseManagement.featureCase.name',
+      title: 'caseManagement.featureCase.demandName',
       slotName: 'demandName',
       dataIndex: 'demandName',
       width: 300,
