@@ -139,7 +139,7 @@ public class BugAttachmentControllerTests extends BaseTest {
         List<BugFileDTO> files = getBugFiles("default-attachment-bug-id");
         files.forEach(file -> {
             request.setFileId(file.getFileId());
-            request.setAssociated(file.getAssociated());
+            request.setAssociated(!file.getLocal());
             try {
                 this.requestPostDownloadFile(BUG_ATTACHMENT_PREVIEW, null, request);
                 this.requestPostDownloadFile(BUG_ATTACHMENT_DOWNLOAD, null, request);
@@ -161,9 +161,9 @@ public class BugAttachmentControllerTests extends BaseTest {
         request.setFileId("not-exist-file-id");
         this.requestPost(BUG_ATTACHMENT_TRANSFER, request).andExpect(status().is5xxServerError());
         List<BugFileDTO> files = getBugFiles("default-attachment-bug-id");
-        files.stream().filter(file -> !file.getAssociated()).forEach(file -> {
+        files.stream().filter(BugFileDTO::getLocal).forEach(file -> {
             request.setFileId(file.getFileId());
-            request.setAssociated(file.getAssociated());
+            request.setAssociated(!file.getLocal());
             try {
                 this.requestPostWithOk(BUG_ATTACHMENT_TRANSFER, request);
             } catch (Exception e) {
@@ -191,7 +191,7 @@ public class BugAttachmentControllerTests extends BaseTest {
             }
         });
         List<BugFileDTO> tapdFiles = getBugFiles("default-bug-id-tapd");
-        tapdFiles.stream().filter(BugFileDTO::getAssociated).forEach(file -> {
+        tapdFiles.stream().filter(file -> !file.getLocal()).forEach(file -> {
             try {
                 request.setBugId("default-bug-id-tapd");
                 request.setRefId(file.getRefId());
@@ -212,7 +212,7 @@ public class BugAttachmentControllerTests extends BaseTest {
             request.setBugId("default-attachment-bug-id");
             request.setProjectId("default-project-for-attachment");
             request.setRefId(file.getRefId());
-            request.setAssociated(file.getAssociated());
+            request.setAssociated(!file.getLocal());
             try {
                 this.requestPostWithOk(BUG_ATTACHMENT_DELETE, request);
             } catch (Exception e) {
@@ -225,7 +225,7 @@ public class BugAttachmentControllerTests extends BaseTest {
             request.setBugId("default-bug-id-tapd");
             request.setProjectId("default-project-for-attachment");
             request.setRefId(file.getRefId());
-            request.setAssociated(file.getAssociated());
+            request.setAssociated(!file.getLocal());
             try {
                 this.requestPost(BUG_ATTACHMENT_DELETE, request).andExpect(status().is5xxServerError());
             } catch (Exception e) {

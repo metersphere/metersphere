@@ -10,10 +10,10 @@ import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
+import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
@@ -48,7 +48,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     private static final String BASE_PATH = "/service/integration/";
     private static final String LIST = "/list/{0}";
     private static final String VALIDATE_GET = "/validate/{0}";
-    private static final String VALIDATE_POST = "/validate/{0}";
+    private static final String VALIDATE_POST = "/validate/{0}/{1}";
     private static final String SCRIPT_GET = "/script/{0}";
     private static ServiceIntegration addServiceIntegration;
     private static Organization defaultOrg;
@@ -250,22 +250,22 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         // @@请求成功
-        this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId());
+        this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId(), defaultOrg.getId());
 
         // @@校验插件禁用
         setPluginEnable(addServiceIntegration.getPluginId(), false);
-        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId()), PLUGIN_ENABLE);
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId(), defaultOrg.getId()), PLUGIN_ENABLE);
         setPluginEnable(addServiceIntegration.getPluginId(), true);
 
         // @@校验权限
         setPluginGlobal(addServiceIntegration.getPluginId(), false);
-        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId()), PLUGIN_PERMISSION);
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId(), defaultOrg.getId()), PLUGIN_PERMISSION);
         setPluginGlobal(addServiceIntegration.getPluginId(), true);
 
         // @@校验 NOT_FOUND 异常
-        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, "1111"), NOT_FOUND);
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, "1111", defaultOrg.getId()), NOT_FOUND);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE, VALIDATE_POST, integrationConfigMap, plugin.getId());
+        requestPostPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE, VALIDATE_POST, integrationConfigMap, plugin.getId(), defaultOrg.getId());
     }
 
     @Test
