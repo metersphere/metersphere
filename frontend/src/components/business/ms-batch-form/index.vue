@@ -288,8 +288,10 @@
    * 添加表单项
    */
   function addField() {
+    const item = [{ ...formItem }];
+    item[0].type = []
     formValidate(() => {
-      form.value.list.push({ ...formItem }); // 序号自增，不会因为删除而重复
+      form.value.list.push(item[0]); // 序号自增，不会因为删除而重复
     }, false);
   }
 
