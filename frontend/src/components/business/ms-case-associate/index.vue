@@ -533,6 +533,7 @@
         combine: combine.value,
         sourceId: props.caseId,
         sourceType: caseType.value,
+        ...props.tableParams,
         ...props.moduleCountParams,
       };
       modulesCount.value = await initGetModuleCountFunc(props.type, params);
