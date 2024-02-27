@@ -84,6 +84,7 @@ const { t } = useI18n();
     storageList: Repository[]; // 存储库列表
     getListFunParams: TableQueryParams; // 表格额外去重参数
     selectorType?: 'none' | 'checkbox' | 'radio';
+    fileAllCountByStorage: number;
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
@@ -105,6 +106,10 @@ const { t } = useI18n();
       title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 270,
     },
     {
@@ -119,20 +124,32 @@ const { t } = useI18n();
     },
     {
       title: 'project.fileManagement.creator',
-      dataIndex: 'creator',
+      dataIndex: 'createUser',
       showTooltip: true,
       width: 120,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'project.fileManagement.updater',
       dataIndex: 'updateUser',
       showTooltip: true,
       width: 120,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'project.fileManagement.updateTime',
       dataIndex: 'updateTime',
       width: 180,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
   ];
 
@@ -174,7 +191,7 @@ const { t } = useI18n();
     } else {
       combine.value.createUser = '';
     }
-    if (fileType.value === 'storage') {
+    if (props.showType === 'Storage') {
       combine.value.storage = 'git';
     } else {
       combine.value.storage = 'minio';
@@ -258,7 +275,7 @@ const { t } = useI18n();
       if (props.activeFolder === 'all') {
         return {
           name: t('ms.file.allFileModule'),
-          count: props.modulesCount[props.activeFolder],
+          count: props.fileAllCountByStorage,
         };
       }
       return {
@@ -271,7 +288,7 @@ const { t } = useI18n();
     if (props.activeFolder === 'all') {
       return {
         name: t('ms.file.allRepositoryFileModule'),
-        count: storageItemCount.value,
+        count: props.fileAllCountByStorage,
       };
     }
     return {

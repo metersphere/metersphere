@@ -30,7 +30,7 @@
         SELECT
         f.id,
         updateUser.name as update_user,
-        createUser.name AS create_uUser,
+        createUser.name AS create_user,
         f.module_id,
             f.name,
             f.type,
