@@ -31,8 +31,8 @@
         inner join user u on urr.user_id = u.id and urr.role_id = #{request.roleId} and u.deleted = 0
         <if test="request.keyword != null and request.keyword != ''">
             and (
-                u.name like concat('%', '|'+#{request.keyword},'%') ESCAPE '|'
-                or u.email like concat('%', '|'+#{request.keyword},'%') ESCAPE '|'
+                u.name like concat('%', concat('|', #{request.keyword}),'%') ESCAPE '|'
+                or u.email like concat('%', concat('|', #{request.keyword}),'%') ESCAPE '|'
             )
         </if>
         order by urr.create_time desc
