@@ -9,6 +9,7 @@ import {
   GetApiDebugDetailUrl,
   GetDebugModuleCountUrl,
   GetDebugModulesUrl,
+  LocalExecuteApiDebugUrl,
   MoveDebugModuleUrl,
   TestMockUrl,
   UpdateApiDebugUrl,
@@ -64,6 +65,11 @@ export function dragDebug(data: DragSortParams) {
 // 执行调试
 export function executeDebug(data: ExecuteRequestParams) {
   return MSR.post<ExecuteRequestParams>({ url: ExecuteApiDebugUrl, data });
+}
+
+// 本地执行调试
+export function localExecuteApiDebug(host: string, data: ExecuteRequestParams) {
+  return MSR.post<ExecuteRequestParams>({ url: `${host}${LocalExecuteApiDebugUrl}`, data });
 }
 
 // 新增调试

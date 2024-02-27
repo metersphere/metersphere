@@ -54,7 +54,7 @@
             v-if="!requestVModel.executeLoading"
             :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
             class="exec-btn"
-            @click="execute"
+            @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
             @select="execute"
           >
             {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
@@ -62,7 +62,7 @@
               <icon-down />
             </template>
             <template v-if="hasLocalExec" #content>
-              <a-doption :value="isPriorityLocalExec ? 'localExec' : 'serverExec'">
+              <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
                 {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
               </a-doption>
             </template>
@@ -325,6 +325,7 @@
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     executeApi: (...args) => Promise<any>; // 执行接口
+    localExecuteApi: (...args) => Promise<any>; // 本地执行接口
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
@@ -468,6 +469,7 @@
 
   const hasLocalExec = ref(false); // 是否配置了api本地执行
   const isPriorityLocalExec = ref(false); // 是否优先本地执行
+  const localExecuteUrl = ref('');
   async function initLocalConfig() {
     try {
       const res = await getLocalConfig();
@@ -475,6 +477,7 @@
       if (apiLocalExec) {
         hasLocalExec.value = true;
         isPriorityLocalExec.value = apiLocalExec.enable || false;
+        localExecuteUrl.value = apiLocalExec.userUrl || '';
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -656,8 +659,12 @@
 
   const reportId = ref('');
   const websocket = ref<WebSocket>();
-  function debugSocket() {
-    websocket.value = getSocket(reportId.value);
+  function debugSocket(executeType?: 'localExec' | 'serverExec') {
+    websocket.value = getSocket(
+      reportId.value,
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? localExecuteUrl.value : ''
+    );
     websocket.value.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
@@ -700,7 +707,7 @@
     }
   );
 
-  function makeRequestParams() {
+  function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const { formDataBody, wwwFormBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
       (e) => e.value === requestVModel.value.protocol
@@ -743,7 +750,7 @@
     }
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
-    debugSocket(); // 开启websocket
+    debugSocket(executeType); // 开启websocket
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
@@ -768,6 +775,7 @@
       },
       ...parseRequestBodyResult,
       projectId: appStore.currentProjectId,
+      frontendDebug: executeType === 'localExec',
     };
   }
 
@@ -775,12 +783,14 @@
    * 执行调试
    * @param val 执行类型
    */
-  async function execute(execuetType?: 'localExec' | 'serverExec') {
-    // TODO:本地&服务端执行判断
+  async function execute(executeType?: 'localExec' | 'serverExec') {
     if (isHttpProtocol.value) {
       try {
         requestVModel.value.executeLoading = true;
-        await props.executeApi(makeRequestParams());
+        const res = await props.executeApi(makeRequestParams(executeType));
+        if (executeType === 'localExec') {
+          await props.localExecuteApi(localExecuteUrl.value, res);
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -792,7 +802,10 @@
         if (valid === true) {
           try {
             requestVModel.value.executeLoading = true;
-            await props.executeApi(makeRequestParams());
+            const res = await props.executeApi(makeRequestParams(executeType));
+            if (executeType === 'localExec') {
+              await props.localExecuteApi(localExecuteUrl.value, res);
+            }
           } catch (error) {
             // eslint-disable-next-line no-console
             console.log(error);

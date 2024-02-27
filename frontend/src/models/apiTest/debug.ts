@@ -317,6 +317,7 @@ export interface ExecuteRequestParams {
   linkFileIds: string[];
   request: ExecuteHTTPRequestFullParams | ExecutePluginRequestParams;
   projectId: string;
+  frontendDebug?: boolean; // 是否本地调试，该模式下接口会返回执行参数，用来调用本地执行服务
 }
 // 保存接口调试入参
 export interface SaveDebugParams {

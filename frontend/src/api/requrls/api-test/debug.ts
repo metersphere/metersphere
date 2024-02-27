@@ -1,4 +1,5 @@
 export const ExecuteApiDebugUrl = '/api/debug/debug'; // 执行调试
+export const LocalExecuteApiDebugUrl = '/api/debug'; // 本地执行调试
 export const AddApiDebugUrl = '/api/debug/add'; // 新增调试
 export const UpdateApiDebugUrl = '/api/debug/update'; // 更新调试
 export const GetApiDebugDetailUrl = '/api/debug/get'; // 获取接口调试详情
