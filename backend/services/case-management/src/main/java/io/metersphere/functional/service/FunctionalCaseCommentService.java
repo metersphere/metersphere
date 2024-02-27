@@ -277,7 +277,11 @@ public class FunctionalCaseCommentService {
         Map<String, List<FunctionalCaseCommentDTO>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
         for (FunctionalCaseCommentDTO functionalCaseComment : rootList) {
             List<FunctionalCaseCommentDTO> replyComments = commentMap.get(functionalCaseComment.getId());
-            functionalCaseComment.setChildComments(replyComments);
+            if (CollectionUtils.isNotEmpty(replyComments)) {
+                functionalCaseComment.setChildComments(replyComments);
+            } else {
+                functionalCaseComment.setChildComments(new ArrayList<>());
+            }
         }
         return rootList;
     }
