@@ -44,6 +44,8 @@ export default {
   'caseManagement.featureCase.tableColumnCreateTime': '创建时间',
   'caseManagement.featureCase.tableColumnUpdateUser': '更新人',
   'caseManagement.featureCase.tableColumnUpdateTime': '更新时间',
+  'caseManagement.featureCase.tableColumnDeleteUser': '删除人',
+  'caseManagement.featureCase.tableColumnDeleteTime': '删除时间',
   'caseManagement.featureCase.tableColumnActions': '操作',
   'caseManagement.featureCase.beforeDeleteCase': '删除后的内容将放入回收站，可在回收站内进行恢复数据',
   'caseManagement.featureCase.deleteCaseTitle': '确认删除 {name} 用例 ？',

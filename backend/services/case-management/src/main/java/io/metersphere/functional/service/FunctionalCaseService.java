@@ -581,7 +581,7 @@ public class FunctionalCaseService {
             functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
             functionalCasePageDTO.setCreateUserName(userMap.get(functionalCasePageDTO.getCreateUser()));
             functionalCasePageDTO.setUpdateUserName(userMap.get(functionalCasePageDTO.getUpdateUser()));
-            functionalCasePageDTO.setDeleteUserName(userMap.get(functionalCasePageDTO.getDeleteUserName()));
+            functionalCasePageDTO.setDeleteUserName(userMap.get(functionalCasePageDTO.getDeleteUser()));
         });
         return functionalCaseLists;
 

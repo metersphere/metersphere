@@ -45,6 +45,8 @@ export default {
   'caseManagement.featureCase.tableColumnCreateTime': 'CreateTime',
   'caseManagement.featureCase.tableColumnUpdateUser': 'UpdateUser',
   'caseManagement.featureCase.tableColumnUpdateTime': 'UpdateTime',
+  'caseManagement.featureCase.tableColumnDeleteUser': 'DeleteUser',
+  'caseManagement.featureCase.tableColumnDeleteTime': 'DeleteTime',
   'caseManagement.featureCase.tableColumnActions': 'operation',
   'caseManagement.featureCase.beforeDeleteCase':
     'The deleted content will be put into the recycle bin, where data can be recovered',
