@@ -37,7 +37,7 @@ export default {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',
       file: '附件',
-      fileExtra: '支持任意类型文件，单个文件大小不超过 500MB',
+      fileExtra: '支持任意类型文件，单个文件大小不超过 50MB',
       pleaseInputBugName: '请输入缺陷名称',
       nameIsRequired: '缺陷名称不能为空',
       pleaseInputBugContent: '请输入缺陷内容',

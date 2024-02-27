@@ -11,6 +11,7 @@
             <a-upload
               ref="uploadRef"
               v-model:file-list="innerFileList"
+              :limit="50"
               :auto-upload="false"
               :show-file-list="false"
               :before-upload="beforeUpload"
@@ -30,7 +31,7 @@
         </a-dropdown>
       </div>
       <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
-        {{ t('system.orgTemplate.addAttachmentTip') }}
+        {{ t('bugManagement.edit.addAttachmentTip') }}
       </div>
     </div>
   </a-form-item>
