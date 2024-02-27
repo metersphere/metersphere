@@ -50,27 +50,27 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { debounce } from 'lodash-es';
+import {ref} from 'vue';
+import {debounce} from 'lodash-es';
 
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+import type {MsTableColumn} from '@/components/pure/ms-table/type';
+import useTable from '@/components/pure/ms-table/useTable';
+import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-  import { getFileTypes, getRepositoryFileTypes } from '@/api/modules/project-management/fileManagement';
-  import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
-  import useUserStore from '@/store/modules/user';
-  import { findNodeByKey, formatFileSize } from '@/utils';
+import {getFileTypes, getRepositoryFileTypes} from '@/api/modules/project-management/fileManagement';
+import {useI18n} from '@/hooks/useI18n';
+import useAppStore from '@/store/modules/app';
+import useUserStore from '@/store/modules/user';
+import {findNodeByKey, formatFileSize} from '@/utils';
 
-  import type { AssociatedList } from '@/models/caseManagement/featureCase';
-  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
-  import type { FileListQueryParams } from '@/models/projectManagement/file';
-  import { Repository } from '@/models/projectManagement/file';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+import type {AssociatedList} from '@/models/caseManagement/featureCase';
+import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
+import type {FileListQueryParams} from '@/models/projectManagement/file';
+import {Repository} from '@/models/projectManagement/file';
+import {TableKeyEnum} from '@/enums/tableEnum';
 
-  const { t } = useI18n();
+const { t } = useI18n();
 
   const props = defineProps<{
     activeFolder: string;
@@ -163,7 +163,7 @@
       projectId: appStore.currentProjectId,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      combine: combine.value,
+      combine: { ...combine.value, ...props.getListFunParams.combine },
       storageItemCount: storageItemCount.value,
     });
   }

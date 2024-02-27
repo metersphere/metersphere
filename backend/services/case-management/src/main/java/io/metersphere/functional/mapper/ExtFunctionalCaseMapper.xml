@@ -113,6 +113,8 @@
         functional_case.update_time,
         functional_case.review_status,
         functional_case.last_execute_result,
+        functional_case.delete_user,
+        functional_case.delete_time,
         functional_case.tags
         FROM
             functional_case
