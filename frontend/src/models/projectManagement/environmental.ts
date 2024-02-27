@@ -76,3 +76,16 @@ export interface ProjectOptionItem {
   id: string;
   name: string;
 }
+
+export interface EnvPluginScript {
+  id: string;
+  name: string;
+  options: any;
+  script: any[];
+  scriptType: string;
+  tabName: string;
+}
+export interface EnvPluginListItem {
+  pluginId: string;
+  script: EnvPluginScript;
+}
