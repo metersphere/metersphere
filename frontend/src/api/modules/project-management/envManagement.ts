@@ -8,6 +8,7 @@ import type {
   EnvGroupListItem,
   EnvGroupProjectListItem,
   EnvListItem,
+  EnvPluginListItem,
   GlobalParams,
   ProjectOptionItem,
 } from '@/models/projectManagement/environmental';
@@ -66,6 +67,9 @@ export function groupEditPosEnv(data: EnvGroupListItem) {
 }
 export function groupAddEnv(data: EnvGroupListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupAddEnvUrl, data });
+}
+export function getEnvPlugin(projectId: string) {
+  return MSR.get<EnvPluginListItem[]>({ url: envURL.getEnvPluginUrl + projectId });
 }
 // 项目管理-项目组-详情
 export function groupDetailEnv(id: string) {

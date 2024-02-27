@@ -30,10 +30,12 @@
       <HttpTab v-else-if="activeKey === 'http'" />
       <DataBaseTab v-else-if="activeKey === 'database'" />
       <HostTab v-else-if="activeKey === 'host'" />
-      <TcpTab v-else-if="activeKey === 'tcp'" />
       <PreTab v-else-if="activeKey === 'pre'" />
       <PostTab v-else-if="activeKey === 'post'" />
       <AssertTab v-else-if="activeKey === 'assert'" />
+      <template v-for="item in envPluginList" :key="item.pluginId">
+        <PluginTab v-if="activeKey === item.pluginId" :script="item.script" />
+      </template>
     </div>
     <TabSettingDrawer v-model:visible="tabSettingVisible" @init-data="initTab" />
 
@@ -54,15 +56,16 @@
   import EnvParamsTab from './envParams/EnvParamsTab.vue';
   import HostTab from './envParams/HostTab.vue';
   import HttpTab from './envParams/HttpTab.vue';
+  import PluginTab from './envParams/PluginTab.vue';
   import PostTab from './envParams/PostTab.vue';
   import PreTab from './envParams/PreTab.vue';
-  import TcpTab from './envParams/TcpTab.vue';
 
-  import { updateOrAddEnv } from '@/api/modules/project-management/envManagement';
+  import { getEnvPlugin, updateOrAddEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
-  import { ContentTabItem } from '@/models/projectManagement/environmental';
+  import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
 
   const activeKey = ref('envParams');
   const envForm = ref();
@@ -70,8 +73,18 @@
   const { t } = useI18n();
   const loading = ref(false);
   const tabSettingVisible = ref(false);
+  const appStore = useAppStore();
 
   const store = useProjectEnvStore();
+  const envPluginList = ref<EnvPluginListItem[]>([]);
+  const pluginTabList = computed(() =>
+    envPluginList.value.map((item) => ({
+      label: item.script.tabName,
+      value: item.pluginId,
+      canHide: true,
+      isShow: true,
+    }))
+  );
 
   const form = reactive({
     name: '',
@@ -105,12 +118,6 @@
       isShow: true,
     },
     {
-      value: 'tcp',
-      label: 'project.environmental.TCP',
-      canHide: true,
-      isShow: true,
-    },
-    {
       value: 'pre',
       label: 'project.environmental.pre',
       canHide: true,
@@ -129,7 +136,17 @@
       isShow: true,
     },
   ];
-  await store.initContentTabList(sourceTabList);
+  // 初始化插件
+  const initPlugin = async () => {
+    try {
+      envPluginList.value = await getEnvPlugin(appStore.currentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+  await initPlugin();
+  await store.initContentTabList([...sourceTabList, ...pluginTabList.value]);
   contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
 
   const handleReset = () => {
