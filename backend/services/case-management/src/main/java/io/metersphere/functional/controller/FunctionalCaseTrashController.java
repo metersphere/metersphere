@@ -42,7 +42,7 @@ public class FunctionalCaseTrashController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, true));
     }
 
