@@ -180,7 +180,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/page-doc")
     @Operation(summary = "接口测试-接口管理-接口文档列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getDocPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -197,7 +197,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/doc")
     @Operation(summary = "接口测试-接口管理-接口文档列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinitionDocDTO getDocInfo(@Validated @RequestBody ApiDefinitionDocRequest request) {
         return apiDefinitionService.getDocInfo(request);

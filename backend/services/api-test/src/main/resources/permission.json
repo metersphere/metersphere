@@ -98,6 +98,19 @@
         ]
       },
       {
+        "id": "PROJECT_API_DEFINITION_DOC",
+        "name": "permission.api_doc.name",
+        "permissions": [
+          {
+            "id": "PROJECT_API_DEFINITION_DOC:READ"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_DOC:READ+SHARE",
+            "name": "permission.api_doc.share"
+          }
+        ]
+      },
+      {
         "id": "PROJECT_API_SCENARIO",
         "name": "message.api_scenario_task",
         "permissions": [
