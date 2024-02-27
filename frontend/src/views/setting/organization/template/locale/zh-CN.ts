@@ -67,7 +67,7 @@ export default {
   'system.orgTemplate.columnTemplateName': '模板名称',
   'system.orgTemplate.copy': '复制',
   'system.orgTemplate.defaultValue': '默认值',
-  'system.orgTemplate.required': '是否必填',
+  'system.orgTemplate.required': '必填',
   'system.orgTemplate.enableTemplateTip': '已启用项目模板，组织模板不可操作',
   'system.orgTemplate.templateList': ' {type}列表',
   'system.orgTemplate.createTemplate': '创建模板',

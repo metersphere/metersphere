@@ -1,4 +1,4 @@
 export default {
-  'formCreate.PleaseEnter': 'Please enter',
+  'formCreate.PleaseEnter': 'Default value',
   'formCreate.PleaseSelect': 'Please select',
 };

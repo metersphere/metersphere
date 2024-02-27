@@ -20,7 +20,12 @@
     </a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnabledTemplate" class="font-medium">{{ t('system.orgTemplate.fieldList') }}</span>
-      <a-button v-permission="props.createPermission" type="primary" :disabled="isDisabled" @click="fieldHandler">
+      <a-button
+        v-if="!isEnabledTemplate && hasAnyPermission(props.createPermission)"
+        type="primary"
+        :disabled="isDisabled"
+        @click="fieldHandler"
+      >
         {{ t('system.orgTemplate.addField') }}
       </a-button>
       <a-input-search

@@ -107,9 +107,9 @@
   const appStore = useAppStore();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
-
   const props = defineProps<{
     caseId: string;
+    activeTab: string;
   }>();
 
   const keyword = ref<string>('');
