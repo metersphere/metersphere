@@ -21,7 +21,6 @@ import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import io.metersphere.system.service.BaseTemplateService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
-import io.metersphere.system.service.ServiceIntegrationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,8 +45,6 @@ public class ProjectTemplateService extends BaseTemplateService {
 
     @Resource
     private ProjectService projectService;
-    @Resource
-    private ServiceIntegrationService serviceIntegrationService;
     @Resource
     private PluginLoadService pluginLoadService;
     @Resource

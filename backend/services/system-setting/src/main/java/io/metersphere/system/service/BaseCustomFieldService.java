@@ -51,6 +51,8 @@ public class BaseCustomFieldService {
     @Resource
     protected TemplateCustomFieldMapper templateCustomFieldMapper;
 
+    private static final String CREATE_USER = "CREATE_USER";
+
     public List<CustomFieldDTO> list(String scopeId, String scene) {
         checkScene(scene);
         List<CustomField> customFields = getByScopeIdAndScene(scopeId, scene);
@@ -68,6 +70,15 @@ public class BaseCustomFieldService {
             customFieldDTO.setOptions(optionMap.get(item.getId()));
             if (CustomFieldType.getHasOptionValueSet().contains(customFieldDTO.getType()) && customFieldDTO.getOptions() == null) {
                 customFieldDTO.setOptions(List.of());
+            }
+            if (StringUtils.equalsAny(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                // 成员选项添加默认的选项
+                CustomFieldOption createUserOption = new CustomFieldOption();
+                createUserOption.setFieldId(item.getId());
+                createUserOption.setText(Translator.get("message.domain.create_user"));
+                createUserOption.setValue(CREATE_USER);
+                createUserOption.setInternal(false);
+                customFieldDTO.setOptions(List.of(createUserOption));
             }
             return customFieldDTO;
         }).toList();

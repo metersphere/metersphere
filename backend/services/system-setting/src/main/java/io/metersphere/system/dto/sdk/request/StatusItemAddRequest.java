@@ -34,6 +34,7 @@ public class StatusItemAddRequest implements Serializable {
     private String scene;
 
     @Schema(description = "状态说明")
+    @Size(max = 500)
     private String remark;
 
     @Schema(description = "所有状态都可以流转到该状态")
