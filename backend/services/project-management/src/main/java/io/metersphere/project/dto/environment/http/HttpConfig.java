@@ -23,7 +23,7 @@ public class HttpConfig implements Serializable {
     @Schema(description = "环境域名")
     private String url;
     /**
-     *  启用条件
+     * 启用条件
      * {@link HttpConfigMatchType}
      */
     @Schema(description = "启用条件  NONE/MODULE/PATH")
@@ -37,6 +37,8 @@ public class HttpConfig implements Serializable {
     private HttpConfigModuleMatchRule moduleMatchRule = new HttpConfigModuleMatchRule();
     @Schema(description = "请求头")
     private List<@Valid KeyValueEnableParam> headers = new ArrayList<>(0);
+    @Schema(description = "描述")
+    private String description;
 
 
     public boolean isModuleMatchRule() {

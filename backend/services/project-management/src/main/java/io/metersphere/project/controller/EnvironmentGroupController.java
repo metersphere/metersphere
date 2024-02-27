@@ -2,7 +2,7 @@ package io.metersphere.project.controller;
 
 
 import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
-import io.metersphere.project.dto.environment.EnvironmentGroupInfo;
+import io.metersphere.project.dto.environment.EnvironmentGroupDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
 import io.metersphere.project.service.EnvironmentGroupLogService;
 import io.metersphere.project.service.EnvironmentGroupService;
@@ -68,7 +68,7 @@ public class EnvironmentGroupController {
     @Operation(summary = "项目管理-环境组-详情")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
     @CheckOwner(resourceId = "#id", resourceType = "environment_group")
-    public List<EnvironmentGroupInfo> get(@PathVariable String id) {
+    public EnvironmentGroupDTO get(@PathVariable String id) {
         return environmentGroupService.get(id);
     }
 

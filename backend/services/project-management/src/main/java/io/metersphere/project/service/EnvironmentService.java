@@ -479,4 +479,29 @@ public class EnvironmentService {
         example.createCriteria().andIdIn(envIds);
         return environmentBlobMapper.selectByExampleWithBLOBs(example);
     }
+
+    public List<EnvironmentOptionsDTO> listOption(String projectId) {
+        List<EnvironmentOptionsDTO> environmentOptions = new ArrayList<>();
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        List<String> ids = environments.stream().map(Environment::getId).toList();
+        EnvironmentBlobExample environmentBlobExample = new EnvironmentBlobExample();
+        environmentBlobExample.createCriteria().andIdIn(ids);
+        List<EnvironmentBlob> environmentBlobs = environmentBlobMapper.selectByExampleWithBLOBs(environmentBlobExample);
+        Map<String, EnvironmentBlob> environmentBlobMap = environmentBlobs.stream().collect(Collectors.toMap(EnvironmentBlob::getId, Function.identity()));
+        environments.forEach(environment -> {
+            EnvironmentOptionsDTO environmentOptionsDTO = new EnvironmentOptionsDTO();
+            BeanUtils.copyBean(environmentOptionsDTO, environment);
+            EnvironmentBlob environmentBlob = environmentBlobMap.get(environment.getId());
+            if (environmentBlob != null) {
+                EnvironmentConfig environmentConfig = JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
+                if (environmentConfig != null && CollectionUtils.isNotEmpty(environmentConfig.getHttpConfig())) {
+                    environmentOptionsDTO.setDomain(environmentConfig.getHttpConfig());
+                }
+            }
+            environmentOptions.add(environmentOptionsDTO);
+        });
+        return environmentOptions;
+    }
 }

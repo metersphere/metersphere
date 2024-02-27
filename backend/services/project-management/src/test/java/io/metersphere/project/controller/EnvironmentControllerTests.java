@@ -96,6 +96,7 @@ public class EnvironmentControllerTests extends BaseTest {
     private static final String validate = prefix + "/database/validate";
     private static final String getOptions = prefix + "/database/driver-options/";
     private static final String SCRIPTS = prefix + "/scripts/{0}";
+    private static final String listOption = prefix + "/get-options/";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static String MOCKID;
@@ -1199,5 +1200,13 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
         return pluginService.add(request, mockMultipartFile);
+    }
+
+    @Test
+    @Order(17)
+    public void testGetOptions() throws Exception {
+        MvcResult mvcResult = responseGet(listOption + DEFAULT_PROJECT_ID);
+        List<EnvironmentOptionsDTO> options = getResultDataArray(mvcResult, EnvironmentOptionsDTO.class);
+        Assertions.assertFalse(options.isEmpty());
     }
 }

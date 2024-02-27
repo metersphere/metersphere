@@ -208,7 +208,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     public void testGet() throws Exception {
         //环境不存在
         MvcResult mvcResult = this.responseGet(get + getEnvironmentGroup());
-        List<EnvironmentGroupInfo> response = parseObjectFromMvcResult(mvcResult, List.class);
+        EnvironmentGroupDTO response = parseObjectFromMvcResult(mvcResult, EnvironmentGroupDTO.class);
         Assertions.assertNotNull(response);
     }
 

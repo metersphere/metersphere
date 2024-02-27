@@ -12,8 +12,6 @@ public class EnvironmentGroupProjectDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    @Schema(description = "环境组id")
-    private String environmentGroupId;
     @Schema(description = "环境id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String environmentId;
