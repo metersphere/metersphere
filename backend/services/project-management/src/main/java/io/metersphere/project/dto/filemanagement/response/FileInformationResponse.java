@@ -40,10 +40,10 @@ public class FileInformationResponse {
     @Schema(description = "模块ID")
     private String moduleId;
 
-    @Schema(description = "更新人")
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "创建时间")
     private long createTime;
 
     @Schema(description = "更新人")

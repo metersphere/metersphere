@@ -23,5 +23,7 @@ public class ModuleConstants {
     /* 模块数量统计相关key */
     public static final String MODULE_COUNT_ALL = "all";
     public static final String MODULE_COUNT_MY = "my";
+    public static final String MODULE_COUNT_GIT = "git";
+    public static final String MODULE_COUNT_MINIO = "minio";
     /* 模块数量统计相关key end*/
 }

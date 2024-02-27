@@ -72,6 +72,7 @@
           :get-list-request="props.getListRequest"
           :get-list-fun-params="props.getListFunParams"
           :selector-type="props.selectorType"
+          :file-all-count-by-storage="fileAllCountByStorage"
           @init="handleModuleTableInit"
         />
       </template>
@@ -80,22 +81,22 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+import {ref} from 'vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import FileTree from './fileTree.vue';
-  import LinkFileTable from './linkFileTable.vue';
-  import StorageList from './storageList.vue';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+import FileTree from './fileTree.vue';
+import LinkFileTable from './linkFileTable.vue';
+import StorageList from './storageList.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+import {useI18n} from '@/hooks/useI18n';
 
-  import type { AssociatedList } from '@/models/caseManagement/featureCase';
-  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
-  import { FileListQueryParams, Repository } from '@/models/projectManagement/file';
+import type {AssociatedList} from '@/models/caseManagement/featureCase';
+import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
+import {FileListQueryParams, Repository} from '@/models/projectManagement/file';
 
-  const { t } = useI18n();
+const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
@@ -136,6 +137,7 @@
   const modulesCount = ref<Record<string, number>>({});
   const myFileCount = ref(0);
   const allFileCount = ref(0);
+  const fileAllCountByStorage = ref<number>(0);
 
   const isExpandAll = ref(false);
 
@@ -175,10 +177,11 @@
     try {
       modulesCount.value = await props.getCountRequest(params);
       myFileCount.value = modulesCount.value.my || 0;
-      if (showType.value === 'Storage') {
-        allFileCount.value = storageCount.value;
-      } else {
-        allFileCount.value = modulesCount.value.all || 0;
+      allFileCount.value = modulesCount.value.all;
+      if(showType.value === 'Storage'){
+        fileAllCountByStorage.value = modulesCount.value.git;
+      }else {
+        fileAllCountByStorage.value = modulesCount.value.minio;
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -195,18 +198,6 @@
   function changeShowType(val: string | number | boolean) {
     showType.value = val as FileShowType;
     activeFolder.value = 'all';
-    if (val === 'Storage') {
-      initModulesCount({
-        ...tableFilterParams.value,
-        combine: {
-          ...tableFilterParams.value.combine,
-          // ...props.getListFunParams.combine,
-          storage: 'git',
-        },
-      });
-    } else {
-      initModulesCount(tableFilterParams.value);
-    }
   }
 
   /**

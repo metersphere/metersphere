@@ -459,10 +459,16 @@ public class FileMetadataService {
         myFileCountDTO.setStorage(null);
         myFileCountDTO.setHiddenIds(pageDTO.getHiddenIds());
         long allCount = extFileMetadataMapper.fileCount(myFileCountDTO);
+        //查找git文件数量
+        myFileCountDTO.setStorage(StorageType.GIT.name());
+        long gitAllCount = extFileMetadataMapper.fileCount(myFileCountDTO);
+        myFileCountDTO.setStorage(null);
         myFileCountDTO.setOperator(operator);
         long myFileCount = extFileMetadataMapper.fileCount(myFileCountDTO);
         moduleCountMap.put(ModuleConstants.MODULE_COUNT_MY, myFileCount);
         moduleCountMap.put(ModuleConstants.MODULE_COUNT_ALL, allCount);
+        moduleCountMap.put(ModuleConstants.MODULE_COUNT_GIT, gitAllCount);
+        moduleCountMap.put(ModuleConstants.MODULE_COUNT_MINIO, allCount - gitAllCount);
         return moduleCountMap;
     }
 
