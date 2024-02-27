@@ -291,20 +291,62 @@
       </a-tooltip>
       <a-input v-model="record.matchValue" size="mini" class="param-input" />
     </template>
-    <template #project="{ record, columnConfig, rowIndex }">
+    <template #project="{ record, rowIndex }">
       <a-select
-        v-model="record.projectId"
-        class="param-input"
-        size="mini"
-        @change="(val) => handelProjectChange(val as string, record.projectId, rowIndex)"
+        v-model:model-value="record.projectId"
+        class="param-input w-max-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+        :bordered="false"
+        allow-search
+        @change="(val) => handleProjectChange(val as string,record.projectId, rowIndex)"
       >
-        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
+        <template #arrow-icon>
+          <icon-caret-down />
+        </template>
+        <a-tooltip
+          v-for="project of appStore.projectList"
+          :key="project.id"
+          :mouse-enter-delay="500"
+          :content="project.name"
+        >
+          <a-option
+            :value="project.id"
+            :class="project.id === appStore.currentProjectId ? 'arco-select-option-selected' : ''"
+          >
+            {{ project.name }}
+          </a-option>
+        </a-tooltip>
       </a-select>
     </template>
-    <template #environment="{ record, columnConfig }">
-      <a-select v-model="record.environmentId" size="mini" class="param-input">
-        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
-      </a-select>
+    <template #environment="{ record }">
+      <MsSelect
+        v-if="record.projectId"
+        v-model:model-value="record.environmentId"
+        v-model:input-value="record.environmentInput"
+        :disabled="!record.projectId"
+        :options="[]"
+        mode="remote"
+        value-key="id"
+        label-key="name"
+        :search-keys="['name']"
+        size="mini"
+        allow-search
+        class="param-input"
+        :remote-func="initEnvOptions"
+        :remote-extra-params="{ projectId: record.projectId, keyword: record.environmentInput }"
+        @change-object="(val) => handleEnvironment(val, record)"
+      />
+      <span v-else></span>
+    </template>
+    <template #host="{ record }">
+      <span v-if="record.host.length === 1" class="text-[var(--color-text-4)]">{{ record.host }}</span>
+      <span
+        v-if="record.host.length > 1"
+        class="cursor-pointer text-[var(--color-text-4)]"
+        @click="showHostModal(record)"
+      >
+        {{ t('common.more') }}
+      </span>
+      <span v-else></span>
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
@@ -399,6 +441,9 @@
       :max-length="1000"
     ></a-textarea>
   </a-modal>
+  <a-modal v-model:visible="hostVisible" :title="t('apiTestDebug.host')" @close="hostModalClose">
+    <a-table :columns="hostColumn" :data="hostData"> </a-table>
+  </a-modal>
 </template>
 
 <script async setup lang="ts">
@@ -415,12 +460,15 @@
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import MsSelect from '@/components/business/ms-select/index';
   import paramDescInput from './paramDescInput.vue';
 
+  import { groupProjectEnv, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
+  import { ProjectOptionItem } from '@/models/projectManagement/environmental';
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -632,6 +680,70 @@
   };
   /** 断言-文档-end */
 
+  /** 环境管理-环境组 start */
+
+  const sourceProjectOptions = ref<ProjectOptionItem[]>([]);
+
+  // 获取项目的options
+  const initProjectOptions = async () => {
+    const res = await groupProjectEnv(appStore.currentOrgId);
+    sourceProjectOptions.value = res;
+  };
+  // 获取环境的options
+  const initEnvOptions = async (params: Record<string, any>) => {
+    const { projectId, keyword } = params;
+    const res = await listEnv({ projectId, keyword });
+    return res;
+  };
+
+  const handleEnvironment = (obj: Record<string, any>, record: Record<string, any>) => {
+    record.host = obj.host;
+    emit('change', propsRes.value.data);
+  };
+
+  const hostVisible = ref(false);
+  const hostData = ref<any[]>([]);
+  const hostColumn = [
+    {
+      title: 'project.environmental.http.host',
+      dataIndex: 'host',
+    },
+    {
+      title: 'project.environmental.http.desc',
+      dataIndex: 'desc',
+    },
+    {
+      title: 'project.environmental.http.applyScope',
+      dataIndex: 'applyScope',
+    },
+    {
+      title: 'project.environmental.http.enableScope',
+      dataIndex: 'enableScope',
+    },
+    {
+      title: 'project.environmental.http.value',
+      dataIndex: 'value',
+    },
+  ];
+
+  const showHostModal = (record: Record<string, any>) => {
+    hostVisible.value = true;
+    hostData.value = record.hostList || [];
+  };
+
+  const hostModalClose = () => {
+    hostVisible.value = false;
+    hostData.value = [];
+  };
+
+  watchEffect(() => {
+    if (props.columns.some((e) => e.dataIndex === 'projectId')) {
+      initProjectOptions();
+    }
+  });
+
+  /** 环境管理-环境组 end */
+
   /**
    * 当表格输入框变化时，给参数表格添加一行数据行
    * @param val 输入值
@@ -813,7 +925,7 @@
     emit('moreActionSelect', event, record);
   }
 
-  function handelProjectChange(val: string, projectId: string, rowIndex: number) {
+  function handleProjectChange(val: string, projectId: string, rowIndex: number) {
     emit('projectChange', projectId);
     addTableLine(rowIndex);
   }
@@ -850,6 +962,9 @@
       }
       .arco-select-view-value {
         color: var(--color-text-brand);
+      }
+      .arco-select {
+        border-color: transparent !important;
       }
     }
   }

@@ -372,6 +372,10 @@ export default defineComponent(
       }
       emit('update:modelValue', value);
       emit('change', value);
+      emit(
+        'changeObject',
+        remoteOriginOptions.value.filter((e) => value === e[props.valueKey || 'value'])
+      );
     }
 
     /**
@@ -544,6 +548,14 @@ export default defineComponent(
       'disabled',
       'size',
     ],
-    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove', 'change'],
+    emits: [
+      'update:modelValue',
+      'remoteSearch',
+      'popupVisibleChange',
+      'update:loading',
+      'remove',
+      'change',
+      'changeObject',
+    ],
   }
 );

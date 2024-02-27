@@ -17,7 +17,7 @@ export const groupDetailEnvUrl = '/project/environment/group/get/';
 export const groupDeleteEnvUrl = '/project/environment/group/delete/';
 export const getEnvPluginUrl = '/project/environment/scripts/';
 // 获取项目组的项目
-export const groupProjectEnvUrl = '/project/environment/group/get-project';
+export const groupProjectEnvUrl = '/project/environment/group/get-project/';
 // 全局参数
 export const updateGlobalParamUrl = '/project/global/params/update';
 export const addGlobalParamUrl = '/project/global/params/add';

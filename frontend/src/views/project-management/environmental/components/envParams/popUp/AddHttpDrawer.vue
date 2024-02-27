@@ -78,7 +78,7 @@
         >
           <template #prefix>
             <div class="input-prefix">
-              <a-select>
+              <a-select default-value="like">
                 <a-option v-for="item in OPERATOR_MAP.string" :key="item.value" :value="item.value">{{
                   t(item.label)
                 }}</a-option>
@@ -192,9 +192,7 @@
       background-color: var(--color-text-n10);
     }
     :deep(.arco-select) {
-      border-top: 1px solid var(--color-text-n7);
-      border-right: 1px solid var(--color-text-n7);
-      border-bottom: 1px solid var(--color-text-n7);
+      border: 1px solid var(--color-text-n7);
       border-radius: 0 4px 4px 0;
       background: var(--color-text-n8);
     }

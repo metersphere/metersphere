@@ -209,7 +209,11 @@
       const handleMouseMove = (_event: MouseEvent) => {
         if (resizing.value) {
           const newWidth = initialWidth + (startX - _event.clientX); // 新的宽度等于当前抽屉宽度+鼠标移动的距离
-          if (newWidth >= (props.width || 480) && newWidth <= window.innerWidth * 0.9) {
+          if (
+            typeof props.width === 'number' &&
+            newWidth >= (props.width || 480) &&
+            newWidth <= window.innerWidth * 0.9
+          ) {
             // 最大最小宽度限制，最小宽度为传入的width或480，最大宽度为视图窗口宽度的90%
             drawerWidth.value = newWidth;
           }
