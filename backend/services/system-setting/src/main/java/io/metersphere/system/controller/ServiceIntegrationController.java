@@ -1,11 +1,11 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.ServiceIntegrationLogService;
 import io.metersphere.system.service.ServiceIntegrationService;
 import io.metersphere.validation.groups.Created;
@@ -65,16 +65,17 @@ public class ServiceIntegrationController {
         serviceIntegrationService.delete(id);
     }
 
-    @PostMapping("/validate/{pluginId}")
+    @PostMapping("/validate/{pluginId}/{orgId}")
     @Operation(summary = "系统设置-组织-服务集成-校验服务集成信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE)
     public void validate(@PathVariable String pluginId,
+                         @PathVariable String orgId,
                          @Validated({Updated.class})
                          @RequestBody
                          @NotEmpty
                          @Schema(description = "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
                          HashMap<String, String> serviceIntegrationInfo) {
-        serviceIntegrationService.validate(pluginId, serviceIntegrationInfo);
+        serviceIntegrationService.validate(pluginId, orgId, serviceIntegrationInfo);
     }
 
     @GetMapping("/validate/{id}")

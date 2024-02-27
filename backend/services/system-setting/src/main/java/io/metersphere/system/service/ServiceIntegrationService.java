@@ -15,7 +15,6 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,9 +126,9 @@ public class ServiceIntegrationService {
         }
     }
 
-    public void validate(String pluginId, Map<String, String> serviceIntegrationInfo) {
+    public void validate(String pluginId, String orgId, Map<String, String> serviceIntegrationInfo) {
         pluginService.checkResourceExist(pluginId);
-        Platform platform = platformPluginService.getPlatform(pluginId, StringUtils.EMPTY, JSON.toJSONString(serviceIntegrationInfo));
+        Platform platform = platformPluginService.getPlatform(pluginId, orgId, JSON.toJSONString(serviceIntegrationInfo));
         platform.validateIntegrationConfig();
     }
 

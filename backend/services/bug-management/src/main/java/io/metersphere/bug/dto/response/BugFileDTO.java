@@ -33,6 +33,6 @@ public class BugFileDTO {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "是否关联")
-    private Boolean associated;
+    @Schema(description = "是否本地文件")
+    private Boolean local;
 }

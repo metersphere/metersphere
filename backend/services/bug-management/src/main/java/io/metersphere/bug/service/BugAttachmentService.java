@@ -98,7 +98,7 @@ public class BugAttachmentService {
         if (!CollectionUtils.isEmpty(bugLocalAttachments)) {
             bugLocalAttachments.forEach(localFile -> {
                 BugFileDTO localFileDTO = BugFileDTO.builder().refId(localFile.getId()).fileId(localFile.getFileId()).fileName(localFile.getFileName()).fileType(getLocalFileType(localFile.getFileName()))
-                        .fileSize(localFile.getSize()).createTime(localFile.getCreateTime()).createUser(localFile.getCreateUser()).associated(false).build();
+                        .fileSize(localFile.getSize()).createTime(localFile.getCreateTime()).createUser(localFile.getCreateUser()).local(true).build();
                 bugFiles.add(localFileDTO);
             });
         }
@@ -112,7 +112,7 @@ public class BugAttachmentService {
                 FileMetadata associatedFileMetadata = fileMetadataMap.get(associatedFile.getFileId());
                 BugFileDTO associatedFileDTO = BugFileDTO.builder().refId(associatedFile.getId()).fileId(associatedFile.getFileId()).fileName(associatedFileMetadata.getName() + "." + associatedFileMetadata.getType())
                         .fileType(associatedFileMetadata.getType()).fileSize(associatedFileMetadata.getSize()).createTime(associatedFileMetadata.getCreateTime())
-                        .createUser(associatedFileMetadata.getCreateUser()).associated(true).build();
+                        .createUser(associatedFileMetadata.getCreateUser()).local(false).build();
                 bugFiles.add(associatedFileDTO);
             });
         }
@@ -385,7 +385,7 @@ public class BugAttachmentService {
                 List<String> unLinkIds = new ArrayList<>();
                 List<String> deleteLocalIds = new ArrayList<>();
                 deleteMsAttachments.forEach(deleteMsFile -> {
-                    if (deleteMsFile.getAssociated()) {
+                    if (!deleteMsFile.getLocal()) {
                         unLinkIds.add(deleteMsFile.getRefId());
                     } else {
                         deleteLocalIds.add(deleteMsFile.getRefId());

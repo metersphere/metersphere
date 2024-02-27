@@ -172,7 +172,7 @@
           const formValue = {
             ...fApi.value.formData(),
           };
-          await postValidate(formValue, pluginId.value);
+          await postValidate(formValue, `${pluginId.value}/${lastOrganizationId}`);
           if (!isConfigOrigin.value) isDisabled.value = false;
           Message.success(t('organization.service.successMessage'));
         } catch (error) {
