@@ -58,6 +58,15 @@
       </template>
     </ms-base-table>
   </MsDrawer>
+  <AddScriptDrawer
+    v-model:visible="showScriptDrawer"
+    v-model:params="paramsList"
+    :confirm-loading="confirmLoading"
+    :script-id="isEditId"
+    ok-text="project.commonScript.apply"
+    :enable-radio-selected="radioSelected"
+    @save="saveHandler"
+  />
 </template>
 
 <script setup lang="ts">
@@ -71,14 +80,20 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-  import { getInsertCommonScriptPage } from '@/api/modules/project-management/commonScript';
+  import { addOrUpdateCommonScriptReq, getInsertCommonScriptPage } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
+  import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
+
+  import Message from '@arco-design/web-vue/es/message';
   import debounce from 'lodash-es/debounce';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
+  const AddScriptDrawer = defineAsyncComponent(
+    () => import('@/components/business/ms-common-script/ms-addScriptDrawer.vue')
+  );
   const { t } = useI18n();
   const props = withDefaults(
     defineProps<{
@@ -93,7 +108,7 @@
     }
   );
 
-  const emit = defineEmits(['update:visible', 'update:checkedId', 'save', 'addScript']);
+  const emit = defineEmits(['update:visible', 'update:checkedId', 'save']);
   const insertScriptDrawer = computed({
     get() {
       return props.visible;
@@ -229,9 +244,41 @@
   function handleDrawerCancel() {
     insertScriptDrawer.value = false;
   }
-
+  const showScriptDrawer = ref<boolean>(false);
   function addCommonScript() {
-    emit('addScript');
+    showScriptDrawer.value = true;
+  }
+
+  const paramsList = ref<ParamsRequestType[]>([]);
+  const confirmLoading = ref<boolean>(false);
+  const isEditId = ref<string>('');
+  const radioSelected = ref<boolean>(false);
+
+  // 保存自定义代码片段应用
+  async function saveHandler(form: AddOrUpdateCommonScript) {
+    try {
+      confirmLoading.value = true;
+      const { status } = form;
+      const paramTableList = paramsList.value.slice(0, -1);
+      const paramsObj: AddOrUpdateCommonScript = {
+        ...form,
+        status: status || 'DRAFT',
+        projectId: currentProjectId.value,
+        params: JSON.stringify(paramTableList),
+      };
+      await addOrUpdateCommonScriptReq(paramsObj);
+      showScriptDrawer.value = false;
+      initData();
+      Message.success(
+        form.status === 'DRAFT'
+          ? t('project.commonScript.saveDraftSuccessfully')
+          : t('project.commonScript.appliedSuccessfully')
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
   }
 
   watch(

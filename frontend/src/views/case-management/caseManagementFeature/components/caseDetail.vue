@@ -38,6 +38,7 @@
 
   import { createCaseRequest, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useVisit from '@/hooks/useVisit';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -48,9 +49,12 @@
 
   import Message from '@arco-design/web-vue/es/message';
 
+  const { setState } = useLeaveUnSaveTip();
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
+
+  setState(false);
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -83,6 +87,7 @@
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
           query: { organizationId: route.query.organizationId, projectId: route.query.projectId },
         });
+        setState(true);
         // 创建用例
       } else {
         // 创建并关联
@@ -119,6 +124,7 @@
             },
           });
         }
+        setState(true);
       }
     } catch (error) {
       // eslint-disable-next-line no-console

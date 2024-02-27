@@ -73,7 +73,8 @@
     emits('reload');
   }
 
-  function handleChange() {
+  function handleChange(value: any) {
+    formApi.value?.validateField(value);
     emits('change');
   }
 </script>

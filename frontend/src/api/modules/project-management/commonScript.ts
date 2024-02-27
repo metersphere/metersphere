@@ -28,7 +28,10 @@ export function getCommonScriptPage(data: TableQueryParams) {
 }
 
 // 添加公共脚本
-export function addCommonScriptReq(data: AddOrUpdateCommonScript) {
+export function addOrUpdateCommonScriptReq(data: AddOrUpdateCommonScript) {
+  if (data.id) {
+    return MSR.post({ url: UpdateCommonScriptUrl, data });
+  }
   return MSR.post({ url: AddCommonScriptUrl, data });
 }
 // 更新公共脚本

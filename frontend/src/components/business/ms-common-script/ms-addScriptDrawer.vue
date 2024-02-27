@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="showScriptDrawer"
-    :title="t('project.commonScript.addPublicScript')"
+    :title="form.id ? t('project.commonScript.editPublicScript') : t('project.commonScript.addPublicScript')"
     :width="768"
     :footer="true"
     unmount-on-close
@@ -43,6 +43,7 @@
           :scroll="{ x: '100%' }"
           :columns="columns"
           :height-used="heightUsed"
+          :selectable="false"
           @change="handleParamTableChange"
         />
       </a-form-item>
@@ -218,12 +219,23 @@
     }
   );
 
+  // watchEffect(() => {
+  //   editScriptId.value = props.scriptId;
+  //   if (editScriptId.value) {
+  //     getDetail();
+  //   }
+  // });
+
   watch(
     () => showScriptDrawer.value,
     (val) => {
       if (val) {
         form.value = { ...initForm };
         innerParams.value = [];
+        editScriptId.value = props.scriptId;
+        if (editScriptId.value) {
+          getDetail();
+        }
       }
     }
   );
@@ -311,6 +323,10 @@
       }
     }
   );
+
+  // onBeforeUnmount(() => {
+  //   editScriptId.value = '';
+  // });
 </script>
 
 <style scoped></style>

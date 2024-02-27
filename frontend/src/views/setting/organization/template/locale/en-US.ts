@@ -189,4 +189,16 @@ export default {
   'system.orgTemplate.caseTemplateManagement': 'Use case template management',
   'system.orgTemplate.apiTemplateManagement': 'Interface template management',
   'system.orgTemplate.bugTemplateManagement': 'Defect template management',
+  'system.orgTemplate.templateTypeName': ' {type}name',
+  'system.orgTemplate.createCaseTemplate': 'Create a use case template',
+  'system.orgTemplate.updateCaseTemplate': 'Update the use case template',
+  'system.orgTemplate.createApiTemplate': 'Creating Api Template',
+  'system.orgTemplate.updateApiTemplate': 'Update Api Template',
+  'system.orgTemplate.createDefectTemplate': 'Create defect templates',
+  'system.orgTemplate.updateDefectTemplate': 'Update defect templates',
+  'system.orgTemplate.enableApiAlert':
+    'After connecting to the third-party platform, you need to fill in the field API for the custom field. When using the template, the API field is not displayed',
+  'system.orgTemplate.pleaseEnterAPITip': 'Please enter the field API',
+  'system.orgTemplate.apiFieldNotEmpty': 'The field API cannot be empty',
+  'system.orgTemplate.selectThirdPlatType': 'Please select the third party platform',
 };

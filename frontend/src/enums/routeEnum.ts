@@ -2,6 +2,7 @@ export enum ApiTestRouteEnum {
   API_TEST = 'apiTest',
   API_TEST_DEBUG = 'apiTestDebug',
   API_TEST_MANAGEMENT = 'apiTestManagement',
+  API_TEST_REPORT = 'apiTestReport',
 }
 
 export enum BugManagementRouteEnum {
@@ -41,7 +42,9 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT = 'projectManagementPermissionMenuManagement',
   PROJECT_MANAGEMENT_TEMPLATE = 'projectManagementTemplate',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT = 'projectManagementTemplateManagement',
-  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL = 'projectManagementTemplateManagementDetail',
+  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL = 'projectManagementTemplateManagementCaseDetail',
+  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL = 'projectManagementTemplateManagementCaseDetail',
+  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL = 'projectManagementTemplateManagementBugDetail',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW = 'projectManagementTemplateManagementWorkFlow',
   PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING = 'projectManagementTemplateFiledSetting',
   PROJECT_MANAGEMENT_PERMISSION_VERSION = 'projectManagementPermissionVersion',
@@ -84,7 +87,9 @@ export enum SettingRouteEnum {
   SETTING_ORGANIZATION_TEMPLATE = 'settingOrganizationTemplate',
   SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING = 'settingOrganizationTemplateFiledSetting',
   SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT = 'settingOrganizationTemplateManagement',
-  SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL = 'settingOrganizationTemplateManagementDetail',
+  SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CASE_DETAIL = 'settingOrganizationTemplateManagementCaseDetail',
+  SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_API_DETAIL = 'settingOrganizationTemplateManagementApiDetail',
+  SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_BUG_DETAIL = 'settingOrganizationTemplateManagementBugDetail',
   SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW = 'settingOrganizationTemplateWorkFlow',
   SETTING_ORGANIZATION_SERVICE = 'settingOrganizationService',
   SETTING_ORGANIZATION_LOG = 'settingOrganizationLog',

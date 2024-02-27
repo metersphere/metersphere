@@ -480,7 +480,7 @@ export const pathMap: PathMapItem[] = [
         locale: 'menu.projectManagement.templateManager',
         route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
         permission: [],
-        level: MENU_LEVEL[1],
+        level: MENU_LEVEL[2],
         children: [
           {
             key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL', // 模板管理-用例模板
@@ -490,7 +490,7 @@ export const pathMap: PathMapItem[] = [
             routeQuery: {
               type: 'FUNCTIONAL',
             },
-            level: MENU_LEVEL[1],
+            level: MENU_LEVEL[2],
             children: [
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_FIELD', // 模板管理-用例模板-用例模板字段管理
@@ -500,7 +500,7 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'FUNCTIONAL',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_TEMPLATE', // 模板管理-用例模板-用例模板管理
@@ -510,7 +510,7 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'FUNCTIONAL',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
             ],
           },
@@ -522,7 +522,7 @@ export const pathMap: PathMapItem[] = [
             routeQuery: {
               type: 'API',
             },
-            level: MENU_LEVEL[1],
+            level: MENU_LEVEL[2],
             children: [
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_API_FIELD', // 模板管理-接口模板-接口模板字段管理
@@ -532,7 +532,7 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'API',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_API_TEMPLATE', // 模板管理-接口模板-接口模板管理
@@ -542,7 +542,7 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'API',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
             ],
           },
@@ -554,7 +554,7 @@ export const pathMap: PathMapItem[] = [
             routeQuery: {
               type: 'BUG',
             },
-            level: MENU_LEVEL[1],
+            level: MENU_LEVEL[2],
             children: [
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_FIELD', // 模板管理-缺陷模板管理-字段管理
@@ -564,7 +564,7 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'BUG',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_TEMPLATE', // 模板管理-缺陷模板-缺陷模板管理
@@ -574,14 +574,14 @@ export const pathMap: PathMapItem[] = [
                 routeQuery: {
                   type: 'BUG',
                 },
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
               {
                 key: 'PROJECT_MANAGEMENT_TEMPLATE_BUG_WORKFLOW', // 模板管理-缺陷模板-缺陷工作流
                 locale: 'menu.settings.organization.templateManagementWorkFlow',
                 route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
                 permission: [],
-                level: MENU_LEVEL[1],
+                level: MENU_LEVEL[2],
               },
             ],
           },

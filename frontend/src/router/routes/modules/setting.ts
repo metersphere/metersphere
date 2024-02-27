@@ -285,13 +285,14 @@ const Setting: AppRouteRecordRaw = {
             ],
           },
         },
-        // 模板列表-模板管理-创建&编辑模板
+        // 模板列表-创建&编辑模板
+        // 用例模板
         {
-          path: 'templateManagementDetail/:mode?',
-          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
-          component: () => import('@/views/setting/organization/template/components/templateDetail.vue'),
+          path: 'templateManagementCaseDetail/:mode?',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CASE_DETAIL,
+          component: () => import('@/views/setting/organization/template/components/detail.vue'),
           meta: {
-            locale: 'menu.settings.organization.templateManagementDetail',
+            locale: 'system.orgTemplate.createCaseTemplate',
             roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+ADD'],
             breadcrumbs: [
               {
@@ -305,9 +306,65 @@ const Setting: AppRouteRecordRaw = {
               },
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
-                locale: 'menu.settings.organization.templateManagementDetail',
+                locale: 'system.orgTemplate.createCaseTemplate',
                 editTag: 'id',
-                editLocale: 'menu.settings.organization.templateManagementEdit',
+                editLocale: 'system.orgTemplate.updateCaseTemplate',
+                query: ['type'],
+              },
+            ],
+          },
+        },
+        // 接口模板
+        {
+          path: 'templateManagementApiDetail/:mode?',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_API_DETAIL,
+          component: () => import('@/views/setting/organization/template/components/detail.vue'),
+          meta: {
+            locale: 'system.orgTemplate.createApiTemplate',
+            roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+ADD'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'menu.settings.organization.templateManagementList',
+                query: ['type'],
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'system.orgTemplate.createApiTemplate',
+                editTag: 'id',
+                editLocale: 'system.orgTemplate.updateApiTemplate',
+                query: ['type'],
+              },
+            ],
+          },
+        },
+        // 缺陷模板
+        {
+          path: 'templateManagementBugDetail/:mode?',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_BUG_DETAIL,
+          component: () => import('@/views/setting/organization/template/components/detail.vue'),
+          meta: {
+            locale: 'system.orgTemplate.createDefectTemplate',
+            roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+ADD'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'menu.settings.organization.templateManagementList',
+                query: ['type'],
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'system.orgTemplate.createDefectTemplate',
+                editTag: 'id',
+                editLocale: 'system.orgTemplate.updateDefectTemplate',
                 query: ['type'],
               },
             ],

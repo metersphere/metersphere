@@ -91,7 +91,7 @@
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
   import {
-    addCommonScriptReq,
+    addOrUpdateCommonScriptReq,
     deleteCommonScript,
     getCommonScriptPage,
   } from '@/api/modules/project-management/commonScript';
@@ -279,13 +279,14 @@
     try {
       confirmLoading.value = true;
       const { status } = form;
+      const paramTableList = paramsList.value.slice(0, -1);
       const paramsObj: AddOrUpdateCommonScript = {
         ...form,
         status: status || 'DRAFT',
         projectId: currentProjectId.value,
-        params: JSON.stringify(paramsList.value),
+        params: JSON.stringify(paramTableList),
       };
-      await addCommonScriptReq(paramsObj);
+      await addOrUpdateCommonScriptReq(paramsObj);
       showScriptDrawer.value = false;
       initData();
       Message.success(

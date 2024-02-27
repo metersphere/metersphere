@@ -116,6 +116,8 @@ export interface ActionTemplateManage {
   fieldType?: string;
   systemFields?: Record<string, any>[];
   internal?: boolean; // 是否为系统模板
+  platForm?: string;
+  [key: string]: any;
 }
 
 // 工作流列表字段
