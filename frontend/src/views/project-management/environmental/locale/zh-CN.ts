@@ -61,6 +61,7 @@ export default {
   'project.environmental.http.apiModuleSelect': '接口模块选择',
   'project.environmental.http.uiModuleSelect': '选择UI测试模块',
   'project.environmental.http.pathRequired': '路径必填',
+  'project.environmental.http.pathPlaceholder': '请输入路径',
   'project.environmental.database.addDatabase': '添加数据源',
   'project.environmental.database.updateDatabase': '更新数据源{name}',
   'project.environmental.database.name': '数据源名称',

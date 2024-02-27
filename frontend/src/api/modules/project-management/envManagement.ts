@@ -79,8 +79,8 @@ export function groupDeleteEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupDeleteEnvUrl, data });
 }
 // 获取项目组的项目
-export function groupProjectEnv() {
-  return MSR.get<ProjectOptionItem[]>({ url: envURL.groupProjectEnvUrl });
+export function groupProjectEnv(organizationId: string) {
+  return MSR.get<ProjectOptionItem[]>({ url: envURL.groupProjectEnvUrl + organizationId });
 }
 
 /** 项目管理-环境-全局参数-更新or新增 */

@@ -52,6 +52,7 @@ export default {
   'project.environmental.http.apiModuleSelect': 'Select API Test Module',
   'project.environmental.http.uiModuleSelect': 'Select UI Test Module',
   'project.environmental.http.pathRequired': 'Path is required',
+  'project.environmental.http.pathPlaceholder': 'Please enter the path',
   'project.environmental.database.addDatabase': 'Add Database',
   'project.environmental.database.updateDatabase': 'Update Database {name}',
   'project.environmental.database.name': 'Database Name',

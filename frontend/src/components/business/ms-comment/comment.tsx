@@ -3,9 +3,9 @@
 import Item from './comment-item.vue';
 import CommentInput from './input.vue';
 
-import {useI18n} from '@/hooks/useI18n';
+import { useI18n } from '@/hooks/useI18n';
 
-import {CommentEvent, CommentItem, CommentParams, CommentType} from './types';
+import { CommentEvent, CommentItem, CommentParams, CommentType } from './types';
 import message from '@arco-design/web-vue/es/message';
 
 export default defineComponent({
@@ -33,6 +33,7 @@ export default defineComponent({
       // 控制回复编辑删除按钮的状态
       commentStatus: 'normal',
     });
+    const expendedIds = ref<string[]>([]); // 展开的评论id
     // 被@的用户id
     const noticeUserIds = ref<string[]>([]);
     const { t } = useI18n();
@@ -85,6 +86,16 @@ export default defineComponent({
       emit('delete', item.id);
     };
 
+    const handleExpend = (val: boolean, id: string) => {
+      if (val) {
+        // 展开
+        expendedIds.value = [...expendedIds.value, id];
+      } else {
+        // 收起
+        expendedIds.value = expendedIds.value.filter((item) => item !== id);
+      }
+    };
+
     const handleReply = (item: CommentItem) => {
       if (item.childComments && Array.isArray(item.childComments)) {
         // 点击的是父级评论的回复
@@ -122,49 +133,46 @@ export default defineComponent({
       if (!list || list.length === 0) {
         return null;
       }
-      return list.map((item) => {
-        return (
-          <div class="flex flex-col">
-            <Item
-              mode={'child'}
-              onReply={() => handleReply(item)}
-              onEdit={() => handelEdit(item)}
-              onDelete={() => handleDelete(item)}
-              status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
-              onUpdate:status={(v: string) => {
-                currentItem.commentStatus = v;
-              }}
-              element={item}
-            />
-            {item.id === currentItem.id && renderInput(item)}
-          </div>
-        );
-      });
+
+      return list.map((item) => (
+        <div class="flex flex-col">
+          <Item
+            mode={'child'}
+            onReply={() => handleReply(item)}
+            onEdit={() => handelEdit(item)}
+            onDelete={() => handleDelete(item)}
+            status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
+            onUpdate:status={(v: string) => {
+              currentItem.commentStatus = v;
+            }}
+            element={item}
+          />
+          {item.id === currentItem.id && renderInput(item)}
+        </div>
+      ));
     };
 
     const renderParentList = (list: CommentItem[]) => {
-      return list.map((item) => {
-        return (
-          <>
-            <Item
-              mode={'parent'}
-              onReply={() => handleReply(item)}
-              onEdit={() => handelEdit(item)}
-              onDelete={() => handleDelete(item)}
-              status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
-              onUpdate:status={(v: string) => {
-                currentItem.commentStatus = v;
-              }}
-              element={item}
-            >
-              <div class="rounded border border-[var(--color-text-7)] p-[16px]">
-                {renderChildrenList(item.childComments)}
-              </div>
-            </Item>
-            {item.id === currentItem.id && renderInput(item)}
-          </>
-        );
-      });
+      return list.map((item) => (
+        <>
+          <Item
+            mode={'parent'}
+            onReply={() => handleReply(item)}
+            onEdit={() => handelEdit(item)}
+            onDelete={() => handleDelete(item)}
+            onExpend={(val: boolean) => handleExpend(val, item.id)}
+            status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
+            onUpdate:status={(v: string) => {
+              currentItem.commentStatus = v;
+            }}
+            element={item}
+          />
+          {expendedIds.value.includes(item.id) && (
+            <div class="ms-comment-child-container">{renderChildrenList(item.childComments)}</div>
+          )}
+          {item.id === currentItem.id && renderInput(item)}
+        </>
+      ));
     };
 
     return () => <div class="ms-comment gap[24px] flex flex-col">{renderParentList(commentList.value)}</div>;

@@ -52,15 +52,11 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup async>
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { groupProjectEnv, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-
-  import { EnvListItem, ProjectOptionItem } from '@/models/projectManagement/environmental';
 
   const { t } = useI18n();
 
@@ -70,31 +66,25 @@
     description: '',
   });
   const store = useProjectEnvStore();
-  const appStore = useAppStore();
-
-  const sourceProjectOptions = ref<ProjectOptionItem[]>([]);
-  const projectOptions = computed(() => {
-    return sourceProjectOptions.value;
-  });
-  const environmentOptions = ref<EnvListItem[]>([]);
 
   const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'project.environmental.project',
       dataIndex: 'projectId',
       slotName: 'project',
-      options: projectOptions.value,
+      width: 200,
     },
     {
       title: 'project.environmental.env',
       dataIndex: 'environmentId',
       slotName: 'environment',
-      options: environmentOptions.value,
+      width: 200,
     },
     {
       title: 'project.environmental.host',
       dataIndex: 'host',
       slotName: 'host',
+      width: 200,
     },
     {
       title: 'project.environmental.desc',
@@ -123,24 +113,9 @@
       }
     });
   };
-  // 获取项目的options
-  const initProjectOptions = async () => {
-    const res = await groupProjectEnv();
-    sourceProjectOptions.value = res;
-  };
-  // 获取环境的options
-  const initEnvOptions = async () => {
-    const res = await listEnv({ projectId: appStore.currentProjectId, keyword: '' });
-    environmentOptions.value = res;
-  };
-
   function handleParamTableChange(resultArr: any[]) {
     innerParams.value = [...resultArr];
   }
-  onMounted(() => {
-    initProjectOptions();
-    initEnvOptions();
-  });
 </script>
 
 <style lang="less" scoped>

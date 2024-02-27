@@ -51,18 +51,18 @@
 </template>
 
 <script lang="ts" setup>
-import {defineModel, ref} from 'vue';
-import dayjs from 'dayjs';
+  import { defineModel, ref } from 'vue';
+  import dayjs from 'dayjs';
 
-import MsAvatar from '@/components/pure/ms-avatar/index.vue';
-import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
+  import MsAvatar from '@/components/pure/ms-avatar/index.vue';
+  import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
 
-import {useI18n} from '@/hooks/useI18n';
-import useUserStore from '@/store/modules/user/index';
+  import { useI18n } from '@/hooks/useI18n';
+  import useUserStore from '@/store/modules/user/index';
 
-import {CommentItem} from './types';
+  import { CommentItem } from './types';
 
-const userStore = useUserStore();
+  const userStore = useUserStore();
   const { t } = useI18n();
 
   defineOptions({ name: 'MsCommentItem' });
@@ -86,12 +86,14 @@ const userStore = useUserStore();
     (event: 'reply'): void;
     (event: 'edit'): void;
     (event: 'delete'): void;
+    (event: 'expend', value: boolean): void;
   }>();
 
   const expendComment = ref(false);
 
   const expendChange = () => {
     expendComment.value = !expendComment.value;
+    emit('expend', expendComment.value);
   };
   const replyClick = () => {
     emit('reply');
