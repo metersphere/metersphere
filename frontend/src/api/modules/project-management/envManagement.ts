@@ -3,13 +3,15 @@ import { FileItem } from '@arco-design/web-vue';
 import MSR from '@/api/http/index';
 import * as envURL from '@/api/requrls/project-management/envManagement';
 
+import { DragCase } from '@/models/caseManagement/featureCase';
 import type {
+  DragParam,
   EnvDetailItem,
   EnvGroupListItem,
-  EnvGroupProjectListItem,
   EnvListItem,
   EnvPluginListItem,
   GlobalParams,
+  GroupItem,
   ProjectOptionItem,
 } from '@/models/projectManagement/environmental';
 import { OptionsItem } from '@/models/setting/log';
@@ -56,24 +58,27 @@ export function getDetailEnv(id: string) {
 export function deleteEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.deleteEnvUrl, data });
 }
-export function groupUpdateEnv(data: EnvListItem) {
+export function groupUpdateEnv(data: any) {
   return MSR.post<EnvListItem>({ url: envURL.groupUpdateEnvUrl, data });
 }
 export function groupListEnv(data: { projectId: string; keyword: string }) {
   return MSR.post<EnvListItem[]>({ url: envURL.groupListEnvUrl, data });
 }
-export function groupEditPosEnv(data: EnvGroupListItem) {
+export function groupEditPosEnv(data: DragParam) {
   return MSR.post<EnvListItem>({ url: envURL.groupEditPosEnvUrl, data });
 }
-export function groupAddEnv(data: EnvGroupListItem) {
+export function groupAddEnv(data: any) {
   return MSR.post<EnvListItem>({ url: envURL.groupAddEnvUrl, data });
+}
+export function deleteEnvGroup(id: string) {
+  return MSR.get<EnvListItem>({ url: envURL.groupDeleteEnvUrl + id });
 }
 export function getEnvPlugin(projectId: string) {
   return MSR.get<EnvPluginListItem[]>({ url: envURL.getEnvPluginUrl + projectId });
 }
 // 项目管理-项目组-详情
-export function groupDetailEnv(id: string) {
-  return MSR.get<EnvDetailItem>({ url: `${envURL.groupDetailEnvUrl}${id}` });
+export function getGroupDetailEnv(id: string) {
+  return MSR.get<GroupItem>({ url: `${envURL.groupDetailEnvUrl}${id}` });
 }
 export function groupDeleteEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupDeleteEnvUrl, data });

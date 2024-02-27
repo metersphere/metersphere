@@ -338,15 +338,16 @@
       <span v-else></span>
     </template>
     <template #host="{ record }">
-      <span v-if="record.host.length === 1" class="text-[var(--color-text-4)]">{{ record.host }}</span>
+      <!-- TODO: 等接口 -->
+      <!-- <span v-if="record.host.length === 1" class="text-[var(--color-text-4)]">{{ record.host }}</span>
       <span
         v-if="record.host.length > 1"
         class="cursor-pointer text-[var(--color-text-4)]"
         @click="showHostModal(record)"
       >
         {{ t('common.more') }}
-      </span>
-      <span v-else></span>
+      </span> -->
+      <span v-if="record.host">{{ record.host }}</span>
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">

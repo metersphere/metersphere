@@ -121,7 +121,12 @@
             </div>
             <!-- 环境组list-->
             <div v-if="evnGroupList.length">
-              <VueDraggable v-model="evnGroupList" ghost-class="ghost" handle=".drag-handle">
+              <VueDraggable
+                v-model="evnGroupList"
+                ghost-class="ghost"
+                handle=".drag-handle"
+                @end="handleEnvGroupPosChange"
+              >
                 <div
                   v-for="element in evnGroupList"
                   :key="element.id"
@@ -153,8 +158,8 @@
                             />
                           </MsButton>
                           <MsMoreAction
-                            :list="envMoreAction"
-                            @select="(value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)"
+                            :list="groupMoreAction"
+                            @select="(value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
                           />
                         </div>
                       </div>
@@ -176,7 +181,7 @@
         <!-- 环境变量 -->
         <EnvParamBox v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM" />
         <!-- 环境组 -->
-        <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" />
+        <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
       </template>
     </MsSplitBox>
   </div>
@@ -184,6 +189,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { number } from 'echarts';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -197,7 +203,13 @@
   import EnvParamBox from './components/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
-  import { exportGlobalParam, groupListEnv, listEnv } from '@/api/modules/project-management/envManagement';
+  import {
+    deleteEnvGroup,
+    exportGlobalParam,
+    groupEditPosEnv,
+    groupListEnv,
+    listEnv,
+  } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, {
@@ -210,6 +222,8 @@
   import { EnvListItem } from '@/models/projectManagement/environmental';
   import { PopVisible } from '@/models/setting/usergroup';
   import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
+
+  import { SortableEvent } from 'sortablejs';
 
   const { t } = useI18n();
   const store = useProjectEnvStore();
@@ -238,10 +252,6 @@
   // 默认环境MoreAction
   const envMoreAction: ActionsItem[] = [
     {
-      label: t('common.rename'),
-      eventTag: 'rename',
-    },
-    {
       label: t('common.export'),
       eventTag: 'export',
     },
@@ -254,6 +264,7 @@
       eventTag: 'delete',
     },
   ];
+
   // 全局参数/环境 MoreAction
   const allMoreAction: ActionsItem[] = [
     {
@@ -263,6 +274,15 @@
     {
       label: t('common.export'),
       eventTag: 'export',
+    },
+  ];
+
+  // 环境组moreAction
+  const groupMoreAction: ActionsItem[] = [
+    {
+      label: t('common.delete'),
+      danger: true,
+      eventTag: 'delete',
     },
   ];
 
@@ -295,32 +315,6 @@
   // 处理环境导入
   const handleEnvImport = () => {};
 
-  // 处理MoreAction
-  const handleMoreAction = (item: ActionsItem, id: string, scopeType: EnvAuthTypeEnum) => {
-    const { eventTag } = item;
-    switch (eventTag) {
-      case 'rename':
-        break;
-      case 'export':
-        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
-          handleGlobalExport();
-        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
-          handleEnvImport();
-        }
-        break;
-      case 'delete':
-        break;
-      case 'import':
-        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
-          handleGlobalImport();
-        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
-          handleEnvImport();
-        }
-        break;
-      default:
-        break;
-    }
-  };
   // 创建环境变量
   const handleCreateEnv = () => {
     const tmpArr = envList.value;
@@ -341,10 +335,47 @@
     store.setCurrentGroupId(NEW_ENV_GROUP);
     evnGroupList.value = tmpArr;
   };
-
   const initGroupList = async (keywordStr = '') => {
     try {
       evnGroupList.value = await groupListEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  // 更新环境组
+  const handleUpdateEnvGroup = async (id: string) => {
+    await initGroupList();
+    store.setCurrentGroupId(id);
+  };
+  // 排序更新
+  const handleEnvGroupPosChange = async (event: SortableEvent) => {
+    try {
+      const { oldIndex, newIndex } = event;
+      if (oldIndex === newIndex) {
+        return;
+      }
+      const _oldIndex = oldIndex as number;
+      const _newIndex = newIndex as number;
+      const params = {
+        projectId: appStore.currentProjectId,
+        targetId: evnGroupList.value[_newIndex].id,
+        moveId: evnGroupList.value[_oldIndex].id,
+        moveMode: _oldIndex > _newIndex ? 'BEFORE' : 'AFTER',
+      };
+      await groupEditPosEnv(params);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
+  };
+
+  // 处理删除环境组
+  const handleDeleteEnvGroup = async (id: string) => {
+    try {
+      await deleteEnvGroup(id);
+      await initGroupList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -392,15 +423,40 @@
   const handleListItemClickGroup = (element: EnvListItem) => {
     const { id } = element;
     store.setCurrentGroupId(id);
-    if (id !== NEW_ENV_GROUP) {
-      // 不是新建的组，初始化组详情
-      store.initGroupDetail();
-    }
   };
 
   function searchData() {
     initData(keyword.value);
   }
+  // 处理MoreAction
+  const handleMoreAction = (item: ActionsItem, id: string, scopeType: EnvAuthTypeEnum) => {
+    const { eventTag } = item;
+    switch (eventTag) {
+      case 'export':
+        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
+          handleGlobalExport();
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
+          handleEnvImport();
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_PARAM) {
+          handleEnvImport();
+        }
+        break;
+      case 'delete':
+        if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
+          handleDeleteEnvGroup(id);
+        }
+        break;
+      case 'import':
+        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
+          handleGlobalImport();
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
+          handleEnvImport();
+        }
+        break;
+      default:
+        break;
+    }
+  };
   onMounted(() => {
     initData();
   });
