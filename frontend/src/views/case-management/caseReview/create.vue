@@ -137,7 +137,13 @@
               }}
             </div>
             <a-divider v-if="!isCopy" margin="8px" direction="vertical" />
-            <MsButton v-if="!isCopy" type="text" class="font-medium" @click="caseAssociateVisible = true">
+            <MsButton
+              v-if="!isCopy"
+              v-permission="['CASE_REVIEW:READ+RELEVANCE']"
+              type="text"
+              class="font-medium"
+              @click="caseAssociateVisible = true"
+            >
               {{ t('ms.case.associate.title') }}
             </MsButton>
           </div>
@@ -147,14 +153,32 @@
     <template #footerRight>
       <div class="flex items-center">
         <a-button type="secondary" :disabled="saveLoading" @click="cancelCreate">{{ t('common.cancel') }}</a-button>
-        <a-button v-if="isEdit" type="primary" class="ml-[16px]" :loading="saveLoading" @click="updateReview">
+        <a-button
+          v-if="isEdit"
+          v-permission="['CASE_REVIEW:READ+UPDATE']"
+          type="primary"
+          class="ml-[16px]"
+          :loading="saveLoading"
+          @click="updateReview"
+        >
           {{ t('common.update') }}
         </a-button>
         <template v-else>
-          <a-button type="secondary" class="mx-[16px]" :loading="saveLoading" @click="() => saveReview()">
+          <a-button
+            v-permission="['CASE_REVIEW:READ+ADD']"
+            type="secondary"
+            class="mx-[16px]"
+            :loading="saveLoading"
+            @click="() => saveReview()"
+          >
             {{ t('common.save') }}
           </a-button>
-          <a-button type="primary" :disabled="saveLoading" @click="() => saveReview(true)">
+          <a-button
+            v-permission.all="['CASE_REVIEW:READ+ADD', 'CASE_REVIEW:READ+REVIEW']"
+            type="primary"
+            :disabled="saveLoading"
+            @click="() => saveReview(true)"
+          >
             {{ t('caseManagement.caseReview.review') }}
           </a-button>
         </template>

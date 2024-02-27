@@ -122,7 +122,7 @@
       Object.keys(res).forEach((key) => {
         dynamicForm.value[key] = {
           key,
-          name: res[key].name,
+          pluginName: res[key].pluginName,
           status: 0,
           formModel: {},
           formRules: res[key].formItems,
@@ -143,16 +143,18 @@
     try {
       loading.value = true;
       const res = await getPlatform(currentOrg.value);
-      // 遍历插件表单
-      Object.keys(dynamicForm.value).forEach((configKey: any) => {
-        const config = dynamicForm.value[configKey].formModel.form;
-        // 遍历插件表单的表单项并赋值
-        Object.keys(config).forEach((key) => {
-          const value = res[configKey][key];
-          config[key] = value || config[key];
-          dynamicForm.value[configKey].status = value !== undefined ? 1 : 0;
+      if (res) {
+        // 遍历插件表单
+        Object.keys(dynamicForm.value).forEach((configKey: any) => {
+          const config = dynamicForm.value[configKey].formModel.form;
+          // 遍历插件表单的表单项并赋值
+          Object.keys(config).forEach((key) => {
+            const value = res[configKey][key];
+            config[key] = value || config[key];
+            dynamicForm.value[configKey].status = value !== undefined ? 1 : 0;
+          });
         });
-      });
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

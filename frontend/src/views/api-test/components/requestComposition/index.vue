@@ -130,21 +130,18 @@
                 />
               </div>
               <div class="tab-pane-container">
-                <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
-                  <a-spin
-                    v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
-                    :loading="pluginLoading"
-                    class="min-h-[100px] w-full"
-                  >
-                    <MsFormCreate
-                      v-model:api="fApi"
-                      :rule="currentPluginScript"
-                      :option="currentPluginOptions"
-                      @mounted="() => (isInitPluginForm = true)"
-                      @change="handlePluginFormChange"
-                    />
-                  </a-spin>
-                </template>
+                <a-spin
+                  v-if="requestVModel.activeTab === RequestComposition.PLUGIN"
+                  :loading="pluginLoading"
+                  class="min-h-[100px] w-full"
+                >
+                  <MsFormCreate
+                    v-model:api="fApi"
+                    :rule="currentPluginScript"
+                    :option="currentPluginOptions"
+                    @change="handlePluginFormChange"
+                  />
+                </a-spin>
                 <debugHeader
                   v-if="requestVModel.activeTab === RequestComposition.HEADER"
                   v-model:params="requestVModel.headers"
@@ -487,7 +484,6 @@
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
   const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换tab导致动态表单数据丢失
   const pluginLoading = ref(false);
-  const isInitPluginForm = ref(false);
   const fApi = ref<Api>();
   const currentPluginOptions = computed<Record<string, any>>(
     () => pluginScriptMap.value[requestVModel.value.protocol]?.options || {}

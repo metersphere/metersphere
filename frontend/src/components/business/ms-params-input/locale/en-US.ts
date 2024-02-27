@@ -21,8 +21,8 @@ export default {
   'ms.paramsInput.float': 'Float',
   'ms.paramsInput.floatDesc':
     'Returns a random floating point number, integer 1-10, minimum value 2, maximum value 5 in the decimal part.',
-  'ms.paramsInput.floatMin': 'Minimum decimal part',
-  'ms.paramsInput.floatMax': 'Maximum decimal part',
+  'ms.paramsInput.floatMin': 'Minimum number of decimal places',
+  'ms.paramsInput.floatMax': 'Maximum number of decimal places',
   'ms.paramsInput.floatIntegerMin': 'Minimum value of integer part',
   'ms.paramsInput.floatIntegerMax': 'Maximum value of integer part',
   'ms.paramsInput.commonPlaceholder': 'Please input',
