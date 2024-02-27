@@ -119,8 +119,8 @@
     },
     {
       title: 'caseManagement.featureCase.operator',
-      dataIndex: 'createUser',
-      slotName: 'createUser',
+      dataIndex: 'createUserName',
+      slotName: 'createUserName',
       width: 150,
     },
     {
