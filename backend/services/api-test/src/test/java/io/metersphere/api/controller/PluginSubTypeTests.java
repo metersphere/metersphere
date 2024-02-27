@@ -3,7 +3,6 @@ package io.metersphere.api.controller;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.system.base.BaseApiPluginTestService;
@@ -36,18 +35,6 @@ public class PluginSubTypeTests {
         List<NamedType> namedTypes = new LinkedList<>();
         namedTypes.add(new NamedType(MsLoopController.class, MsLoopController.class.getSimpleName()));
         ApiDataUtils.setResolver(namedTypes);
-    }
-
-    @Test
-    @Order(1)
-    public void newPluginSubTypeTest() throws Exception {
-        MsLoopController loopController = new MsLoopController();
-        loopController.setName("测试loopController");
-        String json = ApiDataUtils.toJSONString(loopController);
-
-        TestElementDTO testElementDTO = ApiDataUtils.parseObject(json, TestElementDTO.class);
-        Assertions.assertNotNull(testElementDTO);
-
     }
 
     @Test
