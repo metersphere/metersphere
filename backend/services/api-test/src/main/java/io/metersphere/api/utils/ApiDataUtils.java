@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.request.controller.MsIfController;
+import io.metersphere.api.dto.request.controller.MsLoopController;
+import io.metersphere.api.dto.request.controller.MsOnceOnlyController;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.sdk.exception.MSException;
 
@@ -34,6 +37,9 @@ public class ApiDataUtils {
         // 默认内置的子组件
         namedTypes.add(new NamedType(MsHTTPElement.class, MsHTTPElement.class.getSimpleName()));
         namedTypes.add(new NamedType(MsCommonElement.class, MsCommonElement.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsIfController.class, MsIfController.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsLoopController.class, MsLoopController.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsOnceOnlyController.class, MsOnceOnlyController.class.getSimpleName()));
 
         setObjectMapper(objectMapper);
         namedTypes.forEach(objectMapper::registerSubtypes);

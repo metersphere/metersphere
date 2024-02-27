@@ -6,6 +6,8 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.controller.*;
+import io.metersphere.api.dto.request.controller.loop.*;
 import io.metersphere.api.dto.request.http.Header;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.QueryParam;
@@ -642,6 +644,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     /**
      * 测试关联的文件更新
+     *
      * @throws Exception
      */
     public void testHandleFileAssociationUpgrade() throws Exception {
@@ -665,7 +668,8 @@ public class ApiScenarioControllerTests extends BaseTest {
             try {
                 AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
                 apiFiles.addAll(apiCommonService.getApiFilesByFileId(fileId, msTestElement));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return apiFiles;
     }
@@ -724,6 +728,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         partialScenarioStep.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
         partialScenarioStep.setChildren(getApiScenarioStepRequests());
         steps.add(partialScenarioStep);
+
         request.setId(addApiScenario.getId());
         request.setSteps(steps);
         request.setStepDetails(new HashMap<>());
@@ -760,6 +765,207 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
+    }
+
+    @Test
+    @Order(7)
+    public void testLoopController() throws Exception {
+        // @@请求成功
+        mockPost("/api/debug", "");
+        baseResourcePoolTestService.initProjectResourcePool();
+
+        // @@请求成功
+        ApiScenarioDebugRequest request = new ApiScenarioDebugRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setScenarioConfig(new ScenarioConfig());
+        request.setEnvironmentId(envId);
+        request.setGrouped(false);
+        ScenarioStepConfig scenarioStepConfig = new ScenarioStepConfig();
+        scenarioStepConfig.setEnableScenarioEnv(true);
+
+        List<ApiScenarioStepRequest> steps = new ArrayList<>();
+        Map<String, Object> stepDetails = new HashMap<>();
+
+        MsIfController msIfController = ifController("test-if", true);
+        ApiScenarioStepRequest msIf = BeanUtils.copyBean(new ApiScenarioStepRequest(), msIfController);
+        msIf.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        msIf.setProjectId(DEFAULT_PROJECT_ID);
+        msIf.setStepType(ApiScenarioStepType.IF_CONTROLLER.name());
+        msIf.setId(IDGenerator.nextStr());
+        steps.add(msIf);
+        stepDetails.put(msIf.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msIfController)));
+        msIfController = ifController(null, true);
+        msIf = BeanUtils.copyBean(new ApiScenarioStepRequest(), msIfController);
+        msIf.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        msIf.setProjectId(DEFAULT_PROJECT_ID);
+        msIf.setStepType(ApiScenarioStepType.IF_CONTROLLER.name());
+        msIf.setId(IDGenerator.nextStr());
+        steps.add(msIf);
+        stepDetails.put(msIf.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msIfController)));
+        msIfController = ifController(null, false);
+        msIf = BeanUtils.copyBean(new ApiScenarioStepRequest(), msIfController);
+        msIf.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        msIf.setProjectId(DEFAULT_PROJECT_ID);
+        msIf.setStepType(ApiScenarioStepType.IF_CONTROLLER.name());
+        msIf.setId(IDGenerator.nextStr());
+        steps.add(msIf);
+        stepDetails.put(msIf.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msIfController)));
+        MsOnceOnlyController msOnceOnlyController = onceController("test-once-only", true);
+        ApiScenarioStepRequest onceOnlyController = BeanUtils.copyBean(new ApiScenarioStepRequest(), msOnceOnlyController);
+        onceOnlyController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        onceOnlyController.setProjectId(DEFAULT_PROJECT_ID);
+        onceOnlyController.setStepType(ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name());
+        onceOnlyController.setId(IDGenerator.nextStr());
+        steps.add(onceOnlyController);
+        stepDetails.put(onceOnlyController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msOnceOnlyController)));
+        msOnceOnlyController = onceController(null, true);
+        onceOnlyController = BeanUtils.copyBean(new ApiScenarioStepRequest(), msOnceOnlyController);
+        onceOnlyController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        onceOnlyController.setProjectId(DEFAULT_PROJECT_ID);
+        onceOnlyController.setStepType(ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name());
+        onceOnlyController.setId(IDGenerator.nextStr());
+        steps.add(onceOnlyController);
+        stepDetails.put(onceOnlyController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msOnceOnlyController)));
+        msOnceOnlyController = onceController(null, false);
+        onceOnlyController = BeanUtils.copyBean(new ApiScenarioStepRequest(), msOnceOnlyController);
+        onceOnlyController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        onceOnlyController.setProjectId(DEFAULT_PROJECT_ID);
+        onceOnlyController.setStepType(ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name());
+        onceOnlyController.setId(IDGenerator.nextStr());
+        steps.add(onceOnlyController);
+        stepDetails.put(onceOnlyController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(msOnceOnlyController)));
+        MsLoopController loopCount = loopController("LOOP_COUNT", null, true);
+        ApiScenarioStepRequest loopController = BeanUtils.copyBean(new ApiScenarioStepRequest(), loopCount);
+        loopController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        loopController.setProjectId(DEFAULT_PROJECT_ID);
+        loopController.setId(IDGenerator.nextStr());
+        loopController.setStepType(ApiScenarioStepType.LOOP_CONTROLLER.name());
+        stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(loopCount)));
+        steps.add(loopController);
+        loopCount = loopController("LOOP_COUNT", null, false);
+        loopController = BeanUtils.copyBean(new ApiScenarioStepRequest(), loopCount);
+        loopController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        loopController.setProjectId(DEFAULT_PROJECT_ID);
+        loopController.setId(IDGenerator.nextStr());
+        loopController.setStepType(ApiScenarioStepType.LOOP_CONTROLLER.name());
+        stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(loopCount)));
+        steps.add(loopController);
+        MsLoopController aWhile = loopController("WHILE", "CONDITION", true);
+        loopController = BeanUtils.copyBean(new ApiScenarioStepRequest(), aWhile);
+        loopController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        loopController.setProjectId(DEFAULT_PROJECT_ID);
+        loopController.setId(IDGenerator.nextStr());
+        loopController.setStepType(ApiScenarioStepType.LOOP_CONTROLLER.name());
+        stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(aWhile)));
+        steps.add(loopController);
+        aWhile = loopController("WHILE", "SCRIPT", true);
+        loopController = BeanUtils.copyBean(new ApiScenarioStepRequest(), aWhile);
+        loopController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        loopController.setProjectId(DEFAULT_PROJECT_ID);
+        loopController.setId(IDGenerator.nextStr());
+        loopController.setStepType(ApiScenarioStepType.LOOP_CONTROLLER.name());
+        stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(aWhile)));
+        steps.add(loopController);
+        MsLoopController foreach = loopController("FOREACH", null, true);
+        loopController = BeanUtils.copyBean(new ApiScenarioStepRequest(), foreach);
+        loopController.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        loopController.setProjectId(DEFAULT_PROJECT_ID);
+        loopController.setId(IDGenerator.nextStr());
+        loopController.setStepType(ApiScenarioStepType.LOOP_CONTROLLER.name());
+        stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(foreach)));
+        steps.add(loopController);
+
+        request.setId(addApiScenario.getId());
+        request.setSteps(steps);
+        request.setStepDetails(new HashMap<>());
+        request.setReportId(IDGenerator.nextStr());
+        request.setStepDetails(stepDetails);
+        this.requestPostWithOk(DEBUG, request);
+    }
+
+    //条件控制器
+    public MsIfController ifController(String name, boolean enable) {
+        //条件控制器
+        MsIfController msIfController = new MsIfController();
+        msIfController.setCondition("==");
+        msIfController.setName(StringUtils.isNotBlank(name) ? name : "条件控制器");
+        msIfController.setEnable(enable);
+        msIfController.setVariable("1");
+        msIfController.setValue("1");
+        msIfController.setStepId(IDGenerator.nextStr());
+        LinkedList<AbstractMsTestElement> msTestElements = new LinkedList<>();
+        //条件控制器下的步骤
+        MsHTTPElement msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        msTestElements.add(msHTTPElement);
+        msIfController.setChildren(msTestElements);
+        return msIfController;
+    }
+
+    //一次控制器
+    public MsOnceOnlyController onceController(String name, boolean enable) {
+        //一次控制器
+        MsOnceOnlyController onceOnlyController = new MsOnceOnlyController();
+        onceOnlyController.setName(StringUtils.isNotBlank(name) ? name : "一次控制器");
+        onceOnlyController.setStepId(IDGenerator.nextStr());
+        onceOnlyController.setEnable(enable);
+        LinkedList<AbstractMsTestElement> msTestElements = new LinkedList<>();
+        //一次控制器下的步骤
+        MsHTTPElement msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        msTestElements.add(msHTTPElement);
+        onceOnlyController.setChildren(msTestElements);
+        return onceOnlyController;
+    }
+
+    //循环控制器 loopController
+    public MsLoopController loopController(String loopType, String condition, boolean enable) {
+        //循环控制器
+        MsLoopController msLoopController = new MsLoopController();
+        msLoopController.setStepId(IDGenerator.nextStr());
+        switch (loopType) {
+            case "LOOP_COUNT" -> {
+                MsCountController msCountController = new MsCountController();
+                msLoopController.setName("次数循环控制器");
+                msCountController.setLoops("1");
+                msCountController.setLoopTime(300L);
+                msLoopController.setLoopType(LoopType.LOOP_COUNT.name());
+                msLoopController.setMsCountController(msCountController);
+            }
+            case "WHILE" -> {
+                MsWhileController whileController = new MsWhileController();
+                msLoopController.setLoopType(LoopType.WHILE.name());
+                msLoopController.setName("while 循环控制器");
+                if (StringUtils.isNotBlank(condition) && StringUtils.equals(condition, "CONDITION")) {
+                    MsWhileVariable msWhileVariable = new MsWhileVariable();
+                    msWhileVariable.setVariable("1");
+                    msWhileVariable.setCondition("==");
+                    msWhileVariable.setValue("1");
+                    whileController.setMsWhileVariable(msWhileVariable);
+                } else {
+                    whileController.setConditionType(WhileConditionType.SCRIPT.name());
+                    MsWhileScript msWhileScript = new MsWhileScript();
+                    msWhileScript.setScriptValue("test");
+                    whileController.setMsWhileScript(msWhileScript);
+                }
+                whileController.setTimeout(300L);
+                msLoopController.setWhileController(whileController);
+            }
+            default -> {
+                MsForEachController forEachController = new MsForEachController();
+                msLoopController.setLoopType(LoopType.FOREACH.name());
+                forEachController.setVariable("1");
+                msLoopController.setName("foreach 循环控制器");
+                forEachController.setValue("1");
+                forEachController.setLoopTime(300L);
+                msLoopController.setForEachController(forEachController);
+            }
+        }
+        msLoopController.setEnable(enable);
+        LinkedList<AbstractMsTestElement> msTestElements = new LinkedList<>();
+        //循环控制器下的步骤
+        MsHTTPElement msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        msTestElements.add(msHTTPElement);
+        msLoopController.setChildren(msTestElements);
+        return msLoopController;
     }
 
     public Plugin addEnvTestPlugin() throws Exception {
