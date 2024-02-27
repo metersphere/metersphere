@@ -69,6 +69,8 @@
             @keyword-search="fetchData"
             @adv-search="handleAdvSearch"
             @refresh="fetchData()"
+            v-model:keyword="keyword"
+            :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
           >
             <template #left>
               <div class="text-[var(--color-text-1)]"
