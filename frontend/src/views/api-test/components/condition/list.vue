@@ -83,21 +83,6 @@
   ];
 
   watchEffect(() => {
-    // 后台存储无id，渲染时需要手动添加一次
-    let hasNoIdItem = false;
-    const tempArr = props.list.map((item, i) => {
-      if (!item.id) {
-        hasNoIdItem = true;
-        return {
-          ...item,
-          id: new Date().getTime() + i,
-        };
-      }
-      return item;
-    });
-    if (hasNoIdItem) {
-      data.value = tempArr;
-    }
     activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
     emit('activeChange', activeItem.value);
   });

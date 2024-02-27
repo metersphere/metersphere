@@ -317,10 +317,9 @@
   />
   <InsertCommonScript
     v-model:visible="showQuoteDrawer"
-    :checked-id="condition.scriptId"
+    :checked-id="condition.commonScriptInfo?.id"
     enable-radio-selected
     @save="saveQuoteScriptHandler"
-    @add-script="showAddScriptDrawer = true"
   />
   <AddScriptDrawer
     v-model:visible="showAddScriptDrawer"
