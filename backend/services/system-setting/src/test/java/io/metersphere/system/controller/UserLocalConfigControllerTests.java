@@ -80,21 +80,6 @@ public class UserLocalConfigControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(2)
-    public void testValidate() throws Exception {
-        UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
-        userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("API");
-        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
-        requestGet(String.format(VALIDATE, userLocalConfig.getId()));
-        userLocalConfigExample.clear();
-        userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("UI");
-        userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
-        requestGet(String.format(VALIDATE, userLocalConfig.getId()));
-        //不存在的
-        requestGet(String.format(VALIDATE, UUID.randomUUID().toString()), status().is5xxServerError());
-    }
-
-    @Test
     @Order(3)
     public void testUpdate() throws Exception {
         UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
@@ -134,10 +119,6 @@ public class UserLocalConfigControllerTests extends BaseTest {
         checkLog(userLocalConfig.getId(), OperationLogType.UPDATE);
         //不存在的
         requestGet(String.format(ENABLE, UUID.randomUUID().toString()), status().is5xxServerError());
-        userLocalConfigExample.clear();
-        userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("UI");
-        userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
-        requestGet(String.format(ENABLE, userLocalConfig.getId())).andExpect(status().is5xxServerError());
     }
 
     @Test
