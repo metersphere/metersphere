@@ -174,6 +174,51 @@
     return `${header} ${relation} ${record.expression}`;
   };
 
+  const batchFormModels: Ref<FormItemModel[]> = ref([
+    {
+      filed: 'name',
+      type: 'input',
+      label: 'project.menu.rule.ruleName',
+      rules: [
+        { required: true, message: t('project.menu.rule.ruleNameNotNull') },
+        { notRepeat: true, message: 'project.menu.rule.ruleNameRepeat' },
+      ],
+    },
+    {
+      filed: 'type',
+      type: 'tagInput',
+      label: 'project.menu.rule.label',
+    },
+    {
+      filed: 'rule',
+      type: 'multiple',
+      label: 'project.menu.rule.rule',
+      hasRedStar: true,
+      children: [
+        {
+          filed: 'respType', // 匹配规则-内容类型/header/data/body
+          type: 'select',
+          options: headerOptions.value,
+          className: 'w-[205px]',
+          defaultValue: 'RESPONSE_HEADERS',
+        },
+        {
+          filed: 'relation', // 匹配规则-操作类型
+          type: 'select',
+          options: relationOptions.value,
+          className: 'w-[120px]',
+          defaultValue: 'equal',
+        },
+        {
+          filed: 'expression', // 匹配规则-表达式
+          type: 'input',
+          rules: [{ required: true, message: t('project.menu.rule.expressionNotNull') }],
+          className: 'w-[301px]',
+        },
+      ],
+    },
+  ]);
+
   const rulesColumn: MsTableColumn = [
     {
       title: 'project.menu.rule.name',
@@ -369,9 +414,9 @@
     if (shouldSearch) {
       fetchData();
     }
-    if (isClose) {
-      addVisible.value = false;
-    }
+    addVisible.value = false;
+    batchFormRef.value.resetForm();
+    currentList.value = [];
   };
 
   const handleConfirm = () => {
@@ -426,50 +471,6 @@
     }
   }
 
-  const batchFormModels: Ref<FormItemModel[]> = ref([
-    {
-      filed: 'name',
-      type: 'input',
-      label: 'project.menu.rule.ruleName',
-      rules: [
-        { required: true, message: t('project.menu.rule.ruleNameNotNull') },
-        { notRepeat: true, message: 'project.menu.rule.ruleNameRepeat' },
-      ],
-    },
-    {
-      filed: 'type',
-      type: 'tagInput',
-      label: 'project.menu.rule.label',
-    },
-    {
-      filed: 'rule',
-      type: 'multiple',
-      label: 'project.menu.rule.rule',
-      hasRedStar: true,
-      children: [
-        {
-          filed: 'respType', // 匹配规则-内容类型/header/data/body
-          type: 'select',
-          options: headerOptions.value,
-          className: 'w-[205px]',
-          defaultValue: 'RESPONSE_HEADERS',
-        },
-        {
-          filed: 'relation', // 匹配规则-操作类型
-          type: 'select',
-          options: relationOptions.value,
-          className: 'w-[120px]',
-          defaultValue: 'equal',
-        },
-        {
-          filed: 'expression', // 匹配规则-表达式
-          type: 'input',
-          rules: [{ required: true, message: t('project.menu.rule.expressionNotNull') }],
-          className: 'w-[301px]',
-        },
-      ],
-    },
-  ]);
 
   onMounted(() => {
     setLoadListParams({ projectId: currentProjectId.value });
