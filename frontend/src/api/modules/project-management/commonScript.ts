@@ -74,15 +74,15 @@ export function testCommonScript(data: TestScriptType) {
   return MSR.post({ url: TestScriptUrl, data });
 }
 // apiSocket 建立连接
-export const apiSocket = (url: string) => {
+export const apiSocket = (url: string, host?: string) => {
   let protocol = 'ws://';
-  if (window.location.protocol === 'https:') {
+  if (window.location.protocol === 'https:' || host?.startsWith('https')) {
     protocol = 'wss://';
   }
-  const uri = protocol + window.location.host + url;
+  const uri = protocol + (host?.split('://')[1] || window.location.host) + url;
   return new WebSocket(uri);
 };
 
-export function getSocket(reportId: string) {
-  return apiSocket(`${ConnectionWebsocketUrl}/${reportId}`);
+export function getSocket(reportId: string, socketUrl?: string, host?: string) {
+  return apiSocket(`${socketUrl || ConnectionWebsocketUrl}/${reportId}`, host);
 }

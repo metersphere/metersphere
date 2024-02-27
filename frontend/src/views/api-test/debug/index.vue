@@ -38,6 +38,7 @@
               :create-api="addDebug"
               :update-api="updateDebug"
               :execute-api="executeDebug"
+              :local-execute-api="localExecuteApiDebug"
               :upload-temp-file-api="uploadTempFile"
               @add-done="handleDebugAddDone"
             />
@@ -93,7 +94,14 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  import { addDebug, executeDebug, getDebugDetail, updateDebug, uploadTempFile } from '@/api/modules/api-test/debug';
+  import {
+    addDebug,
+    executeDebug,
+    getDebugDetail,
+    localExecuteApiDebug,
+    updateDebug,
+    uploadTempFile,
+  } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { parseCurlScript } from '@/utils';

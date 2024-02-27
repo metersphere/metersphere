@@ -85,8 +85,8 @@ export function addLocalConfig(data: AddLocalConfigParams) {
 }
 
 // 个人设置-验证本地执行配置
-export function validLocalConfig(id: string) {
-  return MSR.get<boolean>({ url: ValidLocalConfigUrl, params: id });
+export function validLocalConfig(host: string) {
+  return MSR.get({ url: `${host}${ValidLocalConfigUrl}` });
 }
 
 // 个人设置-获取本地执行配置

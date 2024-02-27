@@ -49,7 +49,8 @@
           </div>
         </div>
       </div>
-      <div v-xpack class="config-card">
+      <!-- TODO:UI 测试暂无 -->
+      <!-- <div v-xpack class="config-card">
         <div class="config-card-title">
           <div class="config-card-title-text">{{ t('ms.personal.uiLocalExecution') }}</div>
           <MsTag
@@ -93,7 +94,7 @@
             />
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </a-spin>
 </template>
@@ -155,10 +156,13 @@
   });
 
   async function testApi() {
+    if (apiConfig.value.userUrl.trim() === '') {
+      return;
+    }
     try {
       testApiLoading.value = true;
-      const res = await validLocalConfig(apiConfig.value.id);
-      apiConfig.value.status = res ? 1 : 2;
+      const res = await validLocalConfig(apiConfig.value.userUrl.trim());
+      apiConfig.value.status = res === 'OK' ? 1 : 2;
       if (res) {
         // 检测通过才保存配置
         if (apiConfig.value.id) {
@@ -212,6 +216,9 @@
   });
 
   async function testUi() {
+    if (uiConfig.value.userUrl.trim() === '') {
+      return;
+    }
     try {
       testUiLoading.value = true;
       if (uiConfig.value.id) {
@@ -227,8 +234,8 @@
         });
         uiConfig.value.id = result.id;
       }
-      const res = await validLocalConfig(uiConfig.value.id);
-      uiConfig.value.status = res ? 1 : 2;
+      const res = await validLocalConfig(uiConfig.value.userUrl.trim());
+      uiConfig.value.status = res === 'OK' ? 1 : 2;
       if (res) {
         Message.success(t('ms.personal.testPass'));
       } else {

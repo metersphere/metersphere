@@ -24,6 +24,7 @@
                 :create-api="addDebug"
                 :update-api="updateDebug"
                 :execute-api="executeDebug"
+                :local-execute-api="localExecuteApiDebug"
                 is-definiton
                 @add-done="emit('addDone')"
               />
@@ -84,7 +85,13 @@
   import apiTable from './apiTable.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
-  import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
+  import {
+    addDebug,
+    executeDebug,
+    getDebugDetail,
+    localExecuteApiDebug,
+    updateDebug,
+  } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
