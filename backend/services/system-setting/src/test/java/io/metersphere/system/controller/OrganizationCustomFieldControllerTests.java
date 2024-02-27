@@ -20,6 +20,7 @@ import io.metersphere.system.service.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -137,8 +138,13 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
 
         // 插入另一条数据，用户更新时重名校验
         request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setType(CustomFieldType.MEMBER.name());
         MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anotherAddCustomField = customFieldMapper.selectByPrimaryKey(getResultData(anotherMvcResult, CustomField.class).getId());
+
+        request.setType(CustomFieldType.MULTIPLE_MEMBER.name());
+        request.setName("testAAA");
+        this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
 
         // @@校验日志
         checkLog(this.addCustomField.getId(), OperationLogType.ADD);
@@ -239,8 +245,14 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             }
             Assertions.assertEquals(customField, resultItem);
             Assertions.assertEquals(resultItem.getScene(), scene);
-            // 有下拉框选项的校验选项
-            if (CustomFieldType.getHasOptionValueSet().contains(resultItem.getType())) {
+
+            if (StringUtils.equalsAny(resultItem.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                List<CustomFieldOption> options = resultList.get(i).getOptions();
+                Assertions.assertEquals(options.size(), 1);
+                Assertions.assertEquals(options.get(0).getValue(), "CREATE_USER");
+                Assertions.assertEquals(options.get(0).getText(), "创建人");
+            } else if (CustomFieldType.getHasOptionValueSet().contains(resultItem.getType())) {
+                // 有下拉框选项的校验选项
                 Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
                         baseCustomFieldOptionService.getByFieldId(customField.getId()).stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList());
             }
