@@ -457,6 +457,7 @@ public class FileMetadataService {
         FileManagementQuery myFileCountDTO = new FileManagementQuery();
         myFileCountDTO.setProjectId(request.getProjectId());
         myFileCountDTO.setStorage(null);
+        myFileCountDTO.setHiddenIds(pageDTO.getHiddenIds());
         long allCount = extFileMetadataMapper.fileCount(myFileCountDTO);
         myFileCountDTO.setOperator(operator);
         long myFileCount = extFileMetadataMapper.fileCount(myFileCountDTO);
