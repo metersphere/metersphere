@@ -381,7 +381,7 @@ public class FunctionalCaseAttachmentService {
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(caseId).andFileIdIn(uploadFileIds).andFileSourceEqualTo(fileSource);
         List<FunctionalCaseAttachment> existFiles = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
         List<String> existFileIds = existFiles.stream().map(FunctionalCaseAttachment::getFileId).distinct().toList();
-        List<String> filIds = uploadFileIds.stream().filter(t -> !existFileIds.contains(t)).toList();
+        List<String> filIds = uploadFileIds.stream().filter(t -> !existFileIds.contains(t) && StringUtils.isNotBlank(t)).toList();
         if (CollectionUtils.isEmpty(filIds)) {
             return;
         }
