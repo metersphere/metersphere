@@ -17,7 +17,7 @@
       <slot name="titleRight"></slot>
     </div>
   </div>
-  <div v-if="data.length > 0" class="flex h-[calc(100%-40px)] gap-[8px]">
+  <div v-if="data.length > 0 && activeItem" class="flex h-[calc(100%-40px)] gap-[8px]">
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
         v-model:list="data"
@@ -38,8 +38,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
-
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import conditionContent from './content.vue';
   import conditionList from './list.vue';
@@ -64,7 +62,9 @@
 
   const { t } = useI18n();
 
-  const data = useVModel(props, 'list', emit);
+  const data = defineModel<ExecuteConditionProcessor[]>('list', {
+    required: true,
+  });
   const activeItem = ref<ExecuteConditionProcessor>(data.value[0]);
 
   function handleListActiveChange(item: ExecuteConditionProcessor) {
@@ -156,6 +156,25 @@
     activeItem.value = data.value[data.value.length - 1];
     emit('change');
   }
+
+  watchEffect(() => {
+    // 后台存储无id，渲染时需要手动添加一次
+    let hasNoIdItem = false;
+    const tempArr = props.list.map((item, i) => {
+      if (!item.id) {
+        hasNoIdItem = true;
+        return {
+          ...item,
+          id: new Date().getTime() + i,
+        };
+      }
+      return item;
+    });
+    if (hasNoIdItem) {
+      data.value = tempArr.map((e) => e);
+      [activeItem.value] = data.value;
+    }
+  });
 </script>
 
 <style lang="less" scoped></style>
