@@ -73,7 +73,7 @@ public class FunctionalCaseRelationshipController {
 
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-列表查询")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCaseRelationshipDTO>> getRelationshipCase(@Validated @RequestBody RelationshipRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
