@@ -148,6 +148,19 @@
                 </template>
               </TableFilter>
             </template>
+            <template #deleteUserFilter="{ columnConfig }">
+              <TableFilter
+                  v-model:visible="deleteUserFilterVisible"
+                  v-model:status-filters="deleteUserFilters"
+                  :title="(columnConfig.title as string)"
+                  :list="memberOptions"
+                  @search="initRecycleList()"
+              >
+                <template #item="{ item }">
+                  {{ item.label }}
+                </template>
+              </TableFilter>
+            </template>
             <template #reviewStatus="{ record }">
               <MsIcon
                 :type="statusIconMap[record.reviewStatus]?.icon || ''"
@@ -440,6 +453,25 @@
       showDrag: true,
     },
     {
+      title: 'caseManagement.featureCase.tableColumnDeleteUser',
+      dataIndex: 'deleteUserName',
+      titleSlotName: 'deleteUserFilter',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnDeleteTime',
+      slotName: 'deleteTime',
+      dataIndex: 'deleteTime',
+      showInTable: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
@@ -588,6 +620,7 @@
   const executeResultFilters = ref(Object.keys(executionResultMap));
   const updateUserFilters = ref<string[]>([]);
   const createUserFilters = ref<string[]>([]);
+  const deleteUserFilters = ref<string[]>([]);
 
   function getExecuteResultList() {
     const list: any = [];
@@ -614,6 +647,7 @@
         lastExecuteResult: executeResultFilters.value,
         updateUserName: updateUserFilters.value,
         createUserName: createUserFilters.value,
+        deleteUserName: deleteUserFilters.value,
       },
       condition: {
         keyword: keyword.value,
@@ -634,6 +668,7 @@
         lastExecuteResult: executeResultFilters.value,
         updateUserName: updateUserFilters.value,
         createUserName: createUserFilters.value,
+        deleteUserName: deleteUserFilters.value
       },
       condition: {
         keyword: keyword.value,
@@ -666,6 +701,7 @@
   const executeResultFilterVisible = ref(false);
   const updateUserFilterVisible = ref(false);
   const createUserFilterVisible = ref(false);
+  const deleteUserFilterVisible = ref(false);
 
   // 初始化回收站列表
   async function initRecycleList() {
