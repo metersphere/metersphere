@@ -13,12 +13,12 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
-import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -29,7 +29,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,15 +56,13 @@ public class EnvironmentGroupService {
     @Resource
     private ExtProjectMapper extProjectMapper;
     @Resource
-    private OrganizationMapper organizationMapper;
-    @Resource
     private EnvironmentService environmentService;
 
     public static final Long ORDER_STEP = 5000L;
 
     public EnvironmentGroup add(EnvironmentGroupRequest request, String userId) {
         EnvironmentGroup environmentGroup = new EnvironmentGroup();
-        BeanUtils.copyProperties(request, environmentGroup);
+        BeanUtils.copyBean(environmentGroup, request);
         environmentGroup.setId(IDGenerator.nextStr());
         this.checkEnvironmentGroup(environmentGroup);
 
@@ -173,8 +170,9 @@ public class EnvironmentGroupService {
         return extEnvironmentMapper.groupList(request.getKeyword(), request.getProjectId());
     }
 
-    public List<EnvironmentGroupInfo> get(String groupId) {
-        checkEnvironmentGroup(groupId);
+    public EnvironmentGroupDTO get(String groupId) {
+        EnvironmentGroupDTO environmentGroupDTO = new EnvironmentGroupDTO();
+        EnvironmentGroup environmentGroup = checkEnvironmentGroup(groupId);
         EnvironmentGroupRelationExample example = new EnvironmentGroupRelationExample();
         example.createCriteria().andEnvironmentGroupIdEqualTo(groupId);
         List<EnvironmentGroupRelation> relations = environmentGroupRelationMapper.selectByExample(example);
@@ -201,7 +199,9 @@ public class EnvironmentGroupService {
             }
             result.add(dto);
         });
-        return result;
+        BeanUtils.copyBean(environmentGroupDTO, environmentGroup);
+        environmentGroupDTO.setEnvironmentGroupInfo(result);
+        return environmentGroupDTO;
     }
 
     public List<OptionDTO> getProject(String userId, String organizationId) {
