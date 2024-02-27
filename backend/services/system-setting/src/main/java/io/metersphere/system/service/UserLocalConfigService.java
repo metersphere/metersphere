@@ -21,8 +21,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.util.List;
 
 @Service
@@ -73,24 +71,6 @@ public class UserLocalConfigService {
 
     }
 
-    public boolean validate(String id) {
-        UserLocalConfig userLocalConfig = checkResourceById(id);
-        HttpURLConnection connection = null;
-        try {
-            URI url = new URI(userLocalConfig.getUserUrl());
-            connection = (HttpURLConnection) url.toURL().openConnection();
-            connection.setConnectTimeout(3000);
-            return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
-        } catch (Exception e) {
-            return false;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-
-    }
-
     public List<UserLocalConfig> get(String userId) {
         UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
         userLocalConfigExample.createCriteria().andCreateUserEqualTo(userId);
@@ -99,12 +79,8 @@ public class UserLocalConfigService {
 
     public void enable(String id) {
         UserLocalConfig userLocalConfig = checkResourceById(id);
-        if (validate(id)) {
-            userLocalConfig.setEnable(true);
-            userLocalConfigMapper.updateByPrimaryKeySelective(userLocalConfig);
-        } else {
-            throw new MSException(Translator.get("current_user_local_config_not_validate"));
-        }
+        userLocalConfig.setEnable(true);
+        userLocalConfigMapper.updateByPrimaryKeySelective(userLocalConfig);
     }
 
     public void disable(String id) {

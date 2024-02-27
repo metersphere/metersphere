@@ -31,12 +31,6 @@ public class UserLocalConfigController {
         return userLocalConfigService.add(request, SessionUtils.getUserId());
     }
 
-    @GetMapping("/validate/{id}")
-    @Operation(summary = "系统设置-个人中心-我的设置-本地执行-验证是否通过")
-    public boolean validate(@PathVariable String id) {
-        return userLocalConfigService.validate(id);
-    }
-
     @GetMapping("/get")
     @Operation(summary = "系统设置-个人中心-我的设置-本地执行-获取本地执行")
     public List<UserLocalConfig> get() {
