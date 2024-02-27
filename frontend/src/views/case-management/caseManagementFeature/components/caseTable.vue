@@ -544,7 +544,7 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUserName,',
+      slotName: 'updateUserName',
       dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
       sortable: {
