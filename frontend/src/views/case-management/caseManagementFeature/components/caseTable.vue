@@ -465,18 +465,21 @@
       'slotName': 'num',
       'dataIndex': 'num',
       'width': 200,
+      'showInTable': true,
       'sortable': {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
       'filter-icon-align-left': true,
       'showTooltip': true,
+      'ellipsis': true,
       'showDrag': false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
+      showInTable: true,
       showTooltip: true,
       width: 300,
       editType: hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
@@ -484,6 +487,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      ellipsis: true,
       showDrag: false,
     },
     {
@@ -787,7 +791,7 @@
     }
   }
   const initDefaultFields = ref<CustomAttributes[]>([]);
-  // let fullColumns: MsTableColumn = []; // 全量列表
+  let fullColumns: MsTableColumn = []; // 全量列表
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
     getCaseList,
@@ -1179,7 +1183,6 @@
   // 处理自定义字段列
   let customFieldsColumns: Record<string, any>[] = [];
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
-  const fullColumns = ref<MsTableColumn>([]);
 
   // 处理自定义字段展示
   async function getDefaultFields() {
@@ -1201,12 +1204,12 @@
 
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
     caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
-    fullColumns.value = [
+    fullColumns = [
       ...columns.slice(0, columns.length - 1),
       ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
-    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns.value, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
   }
 
   // 如果是用例等级

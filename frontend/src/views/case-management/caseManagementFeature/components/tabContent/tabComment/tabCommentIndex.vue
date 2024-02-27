@@ -52,6 +52,7 @@
 
   const props = defineProps<{
     caseId: string;
+    activeTab: string;
   }>();
 
   const activeComment = ref('caseComment');

@@ -52,6 +52,7 @@
 
   const props = defineProps<{
     caseId: string; // 用例id
+    activeTab: string;
   }>();
 
   const keyword = ref<string>('');

@@ -19,7 +19,6 @@
           asterisk-position="end"
           :hide-label="true"
           hide-asterisk
-          :rules="[{ required: true, message: t('system.orgTemplate.templateNameRules') }]"
           content-class="contentClass"
           class="mb-0 max-w-[710px]"
         >
@@ -28,7 +27,9 @@
             :placeholder="t('system.orgTemplate.templateNamePlaceholder')"
             :max-length="255"
             class="max-w-[732px]"
+            :error="isError"
             :disabled="templateForm?.internal"
+            @input="inputHandler"
           ></a-input>
         </a-form-item>
         <span v-else class="font-medium text-[var(--color-text-1)] underline">{{ templateForm.name }}</span>
@@ -67,7 +68,7 @@
                   v-model="formItem.required"
                   class="mr-1"
                   @change="(value) => changeState(value, formItem)"
-                  >{{ t('ms.assertion.mustInclude') }}</a-checkbox
+                  >{{ t('system.orgTemplate.required') }}</a-checkbox
                 >
               </span>
               <div class="actionList">
@@ -330,12 +331,24 @@
   function resetForm() {
     templateForm.value = { ...initTemplateForm };
   }
+  const isError = ref(false);
 
+  function inputHandler(value: string) {
+    if (value.trim().length === 0) {
+      isError.value = true;
+    }
+    isError.value = false;
+  }
   // 保存回调
   async function save() {
     try {
       loading.value = true;
       const params = getTemplateParams();
+      if (!templateForm.value.name) {
+        isError.value = true;
+        Message.error(t('system.orgTemplate.templateNamePlaceholder'));
+        return;
+      }
       if (isEdit.value && route.params.mode !== 'copy') {
         await templateApiMaps[props.mode].update(params);
         Message.success(t('system.orgTemplate.updateSuccess'));
@@ -416,7 +429,7 @@
       title.value = t('system.orgTemplate.createTemplateType', {
         type: getTemplateName('organization', route.query.type as string),
       });
-      templateForm.value.name = title.value;
+      // templateForm.value.name = title.value;
     }
   });
 
@@ -680,29 +693,29 @@
   :deep(.selfClass) {
     margin-bottom: 0;
   }
-  :deep(.contentClass > .arco-input-wrapper) {
-    border-color: transparent;
-    &:hover {
-      border-color: var(--color-text-input-border);
-    }
-    &:hover > .arco-input {
-      font-weight: normal;
-      text-decoration: none;
-      color: var(--color-text-1);
-    }
-    & > .arco-input {
-      font-weight: 500;
-      text-decoration: underline;
-      color: var(--color-text-1);
-    }
-  }
-  :deep(.contentClass > .arco-input-focus) {
-    border-color: rgb(var(--primary-5));
-    & > .arco-input {
-      font-weight: normal;
-      text-decoration: none;
-    }
-  }
+  // :deep(.contentClass > .arco-input-wrapper) {
+  // border-color: transparent;
+  // &:hover {
+  //   border-color: var(--color-text-input-border);
+  // }
+  // &:hover > .arco-input {
+  //   font-weight: normal;
+  //   text-decoration: none;
+  //   color: var(--color-text-1);
+  // }
+  // & > .arco-input {
+  //   font-weight: 500;
+  //   text-decoration: underline;
+  //   color: var(--color-text-1);
+  // }
+  // }
+  // :deep(.contentClass > .arco-input-focus) {
+  //   border-color: rgb(var(--primary-5));
+  //   & > .arco-input {
+  //     font-weight: normal;
+  //     text-decoration: none;
+  //   }
+  // }
   .ghost {
     border: 1px solid rgba(var(--primary-5));
     background-color: var(--color-text-n9);

@@ -97,7 +97,11 @@
   const { t } = useI18n();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
-
+  const activeTab = inject<string>('activeTab');
+  const newActive = computed(() => {
+    return activeTab;
+  });
+  console.log(newActive.value);
   const props = defineProps<{
     caseId: string; // 用例id
   }>();
