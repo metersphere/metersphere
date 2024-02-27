@@ -42,7 +42,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取需要关联的用例列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<TestCaseProviderDTO>> associateOtherCaseList(@Validated @RequestBody TestCasePageProviderRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -52,7 +52,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case/module/count")
     @Operation(summary = "用例管理-功能用例-关联其他用例-统计需要关联用例模块数量")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody TestCasePageProviderRequest request) {
         return functionalTestCaseService.moduleCount(request, false);
@@ -60,7 +60,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case/module/tree")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取需要关联的用例模块树")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@RequestBody @Validated AssociateCaseModuleRequest request) {
         return functionalTestCaseService.getTree(request);
@@ -86,7 +86,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/has/associate/case/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的用例列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCaseTestDTO>> getAssociateOtherCaseList(@Validated @RequestBody FunctionalCaseTestRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -96,7 +96,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/bug/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取缺陷列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId", resourceType = "project")
     public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -124,7 +124,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/has/associate/bug/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的缺陷列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<BugProviderDTO>> getAssociateBugList(@Validated @RequestBody AssociateBugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -134,7 +134,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/has/associate/plan/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的测试计划列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.caseId", resourceType = "functional_case")
     public Pager<List<FunctionalCaseTestPlanDTO>> getAssociateOtherPlanList(@Validated @RequestBody AssociatePlanPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
