@@ -355,11 +355,11 @@ public class FunctionalCaseService {
     private FunctionalCase checkFunctionalCase(String functionalCaseId) {
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andIdEqualTo(functionalCaseId).andDeletedEqualTo(false);
-        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseId);
-        if (functionalCase == null) {
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        if (CollectionUtils.isEmpty(functionalCases)) {
             throw new MSException(CaseManagementResultCode.FUNCTIONAL_CASE_NOT_FOUND);
         }
-        return functionalCase;
+        return functionalCases.get(0);
     }
 
 
