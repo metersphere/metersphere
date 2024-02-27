@@ -92,7 +92,7 @@
           height: 'calc(100% - 86px)',
         }"
       >
-        <MsSplitBox
+        <!-- <MsSplitBox
           ref="wrapperRef"
           class="h-[calc(100% - 78px)]"
           expand-direction="right"
@@ -100,101 +100,101 @@
           :min="0.7"
           :size="900"
         >
-          <template #first>
-            <div class="leftWrapper">
-              <div class="header h-[50px]">
-                <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
-                  <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
-                  <a-menu-item v-for="tab of tabSetting" :key="tab.key">
-                    <div class="flex items-center">
-                      <span>{{ t(tab.title) }}</span>
-                      <a-badge
-                        class="ml-1"
-                        :class="activeTab === tab.key ? 'active' : ''"
-                        :text="getTotal(tab.total)"
-                      /> </div
-                  ></a-menu-item>
-                  <a-menu-item key="setting">
-                    <span @click="showMenuSetting">{{
-                      t('caseManagement.featureCase.detailDisplaySetting')
-                    }}</span></a-menu-item
-                  >
-                </a-menu>
-              </div>
-              <div class="leftContent mt-4 px-4">
-                <TabDetail
-                  v-if="activeTab === 'detail'"
-                  ref="tabDetailRef"
-                  :form="detailInfo"
-                  :allow-edit="true"
-                  :form-rules="formItem"
-                  @update-success="updateSuccess"
-                />
-                <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
-                <TabCaseTable v-else-if="activeTab === 'case'" :case-id="props.detailId" />
-                <TabDefect v-else-if="activeTab === 'bug'" :case-id="props.detailId" />
-                <TabDependency v-else-if="activeTab === 'dependency'" :case-id="props.detailId" />
-                <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
-                <TabTestPlan v-else-if="activeTab === 'testPlan'" />
-                <TabComment v-else-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
-                <TabChangeHistory v-else-if="activeTab === 'changeHistory'" :case-id="props.detailId" />
-              </div>
-            </div>
-          </template>
-          <template #second>
-            <div class="rightWrapper p-[24px]">
-              <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
-                <span class="w-[calc(100%-36%)]">
-                  <a-tree-select
-                    v-model="detailInfo.moduleId"
-                    :data="caseTree"
-                    class="w-full"
-                    :allow-search="true"
-                    :field-names="{
-                      title: 'name',
-                      key: 'id',
-                      children: 'children',
-                    }"
-                    :tree-props="{
-                      virtualListProps: {
-                        height: 200,
-                      },
-                    }"
-                    @change="handleChangeModule"
-                  ></a-tree-select>
-                </span>
-              </div>
-              <!-- 自定义字段开始 -->
-              <MsFormCreate
-                v-if="formRules.length"
-                ref="formCreateRef"
-                v-model:api="fApi"
-                v-model:form-item="formItem"
-                :form-rule="formRules"
+          <template #first> -->
+        <div class="leftWrapper">
+          <div class="header h-[50px]">
+            <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
+              <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
+              <a-menu-item v-for="tab of tabSetting" :key="tab.key">
+                <div class="flex items-center">
+                  <span>{{ t(tab.title) }}</span>
+                  <a-badge
+                    class="ml-1"
+                    :class="activeTab === tab.key ? 'active' : ''"
+                    :text="getTotal(tab.total)"
+                  /> </div
+              ></a-menu-item>
+              <a-menu-item key="setting">
+                <span @click="showMenuSetting">{{
+                  t('caseManagement.featureCase.detailDisplaySetting')
+                }}</span></a-menu-item
+              >
+            </a-menu>
+          </div>
+          <div class="leftContent mt-4 px-4">
+            <TabDetail
+              v-if="activeTab === 'detail'"
+              ref="tabDetailRef"
+              :form="detailInfo"
+              :allow-edit="true"
+              :form-rules="formItem"
+              @update-success="updateSuccess"
+            />
+            <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
+            <TabCaseTable v-else-if="activeTab === 'case'" :case-id="props.detailId" />
+            <TabDefect v-else-if="activeTab === 'bug'" :case-id="props.detailId" />
+            <TabDependency v-else-if="activeTab === 'dependency'" :case-id="props.detailId" />
+            <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
+            <TabTestPlan v-else-if="activeTab === 'testPlan'" />
+            <TabComment v-else-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
+            <TabChangeHistory v-else-if="activeTab === 'changeHistory'" :case-id="props.detailId" />
+          </div>
+        </div>
+        <!-- </template> -->
+        <!-- <template #second> -->
+        <div class="rightWrapper p-[24px]">
+          <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
+          <div class="baseItem">
+            <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
+            <span class="w-[calc(100%-36%)]">
+              <a-tree-select
+                v-model="detailInfo.moduleId"
+                :data="caseTree"
                 class="w-full"
-                :option="options"
-                @change="changeHandler"
-              />
-              <!-- 自定义字段结束 -->
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
-                <span>{{ detailInfo?.createUserName }}</span>
-              </div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
-                <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
-              </div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
-                <span>
-                  <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
-                </span>
-              </div>
-            </div>
-          </template>
-        </MsSplitBox>
+                :allow-search="true"
+                :field-names="{
+                  title: 'name',
+                  key: 'id',
+                  children: 'children',
+                }"
+                :tree-props="{
+                  virtualListProps: {
+                    height: 200,
+                  },
+                }"
+                @change="handleChangeModule"
+              ></a-tree-select>
+            </span>
+          </div>
+          <!-- 自定义字段开始 -->
+          <MsFormCreate
+            v-if="formRules.length"
+            ref="formCreateRef"
+            v-model:api="fApi"
+            v-model:form-item="formItem"
+            :form-rule="formRules"
+            class="w-full"
+            :option="options"
+            @change="changeHandler"
+          />
+          <!-- 自定义字段结束 -->
+          <div class="baseItem">
+            <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
+            <span>{{ detailInfo?.createUserName }}</span>
+          </div>
+          <div class="baseItem">
+            <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+            <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+          </div>
+          <div class="baseItem">
+            <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+            <span>
+              <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
+            </span>
+          </div>
+        </div>
+        <!-- </template> -->
+        <!-- </MsSplitBox> -->
         <inputComment
           v-model:content="content"
           v-model:notice-user-ids="noticeUserIds"

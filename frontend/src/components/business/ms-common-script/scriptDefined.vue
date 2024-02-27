@@ -184,6 +184,7 @@ ${item.script}
     insertHandler,
     undoHandler,
     clearCode,
+    executionResultValue,
   });
 </script>
 

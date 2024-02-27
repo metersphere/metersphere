@@ -45,7 +45,7 @@ export interface ParamsRequestType {
   max: number;
   min: number;
   mustContain: boolean; // 必填
-  name: string;
+  key: string;
   required: boolean;
   type: string;
   value: string;

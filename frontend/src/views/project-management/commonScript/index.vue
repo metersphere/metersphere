@@ -152,7 +152,7 @@
       slotName: 'tags',
       showInTable: true,
       isTag: true,
-      width: 150,
+      width: 456,
       showDrag: true,
     },
     {
@@ -195,7 +195,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
     getCommonScriptPage,
     {
-      scroll: { x: '100%' },
+      scroll: { x: 1200 },
       tableKey: TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT,
       heightUsed: 290,
       showSetting: true,
@@ -302,6 +302,7 @@
   }
 
   function addCommonScript() {
+    isEditId.value = '';
     showScriptDrawer.value = true;
   }
 
