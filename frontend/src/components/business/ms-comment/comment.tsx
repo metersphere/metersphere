@@ -59,6 +59,7 @@ export default defineComponent({
       }
       const params: CommentParams = {
         bugId: item.bugId,
+        caseId: item.caseId,
         content,
         event,
         commentType: currentItem.commentType,
