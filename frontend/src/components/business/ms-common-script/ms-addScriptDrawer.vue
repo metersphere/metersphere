@@ -63,6 +63,7 @@
       <ScriptDefined
         v-model:language="form.type"
         v-model:code="form.script"
+        v-model:execution-result="form.result"
         :show-type="scriptType"
         :enable-radio-selected="props.enableRadioSelected"
       />
@@ -219,13 +220,6 @@
     }
   );
 
-  // watchEffect(() => {
-  //   editScriptId.value = props.scriptId;
-  //   if (editScriptId.value) {
-  //     getDetail();
-  //   }
-  // });
-
   watch(
     () => showScriptDrawer.value,
     (val) => {
@@ -247,10 +241,10 @@
     try {
       const { type, script } = form.value;
       const parameters = innerParams.value
-        .filter((item: any) => item.name && item.value)
+        .filter((item: any) => item.key && item.value)
         .map((item) => {
           return {
-            key: item.name,
+            key: item.key,
             value: item.value,
             valid: item.mustContain,
           };
@@ -272,41 +266,16 @@
     run();
   }
 
-  const executionResult = ref<string>('');
-  // TODO 提交给后台测试
-  function onDebugMessage(e: any) {
-    // console.log(e.data);
-    if (e.data) {
-      try {
-        // websocket.value.close();
-        executionResult.value = JSON.parse(e.data);
-        console.log(JSON.parse(e.data));
-      } catch (error) {
-        // websocket.value.close();
-        console.log(error);
-      }
-    }
-  }
-  // TODO 提交给后台测试
   function debugSocket() {
     websocket.value = getSocket(reportId.value);
-    websocket.value.onmessage = onDebugMessage;
     websocket.value.onopen = onOpen;
-
-    websocket.value.addEventListener('open', (event) => {
-      console.log('打开:', event);
-    });
-
-    websocket.value.addEventListener('message', (event) => {
-      console.log('接收:', event.data);
-    });
-
-    websocket.value.addEventListener('close', (event) => {
-      console.log('关闭:', event);
-    });
-
-    websocket.value.addEventListener('error', (event) => {
-      console.error('错误:', event);
+    websocket.value.addEventListener('message', (event: any) => {
+      const result = JSON.parse(event.data);
+      if (result.msgType === 'EXEC_RESULT') {
+        form.value.result = result.taskResult.console;
+        scriptType.value = 'executionResult';
+        websocket.value.close();
+      }
     });
   }
 
@@ -323,10 +292,6 @@
       }
     }
   );
-
-  // onBeforeUnmount(() => {
-  //   editScriptId.value = '';
-  // });
 </script>
 
 <style scoped></style>
