@@ -9,6 +9,7 @@ export default mergeConfig(
     mode: 'production',
     plugins: [configCompressPlugin('gzip'), configVisualizerPlugin(), configImageminPlugin()],
     build: {
+      minify: false, // TODO:临时关闭，排查问题
       rollupOptions: {
         output: {
           manualChunks: {
