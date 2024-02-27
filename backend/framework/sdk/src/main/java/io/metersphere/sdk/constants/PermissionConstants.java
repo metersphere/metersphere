@@ -129,8 +129,6 @@ public class PermissionConstants {
     public static final String PROJECT_USER_READ_ADD = "PROJECT_USER:READ+ADD";
     public static final String PROJECT_USER_READ_DELETE = "PROJECT_USER:READ+DELETE";
 
-    public static final String PROJECT_API_DEFINITION_READ_ADD_API = "PROJECT_API_DEFINITION:READ+ADD_API";
-    public static final String PROJECT_API_REPORT_READ_DELETE = "PROJECT_API_REPORT:READ+DELETE";
 
     /*------ start: PROJECT_MESSAGE ------*/
     public static final String PROJECT_MESSAGE_READ = "PROJECT_MESSAGE:READ";
@@ -277,6 +275,9 @@ public class PermissionConstants {
     public static final String PROJECT_API_DEFINITION_MOCK_UPDATE = "PROJECT_API_DEFINITION_MOCK:READ+UPDATE";
     public static final String PROJECT_API_DEFINITION_MOCK_DELETE = "PROJECT_API_DEFINITION_MOCK:READ+DELETE";
     public static final String PROJECT_API_DEFINITION_MOCK_EXECUTE = "PROJECT_API_DEFINITION_MOCK:READ+EXECUTE";
+
+    public static final String PROJECT_API_DEFINITION_DOC_READ = "PROJECT_API_DEFINITION_DOC:READ";
+    public static final String PROJECT_API_DEFINITION_DOC_SHARE = "PROJECT_API_DEFINITION_DOC:READ+SHARE";
     /* ----API_SCENARIO---- */
     public static final String PROJECT_API_SCENARIO_READ = "PROJECT_API_SCENARIO:READ";
     public static final String PROJECT_API_SCENARIO_ADD = "PROJECT_API_SCENARIO:READ+ADD";

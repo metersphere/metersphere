@@ -990,7 +990,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(allApiDefinitionDocDTO.getDocInfo().getId(), copyAllApiDefinitionDocDTO.getDocInfo().getId());
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, DOC, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE, DOC, request);
     }
 
     @Test
