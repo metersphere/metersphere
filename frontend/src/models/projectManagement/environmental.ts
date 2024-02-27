@@ -89,3 +89,23 @@ export interface EnvPluginListItem {
   pluginId: string;
   script: EnvPluginScript;
 }
+
+export interface EnvGroupProjectItem {
+  projectId: string;
+  environmentId: string;
+}
+
+export interface GroupItem {
+  id: string;
+  name: string;
+  description: string;
+  projectId: string;
+  envGroupProject: EnvGroupProjectItem[];
+}
+
+export interface DragParam {
+  projectId: string;
+  targetId: string;
+  moveMode: string;
+  moveId: string;
+}

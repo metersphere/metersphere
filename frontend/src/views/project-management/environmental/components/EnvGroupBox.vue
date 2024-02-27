@@ -36,6 +36,7 @@
           v-model:params="innerParams"
           :show-setting="false"
           :columns="columns"
+          :selectable="false"
           @change="handleParamTableChange"
         />
       </div>
@@ -53,14 +54,24 @@
 </template>
 
 <script lang="ts" setup async>
+  import { ValidatedError } from '@arco-design/web-vue';
+
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { getGroupDetailEnv, groupAddEnv, groupUpdateEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { useAppStore } from '@/store';
+  import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';
+
+  import { EnvListItem } from '@/models/projectManagement/environmental';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const envGroupForm = ref();
+  const emit = defineEmits<{
+    (e: 'saveOrUpdate', id: string): void;
+  }>();
   const form = reactive({
     name: '',
     description: '',
@@ -98,24 +109,71 @@
     },
   ]);
 
-  const innerParams = ref<any[]>([]);
+  const innerParams = ref<Record<string, any>[]>([]);
 
   const canSave = ref(true);
 
   const handleReset = () => {
     envGroupForm.value?.resetFields();
+    innerParams.value = [];
+    emit('saveOrUpdate', '');
   };
 
+  const initDetail = async (id: string) => {
+    if (id === NEW_ENV_GROUP) {
+      form.name = '';
+      form.description = '';
+      innerParams.value = [];
+      return;
+    }
+    const detail = await getGroupDetailEnv(id);
+    if (detail) {
+      form.name = detail.name;
+      form.description = detail.description;
+      innerParams.value = detail.envGroupProject;
+    }
+  };
   const handleSave = () => {
-    envGroupForm.value?.validate(async (valid) => {
-      if (valid) {
-        console.log('form', form);
+    envGroupForm.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (errors) {
+        return;
+      }
+      try {
+        const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
+        const envGroupProject = innerParams.value.filter((item) => item.projectId && item.environmentId);
+        if (!envGroupProject.length) {
+          return;
+        }
+        const params = {
+          id,
+          name: form.name,
+          description: form.description,
+          projectId: appStore.currentProjectId,
+          envGroupProject,
+        };
+        let res: EnvListItem;
+        if (id) {
+          res = await groupUpdateEnv(params);
+          initDetail(res.id);
+        } else {
+          res = await groupAddEnv(params);
+        }
+        emit('saveOrUpdate', res.id);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
       }
     });
   };
+
   function handleParamTableChange(resultArr: any[]) {
     innerParams.value = [...resultArr];
   }
+  watchEffect(() => {
+    if (store.currentGroupId) {
+      initDetail(store.currentGroupId);
+    }
+  });
 </script>
 
 <style lang="less" scoped>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import localforage from 'localforage';
 
-import { getDetailEnv, getGlobalParamDetail, groupDetailEnv } from '@/api/modules/project-management/envManagement';
+import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
 import { useAppStore } from '@/store';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
@@ -21,8 +21,6 @@ const useProjectEnvStore = defineStore(
     const currentEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情
     const backupEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情-备份
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
-    // 当前选中的项目组详情
-    const groupDetailInfo = ref<EnvDetailItem>();
     const httpNoWarning = ref(true);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
 
@@ -57,16 +55,6 @@ const useProjectEnvStore = defineStore(
           currentEnvDetailInfo.value = tmpObj;
           backupEnvDetailInfo.value = JSON.parse(JSON.stringify(tmpObj));
         }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-    }
-    // 初始化项目组详情
-    async function initGroupDetail() {
-      try {
-        const id = currentGroupId.value;
-        groupDetailInfo.value = await groupDetailEnv(id);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
@@ -127,13 +115,11 @@ const useProjectEnvStore = defineStore(
       allParamDetailInfo,
       currentEnvDetailInfo,
       backupEnvDetailInfo,
-      groupDetailInfo,
       setCurrentId,
       setCurrentGroupId,
       setHttpNoWarning,
       setAllParamDetailInfo,
       initEnvDetail,
-      initGroupDetail,
       initContentTabList,
       getContentTabList,
       setContentTabList,
