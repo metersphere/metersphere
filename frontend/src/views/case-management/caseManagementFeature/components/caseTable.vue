@@ -48,7 +48,19 @@
       <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
     </template>
     <template #caseLevel="{ record }">
-      <caseLevel :case-level="getCaseLevels(record.customFields)" />
+      <a-select
+        v-model:model-value="record.caseLevel"
+        :placeholder="t('common.pleaseSelect')"
+        class="param-input w-full"
+        @change="() => handleStatusChange(record)"
+      >
+        <template #label>
+          <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
+        </template>
+        <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
+          <caseLevel :case-level="item.value" />
+        </a-option>
+      </a-select>
     </template>
     <template #caseLevelFilter="{ columnConfig }">
       <TableFilter
@@ -815,6 +827,7 @@
         }),
         visible: false,
         showModuleTree: false,
+        caseLevel: getCaseLevels(record.customFields),
       };
     },
     updateCaseName
@@ -1321,6 +1334,38 @@
     };
     initData();
   };
+  // 更新用例等级
+  async function handleStatusChange(record: any) {
+    try {
+      const detailResult = await getCaseDetail(record.id);
+      const { customFields } = detailResult;
+      const customFieldsList = customFields.map((item: any) => {
+        if (item.internal && item.fieldName === '用例等级') {
+          return {
+            fieldId: item.fieldId,
+            value: record.caseLevel,
+          };
+        }
+        return {
+          fieldId: item.fieldId,
+          value: Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue,
+        };
+      });
+      const params = {
+        request: {
+          ...detailResult,
+          customFields: customFieldsList,
+        },
+        fileList: [],
+      };
+      await updateCaseRequest(params);
+      initData();
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   // 拖拽排序
   async function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
@@ -1473,6 +1518,20 @@
     @apply mt-1 rounded-md p-3;
     .condition-text {
       color: var(--color-text-2);
+    }
+  }
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-brand);
+      }
     }
   }
 </style>

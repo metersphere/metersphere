@@ -122,40 +122,23 @@
                 </a-menu>
               </div>
               <div class="leftContent mt-4 px-4">
-                <template v-if="activeTab === 'detail'">
-                  <TabDetail
-                    ref="tabDetailRef"
-                    :form="detailInfo"
-                    :allow-edit="true"
-                    :form-rules="formItem"
-                    :active-tab="activeTab"
-                    @update-success="updateSuccess"
-                  />
-                </template>
-                <template v-if="activeTab === 'requirement'">
-                  <TabDemand :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'case'">
-                  <TabCaseTable :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'bug'">
-                  <TabDefect :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'dependency'">
-                  <TabDependency :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'caseReview'">
-                  <TabCaseReview :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'testPlan'">
-                  <TabTestPlan :active-tab="activeTab" />
-                </template>
-                <template v-if="activeTab === 'comments'">
-                  <TabComment ref="commentRef" :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
-                <template v-if="activeTab === 'changeHistory'">
-                  <TabChangeHistory :active-tab="activeTab" :case-id="props.detailId" />
-                </template>
+                <TabDetail
+                  v-if="activeTab === 'detail'"
+                  ref="tabDetailRef"
+                  :form="detailInfo"
+                  :allow-edit="true"
+                  :form-rules="formItem"
+                  :active-tab="activeTab"
+                  @update-success="updateSuccess"
+                />
+                <TabCaseTable v-show="activeTab === 'case'" :case-id="props.detailId" />
+                <TabDemand v-show="activeTab === 'requirement'" :case-id="props.detailId" />
+                <TabDefect v-show="activeTab === 'bug'" :case-id="props.detailId" />
+                <TabDependency v-show="activeTab === 'dependency'" :case-id="props.detailId" />
+                <TabCaseReview v-show="activeTab === 'caseReview'" :case-id="props.detailId" />
+                <TabTestPlan v-show="activeTab === 'testPlan'" :active-tab="activeTab" />
+                <TabComment v-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
+                <TabChangeHistory v-show="activeTab === 'changeHistory'" :case-id="props.detailId" />
               </div>
             </div>
           </template>
@@ -205,7 +188,7 @@
                 <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
               </div>
               <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+                <span class="label"> {{ t('caseManagement.featureCase.tableColumnTag') }}</span>
                 <span>
                   <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
                 </span>
@@ -564,6 +547,7 @@
       if (val) {
         showDrawerVisible.value = val;
         activeTab.value = 'detail';
+        featureCaseStore.setActiveTab(activeTab.value);
       }
     }
   );
@@ -625,10 +609,9 @@
       }
     }
   );
-  provide('activeTab', activeTab.value);
 
   onMounted(() => {
-    settingDrawerRef.value.getTabModule();
+    // settingDrawerRef.value.getTabModule();
   });
 </script>
 

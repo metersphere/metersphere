@@ -99,17 +99,17 @@
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const appStore = useAppStore();
-
+  const featureCaseStore = useFeatureCaseStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
 
   const keyword = ref<string>('');
@@ -354,17 +354,33 @@
     showAddModel.value = true;
     modelForm.value = { ...initModelForm };
   }
+  const activeTab = computed(() => featureCaseStore.activeTab);
+  // onMounted(async () => {
+  // try {
+  //   const result = await getCaseRelatedInfo(currentProjectId.value);
+  //   if (result && result.platform_key) {
+  //     platformInfo.value = { ...result };
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  // }
+  // });
 
-  onMounted(async () => {
-    try {
-      const result = await getCaseRelatedInfo(currentProjectId.value);
-      if (result && result.platform_key) {
-        platformInfo.value = { ...result };
+  watch(
+    () => activeTab.value,
+    async (val) => {
+      if (val === 'requirement') {
+        try {
+          const result = await getCaseRelatedInfo(currentProjectId.value);
+          if (result && result.platform_key) {
+            platformInfo.value = { ...result };
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
-    } catch (error) {
-      console.log(error);
     }
-  });
+  );
 
   function getPlatName() {
     switch (platformInfo.value.platform_key) {

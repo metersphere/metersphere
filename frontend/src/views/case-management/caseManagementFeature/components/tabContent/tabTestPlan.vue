@@ -30,9 +30,12 @@
 
   import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  const featureCaseStore = useFeatureCaseStore();
+  const activeTab = computed(() => featureCaseStore.activeTab);
   const { t } = useI18n();
   const keyword = ref<string>('');
 

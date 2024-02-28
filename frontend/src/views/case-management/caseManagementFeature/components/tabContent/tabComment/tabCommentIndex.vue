@@ -33,7 +33,7 @@
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import MsComment from '@/components/business/ms-comment/comment';
+  import MsComment from '@/components/business/ms-comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
   import {
@@ -47,12 +47,12 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   const featureCaseStore = useFeatureCaseStore();
+  const activeTab = computed(() => featureCaseStore.activeTab);
   const { openModal } = useModal();
   const { t } = useI18n();
 
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
 
   const activeComment = ref('caseComment');
@@ -104,6 +104,7 @@
 
   // 添加或者更新评论
   async function handleUpdateOrAdd(item: CommentParams, cb: (result: boolean) => void) {
+    debugger;
     try {
       if (item.id) {
         await updateCommentList(item);
@@ -151,6 +152,14 @@
       }
     }
   );
+  // watch(
+  //   () => activeTab.value,
+  //   (val) => {
+  //     if (val === 'comments') {
+  //       getAllCommentList();
+  //     }
+  //   }
+  // );
 
   onMounted(() => {
     getAllCommentList();

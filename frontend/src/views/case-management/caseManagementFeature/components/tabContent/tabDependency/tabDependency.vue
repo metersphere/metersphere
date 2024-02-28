@@ -84,6 +84,7 @@
   import { characterLimit } from '@/utils';
 
   const featureCaseStore = useFeatureCaseStore();
+  const activeTab = computed(() => featureCaseStore.activeTab);
 
   const appStore = useAppStore();
 
@@ -94,7 +95,6 @@
   const keyword = ref<string>('');
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
 
   const columns: MsTableColumn = [
@@ -216,9 +216,18 @@
     }
   );
 
-  onMounted(() => {
-    initData();
-  });
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'dependency') {
+        initData();
+      }
+    }
+  );
+
+  // onMounted(() => {
+  //   initData();
+  // });
 </script>
 
 <style scoped></style>
