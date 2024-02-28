@@ -3,7 +3,7 @@
     <div class="p-1"> <MsAvatar avatar="word" /></div>
     <div class="flex w-full flex-col">
       <div class="font-medium text-[var(--color-text-1)]">{{ props.element.createUser }}</div>
-      <div v-dompurify-html="props.element.content" class="mt-[4px] text-[var(--color-text-2)]"></div>
+      <div v-dompurify-html="props.element.content" class="markdown-body mt-[4px]"></div>
 
       <div class="mb-4 mt-[16px] flex flex-row items-center">
         <div class="text-[var(--color-text-4)]">{{

@@ -251,6 +251,7 @@ export default {
   'caseManagement.featureCase.defectSource': '缺陷来源',
   'caseManagement.featureCase.sortSuccess': '排序成功',
   'caseManagement.featureCase.zentao': '禅道',
+  'caseManagement.featureCase.jira': 'JIRA',
   'caseManagement.featureCase.searchPlaceholder': '通过ID、名称或标签搜索',
   'caseManagement.featureCase.ModuleOwned': '所属模块',
 };

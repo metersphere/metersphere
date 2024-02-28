@@ -28,7 +28,7 @@
           :upload-image="handleUploadImage"
           class="mt-2"
         />
-        <div v-else v-dompurify-html="detailForm?.prerequisite || '-'"></div>
+        <div v-else v-dompurify-html="detailForm?.prerequisite || '-'" class="markdown-body"></div>
       </a-form-item>
       <a-form-item
         field="step"
@@ -69,6 +69,7 @@
         <div
           v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
           v-dompurify-html="detailForm.textDescription || '-'"
+          class="markdown-body"
         ></div>
       </a-form-item>
       <a-form-item
@@ -82,7 +83,7 @@
           v-model:filed-ids="expectedResultFileIds"
           :upload-image="handleUploadImage"
         />
-        <div v-else v-dompurify-html="detailForm.expectedResult || '-'"></div>
+        <div v-else v-dompurify-html="detailForm.expectedResult || '-'" class="markdown-body"></div>
       </a-form-item>
       <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
         <MsRichText
@@ -91,7 +92,7 @@
           v-model:raw="detailForm.description"
           :upload-image="handleUploadImage"
         />
-        <div v-else v-dompurify-html="detailForm.description || '-'"></div>
+        <div v-else v-dompurify-html="detailForm.description || '-'" class="markdown-body"></div>
       </a-form-item>
       <div v-if="isEditPreposition" class="flex justify-end">
         <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
