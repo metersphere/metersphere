@@ -14,6 +14,7 @@ export default {
   'caseManagement.featureCase.recycle': 'Recycle',
   'caseManagement.featureCase.versionPlaceholder': 'The default is the latest version',
   'caseManagement.featureCase.searchByNameAndId': 'Search by ID, name, or tag',
+  'caseManagement.featureCase.searchByIdAndName': 'Search by ID or name',
   'caseManagement.featureCase.filter': 'filter',
   'caseManagement.featureCase.setFilterCondition': 'Set filters',
   'caseManagement.featureCase.followingCondition': 'Conform to the following',

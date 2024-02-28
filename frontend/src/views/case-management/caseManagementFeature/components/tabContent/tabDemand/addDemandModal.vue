@@ -15,7 +15,7 @@
         <a-form-item :label="t('caseManagement.featureCase.tableColumnID')" asterisk-position="end" field="demandId">
           <a-input
             v-model="modelForm.demandId"
-            :max-length="20"
+            :max-length="255"
             :placeholder="t('caseManagement.featureCase.pleaseEnterID')"
           />
         </a-form-item>
