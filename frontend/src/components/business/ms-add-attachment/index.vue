@@ -1,8 +1,9 @@
 <template>
   <a-form-item v-if="props.mode === 'button'" field="attachment" :label="t('caseManagement.featureCase.addAttachment')">
+    <!-- TODO:跟下面统一样式 -->
     <div class="flex flex-col">
       <div class="mb-1">
-        <a-dropdown position="tr" trigger="hover">
+        <a-dropdown v-model:popup-visible="buttonDropDownVisible" position="tr" trigger="click">
           <a-button type="outline">
             <template #icon> <icon-plus class="text-[14px]" /> </template>
             {{ t('system.orgTemplate.addAttachment') }}
@@ -14,7 +15,6 @@
               :limit="50"
               :auto-upload="false"
               :show-file-list="false"
-              :before-upload="beforeUpload"
               @change="handleChange"
             >
               <template #upload-button>
@@ -185,6 +185,7 @@
       hiddenIds: [],
     },
   });
+  const buttonDropDownVisible = ref(false);
 
   onBeforeMount(() => {
     // 回显文件
@@ -207,10 +208,6 @@
     }
   });
 
-  function beforeUpload(file: File) {
-    emit('upload', file);
-  }
-
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     innerFileList.value = _fileList.map((item) => ({ ...item, local: true }));
     if (props.multiple) {
@@ -223,6 +220,10 @@
       inputFileName.value = fileItem.name || '';
     }
     emit('change', _fileList, { ...fileItem, local: true });
+    nextTick(() => {
+      // 在 emit 文件上去之后再关闭菜单
+      buttonDropDownVisible.value = false;
+    });
   }
 
   function associatedFile() {

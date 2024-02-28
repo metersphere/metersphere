@@ -228,7 +228,7 @@
         slotName: 'operation',
         fixed: 'right',
         format: innerParams.value.bodyType,
-        width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 60 : 30,
+        width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 65 : 35,
       },
     ];
   });

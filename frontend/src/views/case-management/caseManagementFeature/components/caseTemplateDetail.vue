@@ -76,12 +76,7 @@
             :upload-image="handleUploadImage"
           />
         </a-form-item>
-        <AddAttachment
-          v-model:file-list="fileList"
-          @change="handleChange"
-          @link-file="associatedFile"
-          @upload="beforeUpload"
-        />
+        <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile" />
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">
@@ -401,20 +396,12 @@
       formRules.value = result;
       isLoading.value = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
   const fileList = ref<MsFileItem[]>([]);
-
-  function beforeUpload(file: File) {
-    const _maxSize = 50 * 1024 * 1024;
-    if (file.size > _maxSize) {
-      Message.warning(t('ms.upload.overSize'));
-      return Promise.resolve(false);
-    }
-    return Promise.resolve(true);
-  }
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
@@ -494,6 +481,7 @@
         imageUrl.value = item.url || '';
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -578,6 +566,7 @@
       }
       getDetailData(detailResult);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       isLoading.value = false;
@@ -590,6 +579,7 @@
     try {
       caseTree.value = await getCaseModuleTree({ projectId: currentProjectId.value });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -714,6 +704,7 @@
       });
       downloadByteFile(res, `${item.name}`);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -724,6 +715,7 @@
       await updateFile(currentProjectId.value, item.associationId);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
