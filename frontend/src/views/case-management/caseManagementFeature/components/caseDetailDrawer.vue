@@ -349,7 +349,7 @@
 
   // 初始化count
   function setCount(detail: DetailCase) {
-    const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount } = detail;
+    const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount, commentCount, historyCount } = detail;
     const countMap: Record<string, any> = {
       case: caseCount,
       dependency: relateEdgeCount,
@@ -357,6 +357,8 @@
       testPlan: testPlanCount,
       bug: bugCount,
       requirement: demandCount,
+      comments: commentCount,
+      changeHistory: historyCount
     };
     featureCaseStore.initCountMap(countMap);
   }
