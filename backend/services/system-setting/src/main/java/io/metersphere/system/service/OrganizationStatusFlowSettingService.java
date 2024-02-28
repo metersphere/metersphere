@@ -170,7 +170,11 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
         StatusItem originStatusItem = baseStatusItemService.getWithCheck(request.getId());
         OrganizationService.checkResourceExist(originStatusItem.getScopeId());
         organizationTemplateService.checkOrganizationTemplateEnable(originStatusItem.getScopeId(), originStatusItem.getScene());
-
+        baseStatusItemService.handleInternalNameUpdate(request, originStatusItem);
+        if (StringUtils.isAllBlank(request.getName(), request.getRemark())) {
+            // 避免没有字段更新，报错
+            return originStatusItem;
+        }
         StatusItem statusItem = BeanUtils.copyBean(new StatusItem(), request);
         statusItem.setScopeId(originStatusItem.getScopeId());
         statusItem.setScene(originStatusItem.getScene());

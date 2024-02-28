@@ -77,7 +77,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-修改状态项")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusItemLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
-    public StatusItem addStatusItem(@Validated @RequestBody StatusItemUpdateRequest request) {
+    public StatusItem updateStatusItem(@Validated @RequestBody StatusItemUpdateRequest request) {
         return projectStatusFlowSettingService.updateStatusItem(request);
     }
 

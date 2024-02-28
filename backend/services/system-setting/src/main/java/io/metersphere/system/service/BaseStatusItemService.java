@@ -4,12 +4,14 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.domain.StatusItemExample;
+import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.system.mapper.ExtStatusItemMapper;
 import io.metersphere.system.mapper.StatusItemMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,7 @@ public class BaseStatusItemService {
     }
 
     public static String translateInternalStatusItem(String statusName) {
-        return Translator.get("status_item." + statusName);
+        return Translator.get("status_item." + statusName, statusName);
     }
 
     public StatusItem getWithCheck(String id) {
@@ -137,6 +139,19 @@ public class BaseStatusItemService {
                 .andSceneEqualTo(statusItem.getScene());
         if (CollectionUtils.isNotEmpty(statusItemMapper.selectByExample(example))) {
             throw new MSException(STATUS_ITEM_EXIST);
+        }
+    }
+
+    /**
+     * 如果是内置的状态，名称没有修改，则不更新名称，需要支持国际化
+     * @param request
+     * @param originStatusItem
+     */
+    public void handleInternalNameUpdate(StatusItemUpdateRequest request, StatusItem originStatusItem) {
+        if (StringUtils.isNotBlank(request.getName())
+                && BooleanUtils.isTrue(originStatusItem.getInternal())
+                && StringUtils.equals(translateInternalStatusItem(originStatusItem.getName()), request.getName())) {
+            request.setName(null);
         }
     }
 
