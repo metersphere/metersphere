@@ -17,7 +17,6 @@ public class StatusItemUpdateRequest implements Serializable {
     private String id;
 
     @Schema(description = "状态名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{status_item.name.not_blank}")
     @Size(min = 1, max = 255, message = "{status_item.name.length_range}")
     private String name;
 
