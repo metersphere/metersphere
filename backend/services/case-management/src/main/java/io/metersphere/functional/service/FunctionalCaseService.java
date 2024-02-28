@@ -27,6 +27,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
@@ -36,6 +37,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
@@ -155,6 +157,13 @@ public class FunctionalCaseService {
     private UserMapper userMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private OperationHistoryMapper operationHistoryMapper;
+
+    @Resource
+    private CaseReviewHistoryMapper caseReviewHistoryMapper;
+    @Resource
+    private FunctionalCaseCommentMapper functionalCaseCommentMapper;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
@@ -356,6 +365,21 @@ public class FunctionalCaseService {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdEqualTo(functionalCaseDetailDTO.getId());
         functionalCaseDetailDTO.setTestPlanCount((int) testPlanFunctionalCaseMapper.countByExample(testPlanFunctionalCaseExample));
+
+        //获取评论总数量数量
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        long reviewComment = caseReviewHistoryMapper.countByExample(caseReviewHistoryExample);
+        FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
+        functionalCaseCommentExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        long caseComment = functionalCaseCommentMapper.countByExample(functionalCaseCommentExample);
+        long commentCount = caseComment + reviewComment;
+        functionalCaseDetailDTO.setCommentCount((int) commentCount);
+
+        //获取变更历史数量数量
+        OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
 
     }
 
