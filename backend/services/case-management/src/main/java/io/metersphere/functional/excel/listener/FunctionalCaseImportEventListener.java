@@ -81,7 +81,8 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     private SessionUser user;
     private int successCount = 0;
     private Map<String, String> pathMap = new HashMap<>();
-
+    protected static final int TAGS_COUNT = 15;
+    protected static final int TAG_LENGTH = 15;
 
     public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, SessionUser user) {
         this.mergeInfoSet = mergeInfoSet;
@@ -395,6 +396,30 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         validateCustomField(data, errMsg);
         //校验id
         validateIdExist(data, errMsg);
+        //标签长度校验
+        validateTags(data, errMsg);
+    }
+
+    /**
+     * 校验标签长度 个数
+     *
+     * @param data
+     * @param errMsg
+     */
+    private void validateTags(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        List<String> tags = functionalCaseService.handleImportTags(data.getTags());
+        if (tags.size() > TAGS_COUNT) {
+            errMsg.append(Translator.get("tags_count"))
+                    .append(ERROR_MSG_SEPARATOR);
+            return;
+        }
+        tags.forEach(tag -> {
+            if (tag.length() > TAG_LENGTH) {
+                errMsg.append(Translator.get("tag_length"))
+                        .append(ERROR_MSG_SEPARATOR);
+            }
+            return;
+        });
     }
 
 
