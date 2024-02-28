@@ -4,6 +4,7 @@
       <template #first>
         <div class="p-[24px]">
           <moduleTree
+            :active-node-id="activeApi?.id"
             @init="(val) => (folderTree = val)"
             @new-api="newApi"
             @import="importDrawerVisible = true"
@@ -50,8 +51,11 @@
 </template>
 
 <script lang="ts" setup>
+  import { provide } from 'vue';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import { RequestParam } from '../components/requestComposition/index.vue';
   import importApi from './components/import.vue';
   import management from './components/management/index.vue';
   import moduleTree from './components/moduleTree.vue';
@@ -63,6 +67,7 @@
   const allCount = ref(0);
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
+  const activeApi = ref<RequestParam>();
   const managementRef = ref<InstanceType<typeof management>>();
 
   function newApi() {
@@ -77,6 +82,12 @@
   function handleApiNodeClick(node: ModuleTreeNode) {
     managementRef.value?.newTab(node);
   }
+
+  function setActiveApi(params: RequestParam) {
+    activeApi.value = params;
+  }
+
+  provide('setActiveApi', setActiveApi);
 </script>
 
 <style lang="less" scoped></style>

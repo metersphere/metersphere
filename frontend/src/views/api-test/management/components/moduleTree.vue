@@ -151,6 +151,7 @@
       isExpandAll?: boolean; // 是否展开所有节点
       activeModule?: string | number; // 选中的节点 key
       readOnly?: boolean; // 是否是只读模式
+      activeNodeId?: string | number; // 当前选中节点 id
     }>(),
     {
       activeModule: 'all',
@@ -248,6 +249,16 @@
   function setActiveFolder(id: string) {
     selectedKeys.value = [id];
   }
+
+  watch(
+    () => props.activeNodeId,
+    (val) => {
+      if (val) {
+        selectedKeys.value = [val];
+      }
+    }
+  );
+
   function setFocusNodeKey(node: MsTreeNodeData) {
     focusNodeKey.value = node.id || '';
   }
