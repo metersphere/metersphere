@@ -256,6 +256,11 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().isBadRequest());
         request.setProjectId("default-project-for-bug");
+        // 标签超过10个
+        request.setTags(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"));
+        paramMap = getMultiPartParam(request, file);
+        this.requestMultipart(BUG_ADD, paramMap).andExpect(status().is5xxServerError());
+        request.setTags(null);
         // 处理人为空
         request.setTitle("default-bug-title");
         List<BugCustomFieldDTO> noHandleUser = request.getCustomFields().stream().filter(field -> !StringUtils.equals(field.getId(), "handleUser")).toList();
@@ -302,6 +307,13 @@ public class BugControllerTests extends BaseTest {
         File file = new File(filePath);
         MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_UPDATE, paramMap).andExpect(status().is5xxServerError());
+
+        // 标签超过10个
+        request = buildRequest(true);
+        request.setTags(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"));
+        paramMap = getMultiPartParam(request, file);
+        this.requestMultipart(BUG_UPDATE, paramMap).andExpect(status().is5xxServerError());
+
     }
 
     @Test
