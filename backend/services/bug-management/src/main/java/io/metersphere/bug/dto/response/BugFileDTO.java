@@ -33,6 +33,9 @@ public class BugFileDTO {
     @Schema(description = "创建人")
     private String createUser;
 
+    @Schema(description = "创建人名称")
+    private String createUserName;
+
     @Schema(description = "是否本地文件")
     private Boolean local;
 }

@@ -22,8 +22,6 @@ import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
 import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
-import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
-import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.service.FileAssociationService;
@@ -35,11 +33,12 @@ import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
@@ -69,6 +68,8 @@ public class BugAttachmentService {
     private BugMapper bugMapper;
     @Resource
     private FileService fileService;
+    @Resource
+    private BaseUserMapper baseUserMapper;
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
@@ -116,7 +117,13 @@ public class BugAttachmentService {
                 bugFiles.add(associatedFileDTO);
             });
         }
-        return bugFiles;
+        if (CollectionUtils.isEmpty(bugFiles)) {
+            return bugFiles;
+        }
+        List<String> userIds = bugFiles.stream().map(BugFileDTO::getCreateUser).distinct().toList();
+        List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
+        Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+        return bugFiles.stream().peek(file -> file.setCreateUserName(userMap.get(file.getCreateUser()))).toList();
     }
 
     /**
@@ -131,26 +138,11 @@ public class BugAttachmentService {
                 + File.separator);
         List<SyncAttachmentToPlatformRequest> platformAttachments = new ArrayList<>();
         if (file == null) {
-            // 关联文件
-            List<String> relateFileIds;
-            if (request.isSelectAll()) {
-                // 全选
-                FileMetadataTableRequest metadataTableRequest = new FileMetadataTableRequest();
-                BeanUtils.copyBean(metadataTableRequest, request);
-                List<FileInformationResponse> relateAllFiles = fileMetadataService.list(metadataTableRequest);
-                if (!CollectionUtils.isEmpty(request.getExcludeIds())) {
-                    relateAllFiles.removeIf(relateFile -> request.getExcludeIds().contains(relateFile.getId()));
-                }
-                relateFileIds = relateAllFiles.stream().map(FileInformationResponse::getId).collect(Collectors.toList());
-            } else {
-                // 非全选
-                relateFileIds= request.getSelectIds();
-            }
             // 缺陷与文件库关联
-            if (CollectionUtils.isEmpty(relateFileIds)) {
+            if (CollectionUtils.isEmpty(request.getSelectIds())) {
                 return;
             }
-            List<SyncAttachmentToPlatformRequest> syncLinkFiles = uploadLinkFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, relateFileIds, currentUser, bug.getPlatform(), false);
+            List<SyncAttachmentToPlatformRequest> syncLinkFiles = uploadLinkFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, request.getSelectIds(), currentUser, bug.getPlatform(), false);
             platformAttachments.addAll(syncLinkFiles);
         } else {
             // 上传文件

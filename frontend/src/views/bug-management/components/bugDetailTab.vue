@@ -177,10 +177,11 @@
     downloadFileRequest,
     editorUploadFile,
     getAssociatedFileList,
+    getAttachmentList,
     previewFile,
     transferFileRequest,
     updateFile,
-    uploadOrAssociationFile,
+    uploadOrAssociationFile
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -256,6 +257,8 @@
           .map((fileInfo: any) => {
             return convertToFileByBug(fileInfo);
           }) || [];
+    } else {
+      fileList.value = [];
     }
   };
 
@@ -285,7 +288,8 @@
       Message.success(
         item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
       );
-      emit('updateSuccess');
+      const attachments = await getAttachmentList(bugId.value);
+      handleFileFunc(attachments);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -432,7 +436,6 @@
         templateId: props.detailInfo.templateId,
         customFields,
       };
-      console.log(tmpObj);
       // 执行保存操作
       const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
       if (res) {
@@ -448,11 +451,21 @@
     }
   }
 
-  // 处理关联文件
-  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+  // 关联文件
+  async function saveSelectAssociatedFile(fileData: AssociatedList[]) {
     const fileResultList = fileData.map(convertToFileByDetail);
     fileList.value.push(...fileResultList);
-    handleSave();
+    const params = {
+      request: {
+        bugId: bugId.value as string,
+        projectId: currentProjectId.value,
+        selectIds: fileResultList.map((item: any) => item.uid)
+      }
+    };
+    await uploadOrAssociationFile(params);
+    const attachments = await getAttachmentList(bugId.value);
+    handleFileFunc(attachments);
+    Message.success(t('common.linkSuccess'));
   }
 
   watchEffect(() => {

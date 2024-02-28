@@ -22,25 +22,10 @@ public class BugUploadFileRequest implements Serializable {
     @NotBlank(message = "{bug.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "不勾选的ID")
-    private List<String> excludeIds;
-
     @Schema(description = "勾选的ID")
     @Valid
     private List<
             @NotBlank(message = "{id must not be blank}", groups = {Created.class, Updated.class})
                     String
             > selectIds = new ArrayList<>();
-
-    @Schema(description = "是否全选", requiredMode = Schema.RequiredMode.REQUIRED)
-    private boolean selectAll;
-
-    @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
-    private List<String> moduleIds;
-
-    @Schema(description = "文件类型")
-    private String fileType;
-
-    @Schema(description =  "关键字")
-    private String keyword;
 }

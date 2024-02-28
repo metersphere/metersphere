@@ -97,26 +97,15 @@ public class BugAttachmentControllerTests extends BaseTest {
         BugUploadFileRequest request = new BugUploadFileRequest();
         request.setBugId("default-attachment-bug-id");
         request.setProjectId("default-project-for-attachment");
-        request.setSelectAll(false);
         request.setSelectIds(List.of(unRelatedFiles.get(0).getId()));
         MultiValueMap<String, Object> paramMap1 = getDefaultMultiPartParam(request, null);
         this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap1);
-        // 全选关联
-        request.setSelectAll(true);
-        request.setExcludeIds(List.of(unRelatedFiles.get(0).getId(), unRelatedFiles.get(1).getId()));
-        MultiValueMap<String, Object> paramMap2 = getDefaultMultiPartParam(request, null);
-        this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap2);
-        request.setSelectAll(true);
-        request.setExcludeIds(null);
-        MultiValueMap<String, Object> paramMap3 = getDefaultMultiPartParam(request, null);
-        this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap3);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
         MultiValueMap<String, Object> paramMapWithFile = getDefaultMultiPartParam(request, file);
         this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMapWithFile);
         // 第三方平台的缺陷关联文件
         request.setBugId("default-bug-id-tapd");
-        request.setSelectAll(false);
         request.setSelectIds(List.of("not-exist-file-id"));
         MultiValueMap<String, Object> paramMap4 = getDefaultMultiPartParam(request, null);
         this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap4).andExpect(status().is5xxServerError());
