@@ -10,13 +10,13 @@ import { AssociatedList } from '@/models/caseManagement/featureCase';
 
 export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
   const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
-  const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
-  const type = fileName.split('.')[1];
+  const fileName = `${fileInfo.name}`;
+  const type = `${fileInfo.fileType}`;
   const file = new File([new Blob()], `${fileName}`, {
     type: `application/${type}`,
   });
   Object.defineProperty(file, 'size', { value: fileInfo.fileSize });
-  const { fileId, associated, isUpdateFlag, refId } = fileInfo;
+  const { fileId, local, isUpdateFlag, refId, createUserName, createTime } = fileInfo;
   return {
     enable: fileInfo.enable || false,
     file,
@@ -25,10 +25,12 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
     status: 'done',
     uid: fileId,
     url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
-    local: !associated,
-    deleteContent: associated ? 'caseManagement.featureCase.cancelLink' : '',
+    local,
+    deleteContent: !local ? 'caseManagement.featureCase.cancelLink' : '',
     isUpdateFlag,
     associateId: refId,
+    createUserName,
+    uploadedTime: createTime
   };
 }
 /** *

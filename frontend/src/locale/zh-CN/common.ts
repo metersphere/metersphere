@@ -37,6 +37,7 @@ export default {
   'common.editFailed': '编辑失败',
   'common.saveSuccess': '保存成功',
   'common.saveFailed': '保存失败',
+  'common.linkSuccess': '关联成功',
   'common.confirmEnable': '确认启用',
   'common.confirmDisable': '确认禁用',
   'common.confirmClose': '确认关闭',

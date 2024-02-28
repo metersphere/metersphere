@@ -35,6 +35,7 @@ export default {
   'common.editFailed': 'Edit failed',
   'common.saveSuccess': 'Save success',
   'common.saveFailed': 'Save failed',
+  'common.linkSuccess': 'Link success',
   'common.confirmEnable': 'Confirm enable',
   'common.confirmEnd': 'Confirm end',
   'common.confirmStart': 'Confirm start',
