@@ -12,9 +12,9 @@
   // TODO:参数类型
   const params = computed<any>({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.preScript = value;
+      store.currentEnvDetailInfo.config.preProcessorConfig = value;
     },
-    get: () => store.currentEnvDetailInfo.config.preScript || [],
+    get: () => store.currentEnvDetailInfo.config.preProcessorConfig || {},
   });
 </script>
 

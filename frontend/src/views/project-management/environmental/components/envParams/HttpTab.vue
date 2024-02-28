@@ -43,7 +43,6 @@
 </template>
 
 <script lang="ts" async setup>
-  import { defineModel } from 'vue';
   import { TableData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -69,9 +68,12 @@
   const tableStore = useTableStore();
   const addVisible = ref(false);
   const currentId = ref('');
-  const innerParam = defineModel<TableData[]>('modelValue', {
-    type: Array,
-    default: () => [],
+
+  const innerParam = computed({
+    set: (value: TableData[]) => {
+      store.currentEnvDetailInfo.config.httpConfig = value;
+    },
+    get: () => store.currentEnvDetailInfo.config.httpConfig || [],
   });
 
   const columns: MsTableColumn = [
@@ -124,6 +126,7 @@
     showSetting: true,
     showPagination: false,
     showMode: false,
+    debug: true,
   });
 
   const form = reactive({

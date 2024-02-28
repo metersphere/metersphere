@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex flex-row items-center gap-[8px]">
-      <a-switch type="line" size="small" />
+      <a-switch v-model:model-value="currentList.enable" type="line" size="small" />
       <div class="text-[var(--color-text-1)]">{{ t('project.environmental.host.config') }}</div>
     </div>
     <div class="mt-[8px]">
@@ -10,7 +10,7 @@
         :models="batchFormModels"
         :form-mode="ruleFormMode"
         add-text="project.menu.rule.addRule"
-        :default-vals="currentList"
+        :default-vals="currentList.hosts"
         show-enable
         :is-show-drag="false"
       ></MsBatchForm>
@@ -35,14 +35,15 @@
   const store = useProjectEnvStore();
 
   const currentList = computed({
-    get: () => (store.currentEnvDetailInfo.config.hostConfig || []) as FakeTableListItem[],
-    set: (value: EnvConfigItem[] | undefined) => {
-      store.currentEnvDetailInfo.config.hostConfig = value;
+    get: () => store.currentEnvDetailInfo.config.hostConfig || {},
+    set: (value: EnvConfigItem) => {
+      console.log(value);
+      store.currentEnvDetailInfo.config.hostConfig = value || {};
     },
   });
   const batchFormRef = ref();
   onClickOutside(batchFormRef, () => {
-    currentList.value = batchFormRef.value?.getFormResult();
+    currentList.value.hosts = batchFormRef.value?.getFormResult();
   });
   type UserModalMode = 'create' | 'edit';
   const batchFormModels: Ref<FormItemModel[]> = ref([
