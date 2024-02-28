@@ -295,8 +295,11 @@ export function createCommentList(data: CommentParams) {
 }
 
 // 编辑评论
-export function updateCommentList(data: CommentParams) {
-  return MSR.post({ url: UpdateCommentItemUrl, data });
+export function addOrUpdateCommentList(data: CommentParams) {
+  if (data.fetchType === 'UPDATE') {
+    return MSR.post({ url: UpdateCommentItemUrl, data });
+  }
+  return MSR.post({ url: CreateCommentItemUrl, data });
 }
 
 // 删除评论

@@ -43,6 +43,16 @@ const ApiTest: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    {
+      path: 'report',
+      name: ApiTestRouteEnum.API_TEST_REPORT,
+      component: () => import('@/views/api-test/report/index.vue'),
+      meta: {
+        locale: 'menu.apiTest.report',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
   ],
 };
 

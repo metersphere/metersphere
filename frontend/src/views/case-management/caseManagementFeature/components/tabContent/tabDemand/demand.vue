@@ -65,9 +65,9 @@
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
         <template #demandName="{ record }">
-          <a-button type="text" class="flex w-full" @click="openDemandUrl(record.demandUrl)">{{
-              record.demandName
-            }}<span>({{ (record.children || []).length || 0 }})</span></a-button>
+          <a-button type="text" class="flex w-full" @click="openDemandUrl(record.demandUrl)"
+            >{{ record.demandName }}<span>({{ (record.children || []).length || 0 }})</span></a-button
+          >
         </template>
         <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
           <span> {{ getSlotName(record, item) }} </span>
@@ -362,33 +362,33 @@
     showAddModel.value = true;
     modelForm.value = { ...initModelForm };
   }
-  const activeTab = computed(() => featureCaseStore.activeTab);
-  // onMounted(async () => {
-  // try {
-  //   const result = await getCaseRelatedInfo(currentProjectId.value);
-  //   if (result && result.platform_key) {
-  //     platformInfo.value = { ...result };
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  // }
-  // });
-
-  watch(
-    () => activeTab.value,
-    async (val) => {
-      if (val === 'requirement') {
-        try {
-          const result = await getCaseRelatedInfo(currentProjectId.value);
-          if (result && result.platform_key) {
-            platformInfo.value = { ...result };
-          }
-        } catch (error) {
-          console.log(error);
-        }
+  // const activeTab = computed(() => featureCaseStore.activeTab);
+  onMounted(async () => {
+    try {
+      const result = await getCaseRelatedInfo(currentProjectId.value);
+      if (result && result.platform_key) {
+        platformInfo.value = { ...result };
       }
+    } catch (error) {
+      console.log(error);
     }
-  );
+  });
+
+  // watch(
+  //   () => activeTab.value,
+  //   async (val) => {
+  //     if (val === 'requirement') {
+  //       try {
+  //         const result = await getCaseRelatedInfo(currentProjectId.value);
+  //         if (result && result.platform_key) {
+  //           platformInfo.value = { ...result };
+  //         }
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     }
+  //   }
+  // );
 
   function getPlatName() {
     switch (platformInfo.value.platform_key) {

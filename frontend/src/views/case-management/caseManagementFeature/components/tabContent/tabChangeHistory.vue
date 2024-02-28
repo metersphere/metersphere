@@ -95,13 +95,14 @@
 
   const appStore = useAppStore();
   const featureCaseStore = useFeatureCaseStore();
-  const activeTab = computed(() => featureCaseStore.activeTab);
+  // const activeTab = computed(() => featureCaseStore.activeTab);
   const visitedKey = 'notRemindChangeHistoryTip';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
 
   const props = defineProps<{
     caseId: string;
+    // activeTab: string;
   }>();
 
   const columns: MsTableColumn = [
@@ -247,20 +248,20 @@
     featureCaseStore.getCaseCounts(props.caseId);
   }
 
-  watch(
-    () => activeTab.value,
-    (val) => {
-      if (val === 'changeHistory') {
-        doCheckIsTip();
-        initData();
-      }
-    }
-  );
+  // watch(
+  //   () => activeTab.value,
+  //   (val) => {
+  //     if (val === 'changeHistory') {
+  //       doCheckIsTip();
+  //       initData();
+  //     }
+  //   }
+  // );
 
-  // onMounted(() => {
-  //   doCheckIsTip();
-  //   initData();
-  // });
+  onMounted(() => {
+    doCheckIsTip();
+    initData();
+  });
 </script>
 
 <style scoped></style>

@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-row gap-[8px]">
-    <div class="p-1"> <MsAvatar avatar="word" /></div>
+    <div class="p-1"> <MsAvatar :avatar="props.element.commentUserInfos[0].avatar" /></div>
     <div class="flex w-full flex-col">
-      <div class="font-medium text-[var(--color-text-1)]">{{ props.element.createUser }}</div>
+      <div class="font-medium text-[var(--color-text-1)]">{{ props.element.commentUserInfos[0].name }}</div>
       <div v-dompurify-html="props.element.content" class="markdown-body mt-[4px]"></div>
 
       <div class="mb-4 mt-[16px] flex flex-row items-center">

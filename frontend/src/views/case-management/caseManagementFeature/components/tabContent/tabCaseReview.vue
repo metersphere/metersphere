@@ -48,11 +48,12 @@
   import debounce from 'lodash-es/debounce';
 
   const featureCaseStore = useFeatureCaseStore();
-  const activeTab = computed(() => featureCaseStore.activeTab);
+  // const activeTab = computed(() => featureCaseStore.activeTab);
   const { t } = useI18n();
 
   const props = defineProps<{
     caseId: string; // 用例id
+    activeTab: string;
   }>();
 
   const keyword = ref<string>('');
@@ -114,18 +115,18 @@
     initData();
   }, 100);
 
-  watch(
-    () => activeTab.value,
-    (val) => {
-      if (val === 'caseReview') {
-        initData();
-      }
-    }
-  );
+  // watch(
+  //   () => activeTab.value,
+  //   (val) => {
+  //     if (val === 'caseReview') {
+  //       initData();
+  //     }
+  //   }
+  // );
 
-  // onMounted(() => {
-  //   initData();
-  // });
+  onMounted(() => {
+    initData();
+  });
 </script>
 
 <style scoped></style>

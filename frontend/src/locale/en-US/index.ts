@@ -26,6 +26,7 @@ export default {
     'menu.apiTest': 'API Test',
     'menu.apiTest.debug': 'API debug',
     'menu.apiTest.management': 'API Management',
+    'menu.apiTest.report': 'API Report',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',
     'menu.projectManagement': 'Project',
