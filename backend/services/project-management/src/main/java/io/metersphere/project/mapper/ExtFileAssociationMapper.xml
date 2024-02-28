@@ -20,6 +20,7 @@
             file_association.id AS id,
             file_association.file_id AS fileId,
             CONCAT( file_metadata.`name`, IF(LENGTH(file_metadata.type) = 0, '', '.'), file_metadata.type ) AS fileName,
+            file_metadata.original_name,
             file_metadata.size AS size,
             file_metadata.storage,
             file_metadata.project_id,

@@ -24,6 +24,9 @@ public class FileInfo implements Serializable {
     @Schema(description = "文件名称")
     private String fileName;
 
+    @Schema(description = "原始文件名")
+    private String originalName;
+
     @Schema(description = "文件大小")
     private Long size;
 
