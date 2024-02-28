@@ -284,6 +284,7 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -296,7 +297,7 @@
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
-
+  const featureCaseStore = useFeatureCaseStore();
   const { t } = useI18n();
 
   const props = withDefaults(
@@ -304,7 +305,7 @@
       form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
       formRules?: FormRuleItem[]; // 编辑表单
-      activeTab?: string;
+      activeTab?: string | number;
     }>(),
     {
       allowEdit: true, // 是否允许编辑

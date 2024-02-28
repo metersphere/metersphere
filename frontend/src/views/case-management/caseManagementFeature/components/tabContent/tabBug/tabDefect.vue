@@ -128,9 +128,8 @@
 
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
-
+  const activeTab = computed(() => featureCaseStore.activeTab);
   const showType = ref('link');
 
   const keyword = ref<string>('');
@@ -323,9 +322,18 @@
     }
   );
 
-  onMounted(() => {
-    getFetch();
-  });
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'bug') {
+        getFetch();
+      }
+    }
+  );
+
+  // onMounted(() => {
+  //   getFetch();
+  // });
 </script>
 
 <style scoped></style>
