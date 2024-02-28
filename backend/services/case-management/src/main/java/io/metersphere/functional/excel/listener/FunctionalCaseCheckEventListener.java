@@ -11,7 +11,9 @@ import io.metersphere.functional.excel.exception.CustomFieldValidateException;
 import io.metersphere.functional.excel.validate.AbstractCustomFieldValidator;
 import io.metersphere.functional.excel.validate.CustomFieldValidatorFactory;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
+import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.excel.ExcelValidateHelper;
@@ -56,7 +58,9 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
     protected List<ExcelErrData<FunctionalCaseExcelData>> errList = new ArrayList<>();
     private static final String ERROR_MSG_SEPARATOR = ";";
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
-
+    protected static final int TAGS_COUNT = 15;
+    protected static final int TAG_LENGTH = 15;
+    private FunctionalCaseService functionalCaseService;
 
     public FunctionalCaseCheckEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet) {
         this.mergeInfoSet = mergeInfoSet;
@@ -64,6 +68,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         //当前项目模板的自定义字段
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
         customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
 
     }
 
@@ -202,8 +207,31 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         validateCustomField(data, errMsg);
         //校验id
         validateIdExist(data, errMsg);
+        //标签长度校验
+        validateTags(data, errMsg);
     }
 
+    /**
+     * 校验标签长度 个数
+     *
+     * @param data
+     * @param errMsg
+     */
+    private void validateTags(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        List<String> tags = functionalCaseService.handleImportTags(data.getTags());
+        if (tags.size() > TAGS_COUNT) {
+            errMsg.append(Translator.get("tags_count"))
+                    .append(ERROR_MSG_SEPARATOR);
+            return;
+        }
+        tags.forEach(tag -> {
+            if (tag.length() > TAG_LENGTH) {
+                errMsg.append(Translator.get("tag_length"))
+                        .append(ERROR_MSG_SEPARATOR);
+            }
+            return;
+        });
+    }
 
     /**
      * 校验Excel中是否有ID

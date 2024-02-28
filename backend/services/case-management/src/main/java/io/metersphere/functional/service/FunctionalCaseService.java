@@ -198,7 +198,7 @@ public class FunctionalCaseService {
     private void copyAttachment(FunctionalCaseAddRequest request, String userId, List<String> uploadFileIds, String caseId) {
         //获取用例已经上传的文件ID
         Map<String, FunctionalCaseAttachmentDTO> attachmentDTOMap = request.getAttachments().stream().collect(Collectors.toMap(FunctionalCaseAttachmentDTO::getId, t -> t));
-        List<String> attachmentFileIds = request.getAttachments().stream().filter(t-> !t.isDeleted()).map(FunctionalCaseAttachmentDTO::getId).filter(t -> !uploadFileIds.contains(t)).toList();
+        List<String> attachmentFileIds = request.getAttachments().stream().filter(t -> !t.isDeleted()).map(FunctionalCaseAttachmentDTO::getId).filter(t -> !uploadFileIds.contains(t)).toList();
         if (CollectionUtils.isEmpty(attachmentFileIds)) {
             return;
         }
@@ -1020,7 +1020,7 @@ public class FunctionalCaseService {
      * @param tags 标签
      * @return
      */
-    private List<String> handleImportTags(String tags) {
+    public List<String> handleImportTags(String tags) {
         List<String> split = List.of(tags.split("[,;]"));
         return split.stream().map(String::trim).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
     }
