@@ -10,6 +10,7 @@ import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +78,11 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
         StatusItem originStatusItem = baseStatusItemService.getWithCheck(request.getId());
         ProjectService.checkResourceExist(originStatusItem.getScopeId());
         projectTemplateService.checkProjectTemplateEnable(originStatusItem.getScopeId(), originStatusItem.getScene());
-
+        baseStatusItemService.handleInternalNameUpdate(request, originStatusItem);
+        if (StringUtils.isAllBlank(request.getName(), request.getRemark())) {
+            // 避免没有字段更新，报错
+            return originStatusItem;
+        }
         StatusItem statusItem = BeanUtils.copyBean(new StatusItem(), request);
         statusItem.setScopeId(originStatusItem.getScopeId());
         statusItem.setScene(originStatusItem.getScene());

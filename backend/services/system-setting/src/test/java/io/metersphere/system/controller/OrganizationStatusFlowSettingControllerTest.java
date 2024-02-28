@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -249,14 +250,24 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         this.requestPostWithOkAndReturn(STATUS_UPDATE, request);
         baseStatusItemService.getByScopeIdsAndScene(null, TemplateScene.BUG.name());
 
+        // @@重名校验异常
+        request.setName(DefaultBugStatusItemName.NEW);
+        assertErrorCode(this.requestPost(STATUS_UPDATE, request), STATUS_ITEM_EXIST);
+
+        // 测试修改内置状态名称
+        request = BeanUtils.copyBean(request, getBugRejectedStatusItem());
+        request.setName(baseStatusItemService.translateInternalStatusItem(request.getName()));
+        this.requestPostWithOkAndReturn(STATUS_UPDATE, request);
+        Assertions.assertNotNull(getBugRejectedStatusItem());
+        request.setName("test111");
+        this.requestPostWithOkAndReturn(STATUS_UPDATE, request);
+        Assertions.assertNull(getBugRejectedStatusItem());
+        Assertions.assertEquals(statusItemMapper.selectByPrimaryKey(request.getId()).getName(), request.getName());
+
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
         assertErrorCode(this.requestPost(STATUS_UPDATE, request), ORGANIZATION_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(true);
-
-        // @@重名校验异常
-        request.setName(DefaultBugStatusItemName.NEW);
-        assertErrorCode(this.requestPost(STATUS_UPDATE, request), STATUS_ITEM_EXIST);
 
         // @@校验资源不存在
         request.setId("1111");
@@ -268,6 +279,15 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         createdGroupParamValidateTest(StatusItemUpdateRequestDefinition.class, STATUS_UPDATE);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_UPDATE, request);
+    }
+
+    private StatusItem getBugRejectedStatusItem() {
+        StatusItemExample example = new StatusItemExample();
+        example.createCriteria()
+                .andInternalEqualTo(true).andNameEqualTo(DefaultBugStatusItemName.REJECTED)
+                .andScopeIdEqualTo(DEFAULT_ORGANIZATION_ID);
+        List<StatusItem> statusItems = statusItemMapper.selectByExample(example);
+        return statusItems.size() == 0 ? null : statusItems.get(0);
     }
 
     @Test
