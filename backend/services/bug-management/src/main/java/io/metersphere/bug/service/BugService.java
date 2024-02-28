@@ -533,7 +533,7 @@ public class BugService {
     public void syncPlatformBugs(List<Bug> remainBugs, Project project, String currentUser) {
         try {
             // 分页同步
-            SubListUtils.dealForSubList(remainBugs, 500, (subBugs) -> doSyncPlatformBugs(subBugs, project));
+            SubListUtils.dealForSubList(remainBugs, 100, (subBugs) -> doSyncPlatformBugs(subBugs, project));
         } catch (Exception e) {
             LogUtils.error(e);
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
@@ -616,6 +616,9 @@ public class BugService {
                 customEditRequest.setId(updateBug.getId());
                 customEditRequest.setProjectId(project.getId());
                 List<PlatformCustomFieldItemDTO> platformCustomFields = updateBug.getCustomFieldList();
+                if (CollectionUtils.isEmpty(platformCustomFields)) {
+                    return;
+                }
                 List<BugCustomFieldDTO> bugCustomFieldDTOList = platformCustomFields.stream().map(platformField -> {
                     BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
                     bugCustomFieldDTO.setId(platformField.getId());
