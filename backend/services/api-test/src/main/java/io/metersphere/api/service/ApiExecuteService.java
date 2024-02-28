@@ -24,6 +24,9 @@ import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRepository;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.domain.TestResourcePool;
@@ -36,16 +39,22 @@ import io.metersphere.system.service.TestResourcePoolService;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.util.JMeterUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -185,6 +194,9 @@ public class ApiExecuteService {
             String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
             LogUtils.info(String.format("开始发送请求【 %s 】到 %s 节点执行", testId, endpoint), reportId);
             TaskRunnerClient.debugApi(endpoint, taskRequest);
+            // 清空mino和kafka配置信息，避免前端获取
+            taskRequest.setMinioConfig(null);
+            taskRequest.setKafkaConfig(null);
             return taskRequest;
         } catch (Exception e) {
             LogUtils.error(e);
@@ -273,7 +285,7 @@ public class ApiExecuteService {
         List<ApiExecuteFileInfo> refFiles = fileAssociationService.getFiles(request.getId()).
                 stream()
                 .map(file -> {
-                    ApiExecuteFileInfo refFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getFileName(),
+                    ApiExecuteFileInfo refFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getOriginalName(),
                             file.getProjectId(), file.getStorage());
                     if (StorageType.isGit(file.getStorage())) {
                         // 设置Git信息
@@ -286,7 +298,6 @@ public class ApiExecuteService {
         // 没有保存的本地临时文件
         List<String> uploadFileIds = request.getUploadFileIds();
         if (CollectionUtils.isNotEmpty(uploadFileIds)) {
-            // 去掉文件管理的文件，即通过本地上传的临时文件
             List<ApiExecuteFileInfo> localTempFiles = uploadFileIds.stream()
                     .map(tempFileId -> {
                         String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
@@ -299,40 +310,15 @@ public class ApiExecuteService {
         List<String> linkFileIds = request.getLinkFileIds();
         // 没有保存的文件管理临时文件
         if (CollectionUtils.isNotEmpty(linkFileIds)) {
-            List<ApiExecuteFileInfo> refTempFiles = fileMetadataService.getByFileIds(linkFileIds)
-                    .stream()
-                    .map(file -> {
-                        String fileName = file.getName();
-                        if (StringUtils.isNotBlank(file.getType())) {
-                            fileName += "." + file.getType();
-                        }
-                        ApiExecuteFileInfo tempFileInfo = getApiExecuteFileInfo(file.getId(), fileName,
-                                file.getProjectId(), file.getStorage());
-                        if (StorageType.isGit(file.getStorage())) {
-                            // 设置Git信息
-                            tempFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getId()));
-                            tempFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
-                        }
-                        return tempFileInfo;
-                    }).toList();
+            List<FileMetadata> fileMetadataList = fileMetadataService.getByFileIds(linkFileIds);
             // 添加临时的文件管理的文件
-            refFiles.addAll(refTempFiles);
+            refFiles.addAll(getApiExecuteFileInfo(fileMetadataList));
         }
 
         taskRequest.setRefFiles(refFiles);
         // 获取函数jar包
         List<FileMetadata> fileMetadataList = fileManagementService.findJarByProjectId(List.of(taskRequest.getProjectId()));
-        taskRequest.setFuncJars(fileMetadataList.stream()
-                .map(file -> {
-                    String fileName = file.getOriginalName();
-                    ApiExecuteFileInfo tempFileInfo = getApiExecuteFileInfo(file.getId(), fileName, file.getProjectId(), file.getStorage());
-                    if (StorageType.isGit(file.getStorage())) {
-                        // 设置Git信息
-                        tempFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getId()));
-                        tempFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
-                    }
-                    return tempFileInfo;
-                }).toList());
+        taskRequest.setFuncJars(getApiExecuteFileInfo(fileMetadataList));
 
         // TODO 当前项目没有包分两种情况，1 之前存在被删除，2 一直不存在
         //  为了兼容1 这种情况需要初始化一条空的数据，由执行机去做卸载
@@ -343,11 +329,25 @@ public class ApiExecuteService {
         }
     }
 
-    private static ApiExecuteFileInfo getApiExecuteFileInfo(String fileId, String fileName, String projectId) {
+    private List<ApiExecuteFileInfo> getApiExecuteFileInfo(List<FileMetadata> fileMetadataList) {
+        return fileMetadataList.stream()
+                .map(file -> {
+                    ApiExecuteFileInfo tempFileInfo = getApiExecuteFileInfo(file.getId(), file.getOriginalName(),
+                            file.getProjectId(), file.getStorage());
+                    if (StorageType.isGit(file.getStorage())) {
+                        // 设置Git信息
+                        tempFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getId()));
+                        tempFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
+                    }
+                    return tempFileInfo;
+                }).toList();
+    }
+
+    private ApiExecuteFileInfo getApiExecuteFileInfo(String fileId, String fileName, String projectId) {
         return getApiExecuteFileInfo(fileId, fileName, projectId, StorageType.MINIO.name());
     }
 
-    private static ApiExecuteFileInfo getApiExecuteFileInfo(String fileId, String fileName, String projectId, String storage) {
+    private ApiExecuteFileInfo getApiExecuteFileInfo(String fileId, String fileName, String projectId, String storage) {
         ApiExecuteFileInfo apiExecuteFileInfo = new ApiExecuteFileInfo();
         apiExecuteFileInfo.setStorage(storage);
         apiExecuteFileInfo.setFileName(fileName);
@@ -411,5 +411,34 @@ public class ApiExecuteService {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
         return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
+    }
+
+    public void downloadFile(String reportId, String testId, FileRequest fileRequest, HttpServletResponse response) throws Exception {
+        String key = getScriptRedisKey(reportId, testId);
+        if (BooleanUtils.isTrue(stringRedisTemplate.hasKey(key))) {
+            FileRepository repository = StringUtils.isBlank(fileRequest.getStorage()) ? FileCenter.getDefaultRepository()
+                    : FileCenter.getRepository(fileRequest.getStorage());
+            write2Response(repository.getFileAsStream(fileRequest), response);
+        }
+    }
+
+    public void write2Response(InputStream in, HttpServletResponse response) {
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        try (OutputStream out = response.getOutputStream()) {
+            int len;
+            byte[] bytes = new byte[1024 * 2];
+            while ((len = in.read(bytes)) != -1) {
+                out.write(bytes, 0, len);
+            }
+            out.flush();
+        } catch (Exception e) {
+            LogUtils.error(e);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                LogUtils.error(e);
+            }
+        }
     }
 }

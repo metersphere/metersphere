@@ -1,14 +1,13 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -27,6 +26,7 @@ public class ApiExecuteResourceController {
 
     /**
      * 获取执行脚本
+     *
      * @param reportId
      * @param testId
      * @return
@@ -39,4 +39,18 @@ public class ApiExecuteResourceController {
         stringRedisTemplate.delete(key);
         return Optional.ofNullable(script).orElse(StringUtils.EMPTY);
     }
+
+    /**
+     * 下载执行所需的文件
+     *
+     * @return
+     */
+    @PostMapping("/file")
+    public void downloadFile(@RequestParam("reportId") String reportId,
+                             @RequestParam("testId") String testId,
+                             @RequestBody FileRequest fileRequest,
+                             HttpServletResponse response) throws Exception {
+        apiExecuteService.downloadFile(reportId, testId, fileRequest, response);
+    }
+
 }
