@@ -100,7 +100,7 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
     type: `application/${type}`,
   });
   Object.defineProperty(file, 'size', { value: fileInfo.size });
-  const { id, local, isUpdateFlag, associateId } = fileInfo;
+  const { id, createUserName, local, isUpdateFlag, associateId } = fileInfo;
   return {
     enable: fileInfo.enable || false,
     file,
@@ -110,6 +110,7 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
     status: 'done',
     uid: id,
     url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
+    createUserName,
     local: !!local,
     deleteContent: local ? '' : 'caseManagement.featureCase.cancelLink',
     isUpdateFlag,
