@@ -295,18 +295,8 @@ const { t } = useI18n();
     },
     {
       title: 'bugManagement.creator',
-      dataIndex: 'createUserName',
-      width: 112,
-      showTooltip: true,
-      showDrag: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      }
-    },
-    {
-      title: 'bugManagement.updateUser',
-      dataIndex: 'updateUserName',
+      slotName: 'createUserName',
+      dataIndex: 'createUser',
       width: 112,
       showTooltip: true,
       showDrag: true,
@@ -320,6 +310,18 @@ const { t } = useI18n();
       dataIndex: 'createTime',
       showDrag: true,
       width: 199,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
+    },
+    {
+      title: 'bugManagement.updateUser',
+      slotName: 'updateUserName',
+      dataIndex: 'updateUser',
+      width: 112,
+      showTooltip: true,
+      showDrag: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -359,6 +361,8 @@ const { t } = useI18n();
       (record: TableData) => ({
         ...record,
         handleUser: record.handleUserName,
+        createUser: record.createUserName,
+        updateUser: record.updateUserName,
         ...customFieldDataToTableData(record.customFields, customFields.value),
       })
     );

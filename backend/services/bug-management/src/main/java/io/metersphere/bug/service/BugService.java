@@ -773,16 +773,22 @@ public class BugService {
         } else {
             bug.setPlatformBugId(platformBug.getPlatformBugKey());
             if (StringUtils.isNotBlank(platformBug.getPlatformTitle())) {
-               bug.setTitle(platformBug.getPlatformTitle());
+                bug.setTitle(platformBug.getPlatformTitle());
             }
             if (StringUtils.isNotBlank(platformBug.getPlatformDescription())) {
-               request.setDescription(platformBug.getPlatformDescription());
+                request.setDescription(platformBug.getPlatformDescription());
             }
             if (StringUtils.isNotBlank(platformBug.getPlatformHandleUser())) {
-               bug.setHandleUser(platformBug.getPlatformHandleUser());
+                bug.setHandleUser(platformBug.getPlatformHandleUser());
+            } else {
+                // 平台处理人为空
+                bug.setHandleUser(StringUtils.EMPTY);
             }
             if (StringUtils.isNotBlank(platformBug.getPlatformStatus())) {
-               bug.setStatus(platformBug.getPlatformStatus());
+                bug.setStatus(platformBug.getPlatformStatus());
+            } else {
+                // 平台状态为空
+                bug.setStatus(StringUtils.EMPTY);
             }
             // 第三方平台内置的处理人字段需要从自定义字段中移除
             request.getCustomFields().removeIf(field -> StringUtils.startsWith(field.getName(), BugTemplateCustomField.HANDLE_USER.getName()));
