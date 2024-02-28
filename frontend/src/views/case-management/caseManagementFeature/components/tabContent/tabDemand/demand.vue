@@ -56,7 +56,7 @@
         <a-input-search
           v-model="platformKeyword"
           :max-length="255"
-          :placeholder="t('project.member.searchMember')"
+          :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
           allow-clear
           class="mx-[8px] w-[240px]"
           @search="searchHandler"
