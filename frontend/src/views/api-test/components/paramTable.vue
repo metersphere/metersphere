@@ -338,16 +338,17 @@
       <span v-else></span>
     </template>
     <template #host="{ record }">
-      <!-- TODO: 等接口 -->
-      <!-- <span v-if="record.host.length === 1" class="text-[var(--color-text-4)]">{{ record.host }}</span>
+      <span v-if="!record.domain || record.domain.length === 0"></span>
+      <span v-else-if="Array.isArray(record.domain) && record.domain.length === 1" class="text-[var(--color-text-4)]">{{
+        record.domain
+      }}</span>
       <span
-        v-if="record.host.length > 1"
+        v-if="Array.isArray(record.domain) && record.domain.length > 1"
         class="cursor-pointer text-[var(--color-text-4)]"
         @click="showHostModal(record)"
       >
         {{ t('common.more') }}
-      </span> -->
-      <span v-if="record.host">{{ record.host }}</span>
+      </span>
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
@@ -442,7 +443,7 @@
       :max-length="1000"
     ></a-textarea>
   </a-modal>
-  <a-modal v-model:visible="hostVisible" :title="t('apiTestDebug.host')" @close="hostModalClose">
+  <a-modal v-model:visible="hostVisible" :title="t('project.environmental.host')" @close="hostModalClose">
     <a-table :columns="hostColumn" :data="hostData"> </a-table>
   </a-modal>
 </template>
@@ -728,7 +729,7 @@
 
   const showHostModal = (record: Record<string, any>) => {
     hostVisible.value = true;
-    hostData.value = record.hostList || [];
+    hostData.value = record.domain || [];
   };
 
   const hostModalClose = () => {
@@ -781,7 +782,7 @@
           }
           return item;
         });
-        if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault) {
+        if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
           addTableLine(arr.length - 1);
         }
       } else {

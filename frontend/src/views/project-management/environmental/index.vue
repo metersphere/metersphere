@@ -4,8 +4,8 @@
       <template #first>
         <div class="p-[24px]">
           <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
-            <a-radio value="PROJECT">{{ t('project.environmental.project') }}</a-radio>
-            <a-radio value="PROJECT_GROUP">{{ t('project.environmental.projectGroup') }}</a-radio>
+            <a-radio value="PROJECT">{{ t('project.environmental.env') }}</a-radio>
+            <a-radio value="PROJECT_GROUP">{{ t('project.environmental.envGroup') }}</a-radio>
           </a-radio-group>
           <template v-if="showType === 'PROJECT'">
             <a-input-search
