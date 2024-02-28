@@ -150,7 +150,7 @@
     const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
 
     if (props.accept !== getFileEnum(fileFormatType) && props.accept !== 'none') {
-      Message.error(props.fileTypeTip ? props?.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept }));
+      Message.error(props.fileTypeTip ? props.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept }));
       return Promise.resolve(false);
     }
     return Promise.resolve(true);

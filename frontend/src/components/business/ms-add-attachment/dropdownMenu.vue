@@ -1,23 +1,24 @@
 <template>
-  <a-dropdown position="tl" trigger="hover">
+  <a-dropdown v-model:popup-visible="dropdownVisible" position="tl" trigger="click">
     <a-button size="mini" type="outline">
       <template #icon> <icon-upload class="text-[14px] !text-[rgb(var(--primary-5))]" /> </template>
     </a-button>
     <template #content>
-      <a-upload
-        ref="uploadRef"
+      <MsUpload
         v-model:file-list="innerFileList"
+        accept="none"
         :auto-upload="false"
         :show-file-list="false"
-        :before-upload="beforeUpload"
+        :limit="50"
+        size-unit="MB"
+        :multiple="false"
+        class="w-full"
         @change="handleChange"
       >
-        <template #upload-button>
-          <a-button size="small" type="text" class="ms-add-attachment-dropdown-btn">
-            <icon-upload class="mr-[8px]" />{{ t('ms.add.attachment.localUpload') }}
-          </a-button>
-        </template>
-      </a-upload>
+        <a-button size="small" type="text" class="ms-add-attachment-dropdown-btn">
+          <icon-upload class="mr-[8px]" />{{ t('ms.add.attachment.localUpload') }}
+        </a-button>
+      </MsUpload>
       <a-button size="small" type="text" class="ms-add-attachment-dropdown-btn" @click="emit('linkFile')">
         <MsIcon type="icon-icon_link-copy_outlined" class="mr-[8px]" size="16" />
         {{ t('ms.add.attachment.associateFile') }}
@@ -27,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -43,12 +45,14 @@
     required: true,
   });
 
-  function beforeUpload(file: File) {
-    emit('upload', file);
-  }
+  const dropdownVisible = ref(false);
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     emit('change', _fileList, fileItem);
+    nextTick(() => {
+      // emit 完文件之后再关闭菜单
+      dropdownVisible.value = false;
+    });
   }
 </script>
 
