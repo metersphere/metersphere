@@ -33,8 +33,11 @@ public class FunctionalCaseAttachmentDTO implements Serializable {
     @Schema(description = "是否本地")
     private Boolean local;
 
-    @Schema(description =  "创建人")
+    @Schema(description =  "创建人id")
     private String createUser;
+
+    @Schema(description =  "创建人姓名")
+    private String createUserName;
 
     @Schema(description =  "创建时间")
     private Long createTime;

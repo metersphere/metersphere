@@ -24,7 +24,10 @@ import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -63,6 +66,9 @@ public class FunctionalCaseAttachmentService {
 
     private static final String UPLOAD_FILE = "/attachment/upload/file";
     private static final String DELETED_FILE = "/attachment/delete/file";
+
+    @Resource
+    private UserMapper userMapper;
 
 
     @Value("50MB")
@@ -156,6 +162,18 @@ public class FunctionalCaseAttachmentService {
         }));
         attachmentDTOs.addAll(filesDTOs);
         attachmentDTOs.sort(Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime));
+
+        if (CollectionUtils.isNotEmpty(attachmentDTOs)) {
+            List<String> userList = attachmentDTOs.stream().map(FunctionalCaseAttachmentDTO::getCreateUser).toList();
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andIdIn(userList);
+            List<User> users = userMapper.selectByExample(userExample);
+            Map<String, String> collect = users.stream().collect(Collectors.toMap(User::getId, User::getName));
+            attachmentDTOs.forEach(item -> {
+                String userName = collect.get(item.getCreateUser());
+                item.setCreateUserName(userName);
+            });
+        }
         functionalCaseDetailDTO.setAttachments(attachmentDTOs);
     }
 
