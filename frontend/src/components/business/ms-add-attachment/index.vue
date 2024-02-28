@@ -31,7 +31,7 @@
         </a-dropdown>
       </div>
       <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
-        {{ t('bugManagement.edit.addAttachmentTip') }}
+        {{ t('system.orgTemplate.addAttachmentTip') }}
       </div>
     </div>
   </a-form-item>

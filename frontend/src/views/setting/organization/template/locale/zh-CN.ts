@@ -97,7 +97,7 @@ export default {
   'system.orgTemplate.stepTip': '请输入步骤',
   'system.orgTemplate.expectationTip': '请输入预期',
   'system.orgTemplate.addAttachment': '添加附件',
-  'system.orgTemplate.addAttachmentTip': '支持任意类型文件，文件大小不超过 500MB',
+  'system.orgTemplate.addAttachmentTip': '支持任意类型文件，文件大小不超过 50MB',
   'system.orgTemplate.enabledSuccessfully': '启用成功',
   'system.orgTemplate.thirdPartyPlatforms': '用于映射 JIRA 等第三方平台字段值',
   'system.orgTemplate.optionsIdNoRepeat': '选项 ID 不可以重复',
