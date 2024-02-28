@@ -125,7 +125,7 @@
                 v-model="evnGroupList"
                 ghost-class="ghost"
                 handle=".drag-handle"
-                @end="handleEnvGroupPosChange"
+                @update="handleEnvGroupPosChange"
               >
                 <div
                   v-for="element in evnGroupList"
@@ -189,7 +189,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { number } from 'echarts';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -360,8 +359,8 @@
       const _newIndex = newIndex as number;
       const params = {
         projectId: appStore.currentProjectId,
-        targetId: evnGroupList.value[_newIndex].id,
-        moveId: evnGroupList.value[_oldIndex].id,
+        targetId: evnGroupList.value[_oldIndex].id,
+        moveId: evnGroupList.value[_newIndex].id,
         moveMode: _oldIndex > _newIndex ? 'BEFORE' : 'AFTER',
       };
       await groupEditPosEnv(params);

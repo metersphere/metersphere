@@ -101,6 +101,7 @@ export interface GroupItem {
   description: string;
   projectId: string;
   envGroupProject: EnvGroupProjectItem[];
+  environmentGroupInfo?: EnvGroupProjectItem[];
 }
 
 export interface DragParam {
