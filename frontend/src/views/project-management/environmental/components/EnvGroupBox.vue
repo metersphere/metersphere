@@ -130,7 +130,7 @@
     if (detail) {
       form.name = detail.name;
       form.description = detail.description;
-      innerParams.value = detail.envGroupProject;
+      innerParams.value = detail.environmentGroupInfo || [];
     }
   };
   const handleSave = () => {
