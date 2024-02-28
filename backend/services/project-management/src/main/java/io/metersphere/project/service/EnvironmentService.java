@@ -398,7 +398,8 @@ public class EnvironmentService {
         orgApiPluginWrappers.stream().forEach(wrapper -> {
             Plugin plugin = wrapper.getPlugin();
             if (plugin instanceof AbstractProtocolPlugin protocolPlugin) {
-                pluginScripts.add(pluginScriptService.get(wrapper.getPluginId(), protocolPlugin.getEnvProtocolScriptId()));
+                Optional.ofNullable(pluginScriptService.get(wrapper.getPluginId(), protocolPlugin.getEnvProtocolScriptId()))
+                        .ifPresent(pluginScripts::add);
             }
         });
 

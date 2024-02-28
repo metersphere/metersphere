@@ -3,12 +3,12 @@ package io.metersphere.project.controller;
 import io.metersphere.project.service.ProjectStatusFlowSettingLogService;
 import io.metersphere.project.service.ProjectStatusFlowSettingService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.domain.StatusItem;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
-import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-设置状态定义，即起始状态，结束状态")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusDefinitionLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
-    public void updateStatusDefinition(@RequestBody StatusDefinitionUpdateRequest request) {
+    public void updateStatusDefinition(@Validated @RequestBody StatusDefinitionUpdateRequest request) {
         projectStatusFlowSettingService.updateStatusDefinition(request);
     }
 
@@ -68,7 +69,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-添加状态项")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addStatusItemLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
-    public StatusItem addStatusItem(@RequestBody StatusItemAddRequest request) {
+    public StatusItem addStatusItem(@Validated @RequestBody StatusItemAddRequest request) {
        return projectStatusFlowSettingService.addStatusItem(request);
     }
 
@@ -76,7 +77,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-修改状态项")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusItemLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
-    public StatusItem addStatusItem(@RequestBody StatusItemUpdateRequest request) {
+    public StatusItem addStatusItem(@Validated @RequestBody StatusItemUpdateRequest request) {
         return projectStatusFlowSettingService.updateStatusItem(request);
     }
 
@@ -92,7 +93,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-设置状态流转")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusFlowLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
-    public void updateStatusFlow(@RequestBody StatusFlowUpdateRequest request) {
+    public void updateStatusFlow(@Validated @RequestBody StatusFlowUpdateRequest request) {
         projectStatusFlowSettingService.updateStatusFlow(request);
     }
 }
