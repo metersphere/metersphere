@@ -1,5 +1,3 @@
-import { key } from 'localforage';
-
 export interface EnvListItem {
   name: string;
   id: string;
@@ -36,11 +34,12 @@ export interface EnvConfig {
   commmonVariables?: EnvConfigItem[];
   httpConfig?: EnvConfigItem[];
   dataSource?: DataSourceItem[];
-  hostConfig?: EnvConfigItem[];
+  hostConfig?: EnvConfigItem;
   authConfig?: EnvConfigItem;
-  preScript?: EnvConfigItem[];
-  postScript?: EnvConfigItem[];
-  assertions?: EnvConfigItem[];
+  preProcessorConfig?: EnvConfigItem;
+  postProcessorConfig?: EnvConfigItem;
+  assertionConfig?: EnvConfigItem;
+  pluginConfigMap?: EnvConfigItem;
 }
 export interface EnvDetailItem {
   id?: string;

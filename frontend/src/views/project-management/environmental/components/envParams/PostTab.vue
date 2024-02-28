@@ -12,9 +12,9 @@
   // TODO: 参数类型
   const params = computed<any>({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.postScript = value;
+      store.currentEnvDetailInfo.config.postProcessorConfig = value;
     },
-    get: () => store.currentEnvDetailInfo.config.postScript || [],
+    get: () => store.currentEnvDetailInfo.config.postProcessorConfig || {},
   });
 </script>
 

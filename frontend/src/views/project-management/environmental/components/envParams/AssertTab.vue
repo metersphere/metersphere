@@ -11,9 +11,9 @@
 
   const params = computed({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.assertions = value;
+      store.currentEnvDetailInfo.config.assertionConfig = value;
     },
-    get: () => store.currentEnvDetailInfo.config.assertions || [],
+    get: () => store.currentEnvDetailInfo.config.assertionConfig || [],
   });
 </script>
 

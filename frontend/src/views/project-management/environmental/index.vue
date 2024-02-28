@@ -230,7 +230,7 @@
   const envList = ref<EnvListItem[]>([]); // 环境列表
   const evnGroupList = ref<EnvListItem[]>([]); // 环境组列表
 
-  const showType = ref<EnvAuthScopeEnum>(EnvAuthScopeEnum.PROJECT_GROUP); // 展示类型
+  const showType = ref<EnvAuthScopeEnum>(EnvAuthScopeEnum.PROJECT); // 展示类型
 
   const activeKey = computed(() => store.currentId); // 当前选中的id
 
