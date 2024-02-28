@@ -91,6 +91,8 @@ import static io.metersphere.bug.enums.result.BugResultCode.NOT_LOCAL_BUG_ERROR;
 @Transactional(rollbackFor = Exception.class)
 public class BugService {
 
+    private static int MAX_TAG_SIZE = 10;
+
     @Resource
     private BugMapper bugMapper;
     @Resource
@@ -176,6 +178,12 @@ public class BugService {
         return buildExtraInfo(bugList);
     }
 
+    private void checkTagLength(List<String> tags) {
+        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
+            throw new MSException(Translator.getWithArgs("bug_tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
+        }
+    }
+
     /**
      * 创建或编辑缺陷
      *
@@ -187,6 +195,7 @@ public class BugService {
      * @return 缺陷
      */
     public Bug addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
+        this.checkTagLength(request.getTags());
         /*
          *  缺陷创建或者修改逻辑:
          *  1. 判断所属项目是否关联第三方平台;
@@ -418,8 +427,10 @@ public class BugService {
      * @param currentUser 当前用户
      */
     public void batchUpdate(BugBatchUpdateRequest request, String currentUser) {
-        List<String> batchIds = getBatchIdsByRequest(request);
+        //校验标签长度
+        this.checkTagLength(request.getTags());
 
+        List<String> batchIds = getBatchIdsByRequest(request);
         // 批量日志{修改之前}
         List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.UPDATE.name(), "/bug/batch-update",
                 request.getProjectId(), true, request.isAppend(), request.getTags());
@@ -437,6 +448,9 @@ public class BugService {
                 record.setTags(ListUtils.union(v, request.getTags()));
                 record.setUpdateUser(currentUser);
                 record.setUpdateTime(System.currentTimeMillis());
+                //校验标签长度
+                this.checkTagLength(record.getTags());
+                //入库
                 batchMapper.updateByPrimaryKeySelective(record);
             });
             sqlSession.flushStatements();
