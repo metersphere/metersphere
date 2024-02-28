@@ -1,7 +1,7 @@
 export default {
   'project.environmental.title': '环境管理',
   'project.environmental.project': '项目',
-  'project.environmental.projectGroup': '项目组',
+  'project.environmental.envGroup': '环境组',
   'project.environmental.searchHolder': '请输入环境名称',
   'project.environmental.allParam': '全局参数',
   'project.environmental.env': '环境',

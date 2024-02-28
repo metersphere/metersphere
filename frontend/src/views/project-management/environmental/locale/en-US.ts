@@ -1,6 +1,7 @@
 export default {
+  'project.environmental.title': 'Environmental management',
   'project.environmental.project': 'Project',
-  'project.environmental.projectGroup': 'Project Group',
+  'project.environmental.envGroup': 'Environmental group',
   'project.environmental.searchHolder': 'Please enter the environment name',
   'project.environmental.allParam': 'All Parameters',
   'project.environmental.env': 'Environment',
