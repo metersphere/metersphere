@@ -155,9 +155,6 @@ public class FunctionalCaseService {
     private UserMapper userMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
-    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
-
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
@@ -165,7 +162,7 @@ public class FunctionalCaseService {
         FunctionalCase functionalCase = addCase(caseId, request, userId);
 
         //上传文件
-        functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
+        List<String> uploadFileIds = functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
         //上传副文本里的文件
         functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
@@ -175,6 +172,11 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
+        //处理复制时的已存在的文件
+        if (CollectionUtils.isNotEmpty(request.getAttachments())) {
+            copyAttachment(request, userId, uploadFileIds, caseId);
+        }
+
         addCaseReviewCase(request.getReviewId(), caseId, userId);
 
         //记录日志
@@ -182,6 +184,25 @@ public class FunctionalCaseService {
         saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
 
         return functionalCase;
+    }
+
+    private void copyAttachment(FunctionalCaseAddRequest request, String userId, List<String> uploadFileIds, String caseId) {
+        //获取用例已经上传的文件ID
+        Map<String, FunctionalCaseAttachmentDTO> attachmentDTOMap = request.getAttachments().stream().collect(Collectors.toMap(FunctionalCaseAttachmentDTO::getId, t -> t));
+        List<String> attachmentFileIds = request.getAttachments().stream().filter(t-> !t.isDeleted()).map(FunctionalCaseAttachmentDTO::getId).filter(t -> !uploadFileIds.contains(t)).toList();
+        if (CollectionUtils.isEmpty(attachmentFileIds)) {
+            return;
+        }
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(caseId).andFileIdIn(attachmentFileIds);
+        List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        List<String> attachmentFileIdInDBs = functionalCaseAttachments.stream().map(FunctionalCaseAttachment::getFileId).toList();
+        List<String> saveAttachmentFileIds = attachmentFileIds.stream().filter(t -> !attachmentFileIdInDBs.contains(t)).toList();
+        for (String saveAttachmentFileId : saveAttachmentFileIds) {
+            FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO = attachmentDTOMap.get(saveAttachmentFileId);
+            FunctionalCaseAttachment caseAttachment = functionalCaseAttachmentService.creatAttachment(saveAttachmentFileId, functionalCaseAttachmentDTO.getFileName(), functionalCaseAttachmentDTO.getSize(), caseId, Boolean.TRUE, userId);
+            functionalCaseAttachmentMapper.insertSelective(caseAttachment);
+        }
     }
 
 
@@ -777,7 +798,7 @@ public class FunctionalCaseService {
 
     private void handleCustomFields(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
         boolean customField = Optional.ofNullable(request.getCustomField()).map(o -> o.getFieldId()).isPresent();
-        if(customField){
+        if (customField) {
             functionalCaseCustomFieldService.batchUpdate(request.getCustomField(), ids);
         }
     }
