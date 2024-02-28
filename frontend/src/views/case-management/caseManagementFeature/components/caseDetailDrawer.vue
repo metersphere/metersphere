@@ -92,16 +92,9 @@
           height: 'calc(100% - 86px)',
         }"
       >
-        <MsSplitBox
-          ref="wrapperRef"
-          class="h-[calc(100% - 78px)]"
-          expand-direction="right"
-          :max="0.7"
-          :min="0.7"
-          :size="900"
-        >
+        <MsSplitBox :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
           <template #first>
-            <div class="leftWrapper">
+            <div class="leftWrapper h-full">
               <div class="header h-[50px]">
                 <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
                   <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
@@ -121,29 +114,48 @@
                   >
                 </a-menu>
               </div>
-              <div class="leftContent mt-4 px-4">
-                <TabDetail
-                  v-if="activeTab === 'detail'"
-                  ref="tabDetailRef"
-                  :form="detailInfo"
-                  :allow-edit="true"
-                  :form-rules="formItem"
-                  :active-tab="activeTab"
-                  @update-success="updateSuccess"
-                />
-                <TabCaseTable v-show="activeTab === 'case'" :case-id="props.detailId" />
-                <TabDemand v-show="activeTab === 'requirement'" :case-id="props.detailId" />
-                <TabDefect v-show="activeTab === 'bug'" :case-id="props.detailId" />
-                <TabDependency v-show="activeTab === 'dependency'" :case-id="props.detailId" />
-                <TabCaseReview v-show="activeTab === 'caseReview'" :case-id="props.detailId" />
-                <TabTestPlan v-show="activeTab === 'testPlan'" :active-tab="activeTab" />
-                <TabComment v-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
-                <TabChangeHistory v-show="activeTab === 'changeHistory'" :case-id="props.detailId" />
-              </div>
+              <keep-alive>
+                <div class="leftContent mt-4 px-4">
+                  <template v-if="activeTab === 'detail'">
+                    <TabDetail
+                      ref="tabDetailRef"
+                      :form="detailInfo"
+                      :allow-edit="true"
+                      :form-rules="formItem"
+                      :active-tab="activeTab"
+                      @update-success="updateSuccess"
+                    />
+                  </template>
+                  <template v-if="activeTab === 'requirement'">
+                    <TabDemand :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'case'">
+                    <TabCaseTable :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'bug'">
+                    <TabDefect :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'dependency'">
+                    <TabDependency :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'caseReview'">
+                    <TabCaseReview :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'testPlan'">
+                    <TabTestPlan :active-tab="activeTab" />
+                  </template>
+                  <template v-if="activeTab === 'comments'">
+                    <TabComment ref="commentRef" :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                  <template v-if="activeTab === 'changeHistory'">
+                    <TabChangeHistory :active-tab="activeTab" :case-id="props.detailId" />
+                  </template>
+                </div>
+              </keep-alive>
             </div>
           </template>
           <template #second>
-            <div class="rightWrapper p-[24px]">
+            <div class="rightWrapper h-full p-[24px]">
               <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
@@ -349,7 +361,16 @@
 
   // 初始化count
   function setCount(detail: DetailCase) {
-    const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount, commentCount, historyCount } = detail;
+    const {
+      bugCount,
+      caseCount,
+      caseReviewCount,
+      demandCount,
+      relateEdgeCount,
+      testPlanCount,
+      commentCount,
+      historyCount,
+    } = detail;
     const countMap: Record<string, any> = {
       case: caseCount,
       dependency: relateEdgeCount,
@@ -358,7 +379,7 @@
       bug: bugCount,
       requirement: demandCount,
       comments: commentCount,
-      changeHistory: historyCount
+      changeHistory: historyCount,
     };
     featureCaseStore.initCountMap(countMap);
   }
@@ -611,9 +632,10 @@
       }
     }
   );
+  provide('activeTab', activeTab.value);
 
   onMounted(() => {
-    // settingDrawerRef.value.getTabModule();
+    settingDrawerRef.value.getTabModule();
   });
 </script>
 

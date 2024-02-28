@@ -273,20 +273,20 @@
   }
   const activeTab = computed(() => featureCaseStore.activeTab);
 
-  watch(
-    () => activeTab.value,
-    (val) => {
-      if (val === 'case') {
-        getEnabledModules();
-        getFetch();
-      }
-    }
-  );
+  // watch(
+  //   () => activeTab.value,
+  //   (val) => {
+  //     if (val === 'case') {
+  //       getEnabledModules();
+  //       getFetch();
+  //     }
+  //   }
+  // );
 
-  // onMounted(async () => {
-  //   getEnabledModules();
-  //   getFetch();
-  // });
+  onMounted(async () => {
+    getEnabledModules();
+    getFetch();
+  });
 </script>
 
 <style scoped></style>
