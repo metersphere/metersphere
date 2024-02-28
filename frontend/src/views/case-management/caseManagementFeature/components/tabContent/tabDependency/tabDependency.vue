@@ -95,7 +95,6 @@
   const keyword = ref<string>('');
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
 
   const columns: MsTableColumn = [

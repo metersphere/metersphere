@@ -1,5 +1,10 @@
 <template>
-  <a-modal v-model:visible="transferVisible" title-align="start" class="ms-modal-upload ms-modal-small">
+  <a-modal
+    v-model:visible="transferVisible"
+    title-align="start"
+    unmount-on-close
+    class="ms-modal-upload ms-modal-small"
+  >
     <template #title> {{ t('caseManagement.featureCase.selectTransferDirectory') }} </template>
     <a-tree-select
       v-model="transferId"

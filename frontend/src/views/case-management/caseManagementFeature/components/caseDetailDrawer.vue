@@ -15,7 +15,7 @@
     :mask-closable="true"
     :edit-name="true"
     show-full-screen
-    unmount-on-close
+    :unmount-on-close="true"
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -92,7 +92,7 @@
           height: 'calc(100% - 86px)',
         }"
       >
-        <MsSplitBox :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
+        <MsSplitBox :size="800" :max="0.7" :min="0.5" direction="horizontal" expand-direction="right">
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
@@ -122,33 +122,32 @@
                       :form="detailInfo"
                       :allow-edit="true"
                       :form-rules="formItem"
-                      :active-tab="activeTab"
                       @update-success="updateSuccess"
                     />
                   </template>
                   <template v-if="activeTab === 'requirement'">
-                    <TabDemand :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabDemand :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'case'">
-                    <TabCaseTable :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabCaseTable :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'bug'">
-                    <TabDefect :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabDefect :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'dependency'">
-                    <TabDependency :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabDependency :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'caseReview'">
-                    <TabCaseReview :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabCaseReview :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'testPlan'">
-                    <TabTestPlan :active-tab="activeTab" />
+                    <TabTestPlan />
                   </template>
                   <template v-if="activeTab === 'comments'">
-                    <TabComment ref="commentRef" :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabComment ref="commentRef" :case-id="props.detailId" />
                   </template>
                   <template v-if="activeTab === 'changeHistory'">
-                    <TabChangeHistory :active-tab="activeTab" :case-id="props.detailId" />
+                    <TabChangeHistory :case-id="props.detailId" />
                   </template>
                 </div>
               </keep-alive>
@@ -571,6 +570,8 @@
         showDrawerVisible.value = val;
         activeTab.value = 'detail';
         featureCaseStore.setActiveTab(activeTab.value);
+      } else {
+        activeTab.value = '';
       }
     }
   );
@@ -623,16 +624,6 @@
   const changeHandler = debounce(() => {
     tabDetailRef.value.handleOK();
   }, 300);
-
-  watch(
-    () => props.detailId,
-    (val) => {
-      if (val) {
-        updateSuccess();
-      }
-    }
-  );
-  provide('activeTab', activeTab.value);
 
   onMounted(() => {
     settingDrawerRef.value.getTabModule();
