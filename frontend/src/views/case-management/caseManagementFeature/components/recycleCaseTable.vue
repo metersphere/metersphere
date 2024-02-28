@@ -445,10 +445,11 @@
       title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
-      showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
+      showInTable: true,
       width: 200,
       showDrag: true,
     },
