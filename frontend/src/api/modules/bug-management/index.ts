@@ -70,9 +70,18 @@ export function getTemplateDetailInfo(data: { id: string; projectId: string }) {
   return MSR.post({ url: `${bugURL.getTemplateDetailUrl}`, data });
 }
 
-// 同步缺陷
-export function syncBugOpenSource(params: { projectId: string }) {
-  return MSR.get({ url: bugURL.getSyncBugOpenSourceUrl, params });
+// 同步缺陷开源
+export function syncBugOpenSource(projectId: string) {
+  return MSR.get({ url: bugURL.getSyncBugOpenSourceUrl + projectId });
+}
+// 同步缺陷企业版
+export function syncBugEnterprise(data: { projectId: string; pre: boolean; createTime: number }) {
+  return MSR.post({ url: bugURL.getSyncBugEnterpriseUrl, data });
+}
+
+// 获取同步状态
+export function getSyncStatus(projectId: string) {
+  return MSR.get<{ complete: boolean; msg: string }>({ url: bugURL.getSyncStatusUrl + projectId });
 }
 
 // 导出缺陷

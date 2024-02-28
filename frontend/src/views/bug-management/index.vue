@@ -13,11 +13,7 @@
           <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
             >{{ t('bugManagement.createBug') }}
           </a-button>
-          <a-button
-            v-permission="['PROJECT_BUG:READ+IMPORT']"
-            :disabled="syncBugLoading"
-            type="outline"
-            @click="handleSync"
+          <a-button v-permission="['PROJECT_BUG:READ+IMPORT']" :loading="!isComplete" type="outline" @click="handleSync"
             >{{ t('bugManagement.syncBug') }}
           </a-button>
         </div>
@@ -62,6 +58,7 @@
     :ok-text="t('bugManagement.sync')"
     unmount-on-close
     @cancel="handleSyncCancel()"
+    @ok="handleSyncModalOk"
   >
     <template #title>
       <div class="flex flex-row items-center gap-[4px]">
@@ -81,7 +78,7 @@
       <icon-exclamation-circle-fill class="text-[rgb(var(--primary-5))]" />
       <div>{{ t('bugManagement.bugAutoSync', { name: '每天00:00:00' }) }}</div>
     </div>
-    <div class="mb-[8px] mt-[16px]">{{ t('bugManagement.syncTime') }}</div>
+    <div class="mb-[8px] mt-[16px]">{{ t('bugManagement.createTime') }}</div>
     <div class="flex flex-row gap-[8px]">
       <a-select v-model="syncObject.operator" class="w-[120px]">
         <a-option
@@ -91,7 +88,7 @@
           :value="option.value"
         />
       </a-select>
-      <a-date-picker v-model="syncObject.time" show-time class="w-[304px]" />
+      <a-date-picker v-model="syncObject.time" value-format="timestamp" show-time class="w-[304px]" />
     </div>
   </a-modal>
   <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" @confirm="exportConfirm">
@@ -126,47 +123,53 @@
 </template>
 
 <script lang="ts" async setup>
-import {useRoute} from 'vue-router';
-import {Message, TableData} from '@arco-design/web-vue';
+  import { useRoute } from 'vue-router';
+  import { useIntervalFn } from '@vueuse/core';
+  import { Message, TableData } from '@arco-design/web-vue';
 
-import {MsAdvanceFilter, timeSelectOptions} from '@/components/pure/ms-advance-filter';
-import {BackEndEnum, FilterFormItem, FilterResult, FilterType} from '@/components/pure/ms-advance-filter/type';
-import MsButton from '@/components/pure/ms-button/index.vue';
-import MsCard from '@/components/pure/ms-card/index.vue';
-import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
-import {MsExportDrawerMap, MsExportDrawerOption} from '@/components/pure/ms-export-drawer/types';
-import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-import {BatchActionParams, BatchActionQueryParams, MsTableColumn} from '@/components/pure/ms-table/type';
-import useTable from '@/components/pure/ms-table/useTable';
-import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-import {ActionsItem} from '@/components/pure/ms-table-more-action/types';
-import BatchEditModal from './components/batchEditModal.vue';
-import BugDetailDrawer from './components/bug-detail-drawer.vue';
-import DeleteModal from './components/deleteModal.vue';
+  import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
+  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
+  import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import BatchEditModal from './components/batchEditModal.vue';
+  import BugDetailDrawer from './components/bug-detail-drawer.vue';
+  import DeleteModal from './components/deleteModal.vue';
 
-import {
-  deleteBatchBug,
-  deleteSingleBug,
-  exportBug,
-  getBugList,
-  getCustomFieldHeader,
-  getExportConfig,
-  syncBugOpenSource,
-} from '@/api/modules/bug-management';
-import {useI18n} from '@/hooks/useI18n';
-import useModal from '@/hooks/useModal';
-import router from '@/router';
-import {useAppStore, useTableStore} from '@/store';
-import useLicenseStore from '@/store/modules/setting/license';
-import {customFieldDataToTableData, customFieldToColumns, downloadByteFile, tableParamsToRequestParams,} from '@/utils';
+  import {
+    deleteBatchBug,
+    deleteSingleBug,
+    exportBug,
+    getBugList,
+    getCustomFieldHeader,
+    getExportConfig,
+    getSyncStatus,
+    syncBugEnterprise,
+    syncBugOpenSource,
+  } from '@/api/modules/bug-management';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import router from '@/router';
+  import { useAppStore, useTableStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
+  import {
+    customFieldDataToTableData,
+    customFieldToColumns,
+    downloadByteFile,
+    tableParamsToRequestParams,
+  } from '@/utils';
 
-import {BugEditCustomField, BugListItem} from '@/models/bug-management';
-import {RouteEnum} from '@/enums/routeEnum';
-import {TableKeyEnum} from '@/enums/tableEnum';
+  import { BugEditCustomField, BugListItem } from '@/models/bug-management';
+  import { RouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
-import {useRequest} from 'ahooks-vue';
-
-const { t } = useI18n();
+  const { t } = useI18n();
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -188,22 +191,15 @@ const { t } = useI18n();
   const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
   const route = useRoute();
+  // 是否同步完成
+  const isComplete = ref(false);
   // 自定义字段
   const customFields = ref<BugEditCustomField[]>([]);
   // 当前选择的条数
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
 
-  const { loading: syncBugLoading, run: syncBugRun } = useRequest(
-    () => syncBugOpenSource({ projectId: projectId.value }),
-    {
-      pollingInterval: 1 * 1000,
-      pollingWhenHidden: true,
-      manual: true,
-    }
-  );
-
   const syncObject = reactive({
-    time: '',
+    time: 0,
     operator: '',
   });
   const handleSyncCancel = () => {
@@ -247,7 +243,7 @@ const { t } = useI18n();
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
     },
     {
       title: 'bugManagement.bugName',
@@ -257,7 +253,7 @@ const { t } = useI18n();
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
     },
     {
       title: 'bugManagement.status',
@@ -296,14 +292,25 @@ const { t } = useI18n();
     {
       title: 'bugManagement.creator',
       slotName: 'createUserName',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       width: 112,
       showTooltip: true,
       showDrag: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
+    },
+    {
+      title: 'bugManagement.updateUser',
+      dataIndex: 'updateUserName',
+      width: 112,
+      showTooltip: true,
+      showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'bugManagement.createTime',
@@ -313,7 +320,7 @@ const { t } = useI18n();
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
     },
     {
       title: 'bugManagement.updateUser',
@@ -325,7 +332,7 @@ const { t } = useI18n();
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
     },
     {
       title: 'bugManagement.updateTime',
@@ -335,7 +342,7 @@ const { t } = useI18n();
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
-      }
+      },
     },
     {
       title: 'common.operation',
@@ -356,7 +363,6 @@ const { t } = useI18n();
         selectable: true,
         noDisable: false,
         showSetting: true,
-        debug: true,
       },
       (record: TableData) => ({
         ...record,
@@ -446,12 +452,54 @@ const { t } = useI18n();
       },
     });
   };
-  const handleSync = () => {
+
+  const checkSyncStatus = async () => {
+    const { complete } = await getSyncStatus(appStore.currentProjectId);
+    isComplete.value = complete;
+  };
+  /** 同步缺陷 */
+  const { pause, resume } = useIntervalFn(() => {
+    checkSyncStatus();
+  }, 1000);
+  // 初始化组件时关闭
+  pause();
+  watchEffect(() => {
+    if (isComplete.value) {
+      // 同步完成时关闭轮询
+      pause();
+    }
+  });
+  // 同步缺陷按钮触发
+  const handleSync = async () => {
     if (isXpack.value) {
+      // 企业版
       syncVisible.value = true;
     } else {
-      // 直接开始轮询
-      syncBugRun();
+      try {
+        // 开源版
+        await syncBugOpenSource(appStore.currentProjectId);
+        isComplete.value = false;
+        // 开始轮询
+        resume();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
+  };
+  const handleSyncModalOk = async () => {
+    try {
+      await syncBugEnterprise({
+        projectId: appStore.currentProjectId,
+        pre: syncObject.operator === 'lt',
+        createTime: syncObject.time,
+      });
+      isComplete.value = false;
+      // 开始轮询
+      resume();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   };
 
@@ -487,11 +535,11 @@ const { t } = useI18n();
 
   const handleBatchDelete = (params: BatchActionQueryParams) => {
     let dataCount = params.selectedIds?.length;
-    if(params.selectAll) {
+    if (params.selectAll) {
       dataCount = params.currentSelectCount;
     }
     openDeleteModal({
-      title: t('bugManagement.deleteCount', {count: dataCount}),
+      title: t('bugManagement.deleteCount', { count: dataCount }),
       content: t('bugManagement.deleteTip'),
       onBeforeOk: async () => {
         try {
@@ -568,6 +616,11 @@ const { t } = useI18n();
     setProps({ heightUsed: heightUsed.value });
   });
 
+  onBeforeMount(() => {
+    // 进入页面时检查当前项目轮训状态
+    checkSyncStatus();
+  });
+
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
     setExportOptionData();
@@ -576,6 +629,10 @@ const { t } = useI18n();
       // 分享或成功进来的页面
       handleShowDetail(route.query.id as string, 0);
     }
+  });
+  onUnmounted(() => {
+    // 组件销毁时关闭轮询
+    pause();
   });
 </script>
 
