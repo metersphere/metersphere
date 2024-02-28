@@ -282,7 +282,12 @@
       id: JSON.parse(platformInfo.value.demand_platform_config).zentaoId,
       caseId: props.caseId,
       demandPlatform: platformInfo.value.platform_key,
-      demandList,
+      demandList: propsRes.value.selectorStatus === 'all' ? [] : demandList,
+      functionalDemandBatchRequest: {
+        keyword: platformKeyword.value,
+        excludeIds: [...propsRes.value.excludeKeys],
+        selectAll: propsRes.value.selectorStatus === 'all',
+      },
     };
     try {
       drawerLoading.value = true;
@@ -386,6 +391,8 @@
     switch (platformInfo.value.platform_key) {
       case 'zentao':
         return t('caseManagement.featureCase.zentao');
+      case 'jira':
+        return t('caseManagement.featureCase.jira');
       default:
         break;
     }

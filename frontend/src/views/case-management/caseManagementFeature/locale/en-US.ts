@@ -255,7 +255,8 @@ export default {
   'caseManagement.featureCase.associatedSuccess': 'Associated with success',
   'caseManagement.featureCase.defectSource': 'defect Source',
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
-  'caseManagement.featureCase.zentao': 'zentao',
+  'caseManagement.featureCase.zentao': 'ZenTao',
+  'caseManagement.featureCase.jira': 'JIRA',
   'caseManagement.featureCase.searchPlaceholder': 'Search by ID, name, or tag',
   'caseManagement.featureCase.ModuleOwned': 'Module owned',
 };

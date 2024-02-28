@@ -6,7 +6,7 @@ import '@arco-themes/vue-ms-theme-default/index.less';
 import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 import SvgIcon from '@/components/pure/svg-icon/index.vue';
 import App from './App.vue';
-
+import 'github-markdown-css/github-markdown-light.css';
 // eslint-disable-next-line import/no-unresolved
 import 'virtual:svg-icons-register';
 import directive from './directive';
