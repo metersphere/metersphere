@@ -107,14 +107,14 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         //删除模块
         delApiModule(projectId);
         delScenarioModule(projectId);
+        //删除定时任务
+        deleteSchedule(projectId);
         //删除接口
         delApi(projectId);
         //删除报告 删除执行记录
         deleteReport(projectId);
         //删除分享报告的数据
         deleteShareUrl(projectId);
-        //删除定时任务
-        deleteSchedule(projectId);
         //删除场景
         deleteScenario(projectId);
 
@@ -137,7 +137,6 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         example.createCriteria().andIdIn(subList);
         //删除blob
         apiScenarioBlobMapper.deleteByExample(example);
-
 
         ApiScenarioStepExample stepExample = new ApiScenarioStepExample();
         stepExample.createCriteria().andScenarioIdIn(subList);

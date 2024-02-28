@@ -187,8 +187,8 @@ public class CleanupApiTests {
         initData();
         initReportData("test");
         initScheduleData();
-        serviceInvoker.invokeServices("test");
         cleanupApiResourceServiceImpl.deleteResources("test");
+        serviceInvoker.invokeServices("test");
     }
 
     private void initScheduleData() {
