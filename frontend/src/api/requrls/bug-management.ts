@@ -8,7 +8,12 @@ export const getTemplateUrl = '/bug/template/detail';
 export const getTemplateOption = '/bug/template/option';
 export const getExportConfigUrl = '/bug/export/columns/';
 export const getTemplateDetailUrl = '/bug/template/detail';
+// 同步缺陷开源
 export const getSyncBugOpenSourceUrl = '/bug/sync/';
+// 同步缺陷企业版
+export const getSyncBugEnterpriseUrl = '/bug/sync/all';
+// 获取同步状态
+export const getSyncStatusUrl = '/bug/sync/check/';
 export const postExportBugUrl = '/bug/export';
 // 获取关联文件列表
 export const postAssociatedFileListUrl = '/bug/attachment/file/page';

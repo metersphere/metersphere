@@ -56,7 +56,7 @@
       :confirm-loading="confirmLoading"
       :case-id="props.bugId"
       :associated-ids="associatedIds"
-      :type="RequestModuleEnum.API_CASE"
+      :type="RequestModuleEnum.CASE_MANAGEMENT"
       @close="emit('close')"
       @save="saveHandler"
     >
@@ -87,7 +87,6 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { TableQueryParams } from '@/models/common';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -238,32 +237,17 @@
   }
 
   const moduleMaps: Record<string, { label: string; value: string }[]> = {
-    apiTest: [
+    caseManagement: [
       {
-        value: 'API',
-        label: t('caseManagement.featureCase.apiCase'),
-      },
-      {
-        value: 'SCENARIO',
-        label: t('caseManagement.featureCase.sceneCase'),
-      },
-    ],
-    uiTest: [
-      {
-        value: 'UI',
-        label: t('caseManagement.featureCase.uiCase'),
-      },
-    ],
-    loadTest: [
-      {
-        value: 'PERFORMANCE',
-        label: t('caseManagement.featureCase.propertyCase'),
+        value: 'FUNCTIONAL',
+        label: t('menu.caseManagement.featureCase'),
       },
     ],
   };
 
   async function getEnabledModules() {
     const result = await postTabletList({ projectId: currentProjectId.value });
+    debugger;
     const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
     caseArr.forEach((item: any) => {
       const currentModule = moduleMaps[item.module];

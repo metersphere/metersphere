@@ -7,7 +7,7 @@
     @blur="handleBlur"
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
-    <span class="text-[var(--color-text-4)]">{{ t('project.menu.howGetJiraKey') }}</span>
+    <span class="text-[var(--color-text-4)]">{{ attrs.subDesc }}</span>
     <a-popover position="rt">
       <template #title>
         {{ null }}
@@ -27,6 +27,8 @@
   import { validateJIRAKey } from '@/api/modules/project-management/menuManagement';
   import { getLogo } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
+
+  import { Rule } from '@form-create/arco-design';
 
   const attrs = useAttrs();
   const { formCreateInject } = attrs;
@@ -52,9 +54,18 @@
     const pluginId = sessionStorage.getItem('platformKey') || '';
     if (pluginId) {
       try {
-        await validateJIRAKey({ [(formCreateInject as { [key: string]: string }).field]: inputValue.value }, pluginId);
-        Message.success('common.validateSuccess');
+        const { rule } = (attrs.formCreateInject as { [key: string]: any }).api;
+        const extra = {};
+        rule.forEach((item: Rule) => {
+          extra[item.field as string] = item.value;
+        });
+        await validateJIRAKey(
+          { [(formCreateInject as { [key: string]: string }).field]: inputValue.value, ...extra },
+          pluginId
+        );
+        Message.success(t('common.validateSuccess'));
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.log(e);
       }
     }
