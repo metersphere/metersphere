@@ -378,7 +378,9 @@ public class FunctionalCaseService {
 
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
-        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId());
+        List<String>types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
+        List<String> modules = List.of(OperationLogModule.CASE_MANAGEMENT_CASE_CREATE, OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andTypeIn(types).andModuleIn(modules);
         functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
 
     }
