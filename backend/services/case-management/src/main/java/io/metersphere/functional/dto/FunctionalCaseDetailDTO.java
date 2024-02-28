@@ -112,4 +112,10 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "测试计划数量")
     private Integer testPlanCount;
+
+    @Schema(description = "评论总数量")
+    private Integer commentCount;
+
+    @Schema(description = "变更历史数量")
+    private Integer historyCount;
 }
