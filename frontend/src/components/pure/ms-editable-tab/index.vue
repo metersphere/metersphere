@@ -146,7 +146,7 @@
     }
   };
 
-  const defualtMoreActionList = [
+  const defaultMoreActionList = [
     {
       eventTag: 'closeAll',
       label: t('ms.editableTab.closeAll'),
@@ -158,8 +158,8 @@
   ];
   const mergedMoreActionList = computed(() => {
     const dl = props.atLeastOne
-      ? defualtMoreActionList.filter((e) => e.eventTag !== 'closeAll')
-      : defualtMoreActionList;
+      ? defaultMoreActionList.filter((e) => e.eventTag !== 'closeAll')
+      : defaultMoreActionList;
     return props.moreActionList ? [...dl, ...props.moreActionList] : dl;
   });
 

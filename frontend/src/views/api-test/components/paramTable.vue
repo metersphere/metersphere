@@ -558,7 +558,6 @@
       await tableStore.initColumn(props.tableKey, props.columns);
     }
   }
-  initColumns();
 
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
     firstColumnWidth: 32,
@@ -768,12 +767,20 @@
     handleMustContainColChange(true);
     handleTypeCheckingColChange(true);
   }
-
   watch(
     () => props.params,
     (arr) => {
       if (arr.length > 0) {
-        propsRes.value.data = arr;
+        // 后台存储无id，渲染时需要手动添加一次
+        propsRes.value.data = arr.map((item, i) => {
+          if (!item.id) {
+            return {
+              ...item,
+              id: new Date().getTime() + i,
+            };
+          }
+          return item;
+        });
         if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault) {
           addTableLine(arr.length - 1);
         }
@@ -934,6 +941,8 @@
   defineExpose({
     addTableLine,
   });
+
+  await initColumns();
 </script>
 
 <style lang="less" scoped>

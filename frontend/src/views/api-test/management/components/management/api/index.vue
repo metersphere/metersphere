@@ -8,7 +8,7 @@
         </template>
       </MsEditableTab>
     </div>
-    <div v-show="activeApiTab?.id === 'all'" class="flex-1">
+    <div v-show="activeApiTab.id === 'all'" class="flex-1">
       <apiTable :active-module="props.activeModule" :offspring-ids="props.offspringIds" />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
@@ -20,12 +20,12 @@
                 v-model:detail-loading="loading"
                 v-model:request="activeApiTab"
                 :module-tree="props.moduleTree"
-                hide-response-layout-swicth
+                hide-response-layout-switch
                 :create-api="addDebug"
                 :update-api="updateDebug"
                 :execute-api="executeDebug"
                 :local-execute-api="localExecuteApiDebug"
-                is-definiton
+                is-definition
                 @add-done="emit('addDone')"
               />
             </template>
@@ -48,8 +48,9 @@
             </template>
           </MsSplitBox>
         </a-tab-pane>
-        <a-tab-pane key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane"> </a-tab-pane>
-        <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
+        <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
+        </a-tab-pane>
+        <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
         <template #extra>
           <div class="flex items-center gap-[8px] pr-[24px]">
             <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
@@ -135,6 +136,16 @@
       activeApiTab.value.unSaved = true;
     }
   }
+
+  const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
+  watch(
+    () => activeApiTab.value.id,
+    () => {
+      if (typeof setActiveApi === 'function') {
+        setActiveApi(activeApiTab.value);
+      }
+    }
+  );
 
   const initDefaultId = `debug-${Date.now()}`;
   const defaultBodyParams: ExecuteBody = {
@@ -236,6 +247,7 @@
     response: cloneDeep(defaultResponse),
     isNew: true,
   };
+
   function addApiTab(defaultProps?: Partial<TabItem>) {
     const id = `debug-${Date.now()}`;
     apiTabs.value.push({
@@ -247,11 +259,6 @@
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1] as RequestParam;
-    nextTick(() => {
-      if (defaultProps) {
-        handleActiveDebugChange();
-      }
-    });
   }
 
   const loading = ref(false);

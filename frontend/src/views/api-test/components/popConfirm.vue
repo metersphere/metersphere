@@ -63,7 +63,7 @@
   }
 
   const props = defineProps<{
-    mode: 'add' | 'rename';
+    mode: 'add' | 'rename' | 'tabRename';
     nodeType?: 'MODULE' | 'API';
     visible?: boolean;
     title?: string;
@@ -144,6 +144,10 @@
             });
             Message.success(t('common.updateSuccess'));
             emit('renameFinish', form.value.field, props.nodeId);
+          } else if (props.mode === 'tabRename') {
+            // 响应 tab 重命名
+            Message.success(t('common.updateSuccess'));
+            emit('renameFinish', form.value.field);
           }
           if (done) {
             done(true);

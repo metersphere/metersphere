@@ -98,13 +98,15 @@
       <a-input
         v-if="props.isDefinition"
         v-model:model-value="requestVModel.name"
+        class="mt-[8px]"
         :max-length="255"
         :placeholder="t('apiTestManagement.apiNamePlaceholder')"
         allow-clear
         @change="handleActiveDebugChange"
       />
     </div>
-    <div ref="splitContainerRef" class="h-[calc(100%-40px)]">
+    <!-- 接口定义多出一个输入框占高度 40px -->
+    <div ref="splitContainerRef" :class="`${props.isDefinition ? 'h-[calc(100%-80px)]' : 'h-[calc(100%-40px)]'}`">
       <MsSplitBox
         ref="splitBoxRef"
         v-model:size="splitBoxSize"
@@ -207,8 +209,10 @@
             :hide-layout-switch="props.hideResponseLayoutSwitch"
             :request="requestVModel"
             :loading="requestVModel.executeLoading"
+            :is-edit="props.isDefinition"
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
+            @change="handleActiveDebugChange"
           />
         </template>
       </MsSplitBox>
@@ -272,7 +276,7 @@
   import debugAuth from './auth.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
-  import response from './response.vue';
+  import response from './response/index.vue';
   import debugSetting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
@@ -321,7 +325,7 @@
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
     moduleTree: ModuleTreeNode[]; // 模块树
-    detailLoading: boolean; // 详情加载状态
+    detailLoading?: boolean; // 详情加载状态
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     executeApi: (...args) => Promise<any>; // 执行接口
@@ -340,6 +344,7 @@
   requestVModel.value.executeLoading = false; // 注册loading
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const isInitPluginForm = ref(false);
 
   watch(
     () => props.request.id,
@@ -354,8 +359,8 @@
   );
 
   function handleActiveDebugChange() {
-    if (!loading.value) {
-      // 如果是因为加载详情触发的change则不需要标记为未保存
+    if (!loading.value && !isHttpProtocol.value && isInitPluginForm.value) {
+      // 如果是因为加载详情触发的change则不需要标记为未保存；或者是插件协议的话需要等待表单初始化完毕
       requestVModel.value.unSaved = true;
     }
   }
@@ -364,7 +369,7 @@
   const commonContentTabKey = [
     RequestComposition.PRECONDITION,
     RequestComposition.POST_CONDITION,
-    RequestComposition.ASSERTION,
+    // RequestComposition.ASSERTION, TODO:断言暂时无
   ];
   // 请求内容插件tab
   const pluginContentTab = [
@@ -514,11 +519,14 @@
         const formData = tempForm || requestVModel.value;
         if (fApi.value) {
           const form = {};
-          fApi.value.fields().forEach((key) => {
+          pluginScriptMap.value[requestVModel.value.protocol].fields?.forEach((key) => {
             form[key] = formData[key];
           });
           fApi.value?.setValue(form);
         }
+      });
+      nextTick(() => {
+        isInitPluginForm.value = true;
       });
     } else {
       // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置

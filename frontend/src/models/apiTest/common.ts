@@ -23,4 +23,28 @@ export interface PluginConfig {
   options: Record<string, any>;
   script: Record<string, any>[];
   scriptType: string;
+  fields?: string[]; // 插件脚本内配置的全部字段集合
+}
+// 响应结果
+export interface ResponseResult {
+  requestResults: {
+    body: string;
+    headers: string;
+    responseResult: {
+      body: string;
+      contentType: string;
+      headers: string;
+      dnsLookupTime: number;
+      downloadTime: number;
+      latency: number;
+      responseCode: number;
+      responseTime: number;
+      responseSize: number;
+      socketInitTime: number;
+      sslHandshakeTime: number;
+      tcpHandshakeTime: number;
+      transferStartTime: number;
+    };
+  }[]; // 请求结果
+  console: string;
 }

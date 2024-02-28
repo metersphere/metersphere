@@ -1,11 +1,18 @@
 <template>
   <span>
-    <a-dropdown :trigger="props.trigger || 'hover'" @select="selectHandler" @popup-visible-change="visibleChange">
-      <slot>
-        <MsButton type="text" size="mini" class="more-icon">
-          <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
-        </MsButton>
-      </slot>
+    <a-dropdown
+      v-model:popup-visible="visible"
+      :trigger="props.trigger || 'hover'"
+      @select="selectHandler"
+      @popup-visible-change="visibleChange"
+    >
+      <div :class="['ms-more-action-trigger-content', visible ? 'ms-more-action-trigger-content--focus' : '']">
+        <slot>
+          <MsButton type="text" size="mini" class="more-icon-btn">
+            <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
+          </MsButton>
+        </slot>
+      </div>
       <template #content>
         <template v-for="item of props.list">
           <a-divider
@@ -47,6 +54,8 @@
   }>();
 
   const emit = defineEmits(['select', 'close']);
+
+  const visible = ref(false);
 
   // 检测在横线之前是否有action
   const beforeDividerHasAction = computed(() => {
@@ -99,10 +108,23 @@
       color: rgb(var(--danger-6));
     }
   }
-  .more-icon {
-    padding: 4px;
-    border-radius: var(--border-radius-mini);
-    &:hover {
+  .ms-more-action-trigger-content {
+    @apply flex items-center;
+    .more-icon-btn {
+      padding: 2px;
+      border-radius: var(--border-radius-mini);
+      &:hover {
+        background-color: rgb(var(--primary-9)) !important;
+        .arco-icon {
+          color: rgb(var(--primary-5)) !important;
+        }
+      }
+    }
+  }
+  .ms-more-action-trigger-content--focus {
+    .more-icon-btn {
+      @apply !visible;
+
       background-color: rgb(var(--primary-9));
       .arco-icon {
         color: rgb(var(--primary-5));
