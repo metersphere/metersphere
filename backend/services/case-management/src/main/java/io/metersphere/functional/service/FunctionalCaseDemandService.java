@@ -349,7 +349,10 @@ public class FunctionalCaseDemandService {
     public void setDemandDTOList(List<PlatformDemandDTO.Demand> list, List<DemandDTO> demandDTOList) {
         for (PlatformDemandDTO.Demand demand : list) {
             DemandDTO demandDTO = new DemandDTO();
-            BeanUtils.copyBean(demand, demandDTO);
+            demandDTO.setDemandId(demand.getDemandId());
+            demandDTO.setDemandUrl(demand.getDemandUrl());
+            demandDTO.setDemandName(demand.getDemandName());
+            demandDTO.setParent(demand.getParent());
             if (CollectionUtils.isNotEmpty(demand.getChildren())) {
                 setDemandDTOList(demand.getChildren(), demandDTOList);
             }
