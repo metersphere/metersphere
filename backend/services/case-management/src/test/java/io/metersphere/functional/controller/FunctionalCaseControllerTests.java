@@ -1,10 +1,14 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseAttachment;
+import io.metersphere.functional.domain.FunctionalCaseAttachmentExample;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
+import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
@@ -36,6 +40,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,7 +52,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -90,6 +94,9 @@ public class FunctionalCaseControllerTests extends BaseTest {
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
     @Resource
     private OperationHistoryService operationHistoryService;
+
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
 
     protected static String functionalCaseId;
 
@@ -163,6 +170,35 @@ public class FunctionalCaseControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+
+        //复制
+        List<FunctionalCaseAttachmentDTO> attachmentDTOS = new ArrayList<>();
+        FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO = new FunctionalCaseAttachmentDTO();
+        functionalCaseAttachmentDTO.setId("12345677");
+        functionalCaseAttachmentDTO.setFileName("测试复制");
+        functionalCaseAttachmentDTO.setAssociationId("4444");
+        functionalCaseAttachmentDTO.setLocal(true);
+        functionalCaseAttachmentDTO.setFileSource("ATTACHMENT");
+        functionalCaseAttachmentDTO.setSize(111745L);
+        functionalCaseAttachmentDTO.setCreateUser("gyq");
+        functionalCaseAttachmentDTO.setCreateTime(System.currentTimeMillis());
+        functionalCaseAttachmentDTO.setDeleted(false);
+        attachmentDTOS.add(functionalCaseAttachmentDTO);
+        request = creatFunctionalCase();
+        request.setAttachments(attachmentDTOS);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", new LinkedMultiValueMap<>());
+        functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        returnData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        functionalCase = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCase.class);
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(functionalCase.getId()).andFileIdEqualTo("12345677");
+        List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        Assertions.assertEquals(1, functionalCaseAttachments.size());
     }
 
     public String uploadTemp(MultipartFile file) {

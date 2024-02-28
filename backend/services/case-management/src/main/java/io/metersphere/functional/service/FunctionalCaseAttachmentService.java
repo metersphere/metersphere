@@ -78,7 +78,7 @@ public class FunctionalCaseAttachmentService {
      * @param userId  userId
      */
     public void saveCaseAttachment(String fileId, MultipartFile file, String caseId, Boolean isLocal, String userId) {
-        FunctionalCaseAttachment caseAttachment = creatModule(fileId, file.getOriginalFilename(), file.getSize(), caseId, isLocal, userId);
+        FunctionalCaseAttachment caseAttachment = creatAttachment(fileId, file.getOriginalFilename(), file.getSize(), caseId, isLocal, userId);
         functionalCaseAttachmentMapper.insertSelective(caseAttachment);
     }
 
@@ -89,7 +89,8 @@ public class FunctionalCaseAttachmentService {
      * @param projectId projectId
      * @param files     files
      */
-    public void uploadFile(String projectId, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
+    public List<String> uploadFile(String projectId, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
+        List<String>fileIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
                 String fileId = IDGenerator.nextStr();
@@ -103,11 +104,13 @@ public class FunctionalCaseAttachmentService {
                     throw new MSException("save file error");
                 }
                 saveCaseAttachment(fileId, file, caseId, isLocal, userId);
+                fileIds.add(fileId);
             });
         }
+        return fileIds;
     }
 
-    private FunctionalCaseAttachment creatModule(String fileId, String fileName, long fileSize, String caseId, Boolean isLocal, String userId) {
+    public FunctionalCaseAttachment creatAttachment(String fileId, String fileName, long fileSize, String caseId, Boolean isLocal, String userId) {
         FunctionalCaseAttachment caseAttachment = new FunctionalCaseAttachment();
         caseAttachment.setId(IDGenerator.nextStr());
         caseAttachment.setCaseId(caseId);
