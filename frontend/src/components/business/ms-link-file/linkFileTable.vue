@@ -118,6 +118,12 @@ const { t } = useI18n();
       width: 90,
     },
     {
+      title: 'project.fileManagement.size',
+      dataIndex: 'size',
+      slotName: 'size',
+      width: 120,
+    },
+    {
       title: 'project.fileManagement.tag',
       dataIndex: 'tags',
       isTag: true,
@@ -127,6 +133,15 @@ const { t } = useI18n();
       dataIndex: 'createUser',
       showTooltip: true,
       width: 120,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+    },
+    {
+      title: 'project.fileManagement.createTime',
+      dataIndex: 'createTime',
+      width: 180,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
