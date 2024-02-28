@@ -32,7 +32,13 @@
             @search="loadCaseList"
             @press-enter="loadCaseList"
           />
-          <a-select v-model:model-value="type" :options="typeOptions" class="w-[92px]" @change="loadCaseList" :disabled="onlyMineStatus">
+          <a-select
+            v-model:model-value="type"
+            :options="typeOptions"
+            class="w-[92px]"
+            :disabled="onlyMineStatus"
+            @change="loadCaseList"
+          >
           </a-select>
         </div>
         <a-spin :loading="caseListLoading" class="h-[calc(100%-46px)] w-full">
@@ -210,7 +216,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="ml-[48px] text-[var(--color-text-2)]" v-html="item.contentText"></div>
+                  <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
                   <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
                     {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
                   </div>

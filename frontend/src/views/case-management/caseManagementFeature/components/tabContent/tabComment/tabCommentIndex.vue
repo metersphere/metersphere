@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-between">
+  <div class="mb-4 flex items-center justify-between">
     <div class="font-medium">{{ t('caseManagement.featureCase.commentList') }}</div>
     <div>
       <a-radio-group v-model="activeComment" type="button">
@@ -11,36 +11,64 @@
   </div>
   <div>
     <!-- 用例评论 -->
-    <MsComment
-      v-if="activeComment === 'caseComment'"
-      :comment-list="commentList"
-      @delete="handleDelete"
-      @update-or-add="handleUpdateOrAdd"
-    />
+    <div v-show="activeComment === 'caseComment'">
+      <MsComment :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" />
+      <MsEmpty v-if="commentList.length === 0" />
+    </div>
+
     <!-- 评审评论 -->
-    <MsComment
-      v-else-if="activeComment === 'reviewComment'"
-      :comment-list="reviewCommentList"
-      @delete="handleDelete"
-      @update-or-add="handleUpdateOrAdd"
-    />
-    <!-- 执行评论 -->
-    <!-- <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" /> -->
+    <div v-show="activeComment === 'reviewComment'" class="flex flex-1 flex-col overflow-hidden">
+      <div class="review-history-list">
+        <div v-for="item of reviewCommentList" :key="item.id" class="review-history-list-item">
+          <div class="flex items-center">
+            <MSAvatar :avatar="item.userLogo" />
+            <div class="ml-[8px] flex items-center">
+              <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+              <a-divider direction="vertical" margin="8px"></a-divider>
+              <div v-if="item.status === 'PASS'" class="flex items-center">
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                {{ t('caseManagement.caseReview.pass') }}
+              </div>
+              <div v-else-if="item.status === 'UN_PASS'" class="flex items-center">
+                <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
+                {{ t('caseManagement.caseReview.fail') }}
+              </div>
+              <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
+                <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                {{ t('caseManagement.caseReview.suggestion') }}
+              </div>
+              <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
+                <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                {{ t('caseManagement.caseReview.reReview') }}
+              </div>
+            </div>
+          </div>
+          <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
+          <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
+            {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+          </div>
+        </div>
+        <MsEmpty v-if="reviewCommentList.length === 0" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
+  import MSAvatar from '@/components/pure/ms-avatar/index.vue';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsComment from '@/components/business/ms-comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
   import {
+    addOrUpdateCommentList,
     deleteCommentList,
     getCommentList,
     getReviewCommentList,
-    updateCommentList,
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -104,13 +132,8 @@
 
   // 添加或者更新评论
   async function handleUpdateOrAdd(item: CommentParams, cb: (result: boolean) => void) {
-    debugger;
     try {
-      if (item.id) {
-        await updateCommentList(item);
-      } else {
-        await updateCommentList(item);
-      }
+      await addOrUpdateCommentList(item);
       getAllCommentList();
       cb(true);
     } catch (error) {
@@ -152,18 +175,18 @@
       }
     }
   );
-  // watch(
-  //   () => activeTab.value,
-  //   (val) => {
-  //     if (val === 'comments') {
-  //       getAllCommentList();
-  //     }
-  //   }
-  // );
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'comments') {
+        getAllCommentList();
+      }
+    }
+  );
 
-  onMounted(() => {
-    getAllCommentList();
-  });
+  // onMounted(() => {
+  //   getAllCommentList();
+  // });
 
   defineExpose({
     getAllCommentList,

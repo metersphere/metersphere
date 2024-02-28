@@ -122,22 +122,27 @@
                 </a-menu>
               </div>
               <div class="leftContent mt-4 px-4">
-                <TabDetail
-                  v-if="activeTab === 'detail'"
-                  ref="tabDetailRef"
-                  :form="detailInfo"
-                  :allow-edit="true"
-                  :form-rules="formItem"
-                  :active-tab="activeTab"
-                  @update-success="updateSuccess"
-                />
+                <div v-if="activeTab === 'detail'">
+                  <TabDetail
+                    ref="tabDetailRef"
+                    :form="detailInfo"
+                    :allow-edit="true"
+                    :form-rules="formItem"
+                    :active-tab="activeTab"
+                    @update-success="updateSuccess"
+                  />
+                </div>
+
                 <TabCaseTable v-show="activeTab === 'case'" :case-id="props.detailId" />
                 <TabDemand v-show="activeTab === 'requirement'" :case-id="props.detailId" />
                 <TabDefect v-show="activeTab === 'bug'" :case-id="props.detailId" />
                 <TabDependency v-show="activeTab === 'dependency'" :case-id="props.detailId" />
                 <TabCaseReview v-show="activeTab === 'caseReview'" :case-id="props.detailId" />
                 <TabTestPlan v-show="activeTab === 'testPlan'" :active-tab="activeTab" />
-                <TabComment v-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
+                <div v-show="activeTab === 'comments'">
+                  <TabComment ref="commentRef" :case-id="props.detailId" />
+                </div>
+
                 <TabChangeHistory v-show="activeTab === 'changeHistory'" :case-id="props.detailId" />
               </div>
             </div>
@@ -231,6 +236,15 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
 
+  // import TabDefect from './tabContent/tabBug/tabDefect.vue';
+  // import TabCaseTable from './tabContent/tabCase/tabCaseTable.vue';
+  // import TabCaseReview from './tabContent/tabCaseReview.vue';
+  // import TabChangeHistory from './tabContent/tabChangeHistory.vue';
+  // import TabComment from './tabContent/tabComment/tabCommentIndex.vue';
+  // import TabDemand from './tabContent/tabDemand/demand.vue';
+  // import TabDependency from './tabContent/tabDependency/tabDependency.vue';
+  // import TabDetail from './tabContent/tabDetail.vue';
+  // import TabTestPlan from './tabContent/tabTestPlan.vue';
   import {
     createCommentList,
     deleteCaseRequest,
@@ -605,13 +619,13 @@
     () => props.detailId,
     (val) => {
       if (val) {
-        updateSuccess();
+        detailDrawerRef.value?.initDetail();
       }
     }
   );
 
   onMounted(() => {
-    // settingDrawerRef.value.getTabModule();
+    settingDrawerRef.value.getTabModule();
   });
 </script>
 
