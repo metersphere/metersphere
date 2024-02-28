@@ -24,6 +24,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -195,7 +196,7 @@ public class EnvironmentGroupService {
             EnvironmentBlob environmentBlob = envBlobMap.get(e.getEnvironmentId());
             if (environmentBlob != null) {
                 EnvironmentConfig environmentConfig = JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
-                dto.setDomain(environmentConfig.getHttpConfig());
+                dto.setDomain(ObjectUtils.isNotEmpty(environmentConfig) ? environmentConfig.getHttpConfig() : new ArrayList<>());
             }
             result.add(dto);
         });
