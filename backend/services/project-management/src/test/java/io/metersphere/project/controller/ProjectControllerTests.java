@@ -19,6 +19,8 @@ import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.BaseUserMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -65,6 +67,11 @@ public class ProjectControllerTests extends BaseTest {
     private ProjectService projectService;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private BaseUserMapper baseUserMapper;
+    @Resource
+    private UserMapper userMapper;
+
 
     @Autowired
     public ProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -215,6 +222,9 @@ public class ProjectControllerTests extends BaseTest {
                 .andReturn();
         String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
         String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+        UserDTO userDTO = baseUserMapper.selectById("admin1");
+        userDTO.setLastProjectId(null);
+        userMapper.updateByPrimaryKey(userDTO);
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

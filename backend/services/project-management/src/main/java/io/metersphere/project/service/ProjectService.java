@@ -22,10 +22,7 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.mapper.ExtSystemProjectMapper;
-import io.metersphere.system.mapper.OrganizationMapper;
-import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.ServiceUtils;
@@ -64,6 +61,8 @@ public class ProjectService {
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
+    @Resource
+    private BaseUserMapper baseUserMapper;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -72,15 +71,33 @@ public class ProjectService {
         if (organizationMapper.selectByPrimaryKey(organizationId) == null) {
             throw new MSException(Translator.get("organization_not_exist"));
         }
+        //查询用户当前的项目  如果存在默认排在第一个
+        User user = baseUserMapper.selectById(userId);
+        String projectId;
+        if (user != null && StringUtils.isNotBlank(user.getLastProjectId())) {
+            projectId = user.getLastProjectId();
+        } else {
+            projectId = null;
+        }
         //判断用户是否是系统管理员
+        List<Project> allProject = new ArrayList<>();
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
         if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andOrganizationIdEqualTo(organizationId);
-            return projectMapper.selectByExample(example);
+            allProject = extProjectMapper.getAllProject(organizationId);
+        } else {
+            allProject = extProjectMapper.getUserProject(organizationId, userId);
         }
-        return extProjectMapper.getUserProject(organizationId, userId);
+        List<Project> temp = allProject;
+        return allProject.stream()
+                .filter(project -> StringUtils.equals(project.getId(), projectId))
+                .findFirst()
+                .map(project -> {
+                    temp.remove(project);
+                    temp.add(0, project);
+                    return temp;
+                })
+                .orElse(allProject);
     }
 
     public UserDTO switchProject(ProjectSwitchRequest request, String currentUserId) {
