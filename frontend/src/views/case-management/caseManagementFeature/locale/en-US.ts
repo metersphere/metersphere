@@ -78,6 +78,7 @@ export default {
   'caseManagement.featureCase.selectAttrs': 'select attributes',
   'caseManagement.featureCase.batchUpdate': 'Batch update to',
   'caseManagement.featureCase.batchDelete': 'Are you sure to delete the use case {number} ?',
+  'caseManagement.featureCase.batchDeleteCompleted': 'Are you sure to completed delete the use case {number} ?',
   'caseManagement.featureCase.batchMoveTitle': 'Batch Move',
   'caseManagement.featureCase.batchMove': '({number} selected use cases)',
   'caseManagement.featureCase.batchMoveSelectedModules': 'Batch Move',
@@ -115,6 +116,7 @@ export default {
   'caseManagement.featureCase.recoveredSuccessfully': 'Recovered successfully',
   'caseManagement.featureCase.cleanOutDeleteTip':
     'After deletion, the data will not be recovered, please operate with caution!',
+  'caseManagement.featureCase.cleanOutDeleteOnRecycleTip': 'After deletion, the case will not be recovered, please operate with caution!',
   'caseManagement.featureCase.pleaseEnterInputTags': 'Please enter content Enter add label',
   'caseManagement.featureCase.copy': 'Copy',
   'caseManagement.featureCase.copyCase': 'Copy case',

@@ -13,7 +13,7 @@
       :keyword="groupKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
-      :empty-text="t('caseManagement.featureCase.caseEmptyContent')"
+      :empty-text="t('common.noData')"
       draggable
       :virtual-list-props="virtualListProps"
       block-node
