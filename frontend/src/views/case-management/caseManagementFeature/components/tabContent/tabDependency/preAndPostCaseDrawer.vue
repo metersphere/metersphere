@@ -6,6 +6,7 @@
     :footer="false"
     no-content-padding
     :mask-closable="false"
+    unmount-on-close
   >
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">

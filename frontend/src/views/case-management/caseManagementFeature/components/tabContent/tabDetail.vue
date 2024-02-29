@@ -304,7 +304,6 @@
       form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
       formRules?: FormRuleItem[]; // 编辑表单
-      activeTab?: string;
     }>(),
     {
       allowEdit: true, // 是否允许编辑

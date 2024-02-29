@@ -5,6 +5,7 @@
     :max="props.max"
     :class="[
       'h-full',
+      'ms-split-box-second',
       isExpanded ? '' : 'expanded-panel',
       isExpandAnimating ? 'animating' : '',
       props.direction === 'vertical' ? 'ms-split-box--vertical' : '',
