@@ -320,6 +320,8 @@ public class BugService {
             Bug record = new Bug();
             record.setId(id);
             record.setDeleted(true);
+            record.setDeleteUser(currentUser);
+            record.setDeleteTime(System.currentTimeMillis());
             bugMapper.updateByPrimaryKeySelective(record);
         } else {
             // 需同步删除平台缺陷
@@ -820,8 +822,6 @@ public class BugService {
             bug.setCreateTime(System.currentTimeMillis());
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());
-            bug.setDeleteUser(currentUser);
-            bug.setDeleteTime(System.currentTimeMillis());
             bug.setDeleted(false);
             bug.setPos(getNextPos(request.getProjectId()));
             bugMapper.insert(bug);

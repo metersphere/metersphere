@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS bug(
     `status` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '状态' ,
     `tags` VARCHAR(1000)    COMMENT '标签' ,
     `platform_bug_id` VARCHAR(50)    COMMENT '第三方平台缺陷ID' ,
-    `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
-    `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,
+    `delete_user` VARCHAR(50) COMMENT '删除人',
+    `delete_time` BIGINT COMMENT '删除时间',
     `deleted` BIT(1) NOT NULL   COMMENT '删除状态' ,
     `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
     PRIMARY KEY (id)
