@@ -11,6 +11,8 @@
         JOIN user on urr.user_id = user.id
         where urr.user_id = #{userId} and  u.type = 'PROJECT'
           AND p.organization_id = #{organizationId} and p.enable = 1 and user.deleted = 0
+        order by
+            CONVERT( p.name  USING GBK) ASC
     </select>
 
 
@@ -73,5 +75,13 @@
           and t.enable = 1
           and t.deleted = 0
         and t.${type} = 1
+    </select>
+    <select id="getAllProject" resultType="io.metersphere.project.domain.Project">
+        select *
+        from project
+        where enable = 1 and
+                organization_id = #{organizationId}
+        order by
+            CONVERT( name  USING GBK) ASC
     </select>
 </mapper>
