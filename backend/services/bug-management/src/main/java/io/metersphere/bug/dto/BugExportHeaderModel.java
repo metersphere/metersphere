@@ -14,6 +14,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BugExportHeaderModel {
+    //xlsx文件前缀
+    private String xlsxFileNamePrefix;
 
     /**
      * 导出的表头列

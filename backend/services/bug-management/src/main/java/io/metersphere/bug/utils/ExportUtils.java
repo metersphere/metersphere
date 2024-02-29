@@ -26,7 +26,7 @@ public class ExportUtils {
      *  2.压缩
      *  3.删除该目录
      */
-    public byte[] exportToZipFile(BiFunction<List, BugExportHeaderModel, String> generateExcelFilesFunction) throws Exception {
+    public byte[] exportToZipFile(String xlsxFileNamePrefix, BiFunction<List, BugExportHeaderModel, String> generateExcelFilesFunction) throws Exception {
         //生成包含excel文件目录
         String folderPath = generateExcelFilesFunction.apply(bugs, headerModel);
         File excelFolder = new File(folderPath);
