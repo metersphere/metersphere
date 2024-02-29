@@ -314,6 +314,66 @@ public class FunctionalCaseDemandExample {
             return (Criteria) this;
         }
 
+        public Criteria andWithParentIsNull() {
+            addCriterion("with_parent is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentIsNotNull() {
+            addCriterion("with_parent is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentEqualTo(Boolean value) {
+            addCriterion("with_parent =", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentNotEqualTo(Boolean value) {
+            addCriterion("with_parent <>", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentGreaterThan(Boolean value) {
+            addCriterion("with_parent >", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("with_parent >=", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentLessThan(Boolean value) {
+            addCriterion("with_parent <", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentLessThanOrEqualTo(Boolean value) {
+            addCriterion("with_parent <=", value, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentIn(List<Boolean> values) {
+            addCriterion("with_parent in", values, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentNotIn(List<Boolean> values) {
+            addCriterion("with_parent not in", values, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentBetween(Boolean value1, Boolean value2) {
+            addCriterion("with_parent between", value1, value2, "withParent");
+            return (Criteria) this;
+        }
+
+        public Criteria andWithParentNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("with_parent not between", value1, value2, "withParent");
+            return (Criteria) this;
+        }
+
         public Criteria andDemandIdIsNull() {
             addCriterion("demand_id is null");
             return (Criteria) this;

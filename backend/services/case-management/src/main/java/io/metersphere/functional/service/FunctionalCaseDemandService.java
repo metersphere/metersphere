@@ -66,14 +66,13 @@ public class FunctionalCaseDemandService {
      */
     public List<FunctionalDemandDTO> listFunctionalCaseDemands(QueryDemandListRequest request) {
         List<FunctionalDemandDTO> parentDemands = extFunctionalCaseDemandMapper.selectParentDemandByKeyword(request.getKeyword(), request.getCaseId());
+        if (CollectionUtils.isEmpty(parentDemands)) {
+            return new ArrayList<>();
+        }
         Map<String, List<FunctionalDemandDTO>> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
         List<String> ids = parentDemands.stream().map(FunctionalCaseDemand::getId).toList();
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            functionalCaseDemandExample.createCriteria().andIdNotIn(ids).andCaseIdEqualTo(request.getCaseId());
-        } else {
-            functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(request.getCaseId());
-        }
+        functionalCaseDemandExample.createCriteria().andIdNotIn(ids).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         int lastSize = 0;
         while (CollectionUtils.isNotEmpty(functionalCaseDemands) && functionalCaseDemands.size() != lastSize) {
@@ -91,8 +90,6 @@ public class FunctionalCaseDemandService {
             }
             functionalCaseDemands = notMatchedList;
         }
-        //处理剩下的没有跟节点的数据
-        dealNotMatchedList(functionalCaseDemands, parentDemands);
         return parentDemands;
     }
 
@@ -104,67 +101,6 @@ public class FunctionalCaseDemandService {
         if (!functionalDemandDTOS.contains(functionalDemandDTO)) {
             functionalDemandDTOS.add(functionalDemandDTO);
             functionalCaseDemandMap.put(demand.getDemandId(), functionalDemandDTOS);
-        }
-    }
-
-    private static void dealNotMatchedList(List<FunctionalCaseDemand> functionalCaseDemands, List<FunctionalDemandDTO> parentDemands) {
-        if (CollectionUtils.isEmpty(functionalCaseDemands)) {
-            return;
-        }
-        List<FunctionalDemandDTO> functionalDemandDTOS = new ArrayList<>();
-        List<FunctionalDemandDTO> copyFunctionalDemandDTOS = new ArrayList<>();
-        turnList(functionalCaseDemands, functionalDemandDTOS, copyFunctionalDemandDTOS);
-        Map<String, List<FunctionalDemandDTO>> parentNotMatchedMap = functionalDemandDTOS.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getParent));
-
-        int lastSize = 0;
-        while (CollectionUtils.isNotEmpty(functionalDemandDTOS) && functionalDemandDTOS.size() != lastSize) {
-            lastSize = functionalDemandDTOS.size();
-            for (FunctionalDemandDTO functionalDemandDTO : functionalDemandDTOS) {
-                String demandId = functionalDemandDTO.getDemandId();
-                //当前数据例是否有父亲的这个数据，有，就把当前这个map数据放入父亲下(相同平台的)
-                List<FunctionalDemandDTO> list = new ArrayList<>();
-                if (parentNotMatchedMap.get(demandId) != null) {
-                    list = parentNotMatchedMap.get(demandId).stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandPlatform(), functionalDemandDTO.getDemandPlatform())).toList();
-                }
-                if (CollectionUtils.isEmpty(list)) {
-                    continue;
-                }
-                delChild(functionalDemandDTO, list, parentNotMatchedMap, copyFunctionalDemandDTOS);
-                functionalDemandDTO.setChildren(list);
-                break;
-            }
-            functionalDemandDTOS = new ArrayList<>(copyFunctionalDemandDTOS);
-        }
-        parentDemands.addAll(functionalDemandDTOS);
-    }
-
-    /**
-     * 转换数据结构
-     */
-    private static void turnList(List<FunctionalCaseDemand> functionalCaseDemands, List<FunctionalDemandDTO> functionalDemandDTOS, List<FunctionalDemandDTO> copyFunctionalDemandDTOS) {
-        for (FunctionalCaseDemand functionalCaseDemand : functionalCaseDemands) {
-            FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
-            BeanUtils.copyBean(functionalDemandDTO, functionalCaseDemand);
-            functionalDemandDTOS.add(functionalDemandDTO);
-            copyFunctionalDemandDTOS.add(functionalDemandDTO);
-        }
-    }
-
-    /**
-     * 处理可能包括的孩子
-     */
-    private static void delChild(FunctionalDemandDTO functionalDemandDTO, List<FunctionalDemandDTO> list, Map<String, List<FunctionalDemandDTO>> parentNotMatchedMap, List<FunctionalDemandDTO> copyFunctionalDemandDTOS) {
-        if (CollectionUtils.isEmpty(list)) {
-            return;
-        }
-        for (FunctionalDemandDTO demandDTO : list) {
-            String demandId1 = demandDTO.getDemandId();
-            if (parentNotMatchedMap.get(demandId1) != null) {
-                List<FunctionalDemandDTO> list1 = parentNotMatchedMap.get(demandId1).stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandPlatform(), functionalDemandDTO.getDemandPlatform())).toList();
-                demandDTO.setChildren(list1);
-                delChild(demandDTO, list1, parentNotMatchedMap, copyFunctionalDemandDTOS);
-            }
-            copyFunctionalDemandDTOS.remove(demandDTO);
         }
     }
 
@@ -183,15 +119,7 @@ public class FunctionalCaseDemandService {
         List<FunctionalCaseDemand> existDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
-            for (DemandDTO demandDTO : demandDTOList) {
-                FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request.getCaseId(), request.getDemandPlatform(), userId, demandDTO);
-                List<FunctionalCaseDemand> list = existDemands.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandId(), functionalCaseDemand.getDemandId()) && StringUtils.equalsIgnoreCase(t.getParent(), functionalCaseDemand.getParent())
-                        && StringUtils.equalsIgnoreCase(t.getDemandName(), functionalCaseDemand.getDemandName()) && StringUtils.equalsIgnoreCase(t.getDemandUrl(), functionalCaseDemand.getDemandUrl())).toList();
-                if (CollectionUtils.isNotEmpty(list)) {
-                    return;
-                }
-                functionalCaseDemandMapper.insert(functionalCaseDemand);
-            }
+            insertDemand(demandDTOList, request, userId, existDemands, functionalCaseDemandMapper);
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
@@ -239,7 +167,11 @@ public class FunctionalCaseDemandService {
             if (StringUtils.isBlank(demandDTO.getParent())) {
                 functionalCaseDemand.setParent("NONE");
             } else {
-                functionalCaseDemand.setParent(demandDTO.getParent());
+                if (StringUtils.isBlank(demandDTO.getParent())) {
+                    functionalCaseDemand.setParent("NONE");
+                } else {
+                    functionalCaseDemand.setParent(demandDTO.getParent());
+                }
             }
         }
         if (StringUtils.isBlank(demandDTO.getDemandName())) {
@@ -293,31 +225,58 @@ public class FunctionalCaseDemandService {
         List<String> caseIds = doSelectIds(request, request.getProjectId());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
-        List<String> demandIds = demandDTOList.stream().map(DemandDTO::getDemandId).toList();
         String demandPlatform = request.getDemandPlatform();
         //查询当前平台所有已关联的需求
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andDemandPlatformEqualTo(demandPlatform);
         List<FunctionalCaseDemand> existPlatformDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Map<String, List<FunctionalCaseDemand>> caseDemandMap = existPlatformDemands.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getCaseId));
-        Map<String, DemandDTO> demandDTOMap = demandDTOList.stream().collect(Collectors.toMap(DemandDTO::getDemandId, t -> t));
         caseIds.forEach(t -> {
-            List<String> existDemandIds = new ArrayList<>();
-            List<FunctionalCaseDemand> functionalCaseDemands = caseDemandMap.get(t);
-            if (CollectionUtils.isNotEmpty(functionalCaseDemands)) {
-                existDemandIds = functionalCaseDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
+            List<FunctionalCaseDemand> existDemands = caseDemandMap.get(t);
+            if (CollectionUtils.isEmpty(existDemands)) {
+                existDemands = new ArrayList<>();
             }
+            FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+            functionalCaseDemandRequest.setCaseId(t);
+            functionalCaseDemandRequest.setDemandPlatform(request.getDemandPlatform());
             //过滤已存在的
-            List<String> finalExistDemandIds = existDemandIds;
-            List<String> notRepeatDemandIds = demandIds.stream().filter(demand -> !finalExistDemandIds.contains(demand)).toList();
-            for (String notRepeatDemandId : notRepeatDemandIds) {
-                DemandDTO demandDTO = demandDTOMap.get(notRepeatDemandId);
-                FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(t, demandPlatform, userId, demandDTO);
-                functionalCaseDemandMapper.insert(functionalCaseDemand);
-            }
+            insertDemand(demandDTOList, functionalCaseDemandRequest, userId, existDemands,  functionalCaseDemandMapper);
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    private void insertDemand(List<DemandDTO> demandDTOList, FunctionalCaseDemandRequest request, String userId, List<FunctionalCaseDemand> existDemands, FunctionalCaseDemandMapper functionalCaseDemandMapper) {
+        Map<String, List<FunctionalCaseDemand>> existMap = existDemands.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
+        Map<String, List<FunctionalCaseDemand>> existParentMap = existDemands.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getParent));
+        Map<String, List<DemandDTO>> insertMap = demandDTOList.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(DemandDTO::getDemandId));
+
+        for (DemandDTO demandDTO : demandDTOList) {
+            FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request.getCaseId(), request.getDemandPlatform(), userId, demandDTO);
+            //校验重复
+            List<FunctionalCaseDemand> list = existDemands.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandId(), functionalCaseDemand.getDemandId()) && StringUtils.equalsIgnoreCase(t.getParent(), functionalCaseDemand.getParent())
+                    && StringUtils.equalsIgnoreCase(t.getDemandName(), functionalCaseDemand.getDemandName()) && StringUtils.equalsIgnoreCase(t.getDemandUrl(), functionalCaseDemand.getDemandUrl())).toList();
+            if (CollectionUtils.isNotEmpty(list)) {
+                continue;
+            }
+            //校验当前关联的需求在系统或传入的数据结构中是否带有父节点，如果有置为true,用来做查询的root节点
+            List<FunctionalCaseDemand> functionalCaseDemands = existMap.get(demandDTO.getParent());
+            List<DemandDTO> demandDTOList1 = insertMap.get(demandDTO.getParent());
+            if (CollectionUtils.isNotEmpty(functionalCaseDemands) || CollectionUtils.isNotEmpty(demandDTOList1)) {
+                functionalCaseDemand.setWithParent(Boolean.TRUE);
+            } else {
+                functionalCaseDemand.setWithParent(Boolean.FALSE);
+                //校验系统中有没有当前数据的子节点，如果有置为false
+                List<FunctionalCaseDemand> existChildren = existParentMap.get(functionalCaseDemand.getDemandId());
+                if (CollectionUtils.isNotEmpty(existChildren)) {
+                    for (FunctionalCaseDemand existChild : existChildren) {
+                        existChild.setWithParent(Boolean.TRUE);
+                        functionalCaseDemandMapper.updateByPrimaryKey(existChild);
+                    }
+                }
+            }
+            functionalCaseDemandMapper.insert(functionalCaseDemand);
+        }
     }
 
     private List<DemandDTO> doSelectDemandList(FunctionalDemandBatchRequest functionalDemandBatchRequest, List<DemandDTO> demandList, String projectId) {
@@ -336,7 +295,7 @@ public class FunctionalCaseDemandService {
     }
 
     public List<DemandDTO> getDemandDTOS(PluginPager<PlatformDemandDTO> platformDemandDTOPluginPager) {
-        if (platformDemandDTOPluginPager.getData()!=null) {
+        if (platformDemandDTOPluginPager.getData() != null) {
             List<PlatformDemandDTO.Demand> list = platformDemandDTOPluginPager.getData().getList();
             List<DemandDTO> demandDTOList = new ArrayList<>();
             setDemandDTOList(list, demandDTOList);

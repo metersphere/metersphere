@@ -7,7 +7,11 @@
         *
         FROM functional_case_demand
         WHERE functional_case_demand.case_id = #{caseId}
-          AND functional_case_demand.parent = 'NONE'
+          AND
+        (
+        functional_case_demand.parent = 'NONE' OR
+        (functional_case_demand.with_parent = 'false')
+        )
         <if test="keyword != null and keyword != ''">
             AND (
             functional_case_demand.demand_id = #{keyword} OR
