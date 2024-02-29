@@ -243,6 +243,7 @@ public class ApiExecuteService {
         String testId = runRequest.getProjectId();
         // 生成执行脚本
         MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
+        msCommentScriptElement.setScriptLanguage(runRequest.getType());
         String executeScript = parseExecuteScript(msCommentScriptElement, new ApiParamConfig());
         // 设置执行参数
         TaskRequestDTO taskRequest = new TaskRequestDTO();
