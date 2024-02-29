@@ -6,6 +6,7 @@
     ok-text="common.confirm"
     :confirm="confirmHandler"
     :close="closeHandler"
+    unmount-on-close
     :switch-props="{
       switchName: t('caseManagement.featureCase.appendTag'),
       switchTooltip: t('caseManagement.featureCase.enableTags'),

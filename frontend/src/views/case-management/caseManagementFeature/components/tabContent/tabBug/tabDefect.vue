@@ -128,7 +128,6 @@
 
   const props = defineProps<{
     caseId: string;
-    activeTab: string;
   }>();
   // const activeTab = computed(() => featureCaseStore.activeTab);
   const showType = ref('link');
