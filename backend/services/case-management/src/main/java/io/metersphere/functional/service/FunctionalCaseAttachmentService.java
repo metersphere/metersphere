@@ -104,6 +104,9 @@ public class FunctionalCaseAttachmentService {
                 fileRequest.setFileName(file.getOriginalFilename());
                 fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(projectId, caseId) + "/" + fileId);
                 fileRequest.setStorage(StorageType.MINIO.name());
+                if (file.getSize() > maxFileSize.toBytes()) {
+                    throw new MSException(Translator.get("file.size.is.too.large"));
+                }
                 try {
                     fileService.upload(file, fileRequest);
                 } catch (Exception e) {
