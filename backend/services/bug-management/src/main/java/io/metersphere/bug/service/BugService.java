@@ -1334,8 +1334,13 @@ public class BugService {
         Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         // 表头自定义字段
         List<TemplateCustomFieldDTO> headerCustomFields = getHeaderCustomFields(request.getProjectId());
-        ExportUtils exportUtils = new ExportUtils(bugs, BugExportHeaderModel.builder().exportColumns(request.getExportColumns()).headerCustomFields(headerCustomFields)
-                .handleUserMap(handleUserMap).statusMap(statusMap).build());
+        String xlsxFileNamePrefix = "MeterSphere_bug_" + project.getName() + "_";
+        ExportUtils exportUtils = new ExportUtils(bugs,
+                BugExportHeaderModel.builder()
+                        .exportColumns(request.getExportColumns())
+                        .headerCustomFields(headerCustomFields)
+                        .handleUserMap(handleUserMap).statusMap(statusMap)
+                        .xlsxFileNamePrefix(xlsxFileNamePrefix).build());
         // 导出
         byte[] bytes = exportUtils.exportToZipFile(bugExportService::generateExcelFiles);
         String zipName = "MeterSphere_bug_" + URLEncoder.encode(project.getName(), StandardCharsets.UTF_8) + ".zip";

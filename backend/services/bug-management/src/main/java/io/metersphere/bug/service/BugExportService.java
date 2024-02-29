@@ -49,11 +49,11 @@ public class BugExportService {
             int index = 1;
             while (list.size() > BATCH_PROCESS_QUANTITY) {
                 List<BugDTO> excelBugList = list.subList(0, BATCH_PROCESS_QUANTITY);
-                this.generateExcelFile(excelBugList, index, filesFolder, headerModel);
+                this.generateExcelFile(excelBugList, headerModel.getXlsxFileNamePrefix() + index + ".xlsx", filesFolder, headerModel);
                 list.removeAll(excelBugList);
                 index += 1;
             }
-            this.generateExcelFile(list, index, filesFolder, headerModel);
+            this.generateExcelFile(list, headerModel.getXlsxFileNamePrefix() + index + ".xlsx", filesFolder, headerModel);
         } catch (Exception e) {
             LogUtils.error(e.getMessage());
             throw new MSException(e.getMessage());
@@ -61,7 +61,7 @@ public class BugExportService {
         return filesFolder;
     }
 
-    private void generateExcelFile(List<BugDTO> list, int fileIndex, String excelPath, BugExportHeaderModel headerModel) throws Exception {
+    private void generateExcelFile(List<BugDTO> list, String xlsxFileName, String excelPath, BugExportHeaderModel headerModel) throws Exception {
         if (CollectionUtils.isNotEmpty(list)) {
             // 准备数据 {评论, 内容, 关联用例数}
             boolean exportComment = this.exportComment(headerModel.getExportColumns());
@@ -84,7 +84,7 @@ public class BugExportService {
 
             //生成excel文件
             List<List<String>> data = bugExportExcelModel.getData();
-            File createFile = new File(excelPath + File.separatorChar + "bug_" + fileIndex + ".xlsx");
+            File createFile = new File(excelPath + File.separatorChar + xlsxFileName);
             createFile.createNewFile();
 
             EasyExcel.write(createFile).excelType(ExcelTypeEnum.XLSX).sheet("sheet").doWrite(data);
