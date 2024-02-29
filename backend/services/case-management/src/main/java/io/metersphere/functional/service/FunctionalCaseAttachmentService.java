@@ -122,7 +122,6 @@ public class FunctionalCaseAttachmentService {
         caseAttachment.setCaseId(caseId);
         caseAttachment.setFileId(fileId);
         caseAttachment.setFileName(fileName);
-        caseAttachment.setFileSource(CaseFileSourceType.ATTACHMENT.toString());
         caseAttachment.setSize(fileSize);
         caseAttachment.setLocal(isLocal);
         caseAttachment.setCreateUser(userId);

@@ -23,8 +23,12 @@ import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileCopyRequest;
+import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.OperationHistoryExample;
@@ -205,12 +209,42 @@ public class FunctionalCaseService {
         FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(caseId).andFileIdIn(attachmentFileIds);
         List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+
+        functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdNotEqualTo(caseId).andFileIdIn(attachmentFileIds);
+        List<FunctionalCaseAttachment> oldFiles = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        Map<String, List<FunctionalCaseAttachment>> oldFileMap = oldFiles.stream().collect(Collectors.groupingBy(FunctionalCaseAttachment::getFileId));
+
         List<String> attachmentFileIdInDBs = functionalCaseAttachments.stream().map(FunctionalCaseAttachment::getFileId).toList();
         List<String> saveAttachmentFileIds = attachmentFileIds.stream().filter(t -> !attachmentFileIdInDBs.contains(t)).toList();
+        FileRepository defaultRepository = FileCenter.getDefaultRepository();
         for (String saveAttachmentFileId : saveAttachmentFileIds) {
             FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO = attachmentDTOMap.get(saveAttachmentFileId);
-            FunctionalCaseAttachment caseAttachment = functionalCaseAttachmentService.creatAttachment(saveAttachmentFileId, functionalCaseAttachmentDTO.getFileName(), functionalCaseAttachmentDTO.getSize(), caseId, Boolean.TRUE, userId);
+            FunctionalCaseAttachment caseAttachment = functionalCaseAttachmentService.creatAttachment(saveAttachmentFileId, functionalCaseAttachmentDTO.getFileName(), functionalCaseAttachmentDTO.getSize(), caseId, functionalCaseAttachmentDTO.getLocal(), userId);
+            if(functionalCaseAttachmentDTO.getLocal()) {
+                caseAttachment.setFileSource(CaseFileSourceType.ATTACHMENT.toString());
+                copyFile(request, caseId, saveAttachmentFileId, oldFileMap, functionalCaseAttachmentDTO, defaultRepository);
+            }
             functionalCaseAttachmentMapper.insertSelective(caseAttachment);
+        }
+    }
+
+    private static void copyFile(FunctionalCaseAddRequest request, String caseId, String saveAttachmentFileId, Map<String, List<FunctionalCaseAttachment>> oldFileMap, FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO, FileRepository defaultRepository) {
+        List<FunctionalCaseAttachment> oldFunctionalCaseAttachments = oldFileMap.get(saveAttachmentFileId);
+        if (CollectionUtils.isNotEmpty(oldFunctionalCaseAttachments)) {
+            FunctionalCaseAttachment functionalCaseAttachment = oldFunctionalCaseAttachments.get(0);
+            // 复制文件
+            FileCopyRequest fileCopyRequest = new FileCopyRequest();
+            fileCopyRequest.setCopyFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), functionalCaseAttachment.getCaseId()) + "/" + saveAttachmentFileId);
+            fileCopyRequest.setCopyfileName(functionalCaseAttachmentDTO.getFileName());
+            fileCopyRequest.setFileName(functionalCaseAttachmentDTO.getFileName());
+            fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), caseId) + "/" + saveAttachmentFileId);
+            // 将文件从上一个用例复制到当前用例资源目录
+            try {
+                defaultRepository.copyFile(fileCopyRequest);
+            } catch (Exception e) {
+                LogUtils.error("复制文件失败：{}",e);
+            }
         }
     }
 
