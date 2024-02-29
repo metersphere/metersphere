@@ -972,7 +972,7 @@
         @apply invisible;
       }
       .arco-select-view-value {
-        color: var(--color-text-brand);
+        color: var(--color-text-1);
       }
       .arco-select {
         border-color: transparent !important;

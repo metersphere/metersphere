@@ -25,6 +25,11 @@
                 :update-api="updateDebug"
                 :execute-api="executeDebug"
                 :local-execute-api="localExecuteApiDebug"
+                :permission-map="{
+                  execute: 'PROJECT_API_DEFINITION:READ+EXECUTE',
+                  update: 'PROJECT_API_DEFINITION:READ+UPDATE',
+                  create: 'PROJECT_API_DEFINITION:READ+ADD',
+                }"
                 is-definition
                 @add-done="emit('addDone')"
               />

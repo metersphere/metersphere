@@ -4,4 +4,7 @@ export default {
   'ms.add.attachment.alreadyDelete': 'Deleted files',
   'ms.add.attachment.other': 'Other files',
   'ms.add.attachment.quickClear': 'Clear',
+  'ms.add.attachment.remove': 'Remove',
+  'ms.add.attachment.cancelAssociate': 'Disassociate',
+  'ms.add.attachment.saveAs': 'Save',
 };

@@ -25,7 +25,7 @@ const ApiTest: AppRouteRecordRaw = {
   children: [
     {
       path: 'debug',
-      name: ApiTestRouteEnum.API_TEST_DEBUG,
+      name: ApiTestRouteEnum.API_TEST_DEBUG_MANAGEMENT,
       component: () => import('@/views/api-test/debug/index.vue'),
       meta: {
         locale: 'menu.apiTest.debug',

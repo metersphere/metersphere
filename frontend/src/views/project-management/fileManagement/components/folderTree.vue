@@ -15,7 +15,7 @@
       :node-more-actions="folderMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('project.fileManagement.noFolder')"
-      :draggable="!props.isModal"
+      :draggable="!props.isModal && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
       :virtual-list-props="virtualListProps"
       :field-names="{
         title: 'name',
@@ -40,6 +40,7 @@
         <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
         <popConfirm
           v-if="nodeData.id !== 'root'"
+          v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']"
           mode="add"
           :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           :parent-id="nodeData.id"
@@ -52,6 +53,7 @@
         </popConfirm>
         <popConfirm
           v-if="nodeData.id !== 'root'"
+          v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']"
           mode="rename"
           :parent-id="nodeData.id"
           :node-id="nodeData.id"
@@ -84,6 +86,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -130,11 +133,13 @@
     {
       label: 'project.fileManagement.rename',
       eventTag: 'rename',
+      permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
     },
     {
       label: 'project.fileManagement.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
     },
   ];
   const renamePopVisible = ref(false);

@@ -124,4 +124,5 @@ export default {
   'common.stay': '留下',
   'common.apply': '应用',
   'common.stop': '停止',
+  'common.module': '模块',
 };

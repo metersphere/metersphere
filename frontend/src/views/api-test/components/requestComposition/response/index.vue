@@ -139,7 +139,6 @@
                     : tabMoreActionList
                 "
                 class="response-more-action"
-                icon-mode="hide"
                 @select="(e) => handleMoreActionSelect(e, tab as ResponseItem)"
               />
               <popConfirm

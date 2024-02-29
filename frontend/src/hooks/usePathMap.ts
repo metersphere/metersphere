@@ -71,9 +71,36 @@ export default function usePathMap() {
     return null;
   };
 
+  /**
+   * 通过 key 查找对应的 locale 路径
+   */
+  const findLocalePath = (targetKey: string) => {
+    function getLocalePathArr(trees: PathMapItem[], path: string[] = []): string[] {
+      for (let i = 0; i < trees.length; i++) {
+        const node = trees[i];
+        const newPathArr = [...path, node.locale];
+
+        if (node.key === targetKey) {
+          return newPathArr;
+        }
+
+        if (targetKey.startsWith(node.key) && node.children) {
+          const result = getLocalePathArr(node.children, newPathArr);
+          if (result) {
+            return result;
+          }
+        }
+      }
+
+      return [];
+    }
+    return getLocalePathArr(pathMap);
+  };
+
   return {
     getPathMapByLevel,
     jumpRouteByMapKey,
     getRouteLevelByKey,
+    findLocalePath,
   };
 }
