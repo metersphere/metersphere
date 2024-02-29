@@ -16,6 +16,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.assertion.*;
 import io.metersphere.project.api.assertion.body.*;
 import io.metersphere.project.api.processor.ExtractPostProcessor;
@@ -141,17 +142,22 @@ public class MsHTTPElementTest {
         processors.add(beanShellScriptProcessor);
 
         SQLProcessor sqlProcessor = new SQLProcessor();
-        sqlProcessor.setScript("script");
+        sqlProcessor.setScript("select * from user;");
+        sqlProcessor.setName("sqlProcessor");
+        KeyValueParam keyValueParam = new KeyValueParam();
+        keyValueParam.setKey("id");
+        keyValueParam.setValue("id_1");
         sqlProcessor.setEnable(true);
         sqlProcessor.setDataSourceId("dataSourceId");
-        KeyValueEnableParam keyValueParam = new KeyValueEnableParam();
-        keyValueParam.setKey("key");
-        keyValueParam.setValue("value");
-        sqlProcessor.setVariables(List.of(keyValueParam));
+        sqlProcessor.setExtractParams(List.of(keyValueParam));
         sqlProcessor.setResultVariable("ddd");
         sqlProcessor.setQueryTimeout(1111);
-        sqlProcessor.setVariableNames("test");
+        sqlProcessor.setVariableNames("id,name");
+        sqlProcessor.setDataSourceName("test");
         processors.add(sqlProcessor);
+        SQLProcessor sqlProcessor1 = BeanUtils.copyBean(new SQLProcessor(), sqlProcessor);
+        sqlProcessor1.setDataSourceId("1111");
+        processors.add(sqlProcessor1);
 
         TimeWaitingProcessor timeWaitingProcessor = new TimeWaitingProcessor();
         timeWaitingProcessor.setDelay(1000);

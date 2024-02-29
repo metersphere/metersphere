@@ -15,6 +15,7 @@ public class TaskResultDTO implements Serializable {
 
     /**
      * 任务执行结果数据结构
+     * {@link RequestResult}
      */
     private List<RequestResult> requestResults;
     /**
@@ -31,11 +32,13 @@ public class TaskResultDTO implements Serializable {
     private Boolean hasEnded;
     /**
      * 执行过程状态
+     * {@link ProcessResultDTO}
      */
     private ProcessResultDTO processResultDTO;
 
     /**
      * 请求参数
+     * {@link TaskRequestDTO}
      */
     private TaskRequestDTO request;
 }

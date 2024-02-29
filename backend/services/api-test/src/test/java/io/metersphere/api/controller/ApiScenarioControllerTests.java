@@ -38,6 +38,7 @@ import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
+import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
@@ -1035,6 +1036,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         sqlProcessor.setName("select * from test");
 
         EnvironmentConfig environmentConfig = new EnvironmentConfig();
+        DataSource dataSource = getDataSource();
+        environmentConfig.setDataSources(List.of(dataSource));
+
         EnvProcessorConfig preProcessorConfig = environmentConfig.getPreProcessorConfig();
         EnvProcessorConfig postProcessorConfig = environmentConfig.getPostProcessorConfig();
         List<MsProcessor> preProcessors = preProcessorConfig.getApiProcessorConfig().getScenarioProcessorConfig().getProcessors();
@@ -1116,6 +1120,17 @@ public class ApiScenarioControllerTests extends BaseTest {
         environmentGroupProjectDTO.setProjectId(DEFAULT_PROJECT_ID);
         groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO));
         envGroupId = environmentGroupService.add(groupRequest, "admin").getId();
+    }
+
+    private DataSource getDataSource() {
+        DataSource dataSource = new DataSource();
+        dataSource.setDataSource("test");
+        dataSource.setId("dataSourceId");
+        dataSource.setDriver("com.mysql.cj.jdbc.Driver");
+        dataSource.setUsername("root");
+        dataSource.setPassword("Password123@mysql");
+        dataSource.setDbUrl("jdbc:mysql://192.168.15.41:3306/metersphere");
+        return dataSource;
     }
 
     @Test
