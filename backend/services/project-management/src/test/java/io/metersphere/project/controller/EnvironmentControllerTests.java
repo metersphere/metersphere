@@ -316,7 +316,6 @@ public class EnvironmentControllerTests extends BaseTest {
         scriptProcessor.setScript("script");
         scriptProcessor.setName("测试计划级别脚本");
         SQLProcessor sqlProcessor = new SQLProcessor();
-        sqlProcessor.setEnvironmentId("environmentId");
         sqlProcessor.setDataSourceId("dataSourceId");
         sqlProcessor.setQueryTimeout(1000L);
         ApiEnvPlanProcessorConfig apiEnvPlanProcessorConfig = new ApiEnvPlanProcessorConfig();

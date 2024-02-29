@@ -97,11 +97,13 @@ public class RequestResult {
 
     /**
      * 子请求结果
+     * {@link RequestResult}
      */
     private List<RequestResult> subRequestResults = new ArrayList<>();
 
     /**
      * 响应结果
+     * {@link ResponseResult}
      */
     private ResponseResult responseResult = new ResponseResult();
 

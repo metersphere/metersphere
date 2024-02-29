@@ -27,7 +27,7 @@ public class DataSource implements Serializable {
     @Schema(description = "密码")
     private String password;
     @Schema(description = "最大连接数")
-    private Long poolMax;
+    private Long poolMax = 1L;
     @Schema(description = "超时时间")
-    private Long timeout;
+    private Long timeout = 10000L;
 }

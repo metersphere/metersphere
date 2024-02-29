@@ -1,7 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.processor.SQLProcessor;
+import org.apache.jmeter.protocol.jdbc.processor.JDBCPostProcessor;
 import org.apache.jorphan.collections.HashTree;
 
 /**
@@ -10,10 +11,7 @@ import org.apache.jorphan.collections.HashTree;
  */
 public class SqlPostProcessorConverter extends SqlProcessorConverter {
     @Override
-    public void parse(HashTree hashTree, SQLProcessor scriptProcessor, ParameterConfig config) {
-        if (!needParse(scriptProcessor, config)) {
-            return;
-        }
-        // todo 等环境开发完之后，补充
+    public void parse(HashTree hashTree, SQLProcessor sqlProcessor, ParameterConfig config) {
+      parse(hashTree, sqlProcessor, config, JDBCPostProcessor.class);
     }
 }

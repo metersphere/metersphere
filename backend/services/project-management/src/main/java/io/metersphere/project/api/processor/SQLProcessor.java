@@ -1,7 +1,6 @@
 package io.metersphere.project.api.processor;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.KeyValueParam;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -37,21 +36,18 @@ public class SQLProcessor extends MsProcessor {
     @Size(max = 200)
     private String variableNames;
     /**
-     * 变量列表
-     */
-    @Valid
-    private List<KeyValueEnableParam> variables;
-    /**
-     * 环境ID
-     */
-    @Size(max = 50)
-    private String environmentId;
-    /**
      * 数据源ID
      */
     @NotBlank
     @Size(max = 50)
     private String dataSourceId;
+    /**
+     * 数据源名称
+     * 用于匹配不同环境数据源
+     */
+    @NotBlank
+    @Size(max = 255)
+    private String dataSourceName;
     /**
      * 提取参数
      */
