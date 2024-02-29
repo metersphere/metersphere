@@ -199,6 +199,27 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(functionalCase.getId()).andFileIdEqualTo("12345677");
         List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
         Assertions.assertEquals(1, functionalCaseAttachments.size());
+
+        functionalCaseAttachmentDTO.setId(newFileId);
+        attachmentDTOS = new ArrayList<>();
+        attachmentDTOS.add(functionalCaseAttachmentDTO);
+        request = creatFunctionalCase();
+        request.setAttachments(attachmentDTOS);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", new LinkedMultiValueMap<>());
+        functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        returnData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        functionalCase = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCase.class);
+        functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(functionalCase.getId()).andFileIdEqualTo(newFileId);
+        functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        Assertions.assertEquals(1, functionalCaseAttachments.size());
+
+
     }
 
     public String uploadTemp(MultipartFile file) {
