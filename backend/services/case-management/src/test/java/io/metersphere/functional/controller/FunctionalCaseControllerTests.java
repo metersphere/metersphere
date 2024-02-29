@@ -49,6 +49,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -218,8 +219,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(functionalCase.getId()).andFileIdEqualTo(newFileId);
         functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
         Assertions.assertEquals(1, functionalCaseAttachments.size());
-
-
+        byte[] array = new byte[55 * 1024 * 1024];
+        file = new MockMultipartFile("file", "file_re-upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, array);
+        files.add(file);
+        paramMap.add("files", files);
+        ResultActions resultActions = this.requestMultipart(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        resultActions.andExpect(status().is5xxServerError());
     }
 
     public String uploadTemp(MultipartFile file) {
