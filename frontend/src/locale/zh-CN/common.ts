@@ -55,7 +55,7 @@ export default {
   'common.revokeDelete': '撤销删除',
   'common.revokeDeleteSuccess': '已撤销删除',
   'common.unSaveLeaveTitle': '离开此页面？',
-  'common.unSaveLeaveContent': '系统可能不会保存你所做的更改',
+  'common.unSaveLeaveContent': '系统不会保存您所做的更改',
   'common.leave': '离开',
   'common.rename': '重命名',
   'common.noData': '暂无数据',

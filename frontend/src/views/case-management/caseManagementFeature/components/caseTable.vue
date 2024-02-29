@@ -191,7 +191,7 @@
         :mouse-enter-delay="100"
         mini
       >
-        <div>{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
+        <div class="one-line-text">{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段结束 -->
@@ -531,15 +531,15 @@
       width: 200,
       showDrag: true,
     },
-    {
-      title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'versionName',
-      dataIndex: 'versionName',
-      width: 300,
-      showTooltip: true,
-      showInTable: true,
-      showDrag: true,
-    },
+    // {
+    //   title: 'caseManagement.featureCase.tableColumnVersion',
+    //   slotName: 'versionName',
+    //   dataIndex: 'versionName',
+    //   width: 300,
+    //   showTooltip: true,
+    //   showInTable: true,
+    //   showDrag: true,
+    // },
     {
       title: 'caseManagement.featureCase.tableColumnModule',
       slotName: 'moduleId',
@@ -810,7 +810,6 @@
     getCaseList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
-      scroll: { x: scrollWidth.value },
       selectable: true,
       showJumpMethod: true,
       showSetting: true,

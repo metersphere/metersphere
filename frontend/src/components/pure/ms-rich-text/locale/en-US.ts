@@ -8,4 +8,5 @@ export default {
   'editor.extensions.image.medium_size': 'medium size',
   'editor.extensions.image.large_size': 'large size',
   'editor.extensions.image.open_link': 'open link',
+  'editor.placeholder': 'Please enter content',
 };
