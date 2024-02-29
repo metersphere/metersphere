@@ -3,10 +3,16 @@
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
       <a-dropdown @select="handleSelect">
-        <a-button type="primary">{{ t('apiTestDebug.newApi') }}</a-button>
+        <a-button v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+IMPORT']" type="primary">
+          {{ t('apiTestDebug.newApi') }}
+        </a-button>
         <template #content>
-          <a-doption value="newApi">{{ t('apiTestDebug.newApi') }}</a-doption>
-          <a-doption value="import">{{ t('apiTestDebug.importApi') }}</a-doption>
+          <a-doption v-permission="['PROJECT_API_DEBUG:READ+ADD']" value="newApi">
+            {{ t('apiTestDebug.newApi') }}
+          </a-doption>
+          <a-doption v-permission="['PROJECT_API_DEBUG:READ+IMPORT']" value="import">
+            {{ t('apiTestDebug.importApi') }}
+          </a-doption>
         </template>
       </a-dropdown>
     </div>
@@ -23,7 +29,7 @@
           </MsButton>
         </a-tooltip>
         <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
-          <MsButton type="icon" class="!mr-0 p-[2px]">
+          <MsButton v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"
               size="18"
@@ -56,7 +62,7 @@
           children: 'children',
           count: 'count',
         }"
-        :draggable="true"
+        :draggable="hasAnyPermission(['PROJECT_API_DEBUG:READ+UPDATE'])"
         :selectable="nodeSelectable"
         block-node
         title-tooltip-position="left"
@@ -82,6 +88,7 @@
         <template #extra="nodeData">
           <popConfirm
             v-if="nodeData.id !== 'root'"
+            v-permission="['PROJECT_API_DEBUG:READ+UPDATE']"
             mode="rename"
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
@@ -96,6 +103,7 @@
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
           <popConfirm
             v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
+            v-permission="['PROJECT_API_DEBUG:READ+ADD']"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
@@ -137,6 +145,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -206,11 +215,13 @@
     {
       label: 'common.rename',
       eventTag: 'rename',
+      permission: ['PROJECT_API_DEBUG:READ+UPDATE'],
     },
     {
       label: 'common.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['PROJECT_API_DEBUG:READ+DELETE'],
     },
   ];
   const renamePopVisible = ref(false);

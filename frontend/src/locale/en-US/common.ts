@@ -121,4 +121,5 @@ export default {
   'common.stay': 'Stay',
   'common.apply': 'Apply',
   'common.stop': 'Stop',
+  'common.module': 'Module',
 };

@@ -21,6 +21,7 @@
               v-model:active-tab="activeDebug"
               v-model:tabs="debugTabs"
               :limit="10"
+              :readonly="!hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD'])"
               at-least-one
               @add="addDebugTab"
             >
@@ -40,6 +41,11 @@
               :execute-api="executeDebug"
               :local-execute-api="localExecuteApiDebug"
               :upload-temp-file-api="uploadTempFile"
+              :permission-map="{
+                execute: 'PROJECT_API_DEBUG:READ+EXECUTE',
+                update: 'PROJECT_API_DEBUG:READ+UPDATE',
+                create: 'PROJECT_API_DEBUG:READ+ADD',
+              }"
               @add-done="handleDebugAddDone"
             />
           </div>
@@ -105,6 +111,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { parseCurlScript } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
@@ -352,7 +359,11 @@
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let isLeaving = false;
   onBeforeRouteLeave((to, from, next) => {
-    if (!isLeaving && debugTabs.value.some((tab) => tab.unSaved)) {
+    if (
+      !isLeaving &&
+      debugTabs.value.some((tab) => tab.unSaved) &&
+      hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+UPDATE'])
+    ) {
       isLeaving = true;
       // 如果有未保存的调试则提示用户
       openModal({

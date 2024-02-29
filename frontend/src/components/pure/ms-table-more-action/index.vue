@@ -6,13 +6,13 @@
       @select="selectHandler"
       @popup-visible-change="visibleChange"
     >
-      <div :class="['ms-more-action-trigger-content', visible ? 'ms-more-action-trigger-content--focus' : '']">
-        <slot>
+      <slot>
+        <div :class="['ms-more-action-trigger-content', visible ? 'ms-more-action-trigger-content--focus' : '']">
           <MsButton type="text" size="mini" class="more-icon-btn">
             <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
           </MsButton>
-        </slot>
-      </div>
+        </div>
+      </slot>
       <template #content>
         <template v-for="item of props.list">
           <a-divider

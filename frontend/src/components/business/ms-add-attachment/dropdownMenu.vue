@@ -19,7 +19,13 @@
           <icon-upload class="mr-[8px]" />{{ t('ms.add.attachment.localUpload') }}
         </a-button>
       </MsUpload>
-      <a-button size="small" type="text" class="ms-add-attachment-dropdown-btn" @click="emit('linkFile')">
+      <a-button
+        v-permission="['PROJECT_FILE_MANAGEMENT:READ']"
+        size="small"
+        type="text"
+        class="ms-add-attachment-dropdown-btn"
+        @click="emit('linkFile')"
+      >
         <MsIcon type="icon-icon_link-copy_outlined" class="mr-[8px]" size="16" />
         {{ t('ms.add.attachment.associateFile') }}
       </a-button>
@@ -28,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
 

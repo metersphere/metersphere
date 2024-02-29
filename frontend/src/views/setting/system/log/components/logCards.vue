@@ -72,6 +72,7 @@
         :placeholder="t('system.log.operateTargetPlaceholder')"
         :panel-width="100"
         strictly
+        label-path-mode
         class="filter-item"
       />
       <a-input
@@ -122,7 +123,11 @@
         </a-tooltip>
       </template>
       <template #module="{ record }">
-        {{ getModuleLocale(record.module) }}
+        <a-tooltip :content="getModuleLocale(record.module)">
+          <div class="one-line-text">
+            {{ getModuleLocale(record.module) }}
+          </div>
+        </a-tooltip>
       </template>
       <template #type="{ record }">
         {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
@@ -339,7 +344,7 @@
 
   const moduleOptions = ref<CascaderOption[]>([]);
   const moduleLocaleMap = ref<Record<string, string>>({});
-  const { getPathMapByLevel, jumpRouteByMapKey } = usePathMap();
+  const { getPathMapByLevel, jumpRouteByMapKey, findLocalePath } = usePathMap();
 
   function initModuleOptions() {
     moduleOptions.value = getPathMapByLevel(props.mode, (e) => {
@@ -359,7 +364,9 @@
    */
   function getModuleLocale(module: string) {
     try {
-      return t(moduleLocaleMap.value[module] || '') || module;
+      return findLocalePath(module)
+        .map((e) => t(e) || module)
+        .join('/');
     } catch (error) {
       return module;
     }
@@ -470,7 +477,7 @@
       title: 'system.log.operateTarget',
       dataIndex: 'module',
       slotName: 'module',
-      width: 100,
+      width: 150,
     },
     {
       title: 'system.log.operateType',
@@ -489,7 +496,7 @@
       title: 'system.log.time',
       dataIndex: 'createTime',
       fixed: 'right',
-      width: 100,
+      width: 120,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,

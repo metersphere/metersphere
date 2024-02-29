@@ -19,7 +19,7 @@
           />
           <template #content>
             <div>{{ t('apiTestDebug.batchAddParamsTip1') }}</div>
-            <div>{{ t('apiTestDebug.batchAddParamsTip2') }}</div>
+            <div v-if="!props.noParamType">{{ t('apiTestDebug.batchAddParamsTip2') }}</div>
             <div>{{ t('apiTestDebug.batchAddParamsTip3') }}</div>
           </template>
         </a-tooltip>
@@ -48,10 +48,16 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  const props = defineProps<{
-    params: Record<string, any>[];
-    defaultParamItem?: Record<string, any>; // 默认参数项
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      params: Record<string, any>[];
+      defaultParamItem?: Record<string, any>; // 默认参数项
+      noParamType?: boolean; // 是否有参数类型
+    }>(),
+    {
+      noParamType: false,
+    }
+  );
   const emit = defineEmits<{
     (e: 'apply', resultArr: (Record<string, any> | null)[]): void;
   }>();

@@ -25,6 +25,7 @@ export default {
     'menu.caseManagement': '用例管理',
     'menu.apiTest': '接口测试',
     'menu.apiTest.debug': '接口调试',
+    'menu.apiTest.debug.debug': '调试',
     'menu.apiTest.management': '接口管理',
     'menu.apiTest.report': '接口报告',
     'menu.uiTest': 'UI测试',

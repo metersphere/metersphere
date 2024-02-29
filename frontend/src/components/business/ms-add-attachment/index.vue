@@ -77,10 +77,17 @@
                 <MsButton type="text" @click="clearDeletedFiles">{{ t('ms.add.attachment.quickClear') }}</MsButton>
               </div>
               <div class="file-list">
-                <div v-for="file of alreadyDeleteFiles" :key="file.value">
-                  <MsTag size="small" max-width="100%" closable @close="handleClose(file)">
-                    {{ file.label }}
-                  </MsTag>
+                <div v-for="file of alreadyDeleteFiles" :key="file.value" class="file-list-item">
+                  <a-tooltip :content="file.name" :mouse-enter-delay="300">
+                    <MsTag size="small" max-width="100%">
+                      {{ file.name }}
+                    </MsTag>
+                  </a-tooltip>
+                  <a-tooltip :content="t('ms.add.attachment.remove')">
+                    <MsButton type="text" status="secondary" @click="handleClose(file)">
+                      <MsIcon type="icon-icon_unlink" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                    </MsButton>
+                  </a-tooltip>
                 </div>
               </div>
             </template>
@@ -89,10 +96,34 @@
                 {{ t('ms.add.attachment.other') }}
               </div>
               <div class="file-list">
-                <div v-for="file of otherFiles" :key="file.value">
-                  <MsTag size="small" max-width="100%" closable @close="handleClose(file)">
-                    {{ file.label }}
-                  </MsTag>
+                <div v-for="file of otherFiles" :key="file.value" class="file-list-item">
+                  <a-tooltip :content="file.name" :mouse-enter-delay="300">
+                    <MsTag size="small" max-width="100%">
+                      {{ file.name }}
+                    </MsTag>
+                  </a-tooltip>
+                  <div v-if="file.local === true" class="flex items-center">
+                    <a-tooltip :content="t('ms.add.attachment.saveAs')">
+                      <MsButton type="text" status="secondary" class="!mr-0" @click="handleClose(file)">
+                        <MsIcon type="icon-icon_unloading" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                      </MsButton>
+                    </a-tooltip>
+                    <a-divider direction="vertical" :margin="4"></a-divider>
+                    <a-tooltip :content="t('ms.add.attachment.remove')">
+                      <MsButton type="text" status="secondary" @click="handleClose(file)">
+                        <MsIcon
+                          type="icon-icon_delete-trash_outlined"
+                          class="hover:text-[rgb(var(--primary-5))]"
+                          size="16"
+                        />
+                      </MsButton>
+                    </a-tooltip>
+                  </div>
+                  <a-tooltip v-else :content="t('ms.add.attachment.cancelAssociate')">
+                    <MsButton type="text" status="secondary" @click="handleClose(file)">
+                      <MsIcon type="icon-icon_unlink" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                    </MsButton>
+                  </a-tooltip>
                 </div>
               </div>
             </template>
@@ -129,6 +160,7 @@
   import { TagData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -215,6 +247,7 @@
         ...item,
         value: item?.uid || '',
         label: item?.name || '',
+        local: true,
       }));
     } else {
       inputFileName.value = fileItem.name || '';
@@ -305,7 +338,12 @@
     .ms-scroll-bar();
 
     gap: 8px;
-    max-height: 100px;
+    max-height: 200px;
+    .file-list-item {
+      @apply flex items-center justify-between;
+
+      gap: 8px;
+    }
   }
   :deep(.arco-input-tag-has-prefix) {
     padding-left: 4px;

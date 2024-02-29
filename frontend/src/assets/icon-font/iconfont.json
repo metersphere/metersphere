@@ -6,6 +6,48 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "39371890",
+      "name": "icon_unlink",
+      "font_class": "icon_unlink",
+      "unicode": "e7a1",
+      "unicode_decimal": 59297
+    },
+    {
+      "icon_id": "39371889",
+      "name": "icon_unloading",
+      "font_class": "icon_unloading",
+      "unicode": "e7a2",
+      "unicode_decimal": 59298
+    },
+    {
+      "icon_id": "39144507",
+      "name": "icon_form_one",
+      "font_class": "icon_form_one",
+      "unicode": "e7a0",
+      "unicode_decimal": 59296
+    },
+    {
+      "icon_id": "39143243",
+      "name": "icon_aiming",
+      "font_class": "icon_aiming",
+      "unicode": "e79e",
+      "unicode_decimal": 59294
+    },
+    {
+      "icon_id": "39143242",
+      "name": "icon_frame_select",
+      "font_class": "icon_frame_select",
+      "unicode": "e79f",
+      "unicode_decimal": 59295
+    },
+    {
+      "icon_id": "39142606",
+      "name": "icon_lower_branch",
+      "font_class": "icon_lower_branch",
+      "unicode": "e79d",
+      "unicode_decimal": 59293
+    },
+    {
       "icon_id": "39108518",
       "name": "icon_swich",
       "font_class": "icon_swich",

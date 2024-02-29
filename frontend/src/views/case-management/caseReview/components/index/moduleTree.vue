@@ -41,7 +41,7 @@
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="t('caseManagement.caseReview.noReviews')"
-        :draggable="!props.isModal"
+        :draggable="!props.isModal && hasAnyPermission(['CASE_REVIEW:READ+UPDATE'])"
         :virtual-list-props="virtualListProps"
         :field-names="{
           title: 'name',
@@ -66,6 +66,7 @@
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
           <popConfirm
             v-if="nodeData.id !== 'root'"
+            v-permission="['CASE_REVIEW:READ+ADD']"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
@@ -78,6 +79,7 @@
           </popConfirm>
           <popConfirm
             v-if="nodeData.id !== 'root'"
+            v-permission="['CASE_REVIEW:READ+UPDATE']"
             mode="rename"
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
@@ -110,6 +112,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -183,11 +186,13 @@
     {
       label: 'common.rename',
       eventTag: 'rename',
+      permission: ['CASE_REVIEW:READ+UPDATE'],
     },
     {
       label: 'common.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['CASE_REVIEW:READ+DELETE'],
     },
   ];
   const renamePopVisible = ref(false);

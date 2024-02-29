@@ -25,7 +25,7 @@
                 </MsButton>
               </a-tooltip>
               <a-dropdown trigger="click" @select="handleAddSelect">
-                <MsButton type="icon" class="!mr-0 p-[2px]">
+                <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -38,6 +38,7 @@
                 </template>
               </a-dropdown>
               <popConfirm
+                v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']"
                 mode="add"
                 :all-names="rootModulesName"
                 parent-id="none"

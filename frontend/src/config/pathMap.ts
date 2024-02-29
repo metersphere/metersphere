@@ -35,11 +35,27 @@ export const pathMap: PathMapItem[] = [
     level: MENU_LEVEL[2],
     children: [
       {
-        key: 'API_TEST_DEBUG', // 接口测试-接口调试
+        key: 'API_TEST_DEBUG_MANAGEMENT', // 接口测试-接口调试
         locale: 'menu.apiTest.debug',
-        route: RouteEnum.API_TEST_DEBUG,
+        route: RouteEnum.API_TEST_DEBUG_MANAGEMENT,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'API_TEST_DEBUG_MANAGEMENT_MODULE', // 接口测试-接口调试-模块
+            locale: 'common.module',
+            route: RouteEnum.API_TEST_DEBUG_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_DEBUG_MANAGEMENT_DEBUG', // 接口测试-接口调试-调试
+            locale: 'menu.apiTest.debug.debug',
+            route: RouteEnum.API_TEST_DEBUG_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
       {
         key: 'API_TEST_MANAGEMENT', // 接口测试-接口管理

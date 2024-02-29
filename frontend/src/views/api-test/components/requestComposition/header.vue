@@ -3,6 +3,7 @@
     <batchAddKeyVal
       :params="innerParams"
       :default-param-item="defaultHeaderParamsItem"
+      no-param-type
       @apply="handleBatchParamApply"
     />
   </div>

@@ -52,6 +52,7 @@
         <div class="ml-[16px]">
           <a-dropdown-button
             v-if="!requestVModel.executeLoading"
+            v-permission="[props.permissionMap.execute]"
             :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
             class="exec-btn"
             @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
@@ -70,6 +71,7 @@
           <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
           <a-dropdown
             v-if="props.isDefinition"
+            v-permission="[props.permissionMap.create, props.permissionMap.update]"
             :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
             @select="handleSelect"
           >
@@ -83,6 +85,7 @@
           </a-dropdown>
           <a-button
             v-else
+            v-permission="[props.permissionMap.create, props.permissionMap.update]"
             type="secondary"
             :disabled="isHttpProtocol && !requestVModel.url"
             :loading="saveLoading"
@@ -289,6 +292,7 @@
   import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { PluginConfig } from '@/models/apiTest/common';
   import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
@@ -333,6 +337,11 @@
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    permissionMap: {
+      execute: string;
+      create: string;
+      update: string;
+    };
   }>();
   const emit = defineEmits(['addDone']);
 
@@ -892,29 +901,33 @@
 
   async function handleSaveShortcut() {
     if (!requestVModel.value.isNew) {
-      // 更新接口不需要弹窗，直接更新保存
-      updateDebug();
+      if (hasAnyPermission([props.permissionMap.update])) {
+        // 更新接口不需要弹窗，直接更新保存
+        updateDebug();
+      }
       return;
     }
-    try {
-      if (!isHttpProtocol.value) {
-        // 插件需要校验动态表单
-        await fApi.value?.validate();
+    if (hasAnyPermission([props.permissionMap.create])) {
+      try {
+        if (!isHttpProtocol.value) {
+          // 插件需要校验动态表单
+          await fApi.value?.validate();
+        }
+        saveModalForm.value = {
+          name: requestVModel.value.name || '',
+          path: requestVModel.value.url || '',
+          moduleId: 'root',
+        };
+        saveModalVisible.value = true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+        // 校验不通过则不进行保存
+        requestVModel.value.activeTab = RequestComposition.PLUGIN;
+        nextTick(() => {
+          scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+        });
       }
-      saveModalForm.value = {
-        name: requestVModel.value.name || '',
-        path: requestVModel.value.url || '',
-        moduleId: 'root',
-      };
-      saveModalVisible.value = true;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      // 校验不通过则不进行保存
-      requestVModel.value.activeTab = RequestComposition.PLUGIN;
-      nextTick(() => {
-        scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
-      });
     }
   }
 
