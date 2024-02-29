@@ -25,6 +25,7 @@
       @update="updateDemand"
       @create="addDemand"
       @cancel="cancelLink"
+      @open="openDemandUrl"
     ></AssociatedDemandTable>
     <AddDemandModal
       ref="demandModalRef"
@@ -65,9 +66,10 @@
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
         <template #demandName="{ record }">
-          <a-button type="text" class="flex w-full" @click="openDemandUrl(record.demandUrl)"
-            >{{ record.demandName }}<span>({{ (record.children || []).length || 0 }})</span></a-button
-          >
+           <span class="ml-1 text-[rgb(var(--primary-5))]">
+            {{ record.demandName }}
+            <span>({{ (record.children || []).length || 0 }})</span></span
+           >
         </template>
         <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
           <span> {{ getSlotName(record, item) }} </span>
