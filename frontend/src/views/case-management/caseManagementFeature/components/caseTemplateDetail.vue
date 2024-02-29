@@ -755,8 +755,9 @@
     return data;
   }
 
-  function resetForm() {
+  async function resetForm() {
     form.value = { ...initForm, templateId: form.value.templateId };
+    await initDefaultFields();
     form.value.customFields = formItem.value.map((item: any) => {
       return {
         fieldId: item.field,

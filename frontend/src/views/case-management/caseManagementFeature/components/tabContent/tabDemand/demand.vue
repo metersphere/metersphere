@@ -2,7 +2,7 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button type="primary" @click="associatedDemand">
+        <a-button v-if="platformInfo.platform_key" type="primary" @click="associatedDemand">
           {{ t('caseManagement.featureCase.associatedDemand') }}</a-button
         >
         <a-button class="mx-3" type="outline" @click="addDemand">
@@ -22,9 +22,11 @@
     <AssociatedDemandTable
       ref="demandRef"
       :fun-params="{ caseId: props.caseId, keyword, projectId: currentProjectId }"
+      :show-empty="true"
       @update="updateDemand"
       @create="addDemand"
       @cancel="cancelLink"
+      @associate="linkDemandDrawer = true"
     ></AssociatedDemandTable>
     <AddDemandModal
       ref="demandModalRef"
@@ -174,7 +176,7 @@
     //   ellipsis: true,
     // },
   ];
-  const fullColumns = ref<MsTableColumn>([]);
+  const fullColumns = ref<MsTableColumn>([...columns]);
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEMAND_PLATFORM,
@@ -228,6 +230,7 @@
   const tableRef = ref();
   const customFields = ref<any[]>([]);
   async function initColumn() {
+    fullColumns.value = [...columns];
     try {
       const res = await getThirdDemandList({
         current: 1,
@@ -244,9 +247,7 @@
         };
       }) as any;
       fullColumns.value = [...columns, ...customFields.value];
-      tableRef.value.initColumn(fullColumns.value);
     } catch (error) {
-      tableRef.value.initColumn(columns);
       console.log(error);
     }
   }
@@ -324,12 +325,8 @@
     async (val) => {
       if (val) {
         resetSelector();
-        await initColumn();
         initData();
       }
-    },
-    {
-      immediate: true,
     }
   );
 
@@ -362,12 +359,13 @@
     showAddModel.value = true;
     modelForm.value = { ...initModelForm };
   }
-  // const activeTab = computed(() => featureCaseStore.activeTab);
+
   onMounted(async () => {
     try {
       const result = await getCaseRelatedInfo(currentProjectId.value);
       if (result && result.platform_key) {
         platformInfo.value = { ...result };
+        initColumn();
       }
     } catch (error) {
       console.log(error);

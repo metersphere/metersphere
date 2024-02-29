@@ -92,7 +92,7 @@
           height: 'calc(100% - 86px)',
         }"
       >
-        <MsSplitBox :size="800" :max="0.7" :min="0.5" direction="horizontal" expand-direction="right">
+        <MsSplitBox :size="900" :max="0.7" :min="0.5" direction="horizontal" expand-direction="right">
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">

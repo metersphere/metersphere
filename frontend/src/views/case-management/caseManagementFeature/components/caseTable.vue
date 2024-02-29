@@ -58,7 +58,7 @@
           <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
         </template>
         <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
-          <caseLevel :case-level="item.value" />
+          <caseLevel :case-level="item.text" />
         </a-option>
       </a-select>
     </template>
@@ -307,6 +307,7 @@
     v-model:visible="showThirdDrawer"
     :case-id="caseId"
     :drawer-loading="drawerLoading"
+    :platform-info="platformInfo"
     @save="saveThirdDemand"
   />
 </template>
@@ -351,6 +352,7 @@
     getCustomFieldsTable,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
+  import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -610,7 +612,7 @@
       width: hasOperationPermission.value ? 260 : 50,
     },
   ];
-
+  const platformInfo = ref<Record<string, any>>({});
   const tableBatchActions = {
     baseAction: [
       // {
@@ -803,7 +805,6 @@
     }
   }
   const initDefaultFields = ref<CustomAttributes[]>([]);
-  let fullColumns: MsTableColumn = []; // 全量列表
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
     getCaseList,
@@ -1197,6 +1198,7 @@
   let customFieldsColumns: Record<string, any>[] = [];
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
+  let fullColumns: MsTableColumn = [];
   // 处理自定义字段展示
   async function getDefaultFields() {
     customFieldsColumns = [];
@@ -1449,17 +1451,29 @@
   async function saveThirdDemand(params: CreateOrUpdateDemand) {
     try {
       drawerLoading.value = true;
-      const { demandPlatform, demandList } = params;
+      const { demandPlatform, demandList, functionalDemandBatchRequest } = params;
       const batchAddParams: CreateOrUpdateDemand = {
         selectIds: batchParams.value?.selectAll ? [] : batchParams.value.selectedIds,
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value },
         projectId: currentProjectId.value,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         moduleId: selectedModuleKeys.value[0],
         demandPlatform,
         demandList,
+        filter: {
+          reviewStatus: statusFilters.value,
+          caseLevel: caseFilters.value,
+          lastExecuteResult: executeResultFilters.value,
+          updateUserName: updateUserFilters.value,
+          createUserName: createUserFilters.value,
+        },
+        condition: {
+          keyword: keyword.value,
+          filter: propsRes.value.filter,
+          combine: batchParams.value.condition,
+        },
+        functionalDemandBatchRequest,
       };
       await batchAssociationDemand(batchAddParams);
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
@@ -1481,11 +1495,29 @@
     }
   }
 
+  // 获取三方需求
+  onBeforeMount(async () => {
+    try {
+      const result = await getCaseRelatedInfo(currentProjectId.value);
+      if (result && result.platform_key) {
+        platformInfo.value = { ...result };
+      }
+      if (Object.keys(result).length === 0) {
+        tableBatchActions.moreAction = [
+          ...tableBatchActions.moreAction.slice(0, 1),
+          ...tableBatchActions.moreAction.slice(-2),
+        ];
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   onMounted(async () => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
-    await getDefaultFields();
+
     await initFilter();
     initData();
   });
@@ -1507,6 +1539,7 @@
       }
     }
   );
+  await getDefaultFields();
 </script>
 
 <style scoped lang="less">

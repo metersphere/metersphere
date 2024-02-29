@@ -107,23 +107,19 @@
     }
   }
 
-  function setCount(list: CommentItem[]) {
-    featureCaseStore.setListCount(featureCaseStore.activeTab, list.length);
-  }
-
   async function getAllCommentList() {
     switch (activeComment.value) {
       case 'caseComment':
         await initCommentList();
-        setCount(commentList.value);
+        featureCaseStore.getCaseCounts(props.caseId);
         break;
       case 'reviewComment':
         await initReviewCommentList();
-        setCount(reviewCommentList.value);
+        featureCaseStore.getCaseCounts(props.caseId);
         break;
       case 'executiveComment':
         await initCommentList();
-        setCount(commentList.value);
+        featureCaseStore.getCaseCounts(props.caseId);
         break;
       default:
         break;
