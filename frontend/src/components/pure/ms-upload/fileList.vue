@@ -56,7 +56,7 @@
                 class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
                 {{
-                  `${formatFileSize(item.file.size)}  ${item.createUserName}  ${t('ms.upload.uploadAt')} ${dayjs(item.uploadedTime).format(
+                  `${formatFileSize(item.file.size)}  ${item.createUserName}  ${t('ms.upload.uploadAt')} ${dayjs(item.createTime).format(
                     'YYYY-MM-DD HH:mm:ss'
                   )}`
                 }}

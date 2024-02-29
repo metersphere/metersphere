@@ -160,7 +160,7 @@ public class FunctionalCaseAttachmentService {
             return attachmentDTO;
         }));
         attachmentDTOs.addAll(filesDTOs);
-        attachmentDTOs.sort(Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime));
+        attachmentDTOs.sort(Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime).reversed());
 
         if (CollectionUtils.isNotEmpty(attachmentDTOs)) {
             List<String> userList = attachmentDTOs.stream().map(FunctionalCaseAttachmentDTO::getCreateUser).toList();
