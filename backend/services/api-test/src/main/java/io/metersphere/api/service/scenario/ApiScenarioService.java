@@ -9,6 +9,7 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
@@ -96,6 +97,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EXIST;
 
 @Service
@@ -177,8 +179,8 @@ public class ApiScenarioService {
     private OperationHistoryService operationHistoryService;
     @Resource
     private ApiCommonService apiCommonService;
-    
-    
+
+
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
@@ -873,7 +875,7 @@ public class ApiScenarioService {
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_SCENARIO);
         resourceUpdateRequest.setOperator(operator);
         resourceUpdateRequest.setLogModule(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
-        resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);
+        resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO);
         return resourceUpdateRequest;
     }
 
@@ -921,7 +923,7 @@ public class ApiScenarioService {
         //删除csv
         deleteCsvByScenarioId(scenario.getId());
         //删除文件
-        String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
+        String scenarioDir = DefaultRepositoryDir.getApiScenarioDir(scenario.getProjectId(), scenario.getId());
         try {
             apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
         } catch (Exception ignore) {
@@ -967,7 +969,7 @@ public class ApiScenarioService {
 
         scenarioList.forEach(scenario -> {
             //删除文件
-            String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
+            String scenarioDir = DefaultRepositoryDir.getApiScenarioDir(scenario.getProjectId(), scenario.getId());
             try {
                 apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
                 //删除定时任务
@@ -2110,7 +2112,7 @@ public class ApiScenarioService {
             } catch (Exception e) {
                 LogUtils.error(e);
             }
-            if (msTestElement != null && msTestElement instanceof MsHTTPElement msHTTPElement) {
+            if (msTestElement instanceof MsHTTPElement msHTTPElement) {
                 List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msHTTPElement);
                 // 替换文件的Id和name
                 apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
@@ -2121,5 +2123,9 @@ public class ApiScenarioService {
                 }
             }
         }
+    }
+
+    public String transfer(ApiTransferRequest request, String userId) {
+        return apiFileResourceService.transfer(request, userId, ApiResourceType.API_SCENARIO.name());
     }
 }

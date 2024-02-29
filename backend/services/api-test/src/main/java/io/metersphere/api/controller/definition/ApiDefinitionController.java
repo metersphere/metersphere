@@ -5,14 +5,17 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -44,6 +47,8 @@ import java.util.List;
 public class ApiDefinitionController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private FileModuleService fileModuleService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
@@ -244,4 +249,21 @@ public class ApiDefinitionController {
     public void editPos(@Validated @RequestBody ApiEditPosRequest request) {
         apiDefinitionService.editPos(request, SessionUtils.getUserId());
     }
+
+    @GetMapping("/transfer/options/{projectId}")
+    @Operation(summary = "接口测试-接口管理-接口-附件-转存目录下拉框")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<BaseTreeNode> options(@PathVariable String projectId) {
+        return fileModuleService.getTree(projectId);
+    }
+
+    @PostMapping("/transfer")
+    @Operation(summary = "接口测试-接口管理-接口-附件-文件转存")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public String transfer(@Validated @RequestBody ApiTransferRequest request) {
+        return apiDefinitionService.transfer(request, SessionUtils.getUserId());
+    }
+
 }
