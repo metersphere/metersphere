@@ -209,7 +209,7 @@
         />
       </div>
     </template>
-    <template #tag="{ record, columnConfig, rowIndex }">
+    <template #tag="{ record, columnConfig }">
       <a-popover
         position="tl"
         :disabled="record[columnConfig.dataIndex as string].length === 0"
@@ -228,7 +228,6 @@
           :max-tag-count="1"
           input-class="param-input"
           size="mini"
-          @change="() => addTableLine(rowIndex)"
         />
       </a-popover>
     </template>

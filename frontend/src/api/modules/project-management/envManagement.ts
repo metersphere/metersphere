@@ -3,11 +3,9 @@ import { FileItem } from '@arco-design/web-vue';
 import MSR from '@/api/http/index';
 import * as envURL from '@/api/requrls/project-management/envManagement';
 
-import { DragCase } from '@/models/caseManagement/featureCase';
 import type {
   DragParam,
   EnvDetailItem,
-  EnvGroupListItem,
   EnvListItem,
   EnvPluginListItem,
   GlobalParams,
@@ -27,14 +25,17 @@ export function updateOrAddEnv(data: { request: EnvDetailItem; fileList: FileIte
 export function listEnv(data: { projectId: string; keyword: string }) {
   return MSR.post<EnvListItem[]>({ url: envURL.listEnvUrl, data });
 }
-export function importEnv(data: { request: EnvListItem; fileList: FileItem[] }) {
-  return MSR.uploadFile({ url: envURL.importEnvUrl }, data, '', true);
+export function importEnv(data: { request: any; fileList: FileItem[] }) {
+  return MSR.uploadFile({ url: envURL.importEnvUrl }, data, '', false);
 }
 export function getEntryEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.getEntryEnvUrl, data });
 }
-export function exportEnv(id: string) {
-  return MSR.get<EnvListItem>({ url: envURL.exportEnvUrl + id, responseType: 'blob' }, { isTransformResponse: false });
+export function exportEnv(selectIds: string[]) {
+  return MSR.post<Blob>(
+    { url: envURL.exportEnvUrl, data: { selectIds }, responseType: 'blob' },
+    { isTransformResponse: false }
+  );
 }
 export function editPosEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.editPosEnvUrl, data });
@@ -55,8 +56,8 @@ export function addEnv(data: EnvListItem) {
 export function getDetailEnv(id: string) {
   return MSR.get<EnvDetailItem>({ url: envURL.detailEnvUrl + id });
 }
-export function deleteEnv(data: EnvListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.deleteEnvUrl, data });
+export function deleteEnv(id: string) {
+  return MSR.get<EnvListItem>({ url: envURL.deleteEnvUrl + id });
 }
 export function groupUpdateEnv(data: any) {
   return MSR.post<EnvListItem>({ url: envURL.groupUpdateEnvUrl, data });

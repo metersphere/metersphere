@@ -1,3 +1,5 @@
+import { ExecuteConditionProcessor } from '../apiTest/debug';
+
 export interface EnvListItem {
   name: string;
   id: string;
@@ -29,17 +31,19 @@ export interface DataSourceItem {
 export interface EnvConfigItem {
   [key: string]: any;
 }
+export interface ProcessorConfig {
+  apiProcessorConfig: ExecuteConditionProcessor[];
+}
 export interface EnvConfig {
   commonParams?: EnvConfigItem;
-  commmonVariables?: EnvConfigItem[];
-  httpConfig?: EnvConfigItem[];
-  dataSource?: DataSourceItem[];
-  hostConfig?: EnvConfigItem;
-  authConfig?: EnvConfigItem;
-  preProcessorConfig?: EnvConfigItem;
-  postProcessorConfig?: EnvConfigItem;
-  assertionConfig?: EnvConfigItem;
-  pluginConfigMap?: EnvConfigItem;
+  commmonVariables: EnvConfigItem[];
+  httpConfig: EnvConfigItem[];
+  dataSources: DataSourceItem[];
+  hostConfig: EnvConfigItem;
+  preProcessorConfig: ProcessorConfig;
+  postProcessorConfig: ProcessorConfig;
+  assertionConfig: EnvConfigItem[];
+  pluginConfigMap: EnvConfigItem;
 }
 export interface EnvDetailItem {
   id?: string;
@@ -108,4 +112,14 @@ export interface DragParam {
   targetId: string;
   moveMode: string;
   moveId: string;
+}
+
+export interface HttpForm {
+  id?: string;
+  description?: string;
+  hostname: string;
+  enableCondition: string;
+  path: string;
+  operator: string;
+  headerParams: any[];
 }

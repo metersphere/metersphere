@@ -10,16 +10,42 @@ import { ContentTabItem, ContentTabsMap, EnvDetailItem, GlobalParams } from '@/m
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
 export const NEW_ENV_GROUP = 'newEnvGroup';
+const envParmasDefaultConfig = {
+  commmonVariables: [],
+  httpConfig: [],
+  dataSources: [],
+  hostConfig: {
+    enable: false,
+    hosts: [],
+  },
+  preProcessorConfig: {
+    apiProcessorConfig: [],
+  },
+  postProcessorConfig: {
+    apiProcessorConfig: [],
+  },
+  assertionConfig: [],
+  pluginConfigMap: {},
+};
 
 const useProjectEnvStore = defineStore(
   'projectEnv',
   () => {
     // 项目中的key值
-    const currentId = ref<string>('1052215449649153');
+    const currentId = ref<string>('');
     // 项目组选中的key值
     const currentGroupId = ref<string>('');
-    const currentEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情
-    const backupEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情-备份
+    // 当前选中的环境详情
+    const currentEnvDetailInfo = ref<EnvDetailItem>({
+      projectId: '',
+      name: '',
+      config: envParmasDefaultConfig,
+    });
+    const backupEnvDetailInfo = ref<EnvDetailItem>({
+      projectId: '',
+      name: '',
+      config: envParmasDefaultConfig,
+    });
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     const httpNoWarning = ref(true);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
@@ -46,14 +72,22 @@ const useProjectEnvStore = defineStore(
       const appStore = useAppStore();
       try {
         if (id === NEW_ENV_PARAM) {
-          currentEnvDetailInfo.value = { projectId: appStore.currentProjectId, name: '', config: {} };
-          backupEnvDetailInfo.value = { projectId: appStore.currentProjectId, name: '', config: {} };
+          currentEnvDetailInfo.value = {
+            projectId: appStore.currentProjectId,
+            name: '',
+            config: envParmasDefaultConfig,
+          };
+          backupEnvDetailInfo.value = {
+            projectId: appStore.currentProjectId,
+            name: '',
+            config: envParmasDefaultConfig,
+          };
         } else if (id === ALL_PARAM) {
           allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
         } else if (id !== ALL_PARAM && id) {
           const tmpObj = await getDetailEnv(id);
           currentEnvDetailInfo.value = tmpObj;
-          backupEnvDetailInfo.value = JSON.parse(JSON.stringify(tmpObj));
+          backupEnvDetailInfo.value = tmpObj;
         }
       } catch (e) {
         // eslint-disable-next-line no-console

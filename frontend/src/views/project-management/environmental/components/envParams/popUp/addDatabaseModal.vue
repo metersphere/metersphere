@@ -24,7 +24,12 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.environmental.database.nameIsRequire') }]"
         >
-          <a-input v-model="form.name" allow-clear :placeholder="t('project.environmental.database.namePlaceholder')" />
+          <a-input
+            v-model="form.name"
+            :max-length="255"
+            allow-clear
+            :placeholder="t('project.environmental.database.namePlaceholder')"
+          />
         </a-form-item>
         <a-form-item field="driverId" asterisk-position="end" :label="t('project.environmental.database.driver')">
           <a-select v-model="form.driverId" :options="driverOption" />
@@ -37,7 +42,7 @@
           :extra="t('project.environmental.database.urlExtra')"
           :rules="[{ required: true, message: t('project.environmental.database.urlIsRequire') }]"
         >
-          <a-input v-model="form.dbUrl" allow-clear :placeholder="t('common.pleaseInput')" />
+          <a-input v-model="form.dbUrl" :max-length="255" allow-clear :placeholder="t('common.pleaseInput')" />
         </a-form-item>
         <a-form-item
           field="username"
@@ -111,7 +116,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
-    modelValue: DataSourceItem;
+    currentDatabase: DataSourceItem;
     visible: boolean;
   }>();
 
@@ -124,6 +129,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
+    (e: 'addOrUpdate', data: DataSourceItem, cb: (v: boolean) => void): void;
   }>();
 
   const currentVisible = defineModel('visible', {
@@ -131,11 +137,19 @@
     type: Boolean,
   });
 
-  const form = defineModel<DataSourceItem>('modelValue', {
-    required: true,
+  const form = ref<DataSourceItem>({
+    id: '',
+    name: '',
+    driverId: '',
+    dbUrl: '',
+    username: '',
+    password: '',
+    poolMax: 1,
+    timeout: 1000,
+    enable: true,
   });
 
-  const isEdit = computed(() => form.value.id);
+  const isEdit = computed(() => !!props.currentDatabase.id);
 
   const getDriverOption = async () => {
     try {
@@ -188,19 +202,17 @@
   });
 
   const formReset = () => {
-    if (!isEdit.value) {
-      form.value = {
-        id: '',
-        name: '',
-        driverId: '',
-        dbUrl: '',
-        username: '',
-        password: '',
-        poolMax: 1,
-        timeout: 1000,
-        enable: true,
-      };
-    }
+    form.value = {
+      id: '',
+      name: '',
+      driverId: '',
+      dbUrl: '',
+      username: '',
+      password: '',
+      poolMax: 1,
+      timeout: 1000,
+      enable: true,
+    };
   };
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
@@ -215,13 +227,14 @@
       }
       try {
         loading.value = true;
-
-        Message.success(
-          isEdit.value
-            ? t('project.environmental.database.updateProjectSuccess')
-            : t('project.environmental.database.createProjectSuccess')
-        );
-        handleCancel(true);
+        emit('addOrUpdate', form.value, (v: boolean) => {
+          Message.success(
+            isEdit.value
+              ? t('project.environmental.database.updateDataSourceSuccess')
+              : t('project.environmental.database.createDataSourceSuccess')
+          );
+          handleCancel(v);
+        });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -234,8 +247,15 @@
     getDriverOption();
   };
   watchEffect(() => {
-    if (props.visible) {
-      initData();
+    initData();
+    if (props.currentDatabase?.id) {
+      // 编辑
+      if (props.currentDatabase) {
+        form.value = { ...props.currentDatabase };
+      }
+    } else {
+      // 新建
+      formReset();
     }
   });
 </script>

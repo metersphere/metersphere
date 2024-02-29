@@ -125,6 +125,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { EnvListItem } from '@/models/projectManagement/environmental';
+
   import { MsExportDrawerMap, MsExportDrawerOption } from './types';
 
   const { t } = useI18n();
@@ -136,6 +138,8 @@
     allData: MsExportDrawerMap;
     // 默认选中的字段 keys
     defaultSelectedKeys?: string[];
+    isArrayColumn?: boolean;
+    arrayColumn?: EnvListItem[];
   }
 
   const props = withDefaults(defineProps<MsExportDrawerProps>(), {
@@ -161,6 +165,15 @@
   });
 
   const systemList = computed(() => {
+    if (props.isArrayColumn && props.arrayColumn) {
+      return props.arrayColumn.map((item) => {
+        return {
+          key: item.id,
+          text: item.name,
+          columnType: 'system',
+        };
+      });
+    }
     const { systemColumns } = props.allData;
     if (systemColumns) {
       return Object.keys(systemColumns).map((key) => {

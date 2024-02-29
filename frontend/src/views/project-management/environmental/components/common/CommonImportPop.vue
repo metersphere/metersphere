@@ -42,7 +42,7 @@
 
   import MsUpload from '@/components/pure/ms-upload/index.vue';
 
-  import { importGlobalParam } from '@/api/modules/project-management/envManagement';
+  import { importEnv, importGlobalParam } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
 
   import { EnvAuthTypeEnum } from '@/enums/envEnum';
@@ -73,10 +73,14 @@
     try {
       confirmLoading.value = true;
       const params = {
-        request: null,
+        request: {},
         fileList: fileList.value,
       };
-      await importGlobalParam(params);
+      if (props.type === EnvAuthTypeEnum.GLOBAL) {
+        await importGlobalParam(params);
+      } else if (props.type === EnvAuthTypeEnum.ENVIRONMENT) {
+        await importEnv(params);
+      }
       Message.success(t('common.importSuccess'));
       handleCancel(true);
     } catch (error) {

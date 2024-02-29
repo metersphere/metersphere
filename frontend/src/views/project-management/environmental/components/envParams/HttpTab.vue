@@ -39,7 +39,7 @@
       </div>
     </template>
   </MsBaseTable>
-  <AddHttpDrawer v-model:visible="addVisible" :current-id="currentId" @close="addVisible = false" />
+  <AddHttpDrawer v-model:visible="addVisible" :current-obj="currentObj" @close="addVisible = false" />
 </template>
 
 <script lang="ts" async setup>
@@ -58,6 +58,7 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { BugListItem } from '@/models/bug-management';
+  import { HttpForm } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -67,15 +68,14 @@
   const showTitle = computed(() => store.httpNoWarning);
   const tableStore = useTableStore();
   const addVisible = ref(false);
-  const currentId = ref('');
-
-  const innerParam = computed({
-    set: (value: TableData[]) => {
-      store.currentEnvDetailInfo.config.httpConfig = value;
-    },
-    get: () => store.currentEnvDetailInfo.config.httpConfig || [],
+  const currentObj = ref<HttpForm>({
+    id: '',
+    hostname: '',
+    enableCondition: 'none',
+    path: '',
+    operator: '',
+    headerParams: [],
   });
-
   const columns: MsTableColumn = [
     {
       title: 'project.environmental.http.host',
@@ -144,7 +144,12 @@
   ];
 
   const handleSingleDelete = (record?: TableData) => {
-    console.log('handleSingleDelete', record);
+    if (record) {
+      const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === record.id);
+      if (index > -1) {
+        store.currentEnvDetailInfo.config.httpConfig.splice(index, 1);
+      }
+    }
   };
 
   function handleMoreActionSelect(item: ActionsItem, record: BugListItem) {
@@ -152,26 +157,32 @@
       handleSingleDelete(record);
     }
   }
-
   const handleCopy = (record: any) => {
-    console.log('handleCopy', record);
+    currentObj.value = record;
+    currentObj.value.id = '';
+    addVisible.value = true;
   };
   const handleEdit = (record: any) => {
+    currentObj.value = record;
     addVisible.value = true;
-    currentId.value = record.id;
   };
 
   const handleAddHttp = () => {
+    currentObj.value = {
+      id: '',
+      hostname: '',
+      enableCondition: 'none',
+      path: '',
+      operator: '',
+      headerParams: [],
+    };
     addVisible.value = true;
   };
   const handleNoWarning = () => {
     store.setHttpNoWarning(false);
   };
-  const initData = () => {
-    propsRes.value.data = innerParam.value;
-  };
-  onMounted(() => {
-    initData();
+  watch(store.currentEnvDetailInfo.config.httpConfig, () => {
+    propsRes.value.data = store.currentEnvDetailInfo.config.httpConfig;
   });
 </script>
 

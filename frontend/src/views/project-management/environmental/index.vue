@@ -186,12 +186,22 @@
     </MsSplitBox>
   </div>
   <CommonImportPop v-model:visible="importVisible" :type="importAuthType" @submit="handleSubmit" />
+  <MsExportDrawer
+    v-model:visible="envExportVisible"
+    :all-data="exportOptionData"
+    :default-selected-keys="[]"
+    is-array-column
+    :array-column="envList"
+    @confirm="(v) => handleEnvExport(v.map((item) => item.id))"
+  />
 </template>
 
 <script lang="ts" setup>
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
+  import { MsExportDrawerMap } from '@/components/pure/ms-export-drawer/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -203,7 +213,9 @@
   import RenamePop from './components/RenamePop.vue';
 
   import {
+    deleteEnv,
     deleteEnvGroup,
+    exportEnv,
     exportGlobalParam,
     groupEditPosEnv,
     groupListEnv,
@@ -247,6 +259,12 @@
   const importVisible = ref<boolean>(false);
   // 导入类型
   const importAuthType = ref<EnvAuthTypeEnum>(EnvAuthTypeEnum.GLOBAL);
+  // 环境变量导出Drawer
+  const envExportVisible = ref<boolean>(false);
+  // 环境变量导出option
+  const exportOptionData = ref<MsExportDrawerMap>({
+    systemColumns: {},
+  });
 
   // 默认环境MoreAction
   const envMoreAction: ActionsItem[] = [
@@ -301,6 +319,16 @@
       console.log(error);
     }
   };
+  // 处理环境变量导出
+  const handleEnvExport = async (id: string | string[]) => {
+    try {
+      const blob = await exportEnv(Array.isArray(id) ? id : [id]);
+      downloadByteFile(blob, 'EnvParam.json');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
 
   const handleSubmit = (shouldSearch: boolean) => {
     if (shouldSearch) {
@@ -312,7 +340,10 @@
     }
   };
   // 处理环境导入
-  const handleEnvImport = () => {};
+  const handleEnvImport = () => {
+    importVisible.value = true;
+    importAuthType.value = EnvAuthTypeEnum.ENVIRONMENT;
+  };
 
   // 创建环境变量
   const handleCreateEnv = () => {
@@ -370,23 +401,41 @@
     }
   };
 
-  // 处理删除环境组
-  const handleDeleteEnvGroup = async (id: string) => {
-    try {
-      await deleteEnvGroup(id);
-      await initGroupList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  };
-
   const initData = async (keywordStr = '') => {
     try {
       envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
       if (showType.value === 'PROJECT_GROUP') {
         initGroupList(keywordStr);
       }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  function searchData() {
+    initData(keyword.value);
+  }
+
+  // 处理删除环境
+  const handleDeleteEnv = async (id: string) => {
+    try {
+      await deleteEnv(id);
+      if (store.currentId === id) {
+        store.setCurrentId('');
+      }
+      searchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  // 处理删除环境组
+  const handleDeleteEnvGroup = async (id: string) => {
+    try {
+      await deleteEnvGroup(id);
+      await initGroupList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -424,25 +473,26 @@
     store.setCurrentGroupId(id);
   };
 
-  function searchData() {
-    initData(keyword.value);
-  }
   // 处理MoreAction
   const handleMoreAction = (item: ActionsItem, id: string, scopeType: EnvAuthTypeEnum) => {
     const { eventTag } = item;
     switch (eventTag) {
       case 'export':
         if (scopeType === EnvAuthTypeEnum.GLOBAL) {
+          // 全局参数导出
           handleGlobalExport();
-        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
-          handleEnvImport();
         } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_PARAM) {
-          handleEnvImport();
+          // 环境变量导出
+          handleEnvExport(id);
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
+          envExportVisible.value = true;
         }
         break;
       case 'delete':
         if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
           handleDeleteEnvGroup(id);
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_PARAM) {
+          handleDeleteEnv(id);
         }
         break;
       case 'import':
@@ -493,9 +543,11 @@
     }
   }
   .env-row {
-    @apply flex  flex-row justify-between;
+    @apply flex flex-row justify-between;
     &-extra {
-      @apply relative hidden;
+      @apply relative;
+
+      opacity: 0;
     }
     &:hover {
       .env-row-extra {

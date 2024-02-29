@@ -1,20 +1,27 @@
 <template>
-  <PostTab v-model:config="params" layout="horizontal" />
+  <condition
+    v-model:list="innerParams"
+    :condition-types="[RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL]"
+    add-text="apiTestDebug.postCondition"
+    response=""
+    :height-used="600"
+  >
+  </condition>
 </template>
 
 <script lang="ts" setup>
-  import PostTab from '@/views/api-test/components/requestComposition/postcondition.vue';
+  import condition from '@/views/api-test/components/condition/index.vue';
 
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
-  const store = useProjectEnvStore();
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
 
-  // TODO: 参数类型
-  const params = computed<any>({
+  const store = useProjectEnvStore();
+  const innerParams = computed({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.postProcessorConfig = value;
+      store.currentEnvDetailInfo.config.postProcessorConfig.apiProcessorConfig = value || [];
     },
-    get: () => store.currentEnvDetailInfo.config.postProcessorConfig || {},
+    get: () => store.currentEnvDetailInfo.config.postProcessorConfig.apiProcessorConfig || [],
   });
 </script>
 
