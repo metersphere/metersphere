@@ -1,13 +1,11 @@
 package io.metersphere.system.config;
 
 
+import io.metersphere.sdk.util.FilterChainUtils;
 import io.metersphere.system.security.ApiKeyFilter;
 import io.metersphere.system.security.CsrfFilter;
 import io.metersphere.system.security.MsPermissionAnnotationMethodInterceptor;
 import io.metersphere.system.security.realm.LocalRealm;
-import io.metersphere.sdk.util.FilterChainUtils;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
 import org.apache.shiro.aop.AnnotationResolver;
 import org.apache.shiro.authz.aop.*;
 import org.apache.shiro.cache.CacheManager;
@@ -22,12 +20,13 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.ServletContainerSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class ShiroConfig {
@@ -54,13 +53,6 @@ public class ShiroConfig {
         return shiroFilterFactoryBean;
     }
 
-    @Bean(name = "shiroFilter")
-    public FilterRegistrationBean<Filter> shiroFilter(ShiroFilterFactoryBean shiroFilterFactoryBean) throws Exception {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
-        registration.setFilter((Filter) Objects.requireNonNull(shiroFilterFactoryBean.getObject()));
-        registration.setDispatcherTypes(EnumSet.allOf(DispatcherType.class));
-        return registration;
-    }
 
     @Bean
     public MemoryConstrainedCacheManager memoryConstrainedCacheManager() {
