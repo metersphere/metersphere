@@ -731,8 +731,8 @@
   async function handleBatchDelete() {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.batchDelete', { number: batchParams.value.currentSelectCount }),
-      content: t('caseManagement.featureCase.cleanOutDeleteTip'),
+      title: t('caseManagement.featureCase.batchDeleteCompleted', {number: batchParams.value.currentSelectCount}),
+      content: t('caseManagement.featureCase.cleanOutDeleteOnRecycleTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -791,8 +791,8 @@
   function handleBatchCleanOut(record: CaseManagementTable) {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.deleteCaseTitle', { name: characterLimit(record.name) }),
-      content: t('caseManagement.featureCase.cleanOutDeleteTip'),
+      title: t('caseManagement.featureCase.completedDeleteCaseTitle', {name: characterLimit(record.name)}),
+      content: t('caseManagement.featureCase.cleanOutDeleteOnRecycleTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
