@@ -29,6 +29,7 @@ public class UserRoleUpdateRequest implements Serializable {
     private String name;
 
     @Schema(description =  "描述")
+    @Size(max = 1000, groups = {Created.class, Updated.class})
     private String description;
 
     @Schema(description =  "所属类型 SYSTEM ORGANIZATION PROJECT", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS auth_source
     `enable`        BIT         NOT NULL DEFAULT 0 COMMENT '是否启用',
     `create_time`   BIGINT      NOT NULL COMMENT '创建时间',
     `update_time`   BIGINT      NOT NULL COMMENT '更新时间',
-    `description`   VARCHAR(500) COMMENT '描述',
+    `description`   VARCHAR(1000) COMMENT '描述',
     `name`          VARCHAR(255) COMMENT '名称',
     `type`          VARCHAR(30) COMMENT '类型',
     PRIMARY KEY (id)
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS user_role
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '组名称',
-    `description` VARCHAR(500) COMMENT '描述',
+    `description` VARCHAR(1000) COMMENT '描述',
     `internal`    BIT          NOT NULL COMMENT '是否是内置用户组',
     `type`        VARCHAR(20)  NOT NULL COMMENT '所属类型 SYSTEM ORGANIZATION PROJECT',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
@@ -381,7 +381,7 @@ CREATE TABLE IF NOT EXISTS custom_field_option(
 CREATE TABLE IF NOT EXISTS template(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
-    `remark` VARCHAR(500)    COMMENT '备注' ,
+    `remark` VARCHAR(1000)    COMMENT '备注' ,
     `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置模板' ,
     `update_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -419,7 +419,7 @@ CREATE TABLE IF NOT EXISTS status_item(
     `id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '状态名称' ,
     `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
-    `remark` VARCHAR(500)    COMMENT '状态说明' ,
+    `remark` VARCHAR(1000)    COMMENT '状态说明' ,
     `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置字段' ,
     `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
     `ref_id` VARCHAR(50)    COMMENT '项目状态所关联的组织状态ID' ,

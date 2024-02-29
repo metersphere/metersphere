@@ -77,7 +77,7 @@ public class ApiDefinitionAddRequest implements Serializable {
 
     @Schema(description = "响应内容")
     @NotNull
-    private Object response;
+    private List<HttpResponse> response;
 
     /**
      * 新上传的文件ID
