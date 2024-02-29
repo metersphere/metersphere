@@ -22,15 +22,19 @@ public class FunctionalCaseDemand implements Serializable {
 
     @Schema(description = "父需求id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_demand.parent.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{functional_case_demand.parent.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{functional_case_demand.parent.length_range}", groups = {Created.class, Updated.class})
     private String parent;
+
+    @Schema(description = "是否与父节点一起关联：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_demand.with_parent.not_blank}", groups = {Created.class})
+    private Boolean withParent;
 
     @Schema(description = "需求ID")
     private String demandId;
 
     @Schema(description = "需求标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_demand.demand_name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{functional_case_demand.demand_name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{functional_case_demand.demand_name.length_range}", groups = {Created.class, Updated.class})
     private String demandName;
 
     @Schema(description = "需求地址")
@@ -59,6 +63,7 @@ public class FunctionalCaseDemand implements Serializable {
         id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         parent("parent", "parent", "VARCHAR", false),
+        withParent("with_parent", "withParent", "BIT", false),
         demandId("demand_id", "demandId", "VARCHAR", false),
         demandName("demand_name", "demandName", "VARCHAR", false),
         demandUrl("demand_url", "demandUrl", "VARCHAR", false),

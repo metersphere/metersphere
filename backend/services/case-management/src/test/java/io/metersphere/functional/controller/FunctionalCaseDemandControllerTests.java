@@ -210,6 +210,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         DemandDTO demandDTO2 = new DemandDTO();
         demandDTO2.setDemandId("001");
         demandDTO2.setDemandName("手动加入1");
+        demandList = new ArrayList<>();
         demandList.add(demandDTO2);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
