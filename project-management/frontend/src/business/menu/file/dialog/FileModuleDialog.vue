@@ -45,7 +45,8 @@
           :label="$t('project.project_file.repository.path')"
           prop="repositoryPath"
         >
-          <el-input v-model="moduleForm.repositoryPath"></el-input>
+          <el-input v-model="moduleForm.repositoryPath"
+                    placeholder="https://gitea.com/xxx/xxx.git"></el-input>
         </el-form-item>
 
         <el-form-item
@@ -115,17 +116,10 @@
 </template>
 
 <script>
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import {listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {
-  createFileModule,
-  modifyFileModule,
-  testConnectRepository,
-} from "@/api/file";
+import {createFileModule, modifyFileModule, testConnectRepository,} from "@/api/file";
 
 export default {
   name: "FileModuleDialog",
@@ -206,13 +200,6 @@ export default {
             {
               max: 255,
               message: this.$t("test_track.length_less_than") + "255",
-              trigger: "blur",
-            },
-            {
-              pattern: "(.*)\.git$",
-              message: this.$t(
-                "project.project_file.validation.input_repository_path"
-              ),
               trigger: "blur",
             },
           ],
