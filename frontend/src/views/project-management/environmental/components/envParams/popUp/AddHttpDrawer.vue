@@ -1,5 +1,12 @@
 <template>
-  <MsDrawer :width="891" :visible="visible" unmount-on-close :mask="false" @cancel="emit('close')">
+  <MsDrawer
+    :width="891"
+    :visible="visible"
+    unmount-on-close
+    :mask="false"
+    @confirm="handleAddOrUpdate"
+    @cancel="emit('close')"
+  >
     <template #title>
       <div>{{ title }}</div>
     </template>
@@ -22,12 +29,6 @@
           </template>
         </a-input>
       </a-form-item>
-      <a-form-item class="mb-[16px]" field="applyModule" :label="t('project.environmental.http.applyModule')">
-        <a-checkbox-group v-model="form.applyModule">
-          <a-checkbox value="apiTest">{{ t('menu.apiTest') }}</a-checkbox>
-          <a-checkbox value="uiTest">{{ t('menu.uiTest') }}</a-checkbox>
-        </a-checkbox-group>
-      </a-form-item>
       <a-form-item class="mb-[16px]" field="enableCondition" :label="t('project.environmental.http.enableCondition')">
         <a-select v-model:model-value="form.enableCondition">
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
@@ -36,7 +37,7 @@
         </a-select>
       </a-form-item>
       <!-- 接口模块选择 -->
-      <a-form-item
+      <!-- <a-form-item
         v-if="showApiModule"
         class="mb-[16px]"
         field="apiModule"
@@ -47,9 +48,12 @@
         <a-select v-model:model-value="form.apiModule" multiple :placeholder="t('common.pleaseSelect')">
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
         </a-select>
+      </a-form-item> -->
+      <a-form-item class="mb-[16px]" field="description" :label="t('project.environmental.http.description')">
+        <a-input />
       </a-form-item>
       <!-- 选择UI测试模块 -->
-      <a-form-item
+      <!-- <a-form-item
         v-if="showUIModule"
         class="mb-[16px]"
         field="enableCondition"
@@ -60,7 +64,7 @@
         <a-select v-model:model-value="form.uiModule" multiple :placeholder="t('common.pleaseSelect')">
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
         </a-select>
-      </a-form-item>
+      </a-form-item> -->
       <!-- 路径 -->
       <a-form-item
         v-if="showPathInput"
@@ -88,7 +92,7 @@
         </a-input>
       </a-form-item>
     </a-form>
-    <RequestHeader :params="headerParams" />
+    <RequestHeader :params="form.headerParams" />
   </MsDrawer>
 </template>
 
@@ -100,57 +104,51 @@
   import RequestHeader from '../../requestHeader/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  import { HttpForm } from '@/models/projectManagement/environmental';
 
   const props = defineProps<{
-    currentId?: string;
+    currentObj: HttpForm;
   }>();
+
+  const store = useProjectEnvStore();
 
   const emit = defineEmits<{
     (e: 'close'): void;
   }>();
 
-  const form = reactive<{
-    hostname: string;
-    applyModule: string[];
-    enableCondition: string;
-    apiModule: string[];
-    uiModule: string[];
-    path: string;
-    operator: string;
-  }>({
+  const form = ref<HttpForm>({
+    id: '',
     hostname: '',
-    applyModule: [],
     enableCondition: 'none',
-    apiModule: [],
-    uiModule: [],
     path: '',
     operator: '',
+    headerParams: [],
   });
 
   const httpRef = ref();
 
-  const showApiModule = computed(() => form.enableCondition === 'module' && form.applyModule.includes('apiTest'));
-  const showUIModule = computed(() => form.enableCondition === 'module' && form.applyModule.includes('uiTest'));
-  const showPathInput = computed(() => form.enableCondition === 'path');
-  const headerParams = ref<[]>([]);
+  const showPathInput = computed(() => form.value.enableCondition === 'path');
 
   const visible = defineModel('visible', { required: true, type: Boolean, default: false });
 
   const { t } = useI18n();
 
-  const isEdit = computed(() => !!props.currentId);
+  const isEdit = computed(() => !!props.currentObj.id);
 
   const title = computed(() => {
     return isEdit.value ? t('project.environmental.http.edit') : t('project.environmental.http.add');
   });
-  watchEffect(() => {
-    if (showApiModule.value) {
-      form.apiModule = [];
+  const handleAddOrUpdate = () => {
+    if (form.value.id) {
+      const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
+      store.currentEnvDetailInfo.config.httpConfig.splice(index, 1, form.value);
+    } else {
+      store.currentEnvDetailInfo.config.httpConfig.push(form);
     }
-    if (showUIModule.value) {
-      form.uiModule = [];
-    }
-  });
+    emit('close');
+  };
 </script>
 
 <style lang="less" scoped>

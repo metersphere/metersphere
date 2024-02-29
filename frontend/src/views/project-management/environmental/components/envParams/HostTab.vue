@@ -28,7 +28,6 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { EnvConfigItem } from '@/models/projectManagement/environmental';
-  import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
 
   const { t } = useI18n();
 
@@ -37,7 +36,6 @@
   const currentList = computed({
     get: () => store.currentEnvDetailInfo.config.hostConfig || {},
     set: (value: EnvConfigItem) => {
-      console.log(value);
       store.currentEnvDetailInfo.config.hostConfig = value || {};
     },
   });

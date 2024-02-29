@@ -10,4 +10,5 @@ export interface MsExportDrawerOption {
   text: string;
   key: string;
   columnType: string;
+  [key: string]: any;
 }

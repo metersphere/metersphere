@@ -3,7 +3,6 @@
     <a-button type="outline" @click="handleAdd">{{ t('project.environmental.database.addDatabase') }}</a-button>
     <a-input-search
       v-model="keyword"
-      :placeholder="t('system.user.searchUser')"
       class="w-[240px]"
       allow-clear
       @press-enter="fetchData"
@@ -23,9 +22,10 @@
   </MsBaseTable>
   <AddDatabaseModal
     v-model:visible="addVisible"
-    v-model="currentDatabase"
+    :current-database="currentDatabase"
     :current-id="currentId"
     @close="addVisible = false"
+    @add-or-update="handleAddOrUpdate"
   />
 </template>
 
@@ -34,7 +34,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { MsTableColumn, MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -45,18 +45,15 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { BugListItem } from '@/models/bug-management';
+  import { CommonList } from '@/models/common';
   import { DataSourceItem } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const store = useProjectEnvStore();
 
-  const innerParam = computed({
-    get: () => (store.currentEnvDetailInfo.config.dataSource || []) as DataSourceItem[],
-    set: (value: DataSourceItem[] | undefined) => {
-      store.currentEnvDetailInfo.config.dataSource = value;
-    },
-  });
+  const innerParam = computed(() => store.currentEnvDetailInfo.config.dataSources || []);
+
   const keyword = ref('');
   const tableStore = useTableStore();
   const addVisible = ref(false);
@@ -121,15 +118,21 @@
     },
   ];
   await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP, columns);
-  const { propsRes, propsEvent } = useTable(undefined, {
-    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP,
-    scroll: { x: '100%' },
-    selectable: false,
-    noDisable: true,
-    showSetting: true,
-    showPagination: false,
-    showMode: false,
-  });
+  const { propsRes, propsEvent } = useTable(
+    () =>
+      Promise.resolve([]) as unknown as Promise<
+        MsTableDataItem<DataSourceItem> | CommonList<MsTableDataItem<DataSourceItem>>
+      >,
+    {
+      tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP,
+      scroll: { x: '100%' },
+      selectable: false,
+      showSetting: true,
+      showPagination: false,
+      showMode: false,
+      isSimpleSetting: true,
+    }
+  );
 
   const moreActionList: ActionsItem[] = [
     {
@@ -140,7 +143,10 @@
   ];
 
   const handleSingleDelete = (record?: TableData) => {
-    console.log('handleSingleDelete', record);
+    if (record) {
+      const index = innerParam.value.findIndex((item) => item.id === record.id);
+      innerParam.value.splice(index, 1);
+    }
   };
 
   function handleMoreActionSelect(item: ActionsItem, record: BugListItem) {
@@ -150,22 +156,37 @@
   }
 
   const handleCopy = (record: any) => {
-    console.log('handleCopy', record);
+    addVisible.value = true;
+    currentId.value = '';
+    currentDatabase.value = { ...record, id: '' };
   };
   const handleEdit = (record: any) => {
     addVisible.value = true;
     currentId.value = record.id;
   };
-
   const handleAdd = () => {
+    currentDatabase.value = { name: '', dbUrl: '', username: '' };
     addVisible.value = true;
   };
-  const fetchData = () => {};
-  const initData = () => {
-    propsRes.value.data = innerParam.value;
+  const fetchData = () => {
+    if (keyword.value) {
+      propsRes.value.data = innerParam.value.filter((item) => item.name.includes(keyword.value));
+    } else {
+      propsRes.value.data = innerParam.value;
+    }
   };
-  onMounted(() => {
-    initData();
+  const handleAddOrUpdate = (data: DataSourceItem, cb: (v: boolean) => void) => {
+    if (data.id) {
+      const index = innerParam.value.findIndex((item) => item.id === data.id);
+      store.currentEnvDetailInfo.config.dataSources[index] = data;
+    } else {
+      data.id = new Date().getTime().toString();
+      store.currentEnvDetailInfo.config.dataSources.push(data);
+    }
+    cb(true);
+  };
+  watch(innerParam.value, () => {
+    fetchData();
   });
 </script>
 
