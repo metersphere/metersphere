@@ -1,15 +1,15 @@
 package io.metersphere.system.controller.handler;
 
 import io.metersphere.sdk.exception.IResultCode;
-import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.controller.handler.result.MsHttpResultCode;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.lang.ShiroException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -51,6 +51,7 @@ public class RestControllerExceptionHandler {
 
     /**
      * http 状态码返回405
+     *
      * @param exception 异常信息
      * @return
      */
@@ -96,6 +97,7 @@ public class RestControllerExceptionHandler {
 
     /**
      * 当抛出 NOT_FOUND，拼接资源名称
+     *
      * @param message
      * @return
      */
@@ -134,6 +136,7 @@ public class RestControllerExceptionHandler {
     /**
      * 格式化异常信息
      * 当出现未知异常时，将错误栈信息格式化返回
+     *
      * @param e
      * @return
      */
