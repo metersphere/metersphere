@@ -3,6 +3,7 @@ package io.metersphere.functional.excel.listener;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.excel.annotation.NotRequired;
 import io.metersphere.functional.excel.domain.ExcelMergeInfo;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
@@ -14,11 +15,13 @@ import io.metersphere.functional.request.FunctionalCaseImportRequest;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.excel.ExcelValidateHelper;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.excel.domain.ExcelErrData;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +62,8 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
     private static final String ERROR_MSG_SEPARATOR = ";";
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
     protected static final int TAGS_COUNT = 15;
-    protected static final int TAG_LENGTH = 15;
+    protected static final int TAG_LENGTH = 64;
+    protected static final int STEP_LENGTH = 1000;
     private FunctionalCaseService functionalCaseService;
 
     public FunctionalCaseCheckEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet) {
@@ -209,7 +213,94 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         validateIdExist(data, errMsg);
         //标签长度校验
         validateTags(data, errMsg);
+        //校验用例步骤和预期结果长度
+        validateStep(data, errMsg);
     }
+
+    /**
+     * 校验用例步骤 预期结果
+     *
+     * @param data
+     * @param errMsg
+     */
+    private void validateStep(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        if (StringUtils.equalsIgnoreCase(data.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
+            getSteps(data, errMsg);
+        }
+    }
+
+    private String getSteps(FunctionalCaseExcelData data,StringBuilder errMsg) {
+        List<Map<String, Object>> steps = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(data.getMergeTextDescription()) || CollectionUtils.isNotEmpty(data.getMergeExpectedResult())) {
+            // 如果是合并单元格，则组合多条单元格的数据
+            for (int i = 0; i < data.getMergeTextDescription().size(); i++) {
+                List<Map<String, Object>> rowSteps = getSingleRowSteps(data.getMergeTextDescription().get(i), data.getMergeExpectedResult().get(i), steps.size(),errMsg);
+                steps.addAll(rowSteps);
+            }
+        } else {
+            // 如果不是合并单元格，则直接解析单元格数据
+            steps.addAll(getSingleRowSteps(data.getTextDescription(), data.getExpectedResult(), steps.size(),errMsg));
+        }
+        return JSON.toJSONString(steps);
+    }
+
+
+    private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex,StringBuilder errMsg) {
+        List<Map<String, Object>> steps = new ArrayList<>();
+
+        List<String> stepDescList = parseStepCell(cellDesc);
+        List<String> stepResList = parseStepCell(cellResult);
+
+        int index = Math.max(stepDescList.size(), stepResList.size());
+        for (int i = 0; i < index; i++) {
+            // 保持插入顺序，判断用例是否有相同的steps
+            Map<String, Object> step = new LinkedHashMap<>();
+            step.put("num", startStepIndex + i + 1);
+            if (i < stepDescList.size()) {
+                step.put("desc", stepDescList.get(i));
+                if (stepDescList.get(i).length() > STEP_LENGTH) {
+                    errMsg.append(Translator.get("step_length"))
+                            .append(ERROR_MSG_SEPARATOR);
+                    return steps;
+                }
+            } else {
+                step.put("desc", StringUtils.EMPTY);
+            }
+
+            if (i < stepResList.size()) {
+                step.put("result", stepResList.get(i));
+                if (stepResList.get(i).length() > STEP_LENGTH) {
+                    errMsg.append(Translator.get("result_length"))
+                            .append(ERROR_MSG_SEPARATOR);
+                    return steps;
+                }
+            } else {
+                step.put("result", StringUtils.EMPTY);
+            }
+
+            steps.add(step);
+        }
+        return steps;
+    }
+
+    private List<String> parseStepCell(String cellContent) {
+        List<String> cellStepContentList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(cellContent)) {
+            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
+            String[] cellContentArr = cellContent.split("\\[\\d+]", -1);
+            if (StringUtils.isEmpty(cellContentArr[0])) {
+                cellContentArr = Arrays.copyOfRange(cellContentArr, 1, cellContentArr.length);
+            }
+            for (String stepContent : cellContentArr) {
+                cellStepContentList.add(stepContent.replaceAll("(?m)^\\s*|\\s*$", StringUtils.EMPTY));
+            }
+        } else {
+            cellStepContentList.add(StringUtils.EMPTY);
+        }
+        return cellStepContentList;
+    }
+
 
     /**
      * 校验标签长度 个数

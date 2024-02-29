@@ -82,7 +82,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     private int successCount = 0;
     private Map<String, String> pathMap = new HashMap<>();
     protected static final int TAGS_COUNT = 15;
-    protected static final int TAG_LENGTH = 15;
+    protected static final int TAG_LENGTH = 64;
 
     public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, SessionUser user) {
         this.mergeInfoSet = mergeInfoSet;
