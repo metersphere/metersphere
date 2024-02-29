@@ -220,6 +220,8 @@
   const fileListRef = ref<InstanceType<typeof MsFileList>>();
   // 富文本编辑器是否可编辑
   const contentEditAble = ref(false);
+  // 富文本框默认值。用于取消编辑时的复位
+  const defaultContentValue = ref<string>('');
   const currentProjectId = computed(() => appStore.currentProjectId);
   // 前端保存的fileList
   const fileList = ref<MsFileItem[]>([]);
@@ -268,11 +270,14 @@
     const { attachments, title, description } = detail;
     form.value.title = title;
     form.value.description = description;
+    defaultContentValue.value = description;
     handleFileFunc(attachments);
   };
 
+  // 取消富文本框编辑时，要将数据复位
   function handleCancel() {
     contentEditAble.value = false;
+    form.value.description = defaultContentValue.value;
   }
 
   // 删除本地文件
@@ -436,10 +441,11 @@
         templateId: props.detailInfo.templateId,
         customFields,
       };
-      // 执行保存操作
+      // 执行保存操作。 保存成功后将富文本内容赋值给默认值
       const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
       if (res) {
         Message.success(t('common.updateSuccess'));
+        defaultContentValue.value = form.value.description;
         handleCancel();
         emit('updateSuccess');
       }
