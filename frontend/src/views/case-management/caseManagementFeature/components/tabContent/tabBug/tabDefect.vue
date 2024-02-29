@@ -155,8 +155,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectState',
-      slotName: 'defectState',
-      dataIndex: 'defectState',
+      slotName: 'statusName',
+      dataIndex: 'statusName',
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -174,8 +174,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectSource',
-      slotName: 'defectState',
-      dataIndex: 'defectState',
+      slotName: 'source',
+      dataIndex: 'source',
       showInTable: true,
       showTooltip: true,
       width: 200,

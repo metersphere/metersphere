@@ -21,6 +21,8 @@
           :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
           allow-clear
           class="mx-[8px] w-[240px]"
+          @search="searchList"
+          @press-enter="searchList"
         ></a-input-search
       ></div>
     </div>
@@ -55,6 +57,8 @@
   import { useAppStore } from '@/store';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import debounce from 'lodash-es/debounce';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -100,8 +104,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectState',
-      slotName: 'status',
-      dataIndex: 'status',
+      slotName: 'statusName',
+      dataIndex: 'statusName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -110,8 +114,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectSource',
-      slotName: 'defectSource',
-      dataIndex: 'defectSource',
+      slotName: 'source',
+      dataIndex: 'source',
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -162,6 +166,10 @@
     setLoadListParams({ keyword: keyword.value, projectId: currentProjectId.value, sourceId: props.caseId });
     loadList();
   }
+
+  const searchList = debounce(() => {
+    getFetch();
+  }, 100);
 
   watch(
     () => props.visible,

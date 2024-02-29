@@ -95,10 +95,12 @@
       filedIds?: string[];
       commentIds?: string[];
       wrapperClass?: string;
+      placeholder?: string;
     }>(),
     {
       raw: '',
       uploadImage: undefined,
+      placeholder: 'editor.placeholder',
     }
   );
 
@@ -251,7 +253,7 @@
         ExtensionSubscript,
         ExtensionSuperscript,
         ExtensionPlaceholder.configure({
-          placeholder: '输入 / 以选择输入类型',
+          placeholder: t(props.placeholder),
         }),
         ExtensionHighlight,
         // ExtensionVideo,

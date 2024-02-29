@@ -6,5 +6,5 @@ export default {
   'ms.comment.delete': '删除',
   'ms.comment.deleteConfirm': '确认删除该评论吗？',
   'ms.comment.deleteContent': '删除后，评论无法回复，请谨慎操作',
-  'ms.comment.enterPlaceHolderTip': '请输入评论，回车结束',
+  'ms.comment.enterPlaceHolderTip': '请输入评论，⌘ + Enter 结束',
 };

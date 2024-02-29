@@ -8,9 +8,19 @@
   >
     <div v-if="props.isShowAvatar" class="mr-3 inline-block"> <MsAvatar avatar="word"></MsAvatar></div>
     <div class="w-full items-center">
-      <a-input v-if="!isActive" class="w-full hover:border-[rgb(var(--primary-5))]" @click="isActive = true"></a-input>
+      <a-input
+        v-if="!isActive"
+        :placeholder="t('ms.comment.enterPlaceHolderTip')"
+        class="w-full hover:border-[rgb(var(--primary-5))]"
+        @click="isActive = true"
+      ></a-input>
       <div v-else class="flex flex-col justify-between">
-        <MsRichText v-model:raw="currentContent" v-model:commentIds="commentIds" class="w-full" />
+        <MsRichText
+          v-model:raw="currentContent"
+          v-model:commentIds="commentIds"
+          class="w-full"
+          placeholder="ms.comment.enterPlaceHolderTip"
+        />
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
           <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>
@@ -56,6 +66,23 @@
     currentContent.value = '';
     emit('cancel');
   };
+
+  function handleGlobalKeyDown(event: any) {
+    if (event.key === 'Enter' && event.ctrlKey) {
+      if (currentContent.value.trim().length) {
+        emit('publish', currentContent.value);
+        isActive.value = false;
+        currentContent.value = '';
+      }
+    }
+  }
+
+  onMounted(() => {
+    window.addEventListener('keydown', handleGlobalKeyDown);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleGlobalKeyDown);
+  });
 </script>
 
 <style scoped lang="less">

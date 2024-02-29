@@ -9,4 +9,5 @@ export default {
   'editor.extensions.image.large_size': '大尺寸',
   'editor.extensions.image.restore_size': '大尺寸',
   'editor.extensions.image.open_link': '打开链接',
+  'editor.placeholder': '请输入内容',
 };

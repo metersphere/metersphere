@@ -155,7 +155,7 @@
       showTooltip: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnName',
+      title: 'caseManagement.featureCase.demandName',
       slotName: 'demandName',
       dataIndex: 'demandName',
       width: 300,
