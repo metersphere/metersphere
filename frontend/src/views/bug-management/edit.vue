@@ -336,16 +336,16 @@
   const getFormRules = (arr: BugEditCustomField[]) => {
     formRules.value = [];
     if (Array.isArray(arr) && arr.length) {
-      formRules.value = arr.map((item) => {
+      formRules.value = arr.map((item: any) => {
         return {
           type: item.type,
           name: item.fieldId,
           label: item.fieldName,
-          value: item.value,
+          value: item.defaultValue,
           options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           required: item.required as boolean,
           props: {
-            modelValue: item.value,
+            modelValue: item.defaultValue,
             options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           },
         };

@@ -12,6 +12,7 @@ export const INPUT = {
   props: {
     'placeholder': t('formCreate.PleaseEnter'),
     'max-length': 255,
+    'allow-clear': true,
   },
 };
 export const SELECT = {
@@ -21,10 +22,11 @@ export const SELECT = {
   value: '',
   options: [],
   props: {
-    multiple: false,
-    placeholder: t('formCreate.PleaseSelect'),
-    options: [],
-    modelValue: '',
+    'multiple': false,
+    'placeholder': t('formCreate.PleaseSelect'),
+    'options': [],
+    'modelValue': '',
+    'allow-clear': true,
   },
 };
 
@@ -35,10 +37,11 @@ export const MULTIPLE_SELECT = {
   value: [],
   options: [],
   props: {
-    multiple: true,
-    placeholder: t('formCreate.PleaseSelect'),
-    options: [],
-    modelValue: [],
+    'multiple': true,
+    'placeholder': t('formCreate.PleaseSelect'),
+    'options': [],
+    'modelValue': [],
+    'allow-clear': true,
   },
 };
 
@@ -65,9 +68,10 @@ export const MEMBER = {
   value: '',
   options: [],
   props: {
-    multiple: false,
-    placeholder: t('formCreate.PleaseSelect'),
-    modelValue: '',
+    'multiple': false,
+    'placeholder': t('formCreate.PleaseSelect'),
+    'modelValue': '',
+    'allow-clear': true,
   },
 };
 
@@ -78,10 +82,11 @@ export const MULTIPLE_MEMBER = {
   value: [],
   options: [],
   props: {
-    multiple: true,
-    placeholder: t('formCreate.PleaseSelect'),
-    options: [],
-    modelValue: [],
+    'multiple': true,
+    'placeholder': t('formCreate.PleaseSelect'),
+    'options': [],
+    'modelValue': [],
+    'allow-clear': true,
   },
 };
 
@@ -114,7 +119,7 @@ export const FLOAT = {
   type: 'InputNumber',
   field: 'fieldName',
   title: '',
-  value: 0,
+  value: 0.0,
   props: {
     precision: 2,
     placeholder: t('formCreate.PleaseEnter'),
@@ -138,7 +143,8 @@ export const MULTIPLE_INPUT = {
   title: '',
   value: [],
   props: {
-    placeholder: t('formCreate.PleaseEnter'),
+    'placeholder': t('formCreate.PleaseEnter'),
+    'allow-clear': true,
   },
 };
 
@@ -170,8 +176,9 @@ export const PASSWORD = {
   title: '',
   value: '',
   props: {
-    modelValue: '',
-    instructionsIcon: '',
+    'modelValue': '',
+    'instructionsIcon': '',
+    'allow-clear': true,
   },
 };
 

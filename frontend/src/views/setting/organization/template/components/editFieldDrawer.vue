@@ -136,7 +136,7 @@
   import { useAppStore } from '@/store';
   import { getGenerateId } from '@/utils';
 
-  import type { AddOrUpdateField, fieldIconAndNameModal } from '@/models/setting/template';
+  import type { AddOrUpdateField, fieldIconAndNameModal, FieldOptions } from '@/models/setting/template';
 
   import { fieldIconAndName, getFieldRequestApi, getFieldType } from './fieldSetting';
 
@@ -314,10 +314,15 @@
             fieldDefaultValues.value = [...list];
             if (showOptionsSelect.value) {
               fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
-                return {
-                  ...item,
-                  value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
+                const currentItem: FieldOptions = {
+                  text: item.text,
+                  value: item.value ? item.value : getGenerateId(),
                 };
+                if (item.fieldId) {
+                  currentItem.fieldId = item.fieldId;
+                }
+
+                return currentItem;
               });
             }
             await cb();

@@ -306,11 +306,17 @@
     const result = selectData.value.map((item) => {
       if (item.formRules?.length) {
         const { value } = item.formRules[0];
+        let setValue;
+        if (typeof value === 'number') {
+          setValue = value;
+        } else {
+          setValue = value || '';
+        }
         return {
           fieldId: item.id,
           required: item.required,
           apiFieldId: item.apiFieldId || '',
-          defaultValue: value || '',
+          defaultValue: setValue,
         };
       }
       return [];
