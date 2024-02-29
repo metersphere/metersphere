@@ -4,7 +4,7 @@ import { useI18n } from '@/hooks/useI18n';
 import useModal from '@/hooks/useModal';
 
 const isSave = ref(false);
-let isRouteIntercepted = false;
+const isRouteIntercepted = ref<boolean>(false);
 
 // 离开页面确认提示
 export default function useLeaveUnSaveTip() {
@@ -15,7 +15,7 @@ export default function useLeaveUnSaveTip() {
     isSave.value = flag;
   };
   onBeforeRouteLeave((to, from, next) => {
-    if (to.path === from.path || isRouteIntercepted) {
+    if (to.path === from.path) {
       next();
       return;
     }
@@ -31,7 +31,7 @@ export default function useLeaveUnSaveTip() {
           status: 'normal',
         },
         onBeforeOk: async () => {
-          isRouteIntercepted = true;
+          isSave.value = true;
           next();
         },
         hideCancel: false,

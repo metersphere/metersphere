@@ -54,7 +54,7 @@
             >{{ t('system.orgTemplate.copy') }}</MsButton
           >
           <a-divider
-            v-if="!record.internal"
+            v-if="hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ADD']) && !record.internal"
             v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
             class="h-[12px]"
             direction="vertical"

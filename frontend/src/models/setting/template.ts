@@ -25,7 +25,7 @@ export type SeneType = 'FUNCTIONAL' | 'BUG' | 'API' | 'UI' | 'TEST_PLAN' | Locat
 
 export interface FieldOptions {
   fieldId?: string;
-  value: string | string[] | number | number[];
+  value: any;
   text: string;
   internal?: boolean; // 是否是内置模板
 }
@@ -67,7 +67,7 @@ export interface AddOrUpdateField {
   type: FormItemType;
   remark: string; // 备注
   scopeId: string; // 组织或项目ID
-  options?: FieldOption[];
+  options?: FieldOptions[];
   enableOptionKey: boolean;
   [key: string]: any;
 }

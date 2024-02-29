@@ -74,9 +74,12 @@
             :ok-text="t('system.orgTemplate.confirm')"
             @confirm="handleOk(record)"
           >
-            <MsButton v-permission="props.updatePermission" :disabled="record.internal" class="!mr-0">{{
-              t('system.orgTemplate.edit')
-            }}</MsButton></MsPopConfirm
+            <MsButton
+              v-if="!record.internal && hasAnyPermission(props.updatePermission)"
+              :disabled="record.internal"
+              class="!mr-0"
+              >{{ t('system.orgTemplate.edit') }}</MsButton
+            ></MsPopConfirm
           >
 
           <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
