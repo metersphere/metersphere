@@ -195,7 +195,7 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setId(apiDefinition.getId());
         apiDefinitionBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
         if (request.getResponse() != null) {
-            List<HttpResponse> msHttpResponse = JSON.parseArray(JSON.toJSONString(request.getResponse()), HttpResponse.class);
+            List<HttpResponse> msHttpResponse = request.getResponse();
             msHttpResponse.forEach(item -> item.setId(IDGenerator.nextStr()));
             apiDefinitionBlob.setResponse(JSON.toJSONString(msHttpResponse).getBytes());
         }

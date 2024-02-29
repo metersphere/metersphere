@@ -21,6 +21,6 @@ public class StatusItemUpdateRequest implements Serializable {
     private String name;
 
     @Schema(description = "状态说明")
-    @Size(max = 500)
+    @Size(max = 1000)
     private String remark;
 }

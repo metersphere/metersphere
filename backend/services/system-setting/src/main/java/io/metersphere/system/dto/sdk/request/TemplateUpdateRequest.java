@@ -25,6 +25,7 @@ public class TemplateUpdateRequest {
     private String name;
 
     @Schema(title = "备注")
+    @Size(max = 1000, groups = {Created.class, Updated.class})
     private String remark;
 
     @Schema(title = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
