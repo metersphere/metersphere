@@ -1,9 +1,8 @@
 <template>
   <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
     <template #demandName="{ record }">
-      <span class="ml-1" :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']">
-        {{ record.demandName }}
-        <span>({{ (record.children || []).length || 0 }})</span></span
+      <a-button type="text" class="ml-1" :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']" style="margin-left: -0.77rem" @click="emit('open', record)"
+      >{{ record.demandName }}<span>({{ (record.children || []).length || 0 }})</span></a-button
       >
     </template>
     <template #operation="{ record }">
@@ -71,6 +70,7 @@
     (e: 'create'): void;
     (e: 'associate'): void;
     (e: 'cancel', record: DemandItem): void;
+    (e: 'open', record: DemandItem): void;
   }>();
 
   const columns: MsTableColumn = [

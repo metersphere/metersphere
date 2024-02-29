@@ -26,6 +26,7 @@
       @update="updateDemand"
       @create="addDemand"
       @cancel="cancelLink"
+      @open="openDemandUrl"
       @associate="linkDemandDrawer = true"
     ></AssociatedDemandTable>
     <AddDemandModal
@@ -67,9 +68,10 @@
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
         <template #demandName="{ record }">
-          <a-button type="text" class="flex w-full" @click="openDemandUrl(record.demandUrl)"
-            >{{ record.demandName }}<span>({{ (record.children || []).length || 0 }})</span></a-button
-          >
+           <span class="ml-1 text-[rgb(var(--primary-5))]">
+            {{ record.demandName }}
+            <span>({{ (record.children || []).length || 0 }})</span></span
+           >
         </template>
         <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
           <span> {{ getSlotName(record, item) }} </span>
@@ -267,8 +269,8 @@
     return record.customFields[item.dataIndex as string] || '-';
   }
 
-  function openDemandUrl(url: string) {
-    window.open(url);
+  function openDemandUrl(record: DemandItem) {
+    window.open(record.demandUrl);
   }
 
   const platformInfo = ref<Record<string, any>>({});
