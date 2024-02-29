@@ -63,14 +63,14 @@
       <template #second>
         <div class="p-[24px]">
           <MsAdvanceFilter
+            v-model:keyword="keyword"
             :filter-config-list="filterConfigList"
             :custom-fields-config-list="searchCustomFields"
             :row-count="filterRowCount"
+            :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
             @keyword-search="fetchData"
             @adv-search="handleAdvSearch"
             @refresh="fetchData()"
-            v-model:keyword="keyword"
-            :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
           >
             <template #left>
               <div class="text-[var(--color-text-1)]"
@@ -150,11 +150,11 @@
             </template>
             <template #deleteUserFilter="{ columnConfig }">
               <TableFilter
-                  v-model:visible="deleteUserFilterVisible"
-                  v-model:status-filters="deleteUserFilters"
-                  :title="(columnConfig.title as string)"
-                  :list="memberOptions"
-                  @search="initRecycleList()"
+                v-model:visible="deleteUserFilterVisible"
+                v-model:status-filters="deleteUserFilters"
+                :title="(columnConfig.title as string)"
+                :list="memberOptions"
+                @search="initRecycleList()"
               >
                 <template #item="{ item }">
                   {{ item.label }}
@@ -669,7 +669,7 @@
         lastExecuteResult: executeResultFilters.value,
         updateUserName: updateUserFilters.value,
         createUserName: createUserFilters.value,
-        deleteUserName: deleteUserFilters.value
+        deleteUserName: deleteUserFilters.value,
       },
       condition: {
         keyword: keyword.value,

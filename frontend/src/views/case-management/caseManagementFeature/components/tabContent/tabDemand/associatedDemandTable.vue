@@ -17,6 +17,10 @@
     <template v-if="(props.funParams.keyword || '').trim() === '' && props.showEmpty" #empty>
       <div class="flex w-full items-center justify-center">
         {{ t('caseManagement.caseReview.tableNoData') }}
+        <MsButton class="ml-[8px]" @click="emit('associate')">
+          {{ t('caseManagement.featureCase.associatedDemand') }}
+        </MsButton>
+        {{ t('caseManagement.featureCase.or') }}
         <MsButton class="ml-[8px]" @click="emit('create')">
           {{ t('caseManagement.featureCase.addDemand') }}
         </MsButton>
@@ -65,6 +69,7 @@
   const emit = defineEmits<{
     (e: 'update', record: DemandItem): void;
     (e: 'create'): void;
+    (e: 'associate'): void;
     (e: 'cancel', record: DemandItem): void;
   }>();
 

@@ -52,7 +52,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getThirdDemandList } from '@/api/modules/case-management/featureCase';
-  import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -66,6 +65,7 @@
     visible: boolean;
     caseId: string;
     drawerLoading: boolean;
+    platformInfo: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
@@ -107,7 +107,7 @@
     // },
   ];
 
-  const fullColumns = ref<MsTableColumn>([]);
+  const fullColumns = ref<MsTableColumn>([...columns]);
   const customFields = ref<Record<string, any>[]>([]);
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
@@ -138,11 +138,13 @@
     return filteredData;
   });
 
-  const platformInfo = ref<Record<string, any>>({});
+  // const platformInfo = ref<Record<string, any>>({});
   function getPlatName() {
-    switch (platformInfo.value.platform_key) {
+    switch (props.platformInfo.platform_key) {
       case 'zentao':
         return t('caseManagement.featureCase.zentao');
+      case 'jira':
+        return t('caseManagement.featureCase.jira');
       default:
         break;
     }
@@ -159,10 +161,15 @@
     });
 
     const params = {
-      id: JSON.parse(platformInfo.value.demand_platform_config).zentaoId,
+      id: JSON.parse(props.platformInfo.demand_platform_config).zentaoId,
       caseId: props.caseId,
-      demandPlatform: platformInfo.value.platform_key,
-      demandList,
+      demandPlatform: props.platformInfo.platform_key,
+      demandList: propsRes.value.selectorStatus === 'all' ? [] : demandList,
+      functionalDemandBatchRequest: {
+        keyword: platformKeyword.value,
+        excludeIds: [...propsRes.value.excludeKeys],
+        selectAll: propsRes.value.selectorStatus === 'all',
+      },
     };
     emit('save', params);
   }
@@ -198,50 +205,52 @@
 
   const tableRef = ref();
   async function initColumn() {
+    fullColumns.value = [...columns];
     try {
       const res = await getThirdDemandList({
         current: 1,
         pageSize: 10,
         projectId: currentProjectId.value,
       });
-      customFields.value = (res.data.customHeaders || []).map((item: any) => {
-        return {
-          title: item.name,
-          slotName: item.id,
-          dataIndex: item.id,
-          width: 200,
-          options: item.options,
-        };
-      }) as any;
-      fullColumns.value = [...columns, ...customFields.value];
+      if (res.data.customHeaders.length) {
+        customFields.value = (res.data.customHeaders || []).map((item: any) => {
+          return {
+            title: item.name,
+            slotName: item.id,
+            dataIndex: item.id,
+            width: 200,
+            options: item.options,
+          };
+        }) as any;
+      }
+
+      fullColumns.value.push(...customFields.value);
     } catch (error) {
-      tableRef.value.initColumn(columns);
       console.log(error);
     }
   }
 
-  onBeforeMount(async () => {
-    try {
-      const result = await getCaseRelatedInfo(currentProjectId.value);
-      if (result && result.platform_key) {
-        platformInfo.value = { ...result };
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  });
+  // onBeforeMount(async () => {
+  //   try {
+  //     const result = await getCaseRelatedInfo(currentProjectId.value);
+  //     if (result && result.platform_key) {
+  //       platformInfo.value = { ...result };
+  //       initColumn();
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // });
 
   watch(
     () => innerLinkDemandVisible.value,
     async (val) => {
       if (val) {
         resetSelector();
-        await initColumn();
-        initData();
+        if (props.platformInfo.demand_platform_config) {
+          initData();
+        }
       }
-    },
-    {
-      immediate: true,
     }
   );
 </script>

@@ -513,6 +513,7 @@
     @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px 24px !important;
+      height: 130px;
       p:first-child {
         margin-top: 0;
       }

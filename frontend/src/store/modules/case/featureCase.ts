@@ -119,7 +119,16 @@ const useFeatureCaseStore = defineStore('featureCase', {
     async getCaseCounts(caseId: string) {
       try {
         const result = await getCaseDetail(caseId);
-        const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount } = result;
+        const {
+          bugCount,
+          caseCount,
+          caseReviewCount,
+          demandCount,
+          relateEdgeCount,
+          testPlanCount,
+          historyCount,
+          commentCount,
+        } = result;
         const countMap: Record<string, any> = {
           case: caseCount,
           dependency: relateEdgeCount,
@@ -127,6 +136,8 @@ const useFeatureCaseStore = defineStore('featureCase', {
           testPlan: testPlanCount,
           bug: bugCount,
           requirement: demandCount,
+          changeHistory: historyCount,
+          comments: commentCount,
         };
         this.initCountMap(countMap);
       } catch (error) {

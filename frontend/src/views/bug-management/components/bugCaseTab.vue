@@ -247,7 +247,6 @@
 
   async function getEnabledModules() {
     const result = await postTabletList({ projectId: currentProjectId.value });
-    debugger;
     const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
     caseArr.forEach((item: any) => {
       const currentModule = moduleMaps[item.module];

@@ -41,7 +41,9 @@
                   <div class="ml-2"> {{ item.name }} </div>
                 </div>
 
-                <a-button type="outline"> {{ t('caseManagement.featureCase.addContinueCreate') }} </a-button>
+                <a-button type="outline" @click="goNavigation(item.route)">
+                  {{ t('caseManagement.featureCase.addContinueCreate') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -61,7 +63,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
 
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
 
@@ -71,13 +73,14 @@
   const router = useRouter();
   const route = useRoute();
   const cardList = ref([
-    {
-      key: 'testPlanTemplate',
-      name: t('caseManagement.featureCase.createTestPlan'),
-    },
+    // {
+    //   key: 'testPlanTemplate',
+    //   name: t('caseManagement.featureCase.createTestPlan'),
+    // },
     {
       key: 'caseReview',
       name: t('caseManagement.featureCase.createCaseReview'),
+      route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
     },
   ]);
 
@@ -91,7 +94,7 @@
       } else {
         clearInterval(timer.value);
         router.push({
-          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+          name: RouteEnum.CASE_MANAGEMENT_CASE,
         });
       }
     }, 1000);
@@ -108,7 +111,7 @@
     clearInterval(timer.value);
     timer.value = null;
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+      name: RouteEnum.CASE_MANAGEMENT_CASE,
     });
   }
 
@@ -117,15 +120,21 @@
     clearInterval(timer.value);
     timer.value = null;
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      name: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     });
   }
 
   function goDetail() {
     clearInterval(timer.value);
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+      name: RouteEnum.CASE_MANAGEMENT_CASE,
       query: route.query,
+    });
+  }
+
+  function goNavigation(name: string) {
+    router.push({
+      name,
     });
   }
 
