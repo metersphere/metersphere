@@ -8,6 +8,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
@@ -141,6 +142,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
     private static String fileMetadataId;
     private static String uploadFileId;
 
@@ -205,7 +208,28 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
         apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId());
         assertUploadFile(apiDefinition.getId(), List.of(uploadFileId));
-        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
+        assertLinkFile(apiDefinition.getId());
+
+        this.requestGetWithOk("/api/definition/transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
+        apiTransferRequest.setSourceId(apiDefinition.getId());
+        apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiTransferRequest.setModuleId("root");
+        apiTransferRequest.setLocal(true);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        apiTransferRequest.setFileId(uploadFileId);
+        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().isOk());
+        //文件不存在
+        apiTransferRequest.setFileId("111");
+        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        //文件已经上传
+        ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
+        apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiDefinition.getId());
+        List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
+        Assertions.assertFalse(apiFileResources.isEmpty());
+        apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().isOk());
+
         // 再插入一条数据，便于修改时重名校验
         request.setMethod("GET");
         request.setPath("/api/admin/posts");
@@ -392,7 +416,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验请求成功数据
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of());
-        assertLinkFile(apiDefinition.getId(), List.of());
+        assertLinkFile(apiDefinition.getId());
 
         // 带文件的更新
         String fileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
@@ -404,7 +428,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验请求成功数据
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of(fileId));
-        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
+        assertLinkFile(apiDefinition.getId());
 
         // 删除了上一次上传的文件，重新上传一个文件
         request.setDeleteFileIds(List.of(fileId));
@@ -415,7 +439,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         this.requestPostWithOk(UPDATE, request);
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of(newFileId1));
-        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
+        assertLinkFile(apiDefinition.getId());
 
         // 已有一个文件，再上传一个文件
         String newFileId2 = doUploadTempFile(getMockMultipartFile("file_update_upload.JPG"));
@@ -426,7 +450,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         this.requestPostWithOk(UPDATE, request);
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of(newFileId1, newFileId2));
-        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
+        assertLinkFile(apiDefinition.getId());
 
         // @@重名校验异常
         request.setModuleId("default");
@@ -549,6 +573,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         if (fileIds != null) {
             ApiFileResourceService apiFileResourceService = CommonBeanFactory.getBean(ApiFileResourceService.class);
             // 验证文件的关联关系，以及是否存入对象存储
+            assert apiFileResourceService != null;
             List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
             Assertions.assertEquals(apiFileResources.size(), fileIds.size());
 
@@ -573,15 +598,15 @@ public class ApiDefinitionControllerTests extends BaseTest {
      * 校验上传的文件
      *
      * @param id
-     * @param fileIds 全部的文件ID
      */
-    private static void assertLinkFile(String id, List<String> fileIds) {
+    private static void assertLinkFile(String id) {
         FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
+        assert fileAssociationService != null;
         List<String> linkFileIds = fileAssociationService.getFiles(id)
                 .stream()
                 .map(FileInfo::getFileId)
                 .toList();
-        Assertions.assertEquals(fileIds, linkFileIds);
+        Assertions.assertFalse(linkFileIds.isEmpty());
     }
 
     @Test

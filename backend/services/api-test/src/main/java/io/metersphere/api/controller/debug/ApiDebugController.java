@@ -3,10 +3,13 @@ package io.metersphere.api.controller.debug;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
+import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -33,6 +36,8 @@ public class ApiDebugController {
 
     @Resource
     private ApiDebugService apiDebugService;
+    @Resource
+    private FileModuleService fileModuleService;
 
     @GetMapping("/list/{protocol}")
     @Operation(summary = "获取接口调试列表")
@@ -93,5 +98,21 @@ public class ApiDebugController {
     @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "api_debug")
     public void editPos(@Validated @RequestBody ApiEditPosRequest request) {
         apiDebugService.editPos(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/transfer")
+    @Operation(summary = "接口测试-接口调试-附件-文件转存")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public String transfer(@Validated @RequestBody ApiTransferRequest request) {
+        return apiDebugService.transfer(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/transfer/options/{projectId}")
+    @Operation(summary = "接口测试-接口调试-附件-转存目录下拉框")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<BaseTreeNode> options(@PathVariable String projectId) {
+        return fileModuleService.getTree(projectId);
     }
 }

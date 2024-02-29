@@ -9,6 +9,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
@@ -260,6 +261,7 @@ public class ApiDebugService {
 
     /**
      * 处理关联的文件被更新
+     *
      * @param originFileAssociation
      * @param newFileMetadata
      */
@@ -280,5 +282,9 @@ public class ApiDebugService {
             apiDebugBlob.setResponse(null);
             apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
         }
+    }
+
+    public String transfer(ApiTransferRequest request, String userId) {
+        return apiFileResourceService.transfer(request, userId, ApiResourceType.API_DEBUG.name());
     }
 }

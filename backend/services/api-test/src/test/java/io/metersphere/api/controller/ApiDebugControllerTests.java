@@ -5,12 +5,14 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
+import io.metersphere.api.domain.ApiFileResourceExample;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.RestParam;
@@ -20,6 +22,7 @@ import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
+import io.metersphere.api.mapper.ApiFileResourceMapper;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.service.ApiCommonService;
@@ -85,6 +88,8 @@ public class ApiDebugControllerTests extends BaseTest {
     protected static final String DEFAULT_LIST = "list/{0}";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DEBUG = "debug";
+    public static final String TRANSFER_OPTION = "transfer/options";
+    public static final String TRANSFER = "transfer";
 
     @Resource
     private ApiDebugMapper apiDebugMapper;
@@ -104,6 +109,8 @@ public class ApiDebugControllerTests extends BaseTest {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private CustomFunctionService customFunctionService;
+    @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -669,6 +676,30 @@ public class ApiDebugControllerTests extends BaseTest {
         }
         body.getBinaryBody().setFile(apiFile);
         return body;
+    }
+
+    @Test
+    @Order(8)
+    void testTransfer() throws Exception {
+        this.requestGetWithOk(TRANSFER_OPTION + "/" + DEFAULT_PROJECT_ID);
+        ApiTransferRequest request = new ApiTransferRequest();
+        request.setSourceId(addApiDebug.getId());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setModuleId("root");
+        request.setLocal(true);
+        uploadFileId = doUploadTempFile(getMockMultipartFile());
+        request.setFileId(uploadFileId);
+        this.requestPost(TRANSFER, request).andExpect(status().isOk());
+        //文件不存在
+        request.setFileId("111");
+        this.requestPost(TRANSFER, request).andExpect(status().is5xxServerError());
+        //文件已经上传
+        ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
+        apiFileResourceExample.createCriteria().andResourceIdEqualTo(addApiDebug.getId());
+        List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
+        Assertions.assertFalse(apiFileResources.isEmpty());
+        request.setFileId(apiFileResources.get(0).getFileId());
+        this.requestPost(TRANSFER, request).andExpect(status().isOk());
     }
 
     @Test

@@ -5,6 +5,7 @@ import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
@@ -119,11 +120,11 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Resource
     private OperationHistoryService operationHistoryService;
     @Resource
-    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
-    @Resource
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -210,13 +211,12 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     private static MockMultipartFile getMockMultipartFile() {
-        MockMultipartFile file = new MockMultipartFile(
+        return new MockMultipartFile(
                 "file",
                 IDGenerator.nextStr() + "_file_upload.JPG",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE,
                 "Hello, World!".getBytes()
         );
-        return file;
     }
 
     /**
@@ -232,7 +232,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
             List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
             Assertions.assertEquals(apiFileResources.size(), fileIds.size());
 
-            String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(DEFAULT_PROJECT_ID, id);
+            String apiDebugDir = DefaultRepositoryDir.getApiCaseDir(DEFAULT_PROJECT_ID, id);
             FileRequest fileRequest = new FileRequest();
             if (fileIds.size() > 0) {
                 for (ApiFileResource apiFileResource : apiFileResources) {
@@ -358,7 +358,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setApiDefinitionId("apiDefinitionId");
         request.setName("test123");
         this.requestPost(ADD, request).andExpect(ERROR_REQUEST_MATCHER);
-
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.ADD);
         // @@异常参数校验
@@ -372,6 +371,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     /**
      * 测试关联的文件更新
+     *
      * @throws Exception
      */
     public void testHandleFileAssociationUpgrade() throws Exception {
@@ -578,6 +578,31 @@ public class ApiTestCaseControllerTests extends BaseTest {
         createdGroupParamValidateTest(ApiTestCaseUpdateRequest.class, UPDATE);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPDATE, request);
+    }
+
+    @Test
+    @Order(9)
+    public void testTransfer() throws Exception {
+        this.requestGetWithOk("/api/case/transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
+        apiTransferRequest.setSourceId(apiTestCase.getId());
+        apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiTransferRequest.setModuleId("root");
+        apiTransferRequest.setLocal(true);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile());
+        apiTransferRequest.setFileId(uploadFileId);
+        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().isOk());
+        //文件不存在
+        apiTransferRequest.setFileId("111");
+        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        //文件已经上传
+        ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
+        apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiTestCase.getId());
+        List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
+        Assertions.assertFalse(apiFileResources.isEmpty());
+        apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().isOk());
+
     }
 
     @Test

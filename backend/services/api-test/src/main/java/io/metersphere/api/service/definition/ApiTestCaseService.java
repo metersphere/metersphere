@@ -6,6 +6,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
@@ -128,7 +129,7 @@ public class ApiTestCaseService {
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
-        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(projectId, sourceId);
+        String apiDebugDir = DefaultRepositoryDir.getApiCaseDir(projectId, sourceId);
         ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDebugDir);
@@ -625,5 +626,9 @@ public class ApiTestCaseService {
             apiTestCaseBlob.setRequest(ApiDataUtils.toJSONString(msTestElement).getBytes());
             apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
         }
+    }
+
+    public String transfer(ApiTransferRequest request, String userId) {
+        return apiFileResourceService.transfer(request, userId, ApiResourceType.API_CASE.name());
     }
 }

@@ -6,6 +6,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.controller.*;
 import io.metersphere.api.dto.request.controller.loop.*;
 import io.metersphere.api.dto.request.http.Header;
@@ -70,7 +71,6 @@ import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
-import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -173,8 +173,6 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
-    @Resource
-    private OperationHistoryService operationHistoryService;
     @Resource
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
@@ -340,7 +338,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setSteps(steps);
         request.setStepDetails(steptDetailMap);
         request.setScenarioConfig(getScenarioConfig());
-
+        String fileId = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(fileId));
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         ApiScenario resultData = getResultData(mvcResult, ApiScenario.class);
         this.addApiScenario = apiScenarioMapper.selectByPrimaryKey(resultData.getId());
@@ -348,6 +347,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         assertUpdateSteps(steps, steptDetailMap);
 
         request.setName("anOther name");
+        request.setUploadFileIds(List.of());
         request.setGrouped(true);
         request.setEnvironmentId(envGroupId);
         ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
@@ -618,8 +618,8 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         ApiScenarioCsvExample apiScenarioCsvExample = new ApiScenarioCsvExample();
         apiScenarioCsvExample.createCriteria().andScenarioIdEqualTo(addApiScenario.getId());
-        List<ApiScenarioCsv> apiScenarioCsvs = apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample);
-        Map<String, ApiScenarioCsv> collect = apiScenarioCsvs.stream().collect(Collectors.toMap(ApiScenarioCsv::getFileId, t -> t));
+        List<ApiScenarioCsv> apiScenarioCsv = apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample);
+        Map<String, ApiScenarioCsv> collect = apiScenarioCsv.stream().collect(Collectors.toMap(ApiScenarioCsv::getFileId, t -> t));
         // 验证修改步骤
         steps.get(0).setName("test name update");
         CsvVariable csvVariable = request.getScenarioConfig().getVariable().getCsvVariables().get(0);
@@ -765,6 +765,31 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
+    }
+
+    @Test
+    @Order(7)
+    public void testTransfer() throws Exception {
+        this.requestGetWithOk("transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
+        apiTransferRequest.setSourceId(addApiScenario.getId());
+        apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiTransferRequest.setModuleId("root");
+        apiTransferRequest.setLocal(true);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile());
+        apiTransferRequest.setFileId(uploadFileId);
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
+        //文件不存在
+        apiTransferRequest.setFileId("111");
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        //文件已经上传
+        ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
+        apiFileResourceExample.createCriteria().andResourceIdEqualTo(addApiScenario.getId());
+        List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
+        Assertions.assertFalse(apiFileResources.isEmpty());
+        apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
+
     }
 
     @Test
@@ -1166,13 +1191,12 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     private static MockMultipartFile getMockMultipartFile() {
-        MockMultipartFile file = new MockMultipartFile(
+        return new MockMultipartFile(
                 "file",
                 IDGenerator.nextStr() + "_file_upload.JPG",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE,
                 "Hello, World!".getBytes()
         );
-        return file;
     }
 
     @Test

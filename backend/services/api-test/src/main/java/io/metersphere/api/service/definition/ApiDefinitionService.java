@@ -10,6 +10,7 @@ import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
@@ -1115,5 +1116,9 @@ public class ApiDefinitionService {
                 apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
             }
         }
+    }
+
+    public String transfer(ApiTransferRequest request, String userId) {
+        return apiFileResourceService.transfer(request, userId, ApiResourceType.API.name());
     }
 }
