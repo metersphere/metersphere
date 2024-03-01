@@ -11,6 +11,7 @@ export default {
   'project.environmental.mustContain': 'Must Contain',
   'project.environmental.searchParamsHolder': 'Search by name or tag',
   'project.environmental.paramName': 'Parameter Name',
+  'project.environmental.globalVariable': 'Parameter',
   'project.environmental.paramType': 'Type',
   'project.environmental.paramTypeTooltip': 'json: only supports UI testing',
   'project.environmental.paramValue': 'Parameter Value',

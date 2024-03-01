@@ -11,7 +11,7 @@ export default {
   'project.environmental.GLOBAL': '全局参数',
   'project.environmental.ENVIRONMENT': '全局参数',
   'project.environmental.ENVIRONMENT_PARAM': '全局参数',
-  'project.environmental.globalVariable': '全局变量',
+  'project.environmental.globalVariable': '参数',
   'project.environmental.supportFormat': '仅支持MeterSphere导出的Json文件，单个大小不超过 50M',
   'project.environmental.importTile': '注意！导入后会覆盖原全局参数',
   'project.environmental.mustContain': '必含',

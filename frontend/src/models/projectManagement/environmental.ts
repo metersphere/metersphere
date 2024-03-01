@@ -39,7 +39,7 @@ export interface AssertionConfig {
 }
 export interface EnvConfig {
   commonParams?: EnvConfigItem;
-  commmonVariables: EnvConfigItem[];
+  commonVariables: EnvConfigItem[];
   httpConfig: EnvConfigItem[];
   dataSources: DataSourceItem[];
   hostConfig: EnvConfigItem;
