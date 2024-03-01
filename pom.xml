@@ -91,7 +91,6 @@
     </modules>
 
 
-
     <build>
         <resources>
             <resource>
@@ -164,6 +163,7 @@
                         <exclude>io/metersphere/plugin/**</exclude>
                         <exclude>io/metersphere/*/job/**</exclude>
                         <exclude>io/metersphere/system/notice/**</exclude>
+                        <exclude>io/metersphere/system/schedule/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
