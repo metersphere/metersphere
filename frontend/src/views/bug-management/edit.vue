@@ -39,40 +39,13 @@
               :upload-image="handleUploadImage"
             />
           </a-form-item>
-          <a-form-item field="attachment" :label="t('bugManagement.edit.file')">
+          <a-form-item field="attachment">
             <div class="flex flex-col">
               <div class="mb-1">
-                <a-dropdown position="tr" trigger="hover">
-                  <a-button type="outline">
-                    <template #icon> <icon-plus class="text-[14px]" /> </template>
-                    {{ t('bugManagement.edit.uploadFile') }}
-                  </a-button>
-                  <template #content>
-                    <a-upload
-                      ref="uploadRef"
-                      v-model:file-list="fileList"
-                      :auto-upload="false"
-                      :show-file-list="false"
-                      :before-upload="beforeUpload"
-                      @change="handleChange"
-                    >
-                      <template #upload-button>
-                        <a-button type="text" class="!text-[var(--color-text-1)]">
-                          <icon-upload />{{ t('bugManagement.edit.localUpload') }}</a-button
-                        >
-                      </template>
-                    </a-upload>
-                    <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
-                      <MsIcon type="icon-icon_link-copy_outlined" size="16" />{{
-                        t('bugManagement.edit.linkFile')
-                      }}</a-button
-                    >
-                  </template>
-                </a-dropdown>
+                <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile"/>
               </div>
             </div>
           </a-form-item>
-          <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
           <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static">
             <template #actions="{ item }">
               <!-- 本地文件 -->
@@ -200,6 +173,7 @@
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 

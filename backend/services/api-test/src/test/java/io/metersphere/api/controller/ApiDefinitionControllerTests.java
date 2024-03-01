@@ -198,7 +198,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         msHttpResponse.get(0).setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpResponse.get(0).getBody(), fileMetadataId));
         request.setResponse(msHttpResponse);
 
-        uploadFileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        uploadFileId = doUploadTempFile(getMockMultipartFile("api-add-file_upload.JPG"));
         request.setUploadFileIds(List.of(uploadFileId));
         request.setLinkFileIds(List.of(fileMetadataId));
 
@@ -216,7 +216,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
         apiTransferRequest.setModuleId("root");
         apiTransferRequest.setLocal(true);
-        String uploadFileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        String uploadFileId = doUploadTempFile(getMockMultipartFile("api-file_upload.JPG"));
         apiTransferRequest.setFileId(uploadFileId);
         this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在

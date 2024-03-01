@@ -218,10 +218,7 @@ public class FileMetadataService {
         if (StringUtils.isBlank(fileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
-        fileName = this.genTransferFileName(StringUtils.trim(fileName), projectId);
-
         FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
-
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
         uploadFileRequest.setFolder(this.generateMinIOFilePath(projectId));
@@ -233,39 +230,6 @@ public class FileMetadataService {
         fileMetadata.setFileVersion(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);
         return fileMetadata.getId();
-    }
-
-    public String genTransferFileName(String fullFileName, String projectId) {
-        if (StringUtils.containsAny(fullFileName, "/")) {
-            throw new MSException(Translator.get("file.name.error"));
-        }
-
-        String fileName;
-        String fileType = null;
-        if (StringUtils.lastIndexOf(fullFileName, ".") > 0) {
-            //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
-            fileName = StringUtils.substring(fullFileName, 0, fullFileName.lastIndexOf("."));
-            fileType = StringUtils.substring(fullFileName, fullFileName.lastIndexOf(".") + 1);
-        } else {
-            fileName = fullFileName;
-        }
-
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId);
-
-        int fileIndex = 0;
-        String originFileName = fileName;
-        while (fileMetadataMapper.countByExample(example) > 0) {
-            fileIndex++;
-            fileName = originFileName + "(" + fileIndex + ")";
-            example = new FileMetadataExample();
-            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId);
-        }
-
-        if (StringUtils.isNotEmpty(fileType)) {
-            fileName = fileName + "." + fileType;
-        }
-        return fileName;
     }
 
     private void checkMinIOFileName(String id, String fileName, String type, String projectId) {

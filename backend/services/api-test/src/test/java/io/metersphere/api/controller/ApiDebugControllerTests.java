@@ -165,6 +165,15 @@ public class ApiDebugControllerTests extends BaseTest {
         return file;
     }
 
+    private static MockMultipartFile getMockMultipartFile(String fileName) {
+        return new MockMultipartFile(
+                "file",
+                fileName,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+    }
+
     @Test
     @Order(2)
     public void add() throws Exception {
@@ -687,17 +696,36 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setModuleId("root");
         request.setLocal(true);
-        uploadFileId = doUploadTempFile(getMockMultipartFile());
+        uploadFileId = doUploadTempFile(getMockMultipartFile("test-debug-file.txt"));
         request.setFileId(uploadFileId);
         this.requestPost(TRANSFER, request).andExpect(status().isOk());
         //文件不存在
         request.setFileId("111");
         this.requestPost(TRANSFER, request).andExpect(status().is5xxServerError());
         //文件已经上传
+        ApiDebugAddRequest addRequest = new ApiDebugAddRequest();
+        addRequest.setPath("http://test.com");
+        addRequest.setMethod("GET");
+        addRequest.setName("test-add-file");
+        addRequest.setProtocol(ApiConstants.HTTP_PROTOCOL);
+        addRequest.setModuleId("default");
+        addRequest.setProjectId(DEFAULT_PROJECT_ID);
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        msHttpElement.setBody(addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
+        addRequest.setRequest(getMsElementParam(msHttpElement));
+        uploadFileId = doUploadTempFile(getMockMultipartFile("test-debug-file1.txt"));
+        addRequest.setUploadFileIds(List.of(uploadFileId));
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, addRequest);
+        ApiDebug resultData = getResultData(mvcResult, ApiDebug.class);
         ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
-        apiFileResourceExample.createCriteria().andResourceIdEqualTo(addApiDebug.getId());
+        apiFileResourceExample.createCriteria().andResourceIdEqualTo(resultData.getId());
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
+        request = new ApiTransferRequest();
+        request.setSourceId(resultData.getId());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setModuleId("root");
         request.setFileId(apiFileResources.get(0).getFileId());
         this.requestPost(TRANSFER, request).andExpect(status().isOk());
     }
