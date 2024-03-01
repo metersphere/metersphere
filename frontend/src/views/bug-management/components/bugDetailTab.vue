@@ -24,41 +24,9 @@
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
       <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
         {{ t('common.save') }}
-      </a-button></div
-    >
-    <div v-if="props.allowEdit">
-      <div class="mt-[16px] font-medium text-[var(--color-text-1)]">
-        {{ t('bugManagement.edit.file') }}
-      </div>
-      <div class="mt-[16px] pb-[4px]">
-        <a-dropdown position="tr" trigger="hover">
-          <a-button v-permission="['PROJECT_BUG:READ+UPDATE']" type="outline">
-            <template #icon> <icon-plus class="text-[14px]" /> </template
-            >{{ t('system.orgTemplate.addAttachment') }}</a-button
-          >
-          <template #content>
-            <a-upload
-              ref="uploadRef"
-              v-model:file-list="fileList"
-              :auto-upload="false"
-              :show-file-list="false"
-              :before-upload="beforeUpload"
-            >
-              <template #upload-button>
-                <a-button type="text" class="!text-[var(--color-text-1)]">
-                  <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
-                </a-button>
-              </template>
-            </a-upload>
-            <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
-              <MsIcon type="icon-icon_link-copy_outlined" size="16" />
-              {{ t('caseManagement.featureCase.associatedFile') }}
-            </a-button>
-          </template>
-        </a-dropdown>
-      </div>
+      </a-button>
     </div>
-    <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
+    <AddAttachment v-model:file-list="fileList" @link-file="associatedFile"/>
     <MsFileList
       ref="fileListRef"
       v-model:file-list="fileList"
@@ -70,6 +38,7 @@
       :upload-func="uploadOrAssociationFile"
       :handle-delete="deleteFileHandler"
       :show-delete="props.allowEdit"
+      @finish="uploadFileOver"
     >
       <template #actions="{ item }">
         <div>
@@ -167,6 +136,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import AddAttachment from "@/components/business/ms-add-attachment/index.vue";
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
@@ -375,6 +345,9 @@
   async function startUpload() {
     await sleep(300);
     fileListRef.value?.startUpload();
+  }
+
+  async function uploadFileOver() {
     emit('updateSuccess');
   }
 
