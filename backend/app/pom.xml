@@ -129,6 +129,7 @@
                                 <copy todir="src/main/resources/static">
                                     <fileset dir="../../frontend/dist"/>
                                     <fileset dir="../../frontend/src/assets"/>
+                                    <fileset dir="../../frontend/public"/>
                                 </copy>
                             </target>
                         </configuration>
