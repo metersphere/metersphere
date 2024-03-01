@@ -15,6 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class BugNoticeDTO {
 
+    @Schema(description ="message.domain.bug_num")
+    private String id;
+
     @Schema(description ="message.domain.bug_title")
     private String title;
 

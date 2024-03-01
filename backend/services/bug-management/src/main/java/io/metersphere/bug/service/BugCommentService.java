@@ -161,11 +161,11 @@ public class BugCommentService {
         bugCommentMapper.insertSelective(bugComment);
         // 回复通知
         BugCommentNoticeDTO bugCommentNotice = bugCommentNoticeService.getBugCommentNotice(request);
-        bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
+        bugCommentNoticeService.sendNotice(NoticeConstants.Event.REPLY, bugCommentNotice, currentUser);
         // @通知
         request.setEvent(NoticeConstants.Event.AT);
         bugCommentNotice = bugCommentNoticeService.getBugCommentNotice(request);
-        bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
+        bugCommentNoticeService.sendNotice(NoticeConstants.Event.AT, bugCommentNotice, currentUser);
         return bugComment;
     }
 
@@ -184,10 +184,10 @@ public class BugCommentService {
          * 如果通知@人为空, 只发送评论通知.
          */
         BugCommentNoticeDTO bugCommentNotice = bugCommentNoticeService.getBugCommentNotice(request);
-        bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
+        bugCommentNoticeService.sendNotice(request.getEvent(), bugCommentNotice, currentUser);
         if (StringUtils.equals(request.getEvent(), NoticeConstants.Event.AT)) {
-            request.setEvent(NoticeConstants.Event.COMMENT);
-            bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
+            // 评论通知
+            bugCommentNoticeService.sendNotice(NoticeConstants.Event.COMMENT, bugCommentNotice, currentUser);
         }
         return bugComment;
     }
@@ -213,7 +213,7 @@ public class BugCommentService {
             request.setEvent(NoticeConstants.Event.AT);
         }
         BugCommentNoticeDTO bugCommentNotice = bugCommentNoticeService.getBugCommentNotice(request);
-        bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
+        bugCommentNoticeService.sendNotice(request.getEvent(), bugCommentNotice, currentUser);
         return bugComment;
     }
 
