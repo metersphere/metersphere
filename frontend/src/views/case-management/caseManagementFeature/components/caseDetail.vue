@@ -4,6 +4,7 @@
     :title="title"
     :is-edit="isEdit"
     has-breadcrumb
+    :hide-continue="!isEdit"
     @save="saveHandler"
     @save-and-continue="saveHandler(true)"
   >
@@ -15,7 +16,7 @@
     <template #footerRight>
       <div class="flex justify-end gap-[16px]">
         <a-button type="secondary" @click="cancelHandler">{{ t('mscard.defaultCancelText') }}</a-button>
-        <a-button v-if="!isFormReviewCase" type="secondary" @click="saveHandler(true)">
+        <a-button v-if="!isEdit" type="secondary" @click="saveHandler(true)">
           {{ t('mscard.defaultSaveAndContinueText') }}
         </a-button>
         <a-button v-if="!isFormReviewCase" type="primary" @click="saveHandler(false)">

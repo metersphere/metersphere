@@ -258,4 +258,6 @@ export default {
   'caseManagement.featureCase.jira': 'JIRA',
   'caseManagement.featureCase.searchPlaceholder': '通过ID、名称或标签搜索',
   'caseManagement.featureCase.ModuleOwned': '所属模块',
+  'caseManagement.featureCase.excelImportTip': '仅支持xls/xlsx格式的文件',
+  'caseManagement.featureCase.xmindImportTip': '仅支持xmind格式的文件',
 };

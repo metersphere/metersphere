@@ -122,7 +122,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 項目管理模板
     {
-      path: 'templateManager',
+      path: 'template',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
       component: () => import('@/views/project-management/template/index.vue'),
       meta: {
@@ -133,7 +133,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 模板列表-模板字段设置
     {
-      path: 'filedSetting',
+      path: 'templateFiledSetting',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
       component: () => import('@/views/project-management/template/components/projectFieldSetting.vue'),
       meta: {
@@ -175,9 +175,9 @@ const ProjectManagement: AppRouteRecordRaw = {
         ],
       },
     },
-    // 项目-模板-创建模板和模板详情
+    // 项目-模板-用例模板
     {
-      path: 'templateCaseDetail/:mode?',
+      path: 'templateManagementCaseDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {
@@ -205,7 +205,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-接口模板
     {
-      path: 'templateApiDetail/:mode?',
+      path: 'templateManagementApiDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {
@@ -233,7 +233,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-缺陷模板
     {
-      path: 'templateBugDetail/:mode?',
+      path: 'templateManagementBugDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {

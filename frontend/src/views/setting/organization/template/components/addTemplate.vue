@@ -526,7 +526,12 @@
               required: item.required,
             },
             value: item.defaultValue,
-            props: { ...currentFormRules.props, options: selectOptions, modelValue: item.defaultValue },
+            props: {
+              ...currentFormRules.props,
+              options: selectOptions,
+              modelValue: item.defaultValue,
+              placeholder: t('system.orgTemplate.defaultValue'),
+            },
           },
         ],
         fApi: null,
@@ -583,6 +588,8 @@
   }
 
   onMounted(async () => {
+    selectData.value = [];
+    totalTemplateField.value = [];
     await getClassifyField();
     getFieldOptionList();
     if (isEdit.value) {

@@ -80,7 +80,7 @@
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">
-        <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static">
+        <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static" :show-upload-type-desc="true">
           <template #actions="{ item }">
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
@@ -563,8 +563,8 @@
       const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
       if (fileIds.length) {
         checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
+        getDetailData(detailResult);
       }
-      getDetailData(detailResult);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -650,6 +650,7 @@
   }
 
   function handleChange(_fileList: MsFileItem[]) {
+    // 校验本地文件重复
     fileList.value = _fileList.map((e) => {
       return {
         ...e,

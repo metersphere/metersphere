@@ -7,6 +7,7 @@ export default {
   'ms.upload.reUpload': 'Reupload',
   'ms.upload.preview': 'Preview',
   'ms.upload.uploadAt': 'Uploaded at',
+  'ms.upload.associatedAt': 'Associated at',
   'ms.upload.fail': 'Failed',
   'ms.upload.delete': 'Delete',
   'ms.upload.uploadSuccess': 'Upload successful',

@@ -55,7 +55,10 @@
       </template>
       <template #operation="{ record }">
         <MsButton
-          v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)"
+          v-if="
+            ['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status) &&
+            hasAnyPermission(permissionsMap[props.group].stop)
+          "
           class="!mr-0"
           @click="stop(record)"
           >{{ t('project.taskCenter.stop') }}</MsButton
@@ -94,6 +97,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
@@ -120,6 +124,18 @@
       };
     });
   });
+
+  const permissionsMap = {
+    organization: {
+      stop: ['ORGANIZATION_TASK_CENTER::READ+STOP'],
+    },
+    system: {
+      stop: ['ORGANIZATION_TASK_CENTER::READ+STOP'],
+    },
+    project: {
+      stop: ['PROJECT_API_REPORT:READ'],
+    },
+  };
 
   const loadRealMap = ref({
     system: {
@@ -203,7 +219,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,
     {
       columns,

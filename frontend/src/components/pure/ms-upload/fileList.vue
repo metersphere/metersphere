@@ -56,11 +56,11 @@
                 class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
                 {{
-                  `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${t('ms.upload.uploadAt')} ${dayjs(item.createTime).format(
-                    'YYYY-MM-DD HH:mm:ss'
-                  )}`
+                  `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(item)} ${dayjs(
+                    item.createTime
+                  ).format('YYYY-MM-DD HH:mm:ss')}`
                 }}
-                <div class="flex items-center">
+                <div v-if="showUploadSuccess(item)" class="flex items-center">
                   <MsIcon type="icon-icon_succeed_colorful" />
                   {{ t('ms.upload.uploadSuccess') }}
                 </div>
@@ -165,12 +165,15 @@
       handleReupload?: (item: MsFileItem) => void;
       showDelete?: boolean; // 是否展示删除按钮
       handleView?: (item: MsFileItem) => void; // 是否自定义预览
+      showUploadTypeDesc?: boolean; // 自定义上传类型关联于&上传于
     }>(),
     {
       mode: 'remote',
       showTab: true,
       showDelete: true,
       showMode: 'fileList',
+      boolean: false,
+      showUploadTypeDesc: false,
     }
   );
   const emit = defineEmits<{
@@ -219,6 +222,19 @@
   const totalFailFileList = computed(() => {
     return innerFileList.value.filter((e) => e.status && e.status === UploadStatus.error);
   });
+
+  function getUploadDesc(item: MsFileItem) {
+    if (props.showUploadTypeDesc) {
+      return item.local ? t('ms.upload.uploadAt') : t('ms.upload.associatedAt');
+    }
+    return t('ms.upload.uploadAt');
+  }
+  function showUploadSuccess(item: MsFileItem) {
+    if (props.showUploadTypeDesc) {
+      return !!item.local;
+    }
+    return true;
+  }
 
   const filterFileList = computed(() => {
     switch (fileListTab.value) {

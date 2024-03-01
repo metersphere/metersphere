@@ -157,7 +157,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
-  import { TagData } from '@arco-design/web-vue';
+  import { Message, TagData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -241,22 +241,36 @@
   });
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
-    innerFileList.value = _fileList.map((item) => ({ ...item, local: true }));
-    if (props.multiple) {
-      inputFiles.value = _fileList.map((item) => ({
-        ...item,
-        value: item?.uid || '',
-        label: item?.name || '',
-        local: true,
-      }));
+    // 校验本地文件是否重复
+    const isRepeat = _fileList.filter((item) => item.name === fileItem.name).length > 1;
+    debugger;
+    if (isRepeat) {
+      Message.error(t('ms.add.attachment.repeatFileTip'));
+      innerFileList.value = _fileList.reduce((prev: MsFileItem[], current: MsFileItem) => {
+        const isExist = prev.find((item: any) => item.name === current.name);
+        if (!isExist) {
+          prev.push(current);
+        }
+        return prev;
+      }, []);
     } else {
-      inputFileName.value = fileItem.name || '';
+      innerFileList.value = _fileList.map((item) => ({ ...item, local: true }));
+      if (props.multiple) {
+        inputFiles.value = _fileList.map((item) => ({
+          ...item,
+          value: item?.uid || '',
+          label: item?.name || '',
+          local: true,
+        }));
+      } else {
+        inputFileName.value = fileItem.name || '';
+      }
+      emit('change', _fileList, { ...fileItem, local: true });
+      nextTick(() => {
+        // 在 emit 文件上去之后再关闭菜单
+        buttonDropDownVisible.value = false;
+      });
     }
-    emit('change', _fileList, { ...fileItem, local: true });
-    nextTick(() => {
-      // 在 emit 文件上去之后再关闭菜单
-      buttonDropDownVisible.value = false;
-    });
   }
 
   function associatedFile() {

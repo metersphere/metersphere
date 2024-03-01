@@ -632,24 +632,29 @@
       {
         label: 'common.edit',
         eventTag: 'batchEdit',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
       },
       {
         label: 'caseManagement.featureCase.moveTo',
         eventTag: 'batchMoveTo',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
       },
       {
         label: 'caseManagement.featureCase.copyTo',
         eventTag: 'batchCopyTo',
+        permission: ['FUNCTIONAL_CASE:READ+ADD'],
       },
     ],
     moreAction: [
       {
         label: 'caseManagement.featureCase.addDemand',
         eventTag: 'addDemand',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
       },
       {
         label: 'caseManagement.featureCase.associatedDemand',
         eventTag: 'associatedDemand',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
       },
       // {
       //   label: 'caseManagement.featureCase.generatingDependencies',

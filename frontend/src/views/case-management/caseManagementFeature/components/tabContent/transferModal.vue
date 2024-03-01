@@ -3,7 +3,13 @@
     v-model:visible="transferVisible"
     title-align="start"
     unmount-on-close
-    class="ms-modal-upload ms-modal-small"
+    :mask-closable="false"
+    modal-class="shadowModal"
+    :mask="false"
+    :modal-style="{
+      'box-shadow': '0px 4px 10px -1px rgba(100, 100, 102, 0.15)',
+    }"
+    class="ms-modal-form ms-modal-small"
   >
     <template #title> {{ t('caseManagement.featureCase.selectTransferDirectory') }} </template>
     <a-tree-select
@@ -104,4 +110,10 @@
   );
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  // :deep(.arco-modal.shadowModal) {
+  //   border-radius: 6px;
+  //   border: 1px solid red;
+  //   box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%) !important;
+  // }
+</style>

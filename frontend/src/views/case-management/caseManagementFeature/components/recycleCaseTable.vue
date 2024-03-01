@@ -218,6 +218,9 @@
             <template #createUserName="{ record }">
               <span type="text" class="px-0">{{ record.createUserName || '-' }}</span>
             </template>
+            <template #deleteTime="{ record }">
+              {{ dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+            </template>
             <!-- 回收站自定义字段 -->
             <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
               <a-tooltip
@@ -253,6 +256,7 @@
    */
   import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -285,6 +289,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { BatchMoveOrCopyType, CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
@@ -326,6 +331,9 @@
       }),
     })
   );
+
+  const hasOperationPermission = computed(() => hasAnyPermission(['FUNCTIONAL_CASE:READ+DELETE']));
+
   const columns: MsTableColumn = [
     {
       'title': 'caseManagement.featureCase.tableColumnID',
@@ -473,13 +481,13 @@
       showDrag: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnActions',
+      title: hasOperationPermission.value ? 'caseManagement.featureCase.tableColumnActions' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 260,
       showInTable: true,
       showDrag: false,
+      width: hasOperationPermission.value ? 260 : 50,
     },
   ];
 
@@ -488,11 +496,13 @@
       {
         label: 'caseManagement.featureCase.batchRecover',
         eventTag: 'batchRecover',
+        permission: ['FUNCTIONAL_CASE:READ+DELETE'],
       },
       {
         label: 'caseManagement.featureCase.batchCleanOut',
         eventTag: 'batchCleanOut',
         danger: true,
+        permission: ['FUNCTIONAL_CASE:READ+DELETE'],
       },
     ],
   };

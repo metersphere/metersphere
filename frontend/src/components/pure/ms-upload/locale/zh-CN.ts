@@ -7,6 +7,7 @@ export default {
   'ms.upload.reUpload': '重新上传',
   'ms.upload.preview': '预览',
   'ms.upload.uploadAt': '上传于',
+  'ms.upload.associatedAt': '关联于',
   'ms.upload.uploadFail': '上传失败',
   'ms.upload.uploadSuccess': '上传成功',
   'ms.upload.delete': '删除',
