@@ -116,7 +116,16 @@ public class BaseProjectService {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return baseProjectMapper.getUserProject(request);
+        List<Project> returnList = baseProjectMapper.getUserProject(request);
+        int ownerProjectIndex = 0;
+        for (int i = 0; i < returnList.size(); i++) {
+            if (StringUtils.equals(returnList.get(i).getId(), SessionUtils.getCurrentProjectId())) {
+                ownerProjectIndex = i;
+                break;
+            }
+        }
+        Collections.swap(returnList, 0, ownerProjectIndex);
+        return returnList;
     }
 
     public List<Project> getProjectByIds(List<String> ids) {
