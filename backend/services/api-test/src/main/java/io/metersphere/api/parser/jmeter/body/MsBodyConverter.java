@@ -29,6 +29,7 @@ public abstract class MsBodyConverter<T> {
 
     /**
      * 解析对应的请求体参数
+     *
      * @param sampler
      * @param body
      * @param config
@@ -37,6 +38,7 @@ public abstract class MsBodyConverter<T> {
 
     /**
      * 解析文本类型的 kv 参数
+     *
      * @param textFormValues
      * @return
      */
@@ -80,15 +82,24 @@ public abstract class MsBodyConverter<T> {
 
     /**
      * 将文本中的 @xxx 转换成 ${__Mock(@xxx)}
+     *
      * @param text
      * @return
      */
     protected String parseTextMock(String text) {
-        String pattern = "@[a-zA-Z]*";
+        String pattern = "@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(text);
         while (matcher.find()) {
-            text =  text.replace(matcher.group(), "${__Mock(" + matcher.group() + ")}");
+            //取出group的最后一个字符 主要是防止 @string|number 和 @string 这种情况
+            //如果是 “ 或者, 结尾的  需要截取
+            String group = matcher.group();
+            String lastChar = null;
+            if (group.endsWith(",") || group.endsWith("\"")) {
+                lastChar = group.substring(group.length() - 1);
+                group = group.substring(0, group.length() - 1);
+            }
+            text = text.replace(matcher.group(), StringUtils.join("${__Mock(", group, ")}", lastChar));
         }
         return text;
     }
@@ -96,6 +107,7 @@ public abstract class MsBodyConverter<T> {
     /**
      * 处理raw格式参数
      * 包含了 json 等格式
+     *
      * @param sampler
      * @param raw
      */

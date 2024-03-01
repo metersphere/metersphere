@@ -148,7 +148,7 @@ public class DocumentAssertionConverter extends ResponseBodyTypeAssertionConvert
         assertion.setProperty(TestElement.TEST_CLASS, assertion.getClass().getName());
         assertion.setProperty(TestElement.GUI_CLASS, "io.metersphere.assertions.gui." + assertion.getClass().getSimpleName() + "Gui");
         assertion.setProperty("JSON_PATH", item.getJsonPath());
-        assertion.setProperty("EXPECTED_VALUE", item.getExpectedResult() != null ? item.getExpectedResult().toString() : "");
+        assertion.setProperty(PropertyConstant.EXPECTED_VALUE, item.getExpectedResult() != null ? item.getExpectedResult().toString() : "");
         assertion.setProperty("CONDITION", item.getCondition());
         assertion.setProperty("JSONVALIDATION", true);
         return assertion;

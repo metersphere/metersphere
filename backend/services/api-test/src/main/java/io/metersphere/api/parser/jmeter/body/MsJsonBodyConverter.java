@@ -1,11 +1,13 @@
 package io.metersphere.api.parser.jmeter.body;
 
 import io.metersphere.api.dto.request.http.body.JsonBody;
+import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 
 import java.util.HashMap;
@@ -22,10 +24,9 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
         sampler.setPostBodyRaw(true);
         try {
             String raw = null;
-            if (body.getEnableJsonSchema()) {
-//                todo jsonSchema
-//                JSONSchemaBuilder.generator(JSONUtil.toJSONString(this.getJsonSchema()))
-//                raw = StringEscapeUtils.unescapeJava();
+            if (body.getEnableJsonSchema() && body.getEnableTransition()) {
+                String jsonString = JsonSchemaBuilder.jsonSchemaToJson(JSON.toJSONString(body.getJsonSchema()));
+                raw = StringEscapeUtils.unescapeJava(jsonString);
             } else {
                 raw = parseJsonMock(body.getJsonValue());
             }
