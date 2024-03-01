@@ -57,20 +57,41 @@
       <section class="ms-assertion-body-right">
         <StatusCodeTab
           v-if="valueKey === 'statusCode'"
-          v-model:selectValue="codeTabState.selectValue"
-          v-model:statusCode="codeTabState.statusCode"
+          :value="codeTabState.statusCode"
+          @change="(val) => handleChange(val, 'statusCode')"
         />
-        <ResponseHeaderTab v-if="valueKey === 'responseHeader'" />
-        <ResponseBodyTab v-if="valueKey === 'responseBody'" />
-        <ResponseTimeTab v-if="valueKey === 'responseTime'" />
-        <VariableTab v-if="valueKey === 'variable'" />
-        <ScriptTab v-if="valueKey === 'script'" />
+        <ResponseHeaderTab
+          v-if="valueKey === 'responseHeader'"
+          :value="codeTabState.responseHeader"
+          @change="(val) => handleChange(val, 'responseHeader')"
+        />
+        <ResponseBodyTab
+          v-if="valueKey === 'responseBody'"
+          :value="codeTabState.responseBody"
+          @change="(val) => handleChange(val, 'responseBody')"
+        />
+        <ResponseTimeTab
+          v-if="valueKey === 'responseTime'"
+          :value="codeTabState.responseTime"
+          @="(val) => handleChange(val, 'responseTime')"
+        />
+        <VariableTab
+          v-if="valueKey === 'variable'"
+          :value="codeTabState.variable"
+          @change="(val) => handleChange(val, 'variable')"
+        />
+        <ScriptTab
+          v-if="valueKey === 'script'"
+          :value="codeTabState.script"
+          @change="(val) => handleChange(val, 'script')"
+        />
       </section>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { defineModel } from 'vue';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -86,7 +107,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { MsAssertionItem } from './type';
+  import { MsAssertionItem, ValueObject } from './type';
 
   defineOptions({
     name: 'MsAssertion',
@@ -96,17 +117,24 @@
   // 当前鼠标所在的key
   const focusKey = ref<string>('');
   // 选中的选项
-  const selectItems = ref<MsAssertionItem[]>([]);
+  const selectItems = defineModel<any[]>('params', { default: [] });
   // Item点击的key
   const activeKey = ref<string>('');
   // valueKey
   const valueKey = computed(() => {
     return activeKey.value && selectItems.value.find((item) => item.id === activeKey.value)?.value;
   });
-
-  const codeTabState = reactive({
-    selectValue: '',
-    statusCode: 200,
+  // 存储当前页面的所有状态
+  const codeTabState = computed({
+    get: () => {
+      return (selectItems.value.find((item) => item.id === activeKey.value)?.valueObj || {}) as ValueObject;
+    },
+    set: (val: ValueObject) => {
+      const currentIndex = selectItems.value.findIndex((item) => item.id === val.assertionType);
+      const tmpArr = selectItems.value;
+      tmpArr[currentIndex].valueObj = { ...val };
+      selectItems.value = tmpArr;
+    },
   });
   const itemMoreActions: ActionsItem[] = [
     {
@@ -185,6 +213,10 @@
   // item点击
   const handleItemClick = (item: MsAssertionItem) => {
     activeKey.value = item.id;
+  };
+
+  const handleChange = (val: any, key: string) => {
+    codeTabState[key] = { ...val, assertionType: key };
   };
 </script>
 

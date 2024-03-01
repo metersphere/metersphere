@@ -25,7 +25,7 @@
       </a-tabs>
     </div>
     <a-divider :margin="0" class="!mb-[16px]" />
-    <div class="px-[24px]">
+    <div class="content">
       <EnvParamsTab v-if="activeKey === 'envParams'" />
       <HttpTab v-else-if="activeKey === 'http'" />
       <DataBaseTab v-else-if="activeKey === 'database'" />
@@ -34,16 +34,21 @@
       <PostTab v-else-if="activeKey === 'post'" />
       <AssertTab v-else-if="activeKey === 'assert'" />
       <template v-for="item in envPluginList" :key="item.pluginId">
-        <PluginTab v-if="activeKey === item.pluginId" :script="item.script" />
+        <PluginTab
+          v-if="activeKey === item.pluginId"
+          :model-value="store.currentEnvDetailInfo.config.pluginConfigMap[item.pluginId]"
+          :script="item.script"
+          @update:model-value="store.currentEnvDetailInfo.config.pluginConfigMap[item.pluginId] = $event"
+        />
       </template>
     </div>
-    <TabSettingDrawer v-model:visible="tabSettingVisible" @init-data="initTab" />
 
     <div class="footer" :style="{ width: '100%' }">
       <a-button @click="handleReset">{{ t('common.cancel') }}</a-button>
       <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
   </div>
+  <TabSettingDrawer v-model:visible="tabSettingVisible" @init-data="initTab" />
 </template>
 
 <script lang="ts" setup>
@@ -148,6 +153,7 @@
   await initPlugin();
   await store.initContentTabList([...sourceTabList, ...pluginTabList.value]);
   contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
+  // 插件状态存储
 
   const handleReset = () => {
     envForm.value?.resetFields();
@@ -208,10 +214,17 @@
 
 <style lang="less" scoped>
   .page {
+    position: relative;
     transform: scale3d(1, 1, 1);
-    padding-bottom: 180px;
+    height: 100%;
     .header {
       padding: 24px 24px 0;
+    }
+    .content {
+      overflow-y: auto;
+      padding: 0 24px;
+      max-height: calc(100% - 260px);
+      background-color: #ffffff;
     }
     .no-content {
       :deep(.arco-tabs-content) {
@@ -219,7 +232,6 @@
       }
     }
     .footer {
-      gap: 16px;
       position: fixed;
       right: 0;
       bottom: 0;
@@ -227,7 +239,9 @@
       display: flex;
       justify-content: flex-end;
       padding: 24px;
+      background-color: #ffffff;
       box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
+      gap: 16px;
     }
   }
 </style>

@@ -24,7 +24,7 @@
   const innerParams = defineModel<Param[]>('modelValue', { default: [] });
 
   const emit = defineEmits<{
-    (e: 'change'): void; //  数据发生变化
+    (e: 'change', val: any[]): void; //  数据发生变化
   }>();
 
   const defaultParamItem = {
@@ -85,7 +85,7 @@
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     innerParams.value = [...resultArr];
     if (!isInit) {
-      emit('change');
+      emit('change', resultArr);
     }
   }
 </script>

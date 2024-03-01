@@ -37,7 +37,7 @@ export function exportEnv(selectIds: string[]) {
     { isTransformResponse: false }
   );
 }
-export function editPosEnv(data: EnvListItem) {
+export function editPosEnv(data: DragParam) {
   return MSR.post<EnvListItem>({ url: envURL.editPosEnvUrl, data });
 }
 

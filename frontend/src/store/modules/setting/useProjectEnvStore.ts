@@ -24,7 +24,7 @@ const envParmasDefaultConfig = {
   postProcessorConfig: {
     apiProcessorConfig: [],
   },
-  assertionConfig: [],
+  assertionConfig: { assertions: [] },
   pluginConfigMap: {},
 };
 

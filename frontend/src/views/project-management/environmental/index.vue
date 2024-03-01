@@ -55,7 +55,12 @@
             <div>
               <!-- 环境list-->
               <div v-if="envList.length">
-                <VueDraggable v-model="envList" ghost-class="ghost" handle=".drag-handle">
+                <VueDraggable
+                  v-model="envList"
+                  ghost-class="ghost"
+                  handle=".drag-handle"
+                  @update="handleEnvGroupPosChange($event, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
+                >
                   <div
                     v-for="element in envList"
                     :key="element.id"
@@ -125,7 +130,7 @@
                 v-model="evnGroupList"
                 ghost-class="ghost"
                 handle=".drag-handle"
-                @update="handleEnvGroupPosChange"
+                @update="handleEnvGroupPosChange($event, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
               >
                 <div
                   v-for="element in evnGroupList"
@@ -215,6 +220,7 @@
   import {
     deleteEnv,
     deleteEnvGroup,
+    editPosEnv,
     exportEnv,
     exportGlobalParam,
     groupEditPosEnv,
@@ -380,7 +386,7 @@
     store.setCurrentGroupId(id);
   };
   // 排序更新
-  const handleEnvGroupPosChange = async (event: SortableEvent) => {
+  const handleEnvGroupPosChange = async (event: SortableEvent, type: EnvAuthTypeEnum) => {
     try {
       const { oldIndex, newIndex } = event;
       if (oldIndex === newIndex) {
@@ -394,7 +400,11 @@
         moveId: evnGroupList.value[_newIndex].id,
         moveMode: _oldIndex > _newIndex ? 'BEFORE' : 'AFTER',
       };
-      await groupEditPosEnv(params);
+      if (type === EnvAuthTypeEnum.ENVIRONMENT) {
+        await editPosEnv(params);
+      } else if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
+        await groupEditPosEnv(params);
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);

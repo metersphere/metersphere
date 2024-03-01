@@ -77,10 +77,22 @@
               </template>
               {{ t('common.clear') }}
             </a-button>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyCondition">
+            <a-button
+              v-if="!props.isBuildIn"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="copyCondition"
+            >
               {{ t('common.copy') }}
             </a-button>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="deleteCondition">
+            <a-button
+              v-if="!props.isBuildIn"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="deleteCondition"
+            >
               {{ t('common.delete') }}
             </a-button>
           </div>
@@ -370,6 +382,7 @@
     data: ExecuteConditionProcessor;
     response?: string; // 响应内容
     heightUsed?: number;
+    isBuildIn?: boolean; // 是否是内置的条件
   }>();
   const emit = defineEmits<{
     (e: 'update:data', data: ExecuteConditionProcessor): void;
