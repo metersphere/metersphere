@@ -189,7 +189,7 @@ public class FunctionalCaseService {
         if (CollectionUtils.isNotEmpty(request.getAttachments())) {
             copyAttachment(request, userId, uploadFileIds, caseId);
         }
-
+        LogUtils.info("保存用例的文件操作完成");
         addCaseReviewCase(request.getReviewId(), caseId, userId);
 
         //记录日志
@@ -223,6 +223,7 @@ public class FunctionalCaseService {
             FunctionalCaseAttachment caseAttachment = functionalCaseAttachmentService.creatAttachment(saveAttachmentFileId, functionalCaseAttachmentDTO.getFileName(), functionalCaseAttachmentDTO.getSize(), caseId, functionalCaseAttachmentDTO.getLocal(), userId);
             if(functionalCaseAttachmentDTO.getLocal()) {
                 caseAttachment.setFileSource(CaseFileSourceType.ATTACHMENT.toString());
+                LogUtils.info("开始复制文件");
                 copyFile(request, caseId, saveAttachmentFileId, oldFileMap, functionalCaseAttachmentDTO, defaultRepository);
             }
             functionalCaseAttachmentMapper.insertSelective(caseAttachment);

@@ -96,6 +96,7 @@ public class FunctionalCaseAttachmentService {
      * @param files     files
      */
     public List<String> uploadFile(String projectId, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
+        LogUtils.info("开始上传附件");
         List<String>fileIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
@@ -116,6 +117,7 @@ public class FunctionalCaseAttachmentService {
                 fileIds.add(fileId);
             });
         }
+        LogUtils.info("附件上传结束");
         return fileIds;
     }
 
@@ -414,6 +416,7 @@ public class FunctionalCaseAttachmentService {
         String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
         // 添加文件与功能用例的关联关系
         Map<String, String> addFileMap = new HashMap<>();
+        LogUtils.info("开始上传副文本里的附件");
         List<FunctionalCaseAttachment> functionalCaseAttachments = filIds.stream().map(fileId -> {
             FunctionalCaseAttachment functionalCaseAttachment = new FunctionalCaseAttachment();
             String fileName = getTempFileNameByFileId(fileId);
@@ -440,7 +443,9 @@ public class FunctionalCaseAttachmentService {
         }).toList();
         functionalCaseAttachmentMapper.batchInsert(functionalCaseAttachments);
         // 上传文件到对象存储
+        LogUtils.info("上传文件到对象存储");
         uploadFileResource(functionalCaseDir, addFileMap, projectId, caseId);
+        LogUtils.info("上传副文本里的附件结束");
     }
 
     /**
@@ -505,7 +510,7 @@ public class FunctionalCaseAttachmentService {
                 fileCopyRequest.setFileName(fileName);
                 defaultRepository.delete(fileCopyRequest);
             } catch (Exception e) {
-                LogUtils.error(e);
+                LogUtils.error("上传副文本文件失败：{}",e);
                 throw new MSException(Translator.get("file_upload_fail"));
             }
         }
