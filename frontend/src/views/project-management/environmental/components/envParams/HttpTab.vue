@@ -91,12 +91,6 @@
       showInTable: true,
     },
     {
-      title: 'project.environmental.http.applyScope',
-      dataIndex: 'applyScope',
-      showDrag: true,
-      showInTable: true,
-    },
-    {
       title: 'project.environmental.http.enableScope',
       dataIndex: 'enableScope',
       showDrag: true,
@@ -130,8 +124,8 @@
   });
 
   const form = reactive({
-    linkOutTime: undefined,
-    timeOutTime: undefined,
+    linkOutTime: 60000,
+    timeOutTime: 60000,
     authType: 'Basic Auth',
   });
 

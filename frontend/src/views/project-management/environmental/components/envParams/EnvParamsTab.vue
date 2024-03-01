@@ -13,9 +13,9 @@
 
   const allParams = computed({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.commmonVariables = value;
+      store.currentEnvDetailInfo.config.commonVariables = value;
     },
-    get: () => store.currentEnvDetailInfo.config.commmonVariables || [],
+    get: () => store.currentEnvDetailInfo.config.commonVariables || [],
   });
 </script>
 

@@ -10,8 +10,8 @@ import { ContentTabItem, ContentTabsMap, EnvDetailItem, GlobalParams } from '@/m
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
 export const NEW_ENV_GROUP = 'newEnvGroup';
-const envParmasDefaultConfig = {
-  commmonVariables: [],
+const envParamsDefaultConfig = {
+  commonVariables: [],
   httpConfig: [],
   dataSources: [],
   hostConfig: {
@@ -39,12 +39,12 @@ const useProjectEnvStore = defineStore(
     const currentEnvDetailInfo = ref<EnvDetailItem>({
       projectId: '',
       name: '',
-      config: envParmasDefaultConfig,
+      config: envParamsDefaultConfig,
     });
     const backupEnvDetailInfo = ref<EnvDetailItem>({
       projectId: '',
       name: '',
-      config: envParmasDefaultConfig,
+      config: envParamsDefaultConfig,
     });
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     const httpNoWarning = ref(true);
@@ -75,12 +75,12 @@ const useProjectEnvStore = defineStore(
           currentEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',
-            config: envParmasDefaultConfig,
+            config: envParamsDefaultConfig,
           };
           backupEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',
-            config: envParmasDefaultConfig,
+            config: envParamsDefaultConfig,
           };
         } else if (id === ALL_PARAM) {
           allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);

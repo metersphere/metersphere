@@ -58,7 +58,7 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const backupParmas = ref(props.params);
+  const backupParams = ref(props.params);
   const firstSearch = ref(true);
 
   const defaultParamItem = {
@@ -84,6 +84,7 @@
       slotName: 'paramType',
       showInTable: true,
       showDrag: true,
+      hasRequired: true,
       columnSelectorDisabled: true,
       typeOptions: [
         {
@@ -155,13 +156,13 @@
 
   function handleSearch() {
     if (firstSearch.value) {
-      backupParmas.value = [...innerParams.value];
+      backupParams.value = [...innerParams.value];
       firstSearch.value = false;
     }
     if (!searchValue.value) {
-      innerParams.value = [...backupParmas.value];
+      innerParams.value = [...backupParams.value];
     } else {
-      const result = backupParmas.value.filter((item) => item.key.includes(searchValue.value));
+      const result = backupParams.value.filter((item) => item.key.includes(searchValue.value));
       innerParams.value = [...result];
     }
   }
