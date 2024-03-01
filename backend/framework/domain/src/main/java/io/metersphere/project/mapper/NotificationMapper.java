@@ -10,7 +10,7 @@ public interface NotificationMapper {
 
     int deleteByExample(NotificationExample example);
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(Notification record);
 
@@ -20,7 +20,7 @@ public interface NotificationMapper {
 
     List<Notification> selectByExample(NotificationExample example);
 
-    Notification selectByPrimaryKey(Long id);
+    Notification selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") Notification record, @Param("example") NotificationExample example);
 

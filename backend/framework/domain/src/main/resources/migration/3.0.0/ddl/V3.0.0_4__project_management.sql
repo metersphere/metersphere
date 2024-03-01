@@ -294,16 +294,16 @@ CREATE TABLE IF NOT EXISTS message_task_blob
     COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
 
 CREATE TABLE IF NOT EXISTS notification(
-                                           `id` BIGINT NOT NULL AUTO_INCREMENT  COMMENT 'ID' ,
-                                           `type` VARCHAR(30) NOT NULL   COMMENT '通知类型' ,
+                                           `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                           `type` VARCHAR(64) NOT NULL   COMMENT '通知类型' ,
                                            `receiver` VARCHAR(50) NOT NULL   COMMENT '接收人' ,
                                            `subject` VARCHAR(255) NOT NULL   COMMENT '标题' ,
-                                           `status` VARCHAR(30) NOT NULL   COMMENT '状态' ,
+                                           `status` VARCHAR(64) NOT NULL   COMMENT '状态' ,
                                            `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                                            `operator` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
                                            `operation` VARCHAR(50) NOT NULL   COMMENT '操作' ,
                                            `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID' ,
-                                           `resource_type` VARCHAR(50) NOT NULL   COMMENT '资源类型' ,
+                                           `resource_type` VARCHAR(64) NOT NULL   COMMENT '资源类型' ,
                                            `resource_name` VARCHAR(255) NOT NULL   COMMENT '资源名称' ,
                                            `content` TEXT NOT NULL   COMMENT '通知内容' ,
                                            PRIMARY KEY (id)
@@ -314,11 +314,12 @@ CREATE TABLE IF NOT EXISTS notification(
 
 
 CREATE INDEX idx_receiver ON notification(receiver);
-CREATE INDEX idx_create_time ON notification(create_time desc);
+CREATE INDEX idx_create_time ON notification(create_time);
+CREATE INDEX idx_type ON notification(type);
 CREATE INDEX idx_subject ON notification(subject);
-CREATE INDEX idx_resource_id ON notification(resource_id);
 CREATE INDEX idx_resource_type ON notification(resource_type);
 CREATE INDEX idx_operator ON notification(operator);
+CREATE INDEX idx_resource_id ON notification(resource_id);
 
 
 CREATE TABLE IF NOT EXISTS project_robot(

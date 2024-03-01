@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.NotificationMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.Notification">
-    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="receiver" jdbcType="VARCHAR" property="receiver" />
     <result column="subject" jdbcType="VARCHAR" property="subject" />
@@ -112,17 +112,17 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from notification
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from notification
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.NotificationExample">
     delete from notification
@@ -136,7 +136,7 @@
       `operator`, `operation`, resource_id, 
       resource_type, resource_name, content
       )
-    values (#{id,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
       #{subject,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{operator,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
@@ -184,7 +184,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=BIGINT},
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
@@ -231,7 +231,7 @@
     update notification
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
@@ -273,7 +273,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update notification
-    set id = #{record.id,jdbcType=BIGINT},
+    set id = #{record.id,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       receiver = #{record.receiver,jdbcType=VARCHAR},
       subject = #{record.subject,jdbcType=VARCHAR},
@@ -291,7 +291,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update notification
-    set id = #{record.id,jdbcType=BIGINT},
+    set id = #{record.id,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       receiver = #{record.receiver,jdbcType=VARCHAR},
       subject = #{record.subject,jdbcType=VARCHAR},
@@ -343,7 +343,7 @@
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.Notification">
     update notification
@@ -358,7 +358,7 @@
       resource_type = #{resourceType,jdbcType=VARCHAR},
       resource_name = #{resourceName,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.Notification">
     update notification
@@ -372,7 +372,7 @@
       resource_id = #{resourceId,jdbcType=VARCHAR},
       resource_type = #{resourceType,jdbcType=VARCHAR},
       resource_name = #{resourceName,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into notification
@@ -380,7 +380,7 @@
       resource_type, resource_name, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=BIGINT}, #{item.type,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
         #{item.subject,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.operator,jdbcType=VARCHAR}, #{item.operation,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
         #{item.resourceType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR}
@@ -398,7 +398,7 @@
       (
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=BIGINT}
+          #{item.id,jdbcType=VARCHAR}
         </if>
         <if test="'type'.toString() == column.value">
           #{item.type,jdbcType=VARCHAR}

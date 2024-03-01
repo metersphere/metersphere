@@ -47,7 +47,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
 
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
-            notification.setId(IDGenerator.nextNum());
+            notification.setId(IDGenerator.nextStr());
             notification.setSubject(noticeModel.getSubject());
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());

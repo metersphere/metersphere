@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
 import io.metersphere.project.domain.Notification;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.NotificationRequest;
 import io.metersphere.system.service.NotificationService;
 import io.metersphere.system.utils.PageUtils;
@@ -35,19 +36,19 @@ public class NotificationController {
 
     @GetMapping(value = "/read/{id}")
     @Operation(summary = "消息中心-将消息设置为已读")
-    public Integer read(@PathVariable int id) {
+    public Integer read(@PathVariable String id) {
         return notificationService.read(id, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/read/all")
-    @Operation(summary = "消息中心-获取消息中心所有已读消息")
+    @Operation(summary = "消息中心-将消息中心所有信息设置为已读消息")
     public Integer readAll() {
         return notificationService.readAll(SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/count")
     @Operation(summary = "消息中心-获取消息中心消息具体类型具体状态的数量")
-    public Integer countNotification(@RequestBody Notification notification) {
-        return notificationService.countNotification(notification, SessionUtils.getUserId());
+    public List<OptionDTO> countNotification(@RequestBody NotificationRequest notificationRequest) {
+        return notificationService.countNotification(notificationRequest, SessionUtils.getUserId());
     }
 }
