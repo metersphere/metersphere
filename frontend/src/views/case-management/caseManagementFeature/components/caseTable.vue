@@ -1210,7 +1210,7 @@
           title: item.fieldName,
           slotName: item.fieldId as string,
           dataIndex: item.fieldId,
-          showInTable: true,
+          showInTable: false,
           showDrag: true,
           width: 300,
         };

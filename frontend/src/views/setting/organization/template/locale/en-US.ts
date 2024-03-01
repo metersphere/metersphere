@@ -128,7 +128,7 @@ export default {
   'system.orgTemplate.deleteStateContent':
     'After delete, will be effective in the project and delete irrevocable, please careful operation.',
   'system.orgTemplate.deleteFiledContent':
-    'After deleting fields will be removed from the field list, please careful operation.',
+    'This field has been used in the template, data will be lost after deletion, please be careful!',
   'system.orgTemplate.deleteSuccess': 'Delete Successfully',
   'system.orgTemplate.setInitStateSuccess': 'Set the initial state successfully',
   'system.orgTemplate.setEndStateSuccess': 'Setting the end status succeeded',
@@ -179,7 +179,7 @@ export default {
   'system.orgTemplate.templateBug': 'Bug',
   'system.orgTemplate.enableTip': 'Are you sure to enable the project template',
   'system.orgTemplate.enableWarningTip': 'Enabled, irreversible for organization template, please careful operation.',
-  'system.orgTemplate.typeEmptyTip': 'The type cannot be empty',
+  'system.orgTemplate.typeEmptyTip': 'The filed type cannot be empty',
   'system.orgTemplate.searchOrgPlaceholder': 'Please enter the organization name :{name}',
   'system.orgTemplate.associatedField': 'Associated field ',
   'system.orgTemplate.associatedHasField': 'Associate an added field',

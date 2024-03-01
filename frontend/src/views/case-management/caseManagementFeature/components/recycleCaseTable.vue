@@ -731,7 +731,7 @@
   async function handleBatchDelete() {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.batchDeleteCompleted', {number: batchParams.value.currentSelectCount}),
+      title: t('caseManagement.featureCase.batchDeleteCompleted', { number: batchParams.value.currentSelectCount }),
       content: t('caseManagement.featureCase.cleanOutDeleteOnRecycleTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
@@ -791,7 +791,7 @@
   function handleBatchCleanOut(record: CaseManagementTable) {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.completedDeleteCaseTitle', {name: characterLimit(record.name)}),
+      title: t('caseManagement.featureCase.completedDeleteCaseTitle', { name: characterLimit(record.name) }),
       content: t('caseManagement.featureCase.cleanOutDeleteOnRecycleTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
@@ -854,7 +854,7 @@
         title: item.fieldName,
         slotName: item.fieldId as string,
         dataIndex: item.fieldId,
-        showInTable: true,
+        showInTable: false,
         showDrag: true,
         width: 300,
       };
@@ -1010,10 +1010,10 @@
 
   onMounted(async () => {
     getRecycleModules();
-    await getDefaultFields();
     await initFilter();
     initRecycleList();
   });
+  await getDefaultFields();
 </script>
 
 <style scoped lang="less">
