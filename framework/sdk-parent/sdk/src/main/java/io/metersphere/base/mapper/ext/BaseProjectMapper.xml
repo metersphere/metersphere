@@ -153,6 +153,7 @@
                 AND p.name LIKE #{proRequest.name, jdbcType=VARCHAR}
             </if>
         </where>
+        ORDER BY CONVERT(p.name USING gbk) COLLATE gbk_chinese_ci ASC
     </select>
     <select id="getSystemIdByProjectId" resultType="java.lang.String">
         SELECT system_id
