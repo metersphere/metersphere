@@ -1,4 +1,4 @@
 export default {
-  'formCreate.PleaseEnter': '默认值',
+  'formCreate.PleaseEnter': '请输入',
   'formCreate.PleaseSelect': '请选择',
 };

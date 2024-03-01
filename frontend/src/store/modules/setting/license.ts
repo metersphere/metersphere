@@ -23,14 +23,11 @@ const useLicenseStore = defineStore('license', {
     async getValidateLicense() {
       const appStore = useAppStore();
       try {
-        await appStore.initSystemPackage();
-        if (appStore.packageType === 'enterprise') {
-          const result = await getLicenseInfo();
-          if (!result || !result.status || !result.license || !result.license.count) {
-            return;
-          }
-          this.setLicenseStatus(result.status);
+        const result = await getLicenseInfo();
+        if (!result || !result.status || !result.license || !result.license.count) {
+          return;
         }
+        this.setLicenseStatus(result.status);
       } catch (error) {
         console.log(error);
       }

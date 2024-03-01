@@ -21,10 +21,12 @@
   import usePermission from '@/hooks/usePermission';
   import appClientMenus from '@/router/app-menus';
   import { useAppStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { listenerRouteChange } from '@/utils/route-listener';
 
   import { RouteEnum } from '@/enums/routeEnum';
 
+  const licenseStore = useLicenseStore();
   const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
   const permission = usePermission();
   const appStore = useAppStore();
@@ -85,9 +87,9 @@
           const filterMenuTopRouter =
             currentParent?.children?.filter((item: any) => {
               if (permission.accessRouter(item) && item.meta?.isTopMenu) {
-                if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
-                  return appStore.packageType === 'enterprise';
-                }
+                // if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
+                //   return appStore.packageType === 'enterprise';
+                // }
                 return true;
               }
               return false;
@@ -112,9 +114,30 @@
     activeMenus.value = [appStore.getCurrentTopMenu?.name || ''];
   }
 
-  onBeforeMount(() => {
-    appStore.initSystemPackage();
-  });
+  watch(
+    () => appStore.currentOrgId,
+    async () => {
+      await appStore.initSystemPackage();
+      if (appStore.packageType === 'enterprise') {
+        licenseStore.getValidateLicense();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => appStore.packageType,
+    (val) => {
+      const topMenus = appStore.getTopMenus;
+      if (val === 'enterprise') {
+        appStore.setTopMenus(topMenus);
+      } else {
+        appStore.setTopMenus(topMenus.filter((item) => item.name !== RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT));
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

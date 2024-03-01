@@ -285,7 +285,11 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
           effect: {
             required: false,
           },
-          props: { ...currentFormRules.props, options: selectOptions },
+          props: {
+            ...currentFormRules.props,
+            options: selectOptions,
+            placeholder: t('system.orgTemplate.defaultValue'),
+          },
         },
       ],
       fApi: null,

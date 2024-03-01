@@ -239,7 +239,9 @@
 
       watchEffect(() => {
         if (switchOrgVisible.value || menuSwitchOrgVisible.value) {
-          getOrgList();
+          if (appStore.packageType === 'enterprise' && licenseStore.hasLicense()) {
+            getOrgList();
+          }
           nextTick(() => {
             // 打开组织列表时，滚动到当前组织
             const activeOrgDom = document.querySelector('.switch-org-dropdown-list')?.querySelector('.active-org');

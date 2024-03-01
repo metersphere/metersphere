@@ -84,9 +84,8 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
-        const licenseStore = useLicenseStore();
         const appStore = useAppStore();
-        licenseStore.getValidateLicense();
+
         setToken(res.sessionId, res.csrfToken);
 
         appStore.setCurrentOrgId(res.lastOrganizationId || '');

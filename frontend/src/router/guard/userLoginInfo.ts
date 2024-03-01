@@ -11,10 +11,6 @@ export default function setupUserLoginInfoGuard(router: Router) {
       clearToken();
     }
     if (to.name !== 'login' && hasToken(to.name as string)) {
-      const appStore = useAppStore();
-      if (!appStore.packageType) {
-        await appStore.initSystemPackage();
-      }
       next();
     } else {
       // 未登录的都直接跳转至登录页，访问的页面地址缓存到 query 上
