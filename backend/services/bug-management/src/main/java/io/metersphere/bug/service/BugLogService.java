@@ -106,7 +106,7 @@ public class BugLogService {
      * @param id 缺陷ID
      * @return 缺陷DTO
      */
-    private BugDTO getOriginalValue(String id) {
+    public BugDTO getOriginalValue(String id) {
         // 缺陷基础信息
         BugDTO originalBug = new BugDTO();
         Bug bug = bugMapper.selectByPrimaryKey(id);

@@ -91,8 +91,6 @@ import static io.metersphere.bug.enums.result.BugResultCode.NOT_LOCAL_BUG_ERROR;
 @Transactional(rollbackFor = Exception.class)
 public class BugService {
 
-    private static int MAX_TAG_SIZE = 10;
-
     @Resource
     private BugMapper bugMapper;
     @Resource
@@ -117,8 +115,6 @@ public class BugService {
     private UserPlatformAccountService userPlatformAccountService;
     @Resource
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
-    @Resource
-    private BugNoticeService bugNoticeService;
     @Resource
     private BugCommonService bugCommonService;
     @Resource
@@ -162,6 +158,8 @@ public class BugService {
 
     public static final Long INTERVAL_POS = 5000L;
 
+    private static final int MAX_TAG_SIZE = 10;
+
     /**
      * 缺陷列表查询
      *
@@ -176,12 +174,6 @@ public class BugService {
         // 处理自定义字段
         List<BugDTO> bugList = handleCustomField(bugs, request.getProjectId());
         return buildExtraInfo(bugList);
-    }
-
-    private void checkTagLength(List<String> tags) {
-        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
-            throw new MSException(Translator.getWithArgs("bug_tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
-        }
     }
 
     /**
@@ -332,8 +324,6 @@ public class BugService {
             clearAssociate(id, bug.getProjectId());
             bugMapper.deleteByPrimaryKey(id);
         }
-        // 发送通知
-        bugNoticeService.sendDeleteNotice(bug, currentUser);
     }
 
     /**
@@ -1510,5 +1500,15 @@ public class BugService {
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> function) {
         Set<Object> keySet = ConcurrentHashMap.newKeySet();
         return t -> keySet.add(function.apply(t));
+    }
+
+    /**
+     * 校验TAG长度
+     * @param tags 标签集合
+     */
+    private void checkTagLength(List<String> tags) {
+        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
+            throw new MSException(Translator.getWithArgs("bug_tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
+        }
     }
 }

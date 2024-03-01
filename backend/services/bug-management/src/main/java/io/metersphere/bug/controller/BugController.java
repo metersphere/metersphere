@@ -125,8 +125,8 @@ public class BugController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "缺陷管理-列表-删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getNoticeById(#id)", targetClass = BugNoticeService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = BugLogService.class)
     public void delete(@PathVariable String id) {
         bugService.delete(id, SessionUtils.getUserId());
     }
@@ -176,6 +176,7 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-批量删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(false);
         bugService.batchDelete(request, SessionUtils.getUserId());
@@ -185,6 +186,7 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-批量编辑缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
         request.setUseTrash(false);
         bugService.batchUpdate(request, SessionUtils.getUserId());
