@@ -43,7 +43,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_TEMPLATE = 'projectManagementTemplate',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT = 'projectManagementTemplateManagement',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL = 'projectManagementTemplateManagementCaseDetail',
-  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL = 'projectManagementTemplateManagementCaseDetail',
+  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL = 'projectManagementTemplateManagementApiDetail',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL = 'projectManagementTemplateManagementBugDetail',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW = 'projectManagementTemplateManagementWorkFlow',
   PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING = 'projectManagementTemplateFiledSetting',

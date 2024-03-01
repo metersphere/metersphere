@@ -18,7 +18,7 @@
               allow-clear
             />
             <span class="absolute right-0 top-1 flex items-center">
-              <span class="text-[rgb(var(--primary-5))]b float-left cursor-pointer" @click="openGithub">{{
+              <span class="float-left cursor-pointer text-[rgb(var(--primary-5))]" @click="openGithub">{{
                 t('system.plugin.getPlugin')
               }}</span>
               <a-tooltip position="bottom">

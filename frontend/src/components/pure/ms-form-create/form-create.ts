@@ -23,7 +23,7 @@ export const SELECT = {
   options: [],
   props: {
     'multiple': false,
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'options': [],
     'modelValue': '',
     'allow-clear': true,
@@ -38,7 +38,7 @@ export const MULTIPLE_SELECT = {
   options: [],
   props: {
     'multiple': true,
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'options': [],
     'modelValue': [],
     'allow-clear': true,
@@ -69,7 +69,7 @@ export const MEMBER = {
   options: [],
   props: {
     'multiple': false,
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'modelValue': '',
     'allow-clear': true,
   },
@@ -83,7 +83,7 @@ export const MULTIPLE_MEMBER = {
   options: [],
   props: {
     'multiple': true,
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'options': [],
     'modelValue': [],
     'allow-clear': true,
@@ -96,7 +96,7 @@ export const DATE = {
   title: '',
   value: '',
   props: {
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'format': 'YYYY/MM/DD',
     'show-time': false,
   },
@@ -108,7 +108,7 @@ export const DATETIME = {
   title: '',
   value: '',
   props: {
-    'placeholder': t('formCreate.PleaseSelect'),
+    // 'placeholder': t('formCreate.PleaseSelect'),
     'format': 'YYYY/MM/DD HH:mm:ss',
     'show-time': true,
     'show-now-btn': true,

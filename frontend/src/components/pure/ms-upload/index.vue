@@ -148,11 +148,12 @@
     }
     const fileFormatMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
     const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
-
+    // 校验类型
     if (props.accept !== getFileEnum(fileFormatType) && props.accept !== 'none') {
       Message.error(props.fileTypeTip ? props.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept }));
       return Promise.resolve(false);
     }
+    // 校验名称重复
     return Promise.resolve(true);
   }
 

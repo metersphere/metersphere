@@ -7,4 +7,5 @@ export default {
   'ms.add.attachment.remove': '移除',
   'ms.add.attachment.cancelAssociate': '取消关联',
   'ms.add.attachment.saveAs': '转存',
+  'ms.add.attachment.repeatFileTip': '文件重复',
 };

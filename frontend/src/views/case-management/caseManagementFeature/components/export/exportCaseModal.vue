@@ -42,6 +42,7 @@
         :show-file-list="false"
         :auto-upload="false"
         :disabled="confirmLoading"
+        :file-type-tip="fileTypeTip"
       ></MsUpload>
       <!-- 版本暂时不上 -->
       <!-- <a-form-item field="post" :label="t('caseManagement.featureCase.selectVersion')">
@@ -130,6 +131,12 @@
   //     name: 'V1.0',
   //   },
   // ]);
+
+  const fileTypeTip = computed(() => {
+    return props.validateType === 'Excel'
+      ? t('caseManagement.featureCase.excelImportTip')
+      : t('caseManagement.featureCase.xmindImportTip');
+  });
 
   const isRecover = ref<boolean>(false);
 

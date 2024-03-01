@@ -116,7 +116,8 @@ export default {
   'caseManagement.featureCase.recoveredSuccessfully': 'Recovered successfully',
   'caseManagement.featureCase.cleanOutDeleteTip':
     'After deletion, the data will not be recovered, please operate with caution!',
-  'caseManagement.featureCase.cleanOutDeleteOnRecycleTip': 'After deletion, the case will not be recovered, please operate with caution!',
+  'caseManagement.featureCase.cleanOutDeleteOnRecycleTip':
+    'After deletion, the case will not be recovered, please operate with caution!',
   'caseManagement.featureCase.pleaseEnterInputTags': 'Please enter content Enter add label',
   'caseManagement.featureCase.copy': 'Copy',
   'caseManagement.featureCase.copyCase': 'Copy case',
@@ -262,4 +263,6 @@ export default {
   'caseManagement.featureCase.jira': 'JIRA',
   'caseManagement.featureCase.searchPlaceholder': 'Search by ID, name, or tag',
   'caseManagement.featureCase.ModuleOwned': 'Module owned',
+  'caseManagement.featureCase.excelImportTip': 'Only xls/xlsx files are supported',
+  'caseManagement.featureCase.xmindImportTip': 'Only xmind files are supported',
 };

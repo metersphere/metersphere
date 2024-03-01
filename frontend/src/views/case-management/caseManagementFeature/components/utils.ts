@@ -101,6 +101,7 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
   });
   Object.defineProperty(file, 'size', { value: fileInfo.size });
   const { id, createUserName, createTime, local, isUpdateFlag, associateId } = fileInfo;
+  debugger;
   return {
     enable: fileInfo.enable || false,
     file,

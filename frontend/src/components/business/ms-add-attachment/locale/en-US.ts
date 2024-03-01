@@ -7,4 +7,5 @@ export default {
   'ms.add.attachment.remove': 'Remove',
   'ms.add.attachment.cancelAssociate': 'Disassociate',
   'ms.add.attachment.saveAs': 'Save',
+  'ms.add.attachment.repeatFileTip': 'File already exists.',
 };

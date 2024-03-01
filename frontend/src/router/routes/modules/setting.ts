@@ -29,6 +29,7 @@ const Setting: AppRouteRecordRaw = {
       'SYSTEM_SERVICE_INTEGRATION:READ',
       'ORGANIZATION_TEMPLATE:READ',
       'ORGANIZATION_LOG:READ',
+      'SYSTEM_TASK_CENTER:READ',
     ],
   },
   children: [
@@ -50,6 +51,7 @@ const Setting: AppRouteRecordRaw = {
           'SYSTEM_AUTH:READ',
           'SYSTEM_PLUGIN:READ',
           'SYSTEM_LOG:READ',
+          'SYSTEM_TASK_CENTER:READ',
         ],
         hideChildrenInMenu: true,
       },
@@ -157,7 +159,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/taskCenter/index.vue'),
           meta: {
             locale: 'menu.projectManagement.taskCenter',
-            roles: ['*'],
+            roles: ['SYSTEM_TASK_CENTER:READ'],
             isTopMenu: true,
           },
         },
@@ -187,6 +189,8 @@ const Setting: AppRouteRecordRaw = {
           'SYSTEM_SERVICE_INTEGRATION:READ',
           'ORGANIZATION_TEMPLATE:READ',
           'ORGANIZATION_LOG:READ',
+          'ORGANIZATION_TASK_CENTER::READ',
+          'ORGANIZATION_TASK_CENTER::READ',
         ],
         hideChildrenInMenu: true,
       },
@@ -305,7 +309,7 @@ const Setting: AppRouteRecordRaw = {
                 query: ['type'],
               },
               {
-                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CASE_DETAIL,
                 locale: 'system.orgTemplate.createCaseTemplate',
                 editTag: 'id',
                 editLocale: 'system.orgTemplate.updateCaseTemplate',
@@ -408,7 +412,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/taskCenter/index.vue'),
           meta: {
             locale: 'menu.projectManagement.taskCenter',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TASK_CENTER::READ'],
             isTopMenu: true,
           },
         },

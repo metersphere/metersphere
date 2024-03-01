@@ -77,7 +77,7 @@
     ref="projectMemberRef"
     v-model:visible="addMemberVisible"
     :user-group-options="userGroupOptions"
-    @success="loadList()"
+    @success="initData()"
   />
   <MsBatchModal
     ref="batchModalRef"
@@ -115,7 +115,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit, formatPhoneNumber } from '@/utils';
+  import { characterLimit, formatPhoneNumber, sleep } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -206,7 +206,6 @@
       showSetting: true,
       heightUsed: 288,
       showJumpMethod: true,
-      columns,
       scroll: {
         x: 1200,
       },
@@ -230,7 +229,7 @@
   const roleIds = ref<string>('');
   const initData = async () => {
     setLoadListParams({ ...searchParams.value });
-    await loadList();
+    loadList();
   };
 
   const searchHandler = () => {
@@ -394,12 +393,12 @@
     ];
   };
   const memberTableRef = ref();
+  initOptions();
 
-  onMounted(() => {
+  onBeforeMount(() => {
     initData();
-    initOptions();
-    memberTableRef.value.initColumn(columns);
   });
+
   tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
 
