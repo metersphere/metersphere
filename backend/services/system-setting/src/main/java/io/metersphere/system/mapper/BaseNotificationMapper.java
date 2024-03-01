@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface BaseNotificationMapper {
 
-    List<Notification> listNotification(@Param("notificationRequest") NotificationRequest notificationRequest);
-
-    int countNotification(@Param("notification") Notification notification);
+    List<Notification> listNotification(@Param("request") NotificationRequest notificationRequest);
 
 }
