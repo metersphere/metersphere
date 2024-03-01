@@ -303,13 +303,7 @@
       </paramsTable>
     </div>
     <div v-if="activeTab === 'script'" class="mt-[16px]">
-      <conditionContent
-        :data="innerParams.script"
-        class="mt-[16px]"
-        @copy="copyListItem"
-        @delete="deleteListItem"
-        @change="emit('change')"
-      />
+      <conditionContent v-model:data="innerParams.script" :height-used="600" is-build-in class="mt-[16px]" />
     </div>
   </div>
   <fastExtraction v-model:visible="fastExtractionVisible" :config="activeRecord" @apply="handleFastExtractionApply" />
@@ -362,25 +356,16 @@
     (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
     (e: 'delete', id: number): void;
-    (e: 'change'): void;
+    (e: 'change', param: Param): void;
   }>();
   const { t } = useI18n();
   const rootId = 0; // 1970-01-01 00:00:00 UTC
 
-  // const innerParams = defineModel<Param>('modelValue', {
-  //   default: {
-  //     jsonPath: [],
-  //     xPath: { responseFormat: 'XML', data: [] },
-  //     script: {
-  //       id: new Date().getTime(),
-  //       processorType: RequestConditionProcessor.SCRIPT,
-  //       scriptName: '断言脚本名称',
-  //       enableCommonScript: false,
-  //       params: [],
-  //     },
-  //   },
-  // });
-  const innerParams = ref<Param>({
+  const props = defineProps<{
+    value: Param;
+  }>();
+
+  const defaultParamItem = {
     jsonPath: [],
     xPath: { responseFormat: 'XML', data: [] },
     document: {
@@ -408,6 +393,11 @@
       scriptLanguage: RequestConditionScriptLanguage.JAVASCRIPT,
       script: new Date().getTime().toString(),
     },
+  };
+
+  const innerParams = ref<Param>(props.value || defaultParamItem);
+  watchEffect(() => {
+    emit('change', innerParams.value);
   });
   const activeTab = ref('document');
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
@@ -763,5 +753,8 @@
         };
       }
     }
+  };
+  const handleScriptChange = (data: ExecuteConditionProcessor) => {
+    innerParams.value.script = data;
   };
 </script>

@@ -34,6 +34,9 @@ export interface EnvConfigItem {
 export interface ProcessorConfig {
   apiProcessorConfig: ExecuteConditionProcessor[];
 }
+export interface AssertionConfig {
+  assertions: EnvConfigItem[];
+}
 export interface EnvConfig {
   commonParams?: EnvConfigItem;
   commmonVariables: EnvConfigItem[];
@@ -42,7 +45,7 @@ export interface EnvConfig {
   hostConfig: EnvConfigItem;
   preProcessorConfig: ProcessorConfig;
   postProcessorConfig: ProcessorConfig;
-  assertionConfig: EnvConfigItem[];
+  assertionConfig: AssertionConfig;
   pluginConfigMap: EnvConfigItem;
 }
 export interface EnvDetailItem {

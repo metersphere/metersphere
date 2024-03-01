@@ -1,19 +1,15 @@
 <template>
-  <div>
-    <paramsTable
-      v-model:params="innerParams"
-      :selectable="false"
-      :columns="columns"
-      :scroll="{ minWidth: '700px' }"
-      :default-param-item="defaultParamItem"
-      @change="handleParamTableChange"
-    />
-  </div>
+  <paramsTable
+    v-model:params="innerParams"
+    :selectable="false"
+    :columns="columns"
+    :scroll="{ minWidth: '700px' }"
+    :default-param-item="defaultParamItem"
+    @change="handleParamTableChange"
+  />
 </template>
 
 <script setup lang="ts">
-  import { defineModel } from 'vue';
-
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
@@ -21,7 +17,11 @@
     [key: string]: any;
   }
 
-  const innerParams = defineModel<Param[]>('modelValue', { default: [] });
+  const props = defineProps<{
+    value?: Param[];
+  }>();
+
+  const innerParams = ref(props.value || []);
 
   const emit = defineEmits<{
     (e: 'change'): void; //  数据发生变化
