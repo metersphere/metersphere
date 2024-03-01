@@ -1,15 +1,12 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class Notification implements Serializable {
@@ -19,7 +16,7 @@ public class Notification implements Serializable {
 
     @Schema(description = "通知类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 30, message = "{notification.type.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 64, message = "{notification.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
     @Schema(description = "接收人", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -34,7 +31,7 @@ public class Notification implements Serializable {
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 30, message = "{notification.status.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 64, message = "{notification.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(description = "创建时间")
@@ -57,7 +54,7 @@ public class Notification implements Serializable {
 
     @Schema(description = "资源类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.resource_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{notification.resource_type.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 64, message = "{notification.resource_type.length_range}", groups = {Created.class, Updated.class})
     private String resourceType;
 
     @Schema(description = "资源名称", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -9,7 +9,6 @@ import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.constants.NotificationConstants;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.service.NotificationService;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +46,6 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
 
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
-            notification.setId(IDGenerator.nextNum());
             notification.setSubject(noticeModel.getSubject());
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());

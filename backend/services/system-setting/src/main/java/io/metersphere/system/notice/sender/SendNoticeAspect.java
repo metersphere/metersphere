@@ -1,14 +1,15 @@
 package io.metersphere.system.notice.sender;
 
 
-import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -39,6 +40,8 @@ public class SendNoticeAspect {
     private ExpressionParser parser = new SpelExpressionParser();
     private StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
     private ThreadLocal<String> source = new ThreadLocal<>();
+
+    private final static String ID = "id";
 
     @Pointcut("@annotation(io.metersphere.system.notice.annotation.SendNotice)")
     public void pointcut() {
@@ -149,6 +152,11 @@ public class SendNoticeAspect {
             SessionUser sessionUser = SessionUtils.getUser();
             String currentProjectId = SessionUtils.getCurrentProjectId();
             LogUtils.info("event:" + event);
+            String resultStr = JSON.toJSONString(retValue);
+            Map object = JSON.parseMap(resultStr);
+            if (MapUtils.isNotEmpty(object) && object.containsKey(ID)) {
+                resources.add(object);
+            }
             afterReturningNoticeSendService.sendNotice(taskType, event, resources, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
