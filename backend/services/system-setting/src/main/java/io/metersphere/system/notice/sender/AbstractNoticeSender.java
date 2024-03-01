@@ -7,6 +7,9 @@ import io.metersphere.api.domain.ApiScenarioFollower;
 import io.metersphere.api.domain.ApiScenarioFollowerExample;
 import io.metersphere.api.mapper.ApiDefinitionFollowerMapper;
 import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
+import io.metersphere.bug.domain.BugFollower;
+import io.metersphere.bug.domain.BugFollowerExample;
+import io.metersphere.bug.mapper.BugFollowerMapper;
 import io.metersphere.functional.domain.CaseReviewFollower;
 import io.metersphere.functional.domain.CaseReviewFollowerExample;
 import io.metersphere.functional.domain.FunctionalCaseFollower;
@@ -41,6 +44,8 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractNoticeSender implements NoticeSender {
 
+    @Resource
+    private BugFollowerMapper bugFollowerMapper;
     @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
@@ -208,6 +213,15 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 functionalCaseFollowerExample.createCriteria().andCaseIdEqualTo(id);
                 List<FunctionalCaseFollower> functionalCaseFollowers = functionalCaseFollowerMapper.selectByExample(functionalCaseFollowerExample);
                 receivers = functionalCaseFollowers
+                        .stream()
+                        .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+            }
+            case NoticeConstants.TaskType.BUG_TASK ->  {
+                BugFollowerExample bugFollowerExample = new BugFollowerExample();
+                bugFollowerExample.createCriteria().andBugIdEqualTo(id);
+                List<BugFollower> bugFollowers = bugFollowerMapper.selectByExample(bugFollowerExample);
+                receivers = bugFollowers
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());

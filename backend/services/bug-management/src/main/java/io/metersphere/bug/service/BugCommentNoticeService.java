@@ -55,12 +55,12 @@ public class BugCommentNoticeService {
      * 发送缺陷通知
      */
     @Async
-    public void sendNotice(BugCommentEditRequest request, BugCommentNoticeDTO noticeDTO, String currentUser) {
+    public void sendNotice(String event, BugCommentNoticeDTO noticeDTO, String currentUser) {
         User user = userMapper.selectByPrimaryKey(currentUser);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
-        String template = defaultTemplateMap.get(NoticeConstants.TaskType.BUG_TASK + "_" + request.getEvent());
+        String template = defaultTemplateMap.get(NoticeConstants.TaskType.BUG_TASK + "_" + event);
         Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        String subject = defaultSubjectMap.get(NoticeConstants.TaskType.BUG_TASK + "_" + request.getEvent());
+        String subject = defaultSubjectMap.get(NoticeConstants.TaskType.BUG_TASK + "_" + event);
         BeanMap beanMap = new BeanMap(noticeDTO);
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
@@ -69,7 +69,7 @@ public class BugCommentNoticeService {
                 .context(template)
                 .subject(subject)
                 .paramMap(paramMap)
-                .event(request.getEvent())
+                .event(event)
                 .status((String) paramMap.get("status"))
                 .excludeSelf(true)
                 .relatedUsers(getRelateUser(noticeDTO.getNotifier()))
@@ -91,7 +91,7 @@ public class BugCommentNoticeService {
 
     /**
      * 评论通知@用户处理与功能用例保持一致即可, 根据事件类型设置通知人
-     * 如果是REPLAY事件，需要判断有无@的人，如果有@的人且和当前被回复的人不是同一人，这里只被回复的人,如果是同一人，这里通知人为空，走AT事件
+     * 如果是REPLAY事件, 需要判断有无@的人, 如果有@的人且和当前被回复的人不是同一人, 这里只通知被回复的人; 如果是同一人, 这里通知人为空, 走AT事件
      * 如果不是REPLAY事件，需要判断有无被回复的人，如果被回复的人不在被@人里，则用页面参数传递的通知人，如果在，则排除这个人,如果没有被回复的人，用页面数据
      *
      * @param request 页面请求参数
