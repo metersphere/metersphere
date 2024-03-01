@@ -10,10 +10,12 @@ import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.JsonSchemaBuilder;
+import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.swagger.parser.OpenAPIParser;
@@ -44,17 +46,13 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private Components components;
 
     public static final String PATH = "path";
-    public static final String FORM_DATA = "formData";
-    public static final String FILE = "file";
     public static final String HEADER = "header";
-    public static final String BODY = "body";
     public static final String COOKIE = "cookie";
     public static final String QUERY = "query";
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ImportRequest request) throws Exception {
         LogUtils.info("Swagger3Parser parse");
-        String apiTestStr = getApiTestStr(source);
         List<AuthorizationValue> auths = setAuths(request);
         SwaggerParseResult result = null;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
@@ -63,6 +61,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 throw new MSException(Translator.get("swagger_parse_error_with_auth"));
             }
         } else {
+            String apiTestStr = getApiTestStr(source);
             result = new OpenAPIParser().readContents(apiTestStr, null, null);
             if (result == null || result.getOpenAPI() == null || !result.getOpenAPI().getOpenapi().startsWith("3.0") || result.isOpenapi31()) {
                 throw new MSException(Translator.get("swagger_parse_error"));
@@ -79,7 +78,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         // TODO 如果有 BaseAuth 参数，base64 编码后转换成 headers
         if (request.isAuthSwitch()) {
             AuthorizationValue authorizationValue = new AuthorizationValue();
-            authorizationValue.setType("header");
+            authorizationValue.setType(HEADER);
             authorizationValue.setKeyName("Authorization");
             String authValue = "Basic " + Base64.getUrlEncoder().encodeToString((request.getAuthUsername() + ":" + request.getAuthPassword()).getBytes());
             authorizationValue.setValue(authValue);
@@ -272,6 +271,10 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 jsonBody.setEnableJsonSchema(true);
                 if (ObjectUtils.isNotEmpty(value.getExample())) {
                     jsonBody.setJsonValue(ApiDataUtils.toJSONString(value.getExample()));
+                }
+                String jsonString = JSON.toJSONString(jsonSchemaItem);
+                if (StringUtils.isNotBlank(jsonString)) {
+                    jsonBody.setJsonValue(JsonSchemaBuilder.jsonSchemaToJson(jsonString));
                 }
                 body.setJsonBody(jsonBody);
             }
@@ -529,17 +532,16 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 } else if (value instanceof BooleanSchema booleanSchema) {
                     item = parseBoolean(booleanSchema);
                 } else if (value instanceof ArraySchema arraySchema) {
-                    if (!isRef(arraySchema.getItems(), 0)) {
+                    if (isRef(arraySchema.getItems(), 0)) {
                         JsonSchemaItem arrayItem = new JsonSchemaItem();
                         arrayItem.setType(PropertyConstant.ARRAY);
-                        arrayItem.setItems(new JsonSchemaItem());
-                        item = arrayItem;
+                        item = parseArraySchema(arraySchema.getItems());
                         jsonSchemaProperties.put(key, item);
                         return;
                     }
                     item = parseArraySchema(arraySchema.getItems());
                 } else if (value instanceof ObjectSchema objectSchemaItem) {
-                    if (!isRef(objectSchemaItem, 0)) {
+                    if (isRef(objectSchemaItem, 0)) {
                         JsonSchemaItem objectItem = new JsonSchemaItem();
                         objectItem.setType(PropertyConstant.OBJECT);
                         objectItem.setProperties(new LinkedHashMap<>());
@@ -548,7 +550,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                         return;
                     }
                     item = parseObject(objectSchemaItem);
-                } else if (StringUtils.equals(value.getType(), "null")) {
+                } else if (StringUtils.equals(value.getType(), PropertyConstant.NULL)) {
                     item = parseNull();
                 } else if (value instanceof MapSchema mapSchema) {
                     item = parseMapObject(mapSchema);
@@ -676,7 +678,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
             jsonSchemaArray.setItems(parseArraySchema(arraySchema.getItems()));
         } else if (itemsSchema instanceof ObjectSchema objectSchema) {
             jsonSchemaArray.setItems(parseObject(objectSchema));
-        } else if (ObjectUtils.isNotEmpty(itemsSchema) && StringUtils.equals("null", itemsSchema.getType())) {
+        } else if (ObjectUtils.isNotEmpty(itemsSchema) && StringUtils.equals(PropertyConstant.NULL, itemsSchema.getType())) {
             jsonSchemaArray.setItems(parseNull());
         }
         return jsonSchemaArray;

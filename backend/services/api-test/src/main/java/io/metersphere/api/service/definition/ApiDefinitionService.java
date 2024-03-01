@@ -18,6 +18,8 @@ import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.JsonSchemaBuilder;
+import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
@@ -57,6 +59,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1120,5 +1124,28 @@ public class ApiDefinitionService {
 
     public String transfer(ApiTransferRequest request, String userId) {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API.name());
+    }
+
+    public String preview(String jsonSchema) {
+        String jsonString = JsonSchemaBuilder.jsonSchemaToJson(jsonSchema);
+        //需要匹配到mock函数  然后换成mock数据
+        if (StringUtils.isNotBlank(jsonString)) {
+            String pattern = "@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
+            Pattern regex = Pattern.compile(pattern);
+            Matcher matcher = regex.matcher(jsonString);
+            while (matcher.find()) {
+                //取出group的最后一个字符 主要是防止 @string|number 和 @string 这种情况
+                String group = matcher.group();
+                String lastChar = null;
+                if (group.endsWith(",") || group.endsWith("\"")) {
+                    lastChar = group.substring(group.length() - 1);
+                    group = group.substring(0, group.length() - 1);
+                }
+                jsonString = jsonString.replace(matcher.group(),
+                        StringUtils.join(Mock.calculate(group), lastChar));
+            }
+        }
+        return jsonString;
+
     }
 }

@@ -1,5 +1,6 @@
 package io.metersphere.api.controller.definition;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
@@ -266,4 +267,10 @@ public class ApiDefinitionController {
         return apiDefinitionService.transfer(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/preview")
+    @Operation(summary = "接口测试-接口管理-接口-json-schema-预览")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public String preview(@RequestBody TextNode jsonSchema) {
+        return apiDefinitionService.preview(jsonSchema.asText());
+    }
 }

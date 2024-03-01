@@ -14,5 +14,9 @@ public class PropertyConstant {
     public final static String EXPECTED_VALUE = "EXPECTED_VALUE";
     public final static String ELEMENT_CONDITION = "ElementCondition";
     public final static String XML_PATH = "XML_PATH";
+    public final static String EXAMPLE = "example";
+    public final static String TYPE = "type";
+    public final static String ITEMS = "items";
+    public final static String PROPERTIES = "properties";
 
 }
