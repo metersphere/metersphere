@@ -30,3 +30,5 @@ export const GetProjectsUrl = '/system/user/get/project';
 export const RegisterByInviteUrl = '/system/user/register-by-invite';
 // 邀请用户
 export const InviteUserUrl = '/system/user/invite';
+// 检查邀请链接是否过期
+export const ValidInviteUrl = '/system/user/check-invite';

@@ -105,6 +105,7 @@
                   </a-tooltip>
                   <template v-if="item.key === 'name'">
                     <popConfirm
+                      v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
                       mode="fileRename"
                       :field-config="{
                         field: detail.name,
@@ -114,9 +115,9 @@
                       :all-names="[]"
                       @rename-finish="detailDrawerRef?.initDetail"
                     >
-                      <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']" class="!mr-0 ml-[8px]">{{
-                        t('common.rename')
-                      }}</MsButton>
+                      <MsButton class="!mr-0 ml-[8px]">
+                        {{ t('common.rename') }}
+                      </MsButton>
                     </popConfirm>
                     <template v-if="UploadAcceptEnum.image.includes(fileType)">
                       <a-divider
@@ -130,6 +131,7 @@
                   </template>
                   <template v-if="item.key === 'desc'">
                     <popConfirm
+                      v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
                       mode="fileUpdateDesc"
                       :title="t('project.fileManagement.desc')"
                       :field-config="{
@@ -142,9 +144,7 @@
                       :all-names="[]"
                       @update-desc-finish="detailDrawerRef?.initDetail"
                     >
-                      <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']" class="ml-[8px]"
-                        ><MsIcon type="icon-icon_edit_outlined"></MsIcon
-                      ></MsButton>
+                      <MsButton class="ml-[8px]"> <MsIcon type="icon-icon_edit_outlined" /></MsButton>
                     </popConfirm>
                   </template>
                 </div>

@@ -16,11 +16,12 @@
             label: 'name',
             email: 'email',
           }"
-          :search-keys="['label', 'email']"
+          :search-keys="['name', 'email']"
           value-key="id"
+          label-key="name"
           :option-tooltip-content="(item) => `${item.name}(${item.email})`"
           :option-label-render="
-            (item) => `${item.label}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
+            (item) => `${item.name}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
           "
           allow-search
           allow-clear

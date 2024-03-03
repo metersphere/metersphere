@@ -8,4 +8,8 @@ export default {
   'ms.add.attachment.cancelAssociate': 'Disassociate',
   'ms.add.attachment.saveAs': 'Save',
   'ms.add.attachment.repeatFileTip': 'File already exists.',
+  'ms.add.attachment.saveAsTitle': 'Please select the transfer directory',
+  'ms.add.attachment.saveAsNamePlaceholder': 'Please enter file name',
+  'ms.add.attachment.saveAsModulePlaceholder': 'Please select the transfer directory',
+  'ms.add.attachment.saveAsSuccess': 'File transfer successful',
 };

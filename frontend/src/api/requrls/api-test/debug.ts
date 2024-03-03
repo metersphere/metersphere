@@ -13,3 +13,5 @@ export const GetDebugModulesUrl = '/api/debug/module/tree'; // 查询模块树
 export const DeleteDebugModuleUrl = '/api/debug/module/delete'; // 删除模块
 export const DragDebugUrl = '/api/debug/edit/pos'; // 拖拽调试节点
 export const UploadTempFileUrl = '/api/debug/upload/temp/file'; // 上传文件
+export const TransferOptionsUrl = '/api/debug/transfer/options'; // 文件转存目录
+export const TransferFileUrl = '/api/debug/transfer'; // 文件转存

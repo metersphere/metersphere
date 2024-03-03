@@ -15,6 +15,7 @@ export default {
   'invite.passwordLengthRule': 'The length is 8-32 digits',
   'invite.passwordWordRule': 'Must contain numbers and letters, Chinese or spaces are not allowed',
   'invite.success': 'Registered successfully',
+  'invite.overTime': 'The invitation link has expired',
   'personal.info': 'My Info',
   'personal.switchOrg': 'Switch Org',
   'personal.searchOrgPlaceholder': 'Please enter organization name',

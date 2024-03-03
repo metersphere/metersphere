@@ -75,3 +75,12 @@ export interface DragSortParams {
   moveId: string;
   moduleId?: string;
 }
+// 文件转存入参
+export interface TransferFileParams {
+  projectId: string;
+  sourceId: string | number;
+  name?: string;
+  fileId: string;
+  local: true;
+  moduleId: string;
+}

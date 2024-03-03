@@ -2,7 +2,7 @@
   <a-upload
     v-if="showDropArea"
     v-bind="{ ...props }"
-    v-model:file-list="fileList"
+    v-model:file-list="innerFileList"
     :accept="
       [UploadAcceptEnum.none, UploadAcceptEnum.unknown].includes(UploadAcceptEnum[props.accept])
         ? '*'
@@ -30,7 +30,7 @@
             <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
           </div>
           <!-- 支持多文件上传时，不需要展示选择文件后的信息，已选的文件使用文件列表搭配展示 -->
-          <template v-if="fileList.length === 0 || props.multiple">
+          <template v-if="innerFileList.length === 0 || props.multiple">
             <div class="ms-upload-main-text">
               {{ t(props.mainText || 'ms.upload.importModalDragText') }}
             </div>
@@ -47,11 +47,11 @@
           </template>
           <template v-else>
             <div class="ms-upload-main-text w-full">
-              <a-tooltip :content="fileList[0]?.name">
-                <span class="one-line-text w-[80%] text-center"> {{ fileList[0]?.name }}</span>
+              <a-tooltip :content="innerFileList[0]?.name">
+                <span class="one-line-text w-[80%] text-center"> {{ innerFileList[0]?.name }}</span>
               </a-tooltip>
             </div>
-            <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
+            <div class="ms-upload-sub-text">{{ formatFileSize(innerFileList[0]?.file?.size || 0) }}</div>
           </template>
         </div>
       </slot>
@@ -77,6 +77,7 @@
 
   // 上传 组件 props
   type UploadProps = Partial<{
+    fileList: MsFileItem[];
     mainText: string; // 主要文案
     subText: string; // 次要文案
     showSubText: boolean; // 是否显示次要文案
@@ -96,7 +97,6 @@
     limit: number; // 限制上传文件数量
   }> & {
     accept: UploadType;
-    fileList: MsFileItem[];
   };
 
   const props = withDefaults(defineProps<UploadProps>(), {
@@ -110,35 +110,23 @@
 
   const defaultMaxSize = 50;
 
-  const fileList = ref<MsFileItem[]>(props.fileList);
-
-  watch(
-    () => props.fileList,
-    (val) => {
-      fileList.value = val;
-    }
-  );
-
-  watch(
-    () => fileList.value,
-    (val) => {
-      emit('update:fileList', val);
-    }
-  );
+  const innerFileList = defineModel<MsFileItem[]>('fileList', {
+    default: () => [],
+  });
 
   const fileIconType = computed(() => {
     // 单选并且选了文件，按文件类型展示图标(单选文件选择后直接展示绿色图标)
-    if (fileList.value.length > 0 && !props.multiple) {
-      return getFileIcon(fileList.value[0], UploadStatus.done);
+    if (innerFileList.value.length > 0 && !props.multiple) {
+      return getFileIcon(innerFileList.value[0], UploadStatus.done);
     }
     // 多选直接按照类型展示
     return FileIconMap[props.accept][UploadStatus.init];
   });
 
   async function beforeUpload(file: File) {
-    if (!props.multiple && fileList.value.length > 0) {
+    if (!props.multiple && innerFileList.value.length > 0) {
       // 单文件上传时，清空之前的文件
-      fileList.value = [];
+      innerFileList.value = [];
     }
     const maxSize = props.maxSize || defaultMaxSize;
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;

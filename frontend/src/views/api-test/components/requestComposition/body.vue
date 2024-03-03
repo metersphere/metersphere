@@ -33,6 +33,9 @@
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
     :default-param-item="defaultBodyParamsItem"
     :upload-temp-file-api="props.uploadTempFileApi"
+    :file-save-as-source-id="props.fileSaveAsSourceId"
+    :file-save-as-api="props.fileSaveAsApi"
+    :file-module-options-api="props.fileModuleOptionsApi"
     @change="handleParamTableChange"
   />
   <paramTable
@@ -79,22 +82,16 @@
       </a-tooltip>
     </div> -->
   </div>
-  <div v-else class="flex h-[calc(100%-100px)]">
+  <div v-else class="flex h-[calc(100%-34px)]">
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
       class="flex-1"
       theme="MS-text"
       height="100%"
       :show-full-screen="false"
+      :show-theme-change="false"
       :language="currentCodeLanguage"
     >
-      <template #rightTitle>
-        <div class="flex flex-col">
-          <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('apiTestDebug.batchAddParamsTip1') }}
-          </div>
-        </div>
-      </template>
     </MsCodeEditor>
   </div>
 </template>
@@ -114,6 +111,7 @@
   import useAppStore from '@/store/modules/app';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
+  import { TransferFileParams } from '@/models/common';
   import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -124,6 +122,9 @@
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
+    fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
+    fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;

@@ -1,6 +1,11 @@
 <template>
   <div class="invite-page">
-    <div class="form-box w-1/3 rounded-[12px] bg-white">
+    <a-empty v-if="isInviteOverTime" :description="t('invite.overTime')" class="h-[400px] w-full">
+      <template #image>
+        <icon-close-circle-fill :size="68" />
+      </template>
+    </a-empty>
+    <div v-else class="form-box w-1/3 rounded-[12px] bg-white">
       <div class="form-box-title">{{ t('invite.title') }}</div>
       <a-form
         ref="registerFormRef"
@@ -38,13 +43,15 @@
 
   import MsPasswordInput from '@/components/pure/ms-password-input/index.vue';
 
-  import { registerByInvite } from '@/api/modules/setting/user';
+  import { registerByInvite, validInvite } from '@/api/modules/setting/user';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { encrypted, sleep } from '@/utils';
   import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
 
   const route = useRoute();
   const router = useRouter();
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const form = ref({
@@ -86,10 +93,19 @@
     ],
   };
 
-  function validatePsw(value: string) {
-    pswValidateRes.value = validateWordPassword(value);
-    pswLengthValidateRes.value = validatePasswordLength(value);
-  }
+  const isInviteOverTime = ref(false); // 邀请是否过期
+  onBeforeMount(async () => {
+    try {
+      appStore.showLoading();
+      await validInvite(route.query.inviteId as string);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      isInviteOverTime.value = true;
+    } finally {
+      appStore.hideLoading();
+    }
+  });
 
   function confirmInvite() {
     registerFormRef.value?.validate(async (errors) => {
@@ -159,5 +175,8 @@
     .check-list-item--error {
       color: rgb(var(--danger-6));
     }
+  }
+  :deep(.arco-empty-description) {
+    font-size: 18px;
   }
 </style>

@@ -1,7 +1,454 @@
 <template>
-  <div> </div>
+  <div class="mt-[8px] w-full">
+    <MsEditableTab
+      v-model:active-tab="activeResponse"
+      v-model:tabs="responseTabs"
+      at-least-one
+      hide-more-action
+      @add="addResponseTab"
+    >
+      <template #label="{ tab }">
+        <div class="response-tab">
+          <div v-if="tab.isDefault" class="response-tab-default-icon"></div>
+          {{ tab.label }}({{ tab.code }})
+          <MsMoreAction
+            :list="
+              tab.isDefault
+                ? tabMoreActionList.filter((e) => e.eventTag !== 'setDefault' && e.eventTag !== 'delete')
+                : tabMoreActionList
+            "
+            class="response-more-action"
+            @select="(e) => handleMoreActionSelect(e, tab as ResponseItem)"
+          />
+          <popConfirm
+            v-model:visible="tab.showRenamePopConfirm"
+            mode="tabRename"
+            :field-config="{ field: tab.label }"
+            :all-names="responseTabs.map((e) => e.label)"
+            :popup-offset="20"
+            @rename-finish="(val) => (tab.label = val)"
+          >
+            <span :id="`renameSpan${tab.id}`" class="relative"></span>
+          </popConfirm>
+          <a-popconfirm
+            v-model:popup-visible="tab.showPopConfirm"
+            position="bottom"
+            content-class="w-[300px]"
+            :ok-text="t('common.confirm')"
+            :popup-offset="20"
+            @ok="() => handleDeleteResponseTab(tab.id)"
+          >
+            <template #icon>
+              <icon-exclamation-circle-fill class="!text-[rgb(var(--danger-6))]" />
+            </template>
+            <template #content>
+              <div class="font-semibold text-[var(--color-text-1)]">
+                {{ t('apiTestManagement.confirmDelete', { name: tab.label }) }}
+              </div>
+            </template>
+            <div class="relative"></div>
+          </a-popconfirm>
+        </div>
+      </template>
+    </MsEditableTab>
+  </div>
+  <a-tabs v-model:active-key="activeTab" class="no-content border-b border-[var(--color-text-n8)]">
+    <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
+  </a-tabs>
+  <div class="response-container">
+    <div class="mb-[8px] flex items-center justify-between">
+      <a-radio-group
+        v-model:model-value="innerResponse.body.bodyType"
+        type="button"
+        size="small"
+        @change="(val) => changeBodyFormat(val as ResponseBodyFormat)"
+      >
+        <a-radio v-for="item of ResponseBodyFormat" :key="item" :value="item">
+          {{ ResponseBodyFormat[item].toLowerCase() }}
+        </a-radio>
+      </a-radio-group>
+      <div class="flex items-center gap-[24px]">
+        <a-radio-group size="mini" @change="(val) => changeJsonBodyFormat(val as ResponseBodyFormat)">
+          <a-radio value="Json" :default-checked="!innerResponse.body.jsonBody.enableJsonSchema">Json</a-radio>
+          <a-radio class="mr-0" value="JsonSchema" :default-checked="innerResponse.body.jsonBody.enableJsonSchema">
+            Json Schema
+          </a-radio>
+        </a-radio-group>
+        <div class="flex items-center gap-[8px]">
+          <a-switch v-model:model-value="innerResponse.body.jsonBody.enableTransition" size="small" type="line" />
+          {{ t('apiTestManagement.dynamicConversion') }}
+        </div>
+      </div>
+    </div>
+    <template v-if="activeTab === ResponseComposition.BODY">
+      <div
+        v-if="
+          [ResponseBodyFormat.JSON, ResponseBodyFormat.XML, ResponseBodyFormat.RAW].includes(
+            innerResponse.body.bodyType
+          )
+        "
+        class="h-[calc(100%-35px)]"
+      >
+        <MsCodeEditor
+          ref="responseEditorRef"
+          v-model:model-value="currentBodyCode"
+          :language="currentCodeLanguage"
+          theme="vs"
+          height="100%"
+          :show-full-screen="false"
+          :show-theme-change="false"
+          :show-language-change="false"
+          :show-charset-change="false"
+          read-only
+        >
+          <template #rightTitle>
+            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
+              <template #icon>
+                <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
+              </template>
+            </a-button>
+          </template>
+        </MsCodeEditor>
+      </div>
+      <div v-else>
+        <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
+          <a-input
+            v-model:model-value="innerResponse.body.binaryBody.description"
+            :placeholder="t('common.desc')"
+            :max-length="255"
+          />
+          <MsAddAttachment
+            v-model:file-list="fileList"
+            mode="input"
+            :multiple="false"
+            :fields="{
+              id: 'fileId',
+              name: 'fileName',
+            }"
+            @change="handleFileChange"
+          />
+        </div>
+      </div>
+    </template>
+  </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { useClipboard } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
 
-<style lang="less" scoped></style>
+  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
+  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import MsAddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import popConfirm from '@/views/api-test/components/popConfirm.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+
+  import { ResponseDefinition } from '@/models/apiTest/common';
+  import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
+
+  const props = defineProps<{
+    response: ResponseDefinition;
+    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+  }>();
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
+
+  const appStore = useAppStore();
+  const { t } = useI18n();
+
+  export interface ResponseItem extends TabItem {
+    isDefault?: boolean; // 是否是默认tab
+    code: number; // 状态码
+    showPopConfirm?: boolean; // 是否显示确认弹窗
+    showRenamePopConfirm?: boolean; // 是否显示重命名确认弹窗
+  }
+  const activeTab = defineModel<ResponseComposition>('activeTab', {
+    required: true,
+    default: ResponseComposition.BODY,
+  });
+  const innerResponse = defineModel<ResponseDefinition>('response', {
+    required: true,
+  });
+  const responseTabs = ref<ResponseItem[]>([
+    {
+      id: new Date().getTime(),
+      label: t('apiTestManagement.response'),
+      closable: false,
+      code: 200,
+      isDefault: true,
+      showPopConfirm: false,
+      showRenamePopConfirm: false,
+    },
+  ]);
+  const activeResponse = ref<ResponseItem>(responseTabs.value[0]);
+
+  function addResponseTab(defaultProps?: Partial<ResponseItem>) {
+    responseTabs.value.push({
+      label: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
+      code: 200,
+      ...defaultProps,
+      id: new Date().getTime(),
+      isDefault: false,
+      showPopConfirm: false,
+      showRenamePopConfirm: false,
+    });
+    activeResponse.value = responseTabs.value[responseTabs.value.length - 1];
+    emit('change');
+  }
+
+  const tabMoreActionList: ActionsItem[] = [
+    {
+      label: t('apiTestManagement.setDefault'),
+      eventTag: 'setDefault',
+    },
+    {
+      label: t('common.rename'),
+      eventTag: 'rename',
+    },
+    {
+      label: t('common.copy'),
+      eventTag: 'copy',
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: t('common.delete'),
+      eventTag: 'delete',
+      danger: true,
+    },
+  ];
+  const renameValue = ref('');
+
+  function handleMoreActionSelect(e: ActionsItem, _tab: ResponseItem) {
+    switch (e.eventTag) {
+      case 'setDefault':
+        responseTabs.value = responseTabs.value.map((tab) => {
+          tab.isDefault = _tab.id === tab.id;
+          return tab;
+        });
+        break;
+      case 'rename':
+        renameValue.value = _tab.label || '';
+        document.querySelector(`#renameSpan${_tab.id}`)?.dispatchEvent(new Event('click'));
+        break;
+      case 'copy':
+        addResponseTab({ ..._tab, label: `${_tab.label}-Copy` });
+        break;
+      case 'delete':
+        _tab.showPopConfirm = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  function handleDeleteResponseTab(id: number | string) {
+    responseTabs.value = responseTabs.value.filter((tab) => tab.id !== id);
+    if (id === activeResponse.value.id) {
+      [activeResponse.value] = responseTabs.value;
+    }
+  }
+
+  const responseCompositionTabList = [
+    {
+      label: t('apiTestDebug.responseBody'),
+      value: ResponseComposition.BODY,
+    },
+    {
+      label: t('apiTestDebug.responseHeader'),
+      value: ResponseComposition.HEADER,
+    },
+    {
+      label: t('apiTestManagement.responseCode'),
+      value: ResponseComposition.CODE,
+    },
+  ];
+
+  function changeBodyFormat(val: ResponseBodyFormat) {
+    innerResponse.value.body.bodyType = val;
+    emit('change');
+  }
+
+  function changeJsonBodyFormat(val: string) {
+    innerResponse.value.body.jsonBody.enableJsonSchema = val === 'JsonSchema';
+    emit('change');
+  }
+
+  // 当前显示的代码
+  const currentBodyCode = computed({
+    get() {
+      if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+        return innerResponse.value.body.jsonBody.jsonValue;
+      }
+      if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+        return innerResponse.value.body.xmlBody.value;
+      }
+      return innerResponse.value.body.rawBody.value;
+    },
+    set(val) {
+      if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+        innerResponse.value.body.jsonBody.jsonValue = val;
+      } else if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+        innerResponse.value.body.xmlBody.value = val;
+      } else {
+        innerResponse.value.body.rawBody.value = val;
+      }
+    },
+  });
+  // 当前代码编辑器的语言
+  const currentCodeLanguage = computed(() => {
+    if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+      return LanguageEnum.JSON;
+    }
+    if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+      return LanguageEnum.XML;
+    }
+    return LanguageEnum.PLAINTEXT;
+  });
+
+  const { copy, isSupported } = useClipboard();
+
+  function copyScript() {
+    if (isSupported) {
+      copy(currentBodyCode.value);
+      Message.success(t('common.copySuccess'));
+    } else {
+      Message.warning(t('apiTestDebug.copyNotSupport'));
+    }
+  }
+
+  const fileList = ref<any[]>(
+    innerResponse.value.body.binaryBody && innerResponse.value.body.binaryBody.file
+      ? [innerResponse.value.body.binaryBody.file]
+      : []
+  );
+
+  async function handleFileChange(files: MsFileItem[]) {
+    if (files.length === 0) {
+      innerResponse.value.body.binaryBody.file = undefined;
+      return;
+    }
+    if (!props.uploadTempFileApi) return;
+    try {
+      if (fileList.value[0]?.local) {
+        appStore.showLoading();
+        const res = await props.uploadTempFileApi(fileList.value[0].file);
+        innerResponse.value.body.binaryBody.file = {
+          ...fileList.value[0],
+          fileId: res.data,
+          fileName: fileList.value[0]?.name || '',
+          fileAlias: fileList.value[0]?.name || '',
+          local: true,
+        };
+        appStore.hideLoading();
+      } else {
+        innerResponse.value.body.binaryBody.file = {
+          ...fileList.value[0],
+          fileId: fileList.value[0].uid,
+          fileName: fileList.value[0]?.originalName || '',
+          fileAlias: fileList.value[0]?.name || '',
+          local: false,
+        };
+      }
+      emit('change');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const columns: MsTableColumn = [
+    {
+      title: 'apiTestDebug.content',
+      dataIndex: 'content',
+      showTooltip: true,
+    },
+    {
+      title: 'apiTestDebug.status',
+      dataIndex: 'status',
+      slotName: 'status',
+      width: 80,
+    },
+    {
+      title: '',
+      dataIndex: 'desc',
+      showTooltip: true,
+    },
+  ];
+  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+    scroll: { x: '100%' },
+    columns,
+  });
+  propsRes.value.data = [
+    {
+      id: new Date().getTime(),
+      content: 'Response Code equals: 200',
+      status: 1,
+      desc: '',
+    },
+    {
+      id: new Date().getTime(),
+      content: '$.users[1].age REGEX: 31',
+      status: 0,
+      desc: `Value expected to match regexp '31', but it did not match: '30' match: '30'`,
+    },
+  ] as any;
+</script>
+
+<style lang="less" scoped>
+  .response-container {
+    margin-top: 8px;
+    height: calc(100% - 88px);
+    .response-header-pre {
+      @apply h-full overflow-auto  bg-white;
+      .ms-scroll-bar();
+
+      padding: 8px 12px;
+      border-radius: var(--border-radius-small);
+    }
+  }
+  :deep(.arco-table-th) {
+    background-color: var(--color-text-n9);
+  }
+  :deep(.arco-tabs-tab) {
+    @apply leading-none;
+  }
+  .response-tab {
+    @apply flex items-center;
+    .response-tab-default-icon {
+      @apply rounded-full;
+
+      margin-right: 4px;
+      width: 16px;
+      height: 16px;
+      background: url('@/assets/svg/icons/default.svg') no-repeat;
+      background-size: contain;
+      box-shadow: 0 0 7px 0 rgb(15 0 78 / 9%);
+    }
+    :deep(.response-more-action) {
+      margin-left: 4px;
+      .more-icon-btn {
+        @apply invisible;
+      }
+    }
+    &:hover {
+      :deep(.response-more-action) {
+        .more-icon-btn {
+          @apply visible;
+        }
+      }
+    }
+  }
+</style>

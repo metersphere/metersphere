@@ -86,7 +86,7 @@
             v-permission="['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']"
             :list="tableActions"
             @select="handleSelect($event, record)"
-          ></MsTableMoreAction>
+          />
         </template>
       </template>
     </ms-base-table>
@@ -145,7 +145,7 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" :disabled="loading" @click="handleBeforeClose">
+      <a-button type="secondary" :disabled="loading" @click="cancelCreate">
         {{ t('system.user.editUserModalCancelCreate') }}
       </a-button>
       <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">

@@ -64,7 +64,7 @@ module.exports = {
         tsx: 'never',
       },
     ],
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-debugger': 2,
     'no-param-reassign': 0,
     'prefer-regex-literals': 0,
     'import/no-extraneous-dependencies': 0,

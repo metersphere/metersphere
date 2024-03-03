@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash-es';
 
 import { ExecuteBody } from '@/models/apiTest/debug';
 import { RequestParamsType } from '@/enums/apiEnum';
@@ -122,7 +122,7 @@ export function filterKeyValParams(params: Record<string, any>[], defaultParamIt
   delete lastData.enable;
   delete defaultParam.id;
   delete defaultParam.enable;
-  const lastDataIsDefault = JSON.stringify(lastData) === JSON.stringify(defaultParam);
+  const lastDataIsDefault = isEqual(lastData, defaultParam);
   let validParams: Record<string, any>[] = [];
   if (lastDataIsDefault) {
     // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个

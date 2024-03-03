@@ -39,8 +39,7 @@
       <template v-if="!props.isModal" #extra="nodeData">
         <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
         <popConfirm
-          v-if="nodeData.id !== 'root'"
-          v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']"
+          v-if="nodeData.id !== 'root' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])"
           mode="add"
           :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           :parent-id="nodeData.id"
@@ -52,8 +51,7 @@
           </MsButton>
         </popConfirm>
         <popConfirm
-          v-if="nodeData.id !== 'root'"
-          v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']"
+          v-if="nodeData.id !== 'root' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
           mode="rename"
           :parent-id="nodeData.id"
           :node-id="nodeData.id"

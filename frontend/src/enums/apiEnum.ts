@@ -32,7 +32,7 @@ export enum RequestBodyFormat {
   RAW = 'RAW',
   BINARY = 'BINARY',
 }
-// 接口响应体格式
+// 接口响应头格式
 export enum RequestContentTypeEnum {
   JSON = 'application/json',
   TEXT = 'application/text',
@@ -52,6 +52,14 @@ export enum ResponseComposition {
   CONSOLE = 'CONSOLE',
   EXTRACT = 'EXTRACT',
   ASSERTION = 'ASSERTION',
+  CODE = 'CODE',
+}
+// 接口响应体格式
+export enum ResponseBodyFormat {
+  JSON = 'JSON',
+  XML = 'XML',
+  RAW = 'RAW',
+  BINARY = 'BINARY',
 }
 // 接口定义状态
 export enum RequestDefinitionStatus {

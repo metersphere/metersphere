@@ -6,7 +6,7 @@
     <MsCodeEditor
       v-if="activeTab === ResponseComposition.BODY"
       ref="responseEditorRef"
-      :model-value="props.response.requestResults[0].responseResult?.body"
+      :model-value="props.request.response.requestResults[0].responseResult?.body"
       :language="responseLanguage"
       theme="vs"
       height="100%"
@@ -27,7 +27,7 @@
     </MsCodeEditor>
     <MsCodeEditor
       v-else-if="activeTab === ResponseComposition.CONSOLE"
-      :model-value="props.response.console.trim()"
+      :model-value="props.request.response.console.trim()"
       :language="LanguageEnum.PLAINTEXT"
       theme="MS-text"
       height="100%"
@@ -72,14 +72,12 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ResponseResult } from '@/models/apiTest/common';
   import { ResponseComposition } from '@/enums/apiEnum';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   const props = defineProps<{
-    response: ResponseResult;
-    request?: RequestParam;
+    request: RequestParam;
   }>();
   const { t } = useI18n();
 
@@ -109,13 +107,14 @@
     //   value: ResponseComposition.ASSERTION,
     // }, // TODO:断言暂时没加
   ];
-  const activeTab = defineModel<keyof typeof ResponseComposition>('activeTab', {
+  const activeTab = defineModel<ResponseComposition>('activeTab', {
     required: true,
+    default: ResponseComposition.BODY,
   });
 
   // 响应体语言类型
   const responseLanguage = computed(() => {
-    const { contentType } = props.response.requestResults[0].responseResult;
+    const { contentType } = props.request.response.requestResults[0].responseResult;
     if (contentType.includes('json')) {
       return LanguageEnum.JSON;
     }
@@ -132,7 +131,7 @@
 
   function copyScript() {
     if (isSupported) {
-      copy(props.response.requestResults[0].responseResult.body);
+      copy(props.request.response.requestResults[0].responseResult.body);
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
@@ -142,16 +141,16 @@
   function getResponsePreContent(type: keyof typeof ResponseComposition) {
     switch (type) {
       case ResponseComposition.HEADER:
-        return props.response.requestResults[0].responseResult?.headers.trim();
+        return props.request.response.requestResults[0].responseResult?.headers.trim();
       case ResponseComposition.REAL_REQUEST:
-        return props.response.requestResults[0].body
+        return props.request.response.requestResults[0].body
           ? `${t('apiTestDebug.requestUrl')}:\n${props.request?.url}\n${t('apiTestDebug.header')}:\n${
-              props.response.requestResults[0].headers
-            }\nBody:\n${props.response.requestResults[0].body.trim()}`
+              props.request.response.requestResults[0].headers
+            }\nBody:\n${props.request.response.requestResults[0].body.trim()}`
           : '';
       // case ResponseComposition.EXTRACT:
-      //   return Object.keys(props.response.extract)
-      //     .map((e) => `${e}: ${props.response.extract[e]}`)
+      //   return Object.keys(props.request.response.extract)
+      //     .map((e) => `${e}: ${props.request.response.extract[e]}`)
       //     .join('\n'); // TODO:断言暂时没加
       default:
         return '';

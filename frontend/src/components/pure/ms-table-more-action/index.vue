@@ -8,7 +8,7 @@
     >
       <slot>
         <div :class="['ms-more-action-trigger-content', visible ? 'ms-more-action-trigger-content--focus' : '']">
-          <MsButton type="text" size="mini" class="more-icon-btn">
+          <MsButton type="text" size="mini" class="more-icon-btn" @click="visible = !visible">
             <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
           </MsButton>
         </div>

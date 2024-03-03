@@ -174,6 +174,9 @@
           id: 'fileId',
           name: 'fileName',
         }"
+        :file-save-as-source-id="props.fileSaveAsSourceId"
+        :file-save-as-api="props.fileSaveAsApi"
+        :file-module-options-api="props.fileModuleOptionsApi"
         input-class="param-input h-[24px]"
         input-size="small"
         tag-size="small"
@@ -469,6 +472,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
+  import { TransferFileParams } from '@/models/common';
   import { ProjectOptionItem } from '@/models/projectManagement/environmental';
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -518,6 +522,9 @@
         columnIndex: number;
       }) => { rowspan?: number; colspan?: number } | void;
       uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+      fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
+      fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
+      fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
     }>(),
     {
       params: () => [],
@@ -771,9 +778,11 @@
     () => props.params,
     (arr) => {
       if (arr.length > 0) {
-        // 后台存储无id，渲染时需要手动添加一次
+        let hasNoIdItem = false; // 是否有没有id的项，用以判断是否是后台数据初始化表格
         propsRes.value.data = arr.map((item, i) => {
           if (!item.id) {
+            // 后台存储无id，渲染时需要手动添加一次
+            hasNoIdItem = true;
             return {
               ...item,
               id: new Date().getTime() + i,
@@ -781,7 +790,7 @@
           }
           return item;
         });
-        if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
+        if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
           addTableLine(arr.length - 1);
         }
       } else {
@@ -816,18 +825,21 @@
     try {
       if (props.uploadTempFileApi && file?.local) {
         // 本地上传单次只能选一个文件
-        const fileItem = files[0];
         appStore.showLoading();
-        const res = await props.uploadTempFileApi(fileItem.file);
-        record.files = [
-          {
-            ...fileItem,
-            fileId: res.data,
-            fileName: fileItem.name || '',
-            local: true,
-          },
-        ];
+        const res = await props.uploadTempFileApi(file.file);
+        for (let i = 0; i < record.files.length; i++) {
+          const item = record.files[i];
+          if ([item.fileId, item.uid].includes(file.uid)) {
+            record.files[i] = {
+              ...file,
+              fileId: res.data,
+              fileName: file.name || '',
+            };
+            break;
+          }
+        }
       } else {
+        // 关联文件可选多个文件
         record.files = files.map((e) => ({
           ...e,
           fileId: e.uid || e.fileId || '',

@@ -1,7 +1,7 @@
 <template>
   <MsCard
     ref="fullRef"
-    :special-height="132"
+    :special-height="127"
     show-full-screen
     hide-back
     hide-footer
@@ -300,9 +300,10 @@
   );
 
   function handleToggleFullScreen(val: boolean) {
-    propsRes.value.heightUsed = val ? 224 : 428;
+    propsRes.value.heightUsed = val ? 214 : 428;
   }
 
+  // TODO:合并单元格 arco 组件暂时有 bug 未解决，已提 issue
   function spanMethod(data: {
     record: TableData;
     column: TableColumnData | TableOperationColumn;
