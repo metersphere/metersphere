@@ -1,5 +1,3 @@
-import { key } from 'localforage';
-
 import { TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
 

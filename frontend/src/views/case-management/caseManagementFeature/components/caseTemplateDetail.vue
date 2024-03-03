@@ -76,7 +76,7 @@
             :upload-image="handleUploadImage"
           />
         </a-form-item>
-        <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile" />
+        <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">

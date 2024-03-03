@@ -160,6 +160,9 @@
                   :layout="activeLayout"
                   :second-box-height="secondBoxHeight"
                   :upload-temp-file-api="props.uploadTempFileApi"
+                  :file-save-as-source-id="props.fileSaveAsSourceId"
+                  :file-save-as-api="props.fileSaveAsApi"
+                  :file-module-options-api="props.fileModuleOptionsApi"
                   @change="handleActiveDebugChange"
                 />
                 <debugQuery
@@ -208,11 +211,11 @@
             v-model:active-layout="activeLayout"
             v-model:active-tab="requestVModel.responseActiveTab"
             :is-expanded="isExpanded"
-            :response="requestVModel.response"
+            :response-definition="requestVModel.responseDefinition"
             :hide-layout-switch="props.hideResponseLayoutSwitch"
             :request="requestVModel"
-            :loading="requestVModel.executeLoading"
             :is-edit="props.isDefinition"
+            :upload-temp-file-api="props.uploadTempFileApi"
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
             @change="handleActiveDebugChange"
@@ -294,9 +297,9 @@
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { PluginConfig } from '@/models/apiTest/common';
+  import { PluginConfig, ResponseDefinition } from '@/models/apiTest/common';
   import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
-  import { ModuleTreeNode } from '@/models/common';
+  import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -324,7 +327,10 @@
     protocol: string;
     activeTab: RequestComposition;
   }
-  export type RequestParam = ExecuteHTTPRequestFullParams & RequestCustomAttr & TabItem;
+  export type RequestParam = ExecuteHTTPRequestFullParams & {
+    responseDefinition?: ResponseDefinition;
+  } & RequestCustomAttr &
+    TabItem;
 
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
@@ -337,6 +343,9 @@
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
+    fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
+    fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
     permissionMap: {
       execute: string;
       create: string;
@@ -528,7 +537,7 @@
         const formData = tempForm || requestVModel.value;
         if (fApi.value) {
           const form = {};
-          pluginScriptMap.value[requestVModel.value.protocol].fields?.forEach((key) => {
+          pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields?.forEach((key) => {
             form[key] = formData[key];
           });
           fApi.value?.setValue(form);

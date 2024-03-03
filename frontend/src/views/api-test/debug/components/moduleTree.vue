@@ -28,7 +28,13 @@
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
           </MsButton>
         </a-tooltip>
-        <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
+        <popConfirm
+          v-if="hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD'])"
+          mode="add"
+          :all-names="rootModulesName"
+          parent-id="NONE"
+          @add-finish="initModules"
+        >
           <MsButton v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"
@@ -87,8 +93,7 @@
         </template>
         <template #extra="nodeData">
           <popConfirm
-            v-if="nodeData.id !== 'root'"
-            v-permission="['PROJECT_API_DEBUG:READ+UPDATE']"
+            v-if="nodeData.id !== 'root' && hasAnyPermission(['PROJECT_API_DEBUG:READ+UPDATE'])"
             mode="rename"
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
@@ -102,8 +107,7 @@
           </popConfirm>
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
           <popConfirm
-            v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
-            v-permission="['PROJECT_API_DEBUG:READ+ADD']"
+            v-if="nodeData.id !== 'root' && nodeData.type !== 'API' && hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD'])"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"

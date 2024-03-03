@@ -86,4 +86,6 @@ export default {
   'apiTestManagement.setDefault': '设为默认',
   'apiTestManagement.confirmDelete': '确认删除 {name} 吗？',
   'apiTestManagement.response': '响应{count}',
+  'apiTestManagement.responseCode': '响应码',
+  'apiTestManagement.dynamicConversion': '动态转换',
 };

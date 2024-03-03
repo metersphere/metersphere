@@ -112,6 +112,6 @@ export const editorProps = {
   // 是否显示主题切换
   showThemeChange: {
     type: Boolean as PropType<boolean>,
-    default: true,
+    default: false,
   },
 };

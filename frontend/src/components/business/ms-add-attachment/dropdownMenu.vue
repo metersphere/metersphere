@@ -49,12 +49,13 @@
   const { t } = useI18n();
 
   const innerFileList = defineModel<MsFileItem[]>('fileList', {
-    required: true,
+    default: () => [],
   });
 
   const dropdownVisible = ref(false);
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    fileItem.local = true;
     emit('change', _fileList, fileItem);
     nextTick(() => {
       // emit 完文件之后再关闭菜单

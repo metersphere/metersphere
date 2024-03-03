@@ -7,6 +7,7 @@
     :cancel-button-props="{ disabled: loading }"
     :on-before-ok="beforeConfirm"
     :popup-container="props.popupContainer || 'body'"
+    :popup-offset="props.popupOffset"
     @popup-visible-change="reset"
   >
     <template #content>
@@ -72,6 +73,7 @@
     fieldConfig?: FieldConfig;
     parentId?: string; // 父节点 id
     nodeId?: string; // 节点 id
+    popupOffset?: number;
   }>();
 
   const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish', 'updateDescFinish']);

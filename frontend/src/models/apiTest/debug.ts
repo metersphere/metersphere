@@ -20,6 +20,8 @@ import {
   ResponseBodyXPathAssertionFormat,
 } from '@/enums/apiEnum';
 
+import { JsonSchema } from './common';
+
 // 条件操作类型
 export type ConditionType = RequestConditionProcessor;
 // 断言-匹配条件规则
@@ -78,15 +80,18 @@ export interface ExecuteBinaryBody {
   file?: {
     fileId: string;
     fileName: string;
+    fileAlias: string; // 文件别名
     local: boolean; // 是否是本地上传的文件
+    delete?: boolean; // 关联文件是否被删除
     [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
   };
+  sendAsBody?: boolean; // 是否作为正文发送，只有 mock 有此字段
 }
 // 接口请求json-body参数集合信息
 export interface ExecuteJsonBody {
   enableJsonSchema?: boolean;
   enableTransition?: boolean;
-  jsonSchema?: string;
+  jsonSchema?: JsonSchema;
   jsonValue: string;
 }
 // 执行请求配置

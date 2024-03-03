@@ -16,6 +16,7 @@ import {
   RegisterByInviteUrl,
   ResetPasswordUrl,
   UpdateUserUrl,
+  ValidInviteUrl,
 } from '@/api/requrls/setting/user';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -117,4 +118,9 @@ export function inviteUser(data: InviteUserParams) {
 // 用户注册
 export function registerByInvite(data: RegisterByInviteParams) {
   return MSR.post({ url: RegisterByInviteUrl, data });
+}
+
+// 检查邀请链接是否过期
+export function validInvite(id: string) {
+  return MSR.get({ url: ValidInviteUrl, params: id });
 }

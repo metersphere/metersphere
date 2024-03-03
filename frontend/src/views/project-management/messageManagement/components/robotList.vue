@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MsCard :min-width="1060" :special-height="132" simple>
+    <MsCard :min-width="1060" :special-height="127" simple>
       <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" closable @close="addVisited">
         {{ t('project.messageManagement.botListTips') }}
         <template #close-element>
@@ -414,7 +414,9 @@
           innerHTML: `<div>${t(
             robot.enable ? 'project.messageManagement.disableContent' : 'project.messageManagement.enableContent',
             { robot: robot.name }
-          )}</div><div>${robot.platform === 'MAIL' && !robot.enable ? t('project.messageManagement.enableEmailContentTip') : ''}</div>`,
+          )}</div><div>${
+            robot.platform === 'MAIL' && !robot.enable ? t('project.messageManagement.enableEmailContentTip') : ''
+          }</div>`,
         }),
       okText: t(robot.enable ? 'project.messageManagement.disableConfirm' : 'project.messageManagement.enableConfirm', {
         robot: robot.name,

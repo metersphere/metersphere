@@ -12,6 +12,8 @@ import {
   LocalExecuteApiDebugUrl,
   MoveDebugModuleUrl,
   TestMockUrl,
+  TransferFileUrl,
+  TransferOptionsUrl,
   UpdateApiDebugUrl,
   UpdateDebugModuleUrl,
   UploadTempFileUrl,
@@ -25,7 +27,7 @@ import {
   UpdateDebugModule,
   UpdateDebugParams,
 } from '@/models/apiTest/debug';
-import { DragSortParams, ModuleTreeNode, MoveModules } from '@/models/common';
+import { DragSortParams, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
 
 // 获取模块树
 export function getDebugModules() {
@@ -100,4 +102,14 @@ export function testMock(key: string) {
 // 上传文件
 export function uploadTempFile(file: File) {
   return MSR.uploadFile({ url: UploadTempFileUrl }, { fileList: [file] }, 'file');
+}
+
+// 文件转存
+export function transferFile(data: TransferFileParams) {
+  return MSR.post({ url: TransferFileUrl, data });
+}
+
+// 文件转存目录
+export function getTransferOptions(projectId: string) {
+  return MSR.get({ url: TransferOptionsUrl, params: projectId });
 }

@@ -2,15 +2,15 @@
   <div class="condition-content">
     <!-- 脚本操作 -->
     <template v-if="condition.processorType === RequestConditionProcessor.SCRIPT">
-      <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[16px]">
+      <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[8px]">
         <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
         <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
       </a-radio-group>
       <div
         v-if="!condition.enableCommonScript"
-        class="relative flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
+        class="relative flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)]"
       >
-        <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] z-10 w-[calc(100%-24px)]">
+        <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] top-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
             ref="scriptNameInputRef"
             v-model:model-value="condition.scriptName"
@@ -21,12 +21,12 @@
             @blur="isShowEditScriptNameInput = false"
           />
         </div>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between px-[12px] pt-[12px]">
           <div class="flex items-center">
-            <a-tooltip :content="condition.commonScriptInfo?.name">
+            <a-tooltip :content="condition.scriptName">
               <div class="script-name-container">
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
-                  {{ condition.commonScriptInfo?.name }}
+                  {{ condition.scriptName }}
                 </div>
                 <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
               </div>
@@ -741,7 +741,7 @@ if (!result){
     @apply flex flex-1 flex-col overflow-y-auto;
     .ms-scroll-bar();
 
-    padding: 16px;
+    padding: 8px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
     .script-name-container {

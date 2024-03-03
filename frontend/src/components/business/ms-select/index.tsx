@@ -173,7 +173,7 @@ export default defineComponent(
                 if (e[key]?.toLowerCase().includes(val.toLowerCase())) {
                   // 是否匹配
                   hasMatch = true;
-                  item[props.labelKey || 'label'] = e[key].replace(new RegExp(val, 'gi'), highlightedKeyword); // 高亮关键字替换
+                  item[key] = e[key].replace(new RegExp(val, 'gi'), highlightedKeyword); // 高亮关键字替换
                 }
               }
             }

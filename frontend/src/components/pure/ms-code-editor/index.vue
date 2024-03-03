@@ -1,7 +1,7 @@
 <template>
   <div
     ref="fullRef"
-    class="h-full overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
+    class="flex h-full flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
   >
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">
@@ -33,11 +33,11 @@
           <span class="flex items-center gap-[4px] font-medium">{{ title }}</span>
         </slot>
       </div>
-      <div>
+      <div class="ml-auto flex items-center gap-[8px]">
         <slot name="rightTitle"> </slot>
         <div
           v-if="showFullScreen"
-          class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+          class="cursor-pointer text-right !text-[var(--color-text-4)]"
           @click="toggleFullScreen"
         >
           <MsIcon v-if="isFullScreen" type="icon-icon_minify_outlined" />
@@ -46,12 +46,8 @@
         </div>
       </div>
     </div>
-    <!-- 这里的 36px 是顶部标题的 36px -->
-    <div
-      :class="`flex ${
-        showTitleLine ? 'h-[calc(100%-32px)]' : 'h-full'
-      } w-full flex-row overflow-hidden rounded-[var(--border-radius-small)]`"
-    >
+    <!-- 这里的 32px 是顶部标题的 32px -->
+    <div class="flex w-full flex-1 flex-row rounded-[var(--border-radius-small)]">
       <div
         ref="codeContainerRef"
         :class="['ms-code-editor', isFullScreen ? 'ms-code-editor-full-screen' : '', currentTheme]"
@@ -327,7 +323,7 @@
 
 <style lang="less" scoped>
   .ms-code-editor {
-    @apply z-10 overflow-hidden;
+    @apply z-10;
 
     width: v-bind(width);
     height: v-bind(height);
@@ -335,6 +331,9 @@
       :deep(.mtk1) {
         color: rgb(var(--primary-5));
       }
+    }
+    :deep(.overflowingContentWidgets) {
+      z-index: 9999;
     }
   }
   .ms-code-editor-full-screen {

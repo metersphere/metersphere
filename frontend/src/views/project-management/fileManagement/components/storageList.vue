@@ -35,6 +35,7 @@
       </template>
       <template #itemAction="{ item }">
         <popConfirm
+          v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
           mode="repositoryRename"
           :node-id="item.id"
           :field-config="{ field: renameStorageTitle }"
@@ -161,6 +162,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
   import { validateGitUrl } from '@/utils/validate';
 
   import { Repository, RepositoryInfo } from '@/models/projectManagement/file';

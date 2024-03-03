@@ -9,20 +9,21 @@
             {{ t('system.orgTemplate.addAttachment') }}
           </a-button>
           <template #content>
-            <a-upload
-              ref="uploadRef"
+            <MsUpload
               v-model:file-list="innerFileList"
-              :limit="50"
+              accept="none"
               :auto-upload="false"
               :show-file-list="false"
+              :limit="50"
+              size-unit="MB"
+              :multiple="props.multiple"
+              class="w-full"
               @change="handleChange"
             >
-              <template #upload-button>
-                <a-button type="text" class="arco-dropdown-option !text-[var(--color-text-1)]">
-                  <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
-                </a-button>
-              </template>
-            </a-upload>
+              <a-button type="text" class="arco-dropdown-option !text-[var(--color-text-1)]">
+                <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
+              </a-button>
+            </MsUpload>
             <a-button type="text" class="arco-dropdown-option !text-[var(--color-text-1)]" @click="associatedFile">
               <MsIcon type="icon-icon_link-copy_outlined" size="16" />
               {{ t('caseManagement.featureCase.associatedFile') }}
@@ -36,13 +37,26 @@
     </div>
   </a-form-item>
   <template v-else>
-    <div v-if="props.multiple" class="flex w-full items-center gap-[4px]">
-      <dropdownMenu v-model:file-list="innerFileList" @link-file="associatedFile" @change="handleChange" />
+    <div v-if="props.multiple" class="flex w-full items-center">
+      <dropdownMenu @link-file="associatedFile" @change="handleChange" />
+      <saveAsFilePopover
+        v-if="props.fileSaveAsSourceId"
+        v-model:visible="saveFilePopoverVisible"
+        :saving-file="savingFile"
+        :file-id-key="props.fields.id"
+        :file-save-as-api="props.fileSaveAsApi"
+        :file-save-as-source-id="props.fileSaveAsSourceId"
+        :file-module-options-api="props.fileModuleOptionsApi"
+        @finish="handleSaveFileFinish"
+      />
       <a-popover
         v-model:popup-visible="inputFilesPopoverVisible"
         trigger="click"
-        position="bottom"
+        position="bl"
         :disabled="inputFiles.length === 0"
+        content-class="ms-add-attachment-files-popover"
+        arrow-class="hidden"
+        :popup-offset="0"
       >
         <MsTagsInput
           v-model:model-value="inputFiles"
@@ -104,7 +118,7 @@
                   </a-tooltip>
                   <div v-if="file.local === true" class="flex items-center">
                     <a-tooltip :content="t('ms.add.attachment.saveAs')">
-                      <MsButton type="text" status="secondary" class="!mr-0" @click="handleClose(file)">
+                      <MsButton type="text" status="secondary" class="!mr-0" @click="handleOpenSaveAs(file)">
                         <MsIcon type="icon-icon_unloading" class="hover:text-[rgb(var(--primary-5))]" size="16" />
                       </MsButton>
                     </a-tooltip>
@@ -132,7 +146,7 @@
       </a-popover>
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
-      <dropdownMenu v-model:file-list="innerFileList" @link-file="associatedFile" @change="handleChange" />
+      <dropdownMenu @link-file="associatedFile" @change="handleChange" />
       <a-input
         v-model:model-value="inputFileName"
         :class="props.inputClass"
@@ -163,22 +177,24 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import dropdownMenu from './dropdownMenu.vue';
+  import saveAsFilePopover from './saveAsFilePopover.vue';
 
   import { getAssociatedFileListUrl } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
 
   import { AssociatedList } from '@/models/caseManagement/featureCase';
-  import { TableQueryParams } from '@/models/common';
+  import { TableQueryParams, TransferFileParams } from '@/models/common';
 
   import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = withDefaults(
     defineProps<{
-      mode: 'button' | 'input';
+      mode?: 'button' | 'input';
       fileList: MsFileItem[]; // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性
       multiple?: boolean;
       inputClass?: string;
@@ -188,6 +204,9 @@
         id: string; // 自定义文件的 id 字段名，用于详情展示，接口返回的字段名
         name: string;
       };
+      fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
+      fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
+      fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
     }>(),
     {
       mode: 'button',
@@ -243,7 +262,6 @@
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     // 校验本地文件是否重复
     const isRepeat = _fileList.filter((item) => item.name === fileItem.name).length > 1;
-    debugger;
     if (isRepeat) {
       Message.error(t('ms.add.attachment.repeatFileTip'));
       innerFileList.value = _fileList.reduce((prev: MsFileItem[], current: MsFileItem) => {
@@ -253,24 +271,21 @@
         }
         return prev;
       }, []);
-    } else {
-      innerFileList.value = _fileList.map((item) => ({ ...item, local: true }));
-      if (props.multiple) {
-        inputFiles.value = _fileList.map((item) => ({
-          ...item,
-          value: item?.uid || '',
-          label: item?.name || '',
-          local: true,
-        }));
-      } else {
-        inputFileName.value = fileItem.name || '';
-      }
-      emit('change', _fileList, { ...fileItem, local: true });
-      nextTick(() => {
-        // 在 emit 文件上去之后再关闭菜单
-        buttonDropDownVisible.value = false;
+    } else if (props.multiple) {
+      innerFileList.value.push(fileItem);
+      inputFiles.value.push({
+        ...fileItem,
+        value: fileItem[props.fields.id] || fileItem.uid || '',
+        label: fileItem[props.fields.name] || fileItem.name || '',
       });
+    } else {
+      inputFileName.value = fileItem.name || '';
     }
+    emit('change', _fileList, { ...fileItem, local: true });
+    nextTick(() => {
+      // 在 emit 文件上去之后再关闭菜单
+      buttonDropDownVisible.value = false;
+    });
   }
 
   function associatedFile() {
@@ -309,8 +324,9 @@
       );
     } else {
       // 单选文件
-      innerFileList.value = fileResultList;
-      inputFileName.value = fileResultList[0].name || '';
+      const file = fileResultList[0];
+      innerFileList.value = [{ ...file, fileId: file.uid || '', fileName: file.name || '' }];
+      inputFileName.value = file.name || '';
     }
     emit('change', innerFileList.value);
   }
@@ -344,7 +360,37 @@
     innerFileList.value = [];
     emit('change', []);
   }
+
+  const saveFilePopoverVisible = ref(false);
+  const savingFile = ref<MsFileItem>();
+
+  /**
+   * 打开文件转存弹窗
+   * @param item 点击转存的文件标签项
+   */
+  function handleOpenSaveAs(item: TagData) {
+    inputFilesPopoverVisible.value = false;
+    // 这里先判定 uid 是否存在，存在则是刚上传的文件；否则是已保存过后的详情文件
+    savingFile.value = innerFileList.value.find((file) => (file.uid || file[props.fields.id]) === item.value);
+    saveFilePopoverVisible.value = true;
+  }
+
+  function handleSaveFileFinish(fileId: string) {
+    if (savingFile.value) {
+      savingFile.value.fileId = fileId;
+      savingFile.value.local = false;
+    }
+  }
 </script>
+
+<style lang="less">
+  .ms-add-attachment-files-popover {
+    padding: 16px;
+    .arco-popover-content {
+      margin-top: 0;
+    }
+  }
+</style>
 
 <style lang="less" scoped>
   .file-list {

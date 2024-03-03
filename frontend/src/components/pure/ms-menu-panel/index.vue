@@ -29,7 +29,7 @@
 <script setup lang="ts">
   import { hasAllPermission } from '@/utils/permission';
 
-  interface MenuItem {
+  export interface MenuItem {
     title: string;
     level: number;
     name: string;

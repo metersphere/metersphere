@@ -7,7 +7,7 @@ export default {
   'ms.personal.apiKey': 'APIKEY',
   'ms.personal.tripartite': '三方平台账号',
   'ms.personal.changeAvatar': '更换头像',
-  'ms.personal.name': '用户姓名',
+  'ms.personal.name': '用户名称',
   'ms.personal.namePlaceholder': '请输入用户名称',
   'ms.personal.nameRequired': '用户名称不能为空',
   'ms.personal.email': '邮箱',

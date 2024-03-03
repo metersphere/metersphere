@@ -24,8 +24,12 @@
                   <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
                 </MsButton>
               </a-tooltip>
-              <a-dropdown trigger="click" @select="handleAddSelect">
-                <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
+              <a-dropdown
+                v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])"
+                trigger="click"
+                @select="handleAddSelect"
+              >
+                <MsButton type="icon" class="!mr-0 p-[2px]">
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -38,7 +42,7 @@
                 </template>
               </a-dropdown>
               <popConfirm
-                v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']"
+                v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])"
                 mode="add"
                 :all-names="rootModulesName"
                 parent-id="none"
@@ -104,6 +108,7 @@
 
   import { getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { FileListQueryParams } from '@/models/projectManagement/file';
 
@@ -246,7 +251,7 @@
     @apply bg-white;
 
     min-width: 1000px;
-    height: calc(100vh - 88px);
+    height: calc(100vh - 76px);
     border-radius: var(--border-radius-large);
     .folder {
       @apply flex cursor-pointer items-center justify-between;

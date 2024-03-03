@@ -41,6 +41,9 @@
               :execute-api="executeDebug"
               :local-execute-api="localExecuteApiDebug"
               :upload-temp-file-api="uploadTempFile"
+              :file-save-as-source-id="activeDebug.id"
+              :file-save-as-api="transferFile"
+              :file-module-options-api="getTransferOptions"
               :permission-map="{
                 execute: 'PROJECT_API_DEBUG:READ+EXECUTE',
                 update: 'PROJECT_API_DEBUG:READ+UPDATE',
@@ -104,7 +107,9 @@
     addDebug,
     executeDebug,
     getDebugDetail,
+    getTransferOptions,
     localExecuteApiDebug,
+    transferFile,
     updateDebug,
     uploadTempFile,
   } from '@/api/modules/api-test/debug';

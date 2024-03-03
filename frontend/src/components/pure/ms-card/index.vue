@@ -28,7 +28,7 @@
             >
               <MsIcon v-if="isFullScreen" type="icon-icon_minify_outlined" />
               <MsIcon v-else type="icon-icon_magnify_outlined" />
-              {{ t('msCodeEditor.fullScreen') }}
+              {{ t(isFullScreen ? 'common.offFullScreen' : 'common.fullScreen') }}
             </div>
           </div>
           <div v-if="$slots.subHeader" class="basis-full">
@@ -88,7 +88,7 @@
         hideFooter: boolean; // 隐藏底部栏
         loading: boolean; // 卡片 loading 状态
         isEdit: boolean; // 是否编辑状态
-        specialHeight: number; // 特殊高度，例如某些页面有面包屑
+        specialHeight: number; // 特殊高度，例如某些页面有面包屑，autoHeight 时无效
         hideBack: boolean; // 隐藏返回按钮
         autoHeight: boolean; // 内容区域高度是否自适应
         otherWidth: number; // 该宽度为卡片外部同级容器的宽度
@@ -145,32 +145,17 @@
 
   const cardOverHeight = computed(() => {
     if (isFullScreen.value) {
-      if (props.hideFooter) {
-        // 隐藏底部
-        return 62;
-      }
-      return 142;
+      return 106;
     }
     if (props.simple) {
       // 简单模式没有标题、没有底部
       return props.noContentPadding ? 76 + _specialHeight : 124 + _specialHeight;
     }
-    if (props.hideFooter) {
-      // 隐藏底部
-      return props.noContentPadding ? 140 + _specialHeight : 180 + _specialHeight;
-    }
-    return 264 + _specialHeight;
+    return 190 + _specialHeight;
   });
 
   const getComputedContentStyle = computed(() => {
-    if (props.isFullscreen || isFullScreen.value) {
-      return {
-        overflow: 'auto',
-        width: 'auto',
-        height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
-      };
-    }
-    if (props.noContentPadding) {
+    if (props.isFullscreen || isFullScreen.value || props.noContentPadding) {
       return {
         overflow: 'auto',
         width: 'auto',

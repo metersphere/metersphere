@@ -107,6 +107,7 @@
     RequestBodyFormat,
     RequestComposition,
     RequestMethods,
+    ResponseBodyFormat,
     ResponseComposition,
   } from '@/enums/apiEnum';
 
@@ -250,6 +251,25 @@
     },
     responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
+    responseDefinition: {
+      id: 'default',
+      defaultFlag: true,
+      name: t('common.success'),
+      headers: [],
+      body: {
+        bodyType: ResponseBodyFormat.JSON,
+        jsonBody: {
+          jsonValue: '',
+        },
+        xmlBody: { value: '' },
+        binaryBody: {
+          description: '',
+          file: undefined,
+        },
+        rawBody: { value: '' },
+      },
+      statusCode: 200,
+    },
     isNew: true,
   };
 

@@ -194,12 +194,18 @@
         ></MsBatchForm>
         <!-- TODO:代码编辑器懒加载 -->
         <div v-show="form.addType === 'multiple'">
-          <MsCodeEditor v-model:model-value="editorContent" width="100%" height="400px" theme="MS-text">
-            <template #rightTitle>
+          <MsCodeEditor
+            v-model:model-value="editorContent"
+            width="100%"
+            height="400px"
+            theme="MS-text"
+            :show-theme-change="false"
+          >
+            <template #leftTitle>
               <a-form-item
                 :label="t('system.resourcePool.batchAddResource')"
                 asterisk-position="end"
-                class="hide-wrapper mb-0"
+                class="hide-wrapper mb-0 w-auto"
                 required
               >
               </a-form-item>
@@ -345,6 +351,7 @@
   import { computed, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { isEmpty } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -586,8 +593,10 @@
     for (let i = 0; i < nodesList?.length; i++) {
       const node = nodesList[i];
       // 按顺序拼接：ip、port、monitor、concurrentNumber
-      if (Object.values(node).every((e) => e !== '')) {
-        res += `${node.ip},${node.port},${node.monitor},${node.concurrentNumber}\r`;
+      if (!Object.values(node).every((e) => isEmpty(e))) {
+        res += `${node.ip},${node.port === undefined ? '' : node.port},${
+          node.monitor === undefined ? '' : node.monitor
+        },${node.concurrentNumber === undefined ? '' : node.concurrentNumber}\r`;
       }
     }
     editorContent.value = res;
@@ -792,7 +801,7 @@
    * 校验批量添加的资源信息
    * @param cb 校验通过后的回调函数
    */
-  function validateBtachNodes(cb: () => void) {
+  function validateBatchNodes(cb: () => void) {
     if (
       form.value.testResourceDTO.nodesList.some((e) => {
         return Object.values(e).every((v) => v !== '') && e.concurrentNumber > 0;
@@ -824,7 +833,7 @@
           }
           // node 资源批量添加时，先将代码编辑器的值解析到表单对象中，再校验
           analyzeCode();
-          validateBtachNodes(save);
+          validateBatchNodes(save);
           return false;
         }
         return save();
