@@ -527,7 +527,6 @@
   .page {
     @apply bg-white;
 
-    min-width: 1000px;
     height: calc(100vh - 88px);
     border-radius: var(--border-radius-large);
   }

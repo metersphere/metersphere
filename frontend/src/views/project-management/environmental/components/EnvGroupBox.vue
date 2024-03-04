@@ -178,12 +178,16 @@
 
 <style lang="less" scoped>
   .page {
+    position: relative;
     transform: scale3d(1, 1, 1);
+    height: 100%;
     .header {
+      overflow-y: auto;
       padding: 24px 24px 0;
+      max-height: calc(100% - 100px);
+      background-color: #ffffff;
     }
     .footer {
-      gap: 16px;
       position: fixed;
       right: 0;
       bottom: 0;
@@ -191,7 +195,9 @@
       display: flex;
       justify-content: flex-end;
       padding: 24px;
+      background-color: #ffffff;
       box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
+      gap: 16px;
     }
   }
 </style>
