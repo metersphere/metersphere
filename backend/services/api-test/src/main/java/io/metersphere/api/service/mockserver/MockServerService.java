@@ -75,8 +75,7 @@ public class MockServerService {
         LogUtils.info("Mock [" + url + "] request:{}", JSON.toJSONString(requestMockParams));
         ApiDefinitionMockConfig compareMockConfig = this.match(apiDefinition.getId(), requestHeaderMap, requestMockParams);
         try {
-            Object returnObj = this.getReturn(compareMockConfig, apiDefinition.getId(), apiDefinition.getProjectId(), response);
-            return returnObj;
+            return this.getReturn(compareMockConfig, apiDefinition.getId(), apiDefinition.getProjectId(), response);
         } catch (Exception e) {
             return this.requestNotFound(response);
         }
@@ -158,7 +157,7 @@ public class MockServerService {
             return StringUtils.EMPTY;
         } else {
             if (StringUtils.equalsIgnoreCase(responseBody.getBodyType(), Body.BodyType.JSON.name())) {
-                return responseBody.getJsonBody().getJsonValue();
+                return responseBody.getJsonBody().getJsonWithSchema();
             } else if (StringUtils.equalsIgnoreCase(responseBody.getBodyType(), Body.BodyType.XML.name())) {
                 return responseBody.getXmlBody().getValue();
             } else if (StringUtils.equalsIgnoreCase(responseBody.getBodyType(), Body.BodyType.RAW.name())) {
