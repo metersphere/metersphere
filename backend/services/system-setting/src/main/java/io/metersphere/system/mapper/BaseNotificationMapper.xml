@@ -2,22 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.system.mapper.BaseNotificationMapper">
 
-    <select id="listNotification" resultType="io.metersphere.project.domain.Notification">
-        SELECT * FROM notification
-        WHERE receiver = #{request.receiver} AND create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
+    <select id="listNotification" resultType="io.metersphere.system.log.dto.NotificationDTO">
+        SELECT *,  u.name as userName,
+        ux.avatar as userLogo FROM notification
+        left join user u on  notification.operator = u.id
+        left join user_extend ux on  notification.operator = ux.id
+        WHERE notification.receiver = #{request.receiver} AND notification.create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
         <if test='request.title != null and request.title != ""'>
-            AND ( title LIKE #{request.title} OR content LIKE #{request.title} )
+            AND ( notification.title LIKE #{request.title} OR notification.content LIKE #{request.title} )
         </if>
         <if test='request.type != null and request.type != ""'>
-            AND type = #{request.type}
+            AND notification.type = #{request.type}
         </if>
         <if test='request.status != null and request.status != ""'>
-            AND status = #{request.status}
+            AND notification.status = #{request.status}
         </if>
-        <if test='request.resourceType != null and notificationRequest.resourceType != ""'>
-            AND resource_type LIKE #{request.resourceType}
+        <if test='request.resourceType != null and request.resourceType != ""'>
+            AND notification.resource_type LIKE #{request.resourceType}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY notification.create_time DESC
     </select>
 
 </mapper>

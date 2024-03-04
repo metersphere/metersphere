@@ -1,12 +1,12 @@
 package io.metersphere.system.service;
 
 
-
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.NotificationRequest;
+import io.metersphere.system.log.dto.NotificationDTO;
 import io.metersphere.system.mapper.BaseNotificationMapper;
 import io.metersphere.system.notice.constants.NotificationConstants;
 import jakarta.annotation.Resource;
@@ -29,10 +29,8 @@ public class NotificationService {
     @Resource
     private BaseNotificationMapper baseNotificationMapper;
 
-    public List<Notification> listNotification(NotificationRequest notificationRequest, String userId) {
-        if (StringUtils.isBlank(notificationRequest.getReceiver())) {
-            notificationRequest.setReceiver(userId);
-        }
+    public List<NotificationDTO> listNotification(NotificationRequest notificationRequest, String userId) {
+        buildParam(notificationRequest, userId);
         return baseNotificationMapper.listNotification(notificationRequest);
     }
 
@@ -54,10 +52,8 @@ public class NotificationService {
 
     public List<OptionDTO> countNotification(NotificationRequest notificationRequest, String userId) {
         List<OptionDTO>optionDTOS = new ArrayList<>();
-        if (StringUtils.isBlank(notificationRequest.getReceiver())) {
-            notificationRequest.setReceiver(userId);
-        }
-        List<Notification> notifications = baseNotificationMapper.listNotification(notificationRequest);
+        buildParam(notificationRequest, userId);
+        List<NotificationDTO> notifications = baseNotificationMapper.listNotification(notificationRequest);
         OptionDTO totalOptionDTO = new OptionDTO();
         totalOptionDTO.setId("total");
         totalOptionDTO.setName(String.valueOf(notifications.size()));
@@ -66,13 +62,22 @@ public class NotificationService {
         return optionDTOS;
     }
 
-    private static void buildSourceCount(List<Notification> notifications, List<OptionDTO> optionDTOS) {
+    private static void buildParam(NotificationRequest notificationRequest, String userId) {
+        if (StringUtils.isNotBlank(notificationRequest.getTitle())) {
+            notificationRequest.setTitle("%" + notificationRequest.getTitle() + "%");
+        }
+        if (StringUtils.isNotBlank(notificationRequest.getResourceType())) {
+            notificationRequest.setResourceType("%" + notificationRequest.getResourceType() + "%");
+        }
+        if (StringUtils.isBlank(notificationRequest.getReceiver())) {
+            notificationRequest.setReceiver(userId);
+        }
+    }
+
+    private static void buildSourceCount(List<NotificationDTO> notifications, List<OptionDTO> optionDTOS) {
         Map<String,Integer>countMap = new HashMap<>();
         Map<String, List<Notification>> resourceMap = notifications.stream().collect(Collectors.groupingBy(Notification::getResourceType));
         resourceMap.forEach((k,v)->{
-            if (k.contains("TEST_PLAN")) {
-                countMap.merge("TEST_PLAN", v.size(), Integer::sum);
-            }
             if (k.contains("BUG")) {
                 countMap.merge("BUG", v.size(), Integer::sum);
             }
@@ -82,20 +87,14 @@ public class NotificationService {
             if (k.contains("API")) {
                 countMap.merge("API", v.size(), Integer::sum);
             }
-            if (k.contains("UI")) {
-                countMap.merge("UI", v.size(), Integer::sum);
-            }
-            if (k.contains("LOAD")) {
-                countMap.merge("LOAD", v.size(), Integer::sum);
-            }
-            if (k.contains("JENKINS")) {
-                countMap.merge("JENKINS", v.size(), Integer::sum);
+            if (k.contains("SCHEDULE")) {
+                countMap.merge("SCHEDULE", v.size(), Integer::sum);
             }
         });
         countMap.forEach((k,v)->{
             OptionDTO optionDTO = new OptionDTO();
-            optionDTO.setId("total");
-            optionDTO.setName(String.valueOf(notifications.size()));
+            optionDTO.setId(k);
+            optionDTO.setName(String.valueOf(v));
             optionDTOS.add(optionDTO);
         });
     }

@@ -8,6 +8,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.NotificationRequest;
+import io.metersphere.system.log.dto.NotificationDTO;
 import io.metersphere.system.notice.constants.NotificationConstants;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -57,14 +58,14 @@ public class NotificationControllerTests extends BaseTest {
         notificationRequest.setCurrent(1);
         notificationRequest.setReceiver("admin");
         notificationRequest.setType("SYSTEM_NOTICE");
+        notificationRequest.setResourceType("CASE");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(NOTIFICATION_LIST_PAGE, notificationRequest);
-        Pager<List<Notification>> tableData = JSON.parseObject(JSON.toJSONString(
+        Pager<List<NotificationDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(tableData.getCurrent(), notificationRequest.getCurrent());
         Assertions.assertFalse(tableData.getList().isEmpty());
-
     }
 
     @Test
