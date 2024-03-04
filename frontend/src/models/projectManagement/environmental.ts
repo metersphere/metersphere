@@ -41,8 +41,14 @@ export interface ProcessorConfig {
 export interface AssertionConfig {
   assertions: EnvConfigItem[];
 }
+
+export interface CommonParams {
+  requestTimeout: number;
+  responseTimeout: number;
+  [key: string]: any;
+}
 export interface EnvConfig {
-  commonParams?: EnvConfigItem;
+  commonParams?: CommonParams;
   commonVariables: EnvConfigItem[];
   httpConfig: EnvConfigItem[];
   dataSources: DataSourceItem[];
