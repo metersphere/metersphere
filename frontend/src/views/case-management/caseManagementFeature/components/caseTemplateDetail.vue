@@ -650,7 +650,6 @@
   }
 
   function handleChange(_fileList: MsFileItem[]) {
-    // 校验本地文件重复
     fileList.value = _fileList.map((e) => {
       return {
         ...e,

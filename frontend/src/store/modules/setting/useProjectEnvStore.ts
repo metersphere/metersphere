@@ -5,12 +5,18 @@ import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-manage
 import { useAppStore } from '@/store';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
-import { ContentTabItem, ContentTabsMap, EnvDetailItem, GlobalParams } from '@/models/projectManagement/environmental';
+import {
+  ContentTabItem,
+  ContentTabsMap,
+  EnvConfig,
+  EnvDetailItem,
+  GlobalParams,
+} from '@/models/projectManagement/environmental';
 
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
 export const NEW_ENV_GROUP = 'newEnvGroup';
-const envParamsDefaultConfig = {
+const envParamsDefaultConfig: EnvConfig = {
   commonVariables: [],
   httpConfig: [],
   dataSources: [],
@@ -19,10 +25,23 @@ const envParamsDefaultConfig = {
     hosts: [],
   },
   preProcessorConfig: {
-    apiProcessorConfig: [],
+    apiProcessorConfig: {
+      scenarioProcessorConfig: {
+        processors: [],
+      },
+    },
+
+    // TODO 环境参数问题
+    // apiProcessorConfig: [],
   },
   postProcessorConfig: {
-    apiProcessorConfig: [],
+    // TODO 环境参数问题
+    // apiProcessorConfig: [],
+    apiProcessorConfig: {
+      scenarioProcessorConfig: {
+        processors: [],
+      },
+    },
   },
   assertionConfig: { assertions: [] },
   pluginConfigMap: {},
@@ -72,6 +91,7 @@ const useProjectEnvStore = defineStore(
       const appStore = useAppStore();
       try {
         if (id === NEW_ENV_PARAM) {
+          // TODO 数据参数问题
           currentEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',

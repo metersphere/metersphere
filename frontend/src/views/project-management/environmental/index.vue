@@ -59,7 +59,7 @@
                   v-model="envList"
                   ghost-class="ghost"
                   handle=".drag-handle"
-                  @update="handleEnvGroupPosChange($event, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
+                  @update="handleEnvGroupPosChange($event, EnvAuthTypeEnum.ENVIRONMENT)"
                 >
                   <div
                     v-for="element in envList"
@@ -385,6 +385,19 @@
     await initGroupList();
     store.setCurrentGroupId(id);
   };
+
+  const initData = async (keywordStr = '') => {
+    try {
+      envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+      if (showType.value === 'PROJECT_GROUP') {
+        initGroupList(keywordStr);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
   // 排序更新
   const handleEnvGroupPosChange = async (event: SortableEvent, type: EnvAuthTypeEnum) => {
     try {
@@ -396,8 +409,8 @@
       const _newIndex = newIndex as number;
       const params = {
         projectId: appStore.currentProjectId,
-        targetId: evnGroupList.value[_oldIndex].id,
-        moveId: evnGroupList.value[_newIndex].id,
+        targetId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_oldIndex].id : evnGroupList.value[_oldIndex].id,
+        moveId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_newIndex].id : evnGroupList.value[_newIndex].id,
         moveMode: _oldIndex > _newIndex ? 'BEFORE' : 'AFTER',
       };
       if (type === EnvAuthTypeEnum.ENVIRONMENT) {
@@ -405,21 +418,10 @@
       } else if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
         await groupEditPosEnv(params);
       }
+      initData();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-    }
-  };
-
-  const initData = async (keywordStr = '') => {
-    try {
-      envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
-      if (showType.value === 'PROJECT_GROUP') {
-        initGroupList(keywordStr);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
     }
   };
 

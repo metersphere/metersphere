@@ -32,7 +32,11 @@ export interface EnvConfigItem {
   [key: string]: any;
 }
 export interface ProcessorConfig {
-  apiProcessorConfig: ExecuteConditionProcessor[];
+  apiProcessorConfig: {
+    scenarioProcessorConfig: {
+      processors: ExecuteConditionProcessor[];
+    };
+  };
 }
 export interface AssertionConfig {
   assertions: EnvConfigItem[];
@@ -43,6 +47,7 @@ export interface EnvConfig {
   httpConfig: EnvConfigItem[];
   dataSources: DataSourceItem[];
   hostConfig: EnvConfigItem;
+  // TODO  数据参数有问题
   preProcessorConfig: ProcessorConfig;
   postProcessorConfig: ProcessorConfig;
   assertionConfig: AssertionConfig;

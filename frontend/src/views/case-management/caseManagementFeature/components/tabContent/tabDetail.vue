@@ -99,7 +99,7 @@
           {{ t('common.save') }}
         </a-button></div
       >
-      <a-form-item v-if="props.allowEdit" field="attachment" :label="t('caseManagement.featureCase.attachment')">
+      <!-- <a-form-item v-if="props.allowEdit" field="attachment" :label="t('caseManagement.featureCase.attachment')">
         <div class="flex flex-col">
           <div class="mb-1">
             <a-dropdown position="tr" trigger="hover">
@@ -132,7 +132,8 @@
             {{ t('system.orgTemplate.addAttachmentTip') }}
           </div>
         </div>
-      </a-form-item>
+      </a-form-item> -->
+      <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
     </a-form>
     <!-- 文件列表开始 -->
     <div class="w-[90%]">
@@ -265,6 +266,7 @@
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from '../addStep.vue';
   import TransferModal from './transferModal.vue';
@@ -635,21 +637,12 @@
       console.log(error);
     }
   }
-  // 文件列表单个上传
-  watch(
-    () => fileList.value,
-    async (val) => {
-      const isNewFiles = val.filter((item) => item.status === 'init').length;
-      if (val && isNewFiles) {
-        startUpload();
-      }
-    }
-  );
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+    // const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
-    // fileList.value.push(...fileResultList);
+    fileList.value.push(...fileResultList);
     const fileIds = fileResultList.map((item: any) => item.uid);
     startUpload(fileIds);
   }
@@ -671,14 +664,27 @@
     return data;
   }
 
-  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
-    fileList.value = _fileList.map((e) => {
-      return {
-        ...e,
-        enable: true, // 是否启用
-        local: true, // 是否本地文件
-      };
-    });
+  function handleChange(_fileList: MsFileItem[], fileItem?: MsFileItem) {
+    // 校验本地文件是否重复
+    const isRepeat = _fileList.filter((item) => item.name === fileItem?.name).length > 1;
+    if (isRepeat) {
+      fileList.value = _fileList.reduce((prev: MsFileItem[], current: MsFileItem) => {
+        const isExist = prev.find((item: any) => item.name === current.name);
+        if (!isExist) {
+          prev.push(current);
+        }
+        return prev;
+      }, []);
+    } else {
+      fileList.value = _fileList.map((e) => {
+        return {
+          ...e,
+          enable: true, // 是否启用
+          local: true, // 是否本地文件
+        };
+      });
+      startUpload();
+    }
   }
 
   onMounted(() => {
