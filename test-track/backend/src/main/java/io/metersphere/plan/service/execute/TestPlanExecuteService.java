@@ -329,8 +329,23 @@ public class TestPlanExecuteService {
                         String envType = testPlanRunRequest.getEnvironmentType();
                         Map<String, String> envMap = testPlanRunRequest.getEnvMap();
                         String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
-                        runModeConfig = testPlanService.getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
-                        runModeConfig.setTestPlanDefaultEnvMap(testPlanRunRequest.getTestPlanDefaultEnvMap());
+
+                        if (StringUtils.equals(executionWay, ExecutionWay.JENKINS_RUN.name())) {
+                            //如果是Jenkins执行，需要获取Jenkins的资源池ID和运行模式
+                            String jenkinsResourcePoolId = runModeConfig.getResourcePoolId();
+                            String jenkinsMode = runModeConfig.getMode();
+                            runModeConfig = testPlanService.getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
+                            runModeConfig.setTestPlanDefaultEnvMap(testPlanRunRequest.getTestPlanDefaultEnvMap());
+                            if (StringUtils.isNotBlank(jenkinsResourcePoolId)) {
+                                runModeConfig.setResourcePoolId(jenkinsResourcePoolId);
+                            }
+                            runModeConfig.setMode(jenkinsMode);
+
+                        } else {
+                            //如果不是Jenkins执行，按照保存的环境信息执行
+                            runModeConfig = testPlanService.getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
+                            runModeConfig.setTestPlanDefaultEnvMap(testPlanRunRequest.getTestPlanDefaultEnvMap());
+                        }
                     }
                 } catch (Exception e) {
                     LogUtil.error("获取测试计划保存的环境信息出错!", e);
