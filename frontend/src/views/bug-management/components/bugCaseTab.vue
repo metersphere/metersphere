@@ -1,14 +1,7 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <a-dropdown @select="handleSelect">
-        <a-button type="primary"> {{ t('caseManagement.featureCase.linkCase') }} </a-button>
-        <template #content>
-          <a-doption v-for="item of caseTypeOptions" :key="item.value" :value="item.value">{{
-            t(item.label)
-          }}</a-doption>
-        </template>
-      </a-dropdown>
+      <a-button type="primary" @click="handleSelect">{{ t('caseManagement.featureCase.linkCase') }}</a-button>
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
@@ -29,16 +22,9 @@
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <a-dropdown @select="handleSelect">
-            <MsButton class="ml-[8px]">
-              {{ t('caseManagement.featureCase.linkCase') }}
-            </MsButton>
-            <template #content>
-              <a-doption v-for="item of caseTypeOptions" :key="item.value" :value="item.value">{{
-                t(item.label)
-              }}</a-doption>
-            </template>
-          </a-dropdown>
+          <MsButton class="ml-[8px]" @click="handleSelect">
+            {{ t('caseManagement.featureCase.linkCase') }}
+          </MsButton>
         </div>
       </template>
     </ms-base-table>
@@ -65,32 +51,32 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+import {ref} from 'vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
-  import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+import type {MsTableColumn} from '@/components/pure/ms-table/type';
+import useTable from '@/components/pure/ms-table/useTable';
+import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
+import {RequestModuleEnum} from '@/components/business/ms-case-associate/utils';
 
-  import {
-    batchAssociation,
-    cancelAssociation,
-    getAssociatedList,
-    getModuleTree,
-    getUnAssociatedList,
-  } from '@/api/modules/bug-management';
-  import { postTabletList } from '@/api/modules/project-management/menuManagement';
-  import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
+import {
+  batchAssociation,
+  cancelAssociation,
+  getAssociatedList,
+  getModuleTree,
+  getUnAssociatedList,
+} from '@/api/modules/bug-management';
+import {postTabletList} from '@/api/modules/project-management/menuManagement';
+import {useI18n} from '@/hooks/useI18n';
+import {useAppStore} from '@/store';
+import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
-  import type { TableQueryParams } from '@/models/common';
+import type {TableQueryParams} from '@/models/common';
 
-  import Message from '@arco-design/web-vue/es/message';
+import Message from '@arco-design/web-vue/es/message';
 
-  const appStore = useAppStore();
+const appStore = useAppStore();
   const featureCaseStore = useFeatureCaseStore();
 
   const { t } = useI18n();
@@ -193,7 +179,6 @@
   const getTableParams = ref<TableQueryParams>({});
 
   function handleSelect(value: string | number | Record<string, any> | undefined) {
-    currentSelectCase.value = value as string;
     innerVisible.value = true;
   }
 
