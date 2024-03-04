@@ -560,11 +560,11 @@
     try {
       isLoading.value = true;
       const detailResult: DetailCase = await getCaseDetail(props.caseId);
-      const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
+      const fileIds = (detailResult.attachments || []).map((item: any) => item.id) || [];
       if (fileIds.length) {
         checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
-        getDetailData(detailResult);
       }
+      getDetailData(detailResult);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -770,17 +770,15 @@
 
   const caseId = ref(props.caseId);
 
-  watchEffect(() => {
+  onBeforeMount(async () => {
+    caseId.value = '';
+    caseId.value = props.caseId;
+    initSelectTree();
     if (caseId.value) {
       getCaseInfo();
     } else {
       initDefaultFields();
     }
-    initSelectTree();
-  });
-
-  onBeforeMount(() => {
-    caseId.value = '';
   });
 
   defineExpose({

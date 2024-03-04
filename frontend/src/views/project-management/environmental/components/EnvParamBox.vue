@@ -29,6 +29,7 @@
             allow-clear
             :auto-size="{ minRows: 1 }"
             :max-length="1000"
+            @blur="store.currentEnvDetailInfo.description = form.description"
           />
         </a-form-item>
       </a-form>
@@ -85,6 +86,10 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
+
+  const emit = defineEmits<{
+    (e: 'ok'): void;
+  }>();
 
   const activeKey = ref('envParams');
   const envForm = ref();
@@ -182,13 +187,9 @@
           store.currentEnvDetailInfo.mock = true;
           // TODO 需要重新处理收集参数
           const res = await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
-          console.log(
-            store.currentEnvDetailInfo,
-            'store.currentEnvDetailInfostore.currentEnvDetailInfostore.currentEnvDetailInfo'
-          );
-
           store.currentEnvDetailInfo = res;
           Message.success(t('common.saveSuccess'));
+          emit('ok');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -208,6 +209,7 @@
     if (store.currentEnvDetailInfo) {
       const { currentEnvDetailInfo } = store;
       form.name = currentEnvDetailInfo.name;
+      form.description = currentEnvDetailInfo.description as string;
     }
   });
   watchEffect(() => {
