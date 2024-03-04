@@ -62,7 +62,7 @@ export const getDemandListUrl = '/bug/case/page';
 // 批量添加关联
 export const postAddDemandUrl = '/bug/case/relate';
 // 单个取消关联
-export const getCancelDemandUrl = '/bug/case/un-relate/';
+export const getCancelDemandUrl = '/bug/case/un-relate';
 // 未关联的用例列表
 export const getUnrelatedDemandListUrl = '/bug/case/un-relate/page';
 // 未关联的模块树

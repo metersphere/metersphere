@@ -713,7 +713,6 @@
         from functional_case fc left join project_version pv ON fc.version_id = pv.id
         where fc.deleted = #{deleted}
             and fc.project_id = #{request.projectId}
-            and fc.version_id = #{request.versionId}
             and fc.id not in
             (
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
