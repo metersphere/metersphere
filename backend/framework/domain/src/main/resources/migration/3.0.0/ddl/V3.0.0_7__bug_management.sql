@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS bug(
     `deleted` BIT(1) NOT NULL   COMMENT '删除状态' ,
     `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
     PRIMARY KEY (id)
-)  COMMENT = '缺陷';
+)  COMMENT = '缺陷' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE INDEX idx_num ON bug(num);
@@ -43,14 +43,14 @@ CREATE TABLE IF NOT EXISTS bug_content(
     `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
     `description` LONGTEXT    COMMENT '缺陷描述' ,
     PRIMARY KEY (bug_id)
-)  COMMENT = '缺陷内容';
+)  COMMENT = '缺陷内容' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS bug_follower(
     `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
     `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人ID' ,
     PRIMARY KEY (bug_id,user_id)
-)  COMMENT = '缺陷关注人';
+)  COMMENT = '缺陷关注人' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE INDEX idx_follow_id ON bug_follower(user_id);
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS bug_local_attachment(
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     PRIMARY KEY (id)
-)  COMMENT = '缺陷本地附件';
+)  COMMENT = '缺陷本地附件' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE INDEX idx_bug_id ON bug_local_attachment(bug_id);
 CREATE INDEX idx_file_id ON bug_local_attachment(file_id);
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS bug_comment(
     `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     PRIMARY KEY (id)
-)  COMMENT = '缺陷评论';
+)  COMMENT = '缺陷评论' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE INDEX idx_bug_id ON bug_comment(bug_id);
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS bug_custom_field(
     `field_id` VARCHAR(50) NOT NULL   COMMENT '字段ID' ,
     `value` VARCHAR(1000)    COMMENT '字段值' ,
     PRIMARY KEY (bug_id, field_id)
-)  COMMENT = '缺陷自定义字段';
+)  COMMENT = '缺陷自定义字段' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS bug_relation_case(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS bug_relation_case(
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     PRIMARY KEY (id)
-)  COMMENT = '用例和缺陷的关联表';
+)  COMMENT = '用例和缺陷的关联表' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE INDEX idx_bug_id ON bug_relation_case(bug_id);
