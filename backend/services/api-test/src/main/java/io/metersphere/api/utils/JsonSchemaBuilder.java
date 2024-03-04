@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.*;
+import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -16,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JsonSchemaBuilder {
 
@@ -135,5 +138,28 @@ public class JsonSchemaBuilder {
         String targetValue = StringUtils.join("\"", propertyName, "\"", ": ", value);
         processMap.put(key, targetValue);
         return new TextNode(value);
+    }
+
+    public static String preview(String jsonSchema) {
+        String jsonString = JsonSchemaBuilder.jsonSchemaToJson(jsonSchema);
+        //需要匹配到mock函数  然后换成mock数据
+        if (StringUtils.isNotBlank(jsonString)) {
+            String pattern = "@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
+            Pattern regex = Pattern.compile(pattern);
+            Matcher matcher = regex.matcher(jsonString);
+            while (matcher.find()) {
+                //取出group的最后一个字符 主要是防止 @string|number 和 @string 这种情况
+                String group = matcher.group();
+                String lastChar = null;
+                if (group.endsWith(",") || group.endsWith("\"")) {
+                    lastChar = group.substring(group.length() - 1);
+                    group = group.substring(0, group.length() - 1);
+                }
+                jsonString = jsonString.replace(matcher.group(),
+                        StringUtils.join(Mock.calculate(group), lastChar));
+            }
+        }
+        return jsonString;
+
     }
 }

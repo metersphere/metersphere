@@ -23,8 +23,8 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
     public void parse(HTTPSamplerProxy sampler, JsonBody body, ParameterConfig config) {
         sampler.setPostBodyRaw(true);
         try {
-            String raw = null;
-            if (body.getEnableJsonSchema() && body.getEnableTransition()) {
+            String raw;
+            if (body.getEnableJsonSchema()) {
                 String jsonString = JsonSchemaBuilder.jsonSchemaToJson(JSON.toJSONString(body.getJsonSchema()));
                 raw = StringEscapeUtils.unescapeJava(jsonString);
             } else {

@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.request.http.body;
 
 import io.metersphere.api.dto.schema.JsonSchemaItem;
+import io.metersphere.api.utils.JsonSchemaBuilder;
+import io.metersphere.sdk.util.JSON;
 import jakarta.validation.Valid;
 import lombok.Data;
 
@@ -32,4 +34,12 @@ public class JsonBody {
      * 默认为 false
      */
     private Boolean enableTransition = false;
+
+    //判断是返回jsonValue还是计算JsonSchema
+    public String getJsonWithSchema() {
+        if (enableJsonSchema) {
+            return JsonSchemaBuilder.preview(JSON.toJSONString(jsonSchema));
+        }
+        return jsonValue;
+    }
 }
