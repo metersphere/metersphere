@@ -114,7 +114,7 @@ public class BaseTemplateService {
 
         // 封装自定义字段信息
         List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream()
-                .filter(i -> !BooleanUtils.isTrue(i.getSystemField()))
+                .filter(i -> !BooleanUtils.isTrue(i.getSystemField()) && fieldMap.containsKey(i.getFieldId()))
                 .sorted(Comparator.comparingInt(TemplateCustomField::getPos))
                 .map(i -> {
                     CustomField customField = fieldMap.get(i.getFieldId());
