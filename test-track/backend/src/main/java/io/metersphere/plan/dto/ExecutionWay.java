@@ -12,6 +12,11 @@ public enum ExecutionWay {
     SAVE,
 
     /**
+     * Jenkins运行
+     */
+    JENKINS_RUN,
+
+    /**
      * 运行保存
      */
     RUN_SAVE
