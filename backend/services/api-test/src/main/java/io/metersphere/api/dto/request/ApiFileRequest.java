@@ -28,5 +28,7 @@ public class ApiFileRequest implements Serializable {
     @Schema(description = "是否本地", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean local;
 
+    @Schema(description = "文件名", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String fileName;
 
 }

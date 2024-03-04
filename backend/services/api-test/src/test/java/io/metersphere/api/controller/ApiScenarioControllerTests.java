@@ -777,6 +777,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
         apiTransferRequest.setModuleId("root");
         apiTransferRequest.setLocal(true);
+        apiTransferRequest.setFileName("test-scenario-file.txt");
         String uploadFileId = doUploadTempFile(getMockMultipartFile());
         apiTransferRequest.setFileId(uploadFileId);
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
@@ -789,6 +790,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        apiTransferRequest.setFileName("test-scenario-file-1.txt");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
 
     }

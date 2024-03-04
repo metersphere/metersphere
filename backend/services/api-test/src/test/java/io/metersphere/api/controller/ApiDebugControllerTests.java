@@ -698,9 +698,11 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setLocal(true);
         uploadFileId = doUploadTempFile(getMockMultipartFile("test-debug-file.txt"));
         request.setFileId(uploadFileId);
+        request.setFileName("test-debug-file.txt");
         this.requestPost(TRANSFER, request).andExpect(status().isOk());
         //文件不存在
         request.setFileId("111");
+        request.setFileName("test-debug-file.txt");
         this.requestPost(TRANSFER, request).andExpect(status().is5xxServerError());
         //文件已经上传
         ApiDebugAddRequest addRequest = new ApiDebugAddRequest();
@@ -726,6 +728,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setSourceId(resultData.getId());
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setModuleId("root");
+        request.setFileName("test-debug-file1.txt");
         request.setFileId(apiFileResources.get(0).getFileId());
         this.requestPost(TRANSFER, request).andExpect(status().isOk());
     }
