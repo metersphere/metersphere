@@ -1,9 +1,9 @@
 <template>
   <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
     <template #demandName="{ record }">
-      <a-button type="text" class="ml-1" :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']" style="margin-left: -0.77rem" @click="emit('open', record)"
-      >{{ record.demandName }}<span>({{ (record.children || []).length || 0 }})</span></a-button
-      >
+      <span :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']" @click="emit('open', record)">
+        {{ characterLimit(record.demandName) }} </span
+      ><span class="one-text-line text-[rgb(var(--primary-5))]">({{ (record.children || []).length || 0 }})</span>
     </template>
     <template #operation="{ record }">
       <MsButton @click="emit('cancel', record)">
@@ -40,6 +40,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { characterLimit } from '@/utils';
 
   import type { DemandItem } from '@/models/caseManagement/featureCase';
 
@@ -78,22 +79,19 @@
       title: 'caseManagement.featureCase.tableColumnID',
       slotName: 'demandId',
       dataIndex: 'demandId',
-      showInTable: true,
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.demandName',
       slotName: 'demandName',
       dataIndex: 'demandName',
-      width: 300,
+      showTooltip: true,
     },
     {
       title: 'caseManagement.featureCase.demandPlatform',
       width: 300,
       dataIndex: 'demandPlatform',
-      showInTable: true,
       showTooltip: true,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',

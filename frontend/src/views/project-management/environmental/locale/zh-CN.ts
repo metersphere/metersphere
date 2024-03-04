@@ -27,6 +27,8 @@ export default {
   'project.environmental.envParams': '环境变量',
   'project.environmental.newEnv': '未命名环境',
   'project.environmental.envNamePlaceholder': '请输入环境名称',
+  'project.environmental.envDescPlaceholder': '请输入描述',
+  'project.environmental.envDesc': '描述',
   'project.environmental.envNameRequired': '环境名称不能为空',
   'project.environmental.HTTP': 'HTTP',
   'project.environmental.HOST': 'HOST',

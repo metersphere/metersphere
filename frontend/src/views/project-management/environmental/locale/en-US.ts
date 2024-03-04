@@ -20,6 +20,8 @@ export default {
   'project.environmental.envName': 'Environment Name',
   'project.environmental.envParams': 'Environment Variables',
   'project.environmental.envNamePlaceholder': 'Please enter the environment name',
+  'project.environmental.envDescPlaceholder': 'Please enter the description',
+  'project.environmental.envDesc': 'description',
   'project.environmental.envNameRequired': 'Environment name cannot be empty',
   'project.environmental.database': 'Database',
   'project.environmental.HTTP': 'HTTP',

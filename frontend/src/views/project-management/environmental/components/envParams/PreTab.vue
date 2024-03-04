@@ -19,9 +19,11 @@
   const store = useProjectEnvStore();
   const innerParams = computed({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig = value || [];
+      store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors =
+        value || [];
     },
-    get: () => store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig || [],
+    get: () =>
+      store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors || [],
   });
 </script>
 

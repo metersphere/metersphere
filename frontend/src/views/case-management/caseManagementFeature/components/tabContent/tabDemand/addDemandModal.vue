@@ -8,7 +8,9 @@
     @close="handleCancel"
   >
     <template #title>
-      {{ title }}
+      <a-tooltip :content="title">
+        <span> {{ characterLimit(title) }}</span>
+      </a-tooltip>
     </template>
     <div class="form">
       <a-form ref="demandFormRef" :model="modelForm" size="large" layout="vertical">
@@ -56,6 +58,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   import type { CreateOrUpdateDemand, DemandFormList, DemandItem } from '@/models/caseManagement/featureCase';
 

@@ -17,6 +17,20 @@
             @blur="store.currentEnvDetailInfo.name = form.name"
           />
         </a-form-item>
+        <a-form-item
+          class="mb-[16px]"
+          asterisk-position="end"
+          field="description"
+          :label="t('project.environmental.desc')"
+        >
+          <a-textarea
+            v-model="form.description"
+            :placeholder="t('project.environmental.envDescPlaceholder')"
+            allow-clear
+            :auto-size="{ minRows: 1 }"
+            :max-length="1000"
+          />
+        </a-form-item>
       </a-form>
 
       <a-tabs v-if="contentTabList.length" v-model:active-key="activeKey" class="no-content" @change="handleTabChange">
@@ -93,6 +107,7 @@
 
   const form = reactive({
     name: '',
+    description: '',
   });
 
   const contentTabList = ref<ContentTabItem[]>([]);
@@ -165,7 +180,13 @@
         try {
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
+          // TODO 需要重新处理收集参数
           const res = await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
+          console.log(
+            store.currentEnvDetailInfo,
+            'store.currentEnvDetailInfostore.currentEnvDetailInfostore.currentEnvDetailInfo'
+          );
+
           store.currentEnvDetailInfo = res;
           Message.success(t('common.saveSuccess'));
         } catch (error) {

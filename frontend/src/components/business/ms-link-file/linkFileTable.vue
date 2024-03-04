@@ -45,32 +45,37 @@
       <template #size="{ record }">
         <span>{{ formatFileSize(record.size) }}</span>
       </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
+          {{ t('caseManagement.featureCase.tableNoData') }}
+        </div>
+      </template>
     </ms-base-table>
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
-import {debounce} from 'lodash-es';
+  import { ref } from 'vue';
+  import { debounce } from 'lodash-es';
 
-import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-import type {MsTableColumn} from '@/components/pure/ms-table/type';
-import useTable from '@/components/pure/ms-table/useTable';
-import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-import {getFileTypes, getRepositoryFileTypes} from '@/api/modules/project-management/fileManagement';
-import {useI18n} from '@/hooks/useI18n';
-import useAppStore from '@/store/modules/app';
-import useUserStore from '@/store/modules/user';
-import {findNodeByKey, formatFileSize} from '@/utils';
+  import { getFileTypes, getRepositoryFileTypes } from '@/api/modules/project-management/fileManagement';
+  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
+  import { findNodeByKey, formatFileSize } from '@/utils';
 
-import type {AssociatedList} from '@/models/caseManagement/featureCase';
-import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
-import type {FileListQueryParams} from '@/models/projectManagement/file';
-import {Repository} from '@/models/projectManagement/file';
-import {TableKeyEnum} from '@/enums/tableEnum';
+  import type { AssociatedList } from '@/models/caseManagement/featureCase';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { FileListQueryParams } from '@/models/projectManagement/file';
+  import { Repository } from '@/models/projectManagement/file';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
-const { t } = useI18n();
+  const { t } = useI18n();
 
   const props = defineProps<{
     activeFolder: string;
