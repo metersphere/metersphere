@@ -11,7 +11,6 @@
         from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
         where fc.deleted = #{deleted}
             and fc.project_id = #{request.projectId}
-            and fc.version_id = #{request.versionId}
             and fc.id not in
             (
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
@@ -46,7 +45,7 @@
     </select>
 
     <select id="list" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
-        select fc.num relateId, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
+        select brc.id relateId, fc.num relateCaseId, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
                brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
         from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
         where brc.bug_id = #{request.bugId} and fc.deleted = false

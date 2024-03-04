@@ -13,7 +13,7 @@
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
       <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.name }}</span
+        <span class="one-line-text max-w[300px]"> {{ record.relateCaseName }}</span
         ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
       </template>
       <template #operation="{ record }">
@@ -26,6 +26,29 @@
             {{ t('caseManagement.featureCase.linkCase') }}
           </MsButton>
         </div>
+      </template>
+      <template #relatePlanTitle>
+        <div class="flex items-center">
+          <div class="font-medium text-[var(--color-text-3)]">
+            {{ t('bugManagement.detail.isPlanRelateCase') }}
+          </div>
+          <a-popover position="rt">
+            <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+            />
+            <template #title>
+              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip1') }} </div>
+              <br>
+              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip2') }} </div>
+              <br>
+              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip3') }} </div>
+            </template>
+          </a-popover>
+        </div>
+      </template>
+      <template #isRelatePlanCase = "{ record }">
+        <span class="text-[var(--color-text-1)]">{{record.isRelatePlanCase ? t('common.yes') : t('common.no') }}</span>
       </template>
     </ms-base-table>
     <MsCaseAssociate
@@ -98,7 +121,7 @@ const appStore = useAppStore();
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'relateCaseId',
       width: 200,
       showInTable: true,
       showTooltip: true,
@@ -107,8 +130,17 @@ const appStore = useAppStore();
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
-      slotName: 'name',
-      dataIndex: 'name',
+      dataIndex: 'relateCaseName',
+      showInTable: true,
+      showTooltip: true,
+      width: 300,
+      ellipsis: true,
+      showDrag: false,
+    },
+    {
+      title: 'bugManagement.detail.isPlanRelateCase',
+      titleSlotName: 'relatePlanTitle',
+      slotName: 'isRelatePlanCase',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -127,8 +159,7 @@ const appStore = useAppStore();
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'version',
-      dataIndex: 'version',
+      dataIndex: 'versionName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -137,8 +168,7 @@ const appStore = useAppStore();
     },
     {
       title: 'caseManagement.featureCase.changeType',
-      slotName: 'type',
-      dataIndex: 'type',
+      dataIndex: 'relateCaseTypeName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -194,8 +224,10 @@ const appStore = useAppStore();
 
   async function cancelLink(record: any) {
     try {
-      const { id } = record;
-      await cancelAssociation(id);
+      const { relateId } = record;
+      await cancelAssociation(relateId);
+      await getFetch();
+      Message.success(t('common.unLinkSuccess'));
     } catch (error) {
       console.log(error);
     }
@@ -211,7 +243,8 @@ const appStore = useAppStore();
     try {
       confirmLoading.value = true;
       await batchAssociation(params);
-      Message.success(t('caseManagement.featureCase.AssociatedSuccess'));
+      await getFetch();
+      Message.success(t('common.linkSuccess'));
       innerVisible.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console

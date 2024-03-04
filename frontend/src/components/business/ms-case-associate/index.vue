@@ -112,7 +112,7 @@
             </a-tooltip>
           </template>
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="getCaseLevel(record)" />
+            <span>{{ t(record.priority) }}</span>
           </template>
         </ms-base-table>
         <div class="footer">
@@ -141,35 +141,33 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useVModel } from '@vueuse/core';
+import {computed, ref, watch} from 'vue';
+import {useRouter} from 'vue-router';
+import {useVModel} from '@vueuse/core';
 
-  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
-  import MsTree from '@/components/business/ms-tree/index.vue';
-  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import caseLevel from './caseLevel.vue';
+import {CustomTypeMaps, MsAdvanceFilter} from '@/components/pure/ms-advance-filter';
+import {FilterFormItem, FilterType} from '@/components/pure/ms-advance-filter/type';
+import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+import {MsTableColumn} from '@/components/pure/ms-table/type';
+import useTable from '@/components/pure/ms-table/useTable';
+import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
+import MsTree from '@/components/business/ms-tree/index.vue';
+import type {MsTreeNodeData} from '@/components/business/ms-tree/types';
+import caseLevel from './caseLevel.vue';
 
-  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
-  import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
-  import { mapTree } from '@/utils';
+import {getCustomFieldsTable} from '@/api/modules/case-management/featureCase';
+import {useI18n} from '@/hooks/useI18n';
+import useAppStore from '@/store/modules/app';
+import {mapTree} from '@/utils';
 
-  import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
-  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+import type {CaseManagementTable} from '@/models/caseManagement/featureCase';
+import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
+import {CaseManagementRouteEnum} from '@/enums/routeEnum';
+import {initGetModuleCountFunc, type RequestModuleEnum} from './utils';
 
-  import type { CaseLevel } from './types';
-  import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
-
-  const router = useRouter();
+const router = useRouter();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -363,20 +361,7 @@
       title: 'ms.case.associate.tags',
       dataIndex: 'tags',
       isTag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
-      dataIndex: 'createUserName',
-      showInTable: true,
-      width: 300,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateTime',
-      slotName: 'createTime',
-      dataIndex: 'createTime',
-      showInTable: true,
-      width: 300,
-    },
+    }
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -566,11 +551,6 @@
     };
 
     emit('save', params);
-  }
-
-  // 用例等级
-  function getCaseLevel(record: CaseManagementTable) {
-    return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
   }
 
   function openDetail(id: string) {

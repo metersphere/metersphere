@@ -38,6 +38,7 @@ export default {
   'common.saveSuccess': '保存成功',
   'common.saveFailed': '保存失败',
   'common.linkSuccess': '关联成功',
+  'common.unLinkSuccess': '取消关联成功',
   'common.confirmEnable': '确认启用',
   'common.confirmDisable': '确认禁用',
   'common.confirmClose': '确认关闭',
@@ -125,4 +126,6 @@ export default {
   'common.apply': '应用',
   'common.stop': '停止',
   'common.module': '模块',
+  'common.yes': '是',
+  'common.no': '否'
 };
