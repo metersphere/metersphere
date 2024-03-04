@@ -50,7 +50,6 @@
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import {characterLimit} from "@/utils";
 
   const { t } = useI18n();
   const props = defineProps<{
