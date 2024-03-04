@@ -22,6 +22,7 @@ public class TaskRunnerClient {
     private static TOTPGenerator totpGenerator;
 
     private static final String API_DEBUG = "/api/debug";
+    private static final String API_RUN = "/api/run";
     private static final String HTTP_BATH = "http://%s:%s";
     private static final String API_STOP = "/api/stop";
 
@@ -37,6 +38,10 @@ public class TaskRunnerClient {
 
     public static void debugApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
         post(endpoint + API_DEBUG, taskRequest);
+    }
+
+    public static void runApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
+        post(endpoint + API_RUN, taskRequest);
     }
 
     public static void stopApi(String endpoint, List<String> reportIds) throws Exception {

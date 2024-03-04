@@ -16,6 +16,7 @@ import io.metersphere.api.model.CheckLogModel;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
+import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
@@ -62,6 +63,7 @@ import org.springframework.util.MultiValueMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,30 +77,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApiDefinitionControllerTests extends BaseTest {
 
     private static final String BASE_PATH = "/api/definition/";
-    private final static String ADD = BASE_PATH + "add";
-    private final static String UPDATE = BASE_PATH + "update";
-    private final static String BATCH_UPDATE = BASE_PATH + "batch-update";
-    private final static String DELETE = BASE_PATH + "delete";
-    private final static String BATCH_DELETE = BASE_PATH + "batch-del";
-    private final static String COPY = BASE_PATH + "copy";
-    private final static String BATCH_MOVE = BASE_PATH + "batch-move";
+    private final static String ADD = "add";
+    private final static String UPDATE = "update";
+    private final static String BATCH_UPDATE = "batch-update";
+    private final static String DELETE = "delete";
+    private final static String BATCH_DELETE = "batch-del";
+    private final static String COPY = "copy";
+    private final static String BATCH_MOVE = "batch-move";
 
-    private final static String RESTORE = BASE_PATH + "recover";
-    private final static String BATCH_RESTORE = BASE_PATH + "batch-recover";
+    private final static String RESTORE = "recover";
+    private final static String BATCH_RESTORE = "batch-recover";
 
-    private final static String TRASH_DEL = BASE_PATH + "trash-del";
-    private final static String BATCH_TRASH_DEL = BASE_PATH + "batch-trash-del";
+    private final static String TRASH_DEL = "trash-del";
+    private final static String BATCH_TRASH_DEL = "batch-trash-del";
 
-    private final static String PAGE = BASE_PATH + "page";
-    private final static String PAGE_DOC = BASE_PATH + "page-doc";
-    private final static String DOC = BASE_PATH + "doc";
-    private static final String GET = BASE_PATH + "get-detail/";
-    private static final String FOLLOW = BASE_PATH + "follow/";
-    private static final String VERSION = BASE_PATH + "version/";
-    private static final String OPERATION_HISTORY = BASE_PATH + "operation-history";
-    private static final String OPERATION_HISTORY_RECOVER = BASE_PATH + "operation-history/recover";
-    private static final String OPERATION_HISTORY_SAVE = BASE_PATH + "operation-history/save";
-    private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
+    private final static String PAGE = "page";
+    private final static String PAGE_DOC = "page-doc";
+    private final static String DOC = "doc";
+    private static final String GET = "get-detail/";
+    private static final String FOLLOW = "follow/";
+    private static final String VERSION = "version/";
+    private static final String OPERATION_HISTORY = "operation-history";
+    private static final String OPERATION_HISTORY_RECOVER = "operation-history/recover";
+    private static final String OPERATION_HISTORY_SAVE = "operation-history/save";
+    private static final String UPLOAD_TEMP_FILE = "upload/temp/file";
+    private static final String DEBUG = "debug";
+    private static final String IMPORT = "import";
 
     private static final String DEFAULT_MODULE_ID = "10001";
 
@@ -144,11 +148,18 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiCommonService apiCommonService;
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
     private static String fileMetadataId;
     private static String uploadFileId;
 
     private static final List<CheckLogModel> checkLogModelList = new ArrayList<>();
 
+
+    @Override
+    public String getBasePath() {
+        return BASE_PATH;
+    }
 
     @Test
     @Order(0)
@@ -210,7 +221,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         assertUploadFile(apiDefinition.getId(), List.of(uploadFileId));
         assertLinkFile(apiDefinition.getId());
 
-        this.requestGetWithOk("/api/definition/transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        this.requestGetWithOk("transfer/options/" + DEFAULT_PROJECT_ID);
         ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
         apiTransferRequest.setSourceId(apiDefinition.getId());
         apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -219,10 +230,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         String uploadFileId = doUploadTempFile(getMockMultipartFile("api-file_upload.JPG"));
         apiTransferRequest.setFileId(uploadFileId);
         apiTransferRequest.setFileName("api-file_upload.JPG");
-        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
-        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().is5xxServerError());
         //文件已经上传
         ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
         apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiDefinition.getId());
@@ -230,7 +241,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertFalse(apiFileResources.isEmpty());
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
         apiTransferRequest.setFileName("test-file_upload.JPG");
-        this.requestPost("/api/definition/transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
 
         // 再插入一条数据，便于修改时重名校验
         request.setMethod("GET");
@@ -525,7 +536,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             testCaseAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
             testCaseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
             testCaseAddRequest.setRequest(getMsElementParam(msHttpElement));
-            this.requestPostWithOkAndReturn("/api/case/add", testCaseAddRequest);
+            apiTestCaseService.addCase(testCaseAddRequest, "admin");
         }
         updateRequest.setPath("/api/test/path/method/case");
         this.requestPostWithOk(UPDATE, updateRequest);
@@ -550,6 +561,26 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setName("permission-st-6");
         request.setModuleId("module-st-6");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, request);
+    }
+
+    @Test
+    @Order(4)
+    public void debug() throws Exception {
+        ApiRunRequest request = new ApiRunRequest();
+        request.setId(apiDefinition.getId());
+        MsHTTPElement msHTTPElement = new MsHTTPElement();
+        msHTTPElement.setPath("/test");
+        msHTTPElement.setMethod("GET");
+        request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
+        request.setReportId(IDGenerator.nextStr());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        MvcResult mvcResult = this.requestPostAndReturn(DEBUG, request);
+        ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
+        Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
+                resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_EXECUTE, DEBUG, request);
     }
 
     private List<ApiDefinitionCustomField> updateCustomFields() {
@@ -1129,14 +1160,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setMoveId(apiDefinition.getId());
         request.setModuleId("root");
         request.setMoveMode("AFTER");
-        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
+        this.requestPostWithOkAndReturn("edit/pos", request);
         request.setMoveId(apiDefinition1.getId());
-        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
+        this.requestPostWithOkAndReturn("edit/pos", request);
         request.setMoveMode("BEFORE");
-        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
+        this.requestPostWithOkAndReturn("edit/pos", request);
 
         request.setModuleId("module-st-6");
-        requestPost(BASE_PATH + "edit/pos", request).andExpect(status().is5xxServerError());
+        requestPost("edit/pos", request).andExpect(status().is5xxServerError());
 
     }
 
@@ -1468,7 +1499,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             if (StringUtils.isEmpty(checkLogModel.getUrl())) {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
             } else {
-                this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType(), checkLogModel.getUrl());
+                this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType(), BASE_PATH + checkLogModel.getUrl());
             }
         }
     }
@@ -1503,10 +1534,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         MockMultipartFile file = new MockMultipartFile("file", "openapi.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
-        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         request.setCoverModule(false);
         request.setCoverData(false);
-        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         paramMap.clear();
         inputStream = new FileInputStream(new File(
                 this.getClass().getClassLoader().getResource("file/openapi1.json")
@@ -1516,7 +1547,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverModule(true);
         request.setCoverData(true);
         paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         paramMap.clear();
         inputStream = new FileInputStream(new File(
                 this.getClass().getClassLoader().getResource("file/openapi2.json")
@@ -1526,7 +1557,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverModule(false);
         request.setCoverData(false);
         paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart("/api/definition/import", paramMap, status().is5xxServerError());
+        this.requestMultipart(IMPORT, paramMap, status().is5xxServerError());
 
         paramMap.clear();
         inputStream = new FileInputStream(new File(
@@ -1537,7 +1568,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverModule(false);
         request.setCoverData(false);
         paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         paramMap.clear();
 
         paramMap.add("file", file);
@@ -1545,7 +1576,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverData(false);
         request.setSwaggerUrl("http://localhost:8080/v2/api-docs");
         paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart("/api/definition/import", paramMap, status().is5xxServerError());
+        this.requestMultipart(IMPORT, paramMap, status().is5xxServerError());
 
     }
 
@@ -2017,7 +2048,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 }
                 """;
         //正常数据;
-        requestPost("/api/definition/preview", jsonString).andExpect(status().isOk());
+        requestPost("preview", jsonString).andExpect(status().isOk());
         //非正常json数据    会走try catch
         String abnormalString = """
                     {
@@ -2037,7 +2068,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                       "testfalse" : false
                     }            
                 """;
-        requestPost("/api/definition/preview", abnormalString).andExpect(status().isOk());
+        requestPost("preview", abnormalString).andExpect(status().isOk());
         //正常array数据
         String jsonArray = """
                     {
@@ -2129,7 +2160,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                                                   "extensions":  null
                                         }            
                 """;
-        requestPost("/api/definition/preview", jsonArray).andExpect(status().isOk());
+        requestPost("preview", jsonArray).andExpect(status().isOk());
     }
 
 }

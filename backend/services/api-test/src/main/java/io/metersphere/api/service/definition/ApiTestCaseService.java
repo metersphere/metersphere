@@ -3,13 +3,16 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
+import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
+import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -17,10 +20,14 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
@@ -91,6 +98,10 @@ public class ApiTestCaseService {
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ApiExecuteService apiExecuteService;
+    @Resource
+    private EnvironmentService environmentService;
 
     private static final String CASE_TABLE = "api_test_case";
 
@@ -628,7 +639,50 @@ public class ApiTestCaseService {
         }
     }
 
+
     public String transfer(ApiTransferRequest request, String userId) {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API_CASE.name());
+    }
+
+    public TaskRequestDTO run(String id, String reportId) {
+        ApiTestCase apiTestCase = checkResourceExist(id);
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
+
+        ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
+        runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+
+        TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+        taskRequest.setSaveResult(true);
+        taskRequest.setRealTime(true);
+
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(reportId);
+        // 设置环境
+        apiParamConfig.setEnvConfig(environmentService.get(apiTestCase.getEnvironmentId()));
+
+        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    public TaskRequestDTO debug(ApiRunRequest request) {
+        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
+
+        TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
+                request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.setSaveResult(true);
+        taskRequest.setRealTime(true);
+
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
+        // 设置环境
+        apiParamConfig.setEnvConfig(environmentService.get(request.getEnvironmentId()));
+
+        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    private TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
+        TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(reportId, resourceId, projectId);
+        taskRequest.setResourceType(ApiResourceType.API_CASE.name());
+        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
+        apiRunModeConfig.setRunMode(runModule);
+        taskRequest.setRunModeConfig(apiRunModeConfig);
+        return taskRequest;
     }
 }

@@ -11,6 +11,7 @@ import io.metersphere.api.service.definition.ApiTestCaseRecoverService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -243,5 +244,17 @@ public class ApiTestCaseController {
         return fileModuleService.getTree(projectId);
     }
 
+    @GetMapping("/run/{id}/{reportId}")
+    @Operation(summary = "用例执行，获取获取执行结果")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    public TaskRequestDTO run(@PathVariable String id, @PathVariable String reportId) {
+        return apiTestCaseService.run(id, reportId);
+    }
 
+    @PostMapping("/debug")
+    @Operation(summary = "用例调试")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
+        return apiTestCaseService.debug(request);
+    }
 }

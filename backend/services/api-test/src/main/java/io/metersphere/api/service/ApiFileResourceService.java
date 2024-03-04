@@ -233,6 +233,13 @@ public class ApiFileResourceService {
         return apiFileResourceMapper.selectByExample(example);
     }
 
+    public List<ApiFileResource> getByResourceIds(List<String> resourceIds) {
+        ApiFileResourceExample example = new ApiFileResourceExample();
+        example.createCriteria()
+                .andResourceIdIn(resourceIds);
+        return apiFileResourceMapper.selectByExample(example);
+    }
+
     /**
      * 上传临时文件
      * system/temp/{fileId}/{fileName}

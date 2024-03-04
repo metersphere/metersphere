@@ -4,10 +4,12 @@ import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.api.config.KafkaConfig;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.dto.ApiParamConfig;
+import io.metersphere.api.dto.debug.ApiDebugRunRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.controller.MsCommentScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
@@ -93,6 +95,8 @@ public class ApiExecuteService {
     private ApiPluginService apiPluginService;
     @Resource
     private GlobalParamsService globalParamsService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     @PostConstruct
     private void init() {
@@ -120,31 +124,53 @@ public class ApiExecuteService {
         return reportId + "_" + testId;
     }
 
-    public TaskRequestDTO debug(ApiResourceRunRequest request, ApiParamConfig parameterConfig) {
-        TaskRequestDTO taskRequest = new TaskRequestDTO();
-        BeanUtils.copyBean(taskRequest, request);
-        taskRequest.setRealTime(true);
-        taskRequest.setSaveResult(false);
-        taskRequest.setResourceId(request.getTestId());
+    public TaskRequestDTO execute(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest, ApiParamConfig parameterConfig) {
+        // 置minio kafka ms 等信息
         setServerInfoParam(taskRequest);
 
         // 设置执行文件参数
-        setTaskFileParam(request, taskRequest);
+        setTaskFileParam(runRequest, taskRequest);
 
         //  误报处理
-        if (StringUtils.isNotBlank(request.getProjectId())) {
-            taskRequest.setMsRegexList(projectApplicationService.get(Collections.singletonList(request.getProjectId())));
+        taskRequest.setMsRegexList(projectApplicationService.get(Collections.singletonList(taskRequest.getProjectId())));
+
+        if (!StringUtils.equals(taskRequest.getResourceType(), ApiExecuteResourceType.API_DEBUG.name())) {
+            // 设置全局参数，接口调试不使用全局参数
+            parameterConfig.setGlobalParams(getGlobalParam(taskRequest.getProjectId()));
         }
 
-        parameterConfig.setGlobalParams(getGlobalParam(request));
+        // 解析执行脚本
+        String executeScript = parseExecuteScript(runRequest.getTestElement(), parameterConfig);
 
-        String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
+        // 设置插件文件信息
+        taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(taskRequest.getProjectId()));
 
-        return doDebug(request, taskRequest, executeScript);
+        // 将测试脚本缓存到 redis
+        String scriptRedisKey = getScriptRedisKey(taskRequest.getReportId(), taskRequest.getResourceId());
+        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
+
+        if (StringUtils.equals(taskRequest.getRunModeConfig().getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
+            // 前端调试返回执行参数，由前端调用本地资源池执行
+            return taskRequest;
+        }
+
+        try {
+            return doExecute(taskRequest);
+        } catch (MSException e) {
+            LogUtils.error(e);
+            // 调用失败清理脚本
+            stringRedisTemplate.delete(scriptRedisKey);
+            throw e;
+        } catch (Exception e) {
+            LogUtils.error(e);
+            // 调用失败清理脚本
+            stringRedisTemplate.delete(scriptRedisKey);
+            throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
+        }
     }
 
-    private GlobalParams getGlobalParam(ApiResourceRunRequest request) {
-        GlobalParamsDTO globalParamsDTO = globalParamsService.get(request.getProjectId());
+    private GlobalParams getGlobalParam(String projectId) {
+        GlobalParamsDTO globalParamsDTO = globalParamsService.get(projectId);
         if (globalParamsDTO != null) {
             return globalParamsDTO.getGlobalParams();
         }
@@ -154,35 +180,11 @@ public class ApiExecuteService {
     /**
      * 发送执行任务
      *
-     * @param taskRequest   执行参数
-     * @param executeScript 执行脚本
+     * @param taskRequest 执行参数
      */
-    private TaskRequestDTO doDebug(ApiResourceRunRequest request,
-                                   TaskRequestDTO taskRequest,
-                                   String executeScript) {
-        String reportId = request.getReportId();
-        String testId = request.getTestId();
-        String projectId = request.getProjectId();
-
-        // 设置插件文件信息
-        taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(projectId));
-        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
-        runModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
-        if (request.getFrontendDebug()) {
-            runModeConfig.setRunMode(ApiExecuteRunMode.FRONTEND_DEBUG.name());
-        }
-        taskRequest.setRunModeConfig(runModeConfig);
-
-        // 将测试脚本缓存到 redis
-        String scriptRedisKey = getScriptRedisKey(reportId, testId);
-        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
-
-        if (request.getFrontendDebug()) {
-            // 前端调试返回执行参数，由前端调用本地资源池执行
-            return taskRequest;
-        }
-
-        TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(projectId);
+    private TaskRequestDTO doExecute(TaskRequestDTO taskRequest) throws Exception {
+        // 获取资源池
+        TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskRequest.getProjectId());
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
         if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
             // 如果资源池配置了当前站点，则使用资源池的
@@ -190,20 +192,20 @@ public class ApiExecuteService {
         }
         taskRequest.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
 
-        try {
-            String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
-            LogUtils.info(String.format("开始发送请求【 %s 】到 %s 节点执行", testId, endpoint), reportId);
+        String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
+        LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskRequest.getReportId(), taskRequest.getResourceId(), endpoint);
+        if (StringUtils.equalsAny(taskRequest.getRunModeConfig().getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name())) {
             TaskRunnerClient.debugApi(endpoint, taskRequest);
-            // 清空mino和kafka配置信息，避免前端获取
-            taskRequest.setMinioConfig(null);
-            taskRequest.setKafkaConfig(null);
-            return taskRequest;
-        } catch (Exception e) {
-            LogUtils.error(e);
-            // 调用失败清理脚本
-            stringRedisTemplate.delete(scriptRedisKey);
-            throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
+        } else {
+            TaskRunnerClient.runApi(endpoint, taskRequest);
         }
+
+        // 清空mino和kafka配置信息，避免前端获取
+        taskRequest.setMinioConfig(null);
+        taskRequest.setKafkaConfig(null);
+
+        return taskRequest;
+
     }
 
     private TestResourceNodeDTO getProjectExecuteNode(TestResourcePoolReturnDTO resourcePoolDTO) {
@@ -238,52 +240,121 @@ public class ApiExecuteService {
      * @param runRequest 执行参数
      * @return 报告ID
      */
-    public String runScript(CustomFunctionRunRequest runRequest) {
+    public TaskRequestDTO runScript(CustomFunctionRunRequest runRequest) {
         String reportId = runRequest.getReportId();
         String testId = runRequest.getProjectId();
+
         // 生成执行脚本
         MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
         msCommentScriptElement.setScriptLanguage(runRequest.getType());
-        String executeScript = parseExecuteScript(msCommentScriptElement, new ApiParamConfig());
+
+        ApiResourceRunRequest apiRunRequest = new ApiResourceRunRequest();
+        apiRunRequest.setTestElement(msCommentScriptElement);
+
         // 设置执行参数
-        TaskRequestDTO taskRequest = new TaskRequestDTO();
+        TaskRequestDTO taskRequest = getTaskRequest(reportId, testId, runRequest.getProjectId());
         setServerInfoParam(taskRequest);
         taskRequest.setRealTime(true);
         taskRequest.setSaveResult(false);
-        taskRequest.setReportId(reportId);
-        taskRequest.setResourceId(testId);
-        taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
 
-        ApiResourceRunRequest apiRunRequest = new ApiResourceRunRequest();
-        apiRunRequest.setTestId(testId);
-        apiRunRequest.setReportId(reportId);
-        apiRunRequest.setProjectId(runRequest.getProjectId());
-        apiRunRequest.setFrontendDebug(false);
-        doDebug(apiRunRequest, taskRequest, executeScript);
-        return reportId;
+        taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        runModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        taskRequest.setRunModeConfig(runModeConfig);
+
+        return execute(apiRunRequest, taskRequest, new ApiParamConfig());
     }
 
     /**
      * 给 taskRequest 设置文件相关参数
      *
-     * @param request     请求参数
+     * @param runRequest  请求参数
      * @param taskRequest 执行参数
      */
-    private void setTaskFileParam(ApiResourceRunRequest request, TaskRequestDTO taskRequest) {
+    private void setTaskFileParam(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest) {
+        setTaskRefFileParam(runRequest, taskRequest);
+        setTaskTmpFileParam(runRequest, taskRequest);
+        setTaskFuncJarParam(runRequest, taskRequest);
+    }
+
+    /**
+     * 处理脚本执行所需要的jar包
+     *
+     * @param runRequest
+     * @param taskRequest
+     */
+    private void setTaskFuncJarParam(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest) {
+        Set<String> projectIdsSet = runRequest.getRefProjectIds();
+        projectIdsSet.add(taskRequest.getProjectId());
+        List<String> projectIds = projectIdsSet.stream().collect(Collectors.toList());
+
+        // 获取函数jar包
+        List<FileMetadata> fileMetadataList = fileManagementService.findJarByProjectId(projectIds);
+        taskRequest.setFuncJars(getApiExecuteFileInfo(fileMetadataList));
+
+        // TODO 当前项目没有包分两种情况，1 之前存在被删除，2 一直不存在
+        //  为了兼容1 这种情况需要初始化一条空的数据，由执行机去做卸载
+        if (CollectionUtils.isEmpty(taskRequest.getFuncJars())) {
+            ApiExecuteFileInfo tempFileInfo = new ApiExecuteFileInfo();
+            tempFileInfo.setProjectId(taskRequest.getProjectId());
+            taskRequest.setFuncJars(List.of(tempFileInfo));
+        }
+    }
+
+    /**
+     * 处理没有保存的临时文件
+     *
+     * @param runRequest
+     * @param taskRequest
+     */
+    private void setTaskTmpFileParam(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest) {
+        // 没有保存的本地临时文件
+        List<String> uploadFileIds = runRequest.getUploadFileIds();
+        if (CollectionUtils.isNotEmpty(uploadFileIds)) {
+            List<ApiExecuteFileInfo> localTempFiles = uploadFileIds.stream()
+                    .map(tempFileId -> {
+                        String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
+                        return getApiExecuteFileInfo(tempFileId, fileName, taskRequest.getProjectId());
+                    })
+                    .collect(Collectors.toList());
+            taskRequest.setLocalTempFiles(localTempFiles);
+        }
+
+        List<String> linkFileIds = runRequest.getLinkFileIds();
+        // 没有保存的文件管理临时文件
+        if (CollectionUtils.isNotEmpty(linkFileIds)) {
+            List<FileMetadata> fileMetadataList = fileMetadataService.getByFileIds(linkFileIds);
+            // 添加临时的文件管理的文件
+            taskRequest.getRefFiles().addAll(getApiExecuteFileInfo(fileMetadataList));
+        }
+    }
+
+    /**
+     * 处理运行的资源所关联的文件信息
+     *
+     * @param runRequest
+     * @param taskRequest
+     */
+    private void setTaskRefFileParam(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest) {
+        // 查询包括引用的资源所需的文件
+        Set<String> resourceIdsSet = runRequest.getRefResourceIds();
+        resourceIdsSet.add(taskRequest.getResourceId());
+        List<String> resourceIds = resourceIdsSet.stream().collect(Collectors.toList());
+
         // 查询通过本地上传的文件
-        List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceId(request.getId()).
+        List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceIds(resourceIds).
                 stream()
                 .map(file -> {
                     ApiExecuteFileInfo apiExecuteFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getFileName(), file.getProjectId());
                     // 本地上传的文件需要 resourceId 查询对应的目录
-                    apiExecuteFileInfo.setResourceId(request.getId());
+                    apiExecuteFileInfo.setResourceId(file.getResourceId());
                     return apiExecuteFileInfo;
                 })
                 .collect(Collectors.toList());
         taskRequest.setLocalFiles(localFiles);
 
         // 查询关联的文件管理的文件
-        List<ApiExecuteFileInfo> refFiles = fileAssociationService.getFiles(request.getId()).
+        List<ApiExecuteFileInfo> refFiles = fileAssociationService.getFiles(resourceIds).
                 stream()
                 .map(file -> {
                     ApiExecuteFileInfo refFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getOriginalName(),
@@ -295,39 +366,7 @@ public class ApiExecuteService {
                     }
                     return refFileInfo;
                 }).collect(Collectors.toList());
-
-        // 没有保存的本地临时文件
-        List<String> uploadFileIds = request.getUploadFileIds();
-        if (CollectionUtils.isNotEmpty(uploadFileIds)) {
-            List<ApiExecuteFileInfo> localTempFiles = uploadFileIds.stream()
-                    .map(tempFileId -> {
-                        String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
-                        return getApiExecuteFileInfo(tempFileId, fileName, request.getProjectId());
-                    })
-                    .collect(Collectors.toList());
-            taskRequest.setLocalTempFiles(localTempFiles);
-        }
-
-        List<String> linkFileIds = request.getLinkFileIds();
-        // 没有保存的文件管理临时文件
-        if (CollectionUtils.isNotEmpty(linkFileIds)) {
-            List<FileMetadata> fileMetadataList = fileMetadataService.getByFileIds(linkFileIds);
-            // 添加临时的文件管理的文件
-            refFiles.addAll(getApiExecuteFileInfo(fileMetadataList));
-        }
-
         taskRequest.setRefFiles(refFiles);
-        // 获取函数jar包
-        List<FileMetadata> fileMetadataList = fileManagementService.findJarByProjectId(List.of(taskRequest.getProjectId()));
-        taskRequest.setFuncJars(getApiExecuteFileInfo(fileMetadataList));
-
-        // TODO 当前项目没有包分两种情况，1 之前存在被删除，2 一直不存在
-        //  为了兼容1 这种情况需要初始化一条空的数据，由执行机去做卸载
-        if (CollectionUtils.isEmpty(taskRequest.getFuncJars())) {
-            ApiExecuteFileInfo tempFileInfo = new ApiExecuteFileInfo();
-            tempFileInfo.setProjectId(request.getProjectId());
-            taskRequest.setFuncJars(List.of(tempFileInfo));
-        }
     }
 
     private List<ApiExecuteFileInfo> getApiExecuteFileInfo(List<FileMetadata> fileMetadataList) {
@@ -364,7 +403,7 @@ public class ApiExecuteService {
      * @param config        参数配置
      * @return 执行脚本
      */
-    private static String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
+    private String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
         // 解析生成脚本
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
         return defaultParser.parse(msTestElement, config);
@@ -441,5 +480,45 @@ public class ApiExecuteService {
                 LogUtils.error(e);
             }
         }
+    }
+
+    /**
+     * 单接口执行
+     *
+     * @param runRequest
+     * @return
+     */
+    public TaskRequestDTO apiExecute(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest, ApiParamConfig apiParamConfig) {
+        // 设置使用脚本前后置的公共脚本信息
+        apiCommonService.setEnableCommonScriptProcessorInfo(runRequest.getTestElement());
+        return execute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    public ApiParamConfig getApiParamConfig(String reportId) {
+        ApiParamConfig paramConfig = new ApiParamConfig();
+        paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
+        paramConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
+        paramConfig.setReportId(reportId);
+        return paramConfig;
+    }
+
+    public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId) {
+        TaskRequestDTO taskRequest = new TaskRequestDTO();
+        taskRequest.setReportId(reportId);
+        taskRequest.setResourceId(resourceId);
+        taskRequest.setProjectId(projectId);
+        return taskRequest;
+    }
+
+    public String getDebugRunModule(boolean isFrontendDebug) {
+        return isFrontendDebug ? ApiExecuteRunMode.FRONTEND_DEBUG.name() : ApiExecuteRunMode.BACKEND_DEBUG.name();
+    }
+
+    public ApiResourceRunRequest getApiResourceRunRequest(ApiDebugRunRequest request) {
+        ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
+        runRequest.setLinkFileIds(request.getLinkFileIds());
+        runRequest.setUploadFileIds(request.getUploadFileIds());
+        runRequest.setTestElement(ApiDataUtils.parseObject(JSON.toJSONString(request.getRequest()), AbstractMsTestElement.class));
+        return runRequest;
     }
 }

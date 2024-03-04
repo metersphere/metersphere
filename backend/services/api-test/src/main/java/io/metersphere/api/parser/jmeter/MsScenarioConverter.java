@@ -121,8 +121,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         MsProcessorConfig scenarioProcessorConfig = isPre ? scenarioConfig.getPreProcessorConfig() : scenarioConfig.getPostProcessorConfig();
-        Boolean enableGlobal = scenarioProcessorConfig.getEnableGlobal();
-        if (BooleanUtils.isFalse(enableGlobal) || envInfo == null) {
+        if (scenarioProcessorConfig == null || BooleanUtils.isFalse(scenarioProcessorConfig.getEnableGlobal()) || envInfo == null) {
             // 如果场景配置没有开启全局前置，不添加环境的前后置
             return;
         }
@@ -156,11 +155,12 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         // 获取场景前后置
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         MsProcessorConfig processorConfig = isPre ? scenarioConfig.getPreProcessorConfig() : scenarioConfig.getPostProcessorConfig();
-        List<MsProcessor> scenarioPreProcessors = processorConfig.getProcessors();
 
-        if (CollectionUtils.isEmpty(scenarioPreProcessors)) {
+
+        if (processorConfig == null || CollectionUtils.isEmpty(processorConfig.getProcessors())) {
             return;
         }
+        List<MsProcessor> scenarioPreProcessors = processorConfig.getProcessors();
 
         Function<Class<?>, MsProcessorConverter<MsProcessor>> getConverterFunc =
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;

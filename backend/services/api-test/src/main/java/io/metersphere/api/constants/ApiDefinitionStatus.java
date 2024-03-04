@@ -1,5 +1,6 @@
 package io.metersphere.api.constants;
 
+import io.metersphere.sdk.constants.ValueEnum;
 import lombok.Getter;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Getter;
  * @version: 1.0
  */
 @Getter
-public enum ApiDefinitionStatus {
+public enum ApiDefinitionStatus implements ValueEnum {
     PREPARE("Prepare"),
     UNDERWAY("Underway"),
     DEBUGGING("Debugging"),

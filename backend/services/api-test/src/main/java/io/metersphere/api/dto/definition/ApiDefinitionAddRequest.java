@@ -1,7 +1,9 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -50,6 +52,7 @@ public class ApiDefinitionAddRequest implements Serializable {
     @Schema(description = "接口状态/进行中/已完成", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.status.not_blank}")
     @Size(min = 1, max = 50, message = "{api_definition.status.length_range}")
+    @EnumValue(enumClass = ApiDefinitionStatus.class)
     private String status;
 
     @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)

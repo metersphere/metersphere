@@ -4,10 +4,7 @@ import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 执行场景解析参数时的临时参数
@@ -16,7 +13,7 @@ import java.util.Map;
  * @CreateTime: 2024-02-22  11:27
  */
 @Data
-public class ApiScenarioParseParam {
+public class ApiScenarioParseTmpParam {
     /**
      * 步骤详情 Map
      * key 为步骤ID
@@ -39,4 +36,18 @@ public class ApiScenarioParseParam {
      * 场景中所有的 MsCommonElement 列表
      */
     private List<MsCommonElement> commonElements = new ArrayList<>();
+    /**
+     * 执行的资源ID列表
+     * 场景执行时，为关联的所有用例和场景列表
+     */
+    private Set<String> refResourceIds = HashSet.newHashSet(0);
+    /**
+     * 执行的资源所属项目的ID列表
+     * 场景执行时，为引用的资源的项目ID列表
+     */
+    private Set<String> refProjectIds = HashSet.newHashSet(0);
+    /**
+     * 环境相关信息
+     */
+    private ApiScenarioParseEnvInfo scenarioParseEnvInfo;
 }
