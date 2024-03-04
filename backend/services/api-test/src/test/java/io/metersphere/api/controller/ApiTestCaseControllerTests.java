@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
+import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.*;
@@ -30,6 +31,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -56,40 +58,42 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/case/";
-    private static final String ADD = BASE_PATH + "add";
-    private static final String GET = BASE_PATH + "get-detail/";
-    private static final String MOVE_TO_GC = BASE_PATH + "move-gc/";
-    private static final String RECOVER = BASE_PATH + "recover/";
-    private static final String FOLLOW = BASE_PATH + "follow/";
-    private static final String UNFOLLOW = BASE_PATH + "unfollow/";
-    private static final String DELETE = BASE_PATH + "delete/";
-    private static final String UPDATE = BASE_PATH + "update";
-    private static final String PAGE = BASE_PATH + "page";
-    private static final String TRASH_PAGE = BASE_PATH + "trash/page";
-    private static final String UPDATE_STATUS = BASE_PATH + "update-status";
-    private static final String UPDATE_PRIORITY = BASE_PATH + "update-priority";
-    private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
-    private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
-    private static final String BATCH_MOVE_GC = BASE_PATH + "batch/move-gc";
-    private static final String BATCH_RECOVER = BASE_PATH + "batch/recover";
-    private static final String POS_URL = BASE_PATH + "/edit/pos";
-    private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
-    private static final String EXECUTE = BASE_PATH + "/execute/page";
-    private static final String HISTORY = BASE_PATH + "/operation-history/page";
+    private static final String ADD = "add";
+    private static final String GET = "get-detail/";
+    private static final String MOVE_TO_GC = "move-gc/";
+    private static final String RECOVER = "recover/";
+    private static final String FOLLOW = "follow/";
+    private static final String UNFOLLOW = "unfollow/";
+    private static final String DELETE = "delete/";
+    private static final String UPDATE = "update";
+    private static final String PAGE = "page";
+    private static final String TRASH_PAGE = "trash/page";
+    private static final String UPDATE_STATUS = "update-status";
+    private static final String UPDATE_PRIORITY = "update-priority";
+    private static final String BATCH_EDIT = "batch/edit";
+    private static final String BATCH_DELETE = "batch/delete";
+    private static final String BATCH_MOVE_GC = "batch/move-gc";
+    private static final String BATCH_RECOVER = "batch/recover";
+    private static final String POS_URL = "edit/pos";
+    private static final String UPLOAD_TEMP_FILE = "upload/temp/file";
+    private static final String EXECUTE = "execute/page";
+    private static final String HISTORY = "operation-history/page";
+    private static final String DEBUG = "debug";
+    private static final String RUN = "run/{0}/{1}";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -126,6 +130,11 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
 
+    @Override
+    public String getBasePath() {
+        return BASE_PATH;
+    }
+
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
             String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -136,16 +145,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         } catch (Exception ignore) {
         }
         return null;
-    }
-
-    private MvcResult responsePost(String url, Object param) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post(url)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(param))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
     public void initApiData() {
@@ -396,6 +395,34 @@ public class ApiTestCaseControllerTests extends BaseTest {
         return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
+    @Test
+    @Order(3)
+    public void debug() throws Exception {
+        ApiRunRequest request = new ApiRunRequest();
+        request.setId(apiTestCase.getId());
+        MsHTTPElement msHTTPElement = new MsHTTPElement();
+        msHTTPElement.setPath("/test");
+        msHTTPElement.setMethod("GET");
+        request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
+        request.setReportId(IDGenerator.nextStr());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        MvcResult mvcResult = this.requestPostAndReturn(DEBUG, request);
+        ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
+        Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
+                resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, DEBUG, request);
+    }
+
+    @Test
+    @Order(3)
+    public void run() throws Exception {
+        assertErrorCode(this.requestGet(RUN, apiTestCase.getId(), "111"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN, apiTestCase.getId(), "11111");
+    }
 
     @Test
     @Order(3)
@@ -453,7 +480,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Order(5)
     public void recover() throws Exception {
         // @@请求成功
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(RECOVER + apiTestCase.getId());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(BASE_PATH + RECOVER + apiTestCase.getId());
         requestBuilder
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -528,7 +555,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         assertLinkFile(apiTestCase.getId(), List.of());
         // 校验请求成功数据
         request.setTags(new ArrayList<>());
-        MvcResult mvcResult = this.responsePost(UPDATE, request);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE, request);
         ApiTestCase resultData = getResultData(mvcResult, ApiTestCase.class);
         assertUpdateApiDebug(request, msHttpElement, resultData.getId());
 
@@ -583,7 +610,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testTransfer() throws Exception {
-        this.requestGetWithOk("/api/case/transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        this.requestGetWithOk("transfer/options/" + DEFAULT_PROJECT_ID);
         ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
         apiTransferRequest.setSourceId(apiTestCase.getId());
         apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -592,10 +619,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         String uploadFileId = doUploadTempFile(getMockMultipartFile());
         apiTransferRequest.setFileId(uploadFileId);
         apiTransferRequest.setFileName("test-api-test-case.txt");
-        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
-        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().is5xxServerError());
         //文件已经上传
         ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
         apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiTestCase.getId());
@@ -603,7 +630,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertFalse(apiFileResources.isEmpty());
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
         apiTransferRequest.setFileName("test-api-test-case-1.txt");
-        this.requestPost("/api/case/transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
 
     }
 
@@ -658,14 +685,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setId(first.getId());
         request.setPageSize(10);
         request.setCurrent(1);
-        MvcResult mvcResult = responsePost(EXECUTE, request);
+        MvcResult mvcResult = requestPostWithOkAndReturn(EXECUTE, request);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         request.setFilter(new HashMap<>() {{
             put("status", List.of(ApiReportStatus.SUCCESS.name()));
         }});
-        mvcResult = responsePost(EXECUTE, request);
+        mvcResult = requestPostWithOkAndReturn(EXECUTE, request);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -694,7 +721,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
-        MvcResult mvcResult = responsePost(PAGE, pageRequest);
+        MvcResult mvcResult = requestPostWithOkAndReturn(PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -705,7 +732,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         //查询apiDefinitionId1的数据
         pageRequest.setApiDefinitionId("apiDefinitionId1");
-        mvcResult = responsePost(PAGE, pageRequest);
+        mvcResult = requestPostWithOkAndReturn(PAGE, pageRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -718,7 +745,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //查询模块为moduleId1的数据
         pageRequest.setApiDefinitionId(null);
         pageRequest.setModuleIds(List.of("moduleId1"));
-        mvcResult = responsePost(PAGE, pageRequest);
+        mvcResult = requestPostWithOkAndReturn(PAGE, pageRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -731,7 +758,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setSort(new HashMap<>() {{
             put("createTime", "asc");
         }});
-        responsePost(PAGE, pageRequest);
+        requestPostWithOkAndReturn(PAGE, pageRequest);
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, PAGE, pageRequest);
     }
@@ -774,7 +801,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setAppendTag(true);
         request.setSelectAll(true);
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         List<String> ids = extApiTestCaseMapper.getIds(request, false);
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false).andIdIn(ids);
@@ -786,7 +813,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //覆盖标签
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
         request.setAppendTag(false);
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         apiTestCaseMapper.selectByExample(example).forEach(apiTestCase -> {
             Assertions.assertEquals(apiTestCase.getTags(), List.of("tag1"));
         });
@@ -801,7 +828,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<String> apiIdList = caseList1.stream().map(ApiTestCase::getId).toList();
         request.setSelectIds(apiIdList);
         request.setExcludeIds(apiIdList);
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
 
         initCaseData();
         //优先级
@@ -811,7 +838,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setModuleIds(List.of("case-moduleId"));
         request.setPriority("P3");
         request.setExcludeIds(new ArrayList<>());
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         //判断数据的优先级是不是P3
         example.clear();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(false);
@@ -826,14 +853,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         //状态
         request.setPriority(null);
         request.setType("Status");
         request.setStatus("Completed");
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         //判断数据的状态是不是Completed
         caseList = apiTestCaseMapper.selectByExample(example);
         caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getStatus(), "Completed"));
@@ -847,7 +874,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         request.setEnvId(environments.get(0).getId());
-        responsePost(BATCH_EDIT, request);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
         //判断数据的环境是不是environments.get(0).getId()
         caseList = apiTestCaseMapper.selectByExample(example);
         caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.get(0).getId()));
@@ -887,7 +914,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         version.setCreateUser("admin");
         projectVersionMapper.insertSelective(version);
 
-        MvcResult mvcResult = responsePost(HISTORY, request);
+        MvcResult mvcResult = requestPostWithOkAndReturn(HISTORY, request);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -902,7 +929,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSourceId("111");
         request.setPageSize(10);
         request.setCurrent(1);
-        responsePost(HISTORY, request);
+        requestPostWithOkAndReturn(HISTORY, request);
     }
 
     @Test
@@ -914,13 +941,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        responsePost(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
 
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         request.setApiDefinitionId("apiDefinitionId");
         request.setModuleIds(List.of("case-moduleId"));
-        responsePost(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(true);
         List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
@@ -929,7 +956,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         request.setModuleIds(List.of("case-moduleId"));
-        responsePost(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
@@ -944,7 +971,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
-        MvcResult mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        MvcResult mvcResult = requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -955,7 +982,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         //查询apiDefinitionId1的数据
         pageRequest.setApiDefinitionId("apiDefinitionId1");
-        mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        mvcResult = requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -968,7 +995,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //查询模块为moduleId1的数据
         pageRequest.setApiDefinitionId(null);
         pageRequest.setModuleIds(List.of("moduleId1"));
-        mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        mvcResult = requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -981,7 +1008,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setSort(new HashMap<>() {{
             put("createTime", "asc");
         }});
-        responsePost(TRASH_PAGE, pageRequest);
+        requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, TRASH_PAGE, pageRequest);
     }
@@ -995,7 +1022,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        responsePost(BATCH_RECOVER, request);
+        requestPostWithOkAndReturn(BATCH_RECOVER, request);
 
         ApiDefinition apiDefinition = new ApiDefinition();
         apiDefinition.setId("apiDefinitionId");
@@ -1006,7 +1033,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setExcludeIds(List.of(apiTestCase.getId()));
         request.setApiDefinitionId("apiDefinitionId");
         request.setModuleIds(List.of("case-moduleId"));
-        responsePost(BATCH_RECOVER, request);
+        requestPostWithOkAndReturn(BATCH_RECOVER, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(false);
         List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
@@ -1015,7 +1042,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         request.setModuleIds(List.of("case-moduleId"));
-        responsePost(BATCH_RECOVER, request);
+        requestPostWithOkAndReturn(BATCH_RECOVER, request);
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
@@ -1025,7 +1052,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         gcRequest.setSelectAll(true);
         gcRequest.setExcludeIds(new ArrayList<>());
         gcRequest.setApiDefinitionId("apiDefinitionId");
-        responsePost(BATCH_MOVE_GC, gcRequest);
+        requestPostWithOkAndReturn(BATCH_MOVE_GC, gcRequest);
         ApiTestCaseExample example1 = new ApiTestCaseExample();
         example1.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(true);
         List<ApiTestCase> caseList1 = apiTestCaseMapper.selectByExample(example1);
@@ -1069,11 +1096,11 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        responsePost(BATCH_DELETE, request);
+        requestPostWithOkAndReturn(BATCH_DELETE, request);
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         request.setApiDefinitionId("apiDefinitionId");
-        responsePost(BATCH_DELETE, request);
+        requestPostWithOkAndReturn(BATCH_DELETE, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId");
         //数据为空

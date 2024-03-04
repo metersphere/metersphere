@@ -4,44 +4,16 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class ApiResourceRunRequest {
-    private String id;
-    /**
-     * 项目ID
-     */
-    private String projectId;
-    /**
-     * 资源ID
-     */
-    private String testId;
-    /**
-     * 测试报告ID
-     */
-    private String reportId;
-    /**
-     * 是否为环境组
-     */
-    private Boolean grouped = false;
-    /**
-     * 环境或者环境组ID
-     */
-    private String environmentId;
-    /**
-     * 资源类型
-     * @see io.metersphere.api.constants.ApiResourceType
-     */
-    private String resourceType;
     /**
      * 执行组件
      */
     private AbstractMsTestElement testElement;
-    /**
-     * 是否是本地执行
-     */
-    private Boolean frontendDebug = false;
     /**
      * 新上传的文件ID
      * 创建时先按ID创建目录，再把文件放入目录
@@ -53,4 +25,14 @@ public class ApiResourceRunRequest {
      */
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
+    /**
+     * 执行的资源ID列表
+     * 场景执行时，为关联的所有用例和场景列表
+     */
+    private Set<String> refResourceIds = HashSet.newHashSet(0);
+    /**
+     * 执行的资源所属项目的ID列表
+     * 场景执行时，为引用的资源的项目ID列表
+     */
+    private Set<String> refProjectIds = HashSet.newHashSet(0);
 }

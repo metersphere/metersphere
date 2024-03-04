@@ -23,13 +23,13 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -60,8 +60,6 @@ public class ApiDebugService {
     private ApiFileResourceService apiFileResourceService;
     @Resource
     private ApiExecuteService apiExecuteService;
-    @Resource
-    private ApiPluginService apiPluginService;
     @Resource
     private ApiDebugModuleMapper apiDebugModuleMapper;
     @Resource
@@ -207,24 +205,18 @@ public class ApiDebugService {
     }
 
     public TaskRequestDTO debug(ApiDebugRunRequest request) {
-        String id = request.getId();
-        String reportId = request.getReportId();
+        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
 
-        ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
-        runRequest.setProjectId(request.getProjectId());
-        runRequest.setTestId(id);
-        runRequest.setReportId(reportId);
-        runRequest.setResourceType(ApiResourceType.API_DEBUG.name());
-        runRequest.setTestElement(ApiDataUtils.parseObject(JSON.toJSONString(request.getRequest()), AbstractMsTestElement.class));
+        TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
+        taskRequest.setSaveResult(false);
+        taskRequest.setRealTime(true);
+        taskRequest.setResourceType(ApiResourceType.API_DEBUG.name());
+        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
+        apiRunModeConfig.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.setRunModeConfig(apiRunModeConfig);
 
-        ApiParamConfig paramConfig = new ApiParamConfig();
-        paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
-        paramConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
-        paramConfig.setReportId(reportId);
-
-        // 设置使用脚本前后置的公共脚本信息
-        apiCommonService.setEnableCommonScriptProcessorInfo(runRequest.getTestElement());
-        return apiExecuteService.debug(runRequest, paramConfig);
+        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 
     public void checkModuleExist(String moduleId) {

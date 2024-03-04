@@ -5,9 +5,11 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
+import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
@@ -16,18 +18,23 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.service.ApiCommonService;
+import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.OperationLogBlob;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.OperationLogBlobMapper;
 import io.metersphere.sdk.util.*;
@@ -85,6 +92,8 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
+    @Resource
+    private EnvironmentService environmentService;
 
     @Resource
     private ApiCommonService apiCommonService;
@@ -124,6 +133,8 @@ public class ApiDefinitionService {
 
     @Resource
     private OperationLogBlobMapper operationLogBlobMapper;
+    @Resource
+    private ApiExecuteService apiExecuteService;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
@@ -1122,4 +1133,21 @@ public class ApiDefinitionService {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API.name());
     }
 
+    public TaskRequestDTO debug(ApiRunRequest request) {
+        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
+        EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
+
+        TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
+        taskRequest.setSaveResult(false);
+        taskRequest.setRealTime(true);
+        taskRequest.setResourceType(ApiResourceType.API.name());
+        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
+        apiRunModeConfig.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.setRunModeConfig(apiRunModeConfig);
+
+        // 设置环境
+        apiParamConfig.setEnvConfig(environmentInfoDTO);
+        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+    }
 }

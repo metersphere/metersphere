@@ -38,6 +38,32 @@
             file_association.source_id = #{sourceId}
     </select>
 
+    <select id="selectFileInfoBySourceIds" resultType="io.metersphere.project.dto.filemanagement.FileInfo">
+        SELECT
+            file_association.id AS id,
+            file_association.file_id AS fileId,
+            CONCAT( file_metadata.`name`, IF(LENGTH(file_metadata.type) = 0, '', '.'), file_metadata.type ) AS fileName,
+            file_metadata.original_name,
+            file_metadata.size AS size,
+            file_metadata.storage,
+            file_metadata.project_id,
+            file_metadata.module_id,
+            file_metadata.id as metadataId,
+	        'false' AS local,
+	        file_association.create_user AS createUser,
+	        file_association.create_time AS createTime,
+            file_association.deleted deleted,
+            file_association.deleted_file_name AS deletedFileName
+        FROM
+            file_association
+        JOIN file_metadata ON file_association.file_id = file_metadata.id
+        WHERE
+            file_association.source_id in
+        <foreach collection="sourceIds" item="sourceId" open="(" separator="," close=")">
+            #{sourceId}
+        </foreach>
+    </select>
+
     <select id="selectFileIdsBySourceId" resultType="io.metersphere.project.domain.FileAssociation">
         select source_id, file_id from file_association where source_type = #{sourceType} and source_id in
         <foreach collection="sourceIds" item="sourceId" open="(" separator="," close=")">

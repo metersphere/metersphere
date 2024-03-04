@@ -14,6 +14,7 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
@@ -273,5 +274,12 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public String preview(@RequestBody TextNode jsonSchema) {
         return JsonSchemaBuilder.preview(jsonSchema.asText());
+    }
+
+    @PostMapping("/debug")
+    @Operation(summary = "接口调试")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXECUTE)
+    public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
+        return apiDefinitionService.debug(request);
     }
 }

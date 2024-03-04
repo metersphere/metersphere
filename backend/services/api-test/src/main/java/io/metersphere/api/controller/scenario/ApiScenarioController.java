@@ -14,6 +14,7 @@ import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -153,8 +154,15 @@ public class ApiScenarioController {
     @PostMapping("/debug")
     @Operation(summary = "接口测试-接口场景管理-场景调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
-    public String debug(@Validated @RequestBody ApiScenarioDebugRequest request) {
+    public TaskRequestDTO debug(@Validated @RequestBody ApiScenarioDebugRequest request) {
         return apiScenarioService.debug(request);
+    }
+
+    @GetMapping("/run/{id}/{reportId}")
+    @Operation(summary = "接口测试-接口场景管理-场景执行")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    public TaskRequestDTO run(@PathVariable String id, @PathVariable String reportId) {
+        return apiScenarioService.run(id, reportId);
     }
 
     @GetMapping(value = "/update-status/{id}/{status}")
@@ -252,5 +260,4 @@ public class ApiScenarioController {
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
     }
-
 }

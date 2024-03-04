@@ -7,6 +7,7 @@ import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,7 +48,7 @@ public class ApiTestController {
     @PostMapping("/custom/func/run")
     @Operation(summary = "项目管理-公共脚本-脚本测试")
     @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_EXECUTE)
-    public String run(@Validated @RequestBody CustomFunctionRunRequest runRequest) {
+    public TaskRequestDTO run(@Validated @RequestBody CustomFunctionRunRequest runRequest) {
         return apiExecuteService.runScript(runRequest);
     }
 

@@ -347,6 +347,16 @@ public class FileAssociationService {
         return extFileAssociationMapper.selectAssociationFileInfo(sourceId);
     }
 
+    /**
+     * 获取文件列表接口
+     *
+     * @param sourceIds
+     * @return
+     */
+    public List<FileInfo> getFiles(List<String> sourceIds) {
+        return extFileAssociationMapper.selectFileInfoBySourceIds(sourceIds);
+    }
+
     public List<FileAssociation> getFileAssociations(List<String> sourceIds, String sourceType) {
         return extFileAssociationMapper.selectFileIdsBySourceId(sourceIds, sourceType);
     }

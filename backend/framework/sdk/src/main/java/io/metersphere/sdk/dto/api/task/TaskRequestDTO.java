@@ -1,6 +1,8 @@
 package io.metersphere.sdk.dto.api.task;
 
 import io.metersphere.sdk.dto.api.result.MsRegexDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serial;
@@ -15,6 +17,7 @@ public class TaskRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @NotBlank
     private String reportId;
     private String msUrl;
     private String kafkaConfig;
@@ -32,22 +35,20 @@ public class TaskRequestDTO implements Serializable {
     /**
      * 执行的资源ID
      */
+    @NotBlank
     private String resourceId;
-
     /**
      * 触发方式
      * 手动执行，批量执行，API执行，定时任务
      * {@link io.metersphere.sdk.constants.TaskTriggerMode}
      */
     private String triggerMode;
-
     /**
      * 资源类型
      *
      * @see io.metersphere.sdk.constants.ApiExecuteResourceType
      */
     private String resourceType;
-
     /**
      * 点击调试时，尚未保存的本地上传的文件列表
      */
@@ -80,11 +81,13 @@ public class TaskRequestDTO implements Serializable {
     /**
      * 项目id
      */
+    @NotBlank
     private String projectId;
 
     /**
      * 运行配置
      */
+    @Valid
     private ApiRunModeConfigDTO runModeConfig;
 
     /**

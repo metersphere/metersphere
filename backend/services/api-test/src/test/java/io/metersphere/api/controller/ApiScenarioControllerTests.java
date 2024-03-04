@@ -113,6 +113,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
     protected static final String STEP_GET = "step/get";
     protected static final String DEBUG = "debug";
+    protected static final String RUN = "run/{0}/{1}";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
 
@@ -994,6 +995,15 @@ public class ApiScenarioControllerTests extends BaseTest {
         msTestElements.add(msHTTPElement);
         msLoopController.setChildren(msTestElements);
         return msLoopController;
+    }
+
+    @Order(6)
+    public void run() throws Exception {
+        mockPost("/api/run", "");
+        this.requestGetWithOk(RUN, addApiScenario.getId(), "11111");
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN, addApiScenario.getId(), "11111");
     }
 
     public Plugin addEnvTestPlugin() throws Exception {

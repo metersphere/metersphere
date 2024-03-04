@@ -17,5 +17,7 @@ public interface ExtFileAssociationMapper {
 
     List<FileInfo> selectAssociationFileInfo(@Param("sourceId") String sourceId);
 
+    List<FileInfo> selectFileInfoBySourceIds(@Param("sourceIds") List<String> sourceIds);
+
     List<FileAssociation> selectFileIdsBySourceId(@Param("sourceIds")List<String> sourceIds, @Param("sourceType")String sourceType);
 }
