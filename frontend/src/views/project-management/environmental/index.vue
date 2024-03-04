@@ -184,7 +184,7 @@
         <!-- 全局参数 -->
         <AllParamBox v-if="showType === 'PROJECT' && activeKey === ALL_PARAM" />
         <!-- 环境变量 -->
-        <EnvParamBox v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM" />
+        <EnvParamBox v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM" @ok="initData()" />
         <!-- 环境组 -->
         <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
       </template>
@@ -407,12 +407,38 @@
       }
       const _oldIndex = oldIndex as number;
       const _newIndex = newIndex as number;
+
       const params = {
         projectId: appStore.currentProjectId,
-        targetId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_oldIndex].id : evnGroupList.value[_oldIndex].id,
-        moveId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_newIndex].id : evnGroupList.value[_newIndex].id,
-        moveMode: _oldIndex > _newIndex ? 'BEFORE' : 'AFTER',
+        targetId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_newIndex].id : evnGroupList.value[_newIndex].id,
+        moveId: '',
+        moveMode: 'AFTER',
       };
+      if (type === EnvAuthTypeEnum.ENVIRONMENT) {
+        if (envList.value[_newIndex + 1].id) {
+          params.moveMode = 'BEFORE';
+          params.moveId = envList.value[_newIndex + 1].id;
+          return;
+        }
+        if (envList.value[_newIndex - 1].id) {
+          params.moveMode = 'AFTER';
+          params.moveId = envList.value[_newIndex - 1].id;
+          return;
+        }
+      }
+      if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
+        if (evnGroupList.value[_newIndex + 1].id) {
+          params.moveMode = 'AFTER';
+          params.moveId = evnGroupList.value[_newIndex + 1].id;
+          return;
+        }
+        if (evnGroupList.value[_newIndex - 1].id) {
+          params.moveMode = 'BEFORE';
+          params.moveId = evnGroupList.value[_newIndex - 1].id;
+          return;
+        }
+      }
+
       if (type === EnvAuthTypeEnum.ENVIRONMENT) {
         await editPosEnv(params);
       } else if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {

@@ -58,6 +58,7 @@ const useProjectEnvStore = defineStore(
     const currentEnvDetailInfo = ref<EnvDetailItem>({
       projectId: '',
       name: '',
+      description: '',
       config: envParamsDefaultConfig,
     });
     const backupEnvDetailInfo = ref<EnvDetailItem>({
