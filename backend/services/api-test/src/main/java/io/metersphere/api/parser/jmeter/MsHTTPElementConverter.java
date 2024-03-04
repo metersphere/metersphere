@@ -106,6 +106,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     /**
      * 设置超时时间等配置
+     *
      * @param msHTTPConfig
      * @param sampler
      */
@@ -128,7 +129,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             authorization.setPass(basicAuth.getPassword());
         });
         authHanlerMap.put(HTTPAuthConfig.HTTPAuthType.DIGEST.name(), (authorization, httpAuth) -> {
-            DigestAuth digestAuth = httpAuth.getDigestAuth() ;
+            DigestAuth digestAuth = httpAuth.getDigestAuth();
             authorization.setUser(digestAuth.getUserName());
             authorization.setPass(digestAuth.getPassword());
         });
@@ -136,6 +137,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     /**
      * 获取认证配置
+     *
      * @param authConfig
      * @return
      */
@@ -178,7 +180,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         if (httpConfig != null) {
             // 接口调试没有环境，不取环境的配置
             String protocol = httpConfig.getProtocol().toLowerCase();
-            url = protocol + "://" + (httpConfig.getUrl() + "/" + url).replace("//", "/");
+            url = protocol + "://" + (httpConfig.getHostname() + "/" + url).replace("//", "/");
         }
         url = getPathWithQueryRest(msHTTPElement, url);
         return getPathWithQuery(url, msHTTPElement.getQuery());
@@ -186,6 +188,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     /**
      * 替换 rest 参数
+     *
      * @param msHTTPElement
      * @param path
      * @return

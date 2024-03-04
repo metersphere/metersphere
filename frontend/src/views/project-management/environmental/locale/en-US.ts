@@ -84,4 +84,6 @@ export default {
   'project.environmental.host.hostNamePlaceholder': 'Please enter the host name',
   'project.environmental.host.desc': 'Description',
   'project.environmental.host.descPlaceholder': 'Please enter the description',
+  'project.environmental.newEnv': 'New Environment',
+  'project.environmental.http.hostNamePlaceholder': 'Please enter the host name',
 };

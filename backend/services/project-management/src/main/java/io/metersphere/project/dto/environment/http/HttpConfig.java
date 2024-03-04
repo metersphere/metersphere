@@ -21,7 +21,7 @@ public class HttpConfig implements Serializable {
     @EnumValue(enumClass = HttpProtocolType.class)
     private String protocol = HttpProtocolType.HTTP.name();
     @Schema(description = "环境域名")
-    private String url;
+    private String hostname;
     /**
      * 启用条件
      * {@link HttpConfigMatchType}
@@ -39,6 +39,8 @@ public class HttpConfig implements Serializable {
     private List<@Valid KeyValueEnableParam> headers = new ArrayList<>(0);
     @Schema(description = "描述")
     private String description;
+    @Schema(description = "排序")
+    private int order;
 
 
     public boolean isModuleMatchRule() {

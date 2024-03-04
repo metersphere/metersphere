@@ -342,7 +342,7 @@
     <template #host="{ record }">
       <span v-if="!record.domain || record.domain.length === 0"></span>
       <span v-else-if="Array.isArray(record.domain) && record.domain.length === 1" class="text-[var(--color-text-4)]">{{
-        record.domain[0].protocol + '://' + (record.domain[0].url || '')
+        record.domain[0].protocol + '://' + (record.domain[0].hostname || '')
       }}</span>
       <span
         v-if="Array.isArray(record.domain) && record.domain.length > 1"
@@ -726,7 +726,7 @@
   const showHostModal = (record: Record<string, any>) => {
     hostVisible.value = true;
     record.domain?.forEach((e: any) => {
-      e.host = `${e.protocol} :// ${e.url || ''}`;
+      e.host = `${e.protocol} :// ${e.hostname || ''}`;
     });
 
     hostData.value = record.domain || [];

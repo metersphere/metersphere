@@ -20,6 +20,7 @@ import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -111,6 +112,8 @@ public class EnvironmentControllerTests extends BaseTest {
     private PluginService pluginService;
     @Resource
     private PluginScriptMapper pluginScriptMapper;
+    @Resource
+    private EnvironmentService environmentService;
     @Value("${spring.datasource.url}")
     private String dburl;
     @Value("${spring.datasource.username}")
@@ -231,7 +234,7 @@ public class EnvironmentControllerTests extends BaseTest {
         keyValue.setValue("value");
         headers.add(keyValue);
         httpConfig.setHeaders(headers);
-        httpConfig.setUrl("http://www.baidu.com");
+        httpConfig.setHostname("http://www.baidu.com");
 
         httpConfigs.add(httpConfig);
         return httpConfigs;
@@ -1216,5 +1219,15 @@ public class EnvironmentControllerTests extends BaseTest {
         MvcResult mvcResult = responseGet(listOption + DEFAULT_PROJECT_ID);
         List<EnvironmentOptionsDTO> options = getResultDataArray(mvcResult, EnvironmentOptionsDTO.class);
         Assertions.assertFalse(options.isEmpty());
+    }
+
+    @Test
+    @Order(18)
+    public void addCover() throws Exception {
+        List<Environment> environments = environmentMapper.selectByExample(new EnvironmentExample());
+        //获取id集合 过滤一下mock为false的
+        List<String> ids = environments.stream().filter(environment -> !environment.getMock()).map(Environment::getId).toList();
+        environmentService.getByIds(ids);
+        environmentService.getEnvironmentBlobsByIds(List.of());
     }
 }

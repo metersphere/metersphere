@@ -197,7 +197,7 @@ public class EnvironmentService {
                 List<HttpConfig> httpConfigs = environmentInfoDTO.getConfig().getHttpConfig();
                 if (CollectionUtils.isEmpty(httpConfigs)) {
                     HttpConfig httpConfig = new HttpConfig();
-                    httpConfig.setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    httpConfig.setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
                     httpConfigs.add(new HttpConfig());
                 }
             }
@@ -446,7 +446,7 @@ public class EnvironmentService {
             if (BooleanUtils.isTrue(environment.getMock())) {
                 if (StringUtils.isNotEmpty(baseUrl)) {
                     Long projectNum = projectMap.get(environment.getProjectId()).getNum();
-                    environmentInfo.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, projectNum));
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, projectNum));
                 }
             }
             environmentInfos.add(environmentInfo);
