@@ -99,7 +99,7 @@ public class BaseProjectService {
         return baseProjectMapper.getProjectWithWorkspace(request);
     }
 
-    public List<Project> getUserProject(ProjectRequest request) {
+    public List<Project> getUserProject(ProjectRequest request, String sessionProjectId) {
         boolean isSuper = baseUserMapper.isSuperUser(SessionUtils.getUserId());
         if (isSuper) {
             ProjectExample example = new ProjectExample();
@@ -110,22 +110,29 @@ public class BaseProjectService {
             if (StringUtils.isNotBlank(request.getWorkspaceId())) {
                 criteria.andWorkspaceIdEqualTo(request.getWorkspaceId());
             }
-            return projectMapper.selectByExample(example);
+            example.setOrderByClause(" CONVERT(name USING gbk) COLLATE gbk_chinese_ci ASC ");
+            List<Project> returnProject = projectMapper.selectByExample(example);
+            this.swapProject(returnProject, sessionProjectId);
+            return returnProject;
         }
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<Project> returnList = baseProjectMapper.getUserProject(request);
+        this.swapProject(returnList, sessionProjectId);
+        return returnList;
+    }
+
+    private void swapProject(List<Project> projectList, String sessionProjectId) {
         int ownerProjectIndex = 0;
-        for (int i = 0; i < returnList.size(); i++) {
-            if (StringUtils.equals(returnList.get(i).getId(), SessionUtils.getCurrentProjectId())) {
+        for (int i = 0; i < projectList.size(); i++) {
+            if (StringUtils.equals(projectList.get(i).getId(), sessionProjectId)) {
                 ownerProjectIndex = i;
                 break;
             }
         }
-        Collections.swap(returnList, 0, ownerProjectIndex);
-        return returnList;
+        Collections.swap(projectList, 0, ownerProjectIndex);
     }
 
     public List<Project> getProjectByIds(List<String> ids) {
