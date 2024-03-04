@@ -117,7 +117,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         keyValue.setValue("value");
         headers.add(keyValue);
         httpConfig.setHeaders(headers);
-        httpConfig.setUrl("http://www.baidu.com");
+        httpConfig.setHostname("http://www.baidu.com");
 
         httpConfigs.add(httpConfig);
         return httpConfigs;

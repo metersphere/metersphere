@@ -101,4 +101,5 @@ export default {
   'project.environmental.group.envGroupName': '环境组名称',
   'project.environmental.group.envGroupNameIsRequire': '环境组名称不能为空',
   'project.environmental.group.envGroupPlaceholder': '请输入环境组',
+  'project.environmental.http.hostNamePlaceholder': '请输入域名',
 };

@@ -458,7 +458,12 @@
   // 处理删除环境
   const handleDeleteEnv = async (id: string) => {
     try {
-      await deleteEnv(id);
+      if (store.currentId === NEW_ENV_PARAM) {
+        // 删除id为newEnvParam的环境
+        envList.value = envList.value.filter((item) => item.id !== id);
+      } else {
+        await deleteEnv(id);
+      }
       if (store.currentId === id) {
         store.setCurrentId('');
       }
@@ -472,7 +477,12 @@
   // 处理删除环境组
   const handleDeleteEnvGroup = async (id: string) => {
     try {
-      await deleteEnvGroup(id);
+      if (store.currentGroupId === NEW_ENV_GROUP) {
+        // 删除id为newEnvParam的环境
+        evnGroupList.value = evnGroupList.value.filter((item) => item.id !== id);
+      } else {
+        await deleteEnvGroup(id);
+      }
       await initGroupList();
     } catch (error) {
       // eslint-disable-next-line no-console

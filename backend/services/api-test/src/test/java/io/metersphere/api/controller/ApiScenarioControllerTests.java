@@ -1087,12 +1087,12 @@ public class ApiScenarioControllerTests extends BaseTest {
         header3.setValue("a=b");
 
         HttpConfig httpNoneConfig = new HttpConfig();
-        httpNoneConfig.setUrl("localhost:8081");
+        httpNoneConfig.setHostname("localhost:8081");
         httpNoneConfig.setType(HttpConfig.HttpConfigMatchType.NONE.name());
         httpNoneConfig.setHeaders(List.of(header1, header2, header3));
 
         HttpConfig httpModuleConfig = new HttpConfig();
-        httpModuleConfig.setUrl("localhost:8081");
+        httpModuleConfig.setHostname("localhost:8081");
         httpModuleConfig.setType(HttpConfig.HttpConfigMatchType.MODULE.name());
         SelectModule selectModule = new SelectModule();
         selectModule.setModuleId(moduleId);
@@ -1101,7 +1101,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         httpModuleConfig.setHeaders(List.of(header1, header2, header3));
 
         HttpConfig httpPathConfig = new HttpConfig();
-        httpPathConfig.setUrl("localhost:8081");
+        httpPathConfig.setHostname("localhost:8081");
         httpPathConfig.setType(HttpConfig.HttpConfigMatchType.PATH.name());
         httpPathConfig.getPathMatchRule().setPath("/test");
         httpPathConfig.getPathMatchRule().setCondition(HttpConfigPathMatchRule.MatchRuleCondition.CONTAINS.name());
