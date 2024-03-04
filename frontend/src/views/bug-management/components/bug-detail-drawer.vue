@@ -159,43 +159,43 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
-  import { debounce } from 'lodash-es';
+import {defineModel, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {Message} from '@arco-design/web-vue';
+import {debounce} from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
-  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import type { MsPaginationI } from '@/components/pure/ms-table/type';
-  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import { CommentInput } from '@/components/business/ms-comment';
-  import { CommentParams } from '@/components/business/ms-comment/types';
-  import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import BugCaseTab from './bugCaseTab.vue';
-  import BugDetailTab from './bugDetailTab.vue';
-  import BugHistoryTab from './bugHistoryTab.vue';
-  import CommentTab from './commentTab.vue';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+import type {FormItem, FormRuleItem} from '@/components/pure/ms-form-create/types';
+import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+import type {MsPaginationI} from '@/components/pure/ms-table/type';
+import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+import {CommentInput} from '@/components/business/ms-comment';
+import {CommentParams} from '@/components/business/ms-comment/types';
+import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
+import BugCaseTab from './bugCaseTab.vue';
+import BugDetailTab from './bugDetailTab.vue';
+import BugHistoryTab from './bugHistoryTab.vue';
+import CommentTab from './commentTab.vue';
 
-  import {
-    createOrUpdateComment,
-    deleteSingleBug,
-    followBug,
-    getBugDetail,
-    getTemplateById,
-  } from '@/api/modules/bug-management/index';
-  import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
-  import { useAppStore } from '@/store';
-  import { characterLimit } from '@/utils';
+import {
+  createOrUpdateComment,
+  deleteSingleBug,
+  followBug,
+  getBugDetail,
+  getTemplateById,
+} from '@/api/modules/bug-management/index';
+import {useI18n} from '@/hooks/useI18n';
+import useModal from '@/hooks/useModal';
+import {useAppStore} from '@/store';
+import {characterLimit} from '@/utils';
 
-  import { BugEditCustomField, BugEditFormObject, BugTemplateRequest } from '@/models/bug-management';
-  import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { RouteEnum } from '@/enums/routeEnum';
+import {BugEditCustomField, BugEditFormObject, BugTemplateRequest} from '@/models/bug-management';
+import {SelectValue} from '@/models/projectManagement/menuManagement';
+import {RouteEnum} from '@/enums/routeEnum';
 
-  const router = useRouter();
+const router = useRouter();
   const route = useRoute();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
@@ -421,7 +421,7 @@
         replyUser: '',
         parentId: '',
         content: currentContent,
-        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)
       };
       await createOrUpdateComment(params as CommentParams);
       Message.success(t('common.publishSuccessfully'));
@@ -431,6 +431,14 @@
       console.log(error);
     }
   }
+  watch(
+      () => showDrawerVisible.value,
+      (val) => {
+        if (val) {
+          activeTab.value = 'detail';
+        }
+      }
+  );
 </script>
 
 <style scoped lang="less">
