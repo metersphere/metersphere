@@ -60,7 +60,7 @@
 
     <div class="footer" :style="{ width: '100%' }">
       <a-button @click="handleReset">{{ t('common.cancel') }}</a-button>
-      <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
+      <a-button type="primary" :loading="loading" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
   </div>
   <TabSettingDrawer v-model:visible="tabSettingVisible" @init-data="initTab" />
@@ -93,7 +93,6 @@
 
   const activeKey = ref('envParams');
   const envForm = ref();
-  const canSave = ref(false);
   const { t } = useI18n();
   const loading = ref(false);
   const tabSettingVisible = ref(false);
@@ -179,15 +178,14 @@
     envForm.value?.resetFields();
     store.initEnvDetail();
   };
+
   const handleSave = async () => {
     await envForm.value?.validate(async (valid) => {
       if (!valid) {
         try {
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
-          // TODO 需要重新处理收集参数
-          const res = await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
-          store.currentEnvDetailInfo = res;
+          await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
           Message.success(t('common.saveSuccess'));
           emit('ok');
         } catch (error) {
@@ -212,12 +210,13 @@
       form.description = currentEnvDetailInfo.description as string;
     }
   });
-  watchEffect(() => {
-    if (store.currentEnvDetailInfo) {
-      const { currentEnvDetailInfo, backupEnvDetailInfo } = store;
-      canSave.value = !isEqual(currentEnvDetailInfo, backupEnvDetailInfo);
-    }
-  });
+
+  // watchEffect(() => {
+  //   if (store.currentEnvDetailInfo) {
+  //     const { currentEnvDetailInfo, backupEnvDetailInfo } = store;
+  //     canSave.value = !isEqual(currentEnvDetailInfo, backupEnvDetailInfo);
+  //   }
+  // });
 
   const initTab = async () => {
     tabSettingVisible.value = false;

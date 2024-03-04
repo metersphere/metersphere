@@ -15,7 +15,7 @@
     set: (value: any) => {
       store.currentEnvDetailInfo.config.commonVariables = value;
     },
-    get: () => store.currentEnvDetailInfo.config.commonVariables || [],
+    get: () => store.currentEnvDetailInfo.config?.commonVariables || [],
   });
 </script>
 
