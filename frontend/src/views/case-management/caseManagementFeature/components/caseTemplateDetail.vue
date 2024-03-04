@@ -776,10 +776,12 @@
     } else {
       initDefaultFields();
     }
-    initSelectTree();
   });
 
   onBeforeMount(() => {
+    if (currentProjectId.value) {
+      initSelectTree();
+    }
     caseId.value = '';
   });
 
