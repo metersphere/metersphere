@@ -98,10 +98,25 @@ public class ApiScenarioReferenceIdService {
                 if (item.has(MsHashTreeService.ID) && item.has(MsHashTreeService.REFERENCED)) {
                     String url = null;
                     String method;
-                    if (item.has(MsHashTreeService.PATH) && StringUtils.isNotEmpty(MsHashTreeService.PATH)) {
-                        url = item.optString(MsHashTreeService.PATH);
-                    } else if (item.has(MsHashTreeService.URL)) {
-                        url = item.optString(MsHashTreeService.URL);
+                    boolean customizeReq = item.optBoolean("customizeReq");
+
+                    if (customizeReq) {
+                        /*
+                        判断是否是自定义请求。因为自定义请求中，针对”是否引用环境”字段的不同设置， 真正的url也会放在不同的字段中。
+                        据说这个功能是刚子写的。
+                         */
+                        boolean isRefEnvironment = item.optBoolean("isRefEnvironment");
+                        if (isRefEnvironment) {
+                            url = item.optString(MsHashTreeService.PATH);
+                        } else {
+                            url = item.optString(MsHashTreeService.URL);
+                        }
+                    } else {
+                        if (item.has(MsHashTreeService.PATH) && StringUtils.isNotEmpty(MsHashTreeService.PATH)) {
+                            url = item.optString(MsHashTreeService.PATH);
+                        } else if (item.has(MsHashTreeService.URL)) {
+                            url = item.optString(MsHashTreeService.URL);
+                        }
                     }
                     method = this.getMethodFromSample(item);
                     ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
