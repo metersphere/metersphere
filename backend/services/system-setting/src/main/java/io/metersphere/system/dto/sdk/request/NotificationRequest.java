@@ -22,7 +22,7 @@ public class NotificationRequest extends BasePageRequest {
     @Schema(description =  "状态")
     private String status;
 
-    @Schema(description =  "资源类型: TEST_PLAN/BUG/CASE/API/UI/LOAD/JENKINS")
+    @Schema(description =  "资源类型: TEST_PLAN/BUG/CASE/API/UI/LOAD/JENKINS/SCHEDULE")
     private String resourceType;
 
     @Schema(description =  "创建时间")

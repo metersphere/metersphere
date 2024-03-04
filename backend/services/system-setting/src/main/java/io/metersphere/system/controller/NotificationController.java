@@ -3,10 +3,9 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
-import io.metersphere.project.domain.Notification;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.NotificationRequest;
+import io.metersphere.system.log.dto.NotificationDTO;
 import io.metersphere.system.service.NotificationService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -29,7 +28,7 @@ public class NotificationController {
 
     @PostMapping(value = "/list/all/page")
     @Operation(summary = "消息中心-获取消息中心所有消息列表")
-    public Pager<List<Notification>> listNotification(@Validated @RequestBody NotificationRequest notificationRequest) {
+    public Pager<List<NotificationDTO>> listNotification(@Validated @RequestBody NotificationRequest notificationRequest) {
         Page<Object> page = PageHelper.startPage(notificationRequest.getCurrent(), notificationRequest.getPageSize(), true);
         return PageUtils.setPageInfo(page, notificationService.listNotification(notificationRequest, SessionUtils.getUserId()));
     }
