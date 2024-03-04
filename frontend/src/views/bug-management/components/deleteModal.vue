@@ -9,12 +9,7 @@
     <template #title>
       <div class="flex flex-row items-center">
         <icon-exclamation-circle-fill class="text-[16px] text-[rgb(var(--danger-6))]" />
-        <div class="ml-[8px]">{{ t('common.confirmDelete') }}</div>
-        <a-tooltip :content="props.name">
-          <div class="one-text-line max-w-[300px] px-[5px]">
-            {{ props.name }}
-          </div>
-        </a-tooltip>
+        <div class="ml-[8px]">{{ t('bugManagement.detail.deleteTitle', {name: props.name}) }}</div>
       </div>
     </template>
     <div class="form">

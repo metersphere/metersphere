@@ -141,7 +141,7 @@ public class UserRoleRelationService {
             if (organization != null) {
                 returnMap.computeIfAbsent(organization, k -> new ArrayList<>());
                 Project project = projectMapper.selectByPrimaryKey(userRoleRelation.getSourceId());
-                if (project != null) {
+                if (project != null && !returnMap.get(organization).contains(project)) {
                     returnMap.get(organization).add(project);
                 }
             }
