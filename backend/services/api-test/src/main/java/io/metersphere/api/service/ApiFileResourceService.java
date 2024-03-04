@@ -6,9 +6,9 @@ import io.metersphere.api.domain.ApiFileResourceExample;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.mapper.ApiFileResourceMapper;
-import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
@@ -17,10 +17,8 @@ import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +44,8 @@ public class ApiFileResourceService {
     private ApiFileResourceMapper apiFileResourceMapper;
     @Resource
     private FileAssociationService fileAssociationService;
+    @Resource
+    private FileMetadataService fileMetadataService;
     @Resource
     private FileService fileService;
 
@@ -303,48 +303,32 @@ public class ApiFileResourceService {
      * @param request     请求参数
      * @param currentUser 当前用户
      * @return 文件ID
+     * 这里需要判断临时文件和正式文件的存储路径
+     * *  临时文件存储路径：DefaultRepositoryDir.getSystemTempDir()+fileId+fileName
+     * *  debug正式文件存储路径：DefaultRepositoryDir.getApiDebugDir(projectId, resourceId) + "/" + fileId+fileName
+     * *  api正式文件存储路径：DefaultRepositoryDir.getApiDir(projectId, resourceId) + "/" + fileId+fileName
+     * *  apiTestCase文件存储路径：DefaultRepositoryDir.getApiCaseDir()+fileId+fileName
+     * *  apiScenario文件存储路径：DefaultRepositoryDir.getApiScenarioDir()+fileId+fileName
      */
     public String transfer(ApiTransferRequest request, String currentUser, String type) {
         ApiFileResourceExample example = new ApiFileResourceExample();
         example.createCriteria().andFileIdEqualTo(request.getFileId()).andResourceIdEqualTo(request.getSourceId()).andResourceTypeEqualTo(type);
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(example);
         String fileName;
-        String apiFolder;
         String fileId;
-        String fileAssociationSourceType;
-        String logModule;
+        boolean isTemp = false;
         ApiResourceType apiResourceType = ApiResourceType.valueOf(type);
-        /**
-         * 这里需要判断临时文件和正式文件的存储路径
-         *  临时文件存储路径：DefaultRepositoryDir.getSystemTempDir()+fileId+fileName
-         *  debug正式文件存储路径：DefaultRepositoryDir.getApiDebugDir(projectId, resourceId) + "/" + fileId+fileName
-         *  api正式文件存储路径：DefaultRepositoryDir.getApiDir(projectId, resourceId) + "/" + fileId+fileName
-         *  apiTestCase文件存储路径：DefaultRepositoryDir.getApiCaseDir()+fileId+fileName
-         *  apiScenario文件存储路径：DefaultRepositoryDir.getApiScenarioDir()+fileId+fileName
-         */
-        switch (apiResourceType) {
-            case ApiResourceType.API_DEBUG -> {
-                fileAssociationSourceType = FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG;
-                logModule = OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG;
-                apiFolder = DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            }
-            case ApiResourceType.API -> {
-                fileAssociationSourceType = FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION;
-                logModule = OperationLogModule.API_TEST_MANAGEMENT_DEFINITION;
-                apiFolder = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            }
-            case ApiResourceType.API_CASE -> {
-                fileAssociationSourceType = FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE;
-                logModule = OperationLogModule.API_TEST_MANAGEMENT_CASE;
-                apiFolder = DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            }
-            case ApiResourceType.API_SCENARIO -> {
-                fileAssociationSourceType = FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO;
-                logModule = OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO;
-                apiFolder = DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            }
+        String apiFolder = switch (apiResourceType) {
+            case ApiResourceType.API_DEBUG ->
+                    DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
+            case ApiResourceType.API ->
+                    DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
+            case ApiResourceType.API_CASE ->
+                    DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
+            case ApiResourceType.API_SCENARIO ->
+                    DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
             default -> throw new MSException("file type error!");
-        }
+        };
         if (CollectionUtils.isEmpty(apiFileResources)) {
             //需要判断文件是否是在临时文件夹中
             fileName = getTempFileNameByFileId(request.getFileId());
@@ -352,24 +336,28 @@ public class ApiFileResourceService {
             if (StringUtils.isEmpty(fileName)) {
                 throw new MSException("file not found!");
             }
+            isTemp = true;
         } else {
             fileName = apiFileResources.get(0).getFileName();
         }
         FileRequest fileRequest = new FileRequest();
         fileRequest.setFolder(apiFolder);
-        fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
+        fileRequest.setFileName(fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         byte[] bytes;
         try {
             bytes = fileService.download(fileRequest);
+            if (isTemp) {
+                //删除临时文件
+                FileRequest deleteRequest = new FileRequest();
+                deleteRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + request.getFileId());
+                FileCenter.getDefaultRepository().deleteFolder(deleteRequest);
+            }
         } catch (Exception e) {
             throw new MSException("download file error!");
         }
         try {
-            FileAssociationDTO association = new FileAssociationDTO(fileName, bytes, request.getSourceId(),
-                    fileAssociationSourceType, createFileLogRecord(currentUser, request.getProjectId(), logModule));
-            association.setModuleId(request.getModuleId());
-            fileId = fileAssociationService.transferAndAssociation(association);
+            fileId = fileMetadataService.transferFile(request.getFileName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
         } catch (Exception e) {
             throw new MSException(Translator.get("file.transfer.error"));
         }

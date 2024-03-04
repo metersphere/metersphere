@@ -2565,4 +2565,10 @@ public class FileManagementControllerTests extends BaseTest {
         // 接口模块单测调过了，这里增加项目模块通过率
         fileAssociationService.getByFileIdAndSourceId("a", "b");
     }
+
+    @Test
+    @Order(101)
+    public void addCover() throws Exception {
+        fileMetadataService.getByFileIds(List.of("a"));
+    }
 }
