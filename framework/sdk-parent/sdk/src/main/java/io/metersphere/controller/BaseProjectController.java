@@ -10,11 +10,11 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.service.BaseProjectService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RestController
@@ -33,7 +33,7 @@ public class BaseProjectController {
     public List<Project> getUserProject(@RequestBody ProjectRequest request) {
         // 仅支持查询当前用户的项目
         request.setUserId(SessionUtils.getUserId());
-        return baseProjectService.getUserProject(request);
+        return baseProjectService.getUserProject(request, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
