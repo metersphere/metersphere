@@ -8,12 +8,12 @@
   <div class="flex items-center justify-between">
     <a-button type="outline" @click="handleAddHttp">{{ t('project.environmental.addHttp') }}</a-button>
     <div class="flex flex-row gap-[8px]">
-      <a-input-number v-model:model-value="form.linkOutTime" class="w-[180px]">
+      <a-input-number v-model:model-value="form.requestTimeout" class="w-[180px]">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
       </a-input-number>
-      <a-input-number v-model:model-value="form.timeOutTime" class="w-[180px]">
+      <a-input-number v-model:model-value="form.responseTimeout" class="w-[180px]">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
@@ -58,6 +58,7 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { BugListItem } from '@/models/bug-management';
+  import type { CommonParams } from '@/models/projectManagement/environmental';
   import { HttpForm } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -123,12 +124,6 @@
     debug: true,
   });
 
-  const form = reactive({
-    linkOutTime: 60000,
-    timeOutTime: 60000,
-    authType: 'Basic Auth',
-  });
-
   const moreActionList: ActionsItem[] = [
     {
       label: t('common.delete'),
@@ -175,8 +170,16 @@
   const handleNoWarning = () => {
     store.setHttpNoWarning(false);
   };
+
   watch(store.currentEnvDetailInfo.config.httpConfig, () => {
     propsRes.value.data = store.currentEnvDetailInfo.config.httpConfig;
+  });
+
+  const form = computed({
+    set: (value: any) => {
+      store.currentEnvDetailInfo.config.commonParams = { ...value };
+    },
+    get: () => store.currentEnvDetailInfo.config.commonParams as CommonParams,
   });
 </script>
 

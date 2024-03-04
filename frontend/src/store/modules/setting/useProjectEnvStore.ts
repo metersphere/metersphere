@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { number } from 'echarts';
 import localforage from 'localforage';
 
 import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
@@ -45,6 +46,10 @@ const envParamsDefaultConfig: EnvConfig = {
   },
   assertionConfig: { assertions: [] },
   pluginConfigMap: {},
+  commonParams: {
+    requestTimeout: 60000,
+    responseTimeout: 60000,
+  },
 };
 
 const useProjectEnvStore = defineStore(
@@ -92,7 +97,6 @@ const useProjectEnvStore = defineStore(
       const appStore = useAppStore();
       try {
         if (id === NEW_ENV_PARAM) {
-          // TODO 数据参数问题
           currentEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',
@@ -107,7 +111,7 @@ const useProjectEnvStore = defineStore(
           allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
         } else if (id !== ALL_PARAM && id) {
           const tmpObj = await getDetailEnv(id);
-          currentEnvDetailInfo.value = tmpObj;
+          currentEnvDetailInfo.value = { ...tmpObj };
           backupEnvDetailInfo.value = tmpObj;
         }
       } catch (e) {

@@ -371,9 +371,12 @@
     store.setCurrentGroupId(NEW_ENV_GROUP);
     evnGroupList.value = tmpArr;
   };
-  const initGroupList = async (keywordStr = '') => {
+  const initGroupList = async (keywordStr = '', initNode = false) => {
     try {
       evnGroupList.value = await groupListEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+      if (initNode && evnGroupList.value.length) {
+        store.setCurrentGroupId(evnGroupList.value[0].id);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -386,11 +389,14 @@
     store.setCurrentGroupId(id);
   };
 
-  const initData = async (keywordStr = '') => {
+  const initData = async (keywordStr = '', initNode = false) => {
     try {
       envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+      if (initNode && envList.value.length) {
+        store.setCurrentId(envList.value[0].id);
+      }
       if (showType.value === 'PROJECT_GROUP') {
-        initGroupList(keywordStr);
+        initGroupList(keywordStr, initNode);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -418,24 +424,20 @@
         if (envList.value[_newIndex + 1].id) {
           params.moveMode = 'BEFORE';
           params.moveId = envList.value[_newIndex + 1].id;
-          return;
         }
         if (envList.value[_newIndex - 1].id) {
           params.moveMode = 'AFTER';
           params.moveId = envList.value[_newIndex - 1].id;
-          return;
         }
       }
       if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
         if (evnGroupList.value[_newIndex + 1].id) {
           params.moveMode = 'AFTER';
           params.moveId = evnGroupList.value[_newIndex + 1].id;
-          return;
         }
         if (evnGroupList.value[_newIndex - 1].id) {
           params.moveMode = 'BEFORE';
           params.moveId = evnGroupList.value[_newIndex - 1].id;
-          return;
         }
       }
 
@@ -545,7 +547,7 @@
     }
   };
   onMounted(() => {
-    initData();
+    initData(keyword.value, true);
   });
 </script>
 
