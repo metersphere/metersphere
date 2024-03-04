@@ -342,7 +342,7 @@
     <template #host="{ record }">
       <span v-if="!record.domain || record.domain.length === 0"></span>
       <span v-else-if="Array.isArray(record.domain) && record.domain.length === 1" class="text-[var(--color-text-4)]">{{
-        record.domain
+        record.domain[0].protocol + '://' + (record.domain[0].url || '')
       }}</span>
       <span
         v-if="Array.isArray(record.domain) && record.domain.length > 1"
@@ -369,7 +369,9 @@
           @select="(e) => handleMoreActionSelect(e, record)"
         />
         <a-trigger v-if="columnConfig.format === RequestBodyFormat.FORM_DATA" trigger="click" position="br">
-          <MsButton type="icon" class="!mr-[8px]" size="mini"><icon-more /></MsButton>
+          <MsButton type="icon" class="!mr-[8px]" size="mini">
+            <icon-more />
+          </MsButton>
           <template #content>
             <div class="content-type-trigger-content">
               <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
@@ -446,7 +448,7 @@
     ></a-textarea>
   </a-modal>
   <a-modal v-model:visible="hostVisible" :title="t('project.environmental.host')" @close="hostModalClose">
-    <a-table :columns="hostColumn" :data="hostData"> </a-table>
+    <a-table :columns="hostColumn" :data="hostData" />
   </a-modal>
 </template>
 
@@ -712,29 +714,21 @@
   const hostData = ref<any[]>([]);
   const hostColumn = [
     {
-      title: 'project.environmental.http.host',
+      title: t('project.environmental.http.host'),
       dataIndex: 'host',
     },
     {
-      title: 'project.environmental.http.desc',
+      title: t('project.environmental.http.desc'),
       dataIndex: 'desc',
-    },
-    {
-      title: 'project.environmental.http.applyScope',
-      dataIndex: 'applyScope',
-    },
-    {
-      title: 'project.environmental.http.enableScope',
-      dataIndex: 'enableScope',
-    },
-    {
-      title: 'project.environmental.http.value',
-      dataIndex: 'value',
     },
   ];
 
   const showHostModal = (record: Record<string, any>) => {
     hostVisible.value = true;
+    record.domain?.forEach((e: any) => {
+      e.host = `${e.protocol} :// ${e.url || ''}`;
+    });
+
     hostData.value = record.domain || [];
   };
 
@@ -774,6 +768,7 @@
     handleMustContainColChange(true);
     handleTypeCheckingColChange(true);
   }
+
   watch(
     () => props.params,
     (arr) => {
