@@ -52,6 +52,16 @@ public class Notification implements Serializable {
     @Size(min = 1, max = 50, message = "{notification.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{notification.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{notification.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
+    @Schema(description = "组织id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{notification.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{notification.organization_id.length_range}", groups = {Created.class, Updated.class})
+    private String organizationId;
+
     @Schema(description = "资源类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.resource_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{notification.resource_type.length_range}", groups = {Created.class, Updated.class})
@@ -79,6 +89,8 @@ public class Notification implements Serializable {
         operator("operator", "operator", "VARCHAR", true),
         operation("operation", "operation", "VARCHAR", true),
         resourceId("resource_id", "resourceId", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
+        organizationId("organization_id", "organizationId", "VARCHAR", false),
         resourceType("resource_type", "resourceType", "VARCHAR", false),
         resourceName("resource_name", "resourceName", "VARCHAR", false),
         content("content", "content", "LONGVARCHAR", false);
