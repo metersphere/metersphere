@@ -34,21 +34,21 @@
           </div>
           <a-popover position="rt">
             <icon-question-circle
-                class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
-                size="16"
+              class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
             />
             <template #title>
               <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip1') }} </div>
-              <br>
+              <br />
               <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip2') }} </div>
-              <br>
+              <br />
               <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip3') }} </div>
             </template>
           </a-popover>
         </div>
       </template>
-      <template #isRelatePlanCase = "{ record }">
-        <span class="text-[var(--color-text-1)]">{{record.isRelatePlanCase ? t('common.yes') : t('common.no') }}</span>
+      <template #isRelatePlanCase="{ record }">
+        <span class="text-[var(--color-text-1)]">{{ record.isRelatePlanCase ? t('common.yes') : t('common.no') }}</span>
       </template>
     </ms-base-table>
     <MsCaseAssociate
@@ -74,32 +74,32 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+  import { ref } from 'vue';
 
-import MsButton from '@/components/pure/ms-button/index.vue';
-import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-import type {MsTableColumn} from '@/components/pure/ms-table/type';
-import useTable from '@/components/pure/ms-table/useTable';
-import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
-import {RequestModuleEnum} from '@/components/business/ms-case-associate/utils';
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
+  import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
 
-import {
-  batchAssociation,
-  cancelAssociation,
-  getAssociatedList,
-  getModuleTree,
-  getUnAssociatedList,
-} from '@/api/modules/bug-management';
-import {postTabletList} from '@/api/modules/project-management/menuManagement';
-import {useI18n} from '@/hooks/useI18n';
-import {useAppStore} from '@/store';
-import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import {
+    batchAssociation,
+    cancelAssociation,
+    getAssociatedList,
+    getModuleTree,
+    getUnAssociatedList,
+  } from '@/api/modules/bug-management';
+  import { postTabletList } from '@/api/modules/project-management/menuManagement';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
-import type {TableQueryParams} from '@/models/common';
+  import type { TableQueryParams } from '@/models/common';
 
-import Message from '@arco-design/web-vue/es/message';
+  import Message from '@arco-design/web-vue/es/message';
 
-const appStore = useAppStore();
+  const appStore = useAppStore();
   const featureCaseStore = useFeatureCaseStore();
 
   const { t } = useI18n();
@@ -280,6 +280,10 @@ const appStore = useAppStore();
 
   onMounted(async () => {
     getEnabledModules();
+    getFetch();
+  });
+
+  watchEffect(() => {
     getFetch();
   });
 </script>
