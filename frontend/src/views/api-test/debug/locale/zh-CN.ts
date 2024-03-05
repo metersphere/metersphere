@@ -2,6 +2,7 @@ export default {
   'apiTestDebug.newApi': '新建请求',
   'apiTestDebug.importApi': '导入请求',
   'apiTestDebug.urlPlaceholder': '请输入包含 http 或 https 的完整URL',
+  'apiTestDebug.definitionUrlPlaceholder': '输入接口URL，以“/”开始',
   'apiTestDebug.serverExec': '服务端执行',
   'apiTestDebug.localExec': '本地执行',
   'apiTestDebug.noMatchModule': '暂无匹配的模块数据',

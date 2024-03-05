@@ -120,20 +120,23 @@
           },
         });
         break;
-      // case RequestConditionProcessor.SQL:
-      //   data.value.push({
-      //     id,
-      //     enableCommonScript: false,
-      //     desc: '',
-      //     enable: true,
-      //     sqlSource: {
-      //       scriptName: '',
-      //       script: '',
-      //       storageType: 'column',
-      //       params: [],
-      //     },
-      //   });
-      //   break;
+      case RequestConditionProcessor.SQL:
+        data.value.push({
+          id,
+          processorType: RequestConditionProcessor.SQL,
+          enableCommonScript: false,
+          description: '',
+          enable: true,
+          dataSourceId: '',
+          environmentId: '',
+          queryTimeout: 0,
+          resultVariable: '',
+          script: '',
+          variableNames: '',
+          variables: [],
+          extractParams: [],
+        });
+        break;
       case RequestConditionProcessor.TIME_WAITING:
         data.value.push({
           id,

@@ -49,7 +49,6 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { addDebugModule, updateDebug, updateDebugModule } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -74,6 +73,9 @@
     parentId?: string; // 父节点 id
     nodeId?: string; // 节点 id
     popupOffset?: number;
+    addModuleApi?: (params: { projectId: string; parentId: string; name: string }) => Promise<any>;
+    updateModuleApi?: (params: { id: string; name: string }) => Promise<any>;
+    updateApiNodeApi?: (params: { id: string; name: string }) => Promise<any>;
   }>();
 
   const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish', 'updateDescFinish']);
@@ -121,26 +123,26 @@
       if (!errors) {
         try {
           loading.value = true;
-          if (props.mode === 'add') {
+          if (props.mode === 'add' && props.addModuleApi) {
             // 添加根级模块
-            await addDebugModule({
+            await props.addModuleApi({
               projectId: appStore.currentProjectId,
               parentId: props.parentId || '',
               name: form.value.field,
             });
             Message.success(t('common.addSuccess'));
             emit('addFinish', form.value.field);
-          } else if (props.mode === 'rename' && props.nodeType === 'API') {
+          } else if (props.mode === 'rename' && props.nodeType === 'API' && props.updateApiNodeApi) {
             // 接口节点重命名
-            await updateDebug({
+            await props.updateApiNodeApi({
               id: props.nodeId || '',
               name: form.value.field,
             });
             Message.success(t('common.updateSuccess'));
             emit('renameFinish', form.value.field, props.nodeId);
-          } else if (props.mode === 'rename') {
+          } else if (props.mode === 'rename' && props.updateModuleApi) {
             // 模块重命名
-            await updateDebugModule({
+            await props.updateModuleApi({
               id: props.nodeId || '',
               name: form.value.field,
             });

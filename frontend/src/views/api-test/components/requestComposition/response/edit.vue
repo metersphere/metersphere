@@ -109,7 +109,6 @@
           :show-theme-change="false"
           :show-language-change="false"
           :show-charset-change="false"
-          read-only
         >
           <template #rightTitle>
             <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
@@ -171,7 +170,7 @@
 
   const props = defineProps<{
     responseDefinition: ResponseDefinition[];
-    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
   }>();
   const emit = defineEmits<{
     (e: 'change'): void;
@@ -322,20 +321,17 @@
     }
   }
 
-  const fileList = ref<any[]>(
-    activeResponse.value.body.binaryBody && activeResponse.value.body.binaryBody.file
-      ? [activeResponse.value.body.binaryBody.file]
-      : []
-  );
-
-  async function handleFileChange(files: MsFileItem[]) {
-    if (files.length === 0) {
-      activeResponse.value.body.binaryBody.file = undefined;
-      return;
+  const fileList = ref<MsFileItem[]>([]);
+  onBeforeMount(() => {
+    if (activeResponse.value.body.binaryBody && activeResponse.value.body.binaryBody.file) {
+      fileList.value = [activeResponse.value.body.binaryBody.file as unknown as MsFileItem];
     }
+  });
+
+  async function handleFileChange() {
     if (!props.uploadTempFileApi) return;
     try {
-      if (fileList.value[0]?.local) {
+      if (fileList.value[0]?.local && fileList.value[0].file) {
         appStore.showLoading();
         const res = await props.uploadTempFileApi(fileList.value[0].file);
         activeResponse.value.body.binaryBody.file = {

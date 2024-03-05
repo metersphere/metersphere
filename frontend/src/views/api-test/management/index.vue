@@ -5,11 +5,12 @@
         <div class="p-[24px]">
           <moduleTree
             :active-node-id="activeApi?.id"
-            @init="(val) => (folderTree = val)"
+            @init="handleModuleInit"
             @new-api="newApi"
             @import="importDrawerVisible = true"
             @folder-node-select="handleNodeSelect"
             @click-api-node="handleApiNodeClick"
+            @change-protocol="handleProtocolChange"
           />
         </div>
         <!-- <div class="b-0 absolute w-[88%]">
@@ -42,6 +43,7 @@
             :all-count="allCount"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
+            :protocol="protocol"
           />
         </div>
       </template>
@@ -66,8 +68,14 @@
   const allCount = ref(0);
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
+  const protocol = ref('HTTP');
   const activeApi = ref<RequestParam>();
   const managementRef = ref<InstanceType<typeof management>>();
+
+  function handleModuleInit(tree, _protocol: string) {
+    folderTree.value = tree;
+    protocol.value = _protocol;
+  }
 
   function newApi() {
     managementRef.value?.newTab();
@@ -84,6 +92,10 @@
 
   function setActiveApi(params: RequestParam) {
     activeApi.value = params;
+  }
+
+  function handleProtocolChange(val: string) {
+    protocol.value = val;
   }
 
   provide('setActiveApi', setActiveApi);

@@ -269,6 +269,7 @@ export interface TimeWaitingProcessor extends ExecuteConditionProcessorCommon {
 export type ExpressionType = RequestExtractExpressionEnum;
 // 表达式配置
 export interface ExpressionCommonConfig {
+  id?: number | string; // 前端渲染使用字段
   enable: boolean; // 是否启用
   expression: string;
   extractType: ExpressionType; // 表达式类型

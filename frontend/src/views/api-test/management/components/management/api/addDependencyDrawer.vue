@@ -11,12 +11,14 @@
         read-only
         @init="(val) => (folderTree = val)"
         @folder-node-select="handleNodeSelect"
+        @change-protocol="handleProtocolChange"
       />
       <a-divider direction="vertical" :margin="16"></a-divider>
       <apiTable
         :active-module="activeModule"
         :offspring-ids="offspringIds"
         class="flex-1 overflow-hidden !pl-0 !pr-[16px]"
+        :protocol="protocol"
         read-only
       />
     </div>
@@ -46,10 +48,15 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const activeModule = ref<string>('all');
   const offspringIds = ref<string[]>([]);
+  const protocol = ref('HTTP');
 
   function handleNodeSelect(keys: string[], _offspringIds: string[]) {
     [activeModule.value] = keys;
     offspringIds.value = _offspringIds;
+  }
+
+  function handleProtocolChange(val: string) {
+    protocol.value = val;
   }
 </script>
 

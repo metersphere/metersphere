@@ -1,13 +1,13 @@
 <template>
   <condition
     v-model:list="innerConfig.processors"
-    :condition-types="[RequestConditionProcessor.SCRIPT]"
+    :condition-types="conditionTypes"
     add-text="apiTestDebug.postCondition"
     :response="props.response"
     :height-used="heightUsed"
     @change="emit('change')"
   >
-    <!-- <template #titleRight>
+    <template v-if="props.isDefinition" #titleRight>
       <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line"></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPostCondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPostConditionTip')" position="left">
@@ -16,7 +16,7 @@
           size="16"
         />
       </a-tooltip>
-    </template> -->
+    </template>
   </condition>
 </template>
 
@@ -25,29 +25,37 @@
 
   import condition from '@/views/api-test/components/condition/index.vue';
 
+  import { useI18n } from '@/hooks/useI18n';
+
   import { ExecuteConditionConfig, ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
-
-  // import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
     config: ExecuteConditionConfig;
     secondBoxHeight?: number;
     layout: 'horizontal' | 'vertical';
     response?: string; // 响应内容
+    isDefinition?: boolean; // 是否是定义页面
   }>();
   const emit = defineEmits<{
     (e: 'update:params', params: ExecuteConditionProcessor[]): void;
     (e: 'change'): void;
   }>();
 
-  // const { t } = useI18n();
+  const { t } = useI18n();
   const innerConfig = useVModel(props, 'config', emit);
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
       return 428;
     }
     return 428 + (props.secondBoxHeight || 0);
+  });
+
+  const conditionTypes = computed(() => {
+    if (props.isDefinition) {
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.EXTRACT];
+    }
+    return [RequestConditionProcessor.SCRIPT];
   });
 </script>
 

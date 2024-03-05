@@ -86,7 +86,7 @@
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
       class="flex-1"
-      theme="MS-text"
+      theme="vs"
       height="100%"
       :show-full-screen="false"
       :show-theme-change="false"
@@ -121,7 +121,7 @@
     params: ExecuteBody;
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
-    uploadTempFileApi?: (file: MsFileItem) => Promise<any>; // 上传临时文件接口
+    uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
     fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
@@ -135,18 +135,18 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const fileList = ref<any[]>(
-    innerParams.value.binaryBody && innerParams.value.binaryBody.file ? [innerParams.value.binaryBody.file] : []
-  );
+  const fileList = ref<MsFileItem[]>([]);
 
-  async function handleFileChange(files: MsFileItem[]) {
-    if (files.length === 0) {
-      innerParams.value.binaryBody.file = undefined;
-      return;
+  onBeforeMount(() => {
+    if (innerParams.value.binaryBody && innerParams.value.binaryBody.file) {
+      fileList.value = [innerParams.value.binaryBody.file as unknown as MsFileItem];
     }
+  });
+
+  async function handleFileChange() {
     if (!props.uploadTempFileApi) return;
     try {
-      if (fileList.value[0]?.local) {
+      if (fileList.value[0]?.local && fileList.value[0].file) {
         appStore.showLoading();
         const res = await props.uploadTempFileApi(fileList.value[0].file);
         innerParams.value.binaryBody.file = {
@@ -160,7 +160,7 @@
       } else {
         innerParams.value.binaryBody.file = {
           ...fileList.value[0],
-          fileId: fileList.value[0].uid,
+          fileId: fileList.value[0]?.uid,
           fileName: fileList.value[0]?.originalName || '',
           fileAlias: fileList.value[0]?.name || '',
           local: false,
