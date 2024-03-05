@@ -7,6 +7,7 @@
         :active-module="props.activeModule"
         :all-count="props.allCount"
         :offspring-ids="props.offspringIds"
+        :protocol="protocol"
       />
     </a-tab-pane>
     <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane"> </a-tab-pane>
@@ -26,6 +27,7 @@
     allCount: number;
     activeModule: string;
     offspringIds: string[];
+    protocol: string;
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
 

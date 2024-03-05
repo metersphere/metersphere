@@ -170,7 +170,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
   import { Message, TagData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -281,9 +280,10 @@
         label: fileItem[props.fields.name] || fileItem.name || '',
       });
     } else {
+      innerFileList.value = [fileItem];
       inputFileName.value = fileItem.name || '';
     }
-    emit('change', _fileList, { ...fileItem, local: true });
+    emit('change', innerFileList.value, { ...fileItem, local: true });
     nextTick(() => {
       // 在 emit 文件上去之后再关闭菜单
       buttonDropDownVisible.value = false;
@@ -302,7 +302,7 @@
   // 监视文件列表处理关联和本地文件
   watch(
     () => innerFileList.value,
-    () => {
+    (arr) => {
       getListFunParams.value.combine.hiddenIds = innerFileList.value
         .filter((item) => !item.local)
         .map((item) => item[props.fields.id] || item.uid);

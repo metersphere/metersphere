@@ -51,7 +51,13 @@
               <a-doption value="addModule">{{ t('apiTestManagement.addSubModule') }}</a-doption>
             </template>
           </a-dropdown>
-          <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
+          <popConfirm
+            mode="add"
+            :all-names="rootModulesName"
+            parent-id="NONE"
+            :add-module-api="addModule"
+            @add-finish="initModules"
+          >
             <span id="addModulePopSpan"></span>
           </popConfirm>
         </template>
@@ -105,6 +111,7 @@
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
+            :add-module-api="addModule"
             @close="resetFocusNodeKey"
             @add-finish="() => initModules()"
           >
@@ -119,6 +126,8 @@
             :node-id="nodeData.id"
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+            :update-module-api="updateModule"
+            :update-api-node-api="updateModule"
             @close="resetFocusNodeKey"
             @rename-finish="initModules"
           >
@@ -144,11 +153,13 @@
 
   import { getProtocolList } from '@/api/modules/api-test/common';
   import {
+    addModule,
     deleteModule,
     getModuleCount,
     getModuleTree,
     getModuleTreeOnlyModules,
     moveModule,
+    updateModule,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -168,7 +179,7 @@
       activeModule: 'all',
     }
   );
-  const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode']);
+  const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode', 'changeProtocol']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -345,7 +356,7 @@
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
       }
-      emit('init', folderTree.value);
+      emit('init', folderTree.value, moduleProtocol.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -377,6 +388,7 @@
   }
 
   async function handleProtocolChange() {
+    emit('changeProtocol', moduleProtocol.value);
     await initModules();
     initModuleCount();
   }

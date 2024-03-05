@@ -111,9 +111,9 @@
         @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
-    <template #expressionType="{ record, columnConfig, rowIndex }">
+    <template #extractType="{ record, columnConfig, rowIndex }">
       <a-select
-        v-model:model-value="record.expressionType"
+        v-model:model-value="record.extractType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[110px]"
         size="mini"

@@ -5,7 +5,7 @@
         {{ t('apiTestDebug.expressionMatchRule') }}
       </div>
       <a-radio-group v-model:model-value="expressionForm.expressionMatchingRule" size="small">
-        <a-radio :value="RequestExtractExpressionRuleType.EXPRESSION.toLowerCase()">
+        <a-radio :value="RequestExtractExpressionRuleType.EXPRESSION">
           <div class="flex items-center">
             {{ t('apiTestDebug.matchExpression') }}
             <a-tooltip :content="t('apiTestDebug.matchExpressionTip')" :content-style="{ maxWidth: '500px' }">
@@ -16,7 +16,7 @@
             </a-tooltip>
           </div>
         </a-radio>
-        <a-radio :value="RequestExtractExpressionRuleType.GROUP.toLowerCase()">
+        <a-radio :value="RequestExtractExpressionRuleType.GROUP">
           <div class="flex items-center">
             {{ t('apiTestDebug.matchGroup') }}
             <a-tooltip :content="t('apiTestDebug.matchGroupTip')" :content-style="{ maxWidth: '500px' }">
@@ -34,7 +34,7 @@
         {{ t('apiTestDebug.resultMatchRule') }}
       </div>
       <a-radio-group v-model:model-value="expressionForm.resultMatchingRule" size="small">
-        <a-radio :value="RequestExtractResultMatchingRule.RANDOM.toLowerCase()">
+        <a-radio :value="RequestExtractResultMatchingRule.RANDOM">
           <div class="flex items-center">
             {{ t('apiTestDebug.randomMatch') }}
             <a-tooltip :content="t('apiTestDebug.randomMatchTip')" :content-style="{ maxWidth: '400px' }">
@@ -45,7 +45,7 @@
             </a-tooltip>
           </div>
         </a-radio>
-        <a-radio :value="RequestExtractResultMatchingRule.SPECIFIC.toLowerCase()">
+        <a-radio :value="RequestExtractResultMatchingRule.SPECIFIC">
           <div class="flex items-center">
             {{ t('apiTestDebug.specifyMatch') }}
             <a-tooltip :content="t('apiTestDebug.specifyMatchTip')" :content-style="{ maxWidth: '400px' }">
@@ -56,7 +56,7 @@
             </a-tooltip>
           </div>
         </a-radio>
-        <a-radio :value="RequestExtractResultMatchingRule.ALL.toLowerCase()">
+        <a-radio :value="RequestExtractResultMatchingRule.ALL">
           <div class="flex items-center">
             {{ t('apiTestDebug.allMatch') }}
             <a-tooltip :content="t('apiTestDebug.allMatchTip')" :content-style="{ maxWidth: '400px' }">

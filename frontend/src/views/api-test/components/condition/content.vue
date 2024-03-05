@@ -244,7 +244,7 @@
     <div v-else-if="condition.processorType === RequestConditionProcessor.EXTRACT">
       <paramTable
         ref="extractParamsTableRef"
-        v-model:params="condition.extractParams"
+        v-model:params="condition.extractors"
         :default-param-item="defaultExtractParamItem"
         :columns="extractParamsColumns"
         :selectable="false"
@@ -272,6 +272,7 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
+              size="mini"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -649,7 +650,7 @@ if (!result){
   const disabledExpressionSuffix = ref(false);
 
   function handleExtractParamTableChange(resultArr: any[], isInit?: boolean) {
-    condition.value.extractParams = [...resultArr];
+    condition.value.extractors = [...resultArr];
     if (!isInit) {
       emit('change');
     }
@@ -697,13 +698,13 @@ if (!result){
    * 提取参数表格-应用更多设置
    */
   function applyMoreSetting(record: ExpressionConfig) {
-    condition.value.extractParams = condition.value.extractParams?.map((e) => {
+    condition.value.extractors = condition.value.extractors?.map((e) => {
       if (e.id === activeRecord.value.id) {
         record.moreSettingPopoverVisible = false;
         return {
           ...activeRecord.value,
           moreSettingPopoverVisible: false,
-        } as any; // TOOD: 这里的后台类型应该是不对的，需要修改
+        };
       }
       return e;
     });
@@ -714,7 +715,7 @@ if (!result){
    * 提取参数表格-保存快速提取的配置
    */
   function handleFastExtractionApply(config: RegexExtract | JSONPathExtract | XPathExtract) {
-    condition.value.extractParams = condition.value.extractParams?.map((e) => {
+    condition.value.extractors = condition.value.extractors?.map((e) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
@@ -726,7 +727,7 @@ if (!result){
     fastExtractionVisible.value = false;
     nextTick(() => {
       extractParamsTableRef.value?.addTableLine(
-        condition.value.extractParams?.findIndex((e) => e.id === activeRecord.value.id) || 0
+        condition.value.extractors?.findIndex((e) => e.id === activeRecord.value.id) || 0
       );
     });
     emit('change');

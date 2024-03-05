@@ -33,6 +33,7 @@
           mode="add"
           :all-names="rootModulesName"
           parent-id="NONE"
+          :add-module-api="addDebugModule"
           @add-finish="initModules"
         >
           <MsButton v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
@@ -100,6 +101,7 @@
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :node-type="nodeData.type"
+            :add-module-api="addDebugModule"
             @close="resetFocusNodeKey"
             @rename-finish="handleRenameFinish"
           >
@@ -111,6 +113,8 @@
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
+            :update-module-api="updateDebugModule"
+            :update-api-node-api="updateDebug"
             @close="resetFocusNodeKey"
             @add-finish="() => initModules()"
           >
@@ -137,12 +141,15 @@
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
   import {
+    addDebugModule,
     deleteDebug,
     deleteDebugModule,
     dragDebug,
     getDebugModuleCount,
     getDebugModules,
     moveDebugModule,
+    updateDebug,
+    updateDebugModule,
   } from '@/api/modules/api-test/debug';
   import { dropPositionMap } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';

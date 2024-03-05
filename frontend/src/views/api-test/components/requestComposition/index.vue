@@ -43,7 +43,9 @@
             <a-input
               v-model:model-value="requestVModel.url"
               :max-length="255"
-              :placeholder="t('apiTestDebug.urlPlaceholder')"
+              :placeholder="
+                props.isDefinition ? t('apiTestDebug.definitionUrlPlaceholder') : t('apiTestDebug.urlPlaceholder')
+              "
               allow-clear
               @change="handleUrlChange"
             />
@@ -51,8 +53,7 @@
         </div>
         <div class="ml-[16px]">
           <a-dropdown-button
-            v-if="!requestVModel.executeLoading"
-            v-permission="[props.permissionMap.execute]"
+            v-if="!requestVModel.executeLoading && hasAnyPermission([props.permissionMap.execute])"
             :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
             class="exec-btn"
             @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
@@ -70,12 +71,14 @@
           </a-dropdown-button>
           <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
           <a-dropdown
-            v-if="props.isDefinition"
-            v-permission="[props.permissionMap.create, props.permissionMap.update]"
+            v-if="props.isDefinition && hasAnyPermission([props.permissionMap.create, props.permissionMap.update])"
             :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
             @select="handleSelect"
           >
-            <a-button :disabled="requestVModel.url.trim() === '' || requestVModel.name.trim() === ''" type="secondary">
+            <a-button
+              :disabled="(isHttpProtocol && requestVModel.url.trim() === '') || requestVModel.name.trim() === ''"
+              type="secondary"
+            >
               {{ t('common.save') }}
             </a-button>
             <template #content>
@@ -147,14 +150,14 @@
                     @change="handlePluginFormChange"
                   />
                 </a-spin>
-                <debugHeader
+                <httpHeader
                   v-if="requestVModel.activeTab === RequestComposition.HEADER"
                   v-model:params="requestVModel.headers"
                   :layout="activeLayout"
                   :second-box-height="secondBoxHeight"
                   @change="handleActiveDebugChange"
                 />
-                <debugBody
+                <httpBody
                   v-else-if="requestVModel.activeTab === RequestComposition.BODY"
                   v-model:params="requestVModel.body"
                   :layout="activeLayout"
@@ -165,14 +168,14 @@
                   :file-module-options-api="props.fileModuleOptionsApi"
                   @change="handleActiveDebugChange"
                 />
-                <debugQuery
+                <httpQuery
                   v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
                   v-model:params="requestVModel.query"
                   :layout="activeLayout"
                   :second-box-height="secondBoxHeight"
                   @change="handleActiveDebugChange"
                 />
-                <debugRest
+                <httpRest
                   v-else-if="requestVModel.activeTab === RequestComposition.REST"
                   v-model:params="requestVModel.rest"
                   :layout="activeLayout"
@@ -182,6 +185,7 @@
                 <precondition
                   v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
                   v-model:config="requestVModel.children[0].preProcessorConfig"
+                  :is-definition="props.isDefinition"
                   @change="handleActiveDebugChange"
                 />
                 <postcondition
@@ -190,14 +194,15 @@
                   :response="requestVModel.response?.requestResults[0]?.responseResult.body"
                   :layout="activeLayout"
                   :second-box-height="secondBoxHeight"
+                  :is-definition="props.isDefinition"
                   @change="handleActiveDebugChange"
                 />
-                <debugAuth
+                <auth
                   v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
                   v-model:params="requestVModel.authConfig"
                   @change="handleActiveDebugChange"
                 />
-                <debugSetting
+                <setting
                   v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
                   v-model:params="requestVModel.otherConfig"
                   @change="handleActiveDebugChange"
@@ -280,11 +285,11 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
-  import debugAuth from './auth.vue';
+  import auth from './auth.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
   import response from './response/index.vue';
-  import debugSetting from './setting.vue';
+  import setting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
@@ -323,10 +328,10 @@
   import type { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
-  const debugHeader = defineAsyncComponent(() => import('./header.vue'));
-  const debugBody = defineAsyncComponent(() => import('./body.vue'));
-  const debugQuery = defineAsyncComponent(() => import('./query.vue'));
-  const debugRest = defineAsyncComponent(() => import('./rest.vue'));
+  const httpHeader = defineAsyncComponent(() => import('./header.vue'));
+  const httpBody = defineAsyncComponent(() => import('./body.vue'));
+  const httpQuery = defineAsyncComponent(() => import('./query.vue'));
+  const httpRest = defineAsyncComponent(() => import('./rest.vue'));
 
   export interface RequestCustomAttr {
     isNew: boolean;
@@ -615,9 +620,13 @@
 
   watch(
     () => requestVModel.value.id,
-    () => {
+    async () => {
       if (requestVModel.value.protocol !== 'HTTP') {
         requestVModel.value.activeTab = RequestComposition.PLUGIN;
+        if (protocolOptions.value.length === 0) {
+          // 还没初始化过协议列表，则初始化；在这里初始化是为了阻塞脚本的初始化，避免脚本初始化时协议列表还没初始化
+          await initProtocolList();
+        }
         initPluginScript();
       }
     },
@@ -846,6 +855,7 @@
       ...parseRequestBodyResult,
       projectId: appStore.currentProjectId,
       frontendDebug: executeType === 'localExec',
+      isNew: requestVModel.value.isNew,
     };
   }
 
@@ -1004,7 +1014,6 @@
   }
 
   onBeforeMount(() => {
-    initProtocolList();
     initLocalConfig();
   });
 

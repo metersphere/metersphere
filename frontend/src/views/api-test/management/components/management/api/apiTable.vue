@@ -52,10 +52,10 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary" @click="methodFilterVisible = true">
+          <MsButton type="text" class="arco-btn-text--secondary" @click="methodFilterVisible = true">
             {{ t(columnConfig.title as string) }}
             <icon-down :class="methodFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
+          </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
@@ -75,16 +75,16 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
             {{ t(columnConfig.title as string) }}
             <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
+          </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of RequestDefinitionStatus" :key="key" :value="key">
-                    <apiStatus :status="key" />
+                  <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
+                    <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -108,7 +108,7 @@
           <template #label>
             <apiStatus :status="record.status" />
           </template>
-          <a-option v-for="item of RequestDefinitionStatus" :key="item" :value="item">
+          <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
             <apiStatus :status="item" />
           </a-option>
         </a-select>
@@ -271,6 +271,7 @@
     class?: string;
     activeModule: string;
     offspringIds: string[];
+    protocol: string; // 查看的协议类型
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
@@ -345,12 +346,6 @@
       slotName: 'status',
       titleSlotName: 'statusFilter',
       width: 130,
-    },
-    {
-      title: 'apiTestManagement.responsiblePerson',
-      dataIndex: 'createUserName',
-      showTooltip: true,
-      width: 120,
     },
     {
       title: 'apiTestManagement.path',
@@ -474,6 +469,7 @@
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
       env: checkedEnv.value,
+      protocol: props.protocol,
       filter: { status: statusFilters.value, type: methodFilters.value },
     };
     setLoadListParams(params);
@@ -490,6 +486,13 @@
 
   watch(
     () => props.activeModule,
+    () => {
+      loadApiList();
+    }
+  );
+
+  watch(
+    () => props.protocol,
     () => {
       loadApiList();
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[16px]">
+  <div class="setting">
     <a-form :model="settingForm" layout="vertical">
       <div class="flex items-center gap-[32px]">
         <a-form-item class="flex-1">
@@ -99,4 +99,13 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .setting {
+    @apply h-full overflow-y-auto;
+    .ms-scroll-bar();
+
+    padding: 16px;
+    border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
+  }
+</style>

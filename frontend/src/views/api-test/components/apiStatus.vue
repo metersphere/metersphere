@@ -41,10 +41,10 @@
     const config = statusMap[props.status];
     return {
       style: {
-        backgroundColor: config.bgColor,
-        color: config.color,
+        backgroundColor: config?.bgColor,
+        color: config?.color,
       },
-      text: t(config.text),
+      text: t(config?.text),
     };
   });
 </script>

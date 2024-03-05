@@ -1,12 +1,11 @@
 <template>
   <condition
     v-model:list="innerConfig.processors"
-    :condition-types="[RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING]"
+    :condition-types="conditionTypes"
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
-  />
-
-  <!-- <template #titleRight>
+  >
+    <template v-if="props.isDefinition" #titleRight>
       <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line"></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPrecondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPreconditionTip')" position="left">
@@ -15,7 +14,8 @@
           size="16"
         />
       </a-tooltip>
-    </template> -->
+    </template>
+  </condition>
 </template>
 
 <script setup lang="ts">
@@ -23,21 +23,29 @@
 
   import condition from '@/views/api-test/components/condition/index.vue';
 
+  import { useI18n } from '@/hooks/useI18n';
+
   import { ExecuteConditionConfig } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
-  // import { useI18n } from '@/hooks/useI18n';
-
   const props = defineProps<{
     config: ExecuteConditionConfig;
+    isDefinition?: boolean; // 是否是定义页面
   }>();
   const emit = defineEmits<{
     (e: 'update:config', params: ExecuteConditionConfig): void;
     (e: 'change'): void;
   }>();
 
-  // const { t } = useI18n();
+  const { t } = useI18n();
   const innerConfig = useVModel(props, 'config', emit);
+
+  const conditionTypes = computed(() => {
+    if (props.isDefinition) {
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.TIME_WAITING];
+    }
+    return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING];
+  });
 </script>
 
 <style lang="less" scoped></style>

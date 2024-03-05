@@ -2,6 +2,7 @@ export default {
   'apiTestDebug.newApi': 'New request',
   'apiTestDebug.importApi': 'Import request',
   'apiTestDebug.urlPlaceholder': 'Please enter the full URL including http or https',
+  'apiTestDebug.definitionUrlPlaceholder': 'Enter the interface URL, starting with "/"',
   'apiTestDebug.serverExec': 'Server execution',
   'apiTestDebug.localExec': 'Local execution',
   'apiTestDebug.noMatchModule': 'No matching module data yet',

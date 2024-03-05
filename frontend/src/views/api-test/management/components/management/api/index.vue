@@ -9,7 +9,12 @@
       </MsEditableTab>
     </div>
     <div v-show="activeApiTab.id === 'all'" class="flex-1">
-      <apiTable :active-module="props.activeModule" :offspring-ids="props.offspringIds" @open-api-tab="openApiTab" />
+      <apiTable
+        :active-module="props.activeModule"
+        :offspring-ids="props.offspringIds"
+        :protocol="props.protocol"
+        @open-api-tab="openApiTab"
+      />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <a-tabs default-active-key="definition" animation lazy-load class="ms-api-tab-nav">
@@ -68,7 +73,7 @@
                       <template #label>
                         <apiStatus :status="activeApiTab.status" />
                       </template>
-                      <a-option v-for="item of RequestDefinitionStatus" :key="item" :value="item">
+                      <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
                         <apiStatus :status="item" />
                       </a-option>
                     </a-select>
@@ -178,6 +183,7 @@
     activeModule: string;
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
+    protocol: string;
   }>();
   const emit = defineEmits(['addDone']);
 

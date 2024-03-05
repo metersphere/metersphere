@@ -216,12 +216,13 @@
         break;
       case RequestExtractExpressionEnum.JSON_PATH:
         try {
-          matchResult.value = JSONPath({
-            json: props.response ? JSON.parse(props.response) : '',
-            path: expressionForm.value.expression,
-          });
+          matchResult.value =
+            JSONPath({
+              json: props.response ? JSON.parse(props.response) : '',
+              path: expressionForm.value.expression,
+            }) || [];
         } catch (error) {
-          matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression });
+          matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
         }
         break;
       case RequestExtractExpressionEnum.REGEX:
