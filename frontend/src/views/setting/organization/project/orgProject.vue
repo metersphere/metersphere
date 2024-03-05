@@ -25,7 +25,12 @@
               <span class="text-[var(--color-text-1)]">{{
                 t('system.project.revokeDeleteToolTip', { count: record.remainDayCount })
               }}</span>
-              <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+              <MsButton
+                v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+RECOVER'])"
+                class="ml-[8px]"
+                @click="handleRevokeDelete(record)"
+                >{{ t('common.revokeDelete') }}</MsButton
+              >
             </div>
           </template>
           <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
