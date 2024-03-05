@@ -141,33 +141,34 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue';
-import {useRouter} from 'vue-router';
-import {useVModel} from '@vueuse/core';
+  import { computed, ref, watch } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useVModel } from '@vueuse/core';
 
-import {CustomTypeMaps, MsAdvanceFilter} from '@/components/pure/ms-advance-filter';
-import {FilterFormItem, FilterType} from '@/components/pure/ms-advance-filter/type';
-import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-import {MsTableColumn} from '@/components/pure/ms-table/type';
-import useTable from '@/components/pure/ms-table/useTable';
-import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
-import MsTree from '@/components/business/ms-tree/index.vue';
-import type {MsTreeNodeData} from '@/components/business/ms-tree/types';
-import caseLevel from './caseLevel.vue';
+  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
+  import MsTree from '@/components/business/ms-tree/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import caseLevel from './caseLevel.vue';
 
-import {getCustomFieldsTable} from '@/api/modules/case-management/featureCase';
-import {useI18n} from '@/hooks/useI18n';
-import useAppStore from '@/store/modules/app';
-import {mapTree} from '@/utils';
+  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
+  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { mapTree } from '@/utils';
 
-import type {CaseManagementTable} from '@/models/caseManagement/featureCase';
-import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
-import {CaseManagementRouteEnum} from '@/enums/routeEnum';
-import {initGetModuleCountFunc, type RequestModuleEnum} from './utils';
+  import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-const router = useRouter();
+  import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
+
+  const router = useRouter();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -361,7 +362,7 @@ const router = useRouter();
       title: 'ms.case.associate.tags',
       dataIndex: 'tags',
       isTag: true,
-    }
+    },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
