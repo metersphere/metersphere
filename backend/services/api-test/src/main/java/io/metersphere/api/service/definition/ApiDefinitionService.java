@@ -186,6 +186,7 @@ public class ApiDefinitionService {
         ProjectService.checkResourceExist(request.getProjectId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
+        apiDefinition.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
         checkAddExist(apiDefinition);
         checkResponseNameCode(request.getResponse());
         apiDefinition.setId(IDGenerator.nextStr());
@@ -197,7 +198,6 @@ public class ApiDefinitionService {
         apiDefinition.setUpdateUser(userId);
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
         apiDefinition.setRefId(apiDefinition.getId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             apiDefinition.setTags(request.getTags());
