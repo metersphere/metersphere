@@ -1,0 +1,15 @@
+export default {
+  'ms.message.management': 'Message management',
+  'ms.message.extend': '(Only display internal news within the past 3 months)',
+  'ms.message.all': 'All messages',
+  'ms.message.bug': 'Bug',
+  'ms.message.case': 'Case',
+  'ms.message.api': 'Api',
+  'ms.message.list.all': 'All',
+  'ms.message.list.me': '{var}My',
+  'ms.message.list.unRead': 'Unread',
+  'ms.message.list.read': 'Read',
+  'ms.message.make.as.read': 'Mark all as read',
+  'ms.message.notice.title': 'Notification Title',
+  'ms.message.me': ' {var}Me',
+};
