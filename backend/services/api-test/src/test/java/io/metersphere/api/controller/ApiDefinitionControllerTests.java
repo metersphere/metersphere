@@ -248,8 +248,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setPath("/api/admin/posts");
         request.setUploadFileIds(null);
         request.setLinkFileIds(null);
+        String versionId = request.getVersionId();
+        request.setVersionId(null);
         mvcResult = this.requestPostWithOkAndReturn(ADD, request);
         resultData = getResultData(mvcResult, ApiDefinition.class);
+        request.setVersionId(versionId);
         assertAddApiDefinition(request, msHttpElement, resultData.getId());
 
         testHandleFileAssociationUpgrade();
