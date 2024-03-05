@@ -53,7 +53,7 @@
         <a-tooltip :content="t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="9" dot>
-              <a-button type="secondary" @click="setPopoverVisible">
+              <a-button type="secondary" @click="goMessageCenter">
                 <template #icon>
                   <icon-notification />
                 </template>
@@ -136,6 +136,7 @@
     </ul>
   </div>
   <TaskCenterModal v-model:visible="taskCenterVisible" />
+  <MessageCenterDrawer v-model:visible="messageCenterVisible" />
 </template>
 
 <script lang="ts" setup>
@@ -144,8 +145,8 @@
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
-  import MessageBox from '../message-box/index.vue';
   import TaskCenterModal from './taskCenterModal.vue';
 
   import { switchProject } from '@/api/modules/project-management/project';
@@ -231,18 +232,14 @@
   const locales = [...LOCALE_OPTIONS];
 
   const refBtn = ref();
-  const setPopoverVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    refBtn.value.dispatchEvent(event);
-  };
+  const messageCenterVisible = ref<boolean>(false);
 
   const taskCenterVisible = ref<boolean>(false);
   function goTaskCenter() {
     taskCenterVisible.value = true;
+  }
+  function goMessageCenter() {
+    messageCenterVisible.value = true;
   }
 </script>
 
