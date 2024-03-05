@@ -15,9 +15,10 @@ INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_
 
 INSERT INTO bug_comment (id, bug_id, reply_user, notifier, parent_id, content, create_user, create_time, update_user, update_time) VALUES
     ('default-bug-comment-id-1', 'default-bug-id-for-comment', null, null, null, 'This is a test comment!', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000),
-    ('default-bug-comment-id-2', 'default-bug-id-for-comment', 'admin', 'oasis-user-id1;oasis-user-id2', 'default-bug-comment-id-1', 'This is a test comment!', 'oasis-user-id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000),
-    ('default-bug-comment-id-3', 'default-bug-id-for-comment', null, null, null, 'This is a test comment!', 'oasis-user-id1', UNIX_TIMESTAMP() * 1000 + 1000, 'admin', UNIX_TIMESTAMP() * 1000),
-    ('default-bug-comment-id-4', 'default-bug-id-for-comment', 'oasis-user-id1', null, 'default-bug-comment-id-3', 'This is a test comment!', 'oasis-user-id2', UNIX_TIMESTAMP() * 1000 + 1000, 'admin', UNIX_TIMESTAMP() * 1000);
+    ('default-bug-comment-id-2', 'default-bug-id-for-comment', 'admin', 'oasis-user-id1;oasis-user-id2', 'default-bug-comment-id-1', 'This is a test comment!', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000),
+    ('default-bug-comment-id-3', 'default-bug-id-for-comment', null, null, null, 'This is a test comment!', 'admin', UNIX_TIMESTAMP() * 1000 + 1000, 'admin', UNIX_TIMESTAMP() * 1000),
+    ('default-bug-comment-id-4', 'default-bug-id-for-comment', 'oasis-user-id1', null, 'default-bug-comment-id-3', 'This is a test comment!', 'admin', UNIX_TIMESTAMP() * 1000 + 1000, 'admin', UNIX_TIMESTAMP() * 1000),
+    ('default-bug-comment-id-5', 'default-bug-id-for-comment', 'oasis-user-id1', null, null, 'This is a test comment!', 'oasis', UNIX_TIMESTAMP() * 1000 - 1000, 'admin', UNIX_TIMESTAMP() * 1000);
 
 INSERT INTO bug_custom_field (bug_id, field_id, value) VALUE ('default-bug-id-for-comment1', 'comment_test_field', '["default", "default-1"]');
 

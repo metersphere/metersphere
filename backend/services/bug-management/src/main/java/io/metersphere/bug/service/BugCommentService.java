@@ -128,7 +128,7 @@ public class BugCommentService {
      * @return 缺陷评论
      */
     public BugComment updateComment(BugCommentEditRequest request, String currentUser) {
-        checkComment(request.getId());
+        checkComment(request.getId(), currentUser);
         BugComment bugComment = getBugComment(request, currentUser, true);
         return updateBugCommentAndNotice(request, bugComment, currentUser);
     }
@@ -137,8 +137,8 @@ public class BugCommentService {
      * 删除评论
      * @param commentId 评论ID
      */
-    public void deleteComment(String commentId) {
-        checkComment(commentId);
+    public void deleteComment(String commentId, String currentUser) {
+        checkComment(commentId, currentUser);
         BugComment bugComment = bugCommentMapper.selectByPrimaryKey(commentId);
         if (StringUtils.isEmpty(bugComment.getParentId())) {
             // 如果是父评论, 先删除子评论
@@ -270,13 +270,16 @@ public class BugCommentService {
     }
 
     /**
-     * 校验评论是否存在
+     * 校验评论是否存在, 评论创建人是否当前用户
      * @param commentId 评论ID
      */
-    private void checkComment(String commentId) {
+    private void checkComment(String commentId, String currentUser) {
         BugComment bugComment = bugCommentMapper.selectByPrimaryKey(commentId);
         if (bugComment == null) {
             throw new IllegalArgumentException(Translator.get("bug_comment_not_exist"));
+        }
+        if (!StringUtils.equals(bugComment.getCreateUser(), currentUser)) {
+            throw new IllegalArgumentException(Translator.get("bug_comment_not_owner"));
         }
     }
 

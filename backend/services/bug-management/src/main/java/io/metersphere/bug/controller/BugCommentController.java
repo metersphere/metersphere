@@ -51,6 +51,6 @@ public class BugCommentController {
     @Operation(summary = "缺陷管理-评论-删除评论")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public void delete(@PathVariable String commentId) {
-        bugCommentService.deleteComment(commentId);
+        bugCommentService.deleteComment(commentId, SessionUtils.getUserId());
     }
 }
