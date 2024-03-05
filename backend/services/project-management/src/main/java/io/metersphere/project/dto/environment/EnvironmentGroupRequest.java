@@ -3,7 +3,6 @@ package io.metersphere.project.dto.environment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.List;
@@ -22,6 +21,5 @@ public class EnvironmentGroupRequest {
     @Schema(description = "环境组描述")
     private String description;
     @Schema(description = "环境组id")
-    @NotEmpty
     private List<EnvironmentGroupProjectDTO> envGroupProject;
 }

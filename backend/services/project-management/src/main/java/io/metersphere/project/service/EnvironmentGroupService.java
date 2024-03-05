@@ -80,7 +80,9 @@ public class EnvironmentGroupService {
         environmentGroup.setPos(getNextOrder(request.getProjectId()));
         environmentGroupMapper.insertSelective(environmentGroup);
         request.setId(environmentGroup.getId());
-        this.insertGroupProject(request);
+        if (CollectionUtils.isNotEmpty(request.getEnvGroupProject())) {
+            this.insertGroupProject(request);
+        }
 
         return environmentGroup;
     }
@@ -157,8 +159,13 @@ public class EnvironmentGroupService {
         environmentGroup.setUpdateUser(userId);
         environmentGroup.setDescription(request.getDescription());
         environmentGroupMapper.updateByPrimaryKeySelective(environmentGroup);
-
-        this.insertGroupProject(request);
+        if (CollectionUtils.isNotEmpty(request.getEnvGroupProject())) {
+            this.insertGroupProject(request);
+        } else {
+            EnvironmentGroupRelationExample example = new EnvironmentGroupRelationExample();
+            example.createCriteria().andEnvironmentGroupIdEqualTo(request.getId());
+            environmentGroupRelationMapper.deleteByExample(example);
+        }
 
         return environmentGroup;
     }
@@ -203,7 +210,7 @@ public class EnvironmentGroupService {
                 EnvironmentConfig environmentConfig = JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
                 dto.setDomain(ObjectUtils.isNotEmpty(environmentConfig) ? environmentConfig.getHttpConfig() : new ArrayList<>());
             }
-            if (environment !=null && BooleanUtils.isTrue(environment.getMock())) {
+            if (environment != null && BooleanUtils.isTrue(environment.getMock())) {
                 SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
                 if (systemParameterService != null) {
                     BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
