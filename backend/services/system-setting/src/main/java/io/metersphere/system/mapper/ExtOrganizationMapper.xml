@@ -102,7 +102,7 @@
     </select>
 
     <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.OptionDisabledDTO">
-        select u.id, u.name
+        select u.id, u.name, u.email
         from user u
         where u.deleted = false
         <if test="keyword != null and keyword != ''">
