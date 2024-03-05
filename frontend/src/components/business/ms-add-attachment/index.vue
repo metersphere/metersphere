@@ -288,7 +288,8 @@
       innerFileList.value = [fileItem];
       inputFileName.value = fileItem.name || '';
     }
-    emit('change', innerFileList.value, { ...fileItem, local: true });
+    fileItem.local = true;
+    emit('change', _fileList);
     nextTick(() => {
       // 在 emit 文件上去之后再关闭菜单
       buttonDropDownVisible.value = false;

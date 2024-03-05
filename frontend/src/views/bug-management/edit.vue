@@ -42,7 +42,7 @@
           <a-form-item field="attachment">
             <div class="flex flex-col">
               <div class="mb-1">
-                <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile"/>
+                <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile" />
               </div>
             </div>
           </a-form-item>
@@ -51,7 +51,7 @@
               <!-- 本地文件 -->
               <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
                 <MsButton
-                  v-if="item.status !== 'init'"
+                  v-if="item.status !== 'init' && item.file.type.includes('image')"
                   type="button"
                   status="primary"
                   class="!mr-[4px]"
@@ -92,7 +92,7 @@
               <!-- 关联文件 -->
               <div v-else class="flex flex-nowrap">
                 <MsButton
-                  v-if="item.status !== 'init'"
+                  v-if="item.status !== 'init' && item.file.type.includes('image')"
                   type="button"
                   status="primary"
                   class="!mr-[4px]"
@@ -270,22 +270,23 @@
 
   // 处理文件参数
   function getFilesParams() {
-    const associateFileIds = attachmentsList.value.filter((item) => !item.local).map((item) => item.id);
-    const newAssociateFileListIds = fileList.value
+    // link file
+    const associateFileIds = attachmentsList.value.filter((item) => !item.local).map((item) => item.fileId);
+    form.value.linkFileIds = fileList.value
       .filter((item) => !item.local && !associateFileIds.includes(item.uid))
       .map((item) => item.uid);
-
-    const currentOldLocalFileList = fileList.value
+    // unlink file
+    const remainLinkFileIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
+    form.value.unLinkRefIds = attachmentsList.value
+      .filter((item) => !item.local && !remainLinkFileIds.includes(item.fileId))
+      .map((item) => item.refId);
+    // delete local file
+    const remainLocalFileIds = fileList.value
       .filter((item) => item.local && item.status !== 'init')
       .map((item) => item.uid);
-
-    // 更新form的值
     form.value.deleteLocalFileIds = attachmentsList.value
-      .filter((item) => item.local && !currentOldLocalFileList.includes(item.uid))
-      .map((item) => item.uid);
-
-    form.value.unLinkRefIds = associateFileIds.filter((id) => !newAssociateFileListIds.includes(id));
-    form.value.linkFileIds = newAssociateFileListIds;
+      .filter((item) => item.local && !remainLocalFileIds.includes(item.fileId))
+      .map((item) => item.fileId);
   }
 
   // 监视文件列表处理关联和本地文件
@@ -404,7 +405,13 @@
   // 更新文件
   async function handleUpdateFile(item: MsFileItem) {
     try {
-      await updateFile(currentProjectId.value, item.associationId);
+      const params = {
+        refId: item.associateId,
+        associated: !item.local,
+        bugId: bugId.value,
+        projectId: currentProjectId.value,
+      };
+      await updateFile(params);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       console.log(error);
@@ -429,7 +436,6 @@
       return {
         ...e,
         enable: true, // 是否启用
-        local: true, // 是否本地文件
       };
     });
   }
@@ -466,8 +472,10 @@
               if (isCopy.value) {
                 delete tmpObj.id;
               }
+              // 过滤出本地保存的文件
+              const localFiles = fileList.value.filter((item) => item.local && item.status === 'init');
               // 执行保存操作
-              const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
+              const res = await createOrUpdateBug({ request: tmpObj, fileList: localFiles as unknown as File[] });
               if (isEdit.value) {
                 Message.success(t('common.updateSuccess'));
                 router.push({

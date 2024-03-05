@@ -654,7 +654,6 @@
       return {
         ...e,
         enable: true, // 是否启用
-        local: true, // 是否本地文件
       };
     });
   }
