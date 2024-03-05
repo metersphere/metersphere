@@ -66,7 +66,12 @@
             </template>
           </a-checkbox-group>
         </a-form-item>
-        <a-form-item v-if="showPool" field="resourcePool" :label="t('system.project.resourcePool')">
+        <a-form-item
+          v-if="showPool"
+          field="resourcePoolIds"
+          :label="t('system.project.resourcePool')"
+          :rules="[{ required: showPool, message: t('system.project.poolIsNotNull') }]"
+        >
           <MsSystemPool
             v-model:modelValue="form.resourcePoolIds"
             :module-ids="form.moduleIds"
