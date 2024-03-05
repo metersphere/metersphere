@@ -75,7 +75,14 @@
     </template>
     <template #default>
       <div ref="wrapperRef" class="h-full bg-white">
-        <MsSplitBox ref="wrapperRef" expand-direction="right" :max="0.7" :min="0.7" :size="900">
+        <MsSplitBox
+          ref="wrapperRef"
+          expand-direction="right"
+          :max="0.7"
+          :min="0.7"
+          :size="900"
+          :class="{ 'left-bug-detail': activeTab === 'comment' }"
+        >
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
@@ -487,5 +494,8 @@
   }
   :deep(.active .arco-badge-text) {
     background: rgb(var(--primary-5));
+  }
+  .left-bug-detail {
+    height: 88%;
   }
 </style>
