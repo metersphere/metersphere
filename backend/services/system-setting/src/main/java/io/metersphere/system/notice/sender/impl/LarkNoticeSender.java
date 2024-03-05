@@ -7,6 +7,7 @@ import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.notice.utils.LarkClient;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.User;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,18 +18,23 @@ import java.util.stream.Collectors;
 public class LarkNoticeSender extends AbstractNoticeSender {
 
     public void sendLark(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
-        List<String> userIds = noticeModel.getReceivers().stream()
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
+            return;
+        }
+        List<String> userIds = receivers.stream()
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        List<User> users = super.getUsers(userIds);
+
+        List<User> users = super.getUsers(userIds, messageDetail.getProjectId());
         List<String> collect = users.stream()
                 .map(ud -> "<at email=\"" + ud.getEmail() + "\">" + ud.getName() + "</at>")
                 .toList();
 
         LogUtils.info("飞书收件人: {}", userIds);
         context += StringUtils.join(collect, StringUtils.SPACE);
-        LarkClient.send(messageDetail.getWebhook(), messageDetail.getSubject()+": \n" + context);
+        LarkClient.send(messageDetail.getWebhook(), messageDetail.getSubject() + ": \n" + context);
     }
 
     @Override

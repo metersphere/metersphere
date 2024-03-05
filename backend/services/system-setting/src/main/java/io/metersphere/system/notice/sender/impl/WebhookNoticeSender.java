@@ -25,7 +25,10 @@ public class WebhookNoticeSender extends AbstractNoticeSender {
 
 
     private void send(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
-        List<Receiver> receivers = noticeModel.getReceivers();
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
+            return;
+        }
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
         if (CollectionUtils.isNotEmpty(receivers)) {

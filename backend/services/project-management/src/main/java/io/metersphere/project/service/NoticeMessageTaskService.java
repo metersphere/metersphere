@@ -15,6 +15,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -57,6 +58,8 @@ public class NoticeMessageTaskService {
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
     @Resource
     protected CustomFieldMapper customFieldMapper;
+    @Resource
+    private ExtSystemProjectMapper extSystemProjectMapper;
 
 
     public static final String USER_IDS = "user_ids";
@@ -336,9 +339,7 @@ public class NoticeMessageTaskService {
         projectRobotExample.createCriteria().andIdIn(robotIds);
         List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
         Map<String, ProjectRobot> robotMap = projectRobots.stream().collect(Collectors.toMap(ProjectRobot::getId, item -> item));
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(userIds).andDeletedEqualTo(false);
-        List<User> users = userMapper.selectByExample(userExample);
+        List<User> users = extSystemProjectMapper.getProjectMemberByUserId(projectId, userIds);
         Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
         Map<String, String> defaultRelatedUserMap = MessageTemplateUtils.getDefaultRelatedUserMap();
         userNameMap.putAll(defaultRelatedUserMap);
@@ -383,10 +384,12 @@ public class NoticeMessageTaskService {
                             MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
                             List<String> receiverIds = messageTask.getReceivers();
                             for (String receiverId : receiverIds) {
-                                OptionDTO optionDTO = new OptionDTO();
-                                optionDTO.setId(receiverId);
-                                optionDTO.setName(userNameMap.get(receiverId));
-                                receivers.add(optionDTO);
+                                if (userNameMap.get(receiverId)!=null) {
+                                    OptionDTO optionDTO = new OptionDTO();
+                                    optionDTO.setId(receiverId);
+                                    optionDTO.setName(userNameMap.get(receiverId));
+                                    receivers.add(optionDTO);
+                                }
                             }
                             String platform = robotMap.get(messageTask.getProjectRobotId()).getPlatform();
                             String defaultSubject;

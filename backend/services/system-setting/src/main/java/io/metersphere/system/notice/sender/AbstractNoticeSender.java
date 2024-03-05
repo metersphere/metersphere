@@ -25,8 +25,7 @@ import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
-import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
@@ -59,7 +58,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     private CaseReviewFollowerMapper caseReviewFollowerMapper;
     @Resource
-    private UserMapper userMapper;
+    private ExtSystemProjectMapper extSystemProjectMapper;
+
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
         //处理自定义字段的值
@@ -150,7 +150,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         // 去重复
         List<String> userIds = toUsers.stream().map(Receiver::getUserId).distinct().toList();
         LogUtils.info("userIds: ", JSON.toJSONString(userIds));
-        List<User> users = getUsers(userIds);
+        List<User> users = getUsers(userIds, messageDetail.getProjectId());
         List<String> realUserIds = users.stream().map(User::getId).toList();
         return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
     }
@@ -217,7 +217,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
             }
-            case NoticeConstants.TaskType.BUG_TASK ->  {
+            case NoticeConstants.TaskType.BUG_TASK -> {
                 BugFollowerExample bugFollowerExample = new BugFollowerExample();
                 bugFollowerExample.createCriteria().andBugIdEqualTo(id);
                 List<BugFollower> bugFollowers = bugFollowerMapper.selectByExample(bugFollowerExample);
@@ -233,12 +233,25 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return receivers;
     }
 
-    protected List<User> getUsers(List<String> userIds) {
-        UserExample userExample = new UserExample();
+    protected List<User> getUsers(List<String> userIds, String projectId) {
         if (CollectionUtils.isNotEmpty(userIds)) {
-            userExample.createCriteria().andIdIn(userIds);
-            return userMapper.selectByExample(userExample);
+            return extSystemProjectMapper.getProjectMemberByUserId(projectId, userIds);
+        } else {
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+    }
+
+    protected List<Receiver> getReceivers(List<Receiver> receivers, Boolean excludeSelf, String operator) {
+        // 排除自己
+        List<Receiver> realReceivers = new ArrayList<>();
+        if (excludeSelf) {
+            for (Receiver receiver : receivers) {
+                if (!StringUtils.equals(receiver.getUserId(), operator)) {
+                    LogUtils.info("发送人是自己不发");
+                    realReceivers.add(receiver);
+                }
+            }
+        }
+        return realReceivers;
     }
 }

@@ -7,6 +7,7 @@ import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.notice.utils.WeComClient;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,14 +17,18 @@ import java.util.stream.Collectors;
 public class WeComNoticeSender extends AbstractNoticeSender {
 
     public void sendWeCom(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
-        List<String> userIds = noticeModel.getReceivers().stream()
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
+            return;
+        }
+        List<String> userIds = receivers.stream()
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        List<User> users = super.getUsers(userIds);
+        List<User> users = super.getUsers(userIds, messageDetail.getProjectId());
         List<String> mobileList = users.stream().map(User::getPhone).toList();
         LogUtils.info("企业微信收件人: {}", userIds);
-        WeComClient.send(messageDetail.getWebhook(), messageDetail.getSubject()+": \n" + context, mobileList);
+        WeComClient.send(messageDetail.getWebhook(), messageDetail.getSubject() + ": \n" + context, mobileList);
     }
 
     @Override

@@ -21,5 +21,6 @@ public class MessageDetail implements Serializable {
     private String template;
     private String appKey;
     private String appSecret;
+    private String projectId;
 
 }

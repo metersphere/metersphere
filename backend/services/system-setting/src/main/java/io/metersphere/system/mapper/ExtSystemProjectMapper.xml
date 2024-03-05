@@ -209,4 +209,19 @@
         order by u.name
         limit 100
     </select>
+
+    <select id="getProjectMemberByUserId" resultType="io.metersphere.system.domain.User">
+        select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
+        where
+        u.deleted = 0 and u.enable = 1
+        <if test="projectId != null and projectId != ''">
+            and urr.source_id = #{projectId}
+        </if>
+        <if test="userIds != null and userIds.size > 0 ">
+            and u.id in
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+    </select>
 </mapper>

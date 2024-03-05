@@ -89,6 +89,7 @@ public class MessageDetailService {
             messageDetail.setTaskType(messageTask.getTaskType());
             messageDetail.setEvent(messageTask.getEvent());
             messageDetail.setCreateTime(messageTask.getCreateTime());
+            messageDetail.setProjectId(messageTask.getProjectId());
             String projectRobotId = messageTask.getProjectRobotId();
             ProjectRobot projectRobot = projectRobotMap.get(projectRobotId);
             //如果当前机器人停止，那么当前任务也失效
