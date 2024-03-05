@@ -69,7 +69,7 @@
         >
           <div ref="refBtn" class="ref-btn"></div>
           <template #content>
-            <message-box />
+            <MessageBox />
           </template>
         </a-popover>
       </li>
@@ -145,6 +145,7 @@
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import MessageBox from '@/components/pure/message-box/index.vue';
   import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import TaskCenterModal from './taskCenterModal.vue';

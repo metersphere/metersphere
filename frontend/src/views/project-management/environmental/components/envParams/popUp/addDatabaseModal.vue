@@ -4,12 +4,15 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     unmount-on-close
+    :modal-style="{
+      top: '0 !important',
+    }"
     @cancel="handleCancel(false)"
   >
     <template #title>
-      <span v-if="isEdit">
+      <span v-if="props.currentId && !props.isCopy">
         {{ t('project.environmental.database.updateDatabase') }}
-        <span class="text-[var(--color-text-4)]">({{ form.name }})</span>
+        <span class="text-[var(--color-text-4)]">({{ updateName }})</span>
       </span>
       <span v-else>
         {{ t('project.environmental.database.addDatabase') }}
@@ -18,20 +21,20 @@
     <div class="form">
       <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
-          field="name"
+          field="dataSource"
           required
           :label="t('project.environmental.database.name')"
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.environmental.database.nameIsRequire') }]"
         >
           <a-input
-            v-model="form.name"
+            v-model="form.dataSource"
             :max-length="255"
             allow-clear
             :placeholder="t('project.environmental.database.namePlaceholder')"
           />
         </a-form-item>
-        <a-form-item field="driverId" asterisk-position="end" :label="t('project.environmental.database.driver')">
+        <a-form-item field="driver" asterisk-position="end" :label="t('project.environmental.database.driver')">
           <a-select v-model="form.driverId" :options="driverOption" />
         </a-form-item>
         <a-form-item
@@ -39,7 +42,9 @@
           required
           :label="t('project.environmental.database.url')"
           asterisk-position="end"
-          :extra="t('project.environmental.database.urlExtra')"
+          :extra="
+            form.driverId === 'system&com.mysql.cj.jdbc.Driver' ? t('project.environmental.database.urlExtra') : ''
+          "
           :rules="[{ required: true, message: t('project.environmental.database.urlIsRequire') }]"
         >
           <a-input v-model="form.dbUrl" :max-length="255" allow-clear :placeholder="t('common.pleaseInput')" />
@@ -92,7 +97,7 @@
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleBeforeOk">
-            {{ isEdit ? t('common.confirm') : t('common.add') }}
+            {{ props.currentId && !props.isCopy ? t('common.confirm') : t('common.add') }}
           </a-button>
         </div>
       </div>
@@ -108,16 +113,19 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { getGenerateId } from '@/utils';
 
   import { DataSourceItem } from '@/models/projectManagement/environmental';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
-
+  const store = useProjectEnvStore();
   const props = defineProps<{
-    currentDatabase: DataSourceItem;
+    currentId: string;
     visible: boolean;
+    isCopy: boolean;
   }>();
 
   const formRef = ref<FormInstance>();
@@ -139,17 +147,14 @@
 
   const form = ref<DataSourceItem>({
     id: '',
-    name: '',
+    dataSource: '',
     driverId: '',
     dbUrl: '',
     username: '',
     password: '',
     poolMax: 1,
     timeout: 1000,
-    enable: true,
   });
-
-  const isEdit = computed(() => !!props.currentDatabase.id);
 
   const getDriverOption = async () => {
     try {
@@ -158,7 +163,7 @@
         label: item.name,
         value: item.id,
       }));
-      if (res.length && !isEdit.value) {
+      if (res.length && !props.currentId) {
         // 创建模式下默认选中第一个
         form.value.driverId = res[0].id;
       }
@@ -178,13 +183,7 @@
         try {
           loading.value = true;
           await validateDatabaseEnv({
-            name: form.value.name,
-            driverId: form.value.driverId,
-            dbUrl: form.value.dbUrl,
-            username: form.value.username,
-            password: form.value.password,
-            poolMax: form.value.poolMax,
-            timeout: form.value.timeout,
+            ...form.value,
           });
           Message.success(t('project.environmental.database.testConnectionSuccess'));
         } catch (error) {
@@ -204,14 +203,13 @@
   const formReset = () => {
     form.value = {
       id: '',
-      name: '',
+      dataSource: '',
       driverId: '',
       dbUrl: '',
       username: '',
       password: '',
       poolMax: 1,
       timeout: 1000,
-      enable: true,
     };
   };
   const handleCancel = (shouldSearch: boolean) => {
@@ -226,15 +224,24 @@
         return;
       }
       try {
-        loading.value = true;
-        emit('addOrUpdate', form.value, (v: boolean) => {
-          Message.success(
-            isEdit.value
-              ? t('project.environmental.database.updateDataSourceSuccess')
-              : t('project.environmental.database.createDataSourceSuccess')
-          );
-          handleCancel(v);
-        });
+        const index = store.currentEnvDetailInfo.config.dataSources.findIndex((item: any) => item.id === form.value.id);
+        if (index > -1 && !props.isCopy) {
+          store.currentEnvDetailInfo.config.dataSources.splice(index, 1, form.value);
+        } else if (index > -1 && props.isCopy) {
+          const insertItem = {
+            ...form.value,
+            dataSource: `copy_${form.value.dataSource}`,
+            id: getGenerateId(),
+          };
+          store.currentEnvDetailInfo.config.dataSources.splice(index + 1, 0, insertItem);
+        } else {
+          const dataSourceItem = {
+            ...form.value,
+            id: getGenerateId(),
+          };
+          store.currentEnvDetailInfo.config.dataSources.push(dataSourceItem);
+        }
+        currentVisible.value = false;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -243,19 +250,26 @@
       }
     });
   };
-  const initData = () => {
+  onMounted(() => {
     getDriverOption();
-  };
+  });
+
+  const updateName = ref<string>('');
   watchEffect(() => {
-    initData();
-    if (props.currentDatabase?.id) {
-      // 编辑
-      if (props.currentDatabase) {
-        form.value = { ...props.currentDatabase };
+    if (props.currentId) {
+      const currentItem = store.currentEnvDetailInfo.config.dataSources.find(
+        (item) => item.id === props.currentId
+      ) as DataSourceItem;
+      if (currentItem) {
+        form.value = {
+          ...currentItem,
+        };
       }
+      updateName.value = form.value.dataSource;
     } else {
-      // 新建
       formReset();
     }
   });
 </script>
+
+<style lang="less" scoped></style>

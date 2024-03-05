@@ -52,7 +52,9 @@
         <PluginTab
           v-if="activeKey === item.pluginId"
           :model-value="store.currentEnvDetailInfo.config.pluginConfigMap[item.pluginId]"
+          :plugin-id="item.pluginId"
           :script="item.script"
+          :fields="item.script.fields"
           @update:model-value="store.currentEnvDetailInfo.config.pluginConfigMap[item.pluginId] = $event"
         />
       </template>
@@ -160,6 +162,7 @@
       isShow: true,
     },
   ];
+
   // 初始化插件
   const initPlugin = async () => {
     try {
@@ -200,6 +203,7 @@
   watchEffect(() => {
     if (store.currentId) {
       store.initEnvDetail();
+      // initPlugin();
     }
   });
 
@@ -245,7 +249,7 @@
     .content {
       overflow-y: auto;
       padding: 0 24px;
-      max-height: calc(100% - 260px);
+      max-height: calc(100% - 320px);
       background-color: #ffffff;
     }
     .no-content {

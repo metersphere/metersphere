@@ -17,15 +17,14 @@ export interface EnvGroupListItem {
   projectList: EnvGroupProjectListItem[];
 }
 export interface DataSourceItem {
-  id?: string;
-  name: string;
-  driverId?: string;
-  dbUrl: string;
-  username: string;
-  password?: string;
-  poolMax?: number;
-  timeout?: number;
-  enable?: boolean;
+  id: string;
+  dataSource: string; // 数据源名称
+  driverId: string; // 驱动id
+  dbUrl: string; // 数据库连接url
+  username: string; // 用户名
+  password: string; // 密码
+  poolMax?: number; // 最大连接数
+  timeout?: number; // 超时时间
 }
 
 export interface EnvConfigItem {
@@ -101,6 +100,7 @@ export interface EnvPluginScript {
   script: any[];
   scriptType: string;
   tabName: string;
+  fields: string[];
 }
 export interface EnvPluginListItem {
   pluginId: string;
@@ -130,10 +130,13 @@ export interface DragParam {
 
 export interface HttpForm {
   id?: string;
+  protocol: string;
   description?: string;
   hostname: string;
-  enableCondition: string;
+  type: string;
+  headers: Record<string, any>[];
+  // pathMatchRule: {
   path: string;
-  operator: string;
-  headerParams: any[];
+  condition: string;
+  // };
 }

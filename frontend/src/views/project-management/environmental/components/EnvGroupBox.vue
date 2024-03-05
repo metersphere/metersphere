@@ -42,7 +42,9 @@
       </div>
       <div class="footer" :style="{ width: '100%' }">
         <a-button :disabled="!canSave" @click="handleReset">{{ t('common.cancel') }}</a-button>
-        <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
+        <a-button :disabled="!canSave" :loading="loading" type="primary" @click="handleSave">{{
+          t('common.save')
+        }}</a-button>
       </div>
     </template>
     <template v-else>
@@ -54,7 +56,7 @@
 </template>
 
 <script lang="ts" setup async>
-  import { ValidatedError } from '@arco-design/web-vue';
+  import { Message, ValidatedError } from '@arco-design/web-vue';
 
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
@@ -133,17 +135,17 @@
       innerParams.value = detail.environmentGroupInfo || [];
     }
   };
+
+  const loading = ref<boolean>(false);
   const handleSave = () => {
     envGroupForm.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
         return;
       }
+      loading.value = true;
       try {
         const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
         const envGroupProject = innerParams.value.filter((item) => item.projectId && item.environmentId);
-        if (!envGroupProject.length) {
-          return;
-        }
         const params = {
           id,
           name: form.name,
@@ -154,6 +156,7 @@
         let res: EnvListItem;
         if (id) {
           res = await groupUpdateEnv(params);
+          Message.success(t('common.saveSuccess'));
           initDetail(res.id);
         } else {
           res = await groupAddEnv(params);
@@ -162,6 +165,8 @@
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
+      } finally {
+        loading.value = false;
       }
     });
   };

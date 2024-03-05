@@ -424,8 +424,7 @@
         if (envList.value[_newIndex + 1].id) {
           params.moveMode = 'BEFORE';
           params.moveId = envList.value[_newIndex + 1].id;
-        }
-        if (envList.value[_newIndex - 1].id) {
+        } else if (envList.value[_newIndex - 1].id && !envList.value[_newIndex + 1].id) {
           params.moveMode = 'AFTER';
           params.moveId = envList.value[_newIndex - 1].id;
         }
@@ -434,8 +433,7 @@
         if (evnGroupList.value[_newIndex + 1].id) {
           params.moveMode = 'AFTER';
           params.moveId = evnGroupList.value[_newIndex + 1].id;
-        }
-        if (evnGroupList.value[_newIndex - 1].id) {
+        } else if (evnGroupList.value[_newIndex - 1].id && !evnGroupList.value[_newIndex + 1].id) {
           params.moveMode = 'BEFORE';
           params.moveId = evnGroupList.value[_newIndex - 1].id;
         }
@@ -494,8 +492,8 @@
 
   function changeShowType(value: string | number | boolean) {
     if (value === 'PROJECT_GROUP') {
-      initGroupList();
-      store.setCurrentGroupId('');
+      initGroupList(keyword.value, true);
+      // store.setCurrentGroupId('');
     }
   }
 

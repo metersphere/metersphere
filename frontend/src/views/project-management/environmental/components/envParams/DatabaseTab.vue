@@ -10,22 +10,24 @@
     ></a-input-search>
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+    <template #driverId="{ record }">
+      {{ getDriver(record.driverId) }}
+    </template>
     <template #operation="{ record }">
-      <div class="flex flex-row flex-nowrap">
+      <div class="flex flex-row flex-nowrap items-center">
         <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-        <a-divider direction="vertical" />
+        <a-divider class="h-[16px]" direction="vertical" />
         <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-        <a-divider direction="vertical" />
+        <a-divider class="h-[16px]" direction="vertical" />
         <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
   </MsBaseTable>
   <AddDatabaseModal
     v-model:visible="addVisible"
-    :current-database="currentDatabase"
     :current-id="currentId"
+    :is-copy="isCopy"
     @close="addVisible = false"
-    @add-or-update="handleAddOrUpdate"
   />
 </template>
 
@@ -34,7 +36,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn, MsTableDataItem } from '@/components/pure/ms-table/type';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -45,8 +47,6 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { BugListItem } from '@/models/bug-management';
-  import { CommonList } from '@/models/common';
-  import { DataSourceItem } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -58,36 +58,24 @@
   const tableStore = useTableStore();
   const addVisible = ref(false);
   const currentId = ref('');
-
-  const currentDatabase = ref<DataSourceItem>({
-    id: '',
-    name: '',
-    driverId: '',
-    dbUrl: '',
-    username: '',
-    password: '',
-    poolMax: 1,
-    timeout: 1000,
-    enable: true,
-  });
-
   const columns: MsTableColumn = [
     {
       title: 'project.environmental.database.name',
-      dataIndex: 'name',
+      dataIndex: 'dataSource',
       showTooltip: true,
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'project.environmental.database.driver',
-      dataIndex: 'desc',
+      dataIndex: 'driverId',
+      slotName: 'driverId',
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'URL',
-      dataIndex: 'url',
+      dataIndex: 'dbUrl',
       showDrag: true,
       showInTable: true,
     },
@@ -118,21 +106,16 @@
     },
   ];
   await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP, columns);
-  const { propsRes, propsEvent } = useTable(
-    () =>
-      Promise.resolve([]) as unknown as Promise<
-        MsTableDataItem<DataSourceItem> | CommonList<MsTableDataItem<DataSourceItem>>
-      >,
-    {
-      tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP,
-      scroll: { x: '100%' },
-      selectable: false,
-      showSetting: true,
-      showPagination: false,
-      showMode: false,
-      isSimpleSetting: true,
-    }
-  );
+  const { propsRes, propsEvent } = useTable(undefined, {
+    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP,
+    scroll: { x: '100%' },
+    selectable: false,
+    showSetting: true,
+    showPagination: false,
+    heightUsed: 590,
+    showMode: false,
+    isSimpleSetting: true,
+  });
 
   const moreActionList: ActionsItem[] = [
     {
@@ -155,39 +138,64 @@
     }
   }
 
+  function getDriver(driverId: string) {
+    return driverId === 'oracle.jdbc.OracleDriver&oracle.jdbc.OracleDriver'
+      ? 'oracle.jdbc.OracleDriver'
+      : 'com.mysql.cj.jdbc.Driver';
+  }
+
+  const isCopy = ref<boolean>(false);
+
+  /**
+   * 复制
+   */
   const handleCopy = (record: any) => {
-    addVisible.value = true;
-    currentId.value = '';
-    currentDatabase.value = { ...record, id: '' };
-  };
-  const handleEdit = (record: any) => {
-    addVisible.value = true;
+    isCopy.value = true;
     currentId.value = record.id;
-  };
-  const handleAdd = () => {
-    currentDatabase.value = { name: '', dbUrl: '', username: '' };
     addVisible.value = true;
   };
+
+  /**
+   * 编辑
+   */
+  const handleEdit = (record: any) => {
+    isCopy.value = false;
+    currentId.value = record.id;
+    addVisible.value = true;
+  };
+
+  /**
+   * 添加
+   */
+  const handleAdd = () => {
+    currentId.value = '';
+    isCopy.value = false;
+    addVisible.value = true;
+  };
+
+  /**
+   * 查询
+   */
   const fetchData = () => {
     if (keyword.value) {
-      propsRes.value.data = innerParam.value.filter((item) => item.name.includes(keyword.value));
+      propsRes.value.data = innerParam.value.filter((item) => item.dataSource.includes(keyword.value));
     } else {
       propsRes.value.data = innerParam.value;
     }
   };
-  const handleAddOrUpdate = (data: DataSourceItem, cb: (v: boolean) => void) => {
-    if (data.id) {
-      const index = innerParam.value.findIndex((item) => item.id === data.id);
-      store.currentEnvDetailInfo.config.dataSources[index] = data;
-    } else {
-      data.id = new Date().getTime().toString();
-      store.currentEnvDetailInfo.config.dataSources.push(data);
+
+  watch(
+    () => innerParam.value,
+    (val) => {
+      if (val) {
+        propsRes.value.data = val;
+      }
+    },
+    {
+      deep: true,
+      immediate: true,
     }
-    cb(true);
-  };
-  watch(innerParam.value, () => {
-    fetchData();
-  });
+  );
 </script>
 
 <style lang="less" scoped>
