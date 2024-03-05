@@ -1,24 +1,26 @@
 <template>
   <div :class="['p-[16px_22px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center gap-[8px]">
+      <div v-if="!props.readOnly" class="flex items-center gap-[8px]">
         <a-switch v-model:model-value="showSubdirectory" size="small" type="line"></a-switch>
         {{ t('apiTestManagement.showSubdirectory') }}
       </div>
       <div class="flex items-center gap-[8px]">
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
-          <template #icon>
-            <icon-location class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-        <MsSelect
-          v-model:model-value="checkedEnv"
-          mode="static"
-          :options="envOptions"
-          class="!w-[150px]"
-          :search-keys="['label']"
-          allow-search
-        />
+        <template v-if="!props.readOnly">
+          <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
+            <template #icon>
+              <icon-location class="text-[var(--color-text-4)]" />
+            </template>
+          </a-button>
+          <MsSelect
+            v-model:model-value="checkedEnv"
+            mode="static"
+            :options="envOptions"
+            class="!w-[150px]"
+            :search-keys="['label']"
+            allow-search
+          />
+        </template>
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('apiTestManagement.searchPlaceholder')"
@@ -27,7 +29,7 @@
           @search="loadApiList"
           @press-enter="loadApiList"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList">
           <template #icon>
             <icon-refresh class="text-[var(--color-text-4)]" />
           </template>
@@ -44,16 +46,20 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #typeFilter="{ columnConfig }">
-        <a-trigger v-model:popup-visible="typeFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-          <a-button type="text" class="arco-btn-text--secondary" @click="typeFilterVisible = true">
+      <template #methodFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="methodFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <a-button type="text" class="arco-btn-text--secondary" @click="methodFilterVisible = true">
             {{ t(columnConfig.title as string) }}
-            <icon-down :class="typeFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+            <icon-down :class="methodFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
           </a-button>
           <template #content>
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="typeFilters" direction="vertical" size="small">
+                <a-checkbox-group v-model:model-value="methodFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
                     <apiMethodName :method="key" />
                   </a-checkbox>
@@ -86,8 +92,11 @@
           </template>
         </a-trigger>
       </template>
-      <template #type="{ record }">
-        <apiMethodName :method="record.type" is-tag />
+      <template #num="{ record }">
+        <MsButton type="text" @click="openApiTab(record)">{{ record.num }}</MsButton>
+      </template>
+      <template #method="{ record }">
+        <apiMethodName :method="record.method" is-tag />
       </template>
       <template #status="{ record }">
         <a-select
@@ -248,11 +257,13 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
+  import { batchDeleteDefinition, deleteDefinition, getDefinitionPage } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
+  import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -265,6 +276,7 @@
   const emit = defineEmits<{
     (e: 'init', params: any): void;
     (e: 'change'): void;
+    (e: 'openApiTab', record: ApiDefinitionDetail): void;
   }>();
 
   const appStore = useAppStore();
@@ -301,11 +313,13 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      fixed: 'left',
       width: 100,
     },
     {
@@ -320,9 +334,9 @@
     },
     {
       title: 'apiTestManagement.apiType',
-      dataIndex: 'type',
-      slotName: 'type',
-      titleSlotName: 'typeFilter',
+      dataIndex: 'method',
+      slotName: 'method',
+      titleSlotName: 'methodFilter',
       width: 120,
     },
     {
@@ -334,25 +348,27 @@
     },
     {
       title: 'apiTestManagement.responsiblePerson',
-      titleSlotName: 'responsiblePersonFilter',
+      dataIndex: 'createUserName',
       showTooltip: true,
-      width: 100,
+      width: 120,
     },
     {
       title: 'apiTestManagement.path',
       slotName: 'path',
       dataIndex: 'path',
-      width: 100,
+      showTooltip: true,
+      width: 200,
     },
     {
       title: 'common.tag',
       dataIndex: 'tags',
       isTag: true,
+      isStringTag: true,
       width: 150,
     },
     {
       title: 'apiTestManagement.version',
-      dataIndex: 'version',
+      dataIndex: 'versionName',
       width: 100,
     },
     {
@@ -362,7 +378,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 200,
+      width: 180,
     },
     {
       title: 'apiTestManagement.updateTime',
@@ -371,7 +387,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 200,
+      width: 180,
     },
     {
       title: 'common.operation',
@@ -390,36 +406,7 @@
     );
   }
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            num: 1001,
-            name: 'asdasdasd',
-            type: RequestMethods.CONNECT,
-            status: RequestDefinitionStatus.DEBUGGING,
-          },
-          {
-            num: 10011,
-            name: '1123',
-            type: RequestMethods.OPTIONS,
-            status: RequestDefinitionStatus.DEPRECATED,
-          },
-          {
-            num: 10012,
-            name: 'vfd',
-            type: RequestMethods.POST,
-            status: RequestDefinitionStatus.DONE,
-          },
-          {
-            num: 10013,
-            name: 'ccf',
-            type: RequestMethods.DELETE,
-            status: RequestDefinitionStatus.PROCESSING,
-          },
-        ],
-        total: 0,
-      }),
+    getDefinitionPage,
     {
       columns: props.readOnly ? columns : [],
       scroll: { x: '100%' },
@@ -466,19 +453,28 @@
     },
   ];
 
-  const typeFilterVisible = ref(false);
-  const typeFilters = ref(Object.keys(RequestMethods));
+  const methodFilterVisible = ref(false);
+  const methodFilters = ref(Object.keys(RequestMethods));
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const moduleIds = computed(() => {
+    if (props.activeModule === 'all') {
+      return [];
+    }
+    if (showSubdirectory.value) {
+      // 显示子目录接口
+      return [props.activeModule, ...props.offspringIds];
+    }
+    return [props.activeModule];
+  });
   const tableQueryParams = ref<any>();
   function loadApiList() {
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: props.activeModule === 'all' ? [] : [props.activeModule, ...props.offspringIds],
+      moduleIds: moduleIds.value,
       env: checkedEnv.value,
-      showSubdirectory: showSubdirectory.value,
-      filter: { status: statusFilters.value, type: typeFilters.value },
+      filter: { status: statusFilters.value, type: methodFilters.value },
     };
     setLoadListParams(params);
     loadList();
@@ -492,13 +488,20 @@
     });
   }
 
+  watch(
+    () => props.activeModule,
+    () => {
+      loadApiList();
+    }
+  );
+
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadApiList();
     }
   }
 
-  async function handleStatusChange(record: any) {
+  async function handleStatusChange(record: ApiDefinitionDetail) {
     try {
       Message.success(t('common.updateSuccess'));
     } catch (error) {
@@ -532,7 +535,7 @@
   /**
    * 删除接口
    */
-  function deleteApi(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function deleteApi(record?: ApiDefinitionDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('apiTestManagement.deleteApiTipTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -553,6 +556,18 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          if (isBatch) {
+            // await batchDeleteDefinition({
+            //   selectIds,
+            //   selectAll: !!params?.selectAll,
+            //   excludeIds: params?.excludeIds || [],
+            //   condition: { keyword: keyword.value },
+            //   projectId: appStore.currentProjectId,
+            //   moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+            // });
+          } else {
+            await deleteDefinition(record?.id as string);
+          }
           Message.success(t('common.deleteSuccess'));
           resetSelector();
           loadList();
@@ -569,7 +584,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleTableMoreActionSelect(item: ActionsItem, record: any) {
+  function handleTableMoreActionSelect(item: ActionsItem, record: ApiDefinitionDetail) {
     switch (item.eventTag) {
       case 'delete':
         deleteApi(record);
@@ -666,7 +681,7 @@
   const moveModalVisible = ref(false);
   const selectedModuleKeys = ref<(string | number)[]>([]); // 移动文件选中节点
   const isBatchMove = ref(false); // 是否批量移动文件
-  const activeApi = ref<any | null>(null); // 当前查看的接口项
+  const activeApi = ref<ApiDefinitionDetail | null>(null); // 当前查看的接口项
   const batchMoveApiLoading = ref(false); // 批量移动文件loading
 
   /**
@@ -735,6 +750,10 @@
       default:
         break;
     }
+  }
+
+  function openApiTab(record: ApiDefinitionDetail) {
+    emit('openApiTab', record);
   }
 </script>
 

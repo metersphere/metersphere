@@ -1,4 +1,4 @@
-import { ConditionType } from '@/models/apiTest/debug';
+import { ConditionType } from '@/models/apiTest/common';
 import { RequestBodyFormat, RequestConditionProcessor } from '@/enums/apiEnum';
 
 // 条件操作类型

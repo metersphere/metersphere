@@ -39,7 +39,6 @@
           <management
             ref="managementRef"
             :module-tree="folderTree"
-            :module="activeModule"
             :all-count="allCount"
             :active-module="activeModule"
             :offspring-ids="offspringIds"

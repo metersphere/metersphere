@@ -6,7 +6,7 @@
     <MsCodeEditor
       v-if="activeTab === ResponseComposition.BODY"
       ref="responseEditorRef"
-      :model-value="props.request.response.requestResults[0].responseResult?.body"
+      :model-value="props.requestResult?.responseResult.body"
       :language="responseLanguage"
       theme="vs"
       height="100%"
@@ -27,7 +27,7 @@
     </MsCodeEditor>
     <MsCodeEditor
       v-else-if="activeTab === ResponseComposition.CONSOLE"
-      :model-value="props.request.response.console.trim()"
+      :model-value="props.console?.trim()"
       :language="LanguageEnum.PLAINTEXT"
       theme="MS-text"
       height="100%"
@@ -72,12 +72,12 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { RequestResult } from '@/models/apiTest/common';
   import { ResponseComposition } from '@/enums/apiEnum';
 
-  import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
-
   const props = defineProps<{
-    request: RequestParam;
+    requestResult?: RequestResult;
+    console?: string;
   }>();
   const { t } = useI18n();
 
@@ -114,15 +114,17 @@
 
   // 响应体语言类型
   const responseLanguage = computed(() => {
-    const { contentType } = props.request.response.requestResults[0].responseResult;
-    if (contentType.includes('json')) {
-      return LanguageEnum.JSON;
-    }
-    if (contentType.includes('html')) {
-      return LanguageEnum.HTML;
-    }
-    if (contentType.includes('xml')) {
-      return LanguageEnum.XML;
+    if (props.requestResult) {
+      const { contentType } = props.requestResult.responseResult;
+      if (contentType.includes('json')) {
+        return LanguageEnum.JSON;
+      }
+      if (contentType.includes('html')) {
+        return LanguageEnum.HTML;
+      }
+      if (contentType.includes('xml')) {
+        return LanguageEnum.XML;
+      }
     }
     return LanguageEnum.PLAINTEXT;
   });
@@ -131,7 +133,7 @@
 
   function copyScript() {
     if (isSupported) {
-      copy(props.request.response.requestResults[0].responseResult.body);
+      copy(props.requestResult?.responseResult.body || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
@@ -141,12 +143,12 @@
   function getResponsePreContent(type: keyof typeof ResponseComposition) {
     switch (type) {
       case ResponseComposition.HEADER:
-        return props.request.response.requestResults[0].responseResult?.headers.trim();
+        return props.requestResult?.headers.trim();
       case ResponseComposition.REAL_REQUEST:
-        return props.request.response.requestResults[0].body
-          ? `${t('apiTestDebug.requestUrl')}:\n${props.request?.url}\n${t('apiTestDebug.header')}:\n${
-              props.request.response.requestResults[0].headers
-            }\nBody:\n${props.request.response.requestResults[0].body.trim()}`
+        return props.requestResult?.body
+          ? `${t('apiTestDebug.requestUrl')}:\n${props.requestResult.url}\n${t('apiTestDebug.header')}:\n${
+              props.requestResult.headers
+            }\nBody:\n${props.requestResult.body.trim()}`
           : '';
       // case ResponseComposition.EXTRACT:
       //   return Object.keys(props.request.response.extract)

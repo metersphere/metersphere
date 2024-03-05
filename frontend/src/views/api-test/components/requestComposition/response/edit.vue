@@ -9,11 +9,11 @@
     >
       <template #label="{ tab }">
         <div class="response-tab">
-          <div v-if="tab.isDefault" class="response-tab-default-icon"></div>
-          {{ tab.label }}({{ tab.code }})
+          <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
+          {{ t(tab.label) }}({{ tab.statusCode }})
           <MsMoreAction
             :list="
-              tab.isDefault
+              tab.defaultFlag
                 ? tabMoreActionList.filter((e) => e.eventTag !== 'setDefault' && e.eventTag !== 'delete')
                 : tabMoreActionList
             "
@@ -23,10 +23,15 @@
           <popConfirm
             v-model:visible="tab.showRenamePopConfirm"
             mode="tabRename"
-            :field-config="{ field: tab.label }"
-            :all-names="responseTabs.map((e) => e.label)"
+            :field-config="{ field: t(tab.label) }"
+            :all-names="responseTabs.map((e) => t(tab.label))"
             :popup-offset="20"
-            @rename-finish="(val) => (tab.label = val)"
+            @rename-finish="
+              (val) => {
+                tab.label = val;
+                emit('change');
+              }
+            "
           >
             <span :id="`renameSpan${tab.id}`" class="relative"></span>
           </popConfirm>
@@ -52,13 +57,16 @@
       </template>
     </MsEditableTab>
   </div>
-  <a-tabs v-model:active-key="activeTab" class="no-content border-b border-[var(--color-text-n8)]">
+  <a-tabs
+    v-model:active-key="activeResponse.responseActiveTab"
+    class="no-content border-b border-[var(--color-text-n8)]"
+  >
     <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
   </a-tabs>
   <div class="response-container">
     <div class="mb-[8px] flex items-center justify-between">
       <a-radio-group
-        v-model:model-value="innerResponse.body.bodyType"
+        v-model:model-value="activeResponse.body.bodyType"
         type="button"
         size="small"
         @change="(val) => changeBodyFormat(val as ResponseBodyFormat)"
@@ -67,24 +75,26 @@
           {{ ResponseBodyFormat[item].toLowerCase() }}
         </a-radio>
       </a-radio-group>
-      <div class="flex items-center gap-[24px]">
-        <a-radio-group size="mini" @change="(val) => changeJsonBodyFormat(val as ResponseBodyFormat)">
-          <a-radio value="Json" :default-checked="!innerResponse.body.jsonBody.enableJsonSchema">Json</a-radio>
-          <a-radio class="mr-0" value="JsonSchema" :default-checked="innerResponse.body.jsonBody.enableJsonSchema">
-            Json Schema
-          </a-radio>
+      <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
+        <a-radio-group
+          v-model:model-value="activeResponse.body.jsonBody.enableJsonSchema"
+          size="mini"
+          @change="emit('change')"
+        >
+          <a-radio :value="false">Json</a-radio>
+          <a-radio class="mr-0" :value="true"> Json Schema </a-radio>
         </a-radio-group>
         <div class="flex items-center gap-[8px]">
-          <a-switch v-model:model-value="innerResponse.body.jsonBody.enableTransition" size="small" type="line" />
+          <a-switch v-model:model-value="activeResponse.body.jsonBody.enableTransition" size="small" type="line" />
           {{ t('apiTestManagement.dynamicConversion') }}
         </div>
       </div>
     </div>
-    <template v-if="activeTab === ResponseComposition.BODY">
+    <template v-if="activeResponse.responseActiveTab === ResponseComposition.BODY">
       <div
         v-if="
           [ResponseBodyFormat.JSON, ResponseBodyFormat.XML, ResponseBodyFormat.RAW].includes(
-            innerResponse.body.bodyType
+            activeResponse.body.bodyType
           )
         "
         class="h-[calc(100%-35px)]"
@@ -113,7 +123,7 @@
       <div v-else>
         <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
           <a-input
-            v-model:model-value="innerResponse.body.binaryBody.description"
+            v-model:model-value="activeResponse.body.binaryBody.description"
             :placeholder="t('common.desc')"
             :max-length="255"
           />
@@ -136,6 +146,7 @@
 <script setup lang="ts">
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
@@ -156,8 +167,10 @@
   import { ResponseDefinition } from '@/models/apiTest/common';
   import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
+  import { defaultResponseItem } from '../../config';
+
   const props = defineProps<{
-    response: ResponseDefinition;
+    responseDefinition: ResponseDefinition[];
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
   }>();
   const emit = defineEmits<{
@@ -167,39 +180,23 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  export interface ResponseItem extends TabItem {
-    isDefault?: boolean; // 是否是默认tab
-    code: number; // 状态码
+  export interface ResponseItem extends TabItem, ResponseDefinition {
     showPopConfirm?: boolean; // 是否显示确认弹窗
     showRenamePopConfirm?: boolean; // 是否显示重命名确认弹窗
+    responseActiveTab?: ResponseComposition; // 当前激活的tab
   }
-  const activeTab = defineModel<ResponseComposition>('activeTab', {
-    required: true,
-    default: ResponseComposition.BODY,
-  });
-  const innerResponse = defineModel<ResponseDefinition>('response', {
+  const responseTabs = defineModel<ResponseItem[]>('responseDefinition', {
     required: true,
   });
-  const responseTabs = ref<ResponseItem[]>([
-    {
-      id: new Date().getTime(),
-      label: t('apiTestManagement.response'),
-      closable: false,
-      code: 200,
-      isDefault: true,
-      showPopConfirm: false,
-      showRenamePopConfirm: false,
-    },
-  ]);
   const activeResponse = ref<ResponseItem>(responseTabs.value[0]);
 
   function addResponseTab(defaultProps?: Partial<ResponseItem>) {
     responseTabs.value.push({
+      ...cloneDeep(defaultResponseItem),
       label: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
-      code: 200,
       ...defaultProps,
       id: new Date().getTime(),
-      isDefault: false,
+      defaultFlag: false,
       showPopConfirm: false,
       showRenamePopConfirm: false,
     });
@@ -235,7 +232,7 @@
     switch (e.eventTag) {
       case 'setDefault':
         responseTabs.value = responseTabs.value.map((tab) => {
-          tab.isDefault = _tab.id === tab.id;
+          tab.defaultFlag = _tab.id === tab.id;
           return tab;
         });
         break;
@@ -259,6 +256,7 @@
     if (id === activeResponse.value.id) {
       [activeResponse.value] = responseTabs.value;
     }
+    emit('change');
   }
 
   const responseCompositionTabList = [
@@ -277,42 +275,37 @@
   ];
 
   function changeBodyFormat(val: ResponseBodyFormat) {
-    innerResponse.value.body.bodyType = val;
-    emit('change');
-  }
-
-  function changeJsonBodyFormat(val: string) {
-    innerResponse.value.body.jsonBody.enableJsonSchema = val === 'JsonSchema';
+    activeResponse.value.body.bodyType = val;
     emit('change');
   }
 
   // 当前显示的代码
   const currentBodyCode = computed({
     get() {
-      if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
-        return innerResponse.value.body.jsonBody.jsonValue;
+      if (activeResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+        return activeResponse.value.body.jsonBody.jsonValue;
       }
-      if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
-        return innerResponse.value.body.xmlBody.value;
+      if (activeResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+        return activeResponse.value.body.xmlBody.value;
       }
-      return innerResponse.value.body.rawBody.value;
+      return activeResponse.value.body.rawBody.value;
     },
     set(val) {
-      if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
-        innerResponse.value.body.jsonBody.jsonValue = val;
-      } else if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
-        innerResponse.value.body.xmlBody.value = val;
+      if (activeResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+        activeResponse.value.body.jsonBody.jsonValue = val;
+      } else if (activeResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+        activeResponse.value.body.xmlBody.value = val;
       } else {
-        innerResponse.value.body.rawBody.value = val;
+        activeResponse.value.body.rawBody.value = val;
       }
     },
   });
   // 当前代码编辑器的语言
   const currentCodeLanguage = computed(() => {
-    if (innerResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
+    if (activeResponse.value.body.bodyType === ResponseBodyFormat.JSON) {
       return LanguageEnum.JSON;
     }
-    if (innerResponse.value.body.bodyType === ResponseBodyFormat.XML) {
+    if (activeResponse.value.body.bodyType === ResponseBodyFormat.XML) {
       return LanguageEnum.XML;
     }
     return LanguageEnum.PLAINTEXT;
@@ -330,14 +323,14 @@
   }
 
   const fileList = ref<any[]>(
-    innerResponse.value.body.binaryBody && innerResponse.value.body.binaryBody.file
-      ? [innerResponse.value.body.binaryBody.file]
+    activeResponse.value.body.binaryBody && activeResponse.value.body.binaryBody.file
+      ? [activeResponse.value.body.binaryBody.file]
       : []
   );
 
   async function handleFileChange(files: MsFileItem[]) {
     if (files.length === 0) {
-      innerResponse.value.body.binaryBody.file = undefined;
+      activeResponse.value.body.binaryBody.file = undefined;
       return;
     }
     if (!props.uploadTempFileApi) return;
@@ -345,7 +338,7 @@
       if (fileList.value[0]?.local) {
         appStore.showLoading();
         const res = await props.uploadTempFileApi(fileList.value[0].file);
-        innerResponse.value.body.binaryBody.file = {
+        activeResponse.value.body.binaryBody.file = {
           ...fileList.value[0],
           fileId: res.data,
           fileName: fileList.value[0]?.name || '',
@@ -354,7 +347,7 @@
         };
         appStore.hideLoading();
       } else {
-        innerResponse.value.body.binaryBody.file = {
+        activeResponse.value.body.binaryBody.file = {
           ...fileList.value[0],
           fileId: fileList.value[0].uid,
           fileName: fileList.value[0]?.originalName || '',

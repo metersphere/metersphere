@@ -26,7 +26,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { EnableKeyValueParam } from '@/models/apiTest/debug';
+  import { EnableKeyValueParam } from '@/models/apiTest/common';
 
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
 

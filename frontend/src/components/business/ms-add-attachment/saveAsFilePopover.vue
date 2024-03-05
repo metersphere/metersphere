@@ -64,7 +64,7 @@
       fileSaveAsSourceId: string | number;
       fileIdKey?: string;
       fileSaveAsApi?: (params: TransferFileParams) => Promise<string>;
-      fileModuleOptionsApi?: (projectId: string) => Promise<any[]>;
+      fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
     }>(),
     {
       fileIdKey: 'fileId',
@@ -111,7 +111,6 @@
     (visible) => {
       if (visible) {
         initModuleOptions();
-        console.log('visible', props.savingFile, props.fileIdKey);
       }
     },
     {
@@ -143,7 +142,7 @@
           fileId: props.savingFile[props.fileIdKey] || props.savingFile.uid,
           local: true,
           moduleId: saveFileForm.value.moduleId,
-          name: saveFileForm.value.name,
+          fileName: saveFileForm.value.name,
         });
         emit('finish', res);
         Message.success(t('ms.add.attachment.saveAsSuccess'));

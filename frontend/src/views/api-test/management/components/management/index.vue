@@ -5,7 +5,6 @@
         ref="apiRef"
         :module-tree="props.moduleTree"
         :active-module="props.activeModule"
-        :module="props.module"
         :all-count="props.allCount"
         :offspring-ids="props.offspringIds"
       />
@@ -24,7 +23,6 @@
   import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
-    module: string;
     allCount: number;
     activeModule: string;
     offspringIds: string[];

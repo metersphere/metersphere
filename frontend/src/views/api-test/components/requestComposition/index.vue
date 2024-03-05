@@ -75,7 +75,7 @@
             :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
             @select="handleSelect"
           >
-            <a-button type="secondary">
+            <a-button :disabled="requestVModel.url.trim() === '' || requestVModel.name.trim() === ''" type="secondary">
               {{ t('common.save') }}
             </a-button>
             <template #content>
@@ -120,7 +120,7 @@
         @expand-change="handleExpandChange"
       >
         <template #first>
-          <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading">
+          <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
             <div
               :class="`flex h-full min-w-[800px] flex-col px-[18px] pb-[16px] ${
                 activeLayout === 'horizontal' ? ' pr-[16px]' : ''
@@ -187,7 +187,7 @@
                 <postcondition
                   v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
                   v-model:config="requestVModel.children[0].postProcessorConfig"
-                  :response="requestVModel.response.requestResults[0]?.responseResult.body"
+                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
                   :layout="activeLayout"
                   :second-box-height="secondBoxHeight"
                   @change="handleActiveDebugChange"
@@ -213,9 +213,10 @@
             :is-expanded="isExpanded"
             :response-definition="requestVModel.responseDefinition"
             :hide-layout-switch="props.hideResponseLayoutSwitch"
-            :request="requestVModel"
+            :request-task-result="requestVModel.response"
             :is-edit="props.isDefinition"
             :upload-temp-file-api="props.uploadTempFileApi"
+            :loading="requestVModel.executeLoading || loading"
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
             @change="handleActiveDebugChange"
@@ -287,7 +288,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
-  import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
+  import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
@@ -297,8 +298,12 @@
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { PluginConfig, ResponseDefinition } from '@/models/apiTest/common';
-  import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
+  import {
+    ExecuteApiRequestFullParams,
+    ExecuteRequestParams,
+    PluginConfig,
+    RequestTaskResult,
+  } from '@/models/apiTest/common';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
     RequestAuthType,
@@ -308,6 +313,7 @@
     RequestParamsType,
   } from '@/enums/apiEnum';
 
+  import type { ResponseItem } from './response/edit.vue';
   import {
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
@@ -327,8 +333,9 @@
     protocol: string;
     activeTab: RequestComposition;
   }
-  export type RequestParam = ExecuteHTTPRequestFullParams & {
-    responseDefinition?: ResponseDefinition;
+  export type RequestParam = ExecuteApiRequestFullParams & {
+    responseDefinition?: ResponseItem[];
+    response?: RequestTaskResult;
   } & RequestCustomAttr &
     TabItem;
 
@@ -338,21 +345,22 @@
     detailLoading?: boolean; // 详情加载状态
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
-    executeApi: (...args) => Promise<any>; // 执行接口
-    localExecuteApi: (...args) => Promise<any>; // 本地执行接口
+    otherParams?: Record<string, any>; // 保存请求时的其他参数
+    executeApi: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
+    localExecuteApi: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
-    fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
+    fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
     permissionMap: {
       execute: string;
       create: string;
       update: string;
     };
   }>();
-  const emit = defineEmits(['addDone']);
+  const emit = defineEmits(['addDone', 'save', 'saveAsCase']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -377,7 +385,7 @@
   );
 
   function handleActiveDebugChange() {
-    if (!loading.value && !isHttpProtocol.value && isInitPluginForm.value) {
+    if (!loading.value || (!isHttpProtocol.value && isInitPluginForm.value)) {
       // 如果是因为加载详情触发的change则不需要标记为未保存；或者是插件协议的话需要等待表单初始化完毕
       requestVModel.value.unSaved = true;
     }
@@ -446,6 +454,9 @@
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
 
+  /**
+   * 获取 tab 的参数数量徽标
+   */
   function getTabBadge(tabKey: RequestComposition) {
     switch (tabKey) {
       case RequestComposition.HEADER:
@@ -494,6 +505,9 @@
   const isPriorityLocalExec = ref(false); // 是否优先本地执行
   const localExecuteUrl = ref('');
   async function initLocalConfig() {
+    if (hasLocalExec.value) {
+      return;
+    }
     try {
       const res = await getLocalConfig();
       const apiLocalExec = res.find((e) => e.type === 'API');
@@ -582,6 +596,9 @@
     }
   }
 
+  /**
+   * 处理协议切换，非 HTTP 协议切换到插件协议时需要初始化插件表单
+   */
   function handleActiveDebugProtocolChange(val: string) {
     if (val !== 'HTTP') {
       requestVModel.value.activeTab = RequestComposition.PLUGIN;
@@ -685,6 +702,9 @@
 
   const reportId = ref('');
   const websocket = ref<WebSocket>();
+  /**
+   * 开启websocket监听，接收执行结果
+   */
   function debugSocket(executeType?: 'localExec' | 'serverExec') {
     websocket.value = getSocket(
       reportId.value,
@@ -733,6 +753,10 @@
     }
   );
 
+  /**
+   * 生成请求参数
+   * @param executeType 执行类型，执行时传入
+   */
   function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const { formDataBody, wwwFormBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
@@ -777,15 +801,35 @@
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
     debugSocket(executeType); // 开启websocket
+    let requestName = '';
+    let requestModuleId = '';
+    let apiDefinitionParams: Record<string, any> = {};
+    if (props.isDefinition) {
+      requestName = requestVModel.value.name;
+      requestModuleId = requestVModel.value.moduleId;
+      apiDefinitionParams = {
+        tags: requestVModel.value.tags,
+        description: requestVModel.value.description,
+        status: requestVModel.value.status,
+        response: requestVModel.value.responseDefinition,
+      };
+    } else {
+      requestName = requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name;
+      requestModuleId = requestVModel.value.isNew ? saveModalForm.value.moduleId : requestVModel.value.moduleId;
+    }
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
       environmentId: '',
-      name: requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name,
-      moduleId: requestVModel.value.isNew ? saveModalForm.value.moduleId : requestVModel.value.moduleId,
+      name: requestName,
+      moduleId: requestModuleId,
+      ...apiDefinitionParams,
+      protocol: requestVModel.value.protocol,
+      method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
+      path: isHttpProtocol.value ? requestVModel.value.url || requestVModel.value.path : undefined,
       request: {
         ...requestParams,
-        name: requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name,
+        name: requestName,
         children: [
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
@@ -857,9 +901,7 @@
       saveLoading.value = true;
       await props.updateApi({
         ...makeRequestParams(),
-        protocol: requestVModel.value.protocol,
-        method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-        path: isHttpProtocol.value ? requestVModel.value.url || requestVModel.value.path : undefined,
+        ...props.otherParams,
       });
       Message.success(t('common.updateSuccess'));
       requestVModel.value.unSaved = false;
@@ -872,19 +914,20 @@
     }
   }
 
+  /**
+   * 保存请求
+   */
   async function handleSave(done: (closed: boolean) => void) {
     saveModalFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
           saveLoading.value = true;
           if (requestVModel.value.isNew) {
-            // 若是新建的调试，走添加
+            // 若是新建的，走添加
             const res = await props.createApi({
               ...makeRequestParams(),
               ...saveModalForm.value,
-              protocol: requestVModel.value.protocol,
-              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-              path: requestVModel.value.url || undefined,
+              ...props.otherParams,
             });
             requestVModel.value.id = res.id;
             requestVModel.value.isNew = false;
@@ -908,6 +951,9 @@
     done(false);
   }
 
+  /**
+   * 保存快捷键处理
+   */
   async function handleSaveShortcut() {
     if (!requestVModel.value.isNew) {
       if (hasAnyPermission([props.permissionMap.update])) {
@@ -943,10 +989,10 @@
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     switch (value) {
       case 'save':
-        console.log('save');
+        emit('save', makeRequestParams());
         break;
       case 'saveAsCase':
-        console.log('saveAsCase');
+        emit('saveAsCase', makeRequestParams());
         break;
       default:
         break;

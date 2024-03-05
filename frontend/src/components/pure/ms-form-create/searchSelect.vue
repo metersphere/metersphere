@@ -23,8 +23,6 @@
   const appStore = useAppStore();
   const organizationId = computed(() => appStore.currentOrgId);
 
-  const attrs = useAttrs();
-
   const { t } = useI18n();
   const props = withDefaults(
     defineProps<{
@@ -67,6 +65,7 @@
           };
         });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     }

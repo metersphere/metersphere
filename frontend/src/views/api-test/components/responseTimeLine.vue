@@ -12,9 +12,9 @@
       <div class="total-item">{{ t('apiTestDebug.total') }}</div>
     </div>
     <a-divider direction="vertical" margin="0" />
-    <div class="flex flex-1 flex-col">
-      <div class="h-full"></div>
-      <div v-for="line of timingLines" :key="line.key" class="flex h-full items-center bg-transparent">
+    <div class="flex flex-1 flex-col gap-[8px]">
+      <div class="h-[16px]"></div>
+      <div v-for="line of timingLines" :key="line.key" class="flex items-center bg-transparent py-[2px]">
         <div
           class="h-[12px] rounded-[var(--border-radius-mini)] bg-[rgb(var(--success-7))]"
           :style="{
@@ -23,7 +23,7 @@
           }"
         ></div>
       </div>
-      <div class="h-full"></div>
+      <div class="h-[16px]"></div>
     </div>
     <a-divider direction="vertical" margin="0" />
     <div class="text-item-wrapper--right">
@@ -43,7 +43,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ResponseTiming } from '@/models/apiTest/debug';
+  import { ResponseTiming } from '@/models/apiTest/common';
 
   const props = defineProps<{
     responseTiming: ResponseTiming;

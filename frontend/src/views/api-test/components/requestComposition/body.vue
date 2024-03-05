@@ -110,8 +110,8 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ExecuteBody } from '@/models/apiTest/debug';
-  import { TransferFileParams } from '@/models/common';
+  import { ExecuteBody } from '@/models/apiTest/common';
+  import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -121,10 +121,10 @@
     params: ExecuteBody;
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
-    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    uploadTempFileApi?: (file: MsFileItem) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
-    fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
+    fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;

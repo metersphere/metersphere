@@ -23,7 +23,7 @@
 
   import condition from '@/views/api-test/components/condition/index.vue';
 
-  import { ExecuteConditionConfig } from '@/models/apiTest/debug';
+  import { ExecuteConditionConfig } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   // import { useI18n } from '@/hooks/useI18n';

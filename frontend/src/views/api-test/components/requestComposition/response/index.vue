@@ -24,12 +24,12 @@
           </MsButton>
         </template>
         <div
-          v-if="props.isEdit && props.request.response.requestResults[0]?.responseResult?.responseCode"
+          v-if="props.isEdit && props.requestTaskResult?.requestResults[0]?.responseResult?.responseCode"
           class="ml-[4px] flex items-center"
         >
           <MsButton
             type="text"
-            :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]']"
+            :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]', '!mr-0']"
             @click="() => setActiveResponse('content')"
           >
             {{ t('apiTestDebug.responseContent') }}
@@ -56,45 +56,41 @@
         </a-radio-group>
       </div>
       <div
-        v-if="props.request.response.requestResults[0]?.responseResult?.responseCode"
+        v-if="props.requestTaskResult?.requestResults[0]?.responseResult?.responseCode"
         class="flex items-center justify-between gap-[24px]"
       >
         <a-popover position="left" content-class="response-popover-content">
           <div :style="{ color: statusCodeColor }">
-            {{ props.request.response.requestResults[0].responseResult.responseCode }}
+            {{ props.requestTaskResult.requestResults[0].responseResult.responseCode }}
           </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
               <div :style="{ color: statusCodeColor }">
-                {{ props.request.response.requestResults[0].responseResult.responseCode }}
+                {{ props.requestTaskResult.requestResults[0].responseResult.responseCode }}
               </div>
             </div>
           </template>
         </a-popover>
         <a-popover position="left" content-class="w-[400px]">
-          <div class="one-line-text text-[rgb(var(--success-7))]">
-            {{ props.request.response.requestResults[0].responseResult.responseTime }} ms
-          </div>
+          <div class="one-line-text text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
           <template #content>
             <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
-              <div class="text-[rgb(var(--success-7))]">
-                {{ props.request.response.requestResults[0].responseResult.responseTime }} ms
-              </div>
+              <div class="text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
             </div>
-            <responseTimeLine :response-timing="timingInfo" />
+            <responseTimeLine v-if="timingInfo" :response-timing="timingInfo" />
           </template>
         </a-popover>
         <a-popover position="left" content-class="response-popover-content">
           <div class="one-line-text text-[rgb(var(--success-7))]">
-            {{ props.request.response.requestResults[0].responseResult.responseSize }} bytes
+            {{ props.requestTaskResult.requestResults[0].responseResult.responseSize }} bytes
           </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
               <div class="one-line-text text-[rgb(var(--success-7))]">
-                {{ props.request.response.requestResults[0].responseResult.responseSize }} bytes
+                {{ props.requestTaskResult.requestResults[0].responseResult.responseSize }} bytes
               </div>
             </div>
           </template>
@@ -122,15 +118,15 @@
     <a-spin :loading="props.loading" class="h-[calc(100%-35px)] w-full px-[18px] pb-[18px]">
       <edit
         v-if="props.isEdit && activeResponseType === 'content' && props.responseDefinition"
-        v-model:activeTab="activeTab"
-        :response="props.responseDefinition"
+        :response-definition="props.responseDefinition"
         :upload-temp-file-api="props.uploadTempFileApi"
         @change="handleResponseChange"
       />
       <result
         v-else-if="!props.isEdit || (props.isEdit && activeResponseType === 'result')"
         v-model:activeTab="activeTab"
-        :request="props.request"
+        :request-result="props.requestTaskResult?.requestResults[0]"
+        :console="props.requestTaskResult?.console"
       />
     </a-spin>
   </div>
@@ -141,24 +137,22 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { Direction } from '@/components/pure/ms-split-box/index.vue';
-  import edit from './edit.vue';
+  import edit, { ResponseItem } from './edit.vue';
   import result from './result.vue';
   import responseTimeLine from '@/views/api-test/components/responseTimeLine.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ResponseDefinition } from '@/models/apiTest/common';
+  import { RequestTaskResult } from '@/models/apiTest/common';
   import { ResponseComposition } from '@/enums/apiEnum';
-
-  import type { RequestParam } from '../index.vue';
 
   const props = withDefaults(
     defineProps<{
       activeTab: ResponseComposition;
       activeLayout?: Direction;
       isExpanded: boolean;
-      responseDefinition?: ResponseDefinition;
-      request: RequestParam;
+      responseDefinition?: ResponseItem[];
+      requestTaskResult?: RequestTaskResult;
       hideLayoutSwitch?: boolean; // 隐藏布局切换
       loading?: boolean;
       isEdit?: boolean; // 是否可编辑
@@ -183,37 +177,43 @@
   const activeTab = useVModel(props, 'activeTab', emit);
   // 响应时间信息
   const timingInfo = computed(() => {
-    const {
-      dnsLookupTime,
-      downloadTime,
-      latency,
-      responseTime,
-      socketInitTime,
-      sslHandshakeTime,
-      tcpHandshakeTime,
-      transferStartTime,
-    } = props.request.response.requestResults[0].responseResult;
-    return {
-      dnsLookupTime,
-      tcpHandshakeTime,
-      sslHandshakeTime,
-      socketInitTime,
-      latency,
-      downloadTime,
-      transferStartTime,
-      responseTime,
-    };
+    if (props.requestTaskResult) {
+      const {
+        dnsLookupTime,
+        downloadTime,
+        latency,
+        responseTime,
+        socketInitTime,
+        sslHandshakeTime,
+        tcpHandshakeTime,
+        transferStartTime,
+      } = props.requestTaskResult.requestResults[0].responseResult;
+      return {
+        dnsLookupTime,
+        tcpHandshakeTime,
+        sslHandshakeTime,
+        socketInitTime,
+        latency,
+        downloadTime,
+        transferStartTime,
+        responseTime,
+      };
+    }
+    return null;
   });
   // 响应状态码对应颜色
   const statusCodeColor = computed(() => {
-    const code = props.request.response.requestResults[0].responseResult.responseCode;
-    if (code >= 200 && code < 300) {
-      return 'rgb(var(--success-7)';
+    if (props.requestTaskResult) {
+      const code = props.requestTaskResult.requestResults[0].responseResult.responseCode;
+      if (code >= 200 && code < 300) {
+        return 'rgb(var(--success-7)';
+      }
+      if (code >= 300 && code < 400) {
+        return 'rgb(var(--warning-7)';
+      }
+      return 'rgb(var(--danger-7)';
     }
-    if (code >= 300 && code < 400) {
-      return 'rgb(var(--warning-7)';
-    }
-    return 'rgb(var(--danger-7)';
+    return '';
   });
 
   function handleResponseChange() {

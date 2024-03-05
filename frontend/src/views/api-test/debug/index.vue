@@ -118,7 +118,7 @@
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ExecuteBody } from '@/models/apiTest/debug';
+  import { ExecuteBody, RequestTaskResult } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
@@ -165,10 +165,13 @@
     },
     rawBody: { value: '' },
   };
-  const defaultResponse = {
+  const defaultResponse: RequestTaskResult = {
     requestResults: [
       {
         body: '',
+        headers: '',
+        url: '',
+        method: '',
         responseResult: {
           body: '',
           contentType: '',
@@ -180,6 +183,7 @@
           responseTime: 0,
           responseSize: 0,
           socketInitTime: 0,
+          sslHandshakeTime: 0,
           tcpHandshakeTime: 0,
           transferStartTime: 0,
         },

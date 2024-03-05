@@ -153,7 +153,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { matchXMLWithXPath } from '@/utils/xpath';
 
-  import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { RequestExtractExpressionEnum, RequestExtractExpressionRuleType } from '@/enums/apiEnum';
 
   const props = defineProps<{

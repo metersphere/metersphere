@@ -51,7 +51,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteAuthConfig } from '@/models/apiTest/debug';
+  import { ExecuteAuthConfig } from '@/models/apiTest/common';
   import { RequestAuthType } from '@/enums/apiEnum';
 
   const props = defineProps<{

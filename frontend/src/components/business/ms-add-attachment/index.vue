@@ -227,7 +227,9 @@
 
   const { t } = useI18n();
 
-  const innerFileList = useVModel(props, 'fileList', emit);
+  const innerFileList = defineModel<MsFileItem[]>('fileList', {
+    required: true,
+  });
   const inputFileName = ref('');
   const inputFiles = ref<TagData[]>([]);
   const showDrawer = ref(false);
