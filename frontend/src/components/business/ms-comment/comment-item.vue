@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-row gap-[8px]">
-    <div class="p-1"> <MsAvatar :avatar="props.element.commentUserInfos[0].avatar" /></div>
+    <div class="p-1"> <MsAvatar :avatar="creatorInfo.avatar" /></div>
     <div class="flex w-full flex-col">
-      <div class="font-medium text-[var(--color-text-1)]">{{ props.element.commentUserInfos[0].name }}</div>
+      <div class="font-medium text-[var(--color-text-1)]">{{ creatorInfo.name }}</div>
       <div v-dompurify-html="props.element.content" class="markdown-body mt-[4px]"></div>
 
       <div class="mb-4 mt-[16px] flex flex-row items-center">
@@ -28,7 +28,7 @@
             <span>{{ t('ms.comment.reply') }}</span>
           </div>
           <div
-            v-if="hasEditAuth"
+            v-if="hasAuth"
             class="comment-btn hover:bg-[var(--color-bg-3)]"
             :class="{ 'bg-[var(--color-text-n8)]': status === 'edit' }"
             @click="editClick"
@@ -37,6 +37,7 @@
             <span>{{ t('ms.comment.edit') }}</span>
           </div>
           <div
+            v-if="hasAuth"
             class="comment-btn hover:bg-[rgb(var(--danger-1))]"
             :class="{ 'bg-[rgb(var(--danger-2))]': status === 'delete' }"
             @click="deleteClick"
@@ -76,7 +77,7 @@
   }>();
 
   // 是否拥有编辑｜删除权限
-  const hasEditAuth = computed(() => {
+  const hasAuth = computed(() => {
     return props.element.createUser === userStore.id;
   });
 
@@ -109,6 +110,10 @@
     emit('delete');
     status.value = 'delete';
   };
+
+  const creatorInfo = computed(() => {
+    return props.element.commentUserInfos.filter((item) => item.id === props.element.createUser)[0];
+  });
 </script>
 
 <style lang="less" scoped>

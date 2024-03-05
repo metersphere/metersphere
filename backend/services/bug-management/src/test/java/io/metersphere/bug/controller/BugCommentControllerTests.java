@@ -210,6 +210,10 @@ public class BugCommentControllerTests extends BaseTest {
         this.requestGet(BUG_COMMENT_DELETE + "/default-bug-comment-id-4");
         BugComment comment1 = bugCommentMapper.selectByPrimaryKey("default-bug-comment-id-4");
         Assertions.assertNull(comment1);
+        // 删除非当前评论人的评论
+        this.requestGet(BUG_COMMENT_DELETE + "/default-bug-comment-id-5");
+        BugComment comment2 = bugCommentMapper.selectByPrimaryKey("default-bug-comment-id-5");
+        Assertions.assertTrue(StringUtils.equals(comment2.getId(), "default-bug-comment-id-5"));
     }
 
     @Test
