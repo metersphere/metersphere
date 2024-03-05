@@ -13,10 +13,28 @@
     <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane"> </a-tab-pane>
     <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
     <a-tab-pane key="doc" :title="t('apiTestManagement.doc')" class="ms-api-tab-pane"> </a-tab-pane>
+    <template #extra>
+      <div class="flex items-center gap-[8px] pr-[24px]">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
+          <template #icon>
+            <icon-location class="text-[var(--color-text-4)]" />
+          </template>
+        </a-button>
+        <MsSelect
+          v-model:model-value="checkedEnv"
+          mode="static"
+          :options="envOptions"
+          class="!w-[150px]"
+          :search-keys="['label']"
+          allow-search
+        />
+      </div>
+    </template>
   </a-tabs>
 </template>
 
 <script setup lang="ts">
+  import MsSelect from '@/components/business/ms-select';
   import api from './api/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -43,6 +61,26 @@
       apiRef.value?.addApiTab();
     }
   }
+
+  const checkedEnv = ref('DEV');
+  const envOptions = ref([
+    {
+      label: 'DEV',
+      value: 'DEV',
+    },
+    {
+      label: 'TEST',
+      value: 'TEST',
+    },
+    {
+      label: 'PRE',
+      value: 'PRE',
+    },
+    {
+      label: 'PROD',
+      value: 'PROD',
+    },
+  ]);
 
   defineExpose({
     newTab,

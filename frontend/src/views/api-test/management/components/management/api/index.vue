@@ -131,23 +131,6 @@
         <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
         </a-tab-pane>
         <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
-        <template #extra>
-          <div class="flex items-center gap-[8px] pr-[24px]">
-            <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
-              <template #icon>
-                <icon-location class="text-[var(--color-text-4)]" />
-              </template>
-            </a-button>
-            <MsSelect
-              v-model:model-value="checkedEnv"
-              mode="static"
-              :options="envOptions"
-              class="!w-[150px]"
-              :search-keys="['label']"
-              allow-search
-            />
-          </div>
-        </template>
       </a-tabs>
     </div>
   </div>
@@ -163,7 +146,6 @@
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import MsSelect from '@/components/business/ms-select';
   import addDependencyDrawer from './addDependencyDrawer.vue';
   import apiTable from './apiTable.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
@@ -401,26 +383,6 @@
       loading.value = false;
     }
   }
-
-  const checkedEnv = ref('DEV');
-  const envOptions = ref([
-    {
-      label: 'DEV',
-      value: 'DEV',
-    },
-    {
-      label: 'TEST',
-      value: 'TEST',
-    },
-    {
-      label: 'PRE',
-      value: 'PRE',
-    },
-    {
-      label: 'PROD',
-      value: 'PROD',
-    },
-  ]);
 
   // const fApi = ref();
   // const options = {

@@ -2,6 +2,7 @@ import {
   EnableKeyValueParam,
   ExecuteRequestCommonParam,
   ExecuteRequestFormBodyFormValue,
+  ResponseDefinition,
 } from '@/models/apiTest/common';
 import { RequestContentTypeEnum, RequestParamsType, ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
@@ -42,10 +43,10 @@ export const defaultRequestParamsItem: ExecuteRequestCommonParam = {
 };
 
 // 请求的响应 response 默认的响应信息项
-export const defaultResponseItem = {
+export const defaultResponseItem: ResponseDefinition = {
   id: new Date().getTime(),
-  label: 'apiTestManagement.response',
   name: 'apiTestManagement.response',
+  label: 'apiTestManagement.response',
   closable: false,
   statusCode: 200,
   defaultFlag: true,
@@ -72,3 +73,6 @@ export const defaultResponseItem = {
     },
   },
 };
+
+// 请求的响应 response 的响应状态码集合
+export const statusCodes = [200, 201, 202, 203, 204, 205, 400, 401, 402, 403, 404, 405, 500, 501, 502, 503, 504, 505];

@@ -414,18 +414,13 @@ export interface ResponseDefinitionBody {
   rawBody: ExecuteValueBody;
   binaryBody: ExecuteBinaryBody;
 }
-export interface ResponseDefinitionHeader extends EnableKeyValueParam {
-  notBlankValue: boolean;
-  valid: boolean;
-}
-
 // 响应定义
 export interface ResponseDefinition {
   id: string | number;
   statusCode: string | number;
   defaultFlag: boolean; // 默认响应标志
   name: string; // 响应名称
-  headers: ResponseDefinitionHeader[];
+  headers: KeyValueParam[];
   body: ResponseDefinitionBody;
   [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
 }
