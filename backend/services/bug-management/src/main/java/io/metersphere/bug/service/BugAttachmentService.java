@@ -35,6 +35,7 @@ import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -478,6 +479,7 @@ public class BugAttachmentService {
      */
     private List<SyncAttachmentToPlatformRequest> uploadLocalFile(String bugId, String platformBugKey, String projectId, File tmpFileDir,
                                                                   MultipartFile file, String currentUser, String platformName) {
+        MsFileUtils.validateFileName(file.getOriginalFilename());
         BugLocalAttachment record = new BugLocalAttachment();
         record.setId(IDGenerator.nextStr());
         record.setBugId(bugId);
