@@ -28,22 +28,25 @@
       </a-select>
     </div>
   </div>
-  <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+  <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent" @change="changeHandler">
+    <template #type="{ record }">
+      <span>{{ getEnableScope(record.type) }}</span>
+    </template>
     <template #operation="{ record }">
-      <div class="flex flex-row flex-nowrap">
+      <div class="flex flex-row flex-nowrap items-center">
         <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-        <a-divider direction="vertical" />
+        <a-divider class="h-[16px]" direction="vertical" />
         <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-        <a-divider direction="vertical" />
+        <a-divider class="h-[16px]" direction="vertical" />
         <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
   </MsBaseTable>
-  <AddHttpDrawer v-model:visible="addVisible" :current-obj="currentObj" @close="addVisible = false" />
+  <AddHttpDrawer v-model:visible="addVisible" :is-copy="isCopy" :current-id="httpId" @close="addVisible = false" />
 </template>
 
 <script lang="ts" async setup>
-  import { TableData } from '@arco-design/web-vue';
+  import { TableChangeExtra, TableData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -69,31 +72,25 @@
   const showTitle = computed(() => store.httpNoWarning);
   const tableStore = useTableStore();
   const addVisible = ref(false);
-  const currentObj = ref<HttpForm>({
-    id: '',
-    hostname: '',
-    enableCondition: 'none',
-    path: '',
-    operator: '',
-    headerParams: [],
-  });
   const columns: MsTableColumn = [
     {
       title: 'project.environmental.http.host',
-      dataIndex: 'host',
+      dataIndex: 'hostname',
+      slotName: 'hostname',
       showTooltip: true,
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'project.environmental.http.desc',
-      dataIndex: 'desc',
+      dataIndex: 'description',
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'project.environmental.http.enableScope',
-      dataIndex: 'enableScope',
+      dataIndex: 'type',
+      slotName: 'type',
       showDrag: true,
       showInTable: true,
     },
@@ -120,7 +117,9 @@
     noDisable: true,
     showSetting: true,
     showPagination: false,
+    enableDrag: true,
     showMode: false,
+    heightUsed: 644,
     debug: true,
   });
 
@@ -146,34 +145,37 @@
       handleSingleDelete(record);
     }
   }
+
+  const httpId = ref<string>('');
+  const isCopy = ref<boolean>(false);
   const handleCopy = (record: any) => {
-    currentObj.value = record;
-    currentObj.value.id = '';
+    httpId.value = record.id;
+    isCopy.value = true;
     addVisible.value = true;
   };
+
   const handleEdit = (record: any) => {
-    currentObj.value = record;
+    httpId.value = record.id;
+    isCopy.value = false;
     addVisible.value = true;
   };
 
   const handleAddHttp = () => {
-    currentObj.value = {
-      id: '',
-      hostname: '',
-      enableCondition: 'none',
-      path: '',
-      operator: '',
-      headerParams: [],
-    };
+    httpId.value = '';
+    isCopy.value = false;
     addVisible.value = true;
   };
   const handleNoWarning = () => {
     store.setHttpNoWarning(false);
   };
 
-  watch(store.currentEnvDetailInfo.config.httpConfig, () => {
-    propsRes.value.data = store.currentEnvDetailInfo.config.httpConfig;
-  });
+  watch(
+    store.currentEnvDetailInfo.config.httpConfig,
+    () => {
+      propsRes.value.data = store.currentEnvDetailInfo.config.httpConfig;
+    },
+    { deep: true, immediate: true }
+  );
 
   const form = computed({
     set: (value: any) => {
@@ -181,6 +183,46 @@
     },
     get: () => store.currentEnvDetailInfo.config.commonParams as CommonParams,
   });
+
+  const data = computed({
+    set: (value: any) => {
+      store.currentEnvDetailInfo.config.httpConfig = value;
+    },
+    get: () => {
+      return store.currentEnvDetailInfo.config.httpConfig;
+    },
+  });
+
+  watch(
+    () => data.value,
+    (val) => {
+      if (val) {
+        propsRes.value.data = data.value;
+      }
+    }
+  );
+
+  // 排序
+  function changeHandler(_data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
+    if (!currentData || currentData.length === 1) {
+      return false;
+    }
+    propsRes.value.data = _data;
+    data.value = _data;
+  }
+
+  function getEnableScope(type: string) {
+    switch (type) {
+      case 'NONE':
+        return t('project.environmental.http.none');
+      case 'MODULE':
+        return t('project.environmental.http.module');
+      case 'PATH':
+        return t('project.environmental.http.path');
+      default:
+        break;
+    }
+  }
 </script>
 
 <style lang="less" scoped>

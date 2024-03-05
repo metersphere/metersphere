@@ -52,6 +52,7 @@ export default {
   'project.environmental.http.enableScope': '启用范围',
   'project.environmental.http.value': '值',
   'project.environmental.http.add': '添加HTTP',
+  'project.environmental.http.edit': '更新HTTP',
   'project.environmental.http.hostName': '域名',
   'project.environmental.http.hostNameRequired': '域名必填',
   'project.environmental.http.httpHostNamePlaceholder': '例如：http://127.0.0.1',

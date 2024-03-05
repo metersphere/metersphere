@@ -45,6 +45,7 @@ export default {
   'project.environmental.http.enableScope': 'Enable Scope',
   'project.environmental.http.value': 'Value',
   'project.environmental.http.add': 'Add HTTP',
+  'project.environmental.http.edit': 'Update HTTP',
   'project.environmental.http.hostName': 'Host Name',
   'project.environmental.http.hostNameRequired': 'Host name is required',
   'project.environmental.http.httpHostNamePlaceholder': 'For example: http://127.0.0.1',

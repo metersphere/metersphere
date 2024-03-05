@@ -18,7 +18,7 @@
         :label="t('project.environmental.http.hostName')"
         :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
       >
-        <a-input
+        <!-- <a-input
           v-model="form.hostname"
           class="w-[100%]"
           :max-length="255"
@@ -26,14 +26,32 @@
         >
           <template #prefix>
             <div class="input-prefix"> http:// </div>
+            <a-select :options="['http://', 'https://']" />
           </template>
-        </a-input>
+        </a-input> -->
+
+        <a-input-group class="w-full">
+          <a-select v-model="form.protocol" :style="{ width: '160px' }" default-value="http">
+            <a-option value="http">http://</a-option>
+            <a-option value="https">https://</a-option>
+          </a-select>
+          <a-input
+            v-model="form.hostname"
+            class="w-full"
+            :max-length="255"
+            :placeholder="
+              hostType === 'http://'
+                ? t('project.environmental.http.httpHostNamePlaceholder')
+                : t('project.environmental.http.httpsHostNamePlaceholder')
+            "
+          />
+        </a-input-group>
       </a-form-item>
-      <a-form-item class="mb-[16px]" field="enableCondition" :label="t('project.environmental.http.enableCondition')">
-        <a-select v-model:model-value="form.enableCondition">
-          <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
-          <a-option value="module">{{ t('project.environmental.http.module') }}</a-option>
-          <a-option value="path">{{ t('project.environmental.http.path') }}</a-option>
+      <a-form-item class="mb-[16px]" field="type" :label="t('project.environmental.http.enableCondition')">
+        <a-select v-model:model-value="form.type">
+          <a-option value="NONE">{{ t('project.environmental.http.none') }}</a-option>
+          <a-option value="MODULE">{{ t('project.environmental.http.module') }}</a-option>
+          <a-option value="PATH">{{ t('project.environmental.http.path') }}</a-option>
         </a-select>
       </a-form-item>
       <!-- 接口模块选择 -->
@@ -50,7 +68,7 @@
         </a-select>
       </a-form-item> -->
       <a-form-item class="mb-[16px]" field="description" :label="t('project.environmental.http.description')">
-        <a-input />
+        <a-input v-model="form.description" />
       </a-form-item>
       <!-- 选择UI测试模块 -->
       <!-- <a-form-item
@@ -65,51 +83,78 @@
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
         </a-select>
       </a-form-item> -->
+      <!-- 展示模块 -->
+      <!-- TODO 模块还没有加 -->
+      <!-- <a-form-item class="mb-[16px]" field="description" :label="t('project.environmental.http.selectApiModule')">
+        <ApiTree
+          v-model:focus-node-key="focusNodeKey"
+          :placeholder="t('project.environmental.http.selectApiModule')"
+          :selected-keys="selectedKeys"
+          :data="moduleTree"
+          :field-names="{
+            title: 'name',
+            key: 'id',
+            children: 'children',
+            count: 'count',
+          }"
+          :tree-checkable="true"
+          :hide-more-action="true"
+        >
+          <template #tree-slot-title="nodeData">
+            <div class="inline-flex w-full">
+              <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            </div>
+          </template>
+          <template #tree-slot-extra="nodeData">
+            <span><MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, nodeData)" /></span>
+          </template>
+        </ApiTree>
+      </a-form-item> -->
       <!-- 路径 -->
       <a-form-item
         v-if="showPathInput"
-        class="path-input mb-[16px]"
+        class="mb-[16px]"
         asterisk-position="end"
-        field="hostname"
+        field="path"
         :label="t('project.environmental.http.path')"
         :rules="[{ required: true, message: t('project.environmental.http.pathRequired') }]"
       >
-        <a-input
-          v-model="form.hostname"
-          class="w-[100%]"
-          :max-length="255"
-          :placeholder="t('project.environmental.http.pathPlaceholder')"
-        >
-          <template #prefix>
-            <div class="input-prefix">
-              <a-select default-value="like">
-                <a-option v-for="item in OPERATOR_MAP.string" :key="item.value" :value="item.value">{{
-                  t(item.label)
-                }}</a-option>
-              </a-select>
-            </div>
-          </template>
-        </a-input>
+        <a-input-group class="w-full">
+          <a-select v-model="form.condition" :style="{ width: '160px' }" default-value="CONTAINS">
+            <a-option v-for="item in OPERATOR_MAP" :key="item.value" :value="item.value">{{ t(item.label) }}</a-option>
+          </a-select>
+          <a-input
+            v-model="form.path"
+            class="w-full"
+            :max-length="255"
+            :placeholder="t('project.environmental.http.pathPlaceholder')"
+          />
+        </a-input-group>
       </a-form-item>
     </a-form>
-    <RequestHeader :params="form.headerParams" />
+    <RequestHeader v-model:params="form.headers" />
   </MsDrawer>
 </template>
 
 <script lang="ts" setup>
   import { defineModel } from 'vue';
 
-  import { OPERATOR_MAP } from '@/components/pure/ms-advance-filter/index';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import type { MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from '@/components/business/ms-tree/types';
   import RequestHeader from '../../requestHeader/index.vue';
 
+  // import ApiTree from './apiTree.vue';
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { getGenerateId } from '@/utils';
 
   import { HttpForm } from '@/models/projectManagement/environmental';
 
   const props = defineProps<{
-    currentObj: HttpForm;
+    currentId: string;
+    isCopy: boolean;
   }>();
 
   const store = useProjectEnvStore();
@@ -118,37 +163,505 @@
     (e: 'close'): void;
   }>();
 
-  const form = ref<HttpForm>({
+  const OPERATOR_MAP = [
+    {
+      value: 'CONTAINS',
+      label: '包含',
+    },
+    {
+      value: 'EQUALS',
+      label: '等于',
+    },
+  ];
+
+  const initForm = {
     id: '',
     hostname: '',
-    enableCondition: 'none',
+    type: 'NONE',
+    headers: [],
     path: '',
-    operator: '',
-    headerParams: [],
-  });
+    condition: 'CONTAINS',
+    description: '',
+    protocol: 'http',
+  };
+
+  const form = ref<HttpForm>({ ...initForm });
+  const hostType = ref<string>('http://');
 
   const httpRef = ref();
 
-  const showPathInput = computed(() => form.value.enableCondition === 'path');
+  const showPathInput = computed(() => form.value.type === 'PATH');
 
   const visible = defineModel('visible', { required: true, type: Boolean, default: false });
 
   const { t } = useI18n();
 
-  const isEdit = computed(() => !!props.currentObj.id);
+  function resetForm() {
+    form.value = { ...initForm };
+  }
 
-  const title = computed(() => {
-    return isEdit.value ? t('project.environmental.http.edit') : t('project.environmental.http.add');
-  });
   const handleAddOrUpdate = () => {
-    if (form.value.id) {
-      const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
-      store.currentEnvDetailInfo.config.httpConfig.splice(index, 1, form.value);
+    const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
+    // 编辑
+    if (index > -1 && !props.isCopy) {
+      store.currentEnvDetailInfo.config.httpConfig.splice(index + 1, 1, form.value);
+      // 复制
+    } else if (index > -1 && props.isCopy) {
+      const insertItem = {
+        ...form.value,
+        id: getGenerateId(),
+        hostname: `copy_${form.value.hostname}`,
+        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+      };
+      store.currentEnvDetailInfo.config.httpConfig.splice(index, 0, insertItem);
+      // 添加
     } else {
-      store.currentEnvDetailInfo.config.httpConfig.push(form);
+      const { protocol, hostname, condition, path } = form.value;
+      const httpItem = {
+        ...form.value,
+        hostname: `${protocol}://${hostname}`,
+        pathMatchRule: {
+          path,
+          condition,
+        },
+        id: getGenerateId(),
+        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+      };
+      store.currentEnvDetailInfo.config.httpConfig.push(httpItem);
     }
     emit('close');
   };
+
+  const moduleTree = ref([
+    {
+      id: 'root',
+      name: '未规划请求',
+      type: 'MODULE',
+      parentId: 'NONE',
+      children: [
+        {
+          id: '4112912223068160',
+          name: '随便写的',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'OPTIONS',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1150192243335168',
+          name: '文件儿',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1165379247169536',
+          name: '901',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'TCP',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1165705664684032',
+          name: '888',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'TCP',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2125544956010496',
+          name: '0129-1',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2126988065021952',
+          name: '0129-2',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2171827523477504',
+          name: 'fffggg',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2297223388766208',
+          name: '0129-3',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '4034709458542592',
+          name: '测试一下百度',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'PATCH',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1017890070175744',
+          name: 'TTTTTCCCCCPPPPP',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'TCP',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '864679996792832',
+          name: '委托',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '867463135600640',
+          name: '登入',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '868236229713920',
+          name: '买入',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '927008562290689',
+          name: '账号校验1',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '943707395039232',
+          name: 'ddd',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'TCP',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1068845561815040',
+          name: 'TCP测试2',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'TCP',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1131706704060416',
+          name: 'aaa',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '921184586637312',
+          name: '读取系统日期22',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '642853526609920',
+          name: 'Test',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '851760736174080',
+          name: 'dd',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '853891039952896',
+          name: 'fasdfd',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1118186147643392',
+          name: 'eeee',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1120161832599552',
+          name: 'eeeeqqq',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1162149432885248',
+          name: 'a',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '1177147458682880',
+          name: '这是Curl导入的请求',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2226957725106176',
+          name: 'test12',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2601169635672064',
+          name: 'testvvvv',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '885467640184832',
+          name: 'okko',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '891635213221888',
+          name: 'gs',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'HTTP',
+            method: 'GET',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '640018849742848',
+          name: '0228',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+        {
+          id: '2178166898065408',
+          name: '0304',
+          type: 'API',
+          parentId: 'root',
+          children: [],
+          attachInfo: {
+            protocol: 'SPX',
+          },
+          count: 0,
+          path: '/',
+        },
+      ],
+      attachInfo: {},
+      count: 0,
+      path: '/未规划请求',
+    },
+  ]);
+
+  const moreActions: ActionsItem[] = [
+    {
+      label: 'caseManagement.featureCase.copyStep',
+      eventTag: 'copyStep',
+    },
+  ];
+
+  const selectedKeys = ref<string[]>([]);
+  const focusNodeKey = ref<string>('');
+
+  function handleMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {}
+
+  const title = ref<string>('');
+  watchEffect(() => {
+    title.value = props.currentId ? t('project.environmental.http.edit') : t('project.environmental.http.add');
+    if (props.currentId) {
+      const currentItem = store.currentEnvDetailInfo.config.httpConfig.find(
+        (item) => item.id === props.currentId
+      ) as HttpForm;
+      if (currentItem) {
+        form.value = {
+          ...currentItem,
+        };
+      }
+    } else {
+      resetForm();
+    }
+  });
 </script>
 
 <style lang="less" scoped>
@@ -158,7 +671,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px 8px;
     border-top: 1px solid var(--color-text-7);
     border-bottom: 1px solid var(--color-text-7);
     border-left: 1px solid var(--color-text-7);

@@ -1,16 +1,16 @@
 <template>
   <div class="page">
-    <a-tabs v-model:active-key="activeKey" class="no-content">
+    <!-- <a-tabs v-model:active-key="activeKey" class="no-content">
       <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
     </a-tabs>
-    <a-divider :margin="0" class="!mb-[16px]" />
+    <a-divider :margin="0" class="!mb-[16px]" /> -->
     <RequestHeader v-if="activeKey === 'requestHeader'" v-model:params="headerParams" @change="canSave = true" />
-    <AllPrams
+    <!-- <AllPrams
       v-else-if="activeKey === 'globalVariable'"
       v-model:params="GlobalVariable"
       :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM_VARIABLE"
       @change="canSave = true"
-    />
+    /> -->
     <div class="footer" :style="{ width: '100%' }">
       <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
@@ -34,7 +34,7 @@
   const projectEnvStore = useProjectEnvStore();
   const appStore = useAppStore();
 
-  const activeKey = ref('globalVariable');
+  const activeKey = ref('requestHeader');
   const headerParams = ref<EnvConfigItem[]>([]);
   const GlobalVariable = ref<EnvConfigItem[]>([]);
   const { t } = useI18n();

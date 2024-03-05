@@ -706,7 +706,7 @@
   };
 
   const handleEnvironment = (obj: Record<string, any>, record: Record<string, any>) => {
-    record.host = obj.host;
+    record.domain = {};
     emit('change', propsRes.value.data);
   };
 
