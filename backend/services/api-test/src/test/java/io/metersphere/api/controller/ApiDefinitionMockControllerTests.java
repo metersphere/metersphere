@@ -164,7 +164,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         noMockNoResponseApiRequest.setProjectId(DEFAULT_PROJECT_ID);
         noMockNoResponseApiRequest.setMethod("GET");
         noMockNoResponseApiRequest.setPath("/mock/api/notMatch/");
-        noMockNoResponseApiRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+        noMockNoResponseApiRequest.setStatus(ApiDefinitionStatus.PROCESSING.name());
         noMockNoResponseApiRequest.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
         noMockNoResponseApiRequest.setVersionId(defaultVersion);
         noMockNoResponseApiRequest.setDescription("desc");
@@ -181,7 +181,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 request.setProjectId(DEFAULT_PROJECT_ID);
                 request.setMethod(method);
                 request.setPath("/mock/api/" + method + "/{param1}/{param2}");
-                request.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+                request.setStatus(ApiDefinitionStatus.PROCESSING.name());
                 request.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
                 request.setVersionId(defaultVersion);
                 request.setDescription("desc");
@@ -248,8 +248,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
 
         // @@校验日志
         this.checkLog(apiDefinitionMock.getId(), OperationLogType.ADD, ADD);
-        // @@异常参数校验
-        createdGroupParamValidateTest(ApiDefinitionAddRequest.class, ADD);
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");

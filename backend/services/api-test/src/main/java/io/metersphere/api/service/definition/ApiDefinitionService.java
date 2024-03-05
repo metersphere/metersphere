@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
@@ -256,6 +257,9 @@ public class ApiDefinitionService {
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
         checkResponseNameCode(request.getResponse());
+        apiDefinition.setVersionId(originApiDefinition.getVersionId());
+        apiDefinition.setRefId(originApiDefinition.getRefId());
+        apiDefinition.setProjectId(originApiDefinition.getProjectId());
         if (request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition);
             //http协议的接口，如果修改了path和method，需要同步把case的path和method修改
@@ -268,7 +272,6 @@ public class ApiDefinitionService {
         apiDefinition.setStatus(request.getStatus());
         apiDefinition.setUpdateUser(userId);
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setVersionId(request.getVersionId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             apiDefinition.setTags(request.getTags());
         }
@@ -516,21 +519,33 @@ public class ApiDefinitionService {
     }
 
     private void checkAddExist(ApiDefinition apiDefinition) {
+        if (!StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
+           return;
+        }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
-                .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod())
-                .andProtocolEqualTo(apiDefinition.getProtocol()).andVersionIdEqualTo(apiDefinition.getVersionId());
+                .andPathEqualTo(apiDefinition.getPath())
+                .andMethodEqualTo(apiDefinition.getMethod())
+                .andProtocolEqualTo(apiDefinition.getProtocol())
+                .andProjectIdEqualTo(apiDefinition.getProjectId());
         if (CollectionUtils.isNotEmpty(apiDefinitionMapper.selectByExample(example))) {
             throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
         }
     }
 
     private void checkUpdateExist(ApiDefinition apiDefinition) {
+        if (!StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
+            return;
+        }
         if (StringUtils.isNotEmpty(apiDefinition.getPath()) && StringUtils.isNotEmpty(apiDefinition.getMethod())) {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria()
-                    .andIdNotEqualTo(apiDefinition.getId()).andProtocolEqualTo(apiDefinition.getProtocol())
-                    .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod()).andVersionIdEqualTo(apiDefinition.getVersionId());
+                    .andIdNotEqualTo(apiDefinition.getId())
+                    .andProtocolEqualTo(apiDefinition.getProtocol())
+                    .andPathEqualTo(apiDefinition.getPath())
+                    .andMethodEqualTo(apiDefinition.getMethod())
+                    .andProjectIdEqualTo(apiDefinition.getProjectId())
+                    .andRefIdNotEqualTo(apiDefinition.getRefId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
             }
@@ -1050,6 +1065,7 @@ public class ApiDefinitionService {
         if (!StringUtils.equals(request.getModuleId(), apiDefinition.getModuleId())) {
             checkModuleExist(request.getModuleId());
             apiDefinition.setModuleId(request.getModuleId());
+            apiDefinition.setProjectId(request.getProjectId());
             checkUpdateExist(apiDefinition);
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setUpdateUser(userId);

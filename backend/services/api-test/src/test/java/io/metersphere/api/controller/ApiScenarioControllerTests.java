@@ -541,7 +541,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiDefinitionAddRequest.setProjectId(DEFAULT_PROJECT_ID);
         apiDefinitionAddRequest.setMethod("POST");
         apiDefinitionAddRequest.setPath("/api/admin/posts");
-        apiDefinitionAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+        apiDefinitionAddRequest.setStatus(ApiDefinitionStatus.PROCESSING.name());
         apiDefinitionAddRequest.setModuleId(moduleId);
         apiDefinitionAddRequest.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID));
         apiDefinitionAddRequest.setDescription("描述内容");

@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,9 +33,10 @@ public class ApiTestCaseAddRequest implements Serializable {
     @Size(min = 1, max = 50, message = "{api_test_case.priority.length_range}")
     private String priority;
 
-    @Schema(description = "用例状态  Underway Prepare Completed", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用例状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_test_case.status.not_blank}")
     @Size(min = 1, max = 20, message = "{api_test_case.status.length_range}")
+    @EnumValue(enumClass = ApiDefinitionStatus.class)
     private String status;
 
     @Schema(description = "接口fk", requiredMode = Schema.RequiredMode.REQUIRED)

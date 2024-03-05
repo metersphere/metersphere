@@ -345,7 +345,7 @@ public class ApiDefinitionImportUtilService {
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_DEFINITION));
             apiDefinition.setLatest(true);
-            apiDefinition.setStatus(ApiDefinitionStatus.UNDERWAY.name());
+            apiDefinition.setStatus(ApiDefinitionStatus.PROCESSING.name());
             apiDefinition.setRefId(apiDefinition.getId());
             apiDefinition.setVersionId(request.getVersionId());
             apiMapper.insertSelective(apiDefinition);

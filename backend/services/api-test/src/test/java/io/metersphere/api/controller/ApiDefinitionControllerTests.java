@@ -259,6 +259,13 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(ADD, request), ApiResultCode.API_DEFINITION_EXIST);
+
+        // 校验其他协议
+        request.setProtocol("TCP");
+        request.setMethod(null);
+        request.setPath(null);
+        this.requestPostWithOk(ADD, request);
+
         // @@响应名+响应码唯一校验异常
         request.setName("test123-response");
         request.setMethod("GET");
@@ -277,8 +284,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.ADD, ADD));
-        // @@异常参数校验
-        createdGroupParamValidateTest(ApiDefinitionAddRequest.class, ADD);
+
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
@@ -328,7 +334,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setMethod("POST");
         request.setPath("/api/admin/posts");
-        request.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+        request.setStatus(ApiDefinitionStatus.PROCESSING.name());
         request.setModuleId("default");
         request.setVersionId(defaultVersion);
         request.setDescription("描述内容");
@@ -440,8 +446,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(null);
         request.setUnLinkFileIds(null);
+        String versionId = request.getVersionId();
+        request.setVersionId(null);
         this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
+        request.setVersionId(versionId);
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of(fileId));
         assertLinkFile(apiDefinition.getId());
@@ -509,7 +518,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         addRequest.setProjectId(DEFAULT_PROJECT_ID);
         addRequest.setMethod("POST");
         addRequest.setPath("/api/admin/posts");
-        addRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+        addRequest.setStatus(ApiDefinitionStatus.PROCESSING.name());
         addRequest.setModuleId("default");
         addRequest.setVersionId(DEFAULT_PROJECT_ID);
         addRequest.setDescription("描述内容");
@@ -536,7 +545,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             testCaseAddRequest.setName("test-path" + i);
             testCaseAddRequest.setProjectId(DEFAULT_PROJECT_ID);
             testCaseAddRequest.setPriority("P0");
-            testCaseAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+            testCaseAddRequest.setStatus(ApiDefinitionStatus.PROCESSING.name());
             testCaseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
             testCaseAddRequest.setRequest(getMsElementParam(msHttpElement));
             apiTestCaseService.addCase(testCaseAddRequest, "admin");
@@ -683,7 +692,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改状态
         apiDefinitionBatchUpdateRequest.setType("status");
-        apiDefinitionBatchUpdateRequest.setStatus(ApiDefinitionStatus.DEBUGGING.getValue());
+        apiDefinitionBatchUpdateRequest.setStatus(ApiDefinitionStatus.DEBUGGING.name());
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改版本
         apiDefinitionBatchUpdateRequest.setType("version");

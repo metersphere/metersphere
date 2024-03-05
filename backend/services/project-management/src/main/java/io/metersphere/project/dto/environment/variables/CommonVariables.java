@@ -32,7 +32,7 @@ public class CommonVariables implements Serializable {
 
     @JsonIgnore
     public boolean isConstantValid() {
-        return StringUtils.isEmpty(this.type) || (StringUtils.equals("text", this.type) && StringUtils.isNotEmpty(key)) || (StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(key));
+        return StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(key);
     }
 
     @JsonIgnore
