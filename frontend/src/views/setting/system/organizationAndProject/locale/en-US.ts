@@ -82,4 +82,5 @@ export default {
     'After the module is canceled, users will be unable to access the specified module, and existing data will remain intact',
   'system.project.projectAdminIsNotNull': 'Project administrator cannot be empty',
   'system.project.pleaseSelectAdmin': 'Please select project administrator',
+  'system.project.poolIsNotNull': 'Resource pool cannot be empty',
 };

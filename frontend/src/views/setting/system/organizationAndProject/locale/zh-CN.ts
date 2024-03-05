@@ -78,4 +78,5 @@ export default {
   'system.project.afterModule': '取消模块后用户将无法进入指定模块，已存在的数据会继续保留',
   'system.project.projectAdminIsNotNull': '项目管理员不能为空',
   'system.project.pleaseSelectAdmin': '请选择项目管理员',
+  'system.project.poolIsNotNull': '资源池不能为空',
 };
