@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ApiConstants;
+import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
@@ -155,7 +156,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiDefinition.setModuleId("case-moduleId");
         apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinition.setMethod("GET");
-        apiDefinition.setStatus("未规划");
+        apiDefinition.setStatus(ApiDefinitionStatus.DEBUGGING.name());
         apiDefinition.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_DEFINITION));
         apiDefinition.setPos(0L);
         apiDefinition.setPath(StringUtils.join("api/definition/", apiDefinition.getId()));
@@ -190,7 +191,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setProjectId(DEFAULT_PROJECT_ID);
             apiTestCase.setName(StringUtils.join("接口用例", apiTestCase.getId()));
             apiTestCase.setPriority("P0");
-            apiTestCase.setStatus("Underway");
+            apiTestCase.setStatus(ApiDefinitionStatus.PROCESSING.name());
             apiTestCase.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID + "_" + "100001", ApplicationNumScope.API_TEST_CASE));
             apiTestCase.setPos(0L);
             apiTestCase.setCreateTime(System.currentTimeMillis());
@@ -313,7 +314,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setName("test");
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setPriority("P0");
-        request.setStatus("Underway");
+        request.setStatus(ApiDefinitionStatus.PROCESSING.name());
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         request.setEnvironmentId(environments.get(0).getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
@@ -540,7 +541,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setId(apiTestCase.getId());
         request.setName("update");
         request.setPriority("P1");
-        request.setStatus("Underway");
+        request.setStatus(ApiDefinitionStatus.PROCESSING.name());
         request.setTags(List.of("tag1", "tag2"));
         request.setEnvironmentId(null);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
@@ -712,7 +713,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setName("testApiDefinitionId1");
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setPriority("P0");
-        request.setStatus("Underway");
+        request.setStatus(ApiDefinitionStatus.DEBUGGING.name());
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(getMsElementParam(msHttpElement));
@@ -857,13 +858,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //状态
         request.setPriority(null);
         request.setType("Status");
-        request.setStatus("Completed");
+        request.setStatus(ApiDefinitionStatus.DEBUGGING.name());
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         requestPostWithOkAndReturn(BATCH_EDIT, request);
-        //判断数据的状态是不是Completed
+        //判断数据的状态是不是DEBUGGING
         caseList = apiTestCaseMapper.selectByExample(example);
-        caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getStatus(), "Completed"));
+        caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getStatus(), ApiDefinitionStatus.DEBUGGING.name()));
         //状态数据为空
         request.setStatus(null);
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
