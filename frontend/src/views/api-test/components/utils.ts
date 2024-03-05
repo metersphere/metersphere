@@ -1,6 +1,6 @@
 import { cloneDeep, isEqual } from 'lodash-es';
 
-import { ExecuteBody } from '@/models/apiTest/debug';
+import { ExecuteBody } from '@/models/apiTest/common';
 import { RequestParamsType } from '@/enums/apiEnum';
 
 export default {};

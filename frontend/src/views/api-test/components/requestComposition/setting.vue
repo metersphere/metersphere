@@ -65,7 +65,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteOtherConfig } from '@/models/apiTest/debug';
+  import { ExecuteOtherConfig } from '@/models/apiTest/common';
 
   const props = defineProps<{
     params: ExecuteOtherConfig;

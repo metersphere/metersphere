@@ -88,4 +88,6 @@ export default {
   'apiTestManagement.response': '响应{count}',
   'apiTestManagement.responseCode': '响应码',
   'apiTestManagement.dynamicConversion': '动态转换',
+  'apiTestManagement.expandApi': '展开全部请求',
+  'apiTestManagement.collapseApi': '收起全部请求',
 };

@@ -45,7 +45,7 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   const props = defineProps<{

@@ -336,7 +336,7 @@
     JSONPathExtract,
     RegexExtract,
     XPathExtract,
-  } from '@/models/apiTest/debug';
+  } from '@/models/apiTest/common';
   import {
     RequestConditionProcessor,
     RequestConditionScriptLanguage,

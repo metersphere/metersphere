@@ -52,6 +52,12 @@ export interface MoveModules {
   dropNodeId: string; // 放入的节点
   dropPosition: number; // 放入的位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
 }
+// 添加模块参数
+export interface AddModuleParams {
+  projectId: string;
+  name: string;
+  parentId: string;
+}
 // 模块树节点
 export interface ModuleTreeNode {
   id: string;
@@ -79,7 +85,7 @@ export interface DragSortParams {
 export interface TransferFileParams {
   projectId: string;
   sourceId: string | number;
-  name?: string;
+  fileName?: string;
   fileId: string;
   local: true;
   moduleId: string;

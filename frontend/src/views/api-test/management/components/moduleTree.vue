@@ -1,10 +1,11 @@
 <template>
   <div>
     <a-select
+      v-if="!props.readOnly"
       v-model:model-value="moduleProtocol"
       :options="moduleProtocolOptions"
       class="mb-[8px]"
-      @change="(val) => handleProtocolChange(val as string)"
+      @change="() => handleProtocolChange()"
     />
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
@@ -23,6 +24,14 @@
         <div class="folder-count">({{ allFileCount }})</div>
       </div>
       <div class="ml-auto flex items-center">
+        <a-tooltip
+          v-if="!props.readOnly"
+          :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
+        >
+          <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
+            <MsIcon :type="isExpandApi ? 'icon-icon_collapse_interface' : 'icon-icon_expand_interface'" />
+          </MsButton>
+        </a-tooltip>
         <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
           <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
@@ -66,6 +75,7 @@
           children: 'children',
           count: 'count',
         }"
+        :draggable="!props.readOnly"
         :filter-more-action-func="filterMoreActionFunc"
         block-node
         title-tooltip-position="left"
@@ -132,17 +142,18 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
+  import { getProtocolList } from '@/api/modules/api-test/common';
   import {
-    deleteDebugModule,
-    getDebugModuleCount,
-    getDebugModules,
-    moveDebugModule,
-  } from '@/api/modules/api-test/debug';
-  import { getProtocolList } from '@/api/modules/api-test/management';
+    deleteModule,
+    getModuleCount,
+    getModuleTree,
+    getModuleTreeOnlyModules,
+    moveModule,
+  } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { filterTree, mapTree } from '@/utils';
+  import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -185,11 +196,6 @@
     }
   }
 
-  function handleProtocolChange(value: string | number | Record<string, any>) {
-    // TODO:搜索
-    console.log(value);
-  }
-
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     switch (value) {
       case 'newApi':
@@ -223,20 +229,6 @@
     };
   });
 
-  const isExpandAll = ref(props.isExpandAll);
-  const rootModulesName = ref<string[]>([]); // 根模块名称列表
-
-  watch(
-    () => props.isExpandAll,
-    (val) => {
-      isExpandAll.value = val;
-    }
-  );
-
-  function changeExpand() {
-    isExpandAll.value = !isExpandAll.value;
-  }
-
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
@@ -248,6 +240,7 @@
 
   function setActiveFolder(id: string) {
     selectedKeys.value = [id];
+    emit('folderNodeSelect', selectedKeys.value, []);
   }
 
   watch(
@@ -302,6 +295,10 @@
 
   const modulesCount = ref<Record<string, number>>({});
   const allFileCount = computed(() => modulesCount.value.all || 0);
+  const isExpandAll = ref(props.isExpandAll);
+  const rootModulesName = ref<string[]>([]); // 根模块名称列表
+  const isExpandApi = ref(false);
+
   /**
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
@@ -309,26 +306,39 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       loading.value = true;
-      const res = await getDebugModules();
+      let res;
+      if (isExpandApi.value && !props.readOnly) {
+        // 查看模块及模块下的请求
+        res = await getModuleTree({
+          keyword: moduleKeyword.value,
+          protocol: moduleProtocol.value,
+          projectId: appStore.currentProjectId,
+          moduleIds: [],
+        });
+      } else {
+        res = await getModuleTreeOnlyModules({
+          // 只查看模块
+          keyword: moduleKeyword.value,
+          protocol: moduleProtocol.value,
+          projectId: appStore.currentProjectId,
+          moduleIds: [],
+        });
+      }
       if (props.readOnly) {
-        folderTree.value = filterTree<ModuleTreeNode>(res, (e) => {
-          if (e.type === 'MODULE') {
-            e = {
-              ...e,
-              hideMoreAction: true,
-              draggable: false,
-            };
-            return true;
-          }
-          return false;
+        folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+          return {
+            ...e,
+            hideMoreAction: true,
+            draggable: false,
+          };
         });
       } else {
         folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
           return {
             ...e,
             hideMoreAction: e.id === 'root',
-            draggable: e.id !== 'root' && !props.readOnly,
-            disabled: e.id === selectedKeys.value[0] && props.readOnly,
+            draggable: e.id !== 'root',
+            disabled: e.id === selectedKeys.value[0],
           };
         });
       }
@@ -346,21 +356,46 @@
 
   async function initModuleCount() {
     try {
-      const res = await getDebugModuleCount({
+      const res = await getModuleCount({
         keyword: moduleKeyword.value,
+        protocol: moduleProtocol.value,
+        projectId: appStore.currentProjectId,
+        moduleIds: [],
       });
       modulesCount.value = res;
       folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
         return {
           ...node,
           count: res[node.id] || 0,
-          draggable: node.id !== 'root',
+          draggable: props.readOnly ? false : node.id !== 'root',
         };
       });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  async function handleProtocolChange() {
+    await initModules();
+    initModuleCount();
+  }
+
+  watch(
+    () => props.isExpandAll,
+    (val) => {
+      isExpandAll.value = val;
+    }
+  );
+
+  function changeExpand() {
+    isExpandAll.value = !isExpandAll.value;
+  }
+
+  async function changeApiExpand() {
+    isExpandApi.value = !isExpandApi.value;
+    await initModules();
+    initModuleCount();
   }
 
   /**
@@ -393,7 +428,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteDebugModule(node.id);
+          await deleteModule(node.id);
           Message.success(t('apiTestDebug.deleteSuccess'));
           await initModules();
           initModuleCount();
@@ -450,7 +485,7 @@
   ) {
     try {
       loading.value = true;
-      await moveDebugModule({
+      await moveModule({
         dragNodeId: dragNode.id as string,
         dropNodeId: dropNode.id || '',
         dropPosition,

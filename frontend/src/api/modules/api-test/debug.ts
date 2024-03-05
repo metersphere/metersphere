@@ -19,10 +19,10 @@ import {
   UploadTempFileUrl,
 } from '@/api/requrls/api-test/debug';
 
+import { ExecuteRequestParams } from '@/models/apiTest/common';
 import {
   AddDebugModuleParams,
   DebugDetail,
-  ExecuteRequestParams,
   SaveDebugParams,
   UpdateDebugModule,
   UpdateDebugParams,
@@ -111,5 +111,5 @@ export function transferFile(data: TransferFileParams) {
 
 // 文件转存目录
 export function getTransferOptions(projectId: string) {
-  return MSR.get({ url: TransferOptionsUrl, params: projectId });
+  return MSR.get<ModuleTreeNode[]>({ url: TransferOptionsUrl, params: projectId });
 }

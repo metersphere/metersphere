@@ -96,7 +96,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import {
     RequestExtractExpressionEnum,
     RequestExtractExpressionRuleType,

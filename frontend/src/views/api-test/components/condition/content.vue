@@ -364,7 +364,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
   import {
     RequestConditionProcessor,

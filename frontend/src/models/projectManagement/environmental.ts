@@ -1,4 +1,4 @@
-import { ExecuteConditionProcessor } from '../apiTest/debug';
+import { ExecuteConditionProcessor } from '../apiTest/common';
 
 export interface EnvListItem {
   name: string;

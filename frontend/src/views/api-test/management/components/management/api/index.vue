@@ -9,7 +9,7 @@
       </MsEditableTab>
     </div>
     <div v-show="activeApiTab.id === 'all'" class="flex-1">
-      <apiTable :active-module="props.activeModule" :offspring-ids="props.offspringIds" />
+      <apiTable :active-module="props.activeModule" :offspring-ids="props.offspringIds" @open-api-tab="openApiTab" />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <a-tabs default-active-key="definition" animation lazy-load class="ms-api-tab-nav">
@@ -21,8 +21,8 @@
                 v-model:request="activeApiTab"
                 :module-tree="props.moduleTree"
                 hide-response-layout-switch
-                :create-api="addDebug"
-                :update-api="updateDebug"
+                :create-api="addDefinition"
+                :update-api="updateDefinition"
                 :execute-api="executeDebug"
                 :local-execute-api="localExecuteApiDebug"
                 :permission-map="{
@@ -30,13 +30,56 @@
                   update: 'PROJECT_API_DEFINITION:READ+UPDATE',
                   create: 'PROJECT_API_DEFINITION:READ+ADD',
                 }"
+                :upload-temp-file-api="uploadTempFile"
+                :file-save-as-source-id="activeApiTab.id"
+                :file-module-options-api="getTransferOptions"
+                :file-save-as-api="transferFile"
                 is-definition
                 @add-done="emit('addDone')"
+                @save="handleSave"
+                @save-as-case="handleSaveAsCase"
               />
             </template>
             <template #second>
               <div class="p-[24px]">
-                <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" />
+                <!-- 第一版没有模板 -->
+                <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
+                <a-form :model="activeApiTab" layout="vertical">
+                  <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px]">
+                    <a-tree-select
+                      v-model:modelValue="activeApiTab.moduleId"
+                      :data="selectTree"
+                      :field-names="{ title: 'name', key: 'id', children: 'children' }"
+                      :tree-props="{
+                        virtualListProps: {
+                          height: 200,
+                          threshold: 200,
+                        },
+                      }"
+                      allow-search
+                    />
+                  </a-form-item>
+                  <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px]">
+                    <a-select
+                      v-model:model-value="activeApiTab.status"
+                      :placeholder="t('common.pleaseSelect')"
+                      class="param-input w-full"
+                    >
+                      <template #label>
+                        <apiStatus :status="activeApiTab.status" />
+                      </template>
+                      <a-option v-for="item of RequestDefinitionStatus" :key="item" :value="item">
+                        <apiStatus :status="item" />
+                      </a-option>
+                    </a-select>
+                  </a-form-item>
+                  <a-form-item :label="t('common.tag')" class="mb-[16px]">
+                    <MsTagsInput v-model:model-value="activeApiTab.tags" />
+                  </a-form-item>
+                  <a-form-item :label="t('common.desc')" class="mb-[16px]">
+                    <a-textarea v-model:model-value="activeApiTab.description" :max-length="1000" />
+                  </a-form-item>
+                </a-form>
                 <a-dropdown @select="handleSelect">
                   <a-button type="outline">
                     <div class="flex items-center gap-[8px]">
@@ -80,37 +123,50 @@
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
+  // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import addDependencyDrawer from './addDependencyDrawer.vue';
   import apiTable from './apiTable.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
+  import { executeDebug, localExecuteApiDebug } from '@/api/modules/api-test/debug';
   import {
-    addDebug,
-    executeDebug,
-    getDebugDetail,
-    localExecuteApiDebug,
-    updateDebug,
-  } from '@/api/modules/api-test/debug';
+    addDefinition,
+    getDefinitionDetail,
+    getTransferOptions,
+    transferFile,
+    updateDefinition,
+    uploadTempFile,
+  } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { filterTree } from '@/utils';
 
-  import { ExecuteBody } from '@/models/apiTest/debug';
+  import { ExecuteBody, RequestTaskResult } from '@/models/apiTest/common';
+  import {
+    ApiDefinitionCreateParams,
+    ApiDefinitionDetail,
+    ApiDefinitionUpdateParams,
+  } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
     RequestBodyFormat,
     RequestComposition,
+    RequestDefinitionStatus,
     RequestMethods,
-    ResponseBodyFormat,
     ResponseComposition,
   } from '@/enums/apiEnum';
 
+  import { defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   // 懒加载requestComposition组件
   const requestComposition = defineAsyncComponent(
@@ -118,7 +174,6 @@
   );
 
   const props = defineProps<{
-    module: string;
     allCount: number;
     activeModule: string;
     offspringIds: string[];
@@ -126,6 +181,7 @@
   }>();
   const emit = defineEmits(['addDone']);
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const apiTabs = ref<RequestParam[]>([
@@ -153,7 +209,14 @@
     }
   );
 
-  const initDefaultId = `debug-${Date.now()}`;
+  const selectTree = computed(() =>
+    filterTree(cloneDeep(props.moduleTree), (e) => {
+      e.draggable = false;
+      return e.type === 'MODULE';
+    })
+  );
+
+  const initDefaultId = `definition-${Date.now()}`;
   const defaultBodyParams: ExecuteBody = {
     bodyType: RequestBodyFormat.NONE,
     formDataBody: {
@@ -172,10 +235,13 @@
     },
     rawBody: { value: '' },
   };
-  const defaultResponse = {
+  const defaultResponse: RequestTaskResult = {
     requestResults: [
       {
         body: '',
+        headers: '',
+        method: '',
+        url: '',
         responseResult: {
           body: '',
           contentType: '',
@@ -189,15 +255,19 @@
           socketInitTime: 0,
           tcpHandshakeTime: 0,
           transferStartTime: 0,
+          sslHandshakeTime: 0,
         },
       },
     ],
     console: '',
   }; // 调试返回的响应内容
-  const defaultDebugParams: RequestParam = {
+  const defaultDefinitionParams: RequestParam = {
     id: initDefaultId,
-    moduleId: 'root',
+    moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
     protocol: 'HTTP',
+    tags: [],
+    status: RequestDefinitionStatus.PROCESSING,
+    description: '',
     url: '',
     activeTab: RequestComposition.HEADER,
     label: t('apiTestDebug.newApi'),
@@ -251,33 +321,15 @@
     },
     responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
-    responseDefinition: {
-      id: 'default',
-      defaultFlag: true,
-      name: t('common.success'),
-      headers: [],
-      body: {
-        bodyType: ResponseBodyFormat.JSON,
-        jsonBody: {
-          jsonValue: '',
-        },
-        xmlBody: { value: '' },
-        binaryBody: {
-          description: '',
-          file: undefined,
-        },
-        rawBody: { value: '' },
-      },
-      statusCode: 200,
-    },
+    responseDefinition: [cloneDeep(defaultResponseItem)],
     isNew: true,
   };
 
   function addApiTab(defaultProps?: Partial<TabItem>) {
-    const id = `debug-${Date.now()}`;
+    const id = `definition-${Date.now()}`;
     apiTabs.value.push({
-      ...defaultDebugParams,
-      moduleId: props.module,
+      ...cloneDeep(defaultDefinitionParams),
+      moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
       label: t('apiTestDebug.newApi'),
       id,
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
@@ -287,7 +339,7 @@
   }
 
   const loading = ref(false);
-  async function openApiTab(apiInfo: ModuleTreeNode) {
+  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail) {
     const isLoadedTabIndex = apiTabs.value.findIndex((e) => e.id === apiInfo.id);
     if (isLoadedTabIndex > -1) {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
@@ -296,14 +348,15 @@
     }
     try {
       loading.value = true;
-      const res = await getDebugDetail(apiInfo.id);
+      const res = await getDefinitionDetail(apiInfo.id);
       addApiTab({
         label: apiInfo.name,
+        ...res.request,
         ...res,
         response: cloneDeep(defaultResponse),
-        ...res.request,
         url: res.path,
         name: res.name, // request里面还有个name但是是null
+        isNew: false,
       });
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
@@ -336,22 +389,22 @@
     },
   ]);
 
-  const fApi = ref();
-  const options = {
-    form: {
-      layout: 'vertical',
-      labelPosition: 'right',
-      size: 'small',
-      labelWidth: '00px',
-      hideRequiredAsterisk: false,
-      showMessage: true,
-      inlineMessage: false,
-      scrollToFirstError: true,
-    },
-    submitBtn: false,
-    resetBtn: false,
-  };
-  const currentApiTemplateRules = [];
+  // const fApi = ref();
+  // const options = {
+  //   form: {
+  //     layout: 'vertical',
+  //     labelPosition: 'right',
+  //     size: 'small',
+  //     labelWidth: '00px',
+  //     hideRequiredAsterisk: false,
+  //     showMessage: true,
+  //     inlineMessage: false,
+  //     scrollToFirstError: true,
+  //   },
+  //   submitBtn: false,
+  //   resetBtn: false,
+  // };
+  // const currentApiTemplateRules = [];
   const showAddDependencyDrawer = ref(false);
   const addDependencyMode = ref<'pre' | 'post'>('pre');
 
@@ -368,6 +421,35 @@
       default:
         break;
     }
+  }
+
+  async function handleSave(params: ApiDefinitionCreateParams | ApiDefinitionUpdateParams) {
+    try {
+      appStore.showLoading();
+      let res;
+      params.versionId = 'v1.0';
+      if (params.isNew) {
+        res = await addDefinition(params);
+      } else {
+        res = await updateDefinition(params as ApiDefinitionUpdateParams);
+      }
+      activeApiTab.value.id = res.id;
+      activeApiTab.value.isNew = false;
+      Message.success(t('common.saveSuccess'));
+      activeApiTab.value.unSaved = false;
+      activeApiTab.value.name = res.name;
+      activeApiTab.value.label = res.name;
+      activeApiTab.value.url = res.path;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
+  async function handleSaveAsCase(params: ApiDefinitionCreateParams) {
+    console.log(params);
   }
 
   defineExpose({

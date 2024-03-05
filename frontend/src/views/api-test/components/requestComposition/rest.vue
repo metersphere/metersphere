@@ -33,7 +33,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteRequestCommonParam } from '@/models/apiTest/debug';
+  import { ExecuteRequestCommonParam } from '@/models/apiTest/common';
   import { RequestParamsType } from '@/enums/apiEnum';
 
   import { defaultRequestParamsItem } from '@/views/api-test/components/config';
