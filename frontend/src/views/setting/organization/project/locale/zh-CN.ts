@@ -52,7 +52,7 @@ export default {
   'system.organization.createProject': '创建项目',
   'system.organization.subordinateOrg': '所属组织',
   'system.project.revokeDeleteTitle': '确认撤销删除 {name} 这个项目吗？',
-  'system.project.enableTitle': '开启项目',
+  'system.project.enableTitle': '启用项目',
   'system.project.endTitle': '结束项目',
   'system.project.enableContent': '开启后的项目展示在项目切换列表',
   'system.project.endContent': '结束后的项目不展示在项目切换列表',
