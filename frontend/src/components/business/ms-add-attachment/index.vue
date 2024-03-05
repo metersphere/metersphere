@@ -24,7 +24,12 @@
                 <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
               </a-button>
             </MsUpload>
-            <a-button type="text" class="arco-dropdown-option !text-[var(--color-text-1)]" @click="associatedFile">
+            <a-button
+              v-permission="['PROJECT_FILE_MANAGEMENT:READ']"
+              type="text"
+              class="arco-dropdown-option !text-[var(--color-text-1)]"
+              @click="associatedFile"
+            >
               <MsIcon type="icon-icon_link-copy_outlined" size="16" />
               {{ t('caseManagement.featureCase.associatedFile') }}
             </a-button>
