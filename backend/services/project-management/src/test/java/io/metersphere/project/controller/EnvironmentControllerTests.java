@@ -857,14 +857,24 @@ public class EnvironmentControllerTests extends BaseTest {
         //测试mysql dbUrl为空
         DataSource dataSource = new DataSource();
         dataSource.setDbUrl(null);
-        dataSource.setPassword("Password123@mysql");
-        dataSource.setUsername("root");
+        dataSource.setPassword(password);
+        dataSource.setUsername(username);
         //测试mysql DriverId为空
         dataSource.setDriverId(null);
         this.requestPost(validate, dataSource, BAD_REQUEST_MATCHER);
         // 测试500
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         dataSource.setDbUrl("jdbc:mysql://");
+        dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
+        this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
+        dataSource.setDbUrl(dburl);
+        dataSource.setUsername("测试数据源");
+        dataSource.setPassword("测试数据源");
+        dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
+        this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
+        dataSource.setDbUrl("测试数据源");
+        dataSource.setUsername("测试数据源");
+        dataSource.setPassword("测试数据源");
         dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
         this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
     }

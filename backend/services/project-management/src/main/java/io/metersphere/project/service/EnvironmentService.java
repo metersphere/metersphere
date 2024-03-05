@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.Driver;
 import java.util.*;
 import java.util.function.Function;
@@ -96,7 +97,10 @@ public class EnvironmentService {
             Properties properties = new Properties();
             properties.setProperty(USERNAME, databaseConfig.getUsername());
             properties.setProperty(PASSWORD, databaseConfig.getPassword());
-            driver.connect(databaseConfig.getDbUrl(), properties);
+            Connection connect = driver.connect(databaseConfig.getDbUrl(), properties);
+            if (connect == null) {
+                throw new MSException(Translator.get("api_test_environment_datasource_connect_failed"));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
