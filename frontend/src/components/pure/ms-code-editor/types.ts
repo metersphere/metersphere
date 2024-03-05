@@ -114,4 +114,9 @@ export const editorProps = {
     type: Boolean as PropType<boolean>,
     default: false,
   },
+  // 是否显示代码格式化
+  showCodeFormat: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
 };

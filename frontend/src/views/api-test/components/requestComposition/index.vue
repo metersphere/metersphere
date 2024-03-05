@@ -17,7 +17,7 @@
             v-model:model-value="requestVModel.protocol"
             :options="protocolOptions"
             :loading="protocolLoading"
-            class="mr-[4px] w-[90px]"
+            class="w-[90px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
           />
           <div v-else class="flex items-center gap-[4px]">
@@ -47,6 +47,9 @@
                 props.isDefinition ? t('apiTestDebug.definitionUrlPlaceholder') : t('apiTestDebug.urlPlaceholder')
               "
               allow-clear
+              class="hover:z-10"
+              :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
+              @input="() => (isUrlError = false)"
               @change="handleUrlChange"
             />
           </a-input-group>
@@ -75,10 +78,7 @@
             :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
             @select="handleSelect"
           >
-            <a-button
-              :disabled="(isHttpProtocol && requestVModel.url.trim() === '') || requestVModel.name.trim() === ''"
-              type="secondary"
-            >
+            <a-button type="secondary">
               {{ t('common.save') }}
             </a-button>
             <template #content>
@@ -101,15 +101,6 @@
           </a-button>
         </div>
       </div>
-      <a-input
-        v-if="props.isDefinition"
-        v-model:model-value="requestVModel.name"
-        class="mt-[8px]"
-        :max-length="255"
-        :placeholder="t('apiTestManagement.apiNamePlaceholder')"
-        allow-clear
-        @change="handleActiveDebugChange"
-      />
     </div>
     <!-- 接口定义多出一个输入框占高度 40px -->
     <div ref="splitContainerRef" :class="`${props.isDefinition ? 'h-[calc(100%-80px)]' : 'h-[calc(100%-40px)]'}`">
@@ -628,6 +619,8 @@
           await initProtocolList();
         }
         initPluginScript();
+      } else {
+        initProtocolList();
       }
     },
     {
@@ -996,7 +989,14 @@
     }
   }
 
+  const isUrlError = ref(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {
+    if (requestVModel.value.url === '' && requestVModel.value.protocol === 'HTTP') {
+      isUrlError.value = true;
+      return;
+    }
+    isUrlError.value = false;
+
     switch (value) {
       case 'save':
         emit('save', makeRequestParams());

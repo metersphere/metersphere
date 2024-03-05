@@ -109,14 +109,8 @@
           :show-theme-change="false"
           :show-language-change="false"
           :show-charset-change="false"
+          show-code-format
         >
-          <template #rightTitle>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
-              <template #icon>
-                <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-              </template>
-            </a-button>
-          </template>
         </MsCodeEditor>
       </div>
       <div v-else>
@@ -143,15 +137,12 @@
 </template>
 
 <script setup lang="ts">
-  import { useClipboard } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -309,17 +300,6 @@
     }
     return LanguageEnum.PLAINTEXT;
   });
-
-  const { copy, isSupported } = useClipboard();
-
-  function copyScript() {
-    if (isSupported) {
-      copy(currentBodyCode.value);
-      Message.success(t('common.copySuccess'));
-    } else {
-      Message.warning(t('apiTestDebug.copyNotSupport'));
-    }
-  }
 
   const fileList = ref<MsFileItem[]>([]);
   onBeforeMount(() => {
