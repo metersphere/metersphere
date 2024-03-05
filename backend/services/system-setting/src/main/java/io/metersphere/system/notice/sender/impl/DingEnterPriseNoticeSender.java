@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
 
-    public void sendDing(MessageDetail messageDetail, NoticeModel noticeModel, String context) throws Exception {
+    public void sendDing(MessageDetail messageDetail, String context) throws Exception {
         Client client = DingEnterPriseNoticeSender.createClient();
         GetAccessTokenResponse accessToken = getAccessToken(messageDetail.getAppKey(), messageDetail.getAppSecret());
         OrgGroupSendHeaders orgGroupSendHeaders = new OrgGroupSendHeaders();
@@ -92,7 +92,7 @@ public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
         try {
-            sendDing(messageDetail, noticeModel, context);
+            sendDing(messageDetail, context);
             LogUtils.debug("发送钉钉内部机器人结束");
         } catch (Exception e) {
             LogUtils.error(e);

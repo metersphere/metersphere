@@ -11,10 +11,8 @@ import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.service.NotificationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,25 +23,12 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     private NotificationService notificationService;
 
     public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
-        List<Receiver> receivers = noticeModel.getReceivers();
-        // 排除自己
-        List<Receiver> realReceivers = new ArrayList<>();
-        if (noticeModel.isExcludeSelf() ) {
-            for (Receiver receiver : receivers) {
-                if (!StringUtils.equals(receiver.getUserId(), noticeModel.getOperator())) {
-                    LogUtils.info("发送人是自己不发");
-                    realReceivers.add(receiver);
-                }
-            }
-        }
-
-        if (CollectionUtils.isEmpty(realReceivers)) {
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
             return;
         }
-
-        LogUtils.info("发送站内通知: {}", realReceivers);
-        realReceivers.forEach(receiver -> {
-
+        LogUtils.info("发送站内通知: {}", receivers);
+        receivers.forEach(receiver -> {
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
             notification.setSubject(noticeModel.getSubject());

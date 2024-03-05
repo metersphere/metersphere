@@ -42,6 +42,8 @@ public class SendNoticeAspect {
     private ThreadLocal<String> source = new ThreadLocal<>();
 
     private final static String ID = "id";
+    private final static String PROJECT_ID = "projectId";
+
 
     @Pointcut("@annotation(io.metersphere.system.notice.annotation.SendNotice)")
     public void pointcut() {
@@ -154,8 +156,15 @@ public class SendNoticeAspect {
             LogUtils.info("event:" + event);
             String resultStr = JSON.toJSONString(retValue);
             Map object = JSON.parseMap(resultStr);
-            if (MapUtils.isNotEmpty(object) && object.containsKey(ID)) {
-                resources.add(object);
+            if (MapUtils.isNotEmpty(object)) {
+                for (Map resource : resources) {
+                    if (object.containsKey(ID) && resource.get(ID) == null) {
+                        resource.put(ID, object.get(ID));
+                    }
+                    if (object.containsKey(PROJECT_ID) && resource.get(PROJECT_ID) == null) {
+                        resource.put(PROJECT_ID, object.get(PROJECT_ID));
+                    }
+                }
             }
             afterReturningNoticeSendService.sendNotice(taskType, event, resources, sessionUser, currentProjectId);
         } catch (Exception e) {

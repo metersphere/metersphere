@@ -33,17 +33,16 @@ public class MailNoticeSender extends AbstractNoticeSender {
     @Resource
     private SystemParameterMapper systemParameterMapper;
 
-    public void sendMail(String context, NoticeModel noticeModel) throws Exception {
-
-        List<String> userIds = noticeModel.getReceivers().stream()
+    public void sendMail(String context, NoticeModel noticeModel, String projectId) throws Exception {
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
+            return;
+        }
+        List<String> userIds = receivers.stream()
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(userIds)) {
-            return;
-        }
-
-        String[] users = super.getUsers(userIds).stream()
+        String[] users = super.getUsers(userIds, projectId).stream()
                 .map(User::getEmail)
                 .distinct()
                 .toArray(String[]::new);
@@ -156,7 +155,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
         try {
-            sendMail(context, noticeModel);
+            sendMail(context, noticeModel, messageDetail.getProjectId());
             LogUtils.debug("发送邮件结束");
         } catch (Exception e) {
             LogUtils.error(e);
