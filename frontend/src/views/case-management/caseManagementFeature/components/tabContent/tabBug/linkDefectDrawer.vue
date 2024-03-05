@@ -75,7 +75,7 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       width: 200,
       showInTable: true,
       showTooltip: true,
