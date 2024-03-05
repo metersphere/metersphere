@@ -576,7 +576,7 @@ public class BugAttachmentService {
     private String getLocalFileType(String fileName) {
         int i = fileName.lastIndexOf(".");
         if (i > 0) {
-            return fileName.substring(i);
+            return fileName.substring(i + 1);
         } else {
             return StringUtils.EMPTY;
         }

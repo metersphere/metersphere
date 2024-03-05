@@ -4,6 +4,7 @@
  * @param {stafileInfotus} 文件file
  */
 
+import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import { MsFileItem } from '@/components/pure/ms-upload/types';
 
 import { AssociatedList } from '@/models/caseManagement/featureCase';
@@ -11,11 +12,14 @@ import { AssociatedList } from '@/models/caseManagement/featureCase';
 export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
   const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
   const fileName = `${fileInfo.name}`;
-  const type = `${fileInfo.fileType}`;
+  const fileFormatMatch = fileName.match(/\.([a-zA-Z0-9]+)$/);
+  const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
+  const type = getFileEnum(fileFormatType);
   const file = new File([new Blob()], `${fileName}`, {
     type: `application/${type}`,
   });
   Object.defineProperty(file, 'size', { value: fileInfo.fileSize });
+  Object.defineProperty(file, 'type', { value: type });
   const { fileId, local, isUpdateFlag, refId, createUserName, createTime } = fileInfo;
   return {
     enable: fileInfo.enable || false,
@@ -30,7 +34,7 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
     isUpdateFlag,
     associateId: refId,
     createUserName,
-    uploadedTime: createTime
+    uploadedTime: createTime,
   };
 }
 /** *
