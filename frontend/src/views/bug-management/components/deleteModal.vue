@@ -9,7 +9,7 @@
     <template #title>
       <div class="flex flex-row items-center">
         <icon-exclamation-circle-fill class="text-[16px] text-[rgb(var(--danger-6))]" />
-        <div class="ml-[8px]">{{ t('bugManagement.detail.deleteTitle', {name: props.name}) }}</div>
+        <div class="ml-[8px]">{{ t('bugManagement.detail.deleteTitle', { name: props.name }) }}</div>
       </div>
     </template>
     <div class="form">
@@ -30,7 +30,7 @@
             },
           ]"
         >
-          <a-input v-model:model-value="form.name" />
+          <a-input :placeholder="t('bugManagement.edit.pleaseInputBugName')" v-model:model-value="form.name" />
         </a-form-item>
       </a-form>
     </div>
