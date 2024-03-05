@@ -32,17 +32,18 @@
         updateUser.name as update_user,
         createUser.name AS create_user,
         f.module_id,
-            f.name,
-            f.type,
-            f.tags,
-            f.description,
+        f.name,
+        f.original_name,
+        f.type,
+        f.tags,
+        f.description,
         f.create_time,
-            f.update_time,
-            f.path,
-            f.project_id,
-            f.size,
+        f.update_time,
+        f.path,
+        f.project_id,
+        f.size,
         f.enable,
-            f.storage
+        f.storage
         FROM file_metadata f
         INNER JOIN user updateUser ON f.update_user = updateUser.id
         INNER JOIN user createUser ON f.create_user = createUser.id
