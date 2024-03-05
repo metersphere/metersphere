@@ -9,9 +9,12 @@ import io.metersphere.functional.request.RelationshipAddRequest;
 import io.metersphere.functional.request.RelationshipDeleteRequest;
 import io.metersphere.functional.request.RelationshipPageRequest;
 import io.metersphere.functional.request.RelationshipRequest;
+import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseRelationshipEdgeService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -84,6 +87,7 @@ public class FunctionalCaseRelationshipController {
     @PostMapping("/delete")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-取消关联")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateRelateLog(#request)", msClass = FunctionalCaseLogService.class)
     @CheckOwner(resourceId = "#request.getCaseId", resourceType = "functional_case")
     public void delete(@Validated @RequestBody RelationshipDeleteRequest request) {
         functionalCaseRelationshipEdgeService.delete(request);
