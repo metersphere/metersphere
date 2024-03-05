@@ -229,24 +229,24 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         }
     }
 
-    private String getSteps(FunctionalCaseExcelData data,StringBuilder errMsg) {
+    private String getSteps(FunctionalCaseExcelData data, StringBuilder errMsg) {
         List<Map<String, Object>> steps = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(data.getMergeTextDescription()) || CollectionUtils.isNotEmpty(data.getMergeExpectedResult())) {
             // 如果是合并单元格，则组合多条单元格的数据
             for (int i = 0; i < data.getMergeTextDescription().size(); i++) {
-                List<Map<String, Object>> rowSteps = getSingleRowSteps(data.getMergeTextDescription().get(i), data.getMergeExpectedResult().get(i), steps.size(),errMsg);
+                List<Map<String, Object>> rowSteps = getSingleRowSteps(data.getMergeTextDescription().get(i), data.getMergeExpectedResult().get(i), steps.size(), errMsg);
                 steps.addAll(rowSteps);
             }
         } else {
             // 如果不是合并单元格，则直接解析单元格数据
-            steps.addAll(getSingleRowSteps(data.getTextDescription(), data.getExpectedResult(), steps.size(),errMsg));
+            steps.addAll(getSingleRowSteps(data.getTextDescription(), data.getExpectedResult(), steps.size(), errMsg));
         }
         return JSON.toJSONString(steps);
     }
 
 
-    private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex,StringBuilder errMsg) {
+    private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex, StringBuilder errMsg) {
         List<Map<String, Object>> steps = new ArrayList<>();
 
         List<String> stepDescList = parseStepCell(cellDesc);
@@ -387,6 +387,11 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
     private void validateModule(FunctionalCaseExcelData data, StringBuilder errMsg) {
         String module = data.getModule();
         if (StringUtils.isNotEmpty(module)) {
+            if (!StringUtils.startsWith(module, "/")) {
+                errMsg.append(Translator.get("module_starts_with"))
+                        .append(ERROR_MSG_SEPARATOR);
+                return;
+            }
             String[] nodes = module.split("/");
             //模块名不能为空
             for (int i = 0; i < nodes.length; i++) {
