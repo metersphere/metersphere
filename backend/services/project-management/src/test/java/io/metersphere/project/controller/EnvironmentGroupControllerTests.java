@@ -249,6 +249,8 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         Assertions.assertEquals(groupResponse.getId(), environmentGroup.getId());
         Assertions.assertEquals(groupResponse.getName(), environmentGroup.getName());
         checkLog(environmentGroup.getId(), OperationLogType.ADD);
+        groupRequest.setEnvGroupProject(new ArrayList<>());
+        requestPost(update, groupRequest);
         groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO, environmentGroupProjectDTO));
         requestPost(update, groupRequest, ERROR_REQUEST_MATCHER);
         //校验权限

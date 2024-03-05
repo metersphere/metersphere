@@ -62,7 +62,7 @@ public class CreateEnvironmentResourceService implements CreateProjectResourceSe
                 if (StringUtils.isNotEmpty(baseUrl)) {
                     if (CollectionUtils.isEmpty(httpConfigs)) {
                         HttpConfig httpConfig = new HttpConfig();
-                        httpConfig.setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, "100001"));
+                        httpConfig.setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
                         httpConfigs.add(httpConfig);
                     }
                 }

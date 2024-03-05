@@ -272,7 +272,6 @@ public class EnvironmentControllerTests extends BaseTest {
         HostConfig hostConfig = new HostConfig();
         hostConfig.setEnable(true);
         Host host = new Host();
-        host.setUuid("uuid");
         host.setDomain("domain");
         host.setDescription("description");
         host.setIp("ip");

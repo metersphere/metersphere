@@ -14,8 +14,6 @@ public class Host implements Serializable {
     private String domain;
     @Schema(description = "描述")
     private String description;
-    @Schema(description = "id")
-    private String uuid;
 
     @Serial
     private static final long serialVersionUID = 1L;
