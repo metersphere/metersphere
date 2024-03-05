@@ -14,16 +14,20 @@ import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -60,6 +64,7 @@ public class EnvironmentGroupService {
     private EnvironmentService environmentService;
 
     public static final Long ORDER_STEP = 5000L;
+    private static final String MOCK_EVN_SOCKET = "/mock-server/";
 
     public EnvironmentGroup add(EnvironmentGroupRequest request, String userId) {
         EnvironmentGroup environmentGroup = new EnvironmentGroup();
@@ -197,6 +202,17 @@ public class EnvironmentGroupService {
             if (environmentBlob != null) {
                 EnvironmentConfig environmentConfig = JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
                 dto.setDomain(ObjectUtils.isNotEmpty(environmentConfig) ? environmentConfig.getHttpConfig() : new ArrayList<>());
+            }
+            if (environment !=null && BooleanUtils.isTrue(environment.getMock())) {
+                SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                if (systemParameterService != null) {
+                    BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                    String baseUrl = baseSystemConfigDTO.getUrl();
+                    if (StringUtils.isNotEmpty(baseUrl)) {
+                        Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
+                        dto.getDomain().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    }
+                }
             }
             result.add(dto);
         });

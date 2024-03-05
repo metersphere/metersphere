@@ -7,6 +7,7 @@ import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +75,17 @@ public class ApiTestController {
     }, logical = Logical.OR)
     public List<ApiPluginSelectOption> getFormOptions(@Validated @RequestBody ApiTestPluginOptionRequest request) {
         return apiTestService.getFormOptions(request);
+    }
+
+    @GetMapping("/env-list/{projectId}")
+    @Operation(summary = "接口测试-环境列表")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_DEBUG_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
+    }, logical = Logical.OR)
+    public List<Environment> getEnvList(@PathVariable String projectId) {
+        return apiTestService.getEnvList(projectId);
     }
 }
