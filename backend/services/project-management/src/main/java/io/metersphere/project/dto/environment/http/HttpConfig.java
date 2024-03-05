@@ -17,6 +17,8 @@ import java.util.List;
 public class HttpConfig implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    @Schema(description = "id")
+    private String id;
     @Schema(description = "http协议类型(http/https)")
     @EnumValue(enumClass = HttpProtocolType.class)
     private String protocol = HttpProtocolType.HTTP.name();

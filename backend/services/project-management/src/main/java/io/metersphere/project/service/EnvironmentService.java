@@ -6,7 +6,6 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
-import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -189,16 +188,12 @@ public class EnvironmentService {
         }
         if (BooleanUtils.isTrue(environment.getMock())) {
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-            assert systemParameterService != null;
-            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-            String baseUrl = baseSystemConfigDTO.getUrl();
-            if (StringUtils.isNotEmpty(baseUrl)) {
-                Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                List<HttpConfig> httpConfigs = environmentInfoDTO.getConfig().getHttpConfig();
-                if (CollectionUtils.isEmpty(httpConfigs)) {
-                    HttpConfig httpConfig = new HttpConfig();
-                    httpConfig.setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
-                    httpConfigs.add(new HttpConfig());
+            if (systemParameterService != null) {
+                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                String baseUrl = baseSystemConfigDTO.getUrl();
+                if (StringUtils.isNotEmpty(baseUrl)) {
+                    Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
+                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
                 }
             }
         }
@@ -395,7 +390,7 @@ public class EnvironmentService {
 
         // 接口协议环境脚本
         List<PluginScript> pluginScripts = new ArrayList<>(orgApiPluginWrappers.size());
-        orgApiPluginWrappers.stream().forEach(wrapper -> {
+        orgApiPluginWrappers.forEach(wrapper -> {
             Plugin plugin = wrapper.getPlugin();
             if (plugin instanceof AbstractProtocolPlugin protocolPlugin) {
                 Optional.ofNullable(pluginScriptService.get(wrapper.getPluginId(), protocolPlugin.getEnvProtocolScriptId()))
@@ -435,12 +430,8 @@ public class EnvironmentService {
         for (Environment environment : environments) {
             EnvironmentInfoDTO environmentInfo = BeanUtils.copyBean(new EnvironmentInfoDTO(), environment);
             EnvironmentBlob environmentBlob = envBlobMap.get(environment.getId());
-            if (environmentBlob == null) {
-                environmentInfo.setConfig(new EnvironmentConfig());
-            } else {
-                if (environmentBlob.getConfig() != null) {
-                    environmentInfo.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
-                }
+            if (environmentBlob.getConfig() != null) {
+                environmentInfo.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
             }
 
             if (BooleanUtils.isTrue(environment.getMock())) {
@@ -499,6 +490,17 @@ public class EnvironmentService {
                 EnvironmentConfig environmentConfig = JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
                 if (environmentConfig != null && CollectionUtils.isNotEmpty(environmentConfig.getHttpConfig())) {
                     environmentOptionsDTO.setDomain(environmentConfig.getHttpConfig());
+                }
+                if (BooleanUtils.isTrue(environment.getMock())) {
+                    SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                    if (systemParameterService != null) {
+                        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                        String baseUrl = baseSystemConfigDTO.getUrl();
+                        if (StringUtils.isNotEmpty(baseUrl)) {
+                            Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
+                            environmentOptionsDTO.getDomain().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                        }
+                    }
                 }
             }
             environmentOptions.add(environmentOptionsDTO);

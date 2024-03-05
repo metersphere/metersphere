@@ -139,16 +139,19 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn("/project/environment/add", paramMap);
         EnvironmentRequest response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
         Assertions.assertNotNull(response);
-        Environment environment = environmentMapper.selectByPrimaryKey(response.getId());
 
         //创建环境组
         EnvironmentGroupRequest groupRequest = new EnvironmentGroupRequest();
         groupRequest.setProjectId(DEFAULT_PROJECT_ID);
         groupRequest.setName("group");
-        EnvironmentGroupProjectDTO environmentGroupProjectDTO = new EnvironmentGroupProjectDTO();
-        environmentGroupProjectDTO.setEnvironmentId(environment.getId());
-        environmentGroupProjectDTO.setProjectId(DEFAULT_PROJECT_ID);
-        groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO));
+        //塞mock环境
+        EnvironmentGroupProjectDTO environmentGroupProjectDTO1 = new EnvironmentGroupProjectDTO();
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        environmentGroupProjectDTO1.setEnvironmentId(environments.getFirst().getId());
+        environmentGroupProjectDTO1.setProjectId(DEFAULT_PROJECT_ID);
+        groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO1));
         mvcResult = this.responsePost(add, groupRequest);
         EnvironmentGroup groupResponse = parseObjectFromMvcResult(mvcResult, EnvironmentGroup.class);
         Assertions.assertNotNull(groupResponse);

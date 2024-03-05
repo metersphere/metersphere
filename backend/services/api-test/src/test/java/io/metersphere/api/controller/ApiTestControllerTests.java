@@ -180,4 +180,10 @@ public class ApiTestControllerTests extends BaseTest {
         return pluginService.add(request, mockMultipartFile);
     }
 
+    @Test
+    public void getEnvList() throws Exception {
+        // @@请求成功
+        this.requestGet("/env-list/" + DEFAULT_PROJECT_ID);
+    }
+
 }

@@ -637,5 +637,8 @@ INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES ('10
 
 -- 初始化默认项目mock环境
 INSERT INTO environment (`id`, `project_id`, `name`, `create_user`, `create_time`, `update_user`, `update_time`, `mock`,`pos`) VALUES (UUID_SHORT(), '100001100001', 'Mock环境', 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true, 5000);
+INSERT INTO environment_blob (id,config)
+VALUES ((SELECT id FROM environment where name = 'Mock环境') ,CONVERT('{"commonParams":{"requestTimeout":600000,"responseTimeout":600000},"commonVariables":[],"httpConfig":[{"protocol":"HTTP","hostname":"http://127.0.0.1:8081/mock-server/100001","type":"NONE","pathMatchRule":{"condition":null,"path":null},"moduleMatchRule":{"modules":[]},"headers":[],"description":null,"order":0,"moduleMatchRuleOrder":2}],"dataSources":[],"hostConfig":{"enable":null,"hosts":[]},"authConfig":{"username":null,"password":null,"verification":null,"sslConfig":{"entry":null,"files":null,"defaultAlias":null}},"preProcessorConfig":{"apiProcessorConfig":{"planProcessorConfig":{"processors":[]},"scenarioProcessorConfig":{"processors":[]},"requestProcessorConfig":{"processors":[]}}},"postProcessorConfig":{"apiProcessorConfig":{"planProcessorConfig":{"processors":[]},"scenarioProcessorConfig":{"processors":[]},"requestProcessorConfig":{"processors":[]}}},"assertionConfig":{"assertions":[]},"pluginConfigMap":{}}' USING UTF8));
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

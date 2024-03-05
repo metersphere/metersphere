@@ -7,6 +7,8 @@ import io.metersphere.plugin.api.dto.ApiPluginOptionsRequest;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
+import io.metersphere.project.mapper.ExtEnvironmentMapper;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.service.ApiPluginService;
@@ -32,6 +34,8 @@ public class ApiTestService {
     private ApiPluginService apiPluginService;
     @Resource
     private PluginLoadService pluginLoadService;
+    @Resource
+    private ExtEnvironmentMapper extEnvironmentMapper;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -72,5 +76,9 @@ public class ApiTestService {
 
     public Object checkResourceExist(PluginWrapper pluginWrapper) {
         return ServiceUtils.checkResourceExist(pluginWrapper, "permission.system_plugin.name");
+    }
+
+    public List<Environment> getEnvList(String projectId) {
+        return extEnvironmentMapper.selectByKeyword(null, false, projectId);
     }
 }

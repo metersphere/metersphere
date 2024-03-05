@@ -3,8 +3,8 @@ package io.metersphere.project.controller;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.CreateEnvironmentResourceService;
-import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -30,11 +30,9 @@ public class CreateEnvironmentTests extends BaseTest {
     @Resource
     private EnvironmentMapper environmentMapper;
     @Resource
-    private ProjectMapper projectMapper;
-    @Resource
-    private EnvironmentService environmentService;
-    @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     @Test
     @Order(1)
@@ -57,6 +55,8 @@ public class CreateEnvironmentTests extends BaseTest {
         environmentExample.createCriteria().andProjectIdEqualTo(initProject.getId()).andNameEqualTo("Mock环境");
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         assert environments.size() == 1;
+        EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environments.get(0).getId());
+        assert environmentBlob != null;
     }
 
 }

@@ -1226,7 +1226,7 @@ public class EnvironmentControllerTests extends BaseTest {
     public void addCover() throws Exception {
         List<Environment> environments = environmentMapper.selectByExample(new EnvironmentExample());
         //获取id集合 过滤一下mock为false的
-        List<String> ids = environments.stream().filter(environment -> !environment.getMock()).map(Environment::getId).toList();
+        List<String> ids = environments.stream().map(Environment::getId).toList();
         environmentService.getByIds(ids);
         environmentService.getEnvironmentBlobsByIds(List.of());
     }
