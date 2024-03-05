@@ -17,6 +17,9 @@ public class BugDetailDTO {
     @Size(min = 1, max = 50, message = "{bug.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "业务ID")
+    private Integer num;
+
     @Schema(description = "缺陷标题")
     @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;

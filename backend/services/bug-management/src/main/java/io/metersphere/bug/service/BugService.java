@@ -252,6 +252,7 @@ public class BugService {
         List<BugCustomFieldDTO> allCustomFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(id), bug.getProjectId());
         BugDetailDTO detail = new BugDetailDTO();
         detail.setId(id);
+        detail.setNum(bug.getNum());
         detail.setProjectId(bug.getProjectId());
         detail.setTemplateId(template.getId());
         detail.setPlatformDefault(template.getPlatformDefault());
