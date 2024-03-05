@@ -4,7 +4,7 @@
 
     <select id="listNotification" resultType="io.metersphere.system.log.dto.NotificationDTO">
         SELECT *,  u.name as userName,
-        ux.avatar as userLogo FROM notification
+        ux.avatar as avatar FROM notification
         left join user u on  notification.operator = u.id
         left join user_extend ux on  notification.operator = ux.id
         WHERE notification.receiver = #{request.receiver} AND notification.create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
