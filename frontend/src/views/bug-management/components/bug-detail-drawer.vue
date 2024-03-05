@@ -292,6 +292,9 @@
       query: {
         id: detailInfo.value.id,
       },
+      params: {
+        mode: 'edit',
+      },
     });
   }
 
