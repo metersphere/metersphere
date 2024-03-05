@@ -10,7 +10,7 @@
       <template #label="{ tab }">
         <div class="response-tab">
           <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
-          {{ t(tab.label) }}({{ tab.statusCode }})
+          {{ t(tab.label || '') }}({{ tab.statusCode }})
           <MsMoreAction
             :list="
               tab.defaultFlag
@@ -23,8 +23,8 @@
           <popConfirm
             v-model:visible="tab.showRenamePopConfirm"
             mode="tabRename"
-            :field-config="{ field: t(tab.label) }"
-            :all-names="responseTabs.map((e) => t(tab.label))"
+            :field-config="{ field: t(tab.label || '') }"
+            :all-names="responseTabs.map((e) => t(tab.label || ''))"
             :popup-offset="20"
             @rename-finish="
               (val) => {
@@ -64,33 +64,33 @@
     <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
   </a-tabs>
   <div class="response-container">
-    <div class="mb-[8px] flex items-center justify-between">
-      <a-radio-group
-        v-model:model-value="activeResponse.body.bodyType"
-        type="button"
-        size="small"
-        @change="(val) => changeBodyFormat(val as ResponseBodyFormat)"
-      >
-        <a-radio v-for="item of ResponseBodyFormat" :key="item" :value="item">
-          {{ ResponseBodyFormat[item].toLowerCase() }}
-        </a-radio>
-      </a-radio-group>
-      <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
+    <template v-if="activeResponse.responseActiveTab === ResponseComposition.BODY">
+      <div class="mb-[8px] flex items-center justify-between">
         <a-radio-group
-          v-model:model-value="activeResponse.body.jsonBody.enableJsonSchema"
-          size="mini"
-          @change="emit('change')"
+          v-model:model-value="activeResponse.body.bodyType"
+          type="button"
+          size="small"
+          @change="(val) => changeBodyFormat(val as ResponseBodyFormat)"
         >
-          <a-radio :value="false">Json</a-radio>
-          <a-radio class="mr-0" :value="true"> Json Schema </a-radio>
+          <a-radio v-for="item of ResponseBodyFormat" :key="item" :value="item">
+            {{ ResponseBodyFormat[item].toLowerCase() }}
+          </a-radio>
         </a-radio-group>
-        <div class="flex items-center gap-[8px]">
-          <a-switch v-model:model-value="activeResponse.body.jsonBody.enableTransition" size="small" type="line" />
-          {{ t('apiTestManagement.dynamicConversion') }}
+        <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
+          <a-radio-group
+            v-model:model-value="activeResponse.body.jsonBody.enableJsonSchema"
+            size="mini"
+            @change="emit('change')"
+          >
+            <a-radio :value="false">Json</a-radio>
+            <a-radio class="mr-0" :value="true"> Json Schema </a-radio>
+          </a-radio-group>
+          <div class="flex items-center gap-[8px]">
+            <a-switch v-model:model-value="activeResponse.body.jsonBody.enableTransition" size="small" type="line" />
+            {{ t('apiTestManagement.dynamicConversion') }}
+          </div>
         </div>
       </div>
-    </div>
-    <template v-if="activeResponse.responseActiveTab === ResponseComposition.BODY">
       <div
         v-if="
           [ResponseBodyFormat.JSON, ResponseBodyFormat.XML, ResponseBodyFormat.RAW].includes(
@@ -133,6 +133,20 @@
         </div>
       </div>
     </template>
+    <paramTable
+      v-else-if="activeResponse.responseActiveTab === ResponseComposition.HEADER"
+      v-model:params="activeResponse.headers"
+      :columns="columns"
+      :default-param-item="[
+        {
+          key: '',
+          value: '',
+        },
+      ]"
+      :selectable="false"
+      @change="emit('change')"
+    />
+    <a-select v-else v-model:model-value="activeResponse.statusCode" :options="statusCodeOptions" class="w-[200px]" />
   </div>
 </template>
 
@@ -143,12 +157,11 @@
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsAddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -157,7 +170,7 @@
   import { ResponseDefinition } from '@/models/apiTest/common';
   import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
-  import { defaultResponseItem } from '../../config';
+  import { defaultResponseItem, statusCodes } from '../../config';
 
   const props = defineProps<{
     responseDefinition: ResponseDefinition[];
@@ -338,42 +351,24 @@
     }
   }
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
-      title: 'apiTestDebug.content',
-      dataIndex: 'content',
-      showTooltip: true,
+      title: 'apiTestManagement.paramName',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
-      title: 'apiTestDebug.status',
-      dataIndex: 'status',
-      slotName: 'status',
-      width: 80,
-    },
-    {
-      title: '',
-      dataIndex: 'desc',
-      showTooltip: true,
+      title: 'apiTestManagement.paramVal',
+      dataIndex: 'value',
+      slotName: 'value',
+      isNormal: true,
     },
   ];
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
-    scroll: { x: '100%' },
-    columns,
-  });
-  propsRes.value.data = [
-    {
-      id: new Date().getTime(),
-      content: 'Response Code equals: 200',
-      status: 1,
-      desc: '',
-    },
-    {
-      id: new Date().getTime(),
-      content: '$.users[1].age REGEX: 31',
-      status: 0,
-      desc: `Value expected to match regexp '31', but it did not match: '30' match: '30'`,
-    },
-  ] as any;
+
+  const statusCodeOptions = statusCodes.map((e) => ({
+    label: e.toString(),
+    value: e,
+  }));
 </script>
 
 <style lang="less" scoped>

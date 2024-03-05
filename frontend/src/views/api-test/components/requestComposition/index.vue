@@ -102,15 +102,15 @@
         </div>
       </div>
     </div>
-    <!-- 接口定义多出一个输入框占高度 40px -->
-    <div ref="splitContainerRef" :class="`${props.isDefinition ? 'h-[calc(100%-80px)]' : 'h-[calc(100%-40px)]'}`">
+    <div ref="splitContainerRef" :class="splitContainerClass">
       <MsSplitBox
         ref="splitBoxRef"
         v-model:size="splitBoxSize"
-        :max="0.98"
+        :max="!showResponse ? 1 : 0.98"
         min="10px"
         :direction="activeLayout"
         second-container-class="!overflow-y-hidden"
+        :class="!showResponse ? 'hidden-second' : ''"
         @expand-change="handleExpandChange"
       >
         <template #first>
@@ -204,13 +204,14 @@
         </template>
         <template #second>
           <response
+            v-show="showResponse"
             v-model:active-layout="activeLayout"
             v-model:active-tab="requestVModel.responseActiveTab"
             :is-expanded="isExpanded"
             :response-definition="requestVModel.responseDefinition"
             :hide-layout-switch="props.hideResponseLayoutSwitch"
             :request-task-result="requestVModel.response"
-            :is-edit="props.isDefinition"
+            :is-edit="props.isDefinition && isHttpProtocol"
             :upload-temp-file-api="props.uploadTempFileApi"
             :loading="requestVModel.executeLoading || loading"
             @change-expand="changeExpand"
@@ -547,9 +548,16 @@
         const formData = tempForm || requestVModel.value;
         if (fApi.value) {
           const form = {};
-          pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields?.forEach((key) => {
-            form[key] = formData[key];
-          });
+          if (props.isDefinition) {
+            // 接口定义使用接口定义的字段集
+            pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields?.forEach((key) => {
+              form[key] = formData[key];
+            });
+          } else {
+            pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields?.forEach((key) => {
+              form[key] = formData[key];
+            });
+          }
           fApi.value?.setValue(form);
         }
       });
@@ -654,10 +662,22 @@
     handleActiveDebugChange();
   }
 
-  const splitBoxSize = ref<string | number>(0.6);
+  const showResponse = computed(
+    () =>
+      isHttpProtocol.value ||
+      !props.isDefinition ||
+      requestVModel.value.response?.requestResults[0]?.responseResult.responseCode
+  );
+  const splitBoxSize = ref<string | number>(!showResponse.value ? 1 : 0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const splitContainerRef = ref<HTMLElement>();
   const secondBoxHeight = ref(0);
+  const splitContainerClass = computed(() => {
+    if (!showResponse.value) {
+      return 'h-full';
+    }
+    return 'h-[calc(100%-40px)]';
+  });
 
   watch(
     () => splitBoxSize.value,
@@ -1055,5 +1075,10 @@
   }
   :deep(.arco-tabs-tab) {
     @apply leading-none;
+  }
+  .hidden-second {
+    :deep(.arco-split-trigger) {
+      @apply hidden;
+    }
   }
 </style>
