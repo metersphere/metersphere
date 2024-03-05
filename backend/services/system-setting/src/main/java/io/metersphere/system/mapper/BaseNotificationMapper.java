@@ -11,4 +11,6 @@ public interface BaseNotificationMapper {
 
     List<NotificationDTO> listNotification(@Param("request") NotificationRequest notificationRequest);
 
+    void deleteByTime(@Param("timestamp") long timestamp);
+
 }

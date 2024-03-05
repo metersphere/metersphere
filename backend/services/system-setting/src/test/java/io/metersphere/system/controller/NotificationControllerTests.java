@@ -39,6 +39,8 @@ public class NotificationControllerTests extends BaseTest {
         notification.setOperator("admin");
         notification.setOperation("UPDATE");
         notification.setResourceType("FUNCTIONAL_CASE_TASK");
+        notification.setOrganizationId("10001");
+        notification.setProjectId("10000100001");
         notification.setResourceName("功能用例导入测4");
         notification.setType("SYSTEM_NOTICE");
         notification.setStatus(NotificationConstants.Status.UNREAD.name());

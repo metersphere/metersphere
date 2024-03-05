@@ -23,4 +23,8 @@
         ORDER BY notification.create_time DESC
     </select>
 
+    <delete id="deleteByTime" parameterType="java.lang.Long">
+        DELETE FROM notification WHERE create_time &lt; #{timestamp}
+    </delete>
+
 </mapper>
