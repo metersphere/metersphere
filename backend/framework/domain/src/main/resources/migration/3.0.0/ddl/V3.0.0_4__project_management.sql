@@ -303,6 +303,8 @@ CREATE TABLE IF NOT EXISTS notification(
                                            `operator` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
                                            `operation` VARCHAR(50) NOT NULL   COMMENT '操作' ,
                                            `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID' ,
+                                           `project_id` VARCHAR(50) NOT NULL   COMMENT '项目id' ,
+                                           `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织id' ,
                                            `resource_type` VARCHAR(64) NOT NULL   COMMENT '资源类型' ,
                                            `resource_name` VARCHAR(255) NOT NULL   COMMENT '资源名称' ,
                                            `content` TEXT NOT NULL   COMMENT '通知内容' ,
@@ -320,6 +322,8 @@ CREATE INDEX idx_subject ON notification(subject);
 CREATE INDEX idx_resource_type ON notification(resource_type);
 CREATE INDEX idx_operator ON notification(operator);
 CREATE INDEX idx_resource_id ON notification(resource_id);
+CREATE INDEX idx_project_id ON notification(project_id);
+CREATE INDEX idx_organization_id ON notification(organization_id);
 
 
 CREATE TABLE IF NOT EXISTS project_robot(

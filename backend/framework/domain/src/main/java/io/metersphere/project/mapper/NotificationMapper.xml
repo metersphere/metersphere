@@ -11,6 +11,8 @@
     <result column="operator" jdbcType="VARCHAR" property="operator" />
     <result column="operation" jdbcType="VARCHAR" property="operation" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
     <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
   </resultMap>
@@ -77,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `type`, receiver, subject, `status`, create_time, `operator`, `operation`, resource_id, 
-    resource_type, resource_name
+    project_id, organization_id, resource_type, resource_name
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -134,13 +136,13 @@
     insert into notification (id, `type`, receiver, 
       subject, `status`, create_time, 
       `operator`, `operation`, resource_id, 
-      resource_type, resource_name, content
-      )
+      project_id, organization_id, resource_type, 
+      resource_name, content)
     values (#{id,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
       #{subject,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{operator,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
-      #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
-      )
+      #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
+      #{resourceName,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.Notification">
     insert into notification
@@ -171,6 +173,12 @@
       </if>
       <if test="resourceId != null">
         resource_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="resourceType != null">
         resource_type,
@@ -209,6 +217,12 @@
       </if>
       <if test="resourceId != null">
         #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="resourceType != null">
         #{resourceType,jdbcType=VARCHAR},
@@ -257,6 +271,12 @@
       <if test="record.resourceId != null">
         resource_id = #{record.resourceId,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      </if>
       <if test="record.resourceType != null">
         resource_type = #{record.resourceType,jdbcType=VARCHAR},
       </if>
@@ -282,6 +302,8 @@
       `operator` = #{record.operator,jdbcType=VARCHAR},
       `operation` = #{record.operation,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       resource_type = #{record.resourceType,jdbcType=VARCHAR},
       resource_name = #{record.resourceName,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
@@ -300,6 +322,8 @@
       `operator` = #{record.operator,jdbcType=VARCHAR},
       `operation` = #{record.operation,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       resource_type = #{record.resourceType,jdbcType=VARCHAR},
       resource_name = #{record.resourceName,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -333,6 +357,12 @@
       <if test="resourceId != null">
         resource_id = #{resourceId,jdbcType=VARCHAR},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
+      </if>
       <if test="resourceType != null">
         resource_type = #{resourceType,jdbcType=VARCHAR},
       </if>
@@ -355,6 +385,8 @@
       `operator` = #{operator,jdbcType=VARCHAR},
       `operation` = #{operation,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       resource_type = #{resourceType,jdbcType=VARCHAR},
       resource_name = #{resourceName,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
@@ -370,6 +402,8 @@
       `operator` = #{operator,jdbcType=VARCHAR},
       `operation` = #{operation,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       resource_type = #{resourceType,jdbcType=VARCHAR},
       resource_name = #{resourceName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
@@ -377,14 +411,14 @@
   <insert id="batchInsert" parameterType="map">
     insert into notification
     (id, `type`, receiver, subject, `status`, create_time, `operator`, `operation`, resource_id, 
-      resource_type, resource_name, content)
+      project_id, organization_id, resource_type, resource_name, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=BIGINT}, #{item.type,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
         #{item.subject,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.operator,jdbcType=VARCHAR}, #{item.operation,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
-        #{item.resourceType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR}
-        )
+        #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, #{item.resourceType,jdbcType=VARCHAR}, 
+        #{item.resourceName,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -423,6 +457,12 @@
         </if>
         <if test="'resource_id'.toString() == column.value">
           #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
         </if>
         <if test="'resource_type'.toString() == column.value">
           #{item.resourceType,jdbcType=VARCHAR}

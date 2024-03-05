@@ -2,6 +2,8 @@ package io.metersphere.system.notice.sender.impl;
 
 
 import io.metersphere.project.domain.Notification;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
@@ -21,17 +23,22 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
 
     @Resource
     private NotificationService notificationService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
         }
+        Project project = projectMapper.selectByPrimaryKey(messageDetail.getProjectId());
         LogUtils.info("发送站内通知: {}", receivers);
         receivers.forEach(receiver -> {
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
             notification.setSubject(noticeModel.getSubject());
+            notification.setProjectId(messageDetail.getProjectId());
+            notification.setOrganizationId(project.getOrganizationId());
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());
             notification.setResourceId((String) paramMap.get("id"));
