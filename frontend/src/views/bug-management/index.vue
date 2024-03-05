@@ -2,6 +2,7 @@
   <MsCard simple>
     <MsAdvanceFilter
       v-model:keyword="keyword"
+      :searchPlaceholder="t('caseManagement.featureCase.searchByIdAndName')"
       :filter-config-list="filterConfigList"
       :row-count="filterRowCount"
       @keyword-search="fetchData"
