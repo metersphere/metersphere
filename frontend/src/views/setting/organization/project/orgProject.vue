@@ -346,8 +346,8 @@
   };
   const handleDelete = (record: TableData) => {
     openDeleteModal({
-      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
-      content: t('system.organization.deleteTip'),
+      title: t('system.project.deleteName', { name: characterLimit(record.name) }),
+      content: t('system.project.deleteTip'),
       onBeforeOk: async () => {
         try {
           await deleteProjectByOrg(record.id);
