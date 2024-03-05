@@ -35,6 +35,18 @@
       </div>
       <div class="ml-auto flex items-center gap-[8px]">
         <slot name="rightTitle"> </slot>
+        <a-button
+          v-if="showCodeFormat"
+          type="outline"
+          class="arco-btn-outline--secondary p-[0_8px]"
+          size="mini"
+          @click="format"
+        >
+          <div class="flex items-center gap-[4px]">
+            <icon-code-square class="text-[var(--color-text-4)]" />
+            <div class="text-[var(--color-text-1)]">{{ t('msCodeEditor.format') }}</div>
+          </div>
+        </a-button>
         <div
           v-if="showFullScreen"
           class="cursor-pointer text-right !text-[var(--color-text-4)]"
@@ -69,6 +81,7 @@
   import MsCodeEditorTheme from './themes';
   import { CustomTheme, editorProps, Language, LanguageEnum, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+  import * as XmlBeautify from 'xml-beautify';
 
   export default defineComponent({
     name: 'MonacoEditor',
@@ -145,6 +158,7 @@
           props.showLanguageChange ||
           props.showCharsetChange ||
           props.showFullScreen ||
+          props.showCodeFormat ||
           slots.leftTitle ||
           slots.rightTitle
       );
@@ -205,17 +219,36 @@
 
       function format() {
         if (editor && editor.getValue() !== '' && props.language !== LanguageEnum.PLAINTEXT) {
-          editor.updateOptions({ readOnly: false });
-          // 执行格式化代码的动作
-          editor
-            .getAction('editor.action.formatDocument')
-            ?.run()
-            .then(() => {
-              const value = editor.getValue(); // 给父组件实时返回最新文本
-              editor.updateOptions({ readOnly: true });
-              emit('update:modelValue', value);
-              emit('change', value);
-            });
+          if (props.readOnly) {
+            // 只读模式下的格式化
+            editor.updateOptions({ readOnly: false });
+            // 执行格式化代码的动作
+            editor
+              .getAction('editor.action.formatDocument')
+              ?.run()
+              .then(() => {
+                const value = editor.getValue(); // 给父组件实时返回最新文本
+                editor.updateOptions({ readOnly: true });
+                emit('update:modelValue', value);
+                emit('change', value);
+              });
+          } else if (currentLanguage.value === LanguageEnum.XML) {
+            // XML需要手动格式化
+            const value = editor.getValue();
+            const formattedCode = new XmlBeautify({ parser: DOMParser }).beautify(value);
+            editor.setValue(formattedCode);
+            emit('update:modelValue', formattedCode);
+            emit('change', formattedCode);
+          } else {
+            editor
+              .getAction('editor.action.formatDocument')
+              ?.run()
+              .then(() => {
+                const value = editor.getValue(); // 给父组件实时返回最新文本
+                emit('update:modelValue', value);
+                emit('change', value);
+              });
+          }
         }
       }
 

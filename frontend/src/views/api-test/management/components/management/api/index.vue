@@ -4,7 +4,7 @@
       <MsEditableTab v-model:active-tab="activeApiTab" v-model:tabs="apiTabs" @add="addApiTab">
         <template #label="{ tab }">
           <apiMethodName v-if="tab.id !== 'all'" :method="tab.method" class="mr-[4px]" />
-          {{ tab.label }}
+          {{ tab.name || tab.label }}
         </template>
       </MsEditableTab>
     </div>
@@ -19,7 +19,14 @@
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <a-tabs default-active-key="definition" animation lazy-load class="ms-api-tab-nav">
         <a-tab-pane key="definition" :title="t('apiTestManagement.definition')" class="ms-api-tab-pane">
-          <MsSplitBox :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
+          <MsSplitBox
+            ref="splitBoxRef"
+            :size="0.7"
+            :max="0.9"
+            :min="0.7"
+            direction="horizontal"
+            expand-direction="right"
+          >
             <template #first>
               <requestComposition
                 v-model:detail-loading="loading"
@@ -49,7 +56,21 @@
               <div class="p-[24px]">
                 <!-- 第一版没有模板 -->
                 <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
-                <a-form :model="activeApiTab" layout="vertical">
+                <a-form ref="activeApiTabFormRef" :model="activeApiTab" layout="vertical">
+                  <a-form-item
+                    field="name"
+                    :label="t('apiTestManagement.apiName')"
+                    class="mb-[16px]"
+                    :rules="[{ required: true, message: t('apiTestManagement.apiNameRequired') }]"
+                  >
+                    <a-input
+                      v-model:model-value="activeApiTab.name"
+                      :max-length="255"
+                      :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+                      allow-clear
+                      @change="handleActiveApiChange"
+                    />
+                  </a-form-item>
                   <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px]">
                     <a-tree-select
                       v-model:modelValue="activeApiTab.moduleId"
@@ -62,6 +83,7 @@
                         },
                       }"
                       allow-search
+                      @change="handleActiveApiChange"
                     />
                   </a-form-item>
                   <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px]">
@@ -69,6 +91,7 @@
                       v-model:model-value="activeApiTab.status"
                       :placeholder="t('common.pleaseSelect')"
                       class="param-input w-full"
+                      @change="handleActiveApiChange"
                     >
                       <template #label>
                         <apiStatus :status="activeApiTab.status" />
@@ -79,10 +102,14 @@
                     </a-select>
                   </a-form-item>
                   <a-form-item :label="t('common.tag')" class="mb-[16px]">
-                    <MsTagsInput v-model:model-value="activeApiTab.tags" />
+                    <MsTagsInput v-model:model-value="activeApiTab.tags" @change="handleActiveApiChange" />
                   </a-form-item>
                   <a-form-item :label="t('common.desc')" class="mb-[16px]">
-                    <a-textarea v-model:model-value="activeApiTab.description" :max-length="1000" />
+                    <a-textarea
+                      v-model:model-value="activeApiTab.description"
+                      :max-length="1000"
+                      @change="handleActiveApiChange"
+                    />
                   </a-form-item>
                 </a-form>
                 <a-dropdown @select="handleSelect">
@@ -128,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
@@ -199,7 +226,7 @@
   ]);
   const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
 
-  function handleActiveDebugChange() {
+  function handleActiveApiChange() {
     if (activeApiTab.value) {
       activeApiTab.value.unSaved = true;
     }
@@ -429,29 +456,38 @@
     }
   }
 
-  async function handleSave(params: ApiDefinitionCreateParams | ApiDefinitionUpdateParams) {
-    try {
-      appStore.showLoading();
-      let res;
-      params.versionId = 'v1.0';
-      if (params.isNew) {
-        res = await addDefinition(params);
+  const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
+  const activeApiTabFormRef = ref<FormInstance>();
+
+  function handleSave(params: ApiDefinitionCreateParams | ApiDefinitionUpdateParams) {
+    activeApiTabFormRef.value?.validate(async (errors) => {
+      if (errors) {
+        splitBoxRef.value?.expand();
       } else {
-        res = await updateDefinition(params as ApiDefinitionUpdateParams);
+        try {
+          appStore.showLoading();
+          let res;
+          params.versionId = 'v1.0';
+          if (params.isNew) {
+            res = await addDefinition(params);
+          } else {
+            res = await updateDefinition(params as ApiDefinitionUpdateParams);
+          }
+          activeApiTab.value.id = res.id;
+          activeApiTab.value.isNew = false;
+          Message.success(t('common.saveSuccess'));
+          activeApiTab.value.unSaved = false;
+          activeApiTab.value.name = res.name;
+          activeApiTab.value.label = res.name;
+          activeApiTab.value.url = res.path;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          appStore.hideLoading();
+        }
       }
-      activeApiTab.value.id = res.id;
-      activeApiTab.value.isNew = false;
-      Message.success(t('common.saveSuccess'));
-      activeApiTab.value.unSaved = false;
-      activeApiTab.value.name = res.name;
-      activeApiTab.value.label = res.name;
-      activeApiTab.value.url = res.path;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      appStore.hideLoading();
-    }
+    });
   }
 
   async function handleSaveAsCase(params: ApiDefinitionCreateParams) {

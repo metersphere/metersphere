@@ -82,4 +82,5 @@ export default {
   'apiTestManagement.addPostDependency': '添加后置依赖',
   'apiTestManagement.saveAsCase': '保存为新用例',
   'apiTestManagement.apiNamePlaceholder': '请输入接口名称',
+  'apiTestManagement.apiNameRequired': '接口名称不能为空',
 };
