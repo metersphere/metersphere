@@ -8,7 +8,7 @@ export enum ApiTestRouteEnum {
 export enum BugManagementRouteEnum {
   BUG_MANAGEMENT = 'bugManagement',
   BUG_MANAGEMENT_INDEX = 'bugManagementIndex',
-  BUG_MANAGEMENT_DETAIL = 'bbugManagementIndexDetail',
+  BUG_MANAGEMENT_DETAIL = 'bugManagementIndexDetail',
   BUG_MANAGEMENT_RECYCLE = 'bugManagementRecycle',
   BUG_MANAGEMENT_CREATE_SUCCESS = 'bugManagementCreateSuccess',
 }
