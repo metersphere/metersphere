@@ -138,7 +138,9 @@
               <!-- 自定义字段结束 -->
               <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.tag') }}</span>
-                <MsTagsInput v-model:model-value="tags"></MsTagsInput>
+                <span style="width: 200px">
+                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>
+                </span>
               </div>
               <!-- 创建人 创建时间需求说先去掉 -->
               <!-- <div class="baseItem">
@@ -177,7 +179,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
-  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import { CommentInput } from '@/components/business/ms-comment';
   import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
