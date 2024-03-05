@@ -78,6 +78,10 @@
   defineExpose({
     initData,
   });
+
+  watchEffect(() => {
+    initData(props.bugId);
+  });
 </script>
 
 <style lang="less" scoped>
