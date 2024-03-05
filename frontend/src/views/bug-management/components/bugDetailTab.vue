@@ -26,7 +26,7 @@
         {{ t('common.save') }}
       </a-button>
     </div>
-    <AddAttachment v-model:file-list="fileList" @link-file="associatedFile"/>
+    <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
     <MsFileList
       ref="fileListRef"
       v-model:file-list="fileList"
@@ -136,7 +136,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
-  import AddAttachment from "@/components/business/ms-add-attachment/index.vue";
+  import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
@@ -151,7 +151,7 @@
     previewFile,
     transferFileRequest,
     updateFile,
-    uploadOrAssociationFile
+    uploadOrAssociationFile,
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -223,7 +223,7 @@
             return {
               ...fileInfo,
               name: fileInfo.fileName,
-              isUpdateFlag: checkUpdateFileIds.includes(fileInfo.id),
+              isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
             };
           })
           .map((fileInfo: any) => {
@@ -241,7 +241,7 @@
     form.value.title = title;
     form.value.description = description;
     defaultContentValue.value = description;
-    handleFileFunc(attachments);
+    await handleFileFunc(attachments);
   };
 
   // 取消富文本框编辑时，要将数据复位
@@ -264,7 +264,7 @@
         item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
       );
       const attachments = await getAttachmentList(bugId.value);
-      handleFileFunc(attachments);
+      await handleFileFunc(attachments);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -357,7 +357,7 @@
     async (val) => {
       const isNewFiles = val.filter((item) => item.status === 'init').length;
       if (val && isNewFiles) {
-        startUpload();
+        await startUpload();
       }
     }
   );
@@ -365,8 +365,16 @@
   // 更新文件
   async function handleUpdateFile(item: MsFileItem) {
     try {
-      await updateFile(currentProjectId.value, item.associationId);
+      const params = {
+        refId: item.associateId,
+        associated: !item.local,
+        bugId: bugId.value,
+        projectId: currentProjectId.value,
+      };
+      await updateFile(params);
       Message.success(t('common.updateSuccess'));
+      const attachments = await getAttachmentList(bugId.value);
+      await handleFileFunc(attachments);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -438,12 +446,12 @@
       request: {
         bugId: bugId.value as string,
         projectId: currentProjectId.value,
-        selectIds: fileResultList.map((item: any) => item.uid)
-      }
+        selectIds: fileResultList.map((item: any) => item.uid),
+      },
     };
     await uploadOrAssociationFile(params);
     const attachments = await getAttachmentList(bugId.value);
-    handleFileFunc(attachments);
+    await handleFileFunc(attachments);
     Message.success(t('common.linkSuccess'));
   }
 

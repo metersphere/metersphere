@@ -3,8 +3,8 @@ import { CommentParams } from '@/components/business/ms-comment/types';
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import { BugEditFormObject, BugExportParams, BugListItem } from '@/models/bug-management';
-import { AssociatedList, CreateOrUpdateDemand, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
+import { BugEditFormObject, BugListItem } from '@/models/bug-management';
+import { AssociatedList, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
@@ -154,8 +154,8 @@ export function checkFileIsUpdateRequest(data: string[]) {
 }
 
 // 更新文件
-export function updateFile(projectId: string, id: string) {
-  return MSR.get({ url: `${bugURL.getFileIsUpdateUrl}/${projectId}/${id}` });
+export function updateFile(data: OperationFile) {
+  return MSR.post({ url: bugURL.getFileIsUpdateUrl, data });
 }
 
 // 删除文件或取消关联用例文件
