@@ -240,6 +240,7 @@ const useAppStore = defineStore('app', {
     async initSystemPackage() {
       try {
         this.packageType = await getPackageType();
+        // this.packageType = 'community';
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

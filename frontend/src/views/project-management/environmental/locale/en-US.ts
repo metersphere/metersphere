@@ -29,6 +29,10 @@ export default {
   'project.environmental.TCP': 'TCP',
   'project.environmental.pre': 'Pre',
   'project.environmental.post': 'Post',
+  'project.environmental.sceneAlertDesc':
+    'Perform this operation once before scenario execution, such as obtaining a token and scenario initialization',
+  'project.environmental.requestAlertDesc':
+    'Each API step is executed once before execution, such as request content encryption',
   'project.environmental.host': 'Host',
   'project.environmental.assert': 'Assertion',
   'project.environmental.displaySetting': 'Display Setting',
@@ -87,4 +91,17 @@ export default {
   'project.environmental.host.descPlaceholder': 'Please enter the description',
   'project.environmental.newEnv': 'New Environment',
   'project.environmental.http.hostNamePlaceholder': 'Please enter the host name',
+  'project.environmental.preScriptBefore': 'Pre script before',
+  'project.environmental.preScriptAfter': 'After pre script',
+  'project.environmental.postScriptBefore': 'Post script front',
+  'project.environmental.postScriptAfter': 'After the script',
+  'project.environmental.http.preTextPreTip':
+    'Before pre script, environment scripts executed before buy scripts in the request;',
+  'project.environmental.http.preTextPostTip':
+    'After the preset script, the script in the environment is executed after the requested preset script is executed;',
+  'project.environmental.http.postTextPreTip':
+    'The script in the environment is executed before the requested script is executed.',
+  'project.environmental.http.postTextPostTip':
+    'After rear script, environment a prerequisite for the script in the request after the script execution;',
+  'project.environmental.preOrPost.ignoreProtocols': 'Ignore request:',
 };

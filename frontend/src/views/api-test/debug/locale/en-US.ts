@@ -70,7 +70,10 @@ export default {
   'apiTestDebug.wait': 'Wait',
   'apiTestDebug.script': 'Script',
   'apiTestDebug.preconditionScriptName': 'Pre-script name',
+  'apiTestDebug.preconditionAssociatedSceneResult': 'Associated scene result',
   'apiTestDebug.preconditionScriptNamePlaceholder': 'Please enter the pre-script name',
+  'apiTestDebug.preconditionAssociateResultDesc':
+    'Counted in the scene execution result as a custom script step. Execution error will affect the final scene execution result',
   'apiTestDebug.manual': 'Manual entry',
   'apiTestDebug.quote': 'Quoting public scripts',
   'apiTestDebug.commonScriptList': 'Public script list',

@@ -424,7 +424,7 @@
   const responseRadios = [
     { label: 'ms.assertion.jsonPath', value: 'jsonPath' },
     { label: 'ms.assertion.xpath', value: 'xPath' },
-    { label: 'ms.assertion.document', value: 'document' },
+    // { label: 'ms.assertion.document', value: 'document' },
     { label: 'ms.assertion.regular', value: 'regular' },
     { label: 'ms.assertion.script', value: 'script' },
   ];

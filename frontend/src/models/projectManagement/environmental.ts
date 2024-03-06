@@ -35,6 +35,9 @@ export interface ProcessorConfig {
     scenarioProcessorConfig: {
       processors: ExecuteConditionProcessor[];
     };
+    requestProcessorConfig: {
+      processors: [];
+    };
   };
 }
 export interface AssertionConfig {
@@ -138,5 +141,16 @@ export interface HttpForm {
   // pathMatchRule: {
   path: string;
   condition: string;
-  // };
+  moduleId: string[];
+  moduleMatchRule: {
+    modules: {
+      moduleId: string;
+      containChildModule: boolean;
+    }[];
+  };
+  url: string;
+  pathMatchRule: {
+    path: '';
+    condition: '';
+  };
 }

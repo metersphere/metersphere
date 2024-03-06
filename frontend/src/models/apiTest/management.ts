@@ -101,7 +101,7 @@ export interface SelectedModule {
 // 定义-获取环境的模块树参数
 export interface ApiDefinitionGetEnvModuleParams {
   projectId: string;
-  selectedModules: SelectedModule[];
+  selectedModules?: SelectedModule[];
 }
 // 环境-模块树
 export interface EnvModule {

@@ -102,13 +102,14 @@
   import { enableOrOffTemplate } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import useTemplateStore from '@/store/modules/setting/template';
   import { hasAnyPermission } from '@/utils/permission';
 
   const { t } = useI18n();
   const appStore = useAppStore();
   const templateStore = useTemplateStore();
-
+  const licenseStore = useLicenseStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
 
   const props = defineProps<{
@@ -142,7 +143,10 @@
   const confirmLoading = ref<boolean>(false);
 
   const orgName = computed(() => {
-    return appStore.ordList.find((item: any) => item.id === appStore.currentOrgId)?.name;
+    if (licenseStore.hasLicense()) {
+      return appStore.ordList.find((item: any) => item.id === appStore.currentOrgId)?.name;
+    }
+    return '默认组织';
   });
 
   async function okHandler() {
