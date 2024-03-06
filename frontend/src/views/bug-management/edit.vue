@@ -565,6 +565,8 @@
         if (item.id === 'status' && isCopy.value) {
           // 复制时, 状态赋值为空
           tmpObj[item.id] = '';
+        } else if (item.type === 'MULTIPLE_SELECT') {
+          tmpObj[item.id] = JSON.parse(item.value);
         } else {
           tmpObj[item.id] = item.value;
         }

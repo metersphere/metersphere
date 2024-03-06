@@ -11,7 +11,8 @@
     </select>
 
     <select id="getBugAllCustomFields" resultType="io.metersphere.bug.dto.response.BugCustomFieldDTO">
-        select cf.name, bcf.value, bcf.bug_id, bcf.field_id as id from bug_custom_field bcf left join custom_field cf on bcf.field_id = cf.id
+        select cf.name, bcf.value, bcf.bug_id, bcf.field_id as id, cf.type as type
+        from bug_custom_field bcf left join custom_field cf on bcf.field_id = cf.id
         and cf.scene = 'BUG' and cf.scope_type = 'PROJECT' and scope_id = #{projectId}
         where bug_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
