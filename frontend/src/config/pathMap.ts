@@ -14,6 +14,7 @@ export interface PathMapItem {
   level: (typeof MENU_LEVEL)[number]; // 系统设置里有系统级别也有组织级别，按最低权限级别配置
   children?: PathMapItem[];
   routeQuery?: Record<string, any>;
+  alias?: string; // 别名：用于消息中心跳转映射
 }
 
 /**
@@ -79,6 +80,7 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.BUG_MANAGEMENT_INDEX,
         permission: [],
         level: MENU_LEVEL[2],
+        alias: 'BUG_SYNC_TASK',
       },
       {
         key: 'BUG_MANAGEMENT_BUG_DETAIL', // 缺陷管理-缺陷详情
@@ -86,6 +88,7 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.BUG_MANAGEMENT_DETAIL,
         permission: [],
         level: MENU_LEVEL[2],
+        alias: 'BUG_TASK',
       },
       {
         key: 'BUG_MANAGEMENT_BUG_recycle', // 缺陷管理-回收站
@@ -123,6 +126,7 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
             permission: [],
             level: MENU_LEVEL[2],
+            alias: 'FUNCTIONAL_CASE_TASK',
           },
         ],
       },
@@ -160,6 +164,7 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
             permission: [],
             level: MENU_LEVEL[2],
+            alias: 'CASE_REVIEW_TASK',
             children: [
               {
                 key: 'CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL', // 功能测试-功能用例-评审详情-用例详情
@@ -688,6 +693,7 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.TEST_PLAN_INDEX,
         permission: [],
         level: MENU_LEVEL[2],
+        alias: 'TEST_PLAN_TASK', // 测试计划-消息中心跳转对应别名
       },
     ],
   },

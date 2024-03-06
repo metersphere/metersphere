@@ -68,6 +68,8 @@ export interface MessageHistoryItem {
   resourceType: string;
   resourceName: string;
   content: string;
+  organizationId: string;
+  projectId: string;
 }
 
 export function queryMessageHistoryList(data: historyQueryParams) {

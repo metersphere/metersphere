@@ -149,7 +149,7 @@
   }>();
 
   const { t } = useI18n();
-  const { jumpRouteByMapKey } = usePathMap();
+  const { jumpRouteByMapKey, getRouteMapByAlias } = usePathMap();
   const innerVisible = useVModel(props, 'visible', emit);
   const position = ref('all');
   const noMoreData = ref<boolean>(false);
@@ -162,11 +162,6 @@
     pageSize: 10,
     current: 1,
   });
-
-  // 全部标记为已读
-  async function prepositionEdit() {
-    await getMessageReadAll();
-  }
 
   // 左側模塊列表加載
   async function loadModuleList() {
@@ -206,10 +201,11 @@
     pageNation.value.total = res.total;
   }
 
-  // 加载总数count
+  // 加载未读count
   async function loadTotalCount(key: string) {
     const res = await queryMessageHistoryCount({
       resourceType: key,
+      status: 'UNREAD',
       receiver: userStore.id,
       current: 1,
       pageSize: 10,
@@ -224,17 +220,6 @@
         defaultCount.value = find.name;
       }
     }
-  }
-
-  // 加载模块count
-  async function loadModuleCount(key: string) {
-    const res = await queryMessageHistoryCount({
-      resourceType: key,
-      receiver: userStore.id,
-      current: 1,
-      pageSize: 10,
-    });
-    return res;
   }
 
   // 切换左侧模块
@@ -273,6 +258,7 @@
     loadMessageHistoryList(position.value, currentResourceType.value);
   }
 
+  // 获取动态模块count
   function getModuleCount(type: string) {
     let count = '0';
     if (type === 'BUG_MANAGEMENT') {
@@ -308,21 +294,29 @@
 
   // 点击名称跳转
   function handleNameClick(item: MessageHistoryItem) {
-    console.log('开始跳转了', item);
-    /**
-     * const routeQuery: Record<string, any> = {
-     *       organizationId: item.organizationId,
-     *       projectId: item.projectId,
-     *       id: item.resourceId,
-     *     };
-     *     if (item.organizationId === 'SYSTEM') {
-     *       delete routeQuery.organizationId;
-     *     }
-     *     if (item.projectId === 'SYSTEM' || item.projectId === 'ORGANIZATION') {
-     *       delete routeQuery.projectId;
-     *     }
-     *     jumpRouteByMapKey(item.module, routeQuery, true);
-     */
+    const routeQuery: Record<string, any> = {
+      organizationId: item.organizationId,
+      projectId: item.projectId,
+      id: item.resourceId,
+    };
+    if (item.organizationId === 'SYSTEM') {
+      delete routeQuery.organizationId;
+    }
+    if (item.projectId === 'SYSTEM' || item.projectId === 'ORGANIZATION') {
+      delete routeQuery.projectId;
+    }
+    const routeMap = getRouteMapByAlias(item.resourceType);
+    jumpRouteByMapKey(routeMap?.key, routeQuery, true);
+  }
+
+  // 全部标记为已读
+  async function prepositionEdit() {
+    await getMessageReadAll();
+    messageHistoryList.value = [];
+    pageNation.value.current = 1;
+    // 左侧消息总数
+    await loadTotalCount('');
+    await loadMessageHistoryList(position.value, currentResourceType.value);
   }
 
   watch(
