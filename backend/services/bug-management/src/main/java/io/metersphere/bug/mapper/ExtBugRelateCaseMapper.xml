@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.bug.mapper.ExtBugRelateCaseMapper">
     <select id="getRelateCaseModule" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         select
-        fcm.id,
+        distinct fcm.id,
         fcm.parent_id as parentId,
         fcm.name,
         fcm.pos,
@@ -21,18 +21,17 @@
 
     <select id="countRelateCaseModuleTree" resultType="io.metersphere.project.dto.ModuleCountDTO">
         select
-        fcm.id as moduleId,
+        fc.module_id AS moduleId,
         count(fc.id) as dataCount
-        from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
+        from functional_case fc
             where fc.deleted = #{deleted}
             and fc.project_id = #{request.projectId}
-            and fc.version_id = #{request.versionId}
             and fc.id not in
             (
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
             )
             <include refid="queryModuleWhereCondition"/>
-        group by fcm.id
+        group by fc.module_id
     </select>
 
     <select id="countRelationCases" resultType="io.metersphere.bug.dto.response.BugRelateCaseCountDTO">
@@ -107,7 +106,7 @@
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and fcm.module_id in
+            and fc.module_id in
             <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
                 #{moduleId}
             </foreach>

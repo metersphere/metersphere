@@ -78,6 +78,8 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @return 模块树集合
      */
     public Map<String, Long> countTree(TestCasePageProviderRequest request) {
+        // 统计模块数量不用传模块ID
+        request.setModuleIds(null);
         // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
         List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false);
         AssociateCaseModuleRequest moduleRequest = new AssociateCaseModuleRequest();

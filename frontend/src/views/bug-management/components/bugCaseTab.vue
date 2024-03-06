@@ -65,7 +65,7 @@
       :confirm-loading="confirmLoading"
       :case-id="props.bugId"
       :associated-ids="associatedIds"
-      :type="RequestModuleEnum.CASE_MANAGEMENT"
+      :type="RequestModuleEnum.BUG_MANAGEMENT"
       @close="emit('close')"
       @save="saveHandler"
     >
