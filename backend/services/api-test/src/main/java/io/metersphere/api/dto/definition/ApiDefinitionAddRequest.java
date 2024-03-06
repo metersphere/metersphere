@@ -47,7 +47,7 @@ public class ApiDefinitionAddRequest implements Serializable {
     private String method;
 
     @Schema(description = "http协议路径/其它协议则为空")
-    @Size(max = 500, message = "{api_debug.protocol.length_range}")
+    @Size(max = 500, message = "{api_debug.path.length_range}")
     private String path;
 
     @Schema(description = "接口状态/进行中/已完成", requiredMode = Schema.RequiredMode.REQUIRED)

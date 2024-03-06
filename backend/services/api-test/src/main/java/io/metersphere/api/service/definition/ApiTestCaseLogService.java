@@ -18,6 +18,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -58,8 +59,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.ADD.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 request.getName());
-
-        dto.setPath("/api/case/add");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -76,8 +75,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.DELETE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
-
-        dto.setPath("/api/case/delete/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         operationLogService.deleteBySourceIds(List.of(id));
@@ -95,8 +92,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.DELETE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
-
-        dto.setPath("/api/case/move-gc/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -114,7 +109,6 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
         dto.setHistory(false);
-        dto.setPath("/api/case/recover/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -131,8 +125,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 Translator.get("follow") + apiTestCase.getName());
-
-        dto.setPath("/api/case/follow/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -149,8 +141,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 Translator.get("unfollow") + apiTestCase.getName());
-
-        dto.setPath("/api/case/unfollow/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -168,8 +158,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 request.getName());
-
-        dto.setPath("/api/case/update");
         dto.setHistory(true);
         dto.setMethod(HttpMethodConstants.POST.name());
         ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
@@ -191,8 +179,6 @@ public class ApiTestCaseLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
-
-        dto.setPath("/api/case/update");
         dto.setHistory(true);
         dto.setMethod(HttpMethodConstants.POST.name());
         ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
@@ -212,7 +198,6 @@ public class ApiTestCaseLogService {
                             .type(OperationLogType.DELETE.name())
                             .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
                             .method(HttpMethodConstants.POST.name())
-                            .path("/api/case/batch/delete")
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
@@ -225,18 +210,18 @@ public class ApiTestCaseLogService {
     }
 
     public void batchToGcLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/batch/move-gc", operator, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.DELETE.name(), false);
     }
 
     public void batchEditLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/batch/edit", operator, OperationLogType.UPDATE.name(), true);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.UPDATE.name(), true);
     }
 
     public void batchRecoverLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name(), false);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false);
     }
 
-    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String path, String operator, String operationType, boolean isHistory) {
+    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String operator, String operationType, boolean isHistory) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<String> caseId = apiTestCases.stream().map(ApiTestCase::getId).distinct().toList();
@@ -263,7 +248,7 @@ public class ApiTestCaseLogService {
                             .type(operationType)
                             .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
                             .method(HttpMethodConstants.POST.name())
-                            .path(path)
+                            .path(OperationLogAspect.getPath())
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)

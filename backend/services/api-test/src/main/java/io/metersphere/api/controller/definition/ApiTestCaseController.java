@@ -65,7 +65,7 @@ public class ApiTestCaseController {
         return apiTestCaseService.get(id, SessionUtils.getUserId());
     }
 
-    @GetMapping("/move-gc/{id}")
+    @GetMapping("/delete-to-gc/{id}")
     @Operation(summary = "接口测试-接口管理-接口用例-移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiTestCaseLogService.class)
@@ -159,7 +159,7 @@ public class ApiTestCaseController {
         apiTestCaseService.batchDelete(request, SessionUtils.getUserId());
     }
 
-    @PostMapping("/batch/move-gc")
+    @PostMapping("/batch/delete-to-gc")
     @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
