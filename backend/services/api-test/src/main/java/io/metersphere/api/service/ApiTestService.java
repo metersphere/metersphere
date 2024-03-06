@@ -7,7 +7,11 @@ import io.metersphere.plugin.api.dto.ApiPluginOptionsRequest;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
+import io.metersphere.project.dto.environment.EnvironmentConfig;
+import io.metersphere.project.dto.environment.EnvironmentDTO;
+import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -36,6 +40,8 @@ public class ApiTestService {
     private PluginLoadService pluginLoadService;
     @Resource
     private ExtEnvironmentMapper extEnvironmentMapper;
+    @Resource
+    private EnvironmentService environmentService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -80,5 +86,25 @@ public class ApiTestService {
 
     public List<Environment> getEnvList(String projectId) {
         return extEnvironmentMapper.selectByKeyword(null, false, projectId);
+    }
+
+    public EnvironmentConfig getEnvironmentConfig(String environmentId) {
+        EnvironmentConfig environmentConfig = environmentService.getEnvironmentConfig(environmentId);
+        // 数据脱敏
+        EnvironmentConfig newEnvironmentConfig = new EnvironmentConfig();
+        newEnvironmentConfig.setHttpConfig(environmentConfig.getHttpConfig());
+        newEnvironmentConfig.setCommonVariables(environmentConfig.getCommonVariables());
+        List<DataSource> dataSources = environmentConfig.getDataSources().stream().map(dataSource -> {
+            DataSource newDataSource = new DataSource();
+            newDataSource.setId(dataSource.getId());
+            newDataSource.setDataSource(dataSource.getDataSource());
+            return newDataSource;
+        }).toList();
+        newEnvironmentConfig.setAuthConfig(null);
+        newEnvironmentConfig.setPreProcessorConfig(null);
+        newEnvironmentConfig.setPostProcessorConfig(null);
+        newEnvironmentConfig.setAssertionConfig(null);
+        newEnvironmentConfig.setDataSources(dataSources);
+        return newEnvironmentConfig;
     }
 }

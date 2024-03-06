@@ -1,12 +1,15 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.ApiTestPluginOptionRequest;
+import io.metersphere.api.service.BaseEnvTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
+import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.domain.Plugin;
@@ -44,6 +47,8 @@ public class ApiTestControllerTests extends BaseTest {
     protected static final String CUSTOM_FUNC_RUN = "custom/func/run";
     protected static final String PLUGIN_FORM_OPTION = "plugin/form/option";
     protected static final String PLUGIN_SCRIPT = "plugin/script/{0}";
+    protected static final String ENV_LIST = "env-list/{0}";
+    protected static final String ENVIRONMENT = "environment/{0}";
 
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
@@ -51,6 +56,8 @@ public class ApiTestControllerTests extends BaseTest {
     private PluginService pluginService;
     @Resource
     private BasePluginTestService basePluginTestService;
+    @Resource
+    private BaseEnvTestService baseEnvTestService;
     @Override
     protected String getBasePath() {
         return BASE_PATH;
@@ -183,7 +190,22 @@ public class ApiTestControllerTests extends BaseTest {
     @Test
     public void getEnvList() throws Exception {
         // @@请求成功
-        this.requestGet("/env-list/" + DEFAULT_PROJECT_ID);
+        this.requestGet(ENV_LIST,  DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    public void getEnvironmentConfig() throws Exception {
+        Environment environment = baseEnvTestService.initEnv("111");
+        MvcResult mvcResult = this.requestGetAndReturn(ENVIRONMENT, environment.getId());
+        EnvironmentConfig environmentConfig = getResultData(mvcResult, EnvironmentConfig.class);
+        Assertions.assertNull(environmentConfig.getAuthConfig());
+        Assertions.assertNull(environmentConfig.getPreProcessorConfig());
+        Assertions.assertNull(environmentConfig.getPostProcessorConfig());
+        Assertions.assertNull(environmentConfig.getAssertionConfig());
+        environmentConfig.getDataSources().forEach(dataSourceConfig -> {
+            Assertions.assertNull(dataSourceConfig.getPassword());
+            Assertions.assertNull(dataSourceConfig.getDbUrl());
+        });
     }
 
 }
