@@ -4,6 +4,7 @@
       <template #first>
         <div class="p-[24px]">
           <moduleTree
+            ref="moduleTreeRef"
             :active-node-id="activeApi?.id"
             @init="handleModuleInit"
             @new-api="newApi"
@@ -40,7 +41,6 @@
           <management
             ref="managementRef"
             :module-tree="folderTree"
-            :all-count="allCount"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
             :protocol="protocol"
@@ -65,11 +65,11 @@
 
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
-  const allCount = ref(0);
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
   const protocol = ref('HTTP');
   const activeApi = ref<RequestParam>();
+  const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
   function handleModuleInit(tree, _protocol: string) {
@@ -98,7 +98,13 @@
     protocol.value = val;
   }
 
+  function refreshModuleTree() {
+    moduleTreeRef.value?.refresh();
+  }
+
+  /** 向子孙组件提供方法 */
   provide('setActiveApi', setActiveApi);
+  provide('refreshModuleTree', refreshModuleTree);
 </script>
 
 <style lang="less" scoped></style>

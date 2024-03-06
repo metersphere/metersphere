@@ -249,6 +249,7 @@
     responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
     isNew: true,
+    executeLoading: false,
   };
   const debugTabs = ref<RequestParam[]>([cloneDeep(defaultDebugParams)]);
   const activeDebug = ref<RequestParam>(debugTabs.value[0]);

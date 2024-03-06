@@ -5,14 +5,13 @@
         ref="apiRef"
         :module-tree="props.moduleTree"
         :active-module="props.activeModule"
-        :all-count="props.allCount"
         :offspring-ids="props.offspringIds"
         :protocol="protocol"
       />
     </a-tab-pane>
     <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane"> </a-tab-pane>
     <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
-    <a-tab-pane key="doc" :title="t('apiTestManagement.doc')" class="ms-api-tab-pane"> </a-tab-pane>
+    <!-- <a-tab-pane key="doc" title="API Docs" class="ms-api-tab-pane"> </a-tab-pane> -->
     <template #extra>
       <div class="flex items-center gap-[8px] pr-[24px]">
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
@@ -42,7 +41,6 @@
   import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
-    allCount: number;
     activeModule: string;
     offspringIds: string[];
     protocol: string;

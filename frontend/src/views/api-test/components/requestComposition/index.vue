@@ -10,7 +10,7 @@
   </a-empty>
   <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
     <div class="px-[18px] pt-[8px]">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-wrap items-center justify-between gap-[12px]">
         <div class="flex flex-1 items-center gap-[16px]">
           <a-select
             v-if="requestVModel.isNew"
@@ -54,41 +54,77 @@
             />
           </a-input-group>
         </div>
-        <div class="ml-[16px]">
-          <a-dropdown-button
-            v-if="!requestVModel.executeLoading && hasAnyPermission([props.permissionMap.execute])"
-            :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-            class="exec-btn"
-            @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-            @select="execute"
+        <div>
+          <a-radio-group
+            v-if="props.isDefinition"
+            v-model:model-value="requestVModel.mode"
+            type="button"
+            class="mr-[12px]"
           >
-            {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-            <template v-if="hasLocalExec" #icon>
-              <icon-down />
-            </template>
-            <template v-if="hasLocalExec" #content>
-              <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-                {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-              </a-doption>
-            </template>
-          </a-dropdown-button>
-          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
-          <a-dropdown
-            v-if="props.isDefinition && hasAnyPermission([props.permissionMap.create, props.permissionMap.update])"
-            :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
-            @select="handleSelect"
+            <a-radio value="definition">{{ t('apiTestManagement.definition') }}</a-radio>
+            <a-radio value="debug">{{ t('apiTestManagement.debug') }}</a-radio>
+          </a-radio-group>
+          <!-- 接口定义-调试模式下，可执行 -->
+          <template
+            v-if="
+              (!props.isDefinition || (props.isDefinition && requestVModel.mode === 'debug')) &&
+              hasAnyPermission([props.permissionMap.execute])
+            "
           >
-            <a-button type="secondary">
+            <a-dropdown-button
+              v-if="!requestVModel.executeLoading"
+              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+              class="exec-btn"
+              @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+              @select="execute"
+            >
+              {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+              <template v-if="hasLocalExec" #icon>
+                <icon-down />
+              </template>
+              <template v-if="hasLocalExec" #content>
+                <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                  {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
+            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+          </template>
+          <!-- 接口定义-且有保存或更新权限 -->
+          <template
+            v-if="
+              props.isDefinition &&
+              (requestVModel.isNew
+                ? hasAnyPermission([props.permissionMap.create])
+                : hasAnyPermission([props.permissionMap.update]))
+            "
+          >
+            <!-- 接口定义-调试模式，可保存或保存为新用例 -->
+            <a-dropdown
+              v-if="requestVModel.mode === 'debug'"
+              :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
+              @select="handleSelect"
+            >
+              <a-button type="secondary">
+                {{ t('common.save') }}
+              </a-button>
+              <template #content>
+                <a-doption value="save">{{ t('common.save') }}</a-doption>
+                <a-doption value="saveAsCase">{{ t('apiTestManagement.saveAsCase') }}</a-doption>
+              </template>
+            </a-dropdown>
+            <!-- 接口定义-定义模式，直接保存接口定义 -->
+            <a-button v-else type="primary" @click="() => handleSelect('save')">
               {{ t('common.save') }}
             </a-button>
-            <template #content>
-              <a-doption value="save">{{ t('common.save') }}</a-doption>
-              <a-doption value="saveAsCase">{{ t('apiTestManagement.saveAsCase') }}</a-doption>
-            </template>
-          </a-dropdown>
+          </template>
+          <!-- 接口调试，支持快捷保存 -->
           <a-button
-            v-else
-            v-permission="[props.permissionMap.create, props.permissionMap.update]"
+            v-else-if="
+              requestVModel.isNew
+                ? hasAnyPermission([props.permissionMap.create])
+                : hasAnyPermission([props.permissionMap.update])
+            "
             type="secondary"
             :disabled="isHttpProtocol && !requestVModel.url"
             :loading="saveLoading"
@@ -102,7 +138,7 @@
         </div>
       </div>
     </div>
-    <div ref="splitContainerRef" :class="splitContainerClass">
+    <div ref="splitContainerRef" class="h-[calc(100%-40px)]">
       <MsSplitBox
         ref="splitBoxRef"
         v-model:size="splitBoxSize"
@@ -138,7 +174,13 @@
                     v-model:api="fApi"
                     :rule="currentPluginScript"
                     :option="currentPluginOptions"
-                    @change="handlePluginFormChange"
+                    @change="
+                      () => {
+                        if (isInitPluginForm) {
+                          handlePluginFormChange();
+                        }
+                      }
+                    "
                   />
                 </a-spin>
                 <httpHeader
@@ -329,6 +371,8 @@
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
+    mode?: 'definition' | 'debug';
+    executeLoading: boolean; // 执行中loading
   }
   export type RequestParam = ExecuteApiRequestFullParams & {
     responseDefinition?: ResponseItem[];
@@ -364,7 +408,7 @@
 
   const loading = defineModel<boolean>('detailLoading', { default: false });
   const requestVModel = defineModel<RequestParam>('request', { required: true });
-  requestVModel.value.executeLoading = false; // 注册loading
+
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
@@ -392,7 +436,7 @@
   const commonContentTabKey = [
     RequestComposition.PRECONDITION,
     RequestComposition.POST_CONDITION,
-    // RequestComposition.ASSERTION, TODO:断言暂时无
+    RequestComposition.ASSERTION,
   ];
   // 请求内容插件tab
   const pluginContentTab = [
@@ -443,10 +487,20 @@
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
     if (isHttpProtocol.value) {
+      if (props.isDefinition) {
+        // 接口定义，定义模式隐藏前后置、断言
+        return requestVModel.value.mode === 'debug'
+          ? httpContentTabList
+          : httpContentTabList.filter((e) => !commonContentTabKey.includes(e.value));
+      }
       // 接口调试无断言
-      return props.isDefinition
-        ? httpContentTabList
-        : httpContentTabList.filter((e) => e.value !== RequestComposition.ASSERTION);
+      return httpContentTabList.filter((e) => e.value !== RequestComposition.ASSERTION);
+    }
+    if (props.isDefinition) {
+      // 接口定义，定义模式隐藏前后置、断言
+      return requestVModel.value.mode === 'definition'
+        ? pluginContentTab
+        : [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -537,36 +591,50 @@
   }, 300);
 
   /**
+   * 控制插件表单字段显示
+   */
+  function controlPluginFormFields() {
+    const allFields = fApi.value?.fields();
+    let fields: string[] = [];
+    if (props.isDefinition) {
+      // 接口定义使用接口定义的字段集
+      // 根据 apiDefinitionFields 字段集合展示需要的字段，隐藏其他字段
+      fields = pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields || [];
+    } else {
+      // 根据 apiDebugFields 字段集合展示需要的字段，隐藏其他字段
+      fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
+    }
+    fApi.value?.hidden(true, allFields?.filter((e) => !fields.includes(e)) || []);
+    return fields;
+  }
+
+  /**
    * 设置插件表单数据
    */
   function setPluginFormData() {
     const tempForm = temporaryPluginFormMap[requestVModel.value.id];
     if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
-      fApi.value?.nextRefresh(() => {
-        fApi.value?.reload(currentPluginScript.value);
-        const formData = tempForm || requestVModel.value;
-        if (fApi.value) {
+      const formData = tempForm || requestVModel.value;
+      if (fApi.value) {
+        fApi.value.nextTick(() => {
           const form = {};
-          if (props.isDefinition) {
-            // 接口定义使用接口定义的字段集
-            pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields?.forEach((key) => {
-              form[key] = formData[key];
-            });
-          } else {
-            pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields?.forEach((key) => {
-              form[key] = formData[key];
-            });
-          }
+          controlPluginFormFields().forEach((key) => {
+            form[key] = formData[key];
+          });
           fApi.value?.setValue(form);
-        }
-      });
-      nextTick(() => {
-        isInitPluginForm.value = true;
-      });
+          setTimeout(() => {
+            // 初始化时赋值会触发表单数据变更，300ms 是为了与 handlePluginFormChange的防抖时间保持一致
+            isInitPluginForm.value = true;
+          }, 300);
+        });
+      }
     } else {
-      // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
+      fApi.value?.nextTick(() => {
+        controlPluginFormFields();
+      });
       nextTick(() => {
+        // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
         fApi.value?.resetFields();
       });
     }
@@ -582,6 +650,7 @@
       return;
     }
     pluginError.value = false;
+    isInitPluginForm.value = false;
     if (pluginScriptMap.value[requestVModel.value.protocol] !== undefined) {
       setPluginFormData();
       // 已经初始化过
@@ -672,12 +741,6 @@
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const splitContainerRef = ref<HTMLElement>();
   const secondBoxHeight = ref(0);
-  const splitContainerClass = computed(() => {
-    if (!showResponse.value) {
-      return 'h-full';
-    }
-    return 'h-[calc(100%-40px)]';
-  });
 
   watch(
     () => splitBoxSize.value,
@@ -715,6 +778,17 @@
       );
     }
   }
+
+  watch(
+    () => showResponse.value,
+    (val) => {
+      if (val) {
+        changeExpand(true);
+      } else {
+        changeExpand(false);
+      }
+    }
+  );
 
   function handleActiveLayoutChange() {
     isExpanded.value = true;
@@ -950,6 +1024,7 @@
             const res = await props.createApi({
               ...makeRequestParams(),
               ...saveModalForm.value,
+              path: isHttpProtocol.value ? saveModalForm.value.path : undefined,
               ...props.otherParams,
             });
             requestVModel.value.id = res.id;
@@ -979,33 +1054,29 @@
    */
   async function handleSaveShortcut() {
     if (!requestVModel.value.isNew) {
-      if (hasAnyPermission([props.permissionMap.update])) {
-        // 更新接口不需要弹窗，直接更新保存
-        updateDebug();
-      }
+      // 更新接口不需要弹窗，直接更新保存
+      updateDebug();
       return;
     }
-    if (hasAnyPermission([props.permissionMap.create])) {
-      try {
-        if (!isHttpProtocol.value) {
-          // 插件需要校验动态表单
-          await fApi.value?.validate();
-        }
-        saveModalForm.value = {
-          name: requestVModel.value.name || '',
-          path: requestVModel.value.url || '',
-          moduleId: 'root',
-        };
-        saveModalVisible.value = true;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-        // 校验不通过则不进行保存
-        requestVModel.value.activeTab = RequestComposition.PLUGIN;
-        nextTick(() => {
-          scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
-        });
+    try {
+      if (!isHttpProtocol.value) {
+        // 插件需要校验动态表单
+        await fApi.value?.validate();
       }
+      saveModalForm.value = {
+        name: requestVModel.value.name || '',
+        path: requestVModel.value.url || '',
+        moduleId: 'root',
+      };
+      saveModalVisible.value = true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      // 校验不通过则不进行保存
+      requestVModel.value.activeTab = RequestComposition.PLUGIN;
+      nextTick(() => {
+        scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+      });
     }
   }
 

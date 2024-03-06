@@ -6,21 +6,6 @@
         {{ t('apiTestManagement.showSubdirectory') }}
       </div>
       <div class="flex items-center gap-[8px]">
-        <template v-if="!props.readOnly">
-          <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
-            <template #icon>
-              <icon-location class="text-[var(--color-text-4)]" />
-            </template>
-          </a-button>
-          <MsSelect
-            v-model:model-value="checkedEnv"
-            mode="static"
-            :options="envOptions"
-            class="!w-[150px]"
-            :search-keys="['label']"
-            allow-search
-          />
-        </template>
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('apiTestManagement.searchPlaceholder')"
@@ -251,7 +236,6 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import MsSelect from '@/components/business/ms-select';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -392,14 +376,6 @@
       width: 150,
     },
   ];
-  if (!props.readOnly) {
-    const tableStore = useTableStore();
-    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
-  } else {
-    columns = columns.filter(
-      (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
-    );
-  }
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getDefinitionPage,
     {
@@ -757,6 +733,19 @@
 
   function openApiTab(record: ApiDefinitionDetail) {
     emit('openApiTab', record);
+  }
+
+  defineExpose({
+    loadApiList,
+  });
+
+  if (!props.readOnly) {
+    const tableStore = useTableStore();
+    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+  } else {
+    columns = columns.filter(
+      (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
+    );
   }
 </script>
 

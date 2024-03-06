@@ -20,7 +20,13 @@
         @click="handleTabClick(tab)"
       >
         <div :draggable="!!tab.draggable" class="flex items-center">
-          <slot name="label" :tab="tab">{{ tab.label }}</slot>
+          <slot name="label" :tab="tab">
+            <a-tooltip :content="tab.label" :mouse-enter-delay="500">
+              <div class="one-line-text flex max-w-[144px] items-center">
+                {{ tab.label }}
+              </div>
+            </a-tooltip>
+          </slot>
           <div v-if="tab.unSaved" class="ml-[8px] h-[8px] w-[8px] rounded-full bg-[rgb(var(--primary-5))]"></div>
           <MsButton
             v-if="props.atLeastOne ? props.tabs.length > 1 && tab.closable : tab.closable !== false"
