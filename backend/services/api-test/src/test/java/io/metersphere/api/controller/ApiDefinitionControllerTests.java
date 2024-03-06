@@ -80,16 +80,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private final static String ADD = "add";
     private final static String UPDATE = "update";
     private final static String BATCH_UPDATE = "batch-update";
-    private final static String DELETE = "delete";
-    private final static String BATCH_DELETE = "batch-del";
+    private final static String DELETE_TO_GC = "delete-to-gc/{0}?deleteAllVersion={1}";
+    private final static String BATCH_DELETE_TO_GC = "batch/delete-to-gc";
     private final static String COPY = "copy";
     private final static String BATCH_MOVE = "batch-move";
 
     private final static String RESTORE = "recover";
     private final static String BATCH_RESTORE = "batch-recover";
 
-    private final static String TRASH_DEL = "trash-del";
-    private final static String BATCH_TRASH_DEL = "batch-trash-del";
+    private final static String DELETE = "delete/{0}";
+    private final static String BATCH_DELETE = "batch/delete";
 
     private final static String PAGE = "page";
     private final static String PAGE_DOC = "page-doc";
@@ -1210,27 +1210,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("delete api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         // @只存在一个版本
-        ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
-        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-        apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
-        apiDefinitionDeleteRequest.setDeleteAll(false);
         // @@请求成功
-        this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
-        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, DELETE));
+        this.requestGetWithOkAndReturn(DELETE_TO_GC, apiDefinition.getId(), false);
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, DELETE_TO_GC.replace("{0}", apiDefinition.getId()).replace("{1}", "false")));
         ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
         Assertions.assertTrue(apiDefinitionInfo.getDeleted());
         Assertions.assertEquals("admin", apiDefinitionInfo.getDeleteUser());
         Assertions.assertNotNull(apiDefinitionInfo.getDeleteTime());
 
         // @存在多个版本
+        String id = "1004";
         // 列表删除
-        apiDefinitionDeleteRequest.setDeleteAll(false);
-        apiDefinitionDeleteRequest.setId("1004");
-        ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
-        MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinitionDeleteRequest.getId()).andReturn();
+        ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+        MvcResult mvcResult = this.requestGetWithOk(VERSION + id).andReturn();
         List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO = getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
         if (!apiDefinitionVersionDTO.isEmpty()) {
-            this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
+            this.requestGetWithOkAndReturn(DELETE_TO_GC, id, false);
             // 效验数据
             // 删除的数据为最新版本需要更新最近一条数据为最新数据
             if (delApiDefinition.getLatest()) {
@@ -1243,21 +1238,20 @@ public class ApiDefinitionControllerTests extends BaseTest {
                     Assertions.assertFalse(updateApiDefinition.getDeleted());
                 }
             }
-            ApiDefinition delApiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
+            ApiDefinition delApiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(id);
             if (delApiDefinitionInfo != null) {
                 Assertions.assertTrue(delApiDefinitionInfo.getDeleted());
                 Assertions.assertEquals("admin", delApiDefinitionInfo.getDeleteUser());
                 Assertions.assertNotNull(delApiDefinitionInfo.getDeleteTime());
             }
-            checkLogModelList.add(new CheckLogModel(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE, DELETE));
+            checkLogModelList.add(new CheckLogModel(id, OperationLogType.DELETE, DELETE_TO_GC.replace("{0}", id).replace("{1}", "false")));
         }
         // 全部删除
-        apiDefinitionDeleteRequest.setDeleteAll(true);
-        apiDefinitionDeleteRequest.setId("1002");
+        id = "1002";
         // @@请求成功
-        this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
+        this.requestGetWithOkAndReturn(DELETE_TO_GC, id, true);
 
-        List<String> ids = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinitionDeleteRequest.getId()).stream().map(ApiDefinitionVersionDTO::getId).toList();
+        List<String> ids = extApiDefinitionMapper.getApiDefinitionByRefId(id).stream().map(ApiDefinitionVersionDTO::getId).toList();
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
@@ -1268,13 +1262,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 Assertions.assertNotNull(item.getDeleteTime());
             });
         }
-        checkLogModelList.add(new CheckLogModel(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE, DELETE));
-        apiDefinitionDeleteRequest.setId("121");
-        apiDefinitionDeleteRequest.setDeleteAll(false);
-        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        checkLogModelList.add(new CheckLogModel(id, OperationLogType.DELETE, DELETE_TO_GC.replace("{0}", id).replace("{1}", "true")));
+        id = "121";
+        assertErrorCode(this.requestGet(DELETE_TO_GC, id, false), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
-        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE_TO_GC, apiDefinition.getId(), false);
     }
 
     @Test
@@ -1288,14 +1280,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1004"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
-        this.requestPostWithOkAndReturn(BATCH_DELETE, request);
+        this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         // @@校验日志
-        checkLogModelList.add(new CheckLogModel("1004", OperationLogType.DELETE, BATCH_DELETE));
+        checkLogModelList.add(new CheckLogModel("1004", OperationLogType.DELETE, BATCH_DELETE_TO_GC));
 
         request.setSelectIds(List.of("1002"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
-        assertErrorCode(this.requestPost(BATCH_DELETE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(BATCH_DELETE_TO_GC, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // 删除全部 条件为关键字为st-6的数据
         request.setDeleteAll(true);
         request.setExcludeIds(List.of("1005"));
@@ -1303,11 +1295,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
         request.setCondition(baseCondition);
-        this.requestPostWithOkAndReturn(BATCH_DELETE, request);
+        this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         // @@校验日志
-        checkLogModelList.add(new CheckLogModel("1006", OperationLogType.DELETE, BATCH_DELETE));
+        checkLogModelList.add(new CheckLogModel("1006", OperationLogType.DELETE, BATCH_DELETE_TO_GC));
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_DELETE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_DELETE_TO_GC, request);
     }
 
 
@@ -1410,26 +1402,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("trashDel api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         if (!apiDefinition.getDeleted()) {
-            ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
-            apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-            apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
-            apiDefinitionDeleteRequest.setDeleteAll(false);
             // @@请求成功
-            this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
-            checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, DELETE));
+            this.requestGetWithOkAndReturn(DELETE_TO_GC, apiDefinition.getId(), false);
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
             Assertions.assertTrue(apiDefinition.getDeleted());
             Assertions.assertEquals("admin", apiDefinition.getDeleteUser());
             Assertions.assertNotNull(apiDefinition.getDeleteTime());
         }
         // @只存在一个版本
-        ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
-        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-        apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
-        apiDefinitionDeleteRequest.setDeleteAll(false);
         // @@请求成功
-        this.requestPostWithOk(TRASH_DEL, apiDefinitionDeleteRequest);
-        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, TRASH_DEL));
+        this.requestGetWithOk(DELETE, apiDefinition.getId());
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, DELETE.replace("{0}", apiDefinition.getId())));
         // 验证数据
         ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
         Assertions.assertNull(apiDefinitionInfo);
@@ -1443,7 +1426,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(0, caseLists.size());
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, TRASH_DEL, apiDefinitionDeleteRequest);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinition.getId());
     }
 
     @Test
@@ -1456,7 +1439,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 删除选中
         request.setSelectIds(List.of("1003"));
         request.setSelectAll(false);
-        this.requestPostWithOk(BATCH_TRASH_DEL, request);
+        this.requestPostWithOk(BATCH_DELETE, request);
         // 效验数据结果
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(request.getSelectIds());
@@ -1475,13 +1458,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1006");
         if (!apiDefinition.getDeleted()) {
-            ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
-            apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-            apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
-            apiDefinitionDeleteRequest.setDeleteAll(false);
             // @@请求成功
-            this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
-            checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.DELETE, DELETE));
+            this.requestGetWithOkAndReturn(DELETE_TO_GC, apiDefinition.getId(), false);
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
             Assertions.assertTrue(apiDefinition.getDeleted());
             Assertions.assertEquals("admin", apiDefinition.getDeleteUser());
@@ -1493,14 +1471,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
         request.setCondition(baseCondition);
-        this.requestPostWithOk(BATCH_TRASH_DEL, request);
+        this.requestPostWithOk(BATCH_DELETE, request);
         // @@校验日志
         String[] ids = {"1003", "1006"};
         for (String id : ids) {
-            checkLogModelList.add(new CheckLogModel(id, OperationLogType.DELETE, BATCH_TRASH_DEL));
+            checkLogModelList.add(new CheckLogModel(id, OperationLogType.DELETE, BATCH_DELETE));
         }
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_TRASH_DEL, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_DELETE, request);
     }
 
     @Test

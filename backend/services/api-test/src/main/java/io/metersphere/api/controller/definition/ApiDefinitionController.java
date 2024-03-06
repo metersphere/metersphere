@@ -82,22 +82,22 @@ public class ApiDefinitionController {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
     }
 
-    @PostMapping(value = "/delete")
+    @GetMapping("/delete-to-gc/{id}")
     @Operation(summary = "接口测试-接口管理-删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#request)", msClass = ApiDefinitionLogService.class)
-    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
-    public void delete(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
-        apiDefinitionService.delete(request, SessionUtils.getUserId());
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
+    public void deleteToGc(@PathVariable String id, @RequestParam(required = false) boolean deleteAllVersion) {
+        apiDefinitionService.deleteToGc(id, deleteAllVersion, SessionUtils.getUserId());
     }
 
-    @PostMapping(value = "/batch-del")
+    @PostMapping(value = "/batch/delete-to-gc")
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchEditApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
-    public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
-        apiDefinitionService.batchDelete(request, SessionUtils.getUserId());
+    public void batchDeleteToGc(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchDeleteToGc(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/copy")
@@ -161,13 +161,21 @@ public class ApiDefinitionController {
         apiDefinitionService.recover(request, SessionUtils.getUserId());
     }
 
-    @PostMapping(value = "/trash-del")
+    @GetMapping("/delete/{id}")
     @Operation(summary = "接口测试-接口管理-删除回收站接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.trashDelLog(#request)", msClass = ApiDefinitionLogService.class)
-    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
-    public void trashDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
-        apiDefinitionService.trashDel(request, SessionUtils.getUserId());
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
+    public void delete(@PathVariable String id) {
+        apiDefinitionService.delete(id, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/delete")
+    @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
+    public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchDelete(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-recover")
@@ -176,14 +184,6 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchRecover(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchRecover(request, SessionUtils.getUserId());
-    }
-
-    @PostMapping(value = "/batch-trash-del")
-    @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
-    public void batchTrashDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
-        apiDefinitionService.batchTrashDel(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/page-doc")

@@ -422,12 +422,12 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
-    public void delete(ApiDefinitionDeleteRequest request, String userId) {
-        checkApiDefinition(request.getId());
-        handleDeleteApiDefinition(Collections.singletonList(request.getId()), request.getDeleteAll(), request.getProjectId(), userId, false);
+    public void deleteToGc(String id, boolean deleteAllVersion, String userId) {
+        ApiDefinition apiDefinition = checkApiDefinition(id);
+        handleDeleteApiDefinition(Collections.singletonList(id), deleteAllVersion, apiDefinition.getProjectId(), userId, false);
     }
 
-    public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
+    public void batchDeleteToGc(ApiDefinitionBatchRequest request, String userId) {
         List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleDeleteApiDefinition(ids, request.getDeleteAll(), request.getProjectId(), userId, true);
@@ -797,8 +797,9 @@ public class ApiDefinitionService {
         }
     }
 
-    public void trashDel(ApiDefinitionDeleteRequest request, String userId) {
-        handleTrashDelApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
+    public void delete(String id, String userId) {
+        ApiDefinition apiDefinition = checkApiDefinition(id);
+        handleTrashDelApiDefinition(Collections.singletonList(id), userId, apiDefinition.getProjectId(), false);
     }
 
     public void batchRecover(ApiDefinitionBatchRequest request, String userId) {
@@ -808,7 +809,7 @@ public class ApiDefinitionService {
         }
     }
 
-    public void batchTrashDel(ApiDefinitionBatchRequest request, String userId) {
+    public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
         List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleTrashDelApiDefinition(ids, userId, request.getProjectId(), true);

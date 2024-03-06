@@ -280,7 +280,13 @@ public class OperationLogAspect {
 
     public static String getPath() {
         HttpServletRequest httpRequest = getHttpRequest();
-        String path = httpRequest == null ? StringUtils.EMPTY : httpRequest.getRequestURI();
+        String path = StringUtils.EMPTY;
+        if (httpRequest != null) {
+            path = httpRequest.getRequestURI();
+            if (StringUtils.isNotBlank(httpRequest.getQueryString())) {
+                path += "?" + httpRequest.getQueryString();
+            }
+        }
         return path.length() > 255 ? path.substring(0, 255) : path;
     }
 

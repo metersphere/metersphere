@@ -11,6 +11,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -52,8 +53,8 @@ public class ApiDefinitionLogService {
                 OperationLogType.ADD.name(),
                 OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 request.getName());
+
         dto.setHistory(false);
-        dto.setPath("/api/definition/add");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -77,7 +78,6 @@ public class ApiDefinitionLogService {
                     OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     request.getName());
             dto.setHistory(true);
-            dto.setPath("/api/definition/update");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
             return dto;
@@ -85,32 +85,42 @@ public class ApiDefinitionLogService {
         return null;
     }
 
-    /**
-     * 删除接口日志
-     *
-     * @param request
-     * @return
-     */
-    public LogDTO delLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if (apiDefinition.getId() != null) {
-            LogDTO dto = new LogDTO(
-                    request.getProjectId(),
-                    null,
-                    request.getId(),
-                    null,
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
-                    apiDefinition.getName());
-            dto.setHistory(false);
-            dto.setPath("/api/definition/delete");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
-            return dto;
-        }
+    public LogDTO moveToGcLog(String id) {
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiDefinition.getProjectId(),
+                project.getOrganizationId(),
+                id,
+                null,
+                OperationLogType.DELETE.name(),
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                apiDefinition.getName());
 
-        return null;
+        dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
+        return dto;
     }
+
+    public LogDTO deleteLog(String id) {
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiDefinition.getProjectId(),
+                project.getOrganizationId(),
+                id,
+                null,
+                OperationLogType.DELETE.name(),
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                apiDefinition.getName());
+
+        dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
+        operationLogService.deleteBySourceIds(List.of(id));
+        return dto;
+    }
+
+
 
     /**
      * 批量删除接口日志
@@ -118,7 +128,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchDelLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-del", userId, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false);
     }
 
     /**
@@ -127,7 +137,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchUpdateLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-update", userId, OperationLogType.UPDATE.name(), true);
+        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), true);
     }
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
@@ -142,7 +152,6 @@ public class ApiDefinitionLogService {
                     OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(false);
-            dto.setPath("/api/definition/copy");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
             return dto;
@@ -151,7 +160,7 @@ public class ApiDefinitionLogService {
     }
 
     public void batchMoveLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-move", userId, OperationLogType.UPDATE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), false);
     }
 
     public LogDTO followLog(String id) {
@@ -167,7 +176,6 @@ public class ApiDefinitionLogService {
                     OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     Translator.get("follow") + apiDefinition.getName());
 
-            dto.setPath("/api/definition/follow/" + id);
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
             return dto;
@@ -193,7 +201,6 @@ public class ApiDefinitionLogService {
                     OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(false);
-            dto.setPath("/api/definition/recover");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
             return dto;
@@ -209,39 +216,14 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchRecoverLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-recover", userId, OperationLogType.RECOVER.name(), false);
-    }
-
-
-    /**
-     * 删除回收站接口定义接口日志
-     */
-    public LogDTO trashDelLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if (apiDefinition.getId() != null) {
-            LogDTO dto = new LogDTO(
-                    request.getProjectId(),
-                    null,
-                    request.getId(),
-                    null,
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
-                    apiDefinition.getName());
-
-            dto.setPath("/api/definition/trash-del");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
-            return dto;
-        }
-
-        return null;
+        saveBatchLog(projectId, ids, userId, OperationLogType.RECOVER.name(), false);
     }
 
     /**
      * 删除回收站接口定义接口日志
      */
     public void batchTrashDelLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-trash-del", userId, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false);
     }
 
     private ApiDefinitionDTO getOriginalValue(String id) {
@@ -257,7 +239,7 @@ public class ApiDefinitionLogService {
 
 
 
-    private void saveBatchLog(String projectId, List<String> ids, String path, String userId, String operationType, boolean isHistory) {
+    private void saveBatchLog(String projectId, List<String> ids, String userId, String operationType, boolean isHistory) {
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -278,7 +260,7 @@ public class ApiDefinitionLogService {
                         item.getName());
 
                 dto.setHistory(isHistory);
-                dto.setPath(path);
+                dto.setPath(OperationLogAspect.getPath());
                 dto.setMethod(HttpMethodConstants.POST.name());
                 dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
                 dtoList.add(dto);

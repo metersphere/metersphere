@@ -75,7 +75,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/case/";
     private static final String ADD = "add";
     private static final String GET = "get-detail/";
-    private static final String MOVE_TO_GC = "move-gc/";
+    private static final String DELETE_TO_GC = "delete-to-gc/{0}";
     private static final String RECOVER = "recover/";
     private static final String FOLLOW = "follow/";
     private static final String UNFOLLOW = "unfollow/";
@@ -87,7 +87,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String UPDATE_PRIORITY = "update-priority";
     private static final String BATCH_EDIT = "batch/edit";
     private static final String BATCH_DELETE = "batch/delete";
-    private static final String BATCH_MOVE_GC = "batch/move-gc";
+    private static final String BATCH_DELETE_TO_GC = "batch/delete-to-gc";
     private static final String BATCH_RECOVER = "batch/recover";
     private static final String POS_URL = "edit/pos";
     private static final String UPLOAD_TEMP_FILE = "upload/temp/file";
@@ -465,16 +465,16 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Order(4)
     public void moveToGC() throws Exception {
         // @@请求成功
-        this.requestGetWithOk(MOVE_TO_GC + apiTestCase.getId());
+        this.requestGetWithOk(DELETE_TO_GC, apiTestCase.getId());
         ApiTestCase apiCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
         Assertions.assertTrue(apiCase.getDeleted());
         Assertions.assertEquals(apiCase.getDeleteUser(), "admin");
         Assertions.assertNotNull(apiCase.getDeleteTime());
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
-        this.requestGet(MOVE_TO_GC + "111").andExpect(ERROR_REQUEST_MATCHER);
+        this.requestGet(DELETE_TO_GC, "111").andExpect(ERROR_REQUEST_MATCHER);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, MOVE_TO_GC + apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, DELETE_TO_GC, apiTestCase.getId());
     }
 
     @Test
@@ -942,13 +942,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
 
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         request.setApiDefinitionId("apiDefinitionId");
         request.setModuleIds(List.of("case-moduleId"));
-        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(true);
         List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
@@ -957,11 +957,11 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
         request.setModuleIds(List.of("case-moduleId"));
-        requestPostWithOkAndReturn(BATCH_MOVE_GC, request);
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, BATCH_MOVE_GC, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, BATCH_DELETE_TO_GC, request);
     }
 
     @Test
@@ -1053,7 +1053,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         gcRequest.setSelectAll(true);
         gcRequest.setExcludeIds(new ArrayList<>());
         gcRequest.setApiDefinitionId("apiDefinitionId");
-        requestPostWithOkAndReturn(BATCH_MOVE_GC, gcRequest);
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, gcRequest);
         ApiTestCaseExample example1 = new ApiTestCaseExample();
         example1.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(true);
         List<ApiTestCase> caseList1 = apiTestCaseMapper.selectByExample(example1);
