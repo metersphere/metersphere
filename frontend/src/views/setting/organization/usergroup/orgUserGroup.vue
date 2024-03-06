@@ -50,8 +50,8 @@
               v-if="currentTable === 'auth' && couldShowAuth"
               :current="currentUserGroupItem"
               :width="bottomWidth"
-              :save-permission="['ORGANIZATION_GROUP:READ+UPDATE']"
-              :disabled="!hasAnyPermission(['ORGANIZATION_GROUP:READ+UPDATE'])"
+              :save-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
+              :disabled="!hasAnyPermission(['ORGANIZATION_USER_ROLE:READ+UPDATE'])"
             />
           </div>
         </div>
