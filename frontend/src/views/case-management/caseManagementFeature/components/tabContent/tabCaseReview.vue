@@ -4,7 +4,7 @@
       <div class="font-medium">{{ t('caseManagement.featureCase.caseReviewList') }}</div>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"

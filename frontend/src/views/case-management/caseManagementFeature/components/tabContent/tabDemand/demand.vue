@@ -12,7 +12,7 @@
 
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('caseManagement.featureCase.searchByName')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"

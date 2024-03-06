@@ -15,6 +15,7 @@ export default {
   'caseManagement.featureCase.versionPlaceholder': '默认为最新版本',
   'caseManagement.featureCase.searchByNameAndId': '通过ID、名称或标签搜索',
   'caseManagement.featureCase.searchByIdAndName': '通过ID 或名称搜索',
+  'caseManagement.featureCase.searchByName': '通过名称搜索',
   'caseManagement.featureCase.filter': '筛选',
   'caseManagement.featureCase.setFilterCondition': '设置筛选条件',
   'caseManagement.featureCase.followingCondition': '符合以下',
