@@ -206,6 +206,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setName("test1");
         request.setUploadFileIds(null);
         request.setLinkFileIds(null);
+        request.setPath("");
         mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         resultData = getResultData(mvcResult, ApiDebug.class);
         this.anotherAddApiDebug = assertUpdateApiDebug(request, msHttpElement, resultData.getId());
