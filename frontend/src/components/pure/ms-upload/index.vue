@@ -124,9 +124,17 @@
   });
 
   async function beforeUpload(file: File) {
-    if (!props.multiple && innerFileList.value.length > 0) {
-      // 单文件上传时，清空之前的文件
-      innerFileList.value = [];
+    if (innerFileList.value.length > 0) {
+      // 附件上传校验名称重复
+      const isRepeat = innerFileList.value.filter((item) => item.name === file.name && item.local).length >= 1;
+      if (isRepeat) {
+        Message.warning(t('ms.add.attachment.repeatFileTip'));
+        return Promise.resolve(false);
+      }
+      if (!props.multiple) {
+        // 单文件上传时，清空之前的文件
+        innerFileList.value = [];
+      }
     }
     const maxSize = props.maxSize || defaultMaxSize;
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
@@ -141,7 +149,6 @@
       Message.error(props.fileTypeTip ? props.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept }));
       return Promise.resolve(false);
     }
-    // 校验名称重复
     return Promise.resolve(true);
   }
 

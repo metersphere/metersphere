@@ -266,18 +266,7 @@
   });
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
-    // 校验本地文件是否重复
-    const isRepeat = _fileList.filter((item) => item.name === fileItem.name).length > 1;
-    if (isRepeat) {
-      Message.error(t('ms.add.attachment.repeatFileTip'));
-      innerFileList.value = _fileList.reduce((prev: MsFileItem[], current: MsFileItem) => {
-        const isExist = prev.find((item: any) => item.name === current.name);
-        if (!isExist) {
-          prev.push(current);
-        }
-        return prev;
-      }, []);
-    } else if (props.multiple) {
+    if (props.multiple) {
       innerFileList.value.push(fileItem);
       inputFiles.value.push({
         ...fileItem,
