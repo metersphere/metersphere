@@ -60,7 +60,7 @@
         class="flex items-center justify-between gap-[24px]"
       >
         <a-popover position="left" content-class="response-popover-content">
-          <div :style="{ color: statusCodeColor }">
+          <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
             {{ props.requestTaskResult.requestResults[0].responseResult.responseCode }}
           </div>
           <template #content>
@@ -225,6 +225,15 @@
   function setActiveResponse(val: 'content' | 'result') {
     activeResponseType.value = val;
   }
+
+  watch(
+    () => props.requestTaskResult,
+    (task) => {
+      if (task) {
+        setActiveResponse('result');
+      }
+    }
+  );
 </script>
 
 <style lang="less">

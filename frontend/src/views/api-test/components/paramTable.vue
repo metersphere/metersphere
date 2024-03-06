@@ -551,7 +551,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
+    (e: 'change', data: any[]): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
     (e: 'treeDelete', record: Record<string, any>): void;
@@ -583,6 +583,12 @@
     showPagination: false,
   });
 
+  function emitChange(from: string, isInit?: boolean) {
+    if (!isInit) {
+      emit('change', propsRes.value.data);
+    }
+  }
+
   const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
   propsEvent.value.rowSelectChange = (key: string) => {
     propsRes.value.data = propsRes.value.data.map((e) => {
@@ -591,14 +597,14 @@
       }
       return e;
     });
-    emit('change', propsRes.value.data);
+    emitChange('rowSelectChange');
   };
   propsEvent.value.selectAllChange = (v: SelectAllEnum) => {
     propsRes.value.data = propsRes.value.data.map((e) => {
       e.enable = v !== SelectAllEnum.NONE;
       return e;
     });
-    emit('change', propsRes.value.data);
+    emitChange('selectAllChange');
   };
 
   watch(
@@ -623,7 +629,7 @@
       return;
     }
     propsRes.value.data.splice(rowIndex, 1);
-    emit('change', propsRes.value.data);
+    emitChange('deleteParam');
   }
 
   /** 断言-文档-Begin */
@@ -638,7 +644,7 @@
       e.mustInclude = val;
     });
     propsRes.value.data = data;
-    emit('change', propsRes.value.data);
+    emitChange('handleMustIncludeChange');
   };
   const handleMustContainColChange = (notEmit?: boolean) => {
     const { data } = propsRes.value;
@@ -654,7 +660,7 @@
       mustIncludeIndeterminate.value = true;
     }
     if (!notEmit) {
-      emit('change', propsRes.value.data);
+      emitChange('handleMustContainColChange');
     }
   };
 
@@ -668,7 +674,7 @@
       e.typeChecking = val;
     });
     propsRes.value.data = data;
-    emit('change', propsRes.value.data);
+    emitChange('handleTypeCheckingChange');
   };
   const handleTypeCheckingColChange = (notEmit?: boolean) => {
     const { data } = propsRes.value;
@@ -684,7 +690,7 @@
       typeCheckingIndeterminate.value = true;
     }
     if (!notEmit) {
-      emit('change', propsRes.value.data);
+      emitChange('handleTypeCheckingColChange');
     }
   };
   /** 断言-文档-end */
@@ -707,7 +713,7 @@
 
   const handleEnvironment = (obj: Record<string, any>, record: Record<string, any>) => {
     record.domain = {};
-    emit('change', propsRes.value.data);
+    emitChange('handleEnvironment');
   };
 
   const hostVisible = ref(false);
@@ -751,7 +757,7 @@
    * @param key 当前列的 key
    * @param isForce 是否强制添加
    */
-  function addTableLine(rowIndex: number, addLineDisabled?: boolean) {
+  function addTableLine(rowIndex: number, addLineDisabled?: boolean, isInit?: boolean) {
     if (addLineDisabled) {
       return;
     }
@@ -763,7 +769,7 @@
         ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
       } as any);
-      emit('change', propsRes.value.data);
+      emitChange('addTableLine', isInit);
     }
     handleMustContainColChange(true);
     handleTypeCheckingColChange(true);
@@ -786,7 +792,7 @@
           return item;
         });
         if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
-          addTableLine(arr.length - 1);
+          addTableLine(arr.length - 1, false, true);
         }
       } else {
         const id = new Date().getTime().toString();
@@ -797,7 +803,7 @@
             enable: true, // 是否勾选
           },
         ] as any[];
-        emit('change', propsRes.value.data, true);
+        emitChange('watch props.params', true);
       }
     },
     {
@@ -808,7 +814,7 @@
   function toggleRequired(record: Record<string, any>, rowIndex: number) {
     record.required = !record.required;
     addTableLine(rowIndex);
-    emit('change', propsRes.value.data);
+    emitChange('toggleRequired');
   }
 
   async function handleFileChange(
@@ -842,7 +848,7 @@
         }));
       }
       addTableLine(rowIndex);
-      emit('change', propsRes.value.data);
+      emitChange('handleFileChange');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -871,7 +877,7 @@
     showQuickInputParam.value = false;
     addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputParam();
-    emit('change', propsRes.value.data);
+    emitChange('applyQuickInputParam');
   }
 
   const showQuickInputDesc = ref(false);
@@ -893,11 +899,11 @@
     showQuickInputDesc.value = false;
     addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputDesc();
-    emit('change', propsRes.value.data);
+    emitChange('applyQuickInputDesc');
   }
 
   function handleDescChange() {
-    emit('change', propsRes.value.data);
+    emitChange('handleDescChange');
   }
 
   function handleTypeChange(
@@ -917,7 +923,7 @@
         record.contentType = RequestContentTypeEnum.TEXT;
       }
     }
-    emit('change', propsRes.value.data);
+    emitChange('handleTypeChange');
   }
 
   /**

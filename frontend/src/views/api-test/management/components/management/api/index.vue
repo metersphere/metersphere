@@ -1,15 +1,29 @@
 <template>
   <div class="flex h-full flex-col">
     <div class="border-b border-[var(--color-text-n8)] px-[22px] pb-[16px]">
-      <MsEditableTab v-model:active-tab="activeApiTab" v-model:tabs="apiTabs" @add="addApiTab">
+      <MsEditableTab
+        v-model:active-tab="activeApiTab"
+        v-model:tabs="apiTabs"
+        @add="addApiTab"
+        @change="handleActiveTabChange"
+      >
         <template #label="{ tab }">
-          <apiMethodName v-if="tab.id !== 'all'" :method="tab.method" class="mr-[4px]" />
-          {{ tab.name || tab.label }}
+          <apiMethodName
+            v-if="tab.id !== 'all'"
+            :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol"
+            class="mr-[4px]"
+          />
+          <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
+            <div class="one-line-text max-w-[144px]">
+              {{ tab.name || tab.label }}
+            </div>
+          </a-tooltip>
         </template>
       </MsEditableTab>
     </div>
     <div v-show="activeApiTab.id === 'all'" class="flex-1">
       <apiTable
+        ref="apiTableRef"
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
         :protocol="props.protocol"
@@ -112,18 +126,48 @@
                     />
                   </a-form-item>
                 </a-form>
-                <a-dropdown @select="handleSelect">
-                  <a-button type="outline">
-                    <div class="flex items-center gap-[8px]">
-                      <icon-plus />
-                      {{ t('apiTestManagement.addDependency') }}
+                <div class="mb-[8px] flex items-center">
+                  <div class="text-[var(--color-text-2)]">
+                    {{ t('apiTestManagement.addDependency') }}
+                  </div>
+                  <a-divider margin="4px" direction="vertical" />
+                  <MsButton
+                    type="text"
+                    class="font-medium"
+                    :disabled="activeApiTab.preDependency.length === 0 && activeApiTab.postDependency.length === 0"
+                    @click="clearAllDependency"
+                  >
+                    {{ t('apiTestManagement.clearSelected') }}
+                  </MsButton>
+                </div>
+                <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
+                  <div class="flex items-center">
+                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
+                      {{ t('apiTestManagement.preDependency') }}
+                      <div class="text-[rgb(var(--primary-5))]">
+                        {{ activeApiTab.preDependency.length }}
+                      </div>
+                      {{ t('apiTestManagement.dependencyUnit') }}
                     </div>
-                  </a-button>
-                  <template #content>
-                    <a-doption value="pre">{{ t('apiTestManagement.preDependency') }}</a-doption>
-                    <a-doption value="post">{{ t('apiTestManagement.postDependency') }}</a-doption>
-                  </template>
-                </a-dropdown>
+                    <a-divider margin="8px" direction="vertical" />
+                    <MsButton type="text" class="font-medium" @click="handleDddDependency('pre')">
+                      {{ t('apiTestManagement.addPreDependency') }}
+                    </MsButton>
+                  </div>
+                  <div class="mt-[8px] flex items-center">
+                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
+                      {{ t('apiTestManagement.postDependency') }}
+                      <div class="text-[rgb(var(--primary-5))]">
+                        {{ activeApiTab.postDependency.length }}
+                      </div>
+                      {{ t('apiTestManagement.dependencyUnit') }}
+                    </div>
+                    <a-divider margin="8px" direction="vertical" />
+                    <MsButton type="text" class="font-medium" @click="handleDddDependency('post')">
+                      {{ t('apiTestManagement.addPostDependency') }}
+                    </MsButton>
+                  </div>
+                </div>
               </div>
             </template>
           </MsSplitBox>
@@ -141,6 +185,7 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
@@ -188,13 +233,14 @@
   );
 
   const props = defineProps<{
-    allCount: number;
     activeModule: string;
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
     protocol: string;
   }>();
   const emit = defineEmits(['addDone']);
+  const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
+  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -202,7 +248,7 @@
   const apiTabs = ref<RequestParam[]>([
     {
       id: 'all',
-      label: `${t('apiTestManagement.allApi')}(${props.allCount})`,
+      label: t('apiTestManagement.allApi'),
       closable: false,
     } as RequestParam,
   ]);
@@ -214,7 +260,6 @@
     }
   }
 
-  const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
   watch(
     () => activeApiTab.value.id,
     () => {
@@ -338,6 +383,10 @@
     response: cloneDeep(defaultResponse),
     responseDefinition: [cloneDeep(defaultResponseItem)],
     isNew: true,
+    mode: 'definition',
+    executeLoading: false,
+    preDependency: [], // 前置依赖
+    postDependency: [], // 后置依赖
   };
 
   function addApiTab(defaultProps?: Partial<TabItem>) {
@@ -345,12 +394,20 @@
     apiTabs.value.push({
       ...cloneDeep(defaultDefinitionParams),
       moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
-      label: t('apiTestDebug.newApi'),
+      label: t('apiTestManagement.newApi'),
       id,
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1] as RequestParam;
+  }
+
+  const apiTableRef = ref<InstanceType<typeof apiTable>>();
+
+  function handleActiveTabChange(item: TabItem) {
+    if (item.id === 'all') {
+      apiTableRef.value?.loadApiList();
+    }
   }
 
   const loading = ref(false);
@@ -403,7 +460,7 @@
   const showAddDependencyDrawer = ref(false);
   const addDependencyMode = ref<'pre' | 'post'>('pre');
 
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
+  function handleDddDependency(value: string | number | Record<string, any> | undefined) {
     switch (value) {
       case 'pre':
         addDependencyMode.value = 'pre';
@@ -416,6 +473,11 @@
       default:
         break;
     }
+  }
+
+  function clearAllDependency() {
+    activeApiTab.value.preDependency = [];
+    activeApiTab.value.postDependency = [];
   }
 
   const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
@@ -442,6 +504,9 @@
           activeApiTab.value.name = res.name;
           activeApiTab.value.label = res.name;
           activeApiTab.value.url = res.path;
+          if (typeof refreshModuleTree === 'function') {
+            refreshModuleTree();
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

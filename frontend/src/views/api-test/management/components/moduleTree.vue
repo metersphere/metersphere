@@ -526,9 +526,13 @@
     initModuleCount();
   });
 
+  async function refresh() {
+    await initModules();
+    initModuleCount();
+  }
+
   defineExpose({
-    initModules,
-    initModuleCount,
+    refresh,
   });
 </script>
 

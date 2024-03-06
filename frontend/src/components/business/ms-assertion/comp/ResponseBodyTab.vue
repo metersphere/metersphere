@@ -14,7 +14,7 @@
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
-        @change="(data, isInit) => handleChange(data, !!isInit, 'jsonPath')"
+        @change="(data) => handleChange(data, 'jsonPath')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -99,7 +99,7 @@
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="(data, isInit) => handleChange(data, !!isInit, 'xPath')"
+        @change="(data) => handleChange(data, 'xPath')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -193,7 +193,7 @@
           :span-method="documentSpanMethod"
           is-tree-table
           @tree-delete="deleteAllParam"
-          @change="(data, isInit) => handleChange(data, !!isInit, 'document')"
+          @change="(data) => handleChange(data, 'document')"
         >
           <template #matchValueDelete="{ record }">
             <icon-minus-circle
@@ -234,7 +234,7 @@
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="(data, isInit) => handleChange(data, !!isInit, 'regular')"
+        @change="(data) => handleChange(data, 'regular')"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -473,10 +473,7 @@
     matchValue: '',
     enable: true,
   };
-  const handleChange = (data: any[], isInit: boolean, type: string) => {
-    if (isInit) {
-      return;
-    }
+  const handleChange = (data: any[], type: string) => {
     if (type === 'jsonPath') {
       innerParams.value.jsonPath = data;
     } else if (type === 'xPath') {
