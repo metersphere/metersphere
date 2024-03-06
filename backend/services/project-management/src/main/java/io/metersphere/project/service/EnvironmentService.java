@@ -184,12 +184,7 @@ public class EnvironmentService {
         environmentInfoDTO.setId(environment.getId());
         environmentInfoDTO.setMock(environment.getMock());
         BeanUtils.copyBean(environmentInfoDTO, environment);
-        EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
-        if (environmentBlob == null) {
-            environmentInfoDTO.setConfig(new EnvironmentConfig());
-        } else {
-            environmentInfoDTO.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
-        }
+        environmentInfoDTO.setConfig(getEnvironmentConfig(environmentId));
         if (BooleanUtils.isTrue(environment.getMock())) {
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
             if (systemParameterService != null) {
@@ -203,6 +198,15 @@ public class EnvironmentService {
         }
 
         return environmentInfoDTO;
+    }
+
+    public EnvironmentConfig getEnvironmentConfig(String environmentId) {
+        EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
+        if (environmentBlob == null) {
+            return new EnvironmentConfig();
+        } else {
+            return JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class);
+        }
     }
 
     public Long getNextOrder(String projectId) {

@@ -6,10 +6,12 @@ import io.metersphere.api.service.ApiTestService;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
+import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.ProtocolDTO;
+import io.metersphere.system.security.CheckOwner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -36,6 +38,7 @@ public class ApiTestController {
 
     @GetMapping("/protocol/{organizationId}")
     @Operation(summary = "获取协议插件的的协议列表")
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<ProtocolDTO> getProtocols(@PathVariable String organizationId) {
         return apiTestService.getProtocols(organizationId);
     }
@@ -84,7 +87,20 @@ public class ApiTestController {
             PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
             PermissionConstants.PROJECT_API_SCENARIO_READ
     }, logical = Logical.OR)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<Environment> getEnvList(@PathVariable String projectId) {
         return apiTestService.getEnvList(projectId);
+    }
+
+    @GetMapping("/environment/{environmentId}")
+    @Operation(summary = "接口测试-获取环境中数据源等参数")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
+    }, logical = Logical.OR)
+    @CheckOwner(resourceId = "#environmentId", resourceType = "environment")
+    public EnvironmentConfig getEnvironmentConfig(@PathVariable String environmentId) {
+        return apiTestService.getEnvironmentConfig(environmentId);
     }
 }
