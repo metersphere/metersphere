@@ -326,6 +326,6 @@ public class PermissionConstants {
 
     /*------ start: ORGANIZATION_TASK_CENTER_READ ------*/
     public static final String ORGANIZATION_TASK_CENTER_READ = "ORGANIZATION_TASK_CENTER:READ";
-    public static final String ORGANIZATION_TASK_CENTER_READ_STOP = "ORGANIZATION_TASK_CENTER::READ+STOP";
+    public static final String ORGANIZATION_TASK_CENTER_READ_STOP = "ORGANIZATION_TASK_CENTER:READ+STOP";
     /*------ end: ORGANIZATION_TASK_CENTER_READ ------*/
 }
