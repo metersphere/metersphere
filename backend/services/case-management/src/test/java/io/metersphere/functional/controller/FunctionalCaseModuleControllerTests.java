@@ -702,7 +702,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         this.requestGetWithOk(URL_MODULE_TREE_DELETE + ModuleConstants.DEFAULT_NODE_ID);
 
         //service层判断：测试删除空集合
-        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(), new ArrayList<>());
+        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(), new ArrayList<>(), "admin");
 
         checkLog(functionalCase.getId(), OperationLogType.DELETE, URL_MODULE_TREE_DELETE);
 

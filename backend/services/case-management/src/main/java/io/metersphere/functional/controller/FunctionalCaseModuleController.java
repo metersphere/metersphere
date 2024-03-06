@@ -62,7 +62,7 @@ public class FunctionalCaseModuleController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @CheckOwner(resourceId = "#moduleId", resourceType = "functional_case_module")
     public void deleteNode(@PathVariable String moduleId) {
-        functionalCaseModuleService.deleteModule(moduleId);
+        functionalCaseModuleService.deleteModule(moduleId, SessionUtils.getUserId());
     }
 
     @GetMapping("/trash/tree/{projectId}")

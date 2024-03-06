@@ -77,7 +77,7 @@
     </select>
 
     <update id="removeToTrashByModuleIds" parameterType="java.lang.String">
-        UPDATE functional_case SET deleted = true, module_id = 'root'  WHERE module_id IN
+        UPDATE functional_case SET deleted = true, module_id = 'root', delete_time = unix_timestamp()*1000, delete_user = #{userId} WHERE module_id IN
         <foreach collection="moduleIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>

@@ -27,7 +27,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<String> getFunctionalCaseIds(@Param("projectId") String projectId);
 
-    void removeToTrashByModuleIds(@Param("moduleIds") List<String> deleteIds);
+    void removeToTrashByModuleIds(@Param("moduleIds") List<String> deleteIds, @Param("userId") String userId);
 
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
