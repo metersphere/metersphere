@@ -82,7 +82,6 @@ public class ApiTestController {
     @RequiresPermissions(value = {
             PermissionConstants.PROJECT_API_DEFINITION_READ,
             PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
-            PermissionConstants.PROJECT_API_DEBUG_READ,
             PermissionConstants.PROJECT_API_SCENARIO_READ
     }, logical = Logical.OR)
     public List<Environment> getEnvList(@PathVariable String projectId) {

@@ -7,6 +7,7 @@ import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.dto.scenario.ScenarioStepConfig;
+import io.metersphere.api.dto.scenario.ScenarioVariable;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
@@ -17,10 +18,12 @@ import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
+import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -29,6 +32,8 @@ import org.apache.jorphan.collections.HashTree;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.COOKIE_PANEL;
 
@@ -50,6 +55,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
             tree.add(getCookieManager());
         }
 
+        // 添加场景和环境变量
+        addArguments(tree, msScenario, envInfo);
+
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
         // 添加场景前置
@@ -66,6 +74,72 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
         // 添加场景断言
         addScenarioAssertions(tree, msScenario, config);
+    }
+
+    /**
+     * 添加场景和环境变量
+     * @param tree
+     * @param msScenario
+     * @param envInfo
+     */
+    private void addArguments(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo) {
+
+        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
+        ScenarioVariable scenarioVariable = scenarioConfig == null ? new ScenarioVariable() : scenarioConfig.getVariable();
+        List<CommonVariables> commonVariables = scenarioVariable.getCommonVariables();
+
+        List<CommonVariables> envCommonVariables = List.of();
+        if (needParseEnv(msScenario) && envInfo.getConfig() != null) {
+            // 获取环境变量
+            envCommonVariables = envInfo.getConfig().getCommonVariables();
+            // 获取后，将环境变量置空，避免请求重复设置
+            envInfo.getConfig().setCommonVariables(List.of());
+        }
+
+        List<CommonVariables> constantVariables = mergeEnvVariables(commonVariables, envCommonVariables, CommonVariables::isConstantValid);
+        List<CommonVariables> listVariables = mergeEnvVariables(commonVariables, envCommonVariables, CommonVariables::isListValid);
+
+        if (CollectionUtils.isEmpty(commonVariables) && CollectionUtils.isEmpty(envCommonVariables)) {
+            return;
+        }
+
+        Arguments arguments = JmeterTestElementParserHelper.getArguments(msScenario.getName());
+        JmeterTestElementParserHelper.parse2ArgumentList(constantVariables).forEach(arguments::addArgument);
+        JmeterTestElementParserHelper.parse2ArgumentList(listVariables).forEach(arguments::addArgument);
+        tree.add(arguments);
+    }
+
+    /**
+     * 合并环境变量和场景变量
+     * @param scenarioVariables
+     * @param envCommonVariables
+     * @param filter
+     * @return
+     */
+    private List<CommonVariables> mergeEnvVariables(List<CommonVariables> scenarioVariables, List<CommonVariables> envCommonVariables, Predicate<CommonVariables> filter) {
+        List<CommonVariables> variables = scenarioVariables
+                .stream()
+                .filter(CommonVariables::getEnable)
+                .filter(filter::test)
+                .collect(Collectors.toList());
+
+        List<CommonVariables> envConstantVariables = envCommonVariables
+                .stream()
+                .filter(CommonVariables::getEnable)
+                .filter(filter::test)
+                .collect(Collectors.toList());
+
+        Map<String, String> scenarioVariableMap = variables
+                .stream()
+                .collect(Collectors.toMap(CommonVariables::getKey, CommonVariables::getValue));
+
+        for (CommonVariables globalConstantVariable : envConstantVariables) {
+            String key = globalConstantVariable.getKey();
+            if (!scenarioVariableMap.containsKey(key)) {
+                variables.add(globalConstantVariable);
+            }
+        }
+        return variables;
     }
 
     /**
@@ -105,18 +179,8 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                                          EnvironmentInfoDTO envInfo,
                                          boolean isPre) {
 
-        if (isRef(msScenario.getRefType())) {
-            ScenarioStepConfig scenarioStepConfig = msScenario.getScenarioStepConfig();
-            if (scenarioStepConfig == null || BooleanUtils.isFalse(scenarioStepConfig.getEnableScenarioEnv())) {
-                // 引用的场景，如果没有开启源场景环境，不添加环境的前后置
-                return;
-            }
-        } else if (isCopy(msScenario.getRefType())) {
-            // 复制场景，不添加环境的前后置
+        if (!needParseEnv(msScenario)) {
             return;
-        } else {
-            // 当前场景，添加环境的前后置
-            // do nothing
         }
 
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
@@ -145,6 +209,28 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
             processor.setProjectId(msScenario.getProjectId());
             getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
         });
+    }
+
+    /**
+     * 是否需要解析环境
+     * @param msScenario
+     * @return
+     */
+    private boolean needParseEnv(MsScenario msScenario) {
+        if (isRef(msScenario.getRefType())) {
+            ScenarioStepConfig scenarioStepConfig = msScenario.getScenarioStepConfig();
+            if (scenarioStepConfig == null || BooleanUtils.isFalse(scenarioStepConfig.getEnableScenarioEnv())) {
+                // 引用的场景，如果没有开启源场景环境，不解析环境
+                return false;
+            }
+            return true;
+        } else if (isCopy(msScenario.getRefType())) {
+            // 复制场景，不解析环境
+            return false;
+        } else {
+            // 当前场景，解析环境
+            return true;
+        }
     }
 
     private void addScenarioProcessor(HashTree tree, MsScenario msScenario, ParameterConfig config, boolean isPre) {

@@ -45,6 +45,7 @@ import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
 import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
 import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
+import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
@@ -760,6 +761,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.getStepDetails().put(pluginStep.getId(), pluginStepDetail);
         request.getScenarioConfig().getOtherConfig().setEnableCookieShare(true);
         request.getScenarioConfig().getOtherConfig().setEnableGlobalCookie(false);
+        request.getScenarioConfig().setVariable(getScenarioVariable());
 
         Plugin plugin = addEnvTestPlugin();
         this.requestPostWithOk(DEBUG, request);
@@ -767,6 +769,24 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
+    }
+
+    private ScenarioVariable getScenarioVariable() {
+        ScenarioVariable scenarioVariable = new ScenarioVariable();
+        CommonVariables commonVariables1 = new CommonVariables();
+        commonVariables1.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables1.setKey("a");
+        commonVariables1.setValue("b");
+        CommonVariables commonVariables2 = new CommonVariables();
+        commonVariables2.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables2.setKey("b");
+        commonVariables2.setValue("c");
+        CommonVariables commonVariables3 = new CommonVariables();
+        commonVariables3.setType(VariableTypeConstants.LIST.name());
+        commonVariables3.setKey("list1");
+        commonVariables3.setValue("1,2,3");
+        scenarioVariable.setCommonVariables(List.of(commonVariables1, commonVariables2, commonVariables3));
+        return scenarioVariable;
     }
 
     @Test
@@ -1050,6 +1070,20 @@ public class ApiScenarioControllerTests extends BaseTest {
         EnvironmentConfig environmentConfig = new EnvironmentConfig();
         DataSource dataSource = getDataSource();
         environmentConfig.setDataSources(List.of(dataSource));
+
+        CommonVariables commonVariables1 = new CommonVariables();
+        commonVariables1.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables1.setKey("a");
+        commonVariables1.setValue("c");
+        CommonVariables commonVariables2 = new CommonVariables();
+        commonVariables2.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables2.setKey("q");
+        commonVariables2.setValue("qq");
+        CommonVariables commonVariables3 = new CommonVariables();
+        commonVariables3.setType(VariableTypeConstants.LIST.name());
+        commonVariables3.setKey("list1");
+        commonVariables3.setValue("1,2,3,5");
+        environmentConfig.setCommonVariables(List.of(commonVariables1, commonVariables2, commonVariables3));
 
         EnvProcessorConfig preProcessorConfig = environmentConfig.getPreProcessorConfig();
         EnvProcessorConfig postProcessorConfig = environmentConfig.getPostProcessorConfig();

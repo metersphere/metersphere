@@ -1,5 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
+import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import io.metersphere.plugin.api.constants.ElementProperty;
@@ -14,8 +15,6 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 
 import java.util.List;
-
-import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.ARGUMENTS_PANEL;
 
 
 /**
@@ -79,11 +78,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
             return null;
         }
 
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(scriptProcessor.getName() + "_Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(ARGUMENTS_PANEL));
+        Arguments arguments = JmeterTestElementParserHelper.getArguments(scriptProcessor.getName());
         for (KeyValueParam param : params) {
             arguments.addArgument(param.getKey(), param.getValue(), "=");
         }
