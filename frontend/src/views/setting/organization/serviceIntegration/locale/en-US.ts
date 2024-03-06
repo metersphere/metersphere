@@ -45,7 +45,7 @@ export default {
   'organization.service.resetServiceContentTip':
     'After the Reset, the integration information will be cleared, the project can not integrate with the platform and the platform default template is not available, be careful!',
   'organization.service.searchService': 'Search by plug-in name',
-  'organization.service.successMessage': 'The test connection was successful',
+  'organization.service.successMessage': 'The test connection was successful!',
   'organization.service.enableSuccess': 'Enable successfully',
   'organization.service.closeSuccess': 'Disable successfully',
   'organization.service.configSuccess': 'Configuration successfully',

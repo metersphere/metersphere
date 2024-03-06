@@ -40,7 +40,7 @@ export default {
   'organization.service.resetServiceContentTip':
     '重置后，集成信息将被清空，项目无法与该平台集成且该平台默认模板不可用，谨慎操作！',
   'organization.service.searchService': '通过插件名称搜索',
-  'organization.service.successMessage': '测试连接成功',
+  'organization.service.successMessage': '测试连接成功!',
   'organization.service.enableSuccess': '启用成功',
   'organization.service.closeSuccess': '禁用成功',
   'organization.service.configSuccess': '配置成功',
