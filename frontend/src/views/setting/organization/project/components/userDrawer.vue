@@ -12,7 +12,8 @@
       <div class="flex flex-row justify-between">
         <a-button
           v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD_MEMBER'])"
-          type="primary"
+          class="mr-3"
+          type="outline"
           @click="handleAddMember"
         >
           {{ t('system.organization.addMember') }}
