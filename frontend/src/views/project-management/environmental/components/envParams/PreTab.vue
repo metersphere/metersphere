@@ -5,6 +5,9 @@
     add-text="apiTestDebug.precondition"
     response=""
     :height-used="600"
+    :show-associated-scene="props.showAssociatedScene"
+    :show-pre-post-request="props.showPrePostRequest"
+    :request-radio-text-props="props.requestRadioTextProps"
   >
   </condition>
 </template>
@@ -16,14 +19,35 @@
 
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
+  const props = defineProps<{
+    showAssociatedScene?: boolean;
+    showPrePostRequest?: boolean;
+    requestRadioTextProps?: Record<string, any>;
+    activeTab: string;
+  }>();
+
   const store = useProjectEnvStore();
   const innerParams = computed({
     set: (value: any) => {
-      store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors =
-        value || [];
+      if (props.activeTab === 'scenarioProcessorConfig') {
+        store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors =
+          value || [];
+      } else {
+        store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.requestProcessorConfig.processors =
+          value || [];
+      }
     },
-    get: () =>
-      store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors || [],
+    get: () => {
+      if (props.activeTab === 'scenarioProcessorConfig') {
+        return (
+          store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.scenarioProcessorConfig.processors ||
+          []
+        );
+      }
+      return (
+        store.currentEnvDetailInfo.config.preProcessorConfig.apiProcessorConfig.requestProcessorConfig.processors || []
+      );
+    },
   });
 </script>
 

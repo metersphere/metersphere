@@ -2,10 +2,58 @@
   <div class="condition-content">
     <!-- 脚本操作 -->
     <template v-if="condition.processorType === RequestConditionProcessor.SCRIPT">
-      <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[8px]">
-        <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
-        <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
-      </a-radio-group>
+      <!-- 前后置请求开始 -->
+      <div v-if="props.showPrePostRequest" class="mt-4">
+        <a-radio-group v-model="condition.beforeStepScript" type="button" size="small" :default-value="true">
+          <a-radio :value="true"> {{ props?.requestRadioTextProps?.pre }} </a-radio>
+          <a-radio :value="false"> {{ props?.requestRadioTextProps?.post }} </a-radio>
+        </a-radio-group>
+        <a-tooltip position="br" :content="t('apiTestDebug.preconditionAssociateResultDesc')">
+          <IconQuestionCircle class="ml-2 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]" />
+          <template #content>
+            <div>{{ props?.requestRadioTextProps?.preTip }}</div>
+            <div>{{ props?.requestRadioTextProps?.postTip }}</div>
+          </template>
+        </a-tooltip>
+      </div>
+      <div v-if="props.showPrePostRequest" class="my-4">
+        <MsSelect
+          v-model:model-value="condition.ignoreProtocols"
+          :style="{ width: '332px' }"
+          :allow-search="false"
+          allow-clear
+          :options="protocolList"
+          :multiple="true"
+          :has-all-select="true"
+          value-key="protocol"
+          label-key="protocol"
+          :prefix="t('project.environmental.preOrPost.ignoreProtocols')"
+        >
+        </MsSelect>
+      </div>
+      <!-- 前后置请求结束 -->
+      <div class="flex items-center justify-between">
+        <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[8px]">
+          <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
+          <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
+        </a-radio-group>
+        <div v-if="props.showAssociatedScene" class="flex items-center">
+          <a-switch
+            v-model="condition.associateScenarioResult"
+            class="mr-2"
+            size="small"
+            type="line"
+            @change="emit('change')"
+          />
+          {{ t('apiTestDebug.preconditionAssociatedSceneResult') }}
+          <a-tooltip position="br" :content="t('apiTestDebug.preconditionAssociateResultDesc')">
+            <IconQuestionCircle
+              class="ml-2 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+            />
+          </a-tooltip>
+        </div>
+      </div>
+
       <div
         v-if="!condition.enableCommonScript"
         class="relative flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)]"
@@ -358,13 +406,17 @@
   import InsertCommonScript from '@/components/business/ms-common-script/insertCommonScript.vue';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
   import MsScriptDefined from '@/components/business/ms-common-script/scriptDefined.vue';
+  import MsSelect from '@/components/business/ms-select';
   import fastExtraction from '../fastExtraction/index.vue';
   import moreSetting from '../fastExtraction/moreSetting.vue';
   import paramTable, { type ParamTableColumn } from '../paramTable.vue';
   import quoteSqlSourceDrawer from '../quoteSqlSourceDrawer.vue';
 
+  import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
+  import type { ProtocolItem } from '@/models/apiTest/common';
   import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
   import {
@@ -378,13 +430,22 @@
   } from '@/enums/apiEnum';
 
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
-
-  const props = defineProps<{
-    data: ExecuteConditionProcessor;
-    response?: string; // 响应内容
-    heightUsed?: number;
-    isBuildIn?: boolean; // 是否是内置的条件
-  }>();
+  const appStore = useAppStore();
+  const props = withDefaults(
+    defineProps<{
+      data: ExecuteConditionProcessor;
+      response?: string; // 响应内容
+      heightUsed?: number;
+      isBuildIn?: boolean; // 是否是内置的条件
+      showAssociatedScene?: boolean; // 是否展示关联场景结果
+      requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本
+      showPrePostRequest?: boolean; // 是否展示前后置请求忽略
+    }>(),
+    {
+      showAssociatedScene: false,
+      showPrePostRequest: false,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
@@ -732,6 +793,15 @@ if (!result){
     });
     emit('change');
   }
+
+  const protocolList = ref<ProtocolItem[]>([]);
+  onBeforeMount(async () => {
+    try {
+      protocolList.value = await getProtocolList(appStore.currentOrgId);
+    } catch (error) {
+      console.log(error);
+    }
+  });
 </script>
 
 <style lang="less" scoped>

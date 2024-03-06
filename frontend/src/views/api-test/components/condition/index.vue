@@ -30,6 +30,9 @@
       v-model:data="activeItem"
       :response="props.response"
       :height-used="props.heightUsed"
+      :show-associated-scene="props.showAssociatedScene"
+      :show-pre-post-request="props.showPrePostRequest"
+      :request-radio-text-props="props.requestRadioTextProps"
       @copy="copyListItem"
       @delete="deleteListItem"
       @change="emit('change')"
@@ -48,13 +51,21 @@
   import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
-  const props = defineProps<{
-    list: ExecuteConditionProcessor[];
-    conditionTypes: Array<ConditionType>;
-    addText: string;
-    heightUsed?: number;
-    response?: string; // 响应内容
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      list: ExecuteConditionProcessor[];
+      conditionTypes: Array<ConditionType>;
+      addText: string;
+      requestRadioTextProps?: Record<string, any>;
+      heightUsed?: number;
+      response?: string; // 响应内容
+      showAssociatedScene?: boolean;
+      showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
+    }>(),
+    {
+      showAssociatedScene: false,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:list', list: ExecuteConditionProcessor[]): void;
     (e: 'change'): void;
@@ -107,6 +118,9 @@
           processorType: RequestConditionProcessor.SCRIPT,
           scriptName: t('apiTestDebug.preconditionScriptName'),
           enableCommonScript: false,
+          associateScenarioResult: false,
+          ignoreProtocols: [],
+          beforeStepScript: true,
           enable: true,
           script: '',
           scriptId: '',
@@ -125,6 +139,9 @@
           id,
           processorType: RequestConditionProcessor.SQL,
           enableCommonScript: false,
+          associateScenarioResult: false,
+          ignoreProtocols: [],
+          beforeStepScript: true,
           description: '',
           enable: true,
           dataSourceId: '',
@@ -141,6 +158,9 @@
         data.value.push({
           id,
           processorType: RequestConditionProcessor.TIME_WAITING,
+          associateScenarioResult: false,
+          ignoreProtocols: [],
+          beforeStepScript: true,
           enable: true,
           delay: 1000,
         });
@@ -149,6 +169,10 @@
         data.value.push({
           id,
           processorType: RequestConditionProcessor.EXTRACT,
+          enableCommonScript: false,
+          associateScenarioResult: false,
+          ignoreProtocols: [],
+          beforeStepScript: true,
           enable: true,
           extractors: [],
         });

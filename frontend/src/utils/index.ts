@@ -632,3 +632,32 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
   });
   return tableData;
 }
+
+/**
+ * 获取模块树多选节点目标Id对应的name列表
+ */
+/**
+ * 获取模块树多选节点目标Id对应的name列表
+ * @param trees 属性数组
+ * @param targetIds 需要匹配的属性值
+ */
+export function findNodeNames<T>(trees: TreeNode<T>[], targetIds: string[]) {
+  const result: string[] = [];
+  // eslint-disable-next-line no-shadow
+  function findNameRecursive(node: TreeNode<T>, targetIds: string[]) {
+    if (targetIds.includes(node.id)) {
+      result.push(node.name);
+    }
+    if (node.children) {
+      node.children.forEach((child) => {
+        findNameRecursive(child, targetIds);
+      });
+    }
+  }
+
+  trees.forEach((module) => {
+    findNameRecursive(module, targetIds);
+  });
+
+  return result;
+}

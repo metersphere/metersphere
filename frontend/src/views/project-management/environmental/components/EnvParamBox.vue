@@ -39,14 +39,20 @@
         <a-tab-pane key="displaySetting" :title="t('project.environmental.displaySetting')" />
       </a-tabs>
     </div>
-    <a-divider :margin="0" class="!mb-[16px]" />
+    <a-divider
+      :margin="0"
+      :class="{
+        '!mb-[16px]': activeKey === 'pre' || activeKey === 'post' ? false : true,
+      }"
+    />
     <div class="content">
       <EnvParamsTab v-if="activeKey === 'envParams'" />
       <HttpTab v-else-if="activeKey === 'http'" />
       <DataBaseTab v-else-if="activeKey === 'database'" />
       <HostTab v-else-if="activeKey === 'host'" />
-      <PreTab v-else-if="activeKey === 'pre'" />
-      <PostTab v-else-if="activeKey === 'post'" />
+      <!-- <PreTab v-else-if="activeKey === 'pre'" />
+      <PostTab v-else-if="activeKey === 'post'" /> -->
+      <PreAndPostTab v-else-if="activeKey === 'pre' || activeKey === 'post'" :active-type="activeKey" />
       <AssertTab v-else-if="activeKey === 'assert'" />
       <template v-for="item in envPluginList" :key="item.pluginId">
         <PluginTab
@@ -80,6 +86,7 @@
   import HttpTab from './envParams/HttpTab.vue';
   import PluginTab from './envParams/PluginTab.vue';
   import PostTab from './envParams/PostTab.vue';
+  import PreAndPostTab from './envParams/preAndPost.vue';
   import PreTab from './envParams/PreTab.vue';
 
   import { getEnvPlugin, updateOrAddEnv } from '@/api/modules/project-management/envManagement';

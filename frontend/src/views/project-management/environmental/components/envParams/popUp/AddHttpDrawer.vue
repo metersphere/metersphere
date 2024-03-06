@@ -14,7 +14,7 @@
       <a-form-item
         class="mb-[16px]"
         asterisk-position="end"
-        field="hostname"
+        field="url"
         :label="t('project.environmental.http.hostName')"
         :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
       >
@@ -36,7 +36,7 @@
             <a-option value="https">https://</a-option>
           </a-select>
           <a-input
-            v-model="form.hostname"
+            v-model="form.url"
             class="w-full"
             :max-length="255"
             :placeholder="
@@ -85,8 +85,14 @@
       </a-form-item> -->
       <!-- 展示模块 -->
       <!-- TODO 模块还没有加 -->
-      <!-- <a-form-item class="mb-[16px]" field="description" :label="t('project.environmental.http.selectApiModule')">
-        <ApiTree
+      <a-form-item
+        v-if="form.type === 'MODULE'"
+        class="mb-[16px]"
+        field="description"
+        :label="t('project.environmental.http.selectApiModule')"
+      >
+        <!-- TODO 先做普通树 放在下一个版本 -->
+        <!-- <ApiTree
           v-model:focus-node-key="focusNodeKey"
           :placeholder="t('project.environmental.http.selectApiModule')"
           :selected-keys="selectedKeys"
@@ -108,8 +114,25 @@
           <template #tree-slot-extra="nodeData">
             <span><MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, nodeData)" /></span>
           </template>
-        </ApiTree>
-      </a-form-item> -->
+        </ApiTree> -->
+        <a-tree-select
+          v-model="form.moduleId"
+          :data="envTree"
+          class="w-full"
+          :tree-checkable="true"
+          :allow-search="true"
+          :field-names="{
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          }"
+          :tree-props="{
+            virtualListProps: {
+              height: 200,
+            },
+          }"
+        ></a-tree-select>
+      </a-form-item>
       <!-- 路径 -->
       <a-form-item
         v-if="showPathInput"
@@ -142,21 +165,26 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from '@/components/business/ms-tree/types';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import RequestHeader from '../../requestHeader/index.vue';
 
+  import { getEnvModules } from '@/api/modules/api-test/management';
   // import ApiTree from './apiTree.vue';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
   import { getGenerateId } from '@/utils';
 
+  import type { EnvModule } from '@/models/apiTest/management';
+  import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';
 
   const props = defineProps<{
     currentId: string;
     isCopy: boolean;
+    moduleTree: ModuleTreeNode[];
   }>();
-
+  const appStore = useAppStore();
   const store = useProjectEnvStore();
 
   const emit = defineEmits<{
@@ -174,7 +202,7 @@
     },
   ];
 
-  const initForm = {
+  const initForm: HttpForm = {
     id: '',
     hostname: '',
     type: 'NONE',
@@ -182,7 +210,21 @@
     path: '',
     condition: 'CONTAINS',
     description: '',
+    url: '',
     protocol: 'http',
+    moduleId: [],
+    moduleMatchRule: {
+      modules: [
+        // {
+        //   moduleId: '',
+        //   containChildModule: false,
+        // },
+      ],
+    },
+    pathMatchRule: {
+      path: '',
+      condition: '',
+    },
   };
 
   const form = ref<HttpForm>({ ...initForm });
@@ -202,437 +244,59 @@
 
   const handleAddOrUpdate = () => {
     const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
+    let modules: { moduleId: string; containChildModule: boolean }[] = [];
+    const { protocol, url, condition, path } = form.value;
+    if (form.value.type === 'MODULE') {
+      modules = form.value.moduleId.map((item) => {
+        return {
+          moduleId: item,
+          containChildModule: false,
+        };
+      });
+    }
+
     // 编辑
     if (index > -1 && !props.isCopy) {
-      store.currentEnvDetailInfo.config.httpConfig.splice(index + 1, 1, form.value);
+      const httpItem = {
+        ...form.value,
+        hostname: `${protocol}:${url}`,
+        pathMatchRule: {
+          path,
+          condition,
+        },
+        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+        moduleMatchRule: { modules },
+      };
+      store.currentEnvDetailInfo.config.httpConfig.splice(index, 1, httpItem);
       // 复制
     } else if (index > -1 && props.isCopy) {
       const insertItem = {
         ...form.value,
         id: getGenerateId(),
-        hostname: `copy_${form.value.hostname}`,
+        hostname: `${protocol}:${url}`,
         order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+        moduleMatchRule: { modules },
       };
-      store.currentEnvDetailInfo.config.httpConfig.splice(index, 0, insertItem);
+      store.currentEnvDetailInfo.config.httpConfig.splice(index + 1, 0, insertItem);
       // 添加
     } else {
-      const { protocol, hostname, condition, path } = form.value;
       const httpItem = {
         ...form.value,
-        hostname: `${protocol}://${hostname}`,
+        hostname: `${protocol}://${url}`,
         pathMatchRule: {
           path,
           condition,
         },
         id: getGenerateId(),
         order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+        moduleMatchRule: { modules },
       };
       store.currentEnvDetailInfo.config.httpConfig.push(httpItem);
     }
     emit('close');
   };
 
-  const moduleTree = ref([
-    {
-      id: 'root',
-      name: '未规划请求',
-      type: 'MODULE',
-      parentId: 'NONE',
-      children: [
-        {
-          id: '4112912223068160',
-          name: '随便写的',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'OPTIONS',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1150192243335168',
-          name: '文件儿',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1165379247169536',
-          name: '901',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'TCP',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1165705664684032',
-          name: '888',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'TCP',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2125544956010496',
-          name: '0129-1',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2126988065021952',
-          name: '0129-2',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2171827523477504',
-          name: 'fffggg',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2297223388766208',
-          name: '0129-3',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '4034709458542592',
-          name: '测试一下百度',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'PATCH',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1017890070175744',
-          name: 'TTTTTCCCCCPPPPP',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'TCP',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '864679996792832',
-          name: '委托',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '867463135600640',
-          name: '登入',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '868236229713920',
-          name: '买入',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '927008562290689',
-          name: '账号校验1',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '943707395039232',
-          name: 'ddd',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'TCP',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1068845561815040',
-          name: 'TCP测试2',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'TCP',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1131706704060416',
-          name: 'aaa',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '921184586637312',
-          name: '读取系统日期22',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '642853526609920',
-          name: 'Test',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '851760736174080',
-          name: 'dd',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '853891039952896',
-          name: 'fasdfd',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1118186147643392',
-          name: 'eeee',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1120161832599552',
-          name: 'eeeeqqq',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1162149432885248',
-          name: 'a',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '1177147458682880',
-          name: '这是Curl导入的请求',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2226957725106176',
-          name: 'test12',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2601169635672064',
-          name: 'testvvvv',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '885467640184832',
-          name: 'okko',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '891635213221888',
-          name: 'gs',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'HTTP',
-            method: 'GET',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '640018849742848',
-          name: '0228',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-        {
-          id: '2178166898065408',
-          name: '0304',
-          type: 'API',
-          parentId: 'root',
-          children: [],
-          attachInfo: {
-            protocol: 'SPX',
-          },
-          count: 0,
-          path: '/',
-        },
-      ],
-      attachInfo: {},
-      count: 0,
-      path: '/未规划请求',
-    },
-  ]);
+  const envTree = ref<ModuleTreeNode[]>([]);
 
   const moreActions: ActionsItem[] = [
     {
@@ -654,13 +318,34 @@
         (item) => item.id === props.currentId
       ) as HttpForm;
       if (currentItem) {
+        const { path, condition } = currentItem.pathMatchRule;
+        const urlPath = currentItem.hostname.match(/\/\/(.*)/);
         form.value = {
           ...currentItem,
+          moduleId: currentItem.moduleMatchRule.modules.map((item) => item.moduleId) || [],
+          path,
+          condition,
+          url: urlPath && urlPath?.length > 1 ? `//${urlPath[1]}` : '',
         };
       }
     } else {
       resetForm();
     }
+  });
+
+  async function initModuleTree() {
+    try {
+      const res = await getEnvModules({
+        projectId: appStore.currentProjectId,
+      });
+      envTree.value = res.moduleTree;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onBeforeMount(() => {
+    initModuleTree();
   });
 </script>
 

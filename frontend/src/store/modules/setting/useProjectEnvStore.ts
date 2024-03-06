@@ -30,16 +30,17 @@ const envParamsDefaultConfig: EnvConfig = {
       scenarioProcessorConfig: {
         processors: [],
       },
+      requestProcessorConfig: {
+        processors: [],
+      },
     },
-
-    // TODO 环境参数问题
-    // apiProcessorConfig: [],
   },
   postProcessorConfig: {
-    // TODO 环境参数问题
-    // apiProcessorConfig: [],
     apiProcessorConfig: {
       scenarioProcessorConfig: {
+        processors: [],
+      },
+      requestProcessorConfig: {
         processors: [],
       },
     },

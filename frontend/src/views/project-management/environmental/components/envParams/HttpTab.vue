@@ -18,19 +18,25 @@
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
       </a-input-number>
-      <a-select v-model:model-value="form.authType" class="w-[200px]">
+      <!-- TOTO 第一个版本不做 -->
+      <!-- <a-select v-model:model-value="form.authType" class="w-[200px]">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.authType') }}</span>
         </template>
         <a-option>Basic Auth</a-option>
         <a-option>Basic Auth2</a-option>
         <a-option>Basic Auth3</a-option>
-      </a-select>
+      </a-select> -->
     </div>
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent" @change="changeHandler">
     <template #type="{ record }">
       <span>{{ getEnableScope(record.type) }}</span>
+    </template>
+    <template #moduleValue="{ record }">
+      <a-tooltip :content="getModuleName(record)" position="left">
+        <span class="one-line-text max-w-[300px]">{{ getModuleName(record) }}</span>
+      </a-tooltip>
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap items-center">
@@ -42,7 +48,13 @@
       </div>
     </template>
   </MsBaseTable>
-  <AddHttpDrawer v-model:visible="addVisible" :is-copy="isCopy" :current-id="httpId" @close="addVisible = false" />
+  <AddHttpDrawer
+    v-model:visible="addVisible"
+    :module-tree="moduleTree"
+    :is-copy="isCopy"
+    :current-id="httpId"
+    @close="addVisible = false"
+  />
 </template>
 
 <script lang="ts" async setup>
@@ -56,15 +68,19 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddHttpDrawer from './popUp/AddHttpDrawer.vue';
 
+  import { getEnvModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { findNodeNames } from '@/utils';
 
   import { BugListItem } from '@/models/bug-management';
+  import type { ModuleTreeNode } from '@/models/common';
   import type { CommonParams } from '@/models/projectManagement/environmental';
   import { HttpForm } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const store = useProjectEnvStore();
@@ -97,7 +113,8 @@
     {
       title: 'project.environmental.http.value',
       dataIndex: 'value',
-      showTooltip: true,
+      slotName: 'moduleValue',
+      showTooltip: false,
       showDrag: true,
       showInTable: true,
     },
@@ -222,6 +239,27 @@
       default:
         break;
     }
+  }
+  const moduleTree = ref<ModuleTreeNode[]>([]);
+  async function initModuleTree() {
+    try {
+      const res = await getEnvModules({
+        projectId: appStore.currentProjectId,
+      });
+      moduleTree.value = res.moduleTree;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  await initModuleTree();
+
+  function getModuleName(record: HttpForm) {
+    if (record.type === 'MODULE') {
+      const moduleIds: string[] = record.moduleMatchRule.modules.map((item) => item.moduleId);
+      const result = findNodeNames(moduleTree.value, moduleIds);
+      return result.join(',');
+    }
+    return '-';
   }
 </script>
 
