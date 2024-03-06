@@ -37,7 +37,7 @@ public class FunctionalCaseReviewService {
     }
 
     public List<CaseReviewHistoryDTO> getCaseReviewHistory(String caseId) {
-        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.getHistoryListWidthAbandoned(caseId, null);
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.getHistoryListWidthCaseId(caseId, null);
         for (CaseReviewHistoryDTO caseReviewHistoryDTO : list) {
             if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), UserRoleScope.SYSTEM)) {
                 caseReviewHistoryDTO.setUserName(Translator.get("case_review_history.system"));

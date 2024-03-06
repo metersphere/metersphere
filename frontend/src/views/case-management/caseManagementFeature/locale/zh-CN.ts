@@ -106,7 +106,7 @@ export default {
   'caseManagement.featureCase.notReviewed': '未评审',
   'caseManagement.featureCase.reviewing': '评审中',
   'caseManagement.featureCase.passed': '已通过',
-  'caseManagement.featureCase.notPass': '未通过',
+  'caseManagement.featureCase.notPass': '不通过',
   'caseManagement.featureCase.retrial': '重新提审',
   'caseManagement.featureCase.nonExecution': '未执行',
   'caseManagement.featureCase.failure': '失败',
