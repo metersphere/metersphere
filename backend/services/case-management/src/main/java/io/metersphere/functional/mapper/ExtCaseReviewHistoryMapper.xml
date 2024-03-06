@@ -52,6 +52,34 @@
         order by ch.create_time desc
     </select>
 
+    <select id="getHistoryListWidthCaseId" resultType="io.metersphere.functional.dto.CaseReviewHistoryDTO">
+        SELECT
+        ch.id,
+        ch.review_id,
+        ch.case_id,
+        ch.status,
+        ch.notifier,
+        ch.create_user,
+        ch.create_time,
+        ch.content,
+        u.name as userName,
+        ux.avatar as userLogo,
+        cr.name as reviewName,
+        u.email as email
+        FROM
+        case_review_history ch
+        left join user u on  ch.create_user = u.id
+        left join user_extend ux on  ch.create_user = ux.id
+        left join case_review cr on  ch.review_id = cr.id
+        where ch.case_id = #{caseId}
+        <if test="reviewId != null and reviewId != ''">
+            and ch.review_id = #{reviewId}
+        </if>
+        order by ch.create_time desc
+    </select>
+
+
+
     <update id="updateDelete">
         update case_review_history
         set deleted = #{delete}
