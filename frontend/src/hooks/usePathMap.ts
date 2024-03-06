@@ -1,6 +1,6 @@
 import { MENU_LEVEL, pathMap, PathMapItem, PathMapRoute } from '@/config/pathMap';
 import router from '@/router';
-import { findNodeByKey, mapTree, TreeNode } from '@/utils';
+import { findNodeByAlias, findNodeByKey, mapTree, TreeNode } from '@/utils';
 
 export default function usePathMap() {
   /**
@@ -59,6 +59,14 @@ export default function usePathMap() {
   };
 
   /**
+   * 根据 Alias 获取路由
+   * @param alias 路由的 alias
+   */
+  const getRouteMapByAlias = (alias: string) => {
+    return findNodeByAlias<PathMapItem>(pathMap, alias as unknown as string);
+  };
+
+  /**
    * 通过路由的 name 来获取它的菜单级别
    * @param name 路由的 name
    * @returns MENU_LEVEL
@@ -102,5 +110,6 @@ export default function usePathMap() {
     jumpRouteByMapKey,
     getRouteLevelByKey,
     findLocalePath,
+    getRouteMapByAlias,
   };
 }
