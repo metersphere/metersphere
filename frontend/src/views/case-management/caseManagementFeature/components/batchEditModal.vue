@@ -3,7 +3,7 @@
     v-model:visible="isVisible"
     dialog-size="small"
     :title="t('caseManagement.featureCase.batchEdit', { number: props.batchParams.currentSelectCount })"
-    ok-text="common.confirm"
+    ok-text="common.update"
     :confirm="confirmHandler"
     :close="closeHandler"
     unmount-on-close

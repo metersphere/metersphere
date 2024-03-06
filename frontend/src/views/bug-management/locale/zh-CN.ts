@@ -85,8 +85,8 @@ export default {
       systemFiled: '系统字段',
       customFiled: '自定义字段',
       append: '追加',
-      openAppend: '开启: 追加字段',
-      closeAppend: '关闭: 覆盖原有字段',
+      openAppend: '开启: 追加标签',
+      closeAppend: '关闭: 覆盖原有标签',
       handleUser: '处理人',
       tag: '标签',
       required: {
