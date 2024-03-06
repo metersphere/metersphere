@@ -20,7 +20,7 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
   });
   Object.defineProperty(file, 'size', { value: fileInfo.fileSize });
   Object.defineProperty(file, 'type', { value: type });
-  const { fileId, local, isUpdateFlag, refId, createUserName, createTime } = fileInfo;
+  const { fileId, local, isUpdateFlag, isCopyFlag, refId, createUserName, createTime } = fileInfo;
   return {
     enable: fileInfo.enable || false,
     file,
@@ -32,6 +32,7 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
     local,
     deleteContent: !local ? 'caseManagement.featureCase.cancelLink' : '',
     isUpdateFlag,
+    isCopyFlag,
     associateId: refId,
     createUserName,
     uploadedTime: createTime,

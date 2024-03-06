@@ -1,6 +1,7 @@
 package io.metersphere.bug.dto.request;
 
 import io.metersphere.bug.dto.response.BugCustomFieldDTO;
+import io.metersphere.bug.dto.response.BugFileDTO;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,4 +57,7 @@ public class BugEditRequest implements Serializable {
 
     @Schema(description = "用例ID")
     private String caseId;
+
+    @Schema(description = "复制的附件")
+    private List<BugFileDTO> copyFiles;
 }

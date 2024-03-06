@@ -28,6 +28,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.CustomFieldOption;
@@ -1006,22 +1007,47 @@ public class BugService {
     private List<SyncAttachmentToPlatformRequest> uploadAttachment(BugEditRequest request, List<MultipartFile> files, PlatformBugUpdateDTO platformBug,
                                                                    String currentUser, String platformName, File tempFileDir) {
         List<SyncAttachmentToPlatformRequest> uploadPlatformAttachments = new ArrayList<>();
+        // 复制的附件
+        List<BugLocalAttachment> copyFiles = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(request.getCopyFiles())) {
+            // 本地附件
+            request.getCopyFiles().stream().filter(BugFileDTO::getLocal).forEach(localFile -> {
+                try {
+                    BugFileSourceRequest sourceRequest = new BugFileSourceRequest();
+                    sourceRequest.setBugId(localFile.getBugId());
+                    sourceRequest.setProjectId(request.getProjectId());
+                    sourceRequest.setFileId(localFile.getFileId());
+                    sourceRequest.setAssociated(false);
+                    byte[] bytes = bugAttachmentService.downloadOrPreview(sourceRequest).getBody();
+                    if (bytes != null) {
+                        BugLocalAttachment localAttachment = buildBugLocalAttachment(request.getId(), localFile.getFileName(), bytes.length, currentUser);
+                        copyFiles.add(localAttachment);
+                        // 上传文件库
+                        FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(request.getProjectId(), request.getId(), localAttachment.getFileId(), localFile.getFileName()));
+                        // 同步新上传的附件至平台
+                        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+                            File uploadTmpFile = new File(tempFileDir, Objects.requireNonNull(localFile.getFileName())).toPath().normalize().toFile();
+                            FileUtils.writeByteArrayToFile(uploadTmpFile, bytes);
+                            uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new MSException(Translator.get("bug_attachment_upload_error"));
+                }
+            });
+            extBugLocalAttachmentMapper.batchInsert(copyFiles);
+            // 关联的附件, 直接合并, 后续逻辑会处理
+            List<String> copyLinkFileIds = request.getCopyFiles().stream().filter(file -> !file.getLocal()).map(BugFileDTO::getFileId).collect(Collectors.toList());
+            request.setLinkFileIds(ListUtils.union(request.getLinkFileIds(), copyLinkFileIds));
+        }
         // 新本地上传的附件
         List<BugLocalAttachment> addFiles = new ArrayList<>();
         Map<String, MultipartFile> uploadMinioFiles = new HashMap<>(16);
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
-                BugLocalAttachment bugAttachment = new BugLocalAttachment();
-                bugAttachment.setId(IDGenerator.nextStr());
-                bugAttachment.setBugId(request.getId());
-                bugAttachment.setFileId(IDGenerator.nextStr());
-                bugAttachment.setFileName(file.getOriginalFilename());
-                bugAttachment.setSize(file.getSize());
-                bugAttachment.setSource(BugAttachmentSourceType.ATTACHMENT.name());
-                bugAttachment.setCreateTime(System.currentTimeMillis());
-                bugAttachment.setCreateUser(currentUser);
-                addFiles.add(bugAttachment);
-                uploadMinioFiles.put(bugAttachment.getFileId(), file);
+                BugLocalAttachment localAttachment = buildBugLocalAttachment(request.getId(), file.getOriginalFilename(), file.getSize(), currentUser);
+                addFiles.add(localAttachment);
+                uploadMinioFiles.put(localAttachment.getFileId(), file);
             });
             extBugLocalAttachmentMapper.batchInsert(addFiles);
             uploadMinioFiles.forEach((fileId, file) -> {
@@ -1059,7 +1085,7 @@ public class BugService {
                             FileUtils.writeByteArrayToFile(uploadTmpFile, fileByte);
                             uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                         } catch (IOException e) {
-                            throw new MSException(Translator.get("bug_attachment_upload_error"));
+                            throw new MSException(Translator.get("bug_attachment_link_error"));
                         }
                     }
                 });
@@ -1511,5 +1537,26 @@ public class BugService {
         if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
             throw new MSException(Translator.getWithArgs("bug_tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
         }
+    }
+
+    /**
+     * 构建缺陷本地附件
+     * @param bugId 缺陷ID
+     * @param fileName 文件名称
+     * @param size 文件大小
+     * @param currentUser 当前用户
+     * @return 本地附件
+     */
+    private BugLocalAttachment buildBugLocalAttachment(String bugId, String fileName, long size, String currentUser) {
+        BugLocalAttachment bugAttachment = new BugLocalAttachment();
+        bugAttachment.setId(IDGenerator.nextStr());
+        bugAttachment.setBugId(bugId);
+        bugAttachment.setFileId(IDGenerator.nextStr());
+        bugAttachment.setFileName(fileName);
+        bugAttachment.setSize(size);
+        bugAttachment.setSource(BugAttachmentSourceType.ATTACHMENT.name());
+        bugAttachment.setCreateTime(System.currentTimeMillis());
+        bugAttachment.setCreateUser(currentUser);
+        return bugAttachment;
     }
 }
