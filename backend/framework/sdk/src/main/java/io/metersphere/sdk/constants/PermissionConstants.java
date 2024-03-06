@@ -192,13 +192,6 @@ public class PermissionConstants {
     public static final String PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD = "PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD";
     public static final String PROJECT_FILE_MANAGEMENT_READ_DELETE = "PROJECT_FILE_MANAGEMENT:READ+DELETE";
 
-    /*------ start: PROJECT_CUSTOM_FIELD ------*/
-    public static final String PROJECT_CUSTOM_FIELD_READ = "PROJECT_CUSTOM_FIELD:READ";
-    public static final String PROJECT_CUSTOM_FIELD_ADD = "PROJECT_CUSTOM_FIELD:READ+ADD";
-    public static final String PROJECT_CUSTOM_FIELD_UPDATE = "PROJECT_CUSTOM_FIELD:READ+UPDATE";
-    public static final String PROJECT_CUSTOM_FIELD_DELETE = "PROJECT_CUSTOM_FIELD:READ+DELETE";
-    /*------ end: PROJECT_CUSTOM_FIELD ------*/
-
     /*------ start: PROJECT_CUSTOM_FUNCTION------*/
     public static final String PROJECT_CUSTOM_FUNCTION_READ = "PROJECT_CUSTOM_FUNCTION:READ";
     public static final String PROJECT_CUSTOM_FUNCTION_ADD = "PROJECT_CUSTOM_FUNCTION:READ+ADD";
