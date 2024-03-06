@@ -55,6 +55,7 @@
   </div>
   <div
     v-if="props.showBottom"
+    v-permission="props.savePermission || []"
     class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
     :style="{ width: props.width }"
   >
