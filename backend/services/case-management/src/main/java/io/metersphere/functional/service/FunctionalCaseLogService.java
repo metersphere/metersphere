@@ -168,7 +168,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getProjectId(),
                     "",
                     id,
-                    functionalCase.getCreateUser(),
+                    null,
                     OperationLogType.RECOVER.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
                     functionalCase.getName());
@@ -194,7 +194,7 @@ public class FunctionalCaseLogService {
                         functionalCase.getProjectId(),
                         "",
                         functionalCase.getId(),
-                        functionalCase.getCreateUser(),
+                        null,
                         OperationLogType.RECOVER.name(),
                         OperationLogModule.FUNCTIONAL_CASE,
                         functionalCase.getName());
@@ -221,7 +221,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getProjectId(),
                     null,
                     functionalCase.getId(),
-                    functionalCase.getCreateUser(),
+                    null,
                     OperationLogType.DELETE.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
                     functionalCase.getName());
@@ -252,7 +252,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getProjectId(),
                     null,
                     functionalCase.getId(),
-                    functionalCase.getCreateUser(),
+                    null,
                     OperationLogType.DISASSOCIATE.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
                     functionalCase.getName());
@@ -278,7 +278,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getProjectId(),
                     null,
                     functionalCase.getId(),
-                    functionalCase.getCreateUser(),
+                    null,
                     OperationLogType.DISASSOCIATE.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
                     functionalCase.getName());
@@ -327,7 +327,7 @@ public class FunctionalCaseLogService {
                         functionalCase.getProjectId(),
                         null,
                         functionalCase.getId(),
-                        functionalCase.getCreateUser(),
+                        null,
                         OperationLogType.DELETE.name(),
                         OperationLogModule.FUNCTIONAL_CASE,
                         functionalCase.getName());
@@ -383,7 +383,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getProjectId(),
                     null,
                     functionalCase.getId(),
-                    functionalCase.getCreateUser(),
+                    null,
                     OperationLogType.DISASSOCIATE.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
                     functionalCase.getName());
