@@ -29,7 +29,7 @@ export default {
       revoke: 'revoke',
       pleaseSelectUser: 'Please select user',
       pleaseInputUserGroupName: 'Please input user group name,and not equal to system user group name',
-      userGroupNameIsExist: `Usergroup {name} is exist`,
+      userGroupNameIsExist: `{name} is exist, Please change it`,
       pleaseSelectAuthScope: 'Please select auth scope',
       userGroupNameIsNotNone: 'User group name is not none',
       authScopeIsNotNone: 'Auth scope is not none',

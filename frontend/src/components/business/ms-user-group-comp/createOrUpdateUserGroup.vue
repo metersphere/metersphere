@@ -45,7 +45,7 @@
             :disabled="form.name.length === 0"
             @click="handleBeforeOk"
           >
-            {{ props.id ? t('common.rename') : t('common.create') }}
+            {{ props.id ? t('common.confirm') : t('common.create') }}
           </a-button>
         </div>
       </div>
