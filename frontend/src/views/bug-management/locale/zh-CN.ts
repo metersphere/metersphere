@@ -6,6 +6,7 @@ export default {
     createBug: '创建缺陷',
     syncBug: '同步缺陷',
     ID: 'ID',
+    project: '项目',
     bugName: '缺陷名称',
     severity: '严重程度',
     status: '状态',

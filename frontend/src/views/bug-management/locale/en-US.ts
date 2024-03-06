@@ -3,6 +3,7 @@ export default {
     createBug: 'Create Bug',
     syncBug: 'Sync Bug',
     ID: 'ID',
+    project: 'Project',
     bugName: 'Bug Name',
     severity: 'Severity',
     status: 'Status',
