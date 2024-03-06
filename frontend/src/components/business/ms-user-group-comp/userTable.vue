@@ -142,7 +142,7 @@
     });
   };
   const handleRemove = async (record: UserTableItem) => {
-    handlePermission(props.deletePermission || [], async () => {
+    handlePermission(props.updatePermission || [], async () => {
       try {
         if (systemType === AuthScopeEnum.SYSTEM) {
           await deleteUserFromUserGroup(record.id);
