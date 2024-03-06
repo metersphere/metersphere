@@ -508,10 +508,9 @@ public class ProjectApplicationService {
         // 查询服务集成中启用并且支持第三方模板的插件
         ServiceIntegration integration = serviceIntegrationService.getServiceIntegrationByOrgId(organizationId)
                 .stream()
-                .filter(serviceIntegration -> {
-                    return serviceIntegration.getEnable()    // 服务集成开启
-                            && orgPluginIds.contains(pluginId);
-                })
+                .filter(serviceIntegration -> serviceIntegration.getEnable()    // 服务集成开启
+                        && orgPluginIds.contains(pluginId)
+                        && StringUtils.equals(serviceIntegration.getPluginId(), pluginId))
                 .findFirst()
                 .orElse(null);
         if (integration == null) {
