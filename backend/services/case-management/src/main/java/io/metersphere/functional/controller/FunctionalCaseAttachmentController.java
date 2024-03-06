@@ -136,7 +136,7 @@ public class FunctionalCaseAttachmentController {
         } catch (MSException e) {
             throw new MSException(e);
         } catch (Exception e) {
-            throw new MSException(Translator.get("file.transfer.error"));
+            throw new MSException(Translator.get("file.transfer.failed"));
         }
         return fileId;
 

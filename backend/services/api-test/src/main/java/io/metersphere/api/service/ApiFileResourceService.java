@@ -366,7 +366,7 @@ public class ApiFileResourceService {
         try {
             fileId = fileMetadataService.transferFile(request.getFileName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
         } catch (Exception e) {
-            throw new MSException(Translator.get("file.transfer.error"));
+            throw new MSException(Translator.get("file.transfer.failed"));
         }
         return fileId;
     }

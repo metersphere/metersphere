@@ -147,7 +147,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         createdGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_ADD);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_ADD, DEFAULT_ADD, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_ADD, DEFAULT_ADD, request);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_UPDATE, DEFAULT_UPDATE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(LIST, DEFAULT_PROJECT_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_READ, LIST, DEFAULT_PROJECT_ID, scene);
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, LIST, DEFAULT_PROJECT_ID, scene);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         Assertions.assertEquals(options, baseCustomFieldOptionService.getByFieldId(customField.getId()));
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_READ, DEFAULT_GET, customFieldDTO.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, DEFAULT_GET, customFieldDTO.getId());
     }
 
     @Test
@@ -307,7 +307,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         // @@校验日志
         checkLog(addCustomField.getId(), OperationLogType.DELETE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_DELETE, DEFAULT_DELETE, addCustomField.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_DELETE, DEFAULT_DELETE, addCustomField.getId());
     }
 
     private void changeOrgTemplateEnable(boolean enable) {

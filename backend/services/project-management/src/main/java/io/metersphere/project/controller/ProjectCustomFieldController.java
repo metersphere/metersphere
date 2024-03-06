@@ -36,7 +36,7 @@ public class ProjectCustomFieldController {
 
     @GetMapping("/list/{projectId}/{scene}")
     @Operation(summary = "获取自定义字段列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public List<CustomFieldDTO> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String projectId,
                                   @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -46,14 +46,14 @@ public class ProjectCustomFieldController {
 
     @GetMapping("/get/{id}")
     @Operation(summary = "获取自定义字段详情")
-    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public CustomFieldDTO get(@PathVariable String id) {
         return projectCustomFieldService.getCustomFieldDTOWithCheck(id);
     }
 
     @PostMapping("/add")
     @Operation(summary = "创建自定义字段")
-    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ProjectCustomFieldLogService.class)
     public CustomField add(@Validated({Created.class}) @RequestBody CustomFieldUpdateRequest request) {
         CustomField customField = new CustomField();
@@ -64,7 +64,7 @@ public class ProjectCustomFieldController {
 
     @PostMapping("/update")
     @Operation(summary = "更新自定义字段")
-    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectCustomFieldLogService.class)
     public CustomField update(@Validated({Updated.class}) @RequestBody CustomFieldUpdateRequest request) {
         CustomField customField = new CustomField();
@@ -74,7 +74,7 @@ public class ProjectCustomFieldController {
 
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除自定义字段")
-    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ProjectCustomFieldLogService.class)
     public void delete(@PathVariable String id) {
         projectCustomFieldService.delete(id);

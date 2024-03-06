@@ -210,7 +210,7 @@ public class BugAttachmentService {
     public String transfer(BugFileTransferRequest request, String currentUser) {
         BugLocalAttachment attachment = getLocalFile(request);
         if (attachment == null) {
-            throw new MSException(Translator.get("file.transfer.error"));
+            throw new MSException(Translator.get("file.transfer.failed"));
         }
         byte[] bytes = getLocalFileBytes(attachment, request.getProjectId(), request.getBugId());
         String fileId;
@@ -222,7 +222,7 @@ public class BugAttachmentService {
             // 删除本地上传的附件
             deleteLocalFile(request.getBugId(), null, request.getProjectId(), null, attachment.getId(), null);
         } catch (Exception e) {
-            throw new MSException(Translator.get("file.transfer.error"));
+            throw new MSException(Translator.get("file.transfer.failed"));
         }
         return fileId;
     }
