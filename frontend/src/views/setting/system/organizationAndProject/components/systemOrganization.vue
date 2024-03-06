@@ -23,7 +23,7 @@
     </template>
     <template #memberCount="{ record }">
       <span
-        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER'])"
+        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER', 'SYSTEM_ORGANIZATION_PROJECT:READ'])"
         class="primary-color"
         @click="showUserDrawer(record)"
         >{{ record.memberCount }}</span
