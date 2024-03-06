@@ -86,6 +86,10 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
     }
 
     public static boolean isJSR233(ScriptProcessor scriptProcessor) {
-        return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());
+        if (scriptProcessor.getEnableCommonScript()) {
+            return !StringUtils.equals(scriptProcessor.getCommonScriptInfo().getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());
+        } else {
+            return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());
+        }
     }
 }
