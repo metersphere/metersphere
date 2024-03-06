@@ -20,7 +20,7 @@
           field="attribute"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.attribute')"
-          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.attribute') }]"
+          :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.attribute') }]"
         >
           <a-select v-model:model-value="form.attribute" @change="handleAttributeChange">
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
@@ -28,12 +28,6 @@
                 item.label
               }}</a-option>
             </a-optgroup>
-            <!-- V3.0 先不上自定义字段的批量更新 -->
-            <!-- <a-optgroup :label="t('bugManagement.batchUpdate.customFiled')">
-              <a-option v-for="item in customOptionList" :disabled="form.attribute === 'status'" :key="item.value" :value="item.value">{{
-                item.label
-              }}</a-option>
-            </a-optgroup> -->
           </a-select>
         </a-form-item>
         <a-form-item
@@ -41,7 +35,7 @@
           field="inputValue"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
-          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.value') }]"
+          :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.value') }]"
         >
           <template v-if="valueMode === 'input'">
             <a-input v-model:model-value="form.inputValue" :disabled="!form.attribute" />
@@ -63,7 +57,7 @@
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
           validate-trigger="blur"
-          :rules="[{ required: true, message:t('bugManagement.batchUpdate.required.value') }]"
+          :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.value') }]"
         >
           <template v-if="valueMode === 'tags'">
             <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
@@ -118,24 +112,24 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref} from 'vue';
-import {type FormInstance, Message, type ValidatedError} from '@arco-design/web-vue';
+  import { computed, reactive, ref } from 'vue';
+  import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
-import {BatchActionQueryParams} from '@/components/pure/ms-table/type';
-import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-import {MsUserSelector} from '@/components/business/ms-user-selector';
-import {UserRequestTypeEnum} from '@/components/business/ms-user-selector/utils';
+  import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import { MsUserSelector } from '@/components/business/ms-user-selector';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
-import {updateBatchBug} from '@/api/modules/bug-management';
-import {useI18n} from '@/hooks/useI18n';
-import {useAppStore} from '@/store';
-import {tableParamsToRequestParams} from '@/utils';
+  import { updateBatchBug } from '@/api/modules/bug-management';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+  import { tableParamsToRequestParams } from '@/utils';
 
-import type {BugBatchUpdateFiledType} from '@/models/bug-management';
-import {BugBatchUpdateFiledForm, BugEditCustomField} from '@/models/bug-management';
-import {SelectValue} from '@/models/projectManagement/menuManagement';
+  import type { BugBatchUpdateFiledType } from '@/models/bug-management';
+  import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
+  import { SelectValue } from '@/models/projectManagement/menuManagement';
 
-const { t } = useI18n();
+  const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     selectParam: BatchActionQueryParams;
@@ -188,7 +182,7 @@ const { t } = useI18n();
   const handleCancel = () => {
     formReset();
     currentVisible.value = false;
-    showAppend.value=false;
+    showAppend.value = false;
     loading.value = false;
   };
   const customFiledOption = ref<{ text: string; value: string }[]>([]);
@@ -235,6 +229,7 @@ const { t } = useI18n();
           await updateBatchBug(tmpObj);
           Message.success(t('common.updateSuccess'));
           emit('submit');
+          handleCancel();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
