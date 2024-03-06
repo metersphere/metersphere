@@ -27,8 +27,11 @@
         </a-radio-group>
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+          :placeholder="t('caseManagement.featureCase.searchByName')"
           allow-clear
+          @search="getFetch"
+          @press-enter="getFetch"
+          @clear="resetFetch"
           class="mx-[8px] w-[240px]"
         ></a-input-search>
       </div>
@@ -266,6 +269,18 @@
       featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
     } else {
       setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
+      await testPlanLinkList();
+      featureCaseStore.getCaseCounts(props.caseId);
+    }
+  }
+  async function resetFetch() {
+    if (showType.value === 'link') {
+      setLinkListParams({ keyword: '', projectId: appStore.currentProjectId, caseId: props.caseId });
+      await loadLinkList();
+      const { msPagination } = linkPropsRes.value;
+      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+    } else {
+      setTestPlanListParams({ keyword: '', projectId: appStore.currentProjectId, caseId: props.caseId });
       await testPlanLinkList();
       featureCaseStore.getCaseCounts(props.caseId);
     }
