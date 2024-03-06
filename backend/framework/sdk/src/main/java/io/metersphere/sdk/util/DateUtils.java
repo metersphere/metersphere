@@ -8,8 +8,8 @@ import java.util.Map;
 
 
 public class DateUtils {
-    public static final String DATE_PATTERN = "yyyy-MM-dd";
-    public static final String TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_PATTERN = "yyyy/MM/dd";
+    public static final String TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
 
 
     public static Date getDate(String dateString) throws Exception {
