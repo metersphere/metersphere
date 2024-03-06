@@ -720,7 +720,7 @@
             <include refid="queryByTestCaseProviderParam"/>
         order by
             <if test="sort != null and sort != ''">
-                fc.${request.sort}
+                fc.${sort}
             </if>
             <if test="sort == null or sort == ''">
                 fc.create_time desc

@@ -92,16 +92,6 @@
               </div>
             </div>
           </template>
-          <!--TODO:暂无版本-->
-          <!-- <template #right>
-            <a-select
-              v-model:model-value="version"
-              :options="versionOptions"
-              :placeholder="t('ms.case.associate.versionPlaceholder')"
-              class="w-[200px]"
-              allow-clear
-            />
-          </template> -->
         </MsAdvanceFilter>
         <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
           <template #num="{ record }">
@@ -308,20 +298,6 @@
 
   const keyword = ref('');
   const version = ref('');
-  // const versionOptions = ref([
-  //   {
-  //     label: '全部',
-  //     value: 'all',
-  //   },
-  //   {
-  //     label: '版本1',
-  //     value: '1',
-  //   },
-  //   {
-  //     label: '版本2',
-  //     value: '2',
-  //   },
-  // ]);
 
   const columns: MsTableColumn = [
     {
@@ -351,12 +327,6 @@
       dataIndex: 'caseLevel',
       slotName: 'caseLevel',
       width: 90,
-    },
-    {
-      title: 'ms.case.associate.version',
-      dataIndex: 'versionName',
-      width: 100,
-      showTooltip: true,
     },
     {
       title: 'ms.case.associate.tags',
