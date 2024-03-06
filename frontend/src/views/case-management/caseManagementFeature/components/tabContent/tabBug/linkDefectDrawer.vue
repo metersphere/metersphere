@@ -23,8 +23,8 @@
           class="mx-[8px] w-[240px]"
           @search="searchList"
           @press-enter="searchList"
-        ></a-input-search
-      ></div>
+        ></a-input-search>
+      </div>
     </div>
     <div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
@@ -135,6 +135,15 @@
 
   const keyword = ref<string>('');
 
+  const showDrawer = computed({
+    get() {
+      return props.visible;
+    },
+    set(value) {
+      emit('update:visible', value);
+    },
+  });
+
   function handleDrawerConfirm() {
     const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
     const params = {
@@ -147,20 +156,13 @@
       combine: {},
       caseId: props.caseId,
     };
+    showDrawer.value = false;
     emit('save', params);
   }
+
   function handleDrawerCancel() {
     resetSelector();
   }
-
-  const showDrawer = computed({
-    get() {
-      return props.visible;
-    },
-    set(value) {
-      emit('update:visible', value);
-    },
-  });
 
   function getFetch() {
     setLoadListParams({ keyword: keyword.value, projectId: currentProjectId.value, sourceId: props.caseId });
