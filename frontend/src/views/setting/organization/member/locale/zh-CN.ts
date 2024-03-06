@@ -1,7 +1,7 @@
 export default {
   'organization.member.addMember': '添加成员',
   'organization.member.updateMember': '更新成员（{name}）',
-  'organization.member.searchMember': '通过姓名或邮箱搜索',
+  'organization.member.searchMember': '通过姓名/邮箱/手机搜索',
   'organization.member.remove': '移除',
   'organization.member.edit': '编辑',
   'organization.member.batchActionAddProject': '添加至项目',
