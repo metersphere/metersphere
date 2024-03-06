@@ -22,6 +22,10 @@
           },
           {
             "id": "PROJECT_BUG:READ+EXPORT"
+          },
+          {
+            "id": "PROJECT_BUG:READ+COMMENT",
+            "name": "permission.functional_case.comment"
           }
         ]
       }
