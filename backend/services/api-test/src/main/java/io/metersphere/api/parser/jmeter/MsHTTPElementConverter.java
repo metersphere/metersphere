@@ -25,11 +25,13 @@ import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
+import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.protocol.http.control.Authorization;
 import org.apache.jmeter.protocol.http.control.Header;
@@ -68,6 +70,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         ApiParamConfig apiParamConfig = (ApiParamConfig) config;
         HttpConfig httpConfig = getHttpConfig(msHTTPElement, apiParamConfig);
+        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(msHTTPElement.getProjectId());
 
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setName(msHTTPElement.getName());
@@ -87,19 +90,19 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         HashTree httpTree = tree.add(sampler);
 
+        // 处理环境变量
+        Arguments envArguments = getEnvArguments(msHTTPElement, envConfig);
+        Optional.ofNullable(envArguments).ifPresent(httpTree::add);
+
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
-        if (httpHeader != null) {
-            httpTree.add(httpHeader);
-        }
+        Optional.ofNullable(httpHeader).ifPresent(httpTree::add);
 
         HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
 
         // 处理认证信息
         AuthManager authManager = getAuthManager(authConfig);
-        if (authManager != null) {
-            httpTree.add(authManager);
-        }
+        Optional.ofNullable(authManager).ifPresent(httpTree::add);
 
         parseChild(httpTree, msHTTPElement, config);
     }
@@ -158,6 +161,24 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(AUTH_PANEL));
         authManager.addAuth(auth);
         return authManager;
+    }
+
+    /**
+     * 添加场景和环境变量
+     * @param msHTTPElement
+     * @param envInfo
+     */
+    private Arguments getEnvArguments(MsHTTPElement msHTTPElement, EnvironmentInfoDTO envInfo) {
+        if (envInfo == null) {
+            return null;
+        }
+
+        List<CommonVariables> envVariables = envInfo.getConfig().getCommonVariables();
+        if (CollectionUtils.isEmpty(envVariables)) {
+            return null;
+        }
+
+        return JmeterTestElementParserHelper.getArguments(msHTTPElement.getName(), envVariables);
     }
 
     /**

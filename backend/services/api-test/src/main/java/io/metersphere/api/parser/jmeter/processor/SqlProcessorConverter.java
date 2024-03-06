@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor;
 
 import io.metersphere.api.dto.ApiParamConfig;
+import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.processor.SQLProcessor;
@@ -18,7 +19,6 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
 
-import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.ARGUMENTS_PANEL;
 import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.TEST_BEAN_GUI;
 
 
@@ -68,12 +68,7 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
 
     public Arguments getJdbcArguments(String name, List<KeyValueParam> extractParams) {
         if (CollectionUtils.isNotEmpty(extractParams)) {
-            Arguments arguments = new Arguments();
-            arguments.setEnabled(true);
-            name = StringUtils.isNotEmpty(name) ? name : "Arguments";
-            arguments.setName(name + "_JDBC_Argument");
-            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(ARGUMENTS_PANEL));
+            Arguments arguments = JmeterTestElementParserHelper.getArguments(name);
             extractParams.stream().filter(KeyValueParam::isValid)
                     .forEach(keyValue ->
                     arguments.addArgument(keyValue.getKey(), String.format("vars.get(\"%s\")", keyValue.getValue()), "=")
