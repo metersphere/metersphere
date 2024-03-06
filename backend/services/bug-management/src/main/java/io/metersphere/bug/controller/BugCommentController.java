@@ -33,7 +33,7 @@ public class BugCommentController {
 
     @PostMapping("/add")
     @Operation(summary = "缺陷管理-评论-新增/回复评论")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_COMMENT)
     @CheckOwner(resourceId = "#request.getBugId()", resourceType = "bug")
     public BugComment add(@RequestBody BugCommentEditRequest request) {
         return bugCommentService.addComment(request, SessionUtils.getUserId());
@@ -41,7 +41,7 @@ public class BugCommentController {
 
     @PostMapping("/update")
     @Operation(summary = "缺陷管理-评论-编辑评论")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_COMMENT)
     @CheckOwner(resourceId = "#request.getBugId()", resourceType = "bug")
     public BugComment update(@RequestBody BugCommentEditRequest request) {
         return bugCommentService.updateComment(request, SessionUtils.getUserId());
@@ -49,7 +49,7 @@ public class BugCommentController {
 
     @GetMapping("/delete/{commentId}")
     @Operation(summary = "缺陷管理-评论-删除评论")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_COMMENT)
     public void delete(@PathVariable String commentId) {
         bugCommentService.deleteComment(commentId, SessionUtils.getUserId());
     }
