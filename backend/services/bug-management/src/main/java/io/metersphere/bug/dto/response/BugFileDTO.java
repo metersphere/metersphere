@@ -18,6 +18,9 @@ public class BugFileDTO {
     @Schema(description = "文件ID")
     private String fileId;
 
+    @Schema(description = "缺陷ID")
+    private String bugId;
+
     @Schema(description = "文件名称")
     private String fileName;
 

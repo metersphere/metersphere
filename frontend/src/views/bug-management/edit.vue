@@ -1,6 +1,5 @@
 <template>
   <MsCard
-    :special-height="-54"
     no-content-padding
     divider-has-p-x
     has-breadcrumb
@@ -22,7 +21,7 @@
       />
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
-      <div class="flex flex-row" style="height: calc(100vh - 224px)">
+      <div class="flex flex-row">
         <div class="left mt-[16px] min-w-[732px] grow pl-[24px]">
           <a-form-item
             field="title"
@@ -467,9 +466,24 @@
                   });
                 });
               }
+              // 过滤出复制的附件
+              const copyFileList = fileList.value.filter((item) => item.isCopyFlag);
+              let copyFiles: { refId: string; fileId: string; local: boolean }[] = [];
+              if (copyFileList.length > 0) {
+                copyFiles = copyFileList.map((file) => {
+                  return {
+                    refId: file.associateId,
+                    fileId: file.uid,
+                    local: file.local,
+                    bugId: bugId.value as string,
+                    fileName: file.name,
+                  };
+                });
+              }
               const tmpObj: BugEditFormObject = {
                 ...form.value,
                 customFields,
+                copyFiles,
               };
               if (isCopy.value) {
                 delete tmpObj.id;
@@ -552,6 +566,7 @@
             ...fileInfo,
             name: fileInfo.fileName,
             isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
+            isCopyFlag: isCopy.value,
           };
         })
         .map((fileInfo: any) => {
