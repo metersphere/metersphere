@@ -522,15 +522,15 @@
       width: 200,
       showDrag: true,
     },
-    {
-      title: 'caseManagement.featureCase.tableColumnExecutionResult',
-      dataIndex: 'lastExecuteResult',
-      slotName: 'lastExecuteResult',
-      titleSlotName: 'executeResultFilter',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
+    // {
+    //   title: 'caseManagement.featureCase.tableColumnExecutionResult',
+    //   dataIndex: 'lastExecuteResult',
+    //   slotName: 'lastExecuteResult',
+    //   titleSlotName: 'executeResultFilter',
+    //   showInTable: true,
+    //   width: 200,
+    //   showDrag: true,
+    // },
     // {
     //   title: 'caseManagement.featureCase.tableColumnVersion',
     //   slotName: 'versionName',
@@ -1094,6 +1094,7 @@
             projectId: currentProjectId.value,
             selectIds: selectAll ? [] : selectedIds,
             excludeIds: excludeIds || [],
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             condition: {
               keyword: keyword.value,
               filter: propsRes.value.filter,

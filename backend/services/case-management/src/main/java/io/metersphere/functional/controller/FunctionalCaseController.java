@@ -246,7 +246,7 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "functional_case")
     public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                org.apache.commons.lang3.StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+               StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, functionalCaseService.operationHistoryList(request));
     }
 }

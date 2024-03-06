@@ -240,8 +240,8 @@
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
-      type: ['IMPORT', 'ADD', 'UPDATE'],
-      module: ['CASE_MANAGEMENT_CASE_CREATE', 'CASE_MANAGEMENT_CASE_UPDATE'],
+      types: ['IMPORT', 'ADD', 'UPDATE'],
+      modules: ['CASE_MANAGEMENT_CASE_CREATE', 'CASE_MANAGEMENT_CASE_UPDATE'],
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);
