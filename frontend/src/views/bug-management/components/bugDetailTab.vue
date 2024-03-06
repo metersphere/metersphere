@@ -116,6 +116,20 @@
       </template>
     </MsFileList>
   </div>
+  <div>
+    <MsUpload
+      v-model:file-list="fileList"
+      accept="none"
+      :auto-upload="false"
+      :sub-text="acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: 50 })"
+      multiple
+      draggable
+      size-unit="MB"
+      :max-size="50"
+      :is-all-screen="true"
+      class="mb-[16px]"
+    />
+  </div>
   <RelateFileDrawer
     v-model:visible="associatedDrawer"
     :get-tree-request="getModules"
@@ -135,6 +149,7 @@
   import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
@@ -183,6 +198,7 @@
   const appStore = useAppStore();
   const transferVisible = ref<boolean>(false);
   const previewVisible = ref<boolean>(false);
+  const acceptType = ref('none'); // 模块-上传文件类型
   // 富文本附件id
   const fileIds = ref<string[]>([]);
   const imageUrl = ref<string>('');
@@ -322,26 +338,6 @@
     associatedDrawer.value = true;
   }
 
-  // 处理文件参数
-  function getFilesParams() {
-    const associateFileIds = attachmentsList.value.filter((item) => !item.local).map((item) => item.id);
-    const newAssociateFileListIds = fileList.value
-      .filter((item) => !item.local && !associateFileIds.includes(item.uid))
-      .map((item) => item.uid);
-
-    const currentOldLocalFileList = fileList.value
-      .filter((item) => item.local && item.status !== 'init')
-      .map((item) => item.uid);
-
-    // 更新form的值
-    form.value.deleteLocalFileIds = attachmentsList.value
-      .filter((item) => item.local && !currentOldLocalFileList.includes(item.uid))
-      .map((item) => item.uid);
-
-    form.value.unLinkRefIds = associateFileIds.filter((id) => !newAssociateFileListIds.includes(id));
-    form.value.linkFileIds = newAssociateFileListIds;
-  }
-
   async function startUpload() {
     await sleep(300);
     fileListRef.value?.startUpload();
@@ -388,17 +384,6 @@
     return data;
   }
 
-  // 监视文件列表处理关联和本地文件
-  watch(
-    () => fileList.value,
-    (val) => {
-      if (val) {
-        getListFunParams.value.combine.hiddenIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
-        getFilesParams();
-      }
-    },
-    { deep: true }
-  );
   // 保存操作
   async function handleSave() {
     try {
@@ -423,7 +408,7 @@
         customFields,
       };
       // 执行保存操作。 保存成功后将富文本内容赋值给默认值
-      const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
+      const res = await createOrUpdateBug({ request: tmpObj, fileList: [] as unknown as File[] });
       if (res) {
         Message.success(t('common.updateSuccess'));
         defaultContentValue.value = form.value.description;
