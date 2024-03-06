@@ -1,11 +1,11 @@
-import {CommentParams} from '@/components/business/ms-comment/types';
+import { CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import {BugEditFormObject, BugListItem} from '@/models/bug-management';
-import {AssociatedList, DemandItem, OperationFile} from '@/models/caseManagement/featureCase';
-import {CommonList, TableQueryParams, TemplateOption} from '@/models/common';
+import { BugEditFormObject, BugListItem } from '@/models/bug-management';
+import { AssociatedList, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
+import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
  * 表格的查询
@@ -196,7 +196,7 @@ export function deleteBatchByRecycle(data: TableQueryParams) {
 
 // ----------------------关联需求
 
-// 已关联需求列表
+// 已关联用例列表
 export function getAssociatedList(data: TableQueryParams) {
   return MSR.post<CommonList<DemandItem[]>>({ url: bugURL.getDemandListUrl, data });
 }
@@ -209,6 +209,11 @@ export function getUnAssociatedList(data: TableQueryParams) {
 // 未关联用例-模块树
 export function getModuleTree(data: TableQueryParams) {
   return MSR.post({ url: `${bugURL.getUnrelatedModuleTreeUrl}`, data });
+}
+
+// 未关联用例-模块树-统计
+export function getModuleTreeCounts(data: TableQueryParams) {
+  return MSR.post({ url: `${bugURL.getUnrelatedModuleTreeCountUrl}`, data });
 }
 
 // 批量关联需求
