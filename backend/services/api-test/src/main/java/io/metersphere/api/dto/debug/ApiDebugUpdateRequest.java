@@ -31,7 +31,7 @@ public class ApiDebugUpdateRequest implements Serializable {
     private String method;
 
     @Schema(description = "http协议路径/其它协议则为空")
-    @Size(min = 1, max = 500, message = "{api_debug.protocol.length_range}")
+    @Size(max = 500, message = "{api_debug.protocol.length_range}")
     private String path;
 
     @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)
