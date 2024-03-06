@@ -127,10 +127,10 @@
 
   const permissionsMap = {
     organization: {
-      stop: ['ORGANIZATION_TASK_CENTER::READ+STOP'],
+      stop: ['ORGANIZATION_TASK_CENTER:READ+STOP'],
     },
     system: {
-      stop: ['ORGANIZATION_TASK_CENTER::READ+STOP'],
+      stop: ['ORGANIZATION_TASK_CENTER:READ+STOP'],
     },
     project: {
       stop: ['PROJECT_API_REPORT:READ'],
