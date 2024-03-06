@@ -9,7 +9,7 @@ export default {
   'system.organization.removeName': 'Confirm to remove {name} this user',
   'system.organization.removeTip': 'After removal, the organization permission will be lost',
   'system.organization.addMember': 'Add Member',
-  'system.organization.addMemberTitle': 'Add Member ({name})',
+  'system.organization.addMemberTitle': 'Add Member',
   'system.organization.addMemberPlaceholder': 'Please select member',
   'system.organization.addMemberRequired': 'Please select member',
   'system.organization.searchPlaceholder': 'Please enter the organization name to query',

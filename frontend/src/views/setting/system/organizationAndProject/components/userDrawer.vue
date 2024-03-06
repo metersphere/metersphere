@@ -6,14 +6,15 @@
     unmount-on-close
     :footer="false"
     class="ms-drawer-no-mask"
-    :title="t('system.organization.addMemberTitle', { name: props.currentName })"
+    :title="t('system.organization.addMemberTitle')"
     @cancel="handleCancel"
   >
     <div>
       <div class="flex flex-row justify-between">
         <a-button
           v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER']"
-          type="primary"
+          class="mr-3"
+          type="outline"
           @click="handleAddMember"
         >
           {{ t('system.organization.addMember') }}
