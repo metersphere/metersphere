@@ -122,14 +122,16 @@
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
-          <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
-          <a-form-item field="tag" :label="t('bugManagement.tag')">
-            <MsTagsInput
-              v-model:model-value="form.tags"
-              :placeholder="t('bugManagement.edit.tagPlaceholder')"
-              allow-clear
-            />
-          </a-form-item>
+          <div style="min-width: 250px; overflow: auto">
+            <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
+            <a-form-item field="tag" :label="t('bugManagement.tag')">
+              <MsTagsInput
+                v-model:model-value="form.tags"
+                :placeholder="t('bugManagement.edit.tagPlaceholder')"
+                allow-clear
+              />
+            </a-form-item>
+          </div>
         </div>
       </div>
     </a-form>
