@@ -224,14 +224,14 @@
   });
 
   function getUploadDesc(item: MsFileItem) {
-    if (props.showUploadTypeDesc) {
+    if (item.local !== undefined ) {
       return item.local ? t('ms.upload.uploadAt') : t('ms.upload.associatedAt');
     }
     return t('ms.upload.uploadAt');
   }
   function showUploadSuccess(item: MsFileItem) {
-    if (props.showUploadTypeDesc) {
-      return !!item.local;
+    if (item.local !== undefined ) {
+      return item.local ;
     }
     return true;
   }
