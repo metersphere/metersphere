@@ -110,6 +110,9 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
         Map<String, CustomField> customFieldMap = baseCustomFieldService.getByScopeIdAndScene(organizationId, scene.name()).stream()
                 .collect(Collectors.toMap(CustomField::getId, Function.identity()));
 
+        // 忽略默认值校验，可能有多选框的选项被删除，造成不合法数据
+        BaseTemplateCustomFieldService.validateDefaultValue.set(false);
+
         orgTemplates.forEach((template) -> {
             List<TemplateCustomField> templateCustomFields = templateCustomFieldMap.get(template.getId());
             templateCustomFields = templateCustomFields == null ? List.of() : templateCustomFields;
@@ -124,6 +127,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                                 templateCustomFieldRequest.setDefaultValue(customFieldResolver.parse2Value(templateCustomField.getDefaultValue()));
                             }
                         } catch (Exception e) {
+                            BaseTemplateCustomFieldService.validateDefaultValue.remove();
                             LogUtils.error(e);
                             templateCustomFieldRequest.setDefaultValue(null);
                         }
@@ -132,6 +136,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                     .toList();
             addRefProjectTemplate(projectId, template, templateCustomFieldRequests, null);
         });
+        BaseTemplateCustomFieldService.validateDefaultValue.remove();
     }
 
     /**
