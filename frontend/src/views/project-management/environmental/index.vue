@@ -92,7 +92,7 @@
                               />
                             </MsButton>
                             <MsMoreAction
-                              :list="envMoreAction"
+                              :list="envMoreAction(element.mock || false)"
                               @select="
                                 (value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)
                               "
@@ -273,20 +273,23 @@
   });
 
   // 默认环境MoreAction
-  const envMoreAction: ActionsItem[] = [
-    {
-      label: t('common.export'),
-      eventTag: 'export',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: t('common.delete'),
-      danger: true,
-      eventTag: 'delete',
-    },
-  ];
+  const envMoreAction = (isMock: boolean | undefined) => {
+    return [
+      {
+        label: t('common.export'),
+        eventTag: 'export',
+      },
+      {
+        isDivider: true,
+      },
+      {
+        label: t('common.delete'),
+        danger: true,
+        eventTag: 'delete',
+        disabled: isMock,
+      },
+    ];
+  };
 
   // 全局参数/环境 MoreAction
   const allMoreAction: ActionsItem[] = [

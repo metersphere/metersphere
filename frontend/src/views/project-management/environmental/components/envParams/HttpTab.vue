@@ -6,7 +6,9 @@
     }}</span>
   </div>
   <div class="flex items-center justify-between">
-    <a-button type="outline" @click="handleAddHttp">{{ t('project.environmental.addHttp') }}</a-button>
+    <a-button :disabled="store.currentEnvDetailInfo.mock" type="outline" @click="handleAddHttp">{{
+      t('project.environmental.addHttp')
+    }}</a-button>
     <div class="flex flex-row gap-[8px]">
       <a-input-number v-model:model-value="form.requestTimeout" class="w-[180px]">
         <template #prefix>
@@ -39,7 +41,7 @@
       </a-tooltip>
     </template>
     <template #operation="{ record }">
-      <div class="flex flex-row flex-nowrap items-center">
+      <div v-show="!store.currentEnvDetailInfo.mock" class="flex flex-row flex-nowrap items-center">
         <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
         <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>

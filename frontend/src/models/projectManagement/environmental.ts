@@ -1,6 +1,7 @@
 import { ExecuteConditionProcessor } from '../apiTest/common';
 
 export interface EnvListItem {
+  mock?: boolean;
   name: string;
   id: string;
 }
