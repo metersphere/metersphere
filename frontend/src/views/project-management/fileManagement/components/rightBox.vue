@@ -597,7 +597,7 @@
     },
   ];
   const tableStore = useTableStore();
-  await tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer', true);
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetPagination } = useTable(
     getFileList,
     {
@@ -609,6 +609,7 @@
         'PROJECT_FILE_MANAGEMENT:READ+DELETE',
       ]),
       showSelectAll: true,
+      showSubdirectory: true,
     },
     (item) => {
       return {

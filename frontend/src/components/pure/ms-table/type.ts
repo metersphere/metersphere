@@ -69,6 +69,7 @@ export interface MsTableProps<T> {
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];
   showPagination?: boolean; // 是否显示分页
+  showSubdirectory?: boolean; // 是否显示子目录开关
   size?: 'mini' | 'small' | 'default' | 'large'; // 表格尺寸
   scroll?: {
     x?: number | string;

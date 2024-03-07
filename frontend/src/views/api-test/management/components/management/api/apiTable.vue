@@ -241,7 +241,7 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
-  import { batchDeleteDefinition, deleteDefinition, getDefinitionPage } from '@/api/modules/api-test/management';
+  import { deleteDefinition, getDefinitionPage } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -741,7 +741,7 @@
 
   if (!props.readOnly) {
     const tableStore = useTableStore();
-    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
   } else {
     columns = columns.filter(
       (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)

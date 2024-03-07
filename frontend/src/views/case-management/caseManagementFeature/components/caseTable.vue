@@ -315,7 +315,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -337,7 +337,6 @@
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
   import TableFilter from './tableFilter.vue';
-  import TableFormChange from './tableFormChange.vue';
 
   import {
     batchAssociationDemand,
@@ -370,7 +369,6 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
-  import { StatusType } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -488,6 +486,7 @@
       'showTooltip': true,
       'ellipsis': true,
       'showDrag': false,
+      'columnSelectorDisabled': true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -503,6 +502,7 @@
       },
       ellipsis: true,
       showDrag: false,
+      columnSelectorDisabled: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
@@ -821,6 +821,7 @@
       showSetting: true,
       heightUsed: 380,
       enableDrag: true,
+      showSubdirectory: true,
     },
     (record) => {
       return {
@@ -1230,7 +1231,7 @@
       ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
-    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer', true);
   }
 
   // 如果是用例等级

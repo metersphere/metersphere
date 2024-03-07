@@ -248,6 +248,8 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.bugName',
@@ -258,6 +260,8 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.status',
@@ -265,6 +269,7 @@
       width: 84,
       slotName: 'status',
       showDrag: true,
+      showInTable: true,
     },
     {
       title: 'bugManagement.handleMan',
@@ -272,6 +277,7 @@
       showTooltip: true,
       width: 75,
       showDrag: true,
+      showInTable: true,
     },
     {
       title: 'bugManagement.numberOfCase',
@@ -279,12 +285,14 @@
       slotName: 'numberOfCase',
       width: 80,
       showDrag: true,
+      showInTable: true,
     },
     {
       title: 'bugManagement.belongPlatform',
       width: 135,
       showDrag: true,
       dataIndex: 'platform',
+      showInTable: true,
     },
     {
       title: 'bugManagement.tag',
@@ -292,6 +300,7 @@
       isStringTag: true,
       width: 200,
       dataIndex: 'tags',
+      showInTable: true,
     },
     {
       title: 'bugManagement.creator',
@@ -303,6 +312,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
     },
     {
       title: 'bugManagement.createTime',
@@ -313,6 +323,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
     },
     {
       title: 'bugManagement.updateUser',
@@ -324,6 +335,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
     },
     {
       title: 'bugManagement.updateTime',
@@ -334,6 +346,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showInTable: true,
     },
     {
       title: 'common.operation',
@@ -344,6 +357,9 @@
     },
   ];
   const customColumns = await getCustomFieldColumns();
+  customColumns.forEach((item) => {
+    item.showInTable = item.title === '严重程度';
+  });
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
   const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, setProps, resetSelector, loadList } =
@@ -352,6 +368,7 @@
       {
         tableKey: TableKeyEnum.BUG_MANAGEMENT,
         selectable: true,
+        showJumpMethod: true,
         noDisable: false,
         showSetting: true,
       },

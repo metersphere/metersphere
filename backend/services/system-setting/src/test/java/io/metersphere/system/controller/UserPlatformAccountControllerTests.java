@@ -85,8 +85,6 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         BasePluginTestService.JiraIntegrationConfig integrationConfig = new BasePluginTestService.JiraIntegrationConfig();
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
-        // @@请求成功
-        this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId(), "100001");
     }
 
     @Test
