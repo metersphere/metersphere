@@ -55,6 +55,55 @@ public class FunctionalCaseLogService {
     @Resource
     private BugMapper bugMapper;
 
+    /**
+     * 更新用例 日志
+     *
+     * @param request
+     * @return
+     */
+    public LogDTO updateFunctionalCaseFileLog(FunctionalCaseAssociationFileRequest request) {
+        FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getCaseId());
+        LogDTO dto = new LogDTO(
+                request.getProjectId(),
+                null,
+                request.getCaseId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
+                historyLogDTO.getFunctionalCase().getName());
+        dto.setHistory(true);
+        dto.setPath("/attachment/upload/file");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setModifiedValue(JSON.toJSONBytes(request));
+        dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
+        return dto;
+    }
+
+
+    /**
+     * 更新用例 日志
+     *
+     * @param request
+     * @return
+     */
+    public LogDTO deleteFunctionalCaseFileLog(FunctionalCaseDeleteFileRequest request) {
+        FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getCaseId());
+        LogDTO dto = new LogDTO(
+                request.getProjectId(),
+                null,
+                request.getCaseId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
+                historyLogDTO.getFunctionalCase().getName());
+        dto.setHistory(true);
+        dto.setPath("/attachment/delete/file");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setModifiedValue(JSON.toJSONBytes(request));
+        dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
+        return dto;
+    }
+
 
     /**
      * 更新用例 日志

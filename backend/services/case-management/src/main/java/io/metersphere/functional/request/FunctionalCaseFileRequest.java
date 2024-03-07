@@ -21,7 +21,6 @@ public class FunctionalCaseFileRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "用例id",requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.case_id.not_blank}")
     private String caseId;
 
     @Schema(description = "文件id",requiredMode = Schema.RequiredMode.REQUIRED)

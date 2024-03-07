@@ -1,8 +1,12 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCaseAttachment;
-import io.metersphere.functional.request.*;
+import io.metersphere.functional.request.AttachmentTransferRequest;
+import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
+import io.metersphere.functional.request.FunctionalCaseFileRequest;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
+import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
@@ -15,7 +19,9 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -147,6 +153,7 @@ public class FunctionalCaseAttachmentController {
     @Operation(summary = "用例管理-功能用例-上传文件并关联用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseFileLog(#request)", msClass = FunctionalCaseLogService.class)
     public void uploadFile(@Validated @RequestPart("request") FunctionalCaseAssociationFileRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         String userId = SessionUtils.getUserId();
         functionalCaseAttachmentService.uploadOrAssociationFile(request, file, userId);
@@ -156,6 +163,7 @@ public class FunctionalCaseAttachmentController {
     @Operation(summary = "用例管理-功能用例-删除文件并取消关联用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteFunctionalCaseFileLog(#request)", msClass = FunctionalCaseLogService.class)
     public void deleteFile(@Validated @RequestBody FunctionalCaseDeleteFileRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseAttachmentService.deleteFile(request, userId);
@@ -178,7 +186,7 @@ public class FunctionalCaseAttachmentController {
 
     @GetMapping(value = "/download/file/{projectId}/{fileId}/{compressed}")
     @Operation(summary = "用例管理-功能用例-预览上传的副文本里所需的文件资源原图")
-    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId,   @Schema(description =  "查看压缩图片", requiredMode = Schema.RequiredMode.REQUIRED)
+    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId, @Schema(description = "查看压缩图片", requiredMode = Schema.RequiredMode.REQUIRED)
     @PathVariable("compressed") boolean compressed) {
         return functionalCaseAttachmentService.downloadImgById(projectId, fileId, compressed);
     }
