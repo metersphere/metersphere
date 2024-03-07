@@ -17,6 +17,9 @@
         select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_user, b.update_time, b.delete_user, b.delete_time,
                b.project_id, b.template_id, b.platform, b.status, b.tags from bug b
         <include refid="queryWhereCondition"/>
+        <if test="sort != null and sort != ''">
+            order by ${sort}
+        </if>
     </select>
 
     <select id="getIdsByPageRequest" resultType="java.lang.String">
@@ -25,25 +28,28 @@
     </select>
 
     <select id="listByIds" resultMap="BugDTO">
-        select b.id,
-        b.num,
-        b.title,
-        b.handle_user,
-        b.create_user,
-        b.create_time,
-        b.update_time,
-        b.delete_time,
-        b.delete_user,
-        b.project_id,
-        b.template_id,
-        b.platform,
-        b.status,
-        b.tags
-        from bug b
-        WHERE b.id IN
+        select id,
+        num,
+        title,
+        handle_user,
+        create_user,
+        create_time,
+        update_time,
+        delete_time,
+        delete_user,
+        project_id,
+        template_id,
+        platform,
+        status,
+        tags
+        from bug
+        where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        <if test="sort != null and sort != ''">
+            order by ${sort}
+        </if>
     </select>
 
     <select id="getMaxNum" resultType="java.lang.Long">

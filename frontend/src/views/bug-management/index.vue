@@ -2,7 +2,7 @@
   <MsCard simple>
     <MsAdvanceFilter
       v-model:keyword="keyword"
-      :searchPlaceholder="t('caseManagement.featureCase.searchByIdAndName')"
+      :search-placeholder="t('caseManagement.featureCase.searchByIdAndName')"
       :filter-config-list="filterConfigList"
       :row-count="filterRowCount"
       @keyword-search="fetchData"
@@ -26,6 +26,7 @@
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
+      @sorter-change="saveSort"
     >
       <!-- ID -->
       <template #num="{ record, rowIndex }">
@@ -198,6 +199,8 @@
   const customFields = ref<BugEditCustomField[]>([]);
   // 当前选择的条数
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
+  // 排序
+  const sort = ref<{ [key: string]: string }>({});
 
   const syncObject = reactive({
     time: 0,
@@ -410,6 +413,7 @@
         ...params,
         exportColumns: option.map((item) => item),
         projectId: appStore.currentProjectId,
+        exportSort: sort.value,
       });
       downloadByteFile(blob, `${t('bugManagement.exportBug')}.zip`);
       exportVisible.value = false;
@@ -598,6 +602,10 @@
       default:
         break;
     }
+  }
+
+  function saveSort(sortObj: { [key: string]: string }) {
+    sort.value = sortObj;
   }
 
   watchEffect(() => {

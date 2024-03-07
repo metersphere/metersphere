@@ -168,6 +168,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
+        request.setSort(StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         request.setUseTrash(false);
         return bugService.export(request);
     }

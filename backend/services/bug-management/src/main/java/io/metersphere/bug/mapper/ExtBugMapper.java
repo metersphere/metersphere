@@ -17,9 +17,10 @@ public interface ExtBugMapper {
      * 缺陷列表查询
      *
      * @param request 请求查询参数
+     * @param sort    排序参数
      * @return 缺陷列表
      */
-    List<BugDTO> list(@Param("request") BugPageRequest request);
+    List<BugDTO> list(@Param("request") BugPageRequest request, @Param("sort") String sort);
 
     /**
      * 缺陷列表查询
@@ -33,9 +34,10 @@ public interface ExtBugMapper {
      * 根据ID列表查询缺陷
      *
      * @param ids 缺陷ID集合
+     * @param sort    排序参数
      * @return 缺陷列表
      */
-    List<BugDTO> listByIds(@Param("ids") List<String> ids);
+    List<BugDTO> listByIds(@Param("ids") List<String> ids, @Param("sort") String sort);
 
     /**
      * 获取缺陷业务ID

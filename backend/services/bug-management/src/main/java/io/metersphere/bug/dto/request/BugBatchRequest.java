@@ -14,4 +14,7 @@ public class BugBatchRequest extends TableBatchProcessDTO {
 
     @Schema(description = "是否回收站")
     private boolean useTrash;
+
+    @Schema(description = "排序参数")
+    private String sort;
 }
