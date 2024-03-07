@@ -19,7 +19,7 @@
             )
 
         </if>
-            ORDER BY pos asc
+            ORDER BY pos DESC
     </select>
     <select id="groupList" resultType="io.metersphere.sdk.domain.EnvironmentGroup">
         SELECT
@@ -33,7 +33,7 @@
             )
 
         </if>
-        ORDER BY pos asc
+        ORDER BY pos DESC
     </select>
     <select id="getPos" resultType="java.lang.Long">
         SELECT pos

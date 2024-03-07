@@ -39,4 +39,8 @@ public abstract class MsAssertion {
      */
     @Size(max = 100)
     private String name;
+    /**
+     * id
+     */
+    private String id;
 }

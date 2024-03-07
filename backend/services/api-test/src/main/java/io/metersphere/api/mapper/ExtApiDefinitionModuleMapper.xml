@@ -46,7 +46,7 @@
         FROM api_definition
         where api_definition.deleted = #{deleted}
         <include refid="queryWhereCondition"/>
-        ORDER BY pos ASC
+        ORDER BY pos DESC
     </select>
     <select id="countModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT module_id AS moduleId, count(id) AS dataCount
