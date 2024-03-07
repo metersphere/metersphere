@@ -112,10 +112,17 @@
   function addCondition(value: ConditionType) {
     const id = new Date().getTime();
     switch (value) {
+      // 脚本执行类型
       case RequestConditionProcessor.SCRIPT:
+        let type = RequestConditionProcessor.SCRIPT;
+        if (props.showAssociatedScene) {
+          type = RequestConditionProcessor.SCENARIO_SCRIPT;
+        } else if (props.showPrePostRequest) {
+          type = RequestConditionProcessor.REQUEST_SCRIPT;
+        }
         data.value.push({
           id,
-          processorType: RequestConditionProcessor.SCRIPT,
+          processorType: type,
           scriptName: t('apiTestDebug.preconditionScriptName'),
           enableCommonScript: false,
           associateScenarioResult: false,
