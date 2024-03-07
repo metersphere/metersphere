@@ -42,7 +42,7 @@
     <a-divider
       :margin="0"
       :class="{
-        '!mb-[16px]': activeKey === 'pre' || activeKey === 'post' ? false : true,
+        '!mb-[16px]': !(activeKey === 'pre' || activeKey === 'post'),
       }"
     />
     <div class="content">
