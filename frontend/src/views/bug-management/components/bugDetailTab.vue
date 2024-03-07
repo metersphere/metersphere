@@ -355,6 +355,7 @@
       if (val && isNewFiles) {
         await startUpload();
       }
+      getListFunParams.value.combine.hiddenIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
     }
   );
 
