@@ -133,7 +133,9 @@
           </div>
         </div>
       </a-form-item> -->
-      <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
+      <div  v-permission="['FUNCTIONAL_CASE:READ+UPDATE']">
+        <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
+      </div>
     </a-form>
     <!-- 文件列表开始 -->
     <div class="w-[90%]">
