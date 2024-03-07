@@ -104,4 +104,8 @@ export default {
   'project.environmental.http.postTextPostTip':
     'After rear script, environment a prerequisite for the script in the request after the script execution;',
   'project.environmental.preOrPost.ignoreProtocols': 'Ignore request:',
+  'project.environmental.cover': 'Cover',
+  'project.environmental.cover.enable': 'Enable: Import and cover the environment with the same name',
+  'project.environmental.cover.disable': 'Disable: Import and do not cover the environment with the same name',
+  'project.environmental.ENVIRONMENT': 'Environment',
 };
