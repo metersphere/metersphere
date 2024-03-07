@@ -81,7 +81,13 @@
   }>();
 
   const handleCancel = async () => {
-    await tableStore.setColumns(props.tableKey, [...nonSortColumn.value, ...couldSortColumn.value], undefined, true);
+    await tableStore.setColumns(
+      props.tableKey,
+      [...nonSortColumn.value, ...couldSortColumn.value],
+      undefined,
+      undefined,
+      true
+    );
     hasChange.value = false;
     emit('initData');
   };

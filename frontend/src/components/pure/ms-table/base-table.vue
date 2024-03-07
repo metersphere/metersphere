@@ -240,6 +240,7 @@
       :show-jump-method="(attrs.showJumpMethod as boolean)"
       :table-key="(attrs.tableKey as string)"
       :show-pagination="!!attrs.showPagination"
+      :show-subdirectory="!!attrs.showSubdirectory"
       @init-data="handleInitColumn"
       @page-size-change="pageSizeChange"
     ></ColumnSelector>

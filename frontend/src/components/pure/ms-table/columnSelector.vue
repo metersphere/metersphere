@@ -7,7 +7,7 @@
     :title="t('msTable.columnSetting.display')"
     @cancel="handleCancel"
   >
-    <div class="ms-table-column-seletor">
+    <div class="ms-table-column-selector">
       <template v-if="showJumpMethod">
         <div class="mb-2 flex items-center">
           <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
@@ -46,6 +46,23 @@
           @page-size-change="(v: number) => emit('pageSizeChange',v)"
         />
       </template>
+      <template v-if="props.showSubdirectory">
+        <div class="mt-4">
+          <a-switch v-model="subdirectoryVal" class="mb-1" size="small" type="line" @change="handleSubSwitch" />
+          <span class="ml-2 text-[var(--color-text-4)]">{{ t('msTable.columnSetting.showSubdirectoryTips') }}</span>
+          <a-popover position="rt">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+            <template #title>
+              <div class="w-[250px]"> {{ t('msTable.columnSetting.showSubdirectoryTips1') }} </div>
+              <br />
+              <div class="w-[250px]"> {{ t('msTable.columnSetting.showSubdirectoryTips2') }} </div>
+            </template>
+          </a-popover>
+        </div>
+      </template>
       <a-divider />
       <div class="mb-2 flex items-center justify-between">
         <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
@@ -58,7 +75,7 @@
             v-show="item.dataIndex !== 'operation'"
             v-model="item.showInTable"
             size="small"
-            :disabled="item.dataIndex === 'name' || item.dataIndex === 'operation'"
+            :disabled="item.columnSelectorDisabled"
             type="line"
             @change="handleSwitchChange"
           />
@@ -100,6 +117,7 @@
   const tableStore = useTableStore();
   const { t } = useI18n();
   const currentMode = ref('');
+  const subdirectoryVal = ref(true);
   const pageSize = ref();
   // 不能拖拽的列
   const nonSortColumn = ref<MsTableColumn>([]);
@@ -119,13 +137,15 @@
     tableKey: string;
     showJumpMethod: boolean;
     showPagination: boolean;
+    showSubdirectory: boolean;
   }>();
 
   const handleCancel = async () => {
     await tableStore.setColumns(
       props.tableKey,
       [...nonSortColumn.value, ...couldSortColumn.value],
-      currentMode.value as TableOpenDetailMode
+      currentMode.value as TableOpenDetailMode,
+      subdirectoryVal.value
     );
     emit('update:visible', false);
     emit('initData');
@@ -149,6 +169,10 @@
     tableStore.setMode(props.tableKey, value as TableOpenDetailMode);
   };
 
+  const handleSubSwitch = () => {
+    tableStore.setSubdirectory(props.tableKey, subdirectoryVal.value);
+  };
+
   const handleSwitchChange = () => {
     hasChange.value = true;
   };
@@ -159,6 +183,9 @@
         if (res) {
           currentMode.value = res;
         }
+      });
+      tableStore.getSubShow(props.tableKey).then((res) => {
+        subdirectoryVal.value = res || true;
       });
       tableStore.getPageSize(props.tableKey).then((res) => {
         pageSize.value = res;

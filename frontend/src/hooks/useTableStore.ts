@@ -70,13 +70,24 @@ export default function useTableStore() {
     return columns;
   };
 
-  async function initColumn(tableKey: string, column: MsTableColumn, mode?: TableOpenDetailMode) {
+  async function initColumn(
+    tableKey: string,
+    column: MsTableColumn,
+    mode?: TableOpenDetailMode,
+    showSubdirectory?: boolean
+  ) {
     try {
       const selectorColumnMap = await getSelectorColumnMap();
+      console.log(showSubdirectory);
       if (!selectorColumnMap[tableKey]) {
         // 如果没有在indexDB里初始化
         column = columnsTransform(column);
-        selectorColumnMap[tableKey] = { mode, column, columnBackup: JSON.parse(JSON.stringify(column)) };
+        selectorColumnMap[tableKey] = {
+          mode,
+          showSubdirectory,
+          column,
+          columnBackup: JSON.parse(JSON.stringify(column)),
+        };
         await localforage.setItem('selectorColumnMap', selectorColumnMap);
       } else {
         // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
@@ -86,7 +97,12 @@ export default function useTableStore() {
         const isEqual = isArraysEqualWithOrder<MsTableColumnData>(oldColumn, column);
         if (!isEqual) {
           // 如果不相等，说明有变动将新的column存入indexDB
-          selectorColumnMap[tableKey] = { mode, column, columnBackup: JSON.parse(JSON.stringify(column)) };
+          selectorColumnMap[tableKey] = {
+            mode,
+            showSubdirectory,
+            column,
+            columnBackup: JSON.parse(JSON.stringify(column)),
+          };
           await localforage.setItem('selectorColumnMap', selectorColumnMap);
         }
       }
@@ -110,7 +126,30 @@ export default function useTableStore() {
       console.log(e);
     }
   }
-  async function setColumns(key: string, columns: MsTableColumn, mode?: TableOpenDetailMode, isSimple?: boolean) {
+
+  async function setSubdirectory(key: string, val: boolean) {
+    try {
+      const selectorColumnMap = await getSelectorColumnMap();
+      if (selectorColumnMap[key]) {
+        const item = selectorColumnMap[key];
+        if (item) {
+          item.showSubdirectory = val;
+        }
+        await localforage.setItem('selectorColumnMap', selectorColumnMap);
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  }
+
+  async function setColumns(
+    key: string,
+    columns: MsTableColumn,
+    mode?: TableOpenDetailMode,
+    showSubdirectory?: boolean,
+    isSimple?: boolean
+  ) {
     try {
       columns.forEach((item, idx) => {
         if (item.showDrag) {
@@ -129,6 +168,7 @@ export default function useTableStore() {
 
       selectorColumnMap[key] = {
         mode,
+        showSubdirectory,
         column: JSON.parse(JSON.stringify(columns)),
         columnBackup: selectorColumnMap[key].columnBackup,
       };
@@ -151,6 +191,15 @@ export default function useTableStore() {
     }
     return 'drawer';
   }
+
+  async function getSubShow(key: string) {
+    const selectorColumnMap = await getSelectorColumnMap();
+    if (selectorColumnMap[key]) {
+      return selectorColumnMap[key].showSubdirectory;
+    }
+    return true as boolean;
+  }
+
   async function getColumns(key: string, isSimple?: boolean) {
     const selectorColumnMap = await getSelectorColumnMap();
     if (selectorColumnMap[key]) {
@@ -196,9 +245,11 @@ export default function useTableStore() {
   return {
     initColumn,
     setMode,
+    setSubdirectory,
     setColumns,
     setPageSize,
     getMode,
+    getSubShow,
     getColumns,
     getShowInTableColumns,
     getPageSize,

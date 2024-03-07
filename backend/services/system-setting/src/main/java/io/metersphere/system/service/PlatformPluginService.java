@@ -3,11 +3,13 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.platform.dto.request.PlatformRequest;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.constants.PluginScenarioType;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.ServiceIntegrationExample;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +43,18 @@ public class PlatformPluginService {
     }
 
     public Platform getPlatform(String pluginId, String orgId) {
-        ServiceIntegration serviceIntegration = getServiceIntegrationByPluginId(pluginId);
+        ServiceIntegration serviceIntegration = getServiceIntegrationByPluginId(pluginId, orgId);
+        if (serviceIntegration == null) {
+            throw new MSException("service_integration.configuration.not_blank");
+        }
         return getPlatform(pluginId, orgId, new String(serviceIntegration.getConfiguration()));
     }
 
-    private ServiceIntegration getServiceIntegrationByPluginId(String pluginId) {
+    private ServiceIntegration getServiceIntegrationByPluginId(String pluginId, String orgId) {
         ServiceIntegrationExample example = new ServiceIntegrationExample();
-        example.createCriteria().andPluginIdEqualTo(pluginId);
-        return serviceIntegrationMapper.selectByExampleWithBLOBs(example).get(0);
+        example.createCriteria().andPluginIdEqualTo(pluginId).andOrganizationIdEqualTo(orgId);
+        List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
+        return CollectionUtils.isEmpty(serviceIntegrations) ? null :  serviceIntegrations.get(0);
     }
 
     public List<Plugin> getOrgEnabledPlatformPlugins(String orgId) {

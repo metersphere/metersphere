@@ -43,6 +43,7 @@ export default function useTableProps<T>(
     tableKey: '', // 缓存pageSize 或 column 的 key
     bordered: true, // 是否显示边框
     showPagination: true, // 是否显示分页
+    showSubdirectory: true, // 是否显示子目录开关
     size: 'default', // 表格大小
     heightUsed: defaultHeightUsed, // 表格所在的页面已经使用的高度
     scroll: { x: 1400, y: appStore.innerHeight - defaultHeightUsed }, // 表格滚动配置

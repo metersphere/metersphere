@@ -457,7 +457,7 @@
     },
   ];
   const tableStore = useTableStore();
-  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getReviewList,
     {
@@ -466,6 +466,7 @@
       selectable: true,
       showSelectAll: true,
       heightUsed: 344,
+      showSubdirectory: true,
     },
     (item) => {
       return {
