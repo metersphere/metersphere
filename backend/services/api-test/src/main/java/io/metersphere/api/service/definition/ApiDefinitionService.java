@@ -252,44 +252,37 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinition update(ApiDefinitionUpdateRequest request, String userId) {
-        ProjectService.checkResourceExist(request.getProjectId());
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
         checkResponseNameCode(request.getResponse());
-        apiDefinition.setVersionId(originApiDefinition.getVersionId());
-        apiDefinition.setRefId(originApiDefinition.getRefId());
-        apiDefinition.setProjectId(originApiDefinition.getProjectId());
-        if (request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
-            checkUpdateExist(apiDefinition);
+        if (originApiDefinition.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
+            checkUpdateExist(apiDefinition, originApiDefinition);
             //http协议的接口，如果修改了path和method，需要同步把case的path和method修改
             if (!originApiDefinition.getPath().equals(apiDefinition.getPath()) || !originApiDefinition.getMethod().equals(apiDefinition.getMethod())) {
-                List<String> ids = new ArrayList<>();
-                ids.add(request.getId());
-                apiTestCaseService.updateByApiDefinitionId(ids, apiDefinition);
+                apiTestCaseService.updateByApiDefinitionId(List.of(request.getId()), apiDefinition);
             }
         }
-        apiDefinition.setStatus(request.getStatus());
         apiDefinition.setUpdateUser(userId);
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             apiDefinition.setTags(request.getTags());
         }
         apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
-        ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
-        apiDefinitionBlob.setId(apiDefinition.getId());
-        if (request.getRequest() != null) {
-            apiDefinitionBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
-        }
 
-        if (request.getResponse() != null) {
-            apiDefinitionBlob.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
+        if (request.getResponse() != null || request.getRequest() != null) {
+            // 更新请求和响应
+            ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
+            apiDefinitionBlob.setId(apiDefinition.getId());
+            Optional.ofNullable(request.getRequest())
+                    .ifPresent(req -> apiDefinitionBlob.setRequest(getMsTestElementStr(req).getBytes()));
+            Optional.ofNullable(request.getResponse())
+                    .ifPresent(responses -> apiDefinitionBlob.setResponse(JSON.toJSONString(responses).getBytes()));
+            apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
         }
-
-        apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
         // 自定义字段
-        handleUpdateCustomFields(request);
+        handleUpdateCustomFields(request, originApiDefinition.getProjectId());
 
         // 处理文件
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDefinition.getId(), originApiDefinition.getProjectId(), userId);
@@ -323,7 +316,7 @@ public class ApiDefinitionService {
                 apiDefinitionUpdateRequest.setCustomFields(list);
                 ids.forEach(id -> {
                     apiDefinitionUpdateRequest.setId(id);
-                    handleUpdateCustomFields(apiDefinitionUpdateRequest);
+                    handleUpdateCustomFields(apiDefinitionUpdateRequest, request.getProjectId());
                 });
             } else {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -338,13 +331,13 @@ public class ApiDefinitionService {
     }
 
 
-    private void handleUpdateCustomFields(ApiDefinitionUpdateRequest request) {
+    private void handleUpdateCustomFields(ApiDefinitionUpdateRequest request, String projectId) {
         List<ApiDefinitionCustomField> customFields = request.getCustomFields();
         //更新自定义字段
         if (CollectionUtils.isNotEmpty(customFields)) {
             List<ApiDefinitionCustomField> addFields = new ArrayList<>();
             List<ApiDefinitionCustomField> updateFields = new ArrayList<>();
-            List<ApiDefinitionCustomFieldDTO> originalFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(List.of(request.getId()), request.getProjectId());
+            List<ApiDefinitionCustomFieldDTO> originalFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(List.of(request.getId()), projectId);
             Map<String, ApiDefinitionCustomFieldDTO> originalFieldMap = originalFields.stream().collect(Collectors.toMap(ApiDefinitionCustomFieldDTO::getId, Function.identity()));
 
             customFields.forEach(customField -> {
@@ -427,10 +420,10 @@ public class ApiDefinitionService {
         handleDeleteApiDefinition(Collections.singletonList(id), deleteAllVersion, apiDefinition.getProjectId(), userId, false);
     }
 
-    public void batchDeleteToGc(ApiDefinitionBatchRequest request, String userId) {
+    public void batchDeleteToGc(ApiDefinitionBatchDeleteRequest request, String userId) {
         List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
-            handleDeleteApiDefinition(ids, request.getDeleteAll(), request.getProjectId(), userId, true);
+            handleDeleteApiDefinition(ids, request.getDeleteAllVersion(), request.getProjectId(), userId, true);
         }
     }
 
@@ -533,19 +526,21 @@ public class ApiDefinitionService {
         }
     }
 
-    private void checkUpdateExist(ApiDefinition apiDefinition) {
-        if (!StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
+    private void checkUpdateExist(ApiDefinition apiDefinition, ApiDefinition originApiDefinition) {
+        if (!StringUtils.equals(originApiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
             return;
         }
-        if (StringUtils.isNotEmpty(apiDefinition.getPath()) && StringUtils.isNotEmpty(apiDefinition.getMethod())) {
+        if (StringUtils.isNotEmpty(apiDefinition.getPath()) || StringUtils.isNotEmpty(apiDefinition.getMethod())) {
             ApiDefinitionExample example = new ApiDefinitionExample();
+            String method = StringUtils.isBlank(apiDefinition.getMethod()) ? originApiDefinition.getMethod() : apiDefinition.getMethod();
+            String path = StringUtils.isBlank(apiDefinition.getPath()) ? originApiDefinition.getPath() : apiDefinition.getPath();
             example.createCriteria()
-                    .andIdNotEqualTo(apiDefinition.getId())
-                    .andProtocolEqualTo(apiDefinition.getProtocol())
-                    .andPathEqualTo(apiDefinition.getPath())
-                    .andMethodEqualTo(apiDefinition.getMethod())
-                    .andProjectIdEqualTo(apiDefinition.getProjectId())
-                    .andRefIdNotEqualTo(apiDefinition.getRefId());
+                    .andPathEqualTo(path)
+                    .andMethodEqualTo(method)
+                    .andIdNotEqualTo(originApiDefinition.getId())
+                    .andProtocolEqualTo(originApiDefinition.getProtocol())
+                    .andProjectIdEqualTo(originApiDefinition.getProjectId())
+                    .andRefIdNotEqualTo(originApiDefinition.getRefId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
             }
@@ -628,8 +623,8 @@ public class ApiDefinitionService {
         return copyName;
     }
 
-    private void handleDeleteApiDefinition(List<String> ids, boolean deleteAll, String projectId, String userId, boolean isBatch) {
-        if (deleteAll) {
+    private void handleDeleteApiDefinition(List<String> ids, boolean deleteAllVersion, String projectId, String userId, boolean isBatch) {
+        if (deleteAllVersion) {
             //全部删除  进入回收站
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if (CollectionUtils.isNotEmpty(refIds)) {
@@ -1065,9 +1060,6 @@ public class ApiDefinitionService {
         ApiDefinition apiDefinition = checkApiDefinition(request.getTargetId());
         if (!StringUtils.equals(request.getModuleId(), apiDefinition.getModuleId())) {
             checkModuleExist(request.getModuleId());
-            apiDefinition.setModuleId(request.getModuleId());
-            apiDefinition.setProjectId(request.getProjectId());
-            checkUpdateExist(apiDefinition);
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setUpdateUser(userId);
             apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
@@ -1084,7 +1076,7 @@ public class ApiDefinitionService {
     }
 
     private void checkResponseNameCode(Object response) {
-        if (!response.toString().isEmpty() && !response.toString().equals("{}")) {
+        if (response != null && !response.toString().isEmpty() && !response.toString().equals("{}")) {
             List<HttpResponse> httpResponses = ApiDataUtils.parseArray(JSON.toJSONString(response), HttpResponse.class);
             boolean isUnique = httpResponses.stream()
                     .map(httpResponse -> httpResponse.getName() + httpResponse.getStatusCode())

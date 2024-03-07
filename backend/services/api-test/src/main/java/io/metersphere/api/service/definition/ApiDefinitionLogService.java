@@ -70,7 +70,7 @@ public class ApiDefinitionLogService {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
         if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
-                    request.getProjectId(),
+                    apiDefinition.getProjectId(),
                     null,
                     request.getId(),
                     null,

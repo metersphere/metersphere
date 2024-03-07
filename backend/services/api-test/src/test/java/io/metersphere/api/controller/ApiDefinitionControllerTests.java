@@ -446,11 +446,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(null);
         request.setUnLinkFileIds(null);
-        String versionId = request.getVersionId();
-        request.setVersionId(null);
         this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
-        request.setVersionId(versionId);
         apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
         assertUploadFile(apiDefinition.getId(), List.of(fileId));
         assertLinkFile(apiDefinition.getId());
@@ -477,15 +474,20 @@ public class ApiDefinitionControllerTests extends BaseTest {
         assertUploadFile(apiDefinition.getId(), List.of(newFileId1, newFileId2));
         assertLinkFile(apiDefinition.getId());
 
+        // 单独更新状态
+        ApiDefinitionUpdateRequest updateStatusRequest = new ApiDefinitionUpdateRequest();
+        updateStatusRequest.setId(apiDefinition.getId());
+        updateStatusRequest.setStatus(ApiDefinitionStatus.DONE.name());
+        this.requestPostWithOk(UPDATE, updateStatusRequest);
+        apiDefinition = apiDefinitionMapper.selectByPrimaryKey(updateStatusRequest.getId());
+        Assertions.assertEquals(apiDefinition.getStatus(), ApiDefinitionStatus.DONE.name());
+
         // @@重名校验异常
-        request.setModuleId("default");
-        request.setPath("/api/admin/posts");
-        request.setMethod("GET");
-        request.setUploadFileIds(null);
-        request.setLinkFileIds(null);
-        request.setDeleteFileIds(null);
-        request.setUnLinkFileIds(null);
-        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_EXIST);
+        ApiDefinitionUpdateRequest repeatRequest = new ApiDefinitionUpdateRequest();
+        repeatRequest.setId(apiDefinition.getId());
+        repeatRequest.setPath("/api/admin/posts");
+        repeatRequest.setMethod("GET");
+        assertErrorCode(this.requestPost(UPDATE, repeatRequest), ApiResultCode.API_DEFINITION_EXIST);
 
         // @@响应名+响应码唯一校验异常
         request.setName("test123-response");
@@ -502,11 +504,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setId("111");
         request.setName("test123");
         assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
-
-        // 校验项目是否存在
-        request.setProjectId("111");
-        request.setName("test123");
-        assertErrorCode(this.requestPost(UPDATE, request), MsHttpResultCode.NOT_FOUND);
 
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, UPDATE));
@@ -565,11 +562,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
             Assertions.assertEquals(updateRequest.getPath(), caseElement.getPath());
             Assertions.assertEquals(updateRequest.getMethod(), caseElement.getMethod());
         });
-        // @@异常参数校验
-        createdGroupParamValidateTest(ApiDefinitionUpdateRequest.class, UPDATE);
         // @@校验权限
         request.setId(apiDefinition.getId());
-        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
         request.setModuleId("module-st-6");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, request);
@@ -788,7 +782,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 移动选中
         request.setSelectIds(List.of("1001", "1002", "1005"));
         request.setExcludeIds(List.of("1005"));
-        request.setDeleteAll(false);
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(BATCH_MOVE, request);
         // @@校验日志
@@ -1273,23 +1266,23 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(15)
     public void testBatchDel() throws Exception {
         LogUtils.info("batch delete api test");
-        ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
+        ApiDefinitionBatchDeleteRequest request = new ApiDefinitionBatchDeleteRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
 
         // 删除选中
         request.setSelectIds(List.of("1004"));
-        request.setDeleteAll(false);
+        request.setDeleteAllVersion(false);
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         // @@校验日志
         checkLogModelList.add(new CheckLogModel("1004", OperationLogType.DELETE, BATCH_DELETE_TO_GC));
 
         request.setSelectIds(List.of("1002"));
-        request.setDeleteAll(false);
+        request.setDeleteAllVersion(false);
         request.setSelectAll(false);
         assertErrorCode(this.requestPost(BATCH_DELETE_TO_GC, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // 删除全部 条件为关键字为st-6的数据
-        request.setDeleteAll(true);
+        request.setDeleteAllVersion(true);
         request.setExcludeIds(List.of("1005"));
         request.setSelectAll(true);
         BaseCondition baseCondition = new BaseCondition();
