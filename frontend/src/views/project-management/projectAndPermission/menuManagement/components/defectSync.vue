@@ -51,7 +51,7 @@
                 </a-tooltip>
               </div>
             </a-radio>
-            <a-radio value="full">
+            <a-radio v-xpack value="full">
               <div class="flex flex-row items-center gap-[4px]">
                 <span class="text-[var(--color-text-1)]">{{ t('project.menu.fullSync') }}</span>
                 <a-tooltip :content="t('project.menu.fullSyncTip')" position="bl">

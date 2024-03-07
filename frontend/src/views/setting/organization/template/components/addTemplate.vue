@@ -37,14 +37,6 @@
     </template>
     <template #headerRight>
       <div class="flex items-center">
-        <!-- <a-select
-          v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
-          v-model="templateForm.platForm"
-          class="!my-0 w-[240px]"
-          :placeholder="t('system.orgTemplate.selectThirdPlatType')"
-        >
-          <a-option v-for="item of platFormList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
-        </a-select> -->
         <a-checkbox v-if="route.query.type === 'BUG'" v-model="templateForm.enableThirdPart" class="mx-2">{{
           t('system.orgTemplate.thirdParty')
         }}</a-checkbox>
@@ -59,118 +51,126 @@
         <CaseTemplateLeftContent v-else />
       </div>
       <div class="preview-right px-4">
-        <!-- 自定义字段开始 -->
-        <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
-          <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
-            <div class="action">
-              <span class="required">
-                <a-checkbox
-                  v-model="formItem.required"
-                  class="mr-1"
-                  @change="(value) => changeState(value, formItem)"
-                  >{{ t('system.orgTemplate.required') }}</a-checkbox
+        <div style="height: calc(100% - 80px); min-width: 250px; overflow: auto">
+          <!-- 自定义字段开始 -->
+          <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
+            <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
+              <div class="action">
+                <span class="required">
+                  <a-checkbox
+                    v-model="formItem.required"
+                    class="mr-1"
+                    @change="(value) => changeState(value, formItem)"
+                    >{{ t('system.orgTemplate.required') }}</a-checkbox
+                  >
+                </span>
+                <div class="actionList">
+                  <a-tooltip :content="t('system.orgTemplate.toTop')">
+                    <MsIcon
+                      type="icon-icon_up_outlined"
+                      size="16"
+                      :class="getColor(index, 'top')"
+                      @click="moveField(formItem as DefinedFieldItem, 'top')"
+                    />
+                  </a-tooltip>
+                  <a-divider direction="vertical" class="!m-0 !mx-2" />
+                  <a-tooltip :content="t('system.orgTemplate.toBottom')">
+                    <MsIcon
+                      :class="getColor(index, 'bottom')"
+                      type="icon-icon_down_outlined"
+                      size="16"
+                      @click="moveField(formItem as DefinedFieldItem, 'bottom')"
+                    />
+                  </a-tooltip>
+                  <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                  <a-tooltip :content="t('common.edit')">
+                    <MsIcon
+                      v-if="!formItem.internal"
+                      type="icon-icon_edit_outlined"
+                      size="16"
+                      @click="editField(formItem as DefinedFieldItem)"
+                    />
+                  </a-tooltip>
+                  <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                  <a-tooltip :content="t('common.delete')">
+                    <MsIcon
+                      v-if="!formItem.internal"
+                      type="icon-icon_delete-trash_outlined"
+                      size="16"
+                      @click="deleteSelectedField(formItem as DefinedFieldItem)"
+                    />
+                  </a-tooltip>
+                </div>
+              </div>
+              <div
+                class="form"
+                :class="{
+                  'hover:border-[var(--color-text-n8)]': activeIndex !== index,
+                  'activeStyle': activeIndex === index,
+                }"
+                @click="activeHandler(index)"
+              >
+                <!-- 表单 -->
+                <MsFormCreate
+                  v-model:api="formItem.api"
+                  v-model:rule="formItem.formRules"
+                  :option="configOptions"
+                  @click="activeHandler(index)"
+                />
+                <a-form
+                  v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
+                  :ref="(el: refItem) => setStepRefMap(el, formItem as DefinedFieldItem)"
+                  :model="formItem"
                 >
-              </span>
-              <div class="actionList">
-                <a-tooltip :content="t('system.orgTemplate.toTop')">
-                  <MsIcon
-                    type="icon-icon_up_outlined"
-                    size="16"
-                    :class="getColor(index, 'top')"
-                    @click="moveField(formItem as DefinedFieldItem, 'top')"
-                  />
-                </a-tooltip>
-                <a-divider direction="vertical" class="!m-0 !mx-2" />
-                <a-tooltip :content="t('system.orgTemplate.toBottom')">
-                  <MsIcon
-                    :class="getColor(index, 'bottom')"
-                    type="icon-icon_down_outlined"
-                    size="16"
-                    @click="moveField(formItem as DefinedFieldItem, 'bottom')"
-                  />
-                </a-tooltip>
-                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
-                <a-tooltip :content="t('common.edit')">
-                  <MsIcon
-                    v-if="!formItem.internal"
-                    type="icon-icon_edit_outlined"
-                    size="16"
-                    @click="editField(formItem as DefinedFieldItem)"
-                  />
-                </a-tooltip>
-                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
-                <a-tooltip :content="t('common.delete')">
-                  <MsIcon
-                    v-if="!formItem.internal"
-                    type="icon-icon_delete-trash_outlined"
-                    size="16"
-                    @click="deleteSelectedField(formItem as DefinedFieldItem)"
-                  />
-                </a-tooltip>
+                  <a-form-item
+                    row-class="apiFieldIdClass"
+                    hide-asterisk
+                    hide-label
+                    field="apiFieldId"
+                    :rules="[{ required: true, message: t('system.orgTemplate.apiFieldNotEmpty') }]"
+                  >
+                    <a-input
+                      v-model:model-value="formItem.apiFieldId"
+                      :placeholder="t('system.orgTemplate.pleaseEnterAPITip')"
+                      class="mt-1"
+                      :max-length="255"
+                  /></a-form-item>
+                </a-form>
               </div>
             </div>
-            <div
-              class="form"
-              :class="{
-                'hover:border-[var(--color-text-n8)]': activeIndex !== index,
-                'activeStyle': activeIndex === index,
-              }"
-              @click="activeHandler(index)"
-            >
-              <!-- 表单 -->
-              <MsFormCreate
-                v-model:api="formItem.api"
-                v-model:rule="formItem.formRules"
-                :option="configOptions"
-                @click="activeHandler(index)"
-              />
-              <a-form
-                v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
-                :ref="(el: refItem) => setStepRefMap(el, formItem as DefinedFieldItem)"
-                :model="formItem"
-              >
-                <a-form-item
-                  row-class="apiFieldIdClass"
-                  hide-asterisk
-                  hide-label
-                  field="apiFieldId"
-                  :rules="[{ required: true, message: t('system.orgTemplate.apiFieldNotEmpty') }]"
-                >
-                  <a-input
-                    v-model:model-value="formItem.apiFieldId"
-                    :placeholder="t('system.orgTemplate.pleaseEnterAPITip')"
-                    class="mt-1"
-                    :max-length="255"
-                /></a-form-item>
-              </a-form>
-            </div>
-          </div>
-        </VueDraggable>
-        <!-- 自定义字段结束 -->
-        <div class="flex items-center">
-          <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
-            <template #icon>
-              <icon-plus class="text-[14px]" />
-            </template>
-            {{ t('system.orgTemplate.associatedField') }}
-          </a-button>
-          <a-tooltip :content="t('system.orgTemplate.associatedHasField')" placement="top" effect="dark">
-            <IconQuestionCircle
-              class="mr-8 mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-            />
-          </a-tooltip>
+          </VueDraggable>
 
-          <a-button class="mr-1 mt-1 px-0" type="text" :disabled="totalTemplateField.length >= 20" @click="createField">
-            <template #icon>
-              <icon-plus class="text-[14px]" />
-            </template>
-            {{ t('system.orgTemplate.addField') }}
-          </a-button>
-          <a-tooltip :content="t('system.orgTemplate.addFieldDesc')" placement="top" effect="dark">
-            <IconQuestionCircle
-              class="mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-            />
-          </a-tooltip>
+          <!-- 自定义字段结束 -->
+          <div class="flex items-center">
+            <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
+              <template #icon>
+                <icon-plus class="text-[14px]" />
+              </template>
+              {{ t('system.orgTemplate.associatedField') }}
+            </a-button>
+            <a-tooltip :content="t('system.orgTemplate.associatedHasField')" placement="top" effect="dark">
+              <IconQuestionCircle
+                class="mr-8 mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+              />
+            </a-tooltip>
+
+            <a-button
+              class="mr-1 mt-1 px-0"
+              type="text"
+              :disabled="totalTemplateField.length >= 20"
+              @click="createField"
+            >
+              <template #icon>
+                <icon-plus class="text-[14px]" />
+              </template>
+              {{ t('system.orgTemplate.addField') }}
+            </a-button>
+            <a-tooltip :content="t('system.orgTemplate.addFieldDesc')" placement="top" effect="dark">
+              <IconQuestionCircle
+                class="mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+              />
+            </a-tooltip>
+          </div>
         </div>
       </div>
       <!-- 添加字段到模板抽屉 -->
