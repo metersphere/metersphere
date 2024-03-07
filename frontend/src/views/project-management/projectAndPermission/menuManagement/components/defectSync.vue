@@ -76,11 +76,11 @@
             </span>
             <span v-if="data.extra" class="text-[var(--color-text-4)]"> {{ data.extra }} </span>
           </a-option>
-          <a-option value="custom">
-            <div class="border-t-1 cursor-pointer text-[rgb(var(--primary-5))]">{{
+          <!--          <a-option value="custom">
+            <div class="border-t-1 cursor-pointer text-[rgb(var(&#45;&#45;primary-5))]">{{
               t('project.menu.defect.customLabel')
             }}</div>
-          </a-option>
+          </a-option>-->
         </a-select>
       </a-form-item>
     </a-form>

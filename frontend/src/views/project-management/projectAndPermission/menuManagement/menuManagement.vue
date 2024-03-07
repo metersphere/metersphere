@@ -530,9 +530,9 @@
       }
       case MenuEnum.caseManagement: {
         children = [
-          {
+          /*  {
             type: 'CASE_PUBLIC', // 公共用例库
-          },
+          }, */
           {
             type: 'CASE_RE_REVIEW', // 重新提审
           },
@@ -545,9 +545,9 @@
       }
       case MenuEnum.apiTest: {
         children = [
-          {
+          /* {
             type: 'API_URL_REPEATABLE', // 接口定义URL可重复
-          },
+          }, */
           {
             type: 'API_CLEAN_REPORT', // 报告保留时间范围
           },
@@ -557,15 +557,15 @@
           {
             type: 'API_RESOURCE_POOL', // 执行资源池
           },
-          {
+          /* {
             type: 'API_SCRIPT_REVIEWER', // 脚本审核
-          },
+          }, */
           {
             type: 'API_ERROR_REPORT_RULE', // 误报规则
           },
-          {
+          /* {
             type: 'API_SYNC_CASE', // 用例同步
-          },
+          }, */
         ];
         break;
       }
