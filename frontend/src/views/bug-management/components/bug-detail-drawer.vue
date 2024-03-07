@@ -86,38 +86,32 @@
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
-                <a-tabs v-model:active-key="activeTab" lazy-load>
-                  <a-tab-pane key="detail">
-                    <template #title>
-                      {{ t('bugManagement.detail.detail') }}
-                    </template>
-                    <BugDetailTab
-                      ref="bugDetailTabRef"
-                      :form-item="formItem"
-                      :allow-edit="true"
-                      :detail-info="detailInfo"
-                      @update-success="updateSuccess"
-                    />
-                  </a-tab-pane>
-                  <a-tab-pane key="case">
-                    <template #title>
-                      {{ t('bugManagement.detail.case') }}
-                    </template>
-                    <BugCaseTab :bug-id="detailInfo.id" />
-                  </a-tab-pane>
-                  <a-tab-pane key="comment">
-                    <template #title>
-                      {{ t('bugManagement.detail.comment') }}
-                    </template>
-                    <CommentTab ref="commentRef" :bug-id="detailInfo.id" />
-                  </a-tab-pane>
-                  <a-tab-pane key="history">
-                    <template #title>
-                      {{ t('bugManagement.detail.changeHistory') }}
-                    </template>
-                    <BugHistoryTab :bug-id="detailInfo.id" />
-                  </a-tab-pane>
-                </a-tabs>
+                <MsTab
+                  v-model:active-key="activeTab"
+                  :content-tab-list="contentTabList"
+                  :get-text-func="getTabBadge"
+                  class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
+                />
+                <div class="tab-pane-container">
+                  <BugDetailTab
+                    v-if="activeTab === 'detail'"
+                    ref="bugDetailTabRef"
+                    :form-item="formItem"
+                    :allow-edit="true"
+                    :detail-info="detailInfo"
+                    @update-success="updateSuccess"
+                  />
+
+                  <BugCaseTab
+                    v-else-if="activeTab === 'case'"
+                    :bug-id="detailInfo.id"
+                    @updateCaseSuccess="updateSuccess"
+                  />
+
+                  <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
+
+                  <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
+                </div>
               </div>
             </div>
           </template>
@@ -142,15 +136,6 @@
                   <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>
                 </span>
               </div>
-              <!-- 创建人 创建时间需求说先去掉 -->
-              <!-- <div class="baseItem">
-                <span class="label"> {{ t('bugManagement.detail.creator') }}</span>
-                <span>{{ detailInfo?.createUserName }}</span>
-              </div>
-              <div class="baseItem">
-                <span class="label"> {{ t('bugManagement.detail.createTime') }}</span>
-                <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
-              </div> -->
             </div>
           </template>
         </MsSplitBox>
@@ -178,6 +163,7 @@
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import { CommentInput } from '@/components/business/ms-comment';
@@ -221,6 +207,7 @@
     pageChange: (page: number) => Promise<void>; // 分页变更函数
   }>();
 
+  const caseCount = ref(0);
   const appStore = useAppStore();
   const commentContent = ref('');
   const commentRef = ref();
@@ -232,7 +219,7 @@
   const showDrawerVisible = defineModel<boolean>('visible', { default: false });
   const bugDetailTabRef = ref();
 
-  const activeTab = ref<string | number>('detail');
+  const activeTab = ref<string>('detail');
 
   const detailInfo = ref<Record<string, any>>({ match: [] }); // 存储当前详情信息，通过loadBug 获取
   const tags = ref([]);
@@ -279,6 +266,7 @@
     const { templateId } = detail;
     // tag 赋值
     tags.value = detail.tags || [];
+    caseCount.value = detail.linkCaseCount;
     const tmpObj = {};
     if (detail.customFields && Array.isArray(detail.customFields)) {
       detail.customFields.forEach((item) => {
@@ -292,12 +280,50 @@
     // 初始化自定义字段
     await templateChange(templateId, tmpObj, { platformBugKey: detail.platformBugId, fromStatusId: detail.status });
   }
+  /**
+   * 获取 tab 的参数数量徽标
+   */
+  function getTabBadge(tabKey: string) {
+    switch (tabKey) {
+      case 'detail':
+        return '';
+      case 'case':
+        return `${caseCount.value > 0 ? caseCount.value : ''}`;
+      case 'comment':
+        return '';
+      case 'history':
+        return '';
+      default:
+        return '';
+    }
+  }
 
   const editLoading = ref<boolean>(false);
 
   function updateSuccess() {
     detailDrawerRef.value?.initDetail();
   }
+
+  const contentTabList = computed(() => {
+    return [
+      {
+        value: 'detail',
+        label: t('bugManagement.detail.detail'),
+      },
+      {
+        value: 'case',
+        label: t('bugManagement.detail.case'),
+      },
+      {
+        value: 'comment',
+        label: t('bugManagement.detail.comment'),
+      },
+      {
+        value: 'history',
+        label: t('bugManagement.detail.changeHistory'),
+      },
+    ];
+  });
 
   function updateHandler() {
     router.push({

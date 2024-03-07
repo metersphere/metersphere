@@ -300,6 +300,7 @@ public class BugService {
         BugFollowerExample example = new BugFollowerExample();
         example.createCriteria().andBugIdEqualTo(id).andUserIdEqualTo(currentUser);
         detail.setFollowFlag(bugFollowerMapper.countByExample(example) > 0);
+        detail.setLinkCaseCount(extBugRelateCaseMapper.countByCaseId(id));
         return detail;
     }
 

@@ -115,6 +115,7 @@
     (e: 'update:project', val: string): void;
     (e: 'success', val: string[]): void;
     (e: 'close'): void;
+    (e: 'updateCaseSuccess'): void;
   }>();
   const keyword = ref<string>('');
 
@@ -218,6 +219,7 @@
       const { relateId } = record;
       await cancelAssociation(relateId);
       await getFetch();
+      emit('updateCaseSuccess');
       Message.success(t('common.unLinkSuccess'));
     } catch (error) {
       console.log(error);
@@ -236,6 +238,7 @@
       await batchAssociation(params);
       await getFetch();
       Message.success(t('common.linkSuccess'));
+      emit('updateCaseSuccess');
       innerVisible.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
