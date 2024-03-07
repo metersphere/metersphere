@@ -129,7 +129,7 @@
           <span class="label">{{ t('system.orgTemplate.dateFormat') }}</span>
           <span class="content">
             {{
-              detailInfo?.type === 'DATE' ? dayjs().format('YYYY/MM/DD') : dayjs().format('YYYY/MM/DD HH:mm:ss')
+              detailInfo?.type === 'DATE' ? dayjs().format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD HH:mm:ss')
             }}</span
           >
         </div>
