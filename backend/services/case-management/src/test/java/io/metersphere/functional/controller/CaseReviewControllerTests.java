@@ -142,6 +142,10 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewRequest.setEndTime(1678188103000L);
         this.requestPost(ADD_CASE_REVIEW, caseReviewRequest).andExpect(status().is5xxServerError());
 
+        caseReviewRequest.setStartTime(1901791303000L);
+        caseReviewRequest.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequest).andExpect(status().is5xxServerError());
+
     }
 
     private List<CaseReview> getCaseReviews(String name) {
@@ -232,6 +236,9 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewRequestWidthStartTime.setStartTime(1678188043000L);
         caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
         this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
+        caseReviewRequestWidthStartTime.setStartTime(1901791303000L);
+        caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -295,6 +302,9 @@ public class CaseReviewControllerTests extends BaseTest {
         CaseReview caseReview = caseReviews.get(0);
         CaseReviewRequest caseReviewRequestWidthStartTime = getCaseReviewAddRequest("创建评审更新1", CaseReviewPassRule.SINGLE.toString(), caseReview.getId(), true, true, null);
         caseReviewRequestWidthStartTime.setStartTime(1678188043000L);
+        caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
+        caseReviewRequestWidthStartTime.setStartTime(1901791303000L);
         caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
         this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
     }
@@ -512,6 +522,28 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewDTOS = JSON.parseArray(JSON.toJSONString(pageData.getList()), CaseReviewDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(caseReviewDTOS));
 
+        request = new CaseReviewPageRequest();
+        filters = new HashMap<>();
+        request.setFilter(filters);
+        request.setCombine(caseReviewCombine);
+        request.setProjectId("project-gyq-case-review-test_gt");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        mvcResult = this.requestPostWithOkAndReturn(PAGE_CASE_REVIEW, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        caseReviewDTOS = JSON.parseArray(JSON.toJSONString(pageData.getList()), CaseReviewDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(caseReviewDTOS));
     }
 
     @Test

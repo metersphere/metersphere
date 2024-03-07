@@ -2,7 +2,8 @@
 INSERT INTO organization(id, num, name, description, create_time, update_time, create_user, update_user, deleted, delete_user, delete_time) VALUE
     ('organization-gyq-case-review-test', null, 'organization-gyq-case-review-test', 'organization-gyq-case-review-test', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', 0, null, null);
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES
-                                                                                                                          ('project-gyq-case-review-test', null, 'organization-gyq-case-review-test', '用例评审项目', '系统默认创建的项目', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+                                                                                                                          ('project-gyq-case-review-test', null, 'organization-gyq-case-review-test', '用例评审项目', '系统默认创建的项目', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+                                                                                                                          ('project-gyq-case-review-test_gt', null, 'organization-gyq-case-review-test', '用例评审项目2', '系统默认创建的项目', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 
 INSERT INTO template (id, name, remark, internal, update_time, create_time, create_user, scope_type, scope_id, enable_third_part, ref_id, scene)
