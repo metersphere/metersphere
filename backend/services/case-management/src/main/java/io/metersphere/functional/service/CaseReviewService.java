@@ -16,6 +16,7 @@ import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
@@ -376,12 +377,12 @@ public class CaseReviewService {
     private void checkAndSetStartAndEndTime(CaseReviewRequest request, CaseReview caseReview) {
         long currentZeroTime = getCurrentZeroTime();
         if (request.getStartTime() != null && request.getStartTime() < currentZeroTime) {
-            throw new MSException("评审周期开始时间不得早于当前时间");
+            throw new MSException(Translator.get("permission.case_review.start_time"));
         } else {
             caseReview.setStartTime(request.getStartTime());
         }
         if (request.getEndTime() != null && request.getEndTime() < currentZeroTime) {
-            throw new MSException("评审周期结束时间不得早于当前时间");
+            throw new MSException(Translator.get("permission.case_review.end_time"));
         } else {
             caseReview.setEndTime(request.getEndTime());
         }
