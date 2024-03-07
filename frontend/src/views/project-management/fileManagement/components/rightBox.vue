@@ -1216,6 +1216,7 @@
     };
     await addRepositoryFile(params);
     Message.success(t('common.addSuccess'));
+    emitTableParams();
     if (!isContinue) {
       storageDialogVisible.value = false;
     }

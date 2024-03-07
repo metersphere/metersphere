@@ -1,5 +1,6 @@
 <template>
   <MsCard
+    :special-height="55"
     :loading="loading"
     :title="title"
     :is-edit="isEdit && route.params.mode !== 'copy'"
