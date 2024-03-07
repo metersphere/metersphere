@@ -65,4 +65,6 @@ public interface ExtBugRelateCaseMapper {
      * @return 缺陷集合
      */
     List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
+
+    long countByCaseId(String caseId);
 }
