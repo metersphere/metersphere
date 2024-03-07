@@ -4,7 +4,7 @@
       <a-button type="primary" @click="handleSelect">{{ t('caseManagement.featureCase.linkCase') }}</a-button>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchCase"
@@ -139,16 +139,6 @@
       showDrag: false,
     },
     {
-      title: 'bugManagement.detail.isPlanRelateCase',
-      titleSlotName: 'relatePlanTitle',
-      slotName: 'isRelatePlanCase',
-      showInTable: true,
-      showTooltip: true,
-      width: 300,
-      ellipsis: true,
-      showDrag: false,
-    },
-    {
       title: 'bugManagement.project',
       slotName: 'projectName',
       dataIndex: 'projectName',
@@ -205,8 +195,8 @@
   }
 
   async function getFetch() {
+    setKeyword(keyword.value);
     setLoadListParams({
-      keyword: keyword.value,
       bugId: props.bugId,
     });
     await loadList();
@@ -269,6 +259,9 @@
 
   async function searchCase() {
     setKeyword(keyword.value);
+    setLoadListParams({
+      bugId: props.bugId,
+    });
     await loadList();
   }
 
@@ -277,9 +270,12 @@
     getFetch();
   });
 
-  watchEffect(() => {
-    getFetch();
-  });
+  watch(
+    () => props.bugId,
+    () => {
+      getFetch();
+    }
+  );
 </script>
 
 <style scoped></style>

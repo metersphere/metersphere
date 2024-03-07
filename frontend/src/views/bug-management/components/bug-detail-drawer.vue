@@ -5,6 +5,7 @@
     :width="1200"
     :footer="false"
     :title="t('bugManagement.detail.title', { id: detailInfo?.num, name: detailInfo?.title })"
+    :tooltip-text="(detailInfo && detailInfo.title) || null"
     :detail-id="props.detailId"
     :detail-index="props.detailIndex"
     :get-detail-func="getBugDetail"

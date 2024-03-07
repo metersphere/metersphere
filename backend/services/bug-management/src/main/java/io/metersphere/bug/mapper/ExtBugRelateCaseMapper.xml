@@ -49,7 +49,10 @@
         from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
         where brc.bug_id = #{request.bugId} and fc.deleted = false
         <if test="request.keyword != null and request.keyword != ''">
-            and fc.name like concat('%', #{request.keyword}, '%')
+            and (
+            fc.name like concat('%', #{request.keyword}, '%')
+            or fc.num like concat('%', #{request.keyword}, '%')
+            )
         </if>
     </select>
 
