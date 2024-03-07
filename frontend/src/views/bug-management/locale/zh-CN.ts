@@ -120,6 +120,7 @@ export default {
     history: {
       changeNumber: '变更序号',
       operationMan: '操作人',
+      operation: '操作',
       updateTime: '更新时间',
       restore: '恢复',
       current: '当前',

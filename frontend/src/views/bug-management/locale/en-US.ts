@@ -120,6 +120,7 @@ export default {
     history: {
       changeNumber: 'Change number',
       operationMan: 'Operator',
+      operation: 'Operation',
       updateTime: 'Update time',
       restore: 'Restore',
       current: 'Current',

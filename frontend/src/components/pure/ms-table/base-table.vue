@@ -189,7 +189,7 @@
         <div class="w-full">
           <slot name="empty">
             <div class="flex h-[40px] flex-col items-center justify-center">
-              <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
+              <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noData') }}</span>
             </div>
           </slot>
         </div>
