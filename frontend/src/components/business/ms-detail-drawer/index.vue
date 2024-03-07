@@ -10,7 +10,8 @@
   >
     <template #title>
       <div class="flex flex-1 items-center">
-        <a-tooltip :content="props.title" position="bottom">
+        <!-- 如果设置了tooltipText，则优先展示-->
+        <a-tooltip :content="props.tooltipText ? props.tooltipText : props.title" position="bottom">
           <div class="one-line-text max-w-[300px]">
             {{ props.title }}
           </div>
@@ -49,6 +50,7 @@
     title: string;
     width: number;
     detailId: string; // 详情 id
+    tooltipText?: string; // tooltip内容
     detailIndex: number; // 详情 下标
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
