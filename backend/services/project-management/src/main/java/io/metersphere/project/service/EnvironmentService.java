@@ -10,14 +10,12 @@ import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.domain.Environment;
-import io.metersphere.sdk.domain.EnvironmentBlob;
-import io.metersphere.sdk.domain.EnvironmentBlobExample;
-import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.domain.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
+import io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.PluginScript;
@@ -80,6 +78,8 @@ public class EnvironmentService {
     private PluginScriptService pluginScriptService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private EnvironmentGroupRelationMapper environmentGroupRelationMapper;
     public static final Long ORDER_STEP = 5000L;
 
     private static final String USERNAME = "user";
@@ -124,6 +124,10 @@ public class EnvironmentService {
         }
         environmentMapper.deleteByPrimaryKey(id);
         environmentBlobMapper.deleteByPrimaryKey(id);
+        //删除环境组及联关系
+        EnvironmentGroupRelationExample environmentGroupRelationExample = new EnvironmentGroupRelationExample();
+        environmentGroupRelationExample.createCriteria().andEnvironmentIdEqualTo(id);
+        environmentGroupRelationMapper.deleteByExample(environmentGroupRelationExample);
 
     }
 

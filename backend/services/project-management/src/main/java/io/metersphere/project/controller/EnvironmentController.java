@@ -106,7 +106,7 @@ public class EnvironmentController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_IMPORT)
     @Operation(summary = "项目管理-环境-环境目录-导入")
-    public void create(@RequestPart(value = "request") EnvironmentImportRequest request, @RequestPart(value = "file") MultipartFile file) {
+    public void create(@RequestPart(value = "request") EnvironmentImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         environmentService.create(request, file, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
