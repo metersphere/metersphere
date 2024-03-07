@@ -282,7 +282,11 @@
     const tmpObj = {};
     if (detail.customFields && Array.isArray(detail.customFields)) {
       detail.customFields.forEach((item) => {
-        tmpObj[item.id] = item.value;
+        if (item.type === 'MULTIPLE_SELECT') {
+          tmpObj[item.id] = JSON.parse(item.value);
+        } else {
+          tmpObj[item.id] = item.value;
+        }
       });
     }
     // 初始化自定义字段
