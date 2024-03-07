@@ -20,6 +20,7 @@
               :modules-count="modulesCount"
               @folder-node-select="handleFolderNodeSelect"
               @init="initModuleTree"
+              :is-expand-all=true
             />
           </div>
         </template>
