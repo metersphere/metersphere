@@ -23,7 +23,7 @@ public abstract class AbstractCustomFieldResolver {
     abstract public void validate(CustomFieldDao customField, Object value);
 
     protected void throwValidateException(String name) {
-        throw new MSException(FIELD_VALIDATE_ERROR, Translator.get(FIELD_VALIDATE_ERROR.getMessage(), name));
+        throw new MSException(FIELD_VALIDATE_ERROR, Translator.getWithArgs(FIELD_VALIDATE_ERROR.getMessage(), name));
     }
 
     protected void validateRequired(CustomFieldDao customField, Object value) {

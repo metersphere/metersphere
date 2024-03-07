@@ -12,6 +12,7 @@ import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,11 @@ public class BaseTemplateCustomFieldService {
     private TemplateCustomFieldMapper templateCustomFieldMapper;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
+
+    /**
+     * 是否校验默认值
+     */
+    public static final ThreadLocal<Boolean> validateDefaultValue = new ThreadLocal<>();
 
     public void deleteByTemplateId(String templateId) {
         TemplateCustomFieldExample example = new TemplateCustomFieldExample();
@@ -102,7 +108,10 @@ public class BaseTemplateCustomFieldService {
         AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
         CustomFieldDao customFieldDao = BeanUtils.copyBean(new CustomFieldDao(), customField);
         customFieldDao.setRequired(false);
-        customFieldResolver.validate(customFieldDao, field.getDefaultValue());
+        if (BooleanUtils.isNotFalse(validateDefaultValue.get())) {
+            // 创建项目时不校验默认值
+            customFieldResolver.validate(customFieldDao, field.getDefaultValue());
+        }
         return customFieldResolver.parse2String(field.getDefaultValue());
     }
 
