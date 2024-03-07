@@ -543,7 +543,7 @@
         projectId: currentProjectId.value,
         caseId: detailForm.value.id,
         fileId: item.uid,
-        local: true,
+        local: item.local,
       };
       const res = await downloadFileRequest(prams);
       downloadByteFile(res, `${item.name}`);
