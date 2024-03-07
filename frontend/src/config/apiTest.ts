@@ -8,6 +8,8 @@ export const conditionTypeNameMap = {
   [RequestConditionProcessor.SQL]: 'apiTestDebug.sql',
   [RequestConditionProcessor.TIME_WAITING]: 'apiTestDebug.waitTime',
   [RequestConditionProcessor.EXTRACT]: 'apiTestDebug.extractParameter',
+  [RequestConditionProcessor.SCENARIO_SCRIPT]: 'apiTestDebug.script',
+  [RequestConditionProcessor.REQUEST_SCRIPT]: 'apiTestDebug.script',
 };
 // 代码字符集
 export const codeCharset = ['UTF-8', 'UTF-16', 'GBK', 'GB2312', 'ISO-8859-1', 'Shift_JIS', 'ASCII', 'BIG5', 'KOI8-R'];

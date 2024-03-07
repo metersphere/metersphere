@@ -22,12 +22,15 @@
       <conditionList
         v-model:list="data"
         :active-id="activeItem.id"
+        :show-associated-scene="props.showAssociatedScene"
+        :show-pre-post-request="props.showPrePostRequest"
         @active-change="handleListActiveChange"
         @change="emit('change')"
       />
     </div>
     <conditionContent
       v-model:data="activeItem"
+      :total-list="data"
       :response="props.response"
       :height-used="props.heightUsed"
       :show-associated-scene="props.showAssociatedScene"
@@ -120,6 +123,17 @@
         } else if (props.showPrePostRequest) {
           type = RequestConditionProcessor.REQUEST_SCRIPT;
         }
+        const isExistPre = data.value.filter(
+          (item) => item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length;
+        const isExistPost = data.value.filter(
+          (item) => !item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length;
+        // 如果是场景或者是请求类型的 需要限制前后脚本类型只能为一前一后
+
+        if (isExistPre && isExistPost && props.showPrePostRequest) {
+          return;
+        }
         data.value.push({
           id,
           processorType: type,
@@ -127,7 +141,7 @@
           enableCommonScript: false,
           associateScenarioResult: false,
           ignoreProtocols: [],
-          beforeStepScript: true,
+          beforeStepScript: !isExistPre,
           enable: true,
           script: '',
           scriptId: '',
@@ -140,8 +154,14 @@
             scriptLanguage: LanguageEnum.BEANSHELL,
           },
         });
+
         break;
       case RequestConditionProcessor.SQL:
+        const isSQL = data.value.find((item) => item.processorType === RequestConditionProcessor.SQL);
+
+        if (props.showPrePostRequest && isSQL) {
+          return;
+        }
         data.value.push({
           id,
           processorType: RequestConditionProcessor.SQL,
@@ -160,6 +180,7 @@
           variables: [],
           extractParams: [],
         });
+
         break;
       case RequestConditionProcessor.TIME_WAITING:
         data.value.push({

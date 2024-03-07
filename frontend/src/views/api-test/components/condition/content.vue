@@ -10,8 +10,14 @@
     >
       <!-- 前后置请求开始 -->
       <div v-if="props.showPrePostRequest" class="mt-4">
-        <a-radio-group v-model="condition.beforeStepScript" type="button" size="small" :default-value="true">
-          <a-radio :value="true"> {{ props?.requestRadioTextProps?.pre }} </a-radio>
+        <a-radio-group
+          v-model="condition.beforeStepScript"
+          type="button"
+          size="small"
+          :default-value="true"
+          :disabled="hasPreAndPost"
+        >
+          <a-radio :value="true"> {{ props?.requestRadioTextProps?.pre }}</a-radio>
           <a-radio :value="false"> {{ props?.requestRadioTextProps?.post }} </a-radio>
         </a-radio-group>
         <a-tooltip position="br" :content="t('apiTestDebug.preconditionAssociateResultDesc')">
@@ -446,6 +452,7 @@
       showAssociatedScene?: boolean; // 是否展示关联场景结果
       requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略
+      totalList?: ExecuteConditionProcessor[]; // 总列表
     }>(),
     {
       showAssociatedScene: false,
@@ -807,6 +814,20 @@ if (!result){
     } catch (error) {
       console.log(error);
     }
+  });
+
+  const hasPreAndPost = computed(() => {
+    if (props.showPrePostRequest) {
+      return (
+        (props?.totalList || []).filter(
+          (item) => item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length > 0 &&
+        (props?.totalList || []).filter(
+          (item) => !item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length > 0
+      );
+    }
+    return true;
   });
 </script>
 

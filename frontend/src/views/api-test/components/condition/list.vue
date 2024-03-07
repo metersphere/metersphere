@@ -8,7 +8,7 @@
     :item-border="false"
     class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
     item-class="mb-[4px] bg-white !p-[4px_8px]"
-    :item-more-actions="itemMoreActions"
+    :item-more-actions="moreActions"
     active-item-class="!bg-[rgb(var(--primary-1))] text-[rgb(var(--primary-5))]"
     draggable
     @item-click="handleItemClick"
@@ -31,8 +31,18 @@
         >
           {{ `${t('apiTestDebug.wait')}${item.delay}` }} ms
         </div>
-        <div v-else>
+        <div v-else class="flex items-center">
           {{ t(conditionTypeNameMap[item.processorType]) }}
+
+          <a-badge
+            v-if="item.processorType === RequestConditionProcessor.REQUEST_SCRIPT"
+            class="ml-1 mt-[2px]"
+            :text="
+              item.beforeStepScript
+                ? t('project.environmental.preOrPost.pre')
+                : t('project.environmental.preOrPost.post')
+            "
+          />
         </div>
       </div>
     </template>
@@ -57,6 +67,8 @@
   const props = defineProps<{
     list: ExecuteConditionProcessor[];
     activeId?: string | number;
+    showAssociatedScene?: boolean;
+    showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
   }>();
   const emit = defineEmits<{
     (e: 'update:list', list: ExecuteConditionProcessor[]): void;
@@ -71,16 +83,48 @@
   const focusItemKey = ref<any>('');
   // 当前选中的列表项
   const activeItem = ref<ExecuteConditionProcessor>({} as ExecuteConditionProcessor);
+
+  const hasPreAndPost = computed(() => {
+    if (props.showPrePostRequest) {
+      const hasPre =
+        data.value.filter(
+          (item) => item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length > 0;
+      const hasPost =
+        data.value.filter(
+          (item) => !item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        ).length > 0;
+      if (hasPre && hasPost) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  });
+
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
       eventTag: 'copy',
+      disabled: hasPreAndPost.value,
     },
     {
       label: 'common.delete',
       eventTag: 'delete',
     },
   ];
+
+  let moreActions: ActionsItem[] = [...itemMoreActions];
+  watch(
+    () => hasPreAndPost.value,
+    (val) => {
+      if (val) {
+        moreActions = itemMoreActions.slice(-1);
+      } else {
+        moreActions = itemMoreActions;
+      }
+    }
+  );
 
   watchEffect(() => {
     activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
@@ -97,10 +141,28 @@
    * @param item 列表项
    */
   function copyListItem(item: ExecuteConditionProcessor) {
-    const copyItem = {
+    let copyItem = {
       ...item,
       id: new Date().getTime(),
     };
+    const isExistPre = data.value.filter(
+      (current) => current.beforeStepScript && current.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+    ).length;
+    const isExistPost = data.value.filter(
+      (current) => !current.beforeStepScript && current.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+    ).length;
+    // 如果是场景或者是请求类型的 需要限制前后脚本类型只能为一前一后
+
+    if (isExistPre && isExistPost && props.showPrePostRequest) {
+      return;
+    }
+
+    copyItem = {
+      ...item,
+      beforeStepScript: !isExistPre,
+      id: new Date().getTime(),
+    };
+
     data.value.push(copyItem);
     activeItem.value = copyItem;
     emit('activeChange', activeItem.value);
@@ -132,4 +194,11 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-badge-text) {
+    font-size: 12px;
+    color: var(--color-text-4) !important;
+    background: white !important;
+    box-shadow: 0 0 0 1px var(--color-text-n8);
+  }
+</style>
