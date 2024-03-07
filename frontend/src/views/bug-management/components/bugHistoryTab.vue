@@ -2,8 +2,6 @@
   <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #changeNumber="{ record }">
       <span>{{ record.id }}</span>
-      <!-- TODO: 先不上 -->
-      <!-- <a-tag size="small" class="ml-[4px]">{{ t('bugManagement.history.current') }}</a-tag> -->
     </template>
   </ms-base-table>
 </template>
@@ -28,6 +26,12 @@
       title: 'bugManagement.history.changeNumber',
       slotName: 'changeNumber',
       dataIndex: 'id',
+      width: 200,
+    },
+    {
+      title: 'bugManagement.history.operation',
+      dataIndex: 'type',
+      showTooltip: true,
       width: 200,
     },
     {

@@ -1,6 +1,7 @@
 package io.metersphere.bug.service;
 
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.OperationHistory;
 import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.domain.User;
@@ -8,10 +9,12 @@ import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +54,14 @@ public class BugHistoryService {
             OperationHistoryDTO dto = new OperationHistoryDTO();
             BeanUtils.copyBean(dto, h);
             dto.setCreateUserName(userMap.get(h.getCreateUser()) == null ? h.getCreateUser() : userMap.get(h.getCreateUser()));
+            if (StringUtils.equals(dto.getType(), OperationLogType.ADD.name())) {
+                dto.setType(Translator.get("add"));
+            } else if (StringUtils.equals(dto.getType(), OperationLogType.UPDATE.name())) {
+                dto.setType(Translator.get("update"));
+            } else if (StringUtils.equals(dto.getType(), OperationLogType.DELETE.name())) {
+                dto.setType(Translator.get("delete"));
+            }
+
             return dto;
         }).toList();
     }
