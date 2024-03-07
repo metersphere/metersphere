@@ -51,7 +51,7 @@
         <CaseTemplateLeftContent v-else />
       </div>
       <div class="preview-right px-4">
-        <div style="height: calc(100% - 80px); min-width: 250px; overflow: auto">
+        <div style="min-width: 250px">
           <!-- 自定义字段开始 -->
           <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
             <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
@@ -139,38 +139,32 @@
               </div>
             </div>
           </VueDraggable>
+        </div>
+        <!-- 自定义字段结束 -->
+        <div style="height: 90px">
+          <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
+            <template #icon>
+              <icon-plus class="text-[14px]" />
+            </template>
+            {{ t('system.orgTemplate.associatedField') }}
+          </a-button>
+          <a-tooltip :content="t('system.orgTemplate.associatedHasField')" placement="top" effect="dark">
+            <IconQuestionCircle
+              class="mr-8 mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+            />
+          </a-tooltip>
 
-          <!-- 自定义字段结束 -->
-          <div class="flex items-center">
-            <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
-              <template #icon>
-                <icon-plus class="text-[14px]" />
-              </template>
-              {{ t('system.orgTemplate.associatedField') }}
-            </a-button>
-            <a-tooltip :content="t('system.orgTemplate.associatedHasField')" placement="top" effect="dark">
-              <IconQuestionCircle
-                class="mr-8 mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-              />
-            </a-tooltip>
-
-            <a-button
-              class="mr-1 mt-1 px-0"
-              type="text"
-              :disabled="totalTemplateField.length >= 20"
-              @click="createField"
-            >
-              <template #icon>
-                <icon-plus class="text-[14px]" />
-              </template>
-              {{ t('system.orgTemplate.addField') }}
-            </a-button>
-            <a-tooltip :content="t('system.orgTemplate.addFieldDesc')" placement="top" effect="dark">
-              <IconQuestionCircle
-                class="mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-              />
-            </a-tooltip>
-          </div>
+          <a-button class="mr-1 mt-1 px-0" type="text" :disabled="totalTemplateField.length >= 20" @click="createField">
+            <template #icon>
+              <icon-plus class="text-[14px]" />
+            </template>
+            {{ t('system.orgTemplate.addField') }}
+          </a-button>
+          <a-tooltip :content="t('system.orgTemplate.addFieldDesc')" placement="top" effect="dark">
+            <IconQuestionCircle
+              class="mt-1 h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+            />
+          </a-tooltip>
         </div>
       </div>
       <!-- 添加字段到模板抽屉 -->
