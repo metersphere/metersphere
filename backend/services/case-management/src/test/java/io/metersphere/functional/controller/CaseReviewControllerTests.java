@@ -138,6 +138,10 @@ public class CaseReviewControllerTests extends BaseTest {
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertEquals(functionalCases.size(), caseReviewFunctionalCases.size());
 
+        caseReviewRequest.setStartTime(1678188043000L);
+        caseReviewRequest.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequest).andExpect(status().is5xxServerError());
+
     }
 
     private List<CaseReview> getCaseReviews(String name) {
@@ -224,6 +228,10 @@ public class CaseReviewControllerTests extends BaseTest {
         this.requestPost(ADD_CASE_REVIEW, caseReviewRequestNoReviewer).andExpect(status().is4xxClientError());
         CaseReviewRequest caseReviewRequestNoName = getCaseReviewAddRequest(null, CaseReviewPassRule.SINGLE.toString(), null, true, true, null);
         this.requestPost(ADD_CASE_REVIEW, caseReviewRequestNoName).andExpect(status().is4xxClientError());
+        CaseReviewRequest caseReviewRequestWidthStartTime = getCaseReviewAddRequest("创建评审5", CaseReviewPassRule.SINGLE.toString(), null, true, true, null);
+        caseReviewRequestWidthStartTime.setStartTime(1678188043000L);
+        caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -283,6 +291,12 @@ public class CaseReviewControllerTests extends BaseTest {
         this.requestPost(EDIT_CASE_REVIEW, caseReviewRequest).andExpect(status().is4xxClientError());
         caseReviewRequest = getCaseReviewAddRequest("创建评审更新1", CaseReviewPassRule.SINGLE.toString(), null, true, true, "XXX");
         this.requestPost(EDIT_CASE_REVIEW, caseReviewRequest).andExpect(status().is5xxServerError());
+        List<CaseReview> caseReviews = getCaseReviews("创建评审1");
+        CaseReview caseReview = caseReviews.get(0);
+        CaseReviewRequest caseReviewRequestWidthStartTime = getCaseReviewAddRequest("创建评审更新1", CaseReviewPassRule.SINGLE.toString(), caseReview.getId(), true, true, null);
+        caseReviewRequestWidthStartTime.setStartTime(1678188043000L);
+        caseReviewRequestWidthStartTime.setEndTime(1678188103000L);
+        this.requestPost(ADD_CASE_REVIEW, caseReviewRequestWidthStartTime).andExpect(status().is5xxServerError());
     }
 
     @Test

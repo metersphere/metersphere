@@ -286,8 +286,7 @@ public class CaseReviewService {
             caseReview.setTags(request.getTags());
         }
         caseReview.setDescription(request.getDescription());
-        caseReview.setStartTime(request.getStartTime());
-        caseReview.setEndTime(request.getEndTime());
+        checkAndSetStartAndEndTime(request, caseReview);
         caseReview.setUpdateTime(System.currentTimeMillis());
         caseReview.setUpdateUser(userId);
         caseReviewMapper.updateByPrimaryKeySelective(caseReview);
@@ -365,8 +364,7 @@ public class CaseReviewService {
             caseReview.setCaseCount(caseIds.size());
         }
         caseReview.setDescription(request.getDescription());
-        caseReview.setStartTime(request.getStartTime());
-        caseReview.setEndTime(request.getEndTime());
+        checkAndSetStartAndEndTime(request, caseReview);
         caseReview.setCreateTime(System.currentTimeMillis());
         caseReview.setUpdateTime(System.currentTimeMillis());
         caseReview.setCreateUser(userId);
@@ -374,6 +372,30 @@ public class CaseReviewService {
         caseReviewMapper.insert(caseReview);
         return caseReview;
     }
+
+    private void checkAndSetStartAndEndTime(CaseReviewRequest request, CaseReview caseReview) {
+        long currentZeroTime = getCurrentZeroTime();
+        if (request.getStartTime() != null && request.getStartTime() < currentZeroTime) {
+            throw new MSException("评审周期开始时间不得早于当前时间");
+        } else {
+            caseReview.setStartTime(request.getStartTime());
+        }
+        if (request.getEndTime() != null && request.getEndTime() < currentZeroTime) {
+            throw new MSException("评审周期结束时间不得早于当前时间");
+        } else {
+            caseReview.setEndTime(request.getEndTime());
+        }
+    }
+
+    public long getCurrentZeroTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
 
     /**
      * 检查用例评审是否存在
