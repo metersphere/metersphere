@@ -153,6 +153,7 @@
   }
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    fileItem.local = true;
     emit('change', _fileList, fileItem);
   }
 

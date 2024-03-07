@@ -1,5 +1,6 @@
 <template>
   <MsCard
+    :special-height="10"
     no-content-padding
     divider-has-p-x
     has-breadcrumb
