@@ -97,7 +97,7 @@ export const DATE = {
   value: '',
   props: {
     // 'placeholder': t('formCreate.PleaseSelect'),
-    'format': 'YYYY/MM/DD',
+    'format': 'YYYY-MM-DD',
     'show-time': false,
   },
 };
@@ -109,7 +109,7 @@ export const DATETIME = {
   value: '',
   props: {
     // 'placeholder': t('formCreate.PleaseSelect'),
-    'format': 'YYYY/MM/DD HH:mm:ss',
+    'format': 'YYYY-MM-DD HH:mm:ss',
     'show-time': true,
     'show-now-btn': true,
   },

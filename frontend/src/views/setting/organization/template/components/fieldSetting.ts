@@ -40,11 +40,11 @@ const templateStore = useTemplateStore();
 // 字段类型-日期
 const dateOptions: { label: string; value: FormItemType }[] = [
   {
-    label: dayjs().format('YYYY/MM/DD'),
+    label: dayjs().format('YYYY-MM-DD'),
     value: 'DATE',
   },
   {
-    label: dayjs().format('YYYY/MM/DD HH:mm:ss'),
+    label: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     value: 'DATETIME',
   },
 ];
