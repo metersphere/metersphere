@@ -3,8 +3,10 @@ import {
   AddDefinitionUrl,
   AddModuleUrl,
   BatchDeleteDefinitionUrl,
+  DefinitionMockPageUrl,
   DefinitionPageUrl,
   DeleteDefinitionUrl,
+  DeleteMockUrl,
   DeleteModuleUrl,
   GetDefinitionDetailUrl,
   GetEnvModuleUrl,
@@ -15,6 +17,7 @@ import {
   TransferFileModuleOptionUrl,
   TransferFileUrl,
   UpdateDefinitionUrl,
+  UpdateMockStatusUrl,
   UpdateModuleUrl,
   UploadTempFileUrl,
 } from '@/api/requrls/api-test/management';
@@ -24,10 +27,13 @@ import {
   ApiDefinitionDetail,
   ApiDefinitionGetEnvModuleParams,
   ApiDefinitionGetModuleParams,
+  ApiDefinitionMockDetail,
+  ApiDefinitionMockPageParams,
   ApiDefinitionPageParams,
   ApiDefinitionUpdateModuleParams,
   ApiDefinitionUpdateParams,
   EnvModule,
+  mockParams,
 } from '@/models/apiTest/management';
 import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
 
@@ -114,4 +120,22 @@ export function deleteDefinition(id: string) {
 // 批量删除定义
 export function batchDeleteDefinition(id: string) {
   return MSR.get({ url: BatchDeleteDefinitionUrl, params: id });
+}
+
+/**
+ * Mock
+ */
+// 获取mock列表接口
+export function getDefinitionMockPage(data: ApiDefinitionMockPageParams) {
+  return MSR.post<CommonList<ApiDefinitionMockDetail>>({ url: DefinitionMockPageUrl, data });
+}
+
+// 更新mock状态接口
+export function updateMockStatusPage(id: string) {
+  return MSR.get({ url: UpdateMockStatusUrl, params: id });
+}
+
+// 刪除mock接口
+export function deleteDefinitionMockMock(data: mockParams) {
+  return MSR.post({ url: DeleteMockUrl, data });
 }

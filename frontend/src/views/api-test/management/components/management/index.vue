@@ -10,7 +10,15 @@
       />
     </a-tab-pane>
     <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane"> </a-tab-pane>
-    <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
+    <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane">
+      <mock-table
+        ref="mockRef"
+        :module-tree="props.moduleTree"
+        :active-module="props.activeModule"
+        :offspring-ids="props.offspringIds"
+        :protocol="protocol"
+      />
+    </a-tab-pane>
     <!-- <a-tab-pane key="doc" title="API Docs" class="ms-api-tab-pane"> </a-tab-pane> -->
     <template #extra>
       <div class="flex items-center gap-[8px] pr-[24px]">
@@ -35,6 +43,7 @@
 <script setup lang="ts">
   import MsSelect from '@/components/business/ms-select';
   import api from './api/index.vue';
+  import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

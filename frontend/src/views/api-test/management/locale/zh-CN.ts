@@ -94,4 +94,13 @@ export default {
   'apiTestManagement.collapseApi': '隐藏全部请求',
   'apiTestManagement.paramName': '参数名',
   'apiTestManagement.paramVal': '参数值',
+  'mockManagement.name': '期望名称',
+  'mockManagement.apiPath': '接口路径',
+  'mockManagement.operationUser': '操作人',
+  'mockManagement.updateTime': '更新时间',
+  'mockManagement.copyMock': '复制Mock地址',
+  'mockManagement.batchEnable': '批量启用',
+  'mockManagement.batchDisEnable': '批量禁用',
+  'mockManagement.batchDeleteMockTip': '确认删除已选中的 {count} 个Mock吗？',
+  'apiTestManagement.deleteMockTip': '刪除后將不可恢復，确认刪除嗎？',
 };

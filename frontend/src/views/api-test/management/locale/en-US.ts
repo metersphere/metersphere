@@ -100,4 +100,13 @@ export default {
   'apiTestManagement.collapseApi': 'Hide all requests',
   'apiTestManagement.paramName': 'Parameter name',
   'apiTestManagement.paramVal': 'Parameter value',
+  'mockManagement.name': 'Expected name',
+  'mockManagement.apiPath': 'Interface path',
+  'mockManagement.operationUser': 'Operator',
+  'mockManagement.updateTime': 'Update time',
+  'mockManagement.copyMock': 'Copy mock address',
+  'mockManagement.batchEnable': 'Batch enable',
+  'mockManagement.batchDisEnable': 'Batch disable',
+  'mockManagement.batchDeleteMockTip': 'Are you sure you want to delete the selected {count} mocks?',
+  'apiTestManagement.deleteMockTip': 'After deletion, it cannot be restored. Are you sure you want to delete it?',
 };

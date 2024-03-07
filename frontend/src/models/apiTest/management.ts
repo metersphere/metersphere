@@ -7,6 +7,7 @@ export interface ApiDefinitionCustomField {
   fieldId: string;
   value: string;
 }
+
 // 创建定义参数
 export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
   tags: string[];
@@ -16,14 +17,17 @@ export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
   customFields: ApiDefinitionCustomField[];
   moduleId: string;
   versionId: string;
+
   [key: string]: any; // 其他前端定义的参数
 }
+
 // 更新定义参数
 export interface ApiDefinitionUpdateParams extends ApiDefinitionCreateParams {
   id: string;
   deleteFileIds: string[];
   unLinkFileIds: string[];
 }
+
 // 定义-自定义字段详情
 export interface ApiDefinitionCustomFieldDetail {
   id: string;
@@ -43,6 +47,7 @@ export interface ApiDefinitionCustomFieldDetail {
   apiId: string;
   fieldId: string;
 }
+
 // 定义详情
 export interface ApiDefinitionDetail extends ApiDefinitionCreateParams {
   id: string;
@@ -74,11 +79,13 @@ export interface ApiDefinitionDetail extends ApiDefinitionCreateParams {
   follow: boolean;
   customFields: ApiDefinitionCustomFieldDetail[];
 }
+
 // 定义-更新模块参数
 export interface ApiDefinitionUpdateModuleParams {
   id: string;
   name: string;
 }
+
 // 定义-获取模块树参数
 export interface ApiDefinitionGetModuleParams {
   keyword: string;
@@ -91,6 +98,7 @@ export interface ApiDefinitionGetModuleParams {
   versionId?: string;
   refId?: string;
 }
+
 // 环境-选中的模块
 export interface SelectedModule {
   // 选中的模块
@@ -98,16 +106,19 @@ export interface SelectedModule {
   containChildModule: boolean; // 是否包含新增子模块
   disabled: boolean;
 }
+
 // 定义-获取环境的模块树参数
 export interface ApiDefinitionGetEnvModuleParams {
   projectId: string;
   selectedModules?: SelectedModule[];
 }
+
 // 环境-模块树
 export interface EnvModule {
   moduleTree: ModuleTreeNode[];
   selectedModules: SelectedModule[];
 }
+
 // 定义列表查询参数
 export interface ApiDefinitionPageParams extends TableQueryParams {
   id: string;
@@ -118,4 +129,38 @@ export interface ApiDefinitionPageParams extends TableQueryParams {
   refId: string;
   moduleIds: string[];
   deleted: boolean;
+}
+
+// mock列表请求参数
+export interface ApiDefinitionMockPageParams extends TableQueryParams {
+  id: string;
+  name: string;
+  projectId: string;
+  enable: boolean;
+  apiDefinitionId: string;
+}
+
+export interface ApiDefinitionMockDetail {
+  id: string;
+  name: string;
+  tags: string[];
+  enable: boolean;
+  expectNum: string;
+  projectId: string;
+  apiDefinitionId: string;
+  createTime: number;
+  updateTime: number;
+  createUser: string;
+  matching: string;
+  response: string;
+  createUserName: string;
+  apiNum: string;
+  apiName: string;
+  apiPath: string;
+  apiMethod: string;
+}
+
+export interface mockParams {
+  id: string;
+  projectId: string;
 }

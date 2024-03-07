@@ -9,12 +9,14 @@
     <select id="list" resultMap="ApiDefinitionMockDTO">
         select
         m.id, m.create_time, m.update_time, m.create_user, m.`name`, m.tags, m.`enable`, m.expect_num, m.project_id,
-        m.api_definition_id, u.name as create_user_name
+        m.api_definition_id, u.name as create_user_name, d.path as api_path
         from api_definition_mock m
         left join `api_definition` d on d.id = m.api_definition_id
         left join `user` u on u.id = m.create_user
-        where m.api_definition_id = #{request.apiDefinitionId}
-        <include refid="queryWhereCondition"/>
+        <where>
+            <include refid="queryWhereCondition"/>
+        </where>
+
     </select>
     <select id="getIdsByApiIds" resultType="java.lang.String">
         select
@@ -38,6 +40,9 @@
         </if>
         <if test="request.projectId != null and request.projectId != ''">
             and m.project_id = #{request.projectId}
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId != ''">
+            and m.api_definition_id = #{request.apiDefinitionId}
         </if>
 
         <include refid="filters">

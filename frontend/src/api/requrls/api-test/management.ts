@@ -15,3 +15,6 @@ export const TransferFileModuleOptionUrl = '/api/definition/transfer/options'; /
 export const UploadTempFileUrl = '/api/definition/upload/temp/file'; // 临时文件上传
 export const DeleteDefinitionUrl = '/api/definition/delete'; // 删除接口定义
 export const BatchDeleteDefinitionUrl = '/api/definition/batch-del'; // 批量删除接口定义
+export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
+export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
+export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
