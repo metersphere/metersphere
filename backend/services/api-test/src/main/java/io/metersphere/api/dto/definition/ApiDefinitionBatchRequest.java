@@ -34,7 +34,4 @@ public class ApiDefinitionBatchRequest extends TableBatchProcessDTO implements S
 
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;
-
-    @Schema(description = "删除列表版本/删除全部版本")
-    private Boolean deleteAll = false;
 }

@@ -34,40 +34,38 @@
     </select>
     <select id="listByRequest" resultMap="ApiTestCaseDTO">
         SELECT
-        t1.id,
-        t1.project_id,
-        t1.name,
-        t1.status,
-        t1.api_definition_id,
-        t1.priority,
-        t1.create_user,
-        t1.update_user,
-        t1.create_time,
-        t1.update_time,
-        t1.delete_user,
-        t1.delete_time,
-        t1.num,
-        t1.last_report_status,
-        t1.last_report_id,
-        t1.environment_id,
-        t1.tags,
+        atc.id,
+        atc.project_id,
+        atc.name,
+        atc.status,
+        atc.api_definition_id,
+        atc.priority,
+        atc.create_user,
+        atc.update_user,
+        atc.create_time,
+        atc.update_time,
+        atc.delete_user,
+        atc.delete_time,
+        atc.num,
+        atc.last_report_status,
+        atc.last_report_id,
+        atc.environment_id,
+        atc.tags,
         a.module_id,
-        t1.pos
+        atc.pos
         FROM
-        api_test_case t1
-        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
-        INNER JOIN api_definition a ON t1.api_definition_id = a.id
-        WHERE t1.deleted =#{deleted}
+        api_test_case atc
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        WHERE atc.deleted =#{deleted}
         <include refid="queryWhereCondition"/>
     </select>
     <select id="getIds" resultType="java.lang.String">
         SELECT
-        t1.id
+        atc.id
         FROM
-        api_test_case t1
-        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
-        INNER JOIN api_definition a ON t1.api_definition_id = a.id
-        WHERE t1.deleted =#{deleted}
+        api_test_case atc
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        WHERE atc.deleted =#{deleted}
         <include refid="queryWhereConditionByBatch"/>
     </select>
     <select id="getCaseInfoByApiIds" resultType="io.metersphere.api.domain.ApiTestCase">
@@ -110,58 +108,58 @@
 
     <select id="findPassRateByIds" resultType="io.metersphere.api.dto.definition.CasePassDTO">
         SELECT
-        t1.api_scenario_id as id,
+        atc.api_scenario_id as id,
         CONCAT(
         FORMAT(
         SUM(
         IF
-        ( t2.`status` = 'success', 1, 0 ))/ COUNT( t2.id )* 100,
+        ( ar.`status` = 'success', 1, 0 ))/ COUNT( ar.id )* 100,
         2
         ),
         '%'
         ) value
         FROM
-        api_report t2
-        left join api_scenario_record t1 on t1.api_scenario_report_id = t2.id
+        api_report ar
+        left join api_scenario_record atc on atc.api_scenario_report_id = ar.id
         WHERE
-        t1.api_scenario_id IN
+        atc.api_scenario_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
         GROUP BY
-        t1.api_scenario_id
+        atc.api_scenario_id
     </select>
     <select id="selectIdsByCaseIds" resultType="java.lang.String">
         SELECT
-        t1.api_definition_id
+        atc.api_definition_id
         FROM
-        api_test_case t1
+        api_test_case atc
         WHERE
-        t1.deleted = 1
-        AND t1.id IN
+        atc.deleted = 1
+        AND atc.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
     <select id="getCaseIds" resultType="java.lang.String">
         SELECT
-        t1.id
+        atc.id
         FROM
-        api_test_case t1
+        api_test_case atc
         WHERE
-        t1.deleted = #{deleted}
-        AND t1.api_definition_id IN
+        atc.deleted = #{deleted}
+        AND atc.api_definition_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
     <select id="getIdsByApiIds" resultType="java.lang.String">
         SELECT
-        t1.id
+        atc.id
         FROM
-        api_test_case t1
+        api_test_case atc
         WHERE
-         t1.api_definition_id IN
+         atc.api_definition_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -169,18 +167,18 @@
 
     <select id="listByProviderRequest" resultMap="TestCaseProviderDTO">
         SELECT
-        t1.id,
-        t1.project_id,
-        t1.name,
-        t1.priority,
-        t1.tags,
+        atc.id,
+        atc.project_id,
+        atc.name,
+        atc.priority,
+        atc.tags,
         v.name as versionName
         FROM
-        api_test_case t1
-        LEFT JOIN project_version v ON t1.version_id = v.id
-        INNER JOIN api_definition a ON t1.api_definition_id = a.id
-        WHERE t1.deleted =#{deleted}
-        and t1.id not in
+        api_test_case atc
+        LEFT JOIN project_version v ON atc.version_id = v.id
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        WHERE atc.deleted =#{deleted}
+        and atc.id not in
         (
         select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
         )
@@ -188,10 +186,10 @@
     </select>
 
     <select id="countModuleIdByProviderRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
-        SELECT a.module_id AS moduleId, count(t1.id) AS dataCount
-        FROM api_test_case t1 inner join api_definition a on t1.api_definition_id = a.id
-        WHERE t1.deleted =#{deleted}
-        and t1.id not in
+        SELECT a.module_id AS moduleId, count(atc.id) AS dataCount
+        FROM api_test_case atc inner join api_definition a on atc.api_definition_id = a.id
+        WHERE atc.deleted =#{deleted}
+        and atc.id not in
         (
         select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
         )
@@ -209,22 +207,21 @@
 
     <select id="getTestCaseByProvider" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT
-        t1.id, t1.version_id
+        atc.id, atc.version_id
         FROM
-        api_test_case t1
-        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
-        INNER JOIN api_definition a ON t1.api_definition_id = a.id
-        WHERE t1.deleted =#{deleted}
+        api_test_case atc
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        WHERE atc.deleted =#{deleted}
         <include refid="queryWhereConditionByBatch"/>
     </select>
     <select id="getTagsByIds" resultMap="BaseResultMap">
         SELECT
-        t1.id,
-        t1.tags
+        atc.id,
+        atc.tags
         FROM
-        api_test_case t1
-        WHERE t1.deleted =#{deleted}
-        and t1.id in
+        api_test_case atc
+        WHERE atc.deleted =#{deleted}
+        and atc.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -239,10 +236,10 @@
         api_report.trigger_mode,
         api_report.test_plan_id
         from api_report
-        left join api_test_case_record t1 on t1.api_report_id = api_report.id
+        left join api_test_case_record atc on atc.api_report_id = api_report.id
         where
         <if test="request.id != null and request.id != ''">
-            t1.api_test_case_id = #{request.id}
+            atc.api_test_case_id = #{request.id}
         </if>
         <include refid="report_filters">
             <property name="filter" value="request.filter"/>
@@ -313,16 +310,16 @@
             and a.protocol = #{request.protocol}
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
-            and t1.api_definition_id = #{request.apiDefinitionId}
+            and atc.api_definition_id = #{request.apiDefinitionId}
         </if>
         <if test="request.projectId != null and request.projectId!=''">
-            and t1.project_id = #{request.projectId}
+            and atc.project_id = #{request.projectId}
         </if>
         <if test="request.condition.keyword != null">
             and (
-            t1.name like concat('%', #{request.condition.keyword},'%')
-            or t1.num like concat('%', #{request.condition.keyword},'%')
-            or t1.tags like JSON_CONTAINS(t1.tags, concat('["',#{request.condition.keyword},'"]'))
+            atc.name like concat('%', #{request.condition.keyword},'%')
+            or atc.num like concat('%', #{request.condition.keyword},'%')
+            or atc.tags like JSON_CONTAINS(atc.tags, concat('["',#{request.condition.keyword},'"]'))
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
@@ -335,7 +332,7 @@
             <property name="filter" value="request.condition.filter"/>
         </include>
         <include refid="queryVersionCondition">
-            <property name="versionTable" value="t1"/>
+            <property name="versionTable" value="atc"/>
         </include>
     </sql>
 
@@ -344,17 +341,17 @@
             and a.protocol = #{request.protocol}
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
-            and t1.api_definition_id = #{request.apiDefinitionId}
+            and atc.api_definition_id = #{request.apiDefinitionId}
         </if>
         <if test="request.projectId != null and request.projectId!=''">
-            and t1.project_id = #{request.projectId}
+            and atc.project_id = #{request.projectId}
         </if>
         <if test="request.keyword != null">
             and (
-            t1.name like concat('%', #{request.keyword},'%')
-            or t1.num like concat('%', #{request.keyword},'%')
+            atc.name like concat('%', #{request.keyword},'%')
+            or atc.num like concat('%', #{request.keyword},'%')
             or a.path like concat('%', #{request.keyword},'%')
-            or t1.tags like JSON_CONTAINS(t1.tags, concat('["',#{request.keyword},'"]'))
+            or atc.tags like JSON_CONTAINS(atc.tags, concat('["',#{request.keyword},'"]'))
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
@@ -367,7 +364,7 @@
             <property name="filter" value="request.filter"/>
         </include>
         <include refid="queryVersionCondition">
-            <property name="versionTable" value="t1"/>
+            <property name="versionTable" value="atc"/>
         </include>
     </sql>
 
@@ -377,37 +374,37 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key == 'priority'">
-                            and t1.priority in
+                            and atc.priority in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                         </when>
                         <when test="key=='status'">
-                            and t1.status in
+                            and atc.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                         </when>
                         <when test="key=='caseStatus' or key=='case_status'">
-                            and t1.case_status in
+                            and atc.case_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                         </when>
                         <when test="key=='last_execute_result'">
-                            and t1.last_execute_result in
+                            and atc.last_execute_result in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                         </when>
                         <when test="key=='create_user' or key=='createUser'">
-                            and t1.create_user in
+                            and atc.create_user in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>
                         </when>
                         <when test="key=='update_user' or key=='updateUser'">
-                            and t1.update_user in
+                            and atc.update_user in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>

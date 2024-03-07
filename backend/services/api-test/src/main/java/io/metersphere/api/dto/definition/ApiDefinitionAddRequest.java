@@ -30,6 +30,7 @@ public class ApiDefinitionAddRequest implements Serializable {
 
     @Schema(description = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @Size(min = 1, max = 255, message = "{api_definition.name.length_range}")
+    @NotBlank
     private String name;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)

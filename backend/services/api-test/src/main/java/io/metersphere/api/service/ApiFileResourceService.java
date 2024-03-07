@@ -326,13 +326,13 @@ public class ApiFileResourceService {
         boolean isTemp = false;
         ApiResourceType apiResourceType = ApiResourceType.valueOf(type);
         String apiFolder = switch (apiResourceType) {
-            case ApiResourceType.API_DEBUG ->
+            case API_DEBUG ->
                     DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case ApiResourceType.API ->
+            case API ->
                     DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case ApiResourceType.API_CASE ->
+            case API_CASE ->
                     DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case ApiResourceType.API_SCENARIO ->
+            case API_SCENARIO ->
                     DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
             default -> throw new MSException("file type error!");
         };
