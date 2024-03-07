@@ -81,9 +81,9 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             List<CaseReviewFunctionalCase> beforeCaseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
             int caseCount = caseIdList.size() + beforeCaseReviewFunctionalCases.size();
             Map<String, Integer> mapCount = getCaseCountMap(beforeCaseReviewFunctionalCases);
-           //新关联的都是未评审的，这里加上
+            //新关联的都是未评审的，这里加上
             Integer i = mapCount.get(UN_REVIEWED_COUNT);
-            mapCount.put(UN_REVIEWED_COUNT,i+caseIdList.size());
+            mapCount.put(UN_REVIEWED_COUNT, i + caseIdList.size());
             updateCaseReview(reviewId, caseCount, mapCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
         } catch (Exception e) {
             LogUtils.error(CaseEvent.Event.ASSOCIATE + "事件更新失败：{}", e.getMessage());
@@ -134,13 +134,20 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
                 functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
                 mapper.updateByPrimaryKeySelective(functionalCase);
             }
-        } else  {
+        } else {
             Map<String, List<CaseReviewFunctionalCase>> collect = otherReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getCaseId));
-            collect.forEach((caseId,caseList)->{
-                FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setId(caseId);
-                functionalCase.setReviewStatus(caseList.get(0).getStatus());
-                mapper.updateByPrimaryKeySelective(functionalCase);
+            collect.forEach((caseId, caseList) -> {
+                if (!caseIdList.contains(caseId)) {
+                    FunctionalCase functionalCase = new FunctionalCase();
+                    functionalCase.setId(caseId);
+                    functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+                    mapper.updateByPrimaryKeySelective(functionalCase);
+                } else {
+                    FunctionalCase functionalCase = new FunctionalCase();
+                    functionalCase.setId(caseId);
+                    functionalCase.setReviewStatus(caseList.get(0).getStatus());
+                    mapper.updateByPrimaryKeySelective(functionalCase);
+                }
             });
         }
         sqlSession.flushStatements();
@@ -195,7 +202,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         try {
             Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
             List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-            if(CollectionUtils.isEmpty(caseIdList)){
+            if (CollectionUtils.isEmpty(caseIdList)) {
                 return;
             }
             CaseReviewFunctionalCaseExample functionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -242,28 +249,28 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             }
             Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
             List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-            if(CollectionUtils.isEmpty(caseIdList)){
+            if (CollectionUtils.isEmpty(caseIdList)) {
                 return;
             }
             Object statusObjMap = paramMap.get(CaseEvent.Param.STATUS_MAP);
-            Map<String,String> statusMap = JSON.parseMap(JSON.toJSONString(statusObjMap));
+            Map<String, String> statusMap = JSON.parseMap(JSON.toJSONString(statusObjMap));
             updateFunctionalCase(statusMap);
             List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
             Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCases);
             Object mapCount = paramMap.get(CaseEvent.Param.COUNT_MAP);
-            Map<String,Integer> map = JSON.parseMap(JSON.toJSONString(mapCount));
+            Map<String, Integer> map = JSON.parseMap(JSON.toJSONString(mapCount));
             updateMapCount(map, caseCountMap);
-            updateCaseReview(reviewId, caseReviewFunctionalCases.size()+caseIdList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
+            updateCaseReview(reviewId, caseReviewFunctionalCases.size() + caseIdList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
 
         } catch (Exception e) {
             LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败：{}", e.getMessage());
         }
     }
 
-    private void updateFunctionalCase(Map<String,String> statusMap) {
+    private void updateFunctionalCase(Map<String, String> statusMap) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
-        statusMap.forEach((castId,status)->{
+        statusMap.forEach((castId, status) -> {
             FunctionalCase functionalCase = new FunctionalCase();
             functionalCase.setId(castId);
             functionalCase.setReviewStatus(status);
@@ -277,23 +284,23 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
     private static void updateMapCount(Map<String, Integer> map, Map<String, Integer> caseCountMap) {
         if (map.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString()) != null) {
             Integer i = caseCountMap.get(UN_REVIEWED_COUNT);
-            caseCountMap.put(UN_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString())+i);
+            caseCountMap.put(UN_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString()) + i);
         }
         if (map.get(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()) != null) {
             Integer i = caseCountMap.get(UNDER_REVIEWED_COUNT);
-            caseCountMap.put(UNDER_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString())+i);
+            caseCountMap.put(UNDER_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()) + i);
         }
         if (map.get(FunctionalCaseReviewStatus.PASS.toString()) != null) {
             Integer i = caseCountMap.get(PASS_COUNT);
-            caseCountMap.put(PASS_COUNT, map.get(FunctionalCaseReviewStatus.PASS.toString())+i);
+            caseCountMap.put(PASS_COUNT, map.get(FunctionalCaseReviewStatus.PASS.toString()) + i);
         }
         if (map.get(FunctionalCaseReviewStatus.UN_PASS.toString()) != null) {
             Integer i = caseCountMap.get(UN_PASS_COUNT);
-            caseCountMap.put(UN_PASS_COUNT, map.get(FunctionalCaseReviewStatus.UN_PASS.toString())+i);
+            caseCountMap.put(UN_PASS_COUNT, map.get(FunctionalCaseReviewStatus.UN_PASS.toString()) + i);
         }
         if (map.get(FunctionalCaseReviewStatus.RE_REVIEWED.toString()) != null) {
             Integer i = caseCountMap.get(RE_REVIEWED_COUNT);
-            caseCountMap.put(RE_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.RE_REVIEWED.toString())+i);
+            caseCountMap.put(RE_REVIEWED_COUNT, map.get(FunctionalCaseReviewStatus.RE_REVIEWED.toString()) + i);
         }
     }
 
