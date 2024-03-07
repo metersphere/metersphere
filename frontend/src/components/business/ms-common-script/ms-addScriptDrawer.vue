@@ -56,6 +56,7 @@
           v-permission="['PROJECT_CUSTOM_FUNCTION:READ+EXECUTE']"
           type="outline"
           :loading="loading"
+          :disabled="!form.script"
           @click="testScript"
           >{{ t('project.commonScript.scriptTest') }}</a-button
         >
@@ -267,6 +268,7 @@
   }
 
   function debugSocket() {
+    loading.value = true;
     websocket.value = getSocket(reportId.value);
     websocket.value.onopen = onOpen;
     websocket.value.addEventListener('message', (event: any) => {
@@ -275,6 +277,7 @@
         form.value.result = result.taskResult.console;
         scriptType.value = 'executionResult';
         websocket.value.close();
+        loading.value = false;
       }
     });
   }
