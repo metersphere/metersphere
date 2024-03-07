@@ -9,7 +9,7 @@ export default {
   'project.environmental.requestHeader': '请求头',
   'project.environmental.allParams': '全局参数',
   'project.environmental.GLOBAL': '全局参数',
-  'project.environmental.ENVIRONMENT': '全局参数',
+  'project.environmental.ENVIRONMENT': '环境',
   'project.environmental.ENVIRONMENT_PARAM': '全局参数',
   'project.environmental.globalVariable': '参数',
   'project.environmental.supportFormat': '仅支持MeterSphere导出的Json文件，单个大小不超过 50M',
@@ -116,4 +116,7 @@ export default {
   'project.environmental.preOrPost.ignoreProtocols': '忽略请求：',
   'project.environmental.preOrPost.pre': '脚本前',
   'project.environmental.preOrPost.post': '脚本后',
+  'project.environmental.cover': '覆盖',
+  'project.environmental.cover.enable': '开启: 环境名称重复则覆盖，不重复则新增',
+  'project.environmental.cover.disable': '关闭: 环境名称重复则不导入',
 };

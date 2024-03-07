@@ -13,8 +13,8 @@
     <template #title>
       <span>{{ t('common.import') + t(`project.environmental.${props.type}`) }}</span>
     </template>
-    <template #default>
-      <div class="title">
+    <div>
+      <div v-if="props.type === EnvAuthTypeEnum.GLOBAL" class="title">
         <icon-exclamation-circle-fill :size="20" class="text-[rgb(var(--primary-5))]" />
         <span class="text-[var(--color-text-1)]"> {{ t('project.environmental.importTile') }}</span>
       </div>
@@ -32,12 +32,41 @@
         :disabled="confirmLoading"
         @change="handleChange"
       />
+    </div>
+    <template #footer>
+      <div class="flex items-center justify-between">
+        <a-spin class="left-items">
+          <a-spin v-if="props.type === EnvAuthTypeEnum.ENVIRONMENT">
+            <a-switch v-model="isCover" type="line" size="small" />
+            <span>
+              {{ t('project.environmental.cover') }}
+              <a-tooltip>
+                <template #content>
+                  <div>
+                    {{ t('project.environmental.cover.enable') }}
+                  </div>
+                  <div>
+                    {{ t('project.environmental.cover.disable') }}
+                  </div>
+                </template>
+                <icon-question-circle
+                  class="ml-1 inline-block text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                />
+              </a-tooltip>
+            </span>
+          </a-spin>
+        </a-spin>
+        <div>
+          <a-button type="secondary">{{ t('system.plugin.pluginCancel') }}</a-button>
+          <a-button class="ml-3" type="primary" @click="confirmHandler">{{ t('common.import') }}</a-button>
+        </div>
+      </div>
     </template>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
-  import { defineModel } from 'vue';
+  import { defineModel, ref } from 'vue';
   import { type FileItem, Message } from '@arco-design/web-vue';
 
   import MsUpload from '@/components/pure/ms-upload/index.vue';
@@ -61,6 +90,7 @@
   const visible = defineModel<boolean>('visible', { required: true, default: false });
 
   const fileList = ref<FileItem[]>([]);
+  const isCover = ref<boolean>(false);
 
   const handleCancel = (shouldSearch = false) => {
     visible.value = false;
@@ -73,7 +103,7 @@
     try {
       confirmLoading.value = true;
       const params = {
-        request: {},
+        request: { cover: isCover.value },
         fileList: fileList.value,
       };
       if (props.type === EnvAuthTypeEnum.GLOBAL) {
@@ -103,5 +133,12 @@
     border-radius: 6px;
     background: rgb(var(--primary-1));
     gap: 8px;
+  }
+  .right-align {
+    text-align: right;
+  }
+  .left-items {
+    align-items: center;
+    width: 100px;
   }
 </style>
