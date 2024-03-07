@@ -168,7 +168,7 @@ public class BugService {
      * @return 缺陷列表
      */
     public List<BugDTO> list(BugPageRequest request) {
-        List<BugDTO> bugs = extBugMapper.list(request);
+        List<BugDTO> bugs = extBugMapper.list(request, null);
         if (CollectionUtils.isEmpty(bugs)) {
             return new ArrayList<>();
         }
@@ -1391,7 +1391,7 @@ public class BugService {
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
             bugPageRequest.setUseTrash(false);
-            List<BugDTO> allBugs = extBugMapper.list(bugPageRequest);
+            List<BugDTO> allBugs = extBugMapper.list(bugPageRequest, request.getSort());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 allBugs.removeIf(bug -> request.getExcludeIds().contains(bug.getId()));
             }
@@ -1401,7 +1401,7 @@ public class BugService {
             if (CollectionUtils.isEmpty(request.getSelectIds())) {
                 throw new MSException(Translator.get("no_bug_select"));
             }
-            return extBugMapper.listByIds(request.getSelectIds());
+            return extBugMapper.listByIds(request.getSelectIds(), request.getSort());
         }
     }
 
