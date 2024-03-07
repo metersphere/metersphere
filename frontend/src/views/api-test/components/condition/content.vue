@@ -1,7 +1,13 @@
 <template>
   <div class="condition-content">
     <!-- 脚本操作 -->
-    <template v-if="condition.processorType === RequestConditionProcessor.SCRIPT">
+    <template
+      v-if="
+        condition.processorType === RequestConditionProcessor.SCRIPT ||
+        condition.processorType === RequestConditionProcessor.SCENARIO_SCRIPT ||
+        condition.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+      "
+    >
       <!-- 前后置请求开始 -->
       <div v-if="props.showPrePostRequest" class="mt-4">
         <a-radio-group v-model="condition.beforeStepScript" type="button" size="small" :default-value="true">

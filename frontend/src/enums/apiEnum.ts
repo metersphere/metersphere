@@ -150,6 +150,8 @@ export enum RequestConditionProcessor {
   SQL = 'SQL', // SQL操作
   TIME_WAITING = 'TIME_WAITING', // 等待时间
   EXTRACT = 'EXTRACT', // 参数提取
+  SCENARIO_SCRIPT = 'ENV_SCENARIO_SCRIPT', // 场景脚本
+  REQUEST_SCRIPT = 'ENV_REQUEST_SCRIPT', // 请求脚本
 }
 // 接口请求-前后置条件-脚本处理器语言
 export enum RequestConditionScriptLanguage {
