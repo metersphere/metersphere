@@ -699,7 +699,7 @@
         projectId: currentProjectId.value,
         caseId: props.caseId,
         fileId: item.uid,
-        local: true,
+        local: item.local,
       });
       downloadByteFile(res, `${item.name}`);
     } catch (error) {
