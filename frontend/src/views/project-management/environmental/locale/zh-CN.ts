@@ -114,4 +114,6 @@ export default {
   'project.environmental.http.postTextPreTip': '后置脚本前，环境中脚本在请求的置脚本执行前执行；',
   'project.environmental.http.postTextPostTip': '后置脚本后，环境中脚本在请求的前置脚本执行后执行；',
   'project.environmental.preOrPost.ignoreProtocols': '忽略请求：',
+  'project.environmental.preOrPost.pre': '脚本前',
+  'project.environmental.preOrPost.post': '脚本后',
 };

@@ -399,7 +399,7 @@
   watchEffect(() => {
     emit('change', innerParams.value);
   });
-  const activeTab = ref('document');
+  const activeTab = ref('jsonPath');
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
   const disabledExpressionSuffix = ref(false);
