@@ -470,9 +470,12 @@ public class GlobalParamsControllerTests extends BaseTest {
         paramMap.add("file", List.of(file));
         requestMultipartWithOk(importUrl, paramMap);
         paramMap.clear();
-        paramMap.add("file", List.of(new File(
+        inputStream = new FileInputStream(new File(
                 this.getClass().getClassLoader().getResource("file/huanj.json")
-                        .getPath())));
+                        .getPath()));
+
+        file = new MockMultipartFile("file", "huanj.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", List.of(file));
 
         this.requestMultipart(importUrl, paramMap, status().is5xxServerError());
 
