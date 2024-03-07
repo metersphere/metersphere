@@ -670,6 +670,7 @@
       {
         label: 'common.delete',
         eventTag: 'delete',
+        permission: ['FUNCTIONAL_CASE:READ+DELETE'],
         danger: true,
       },
     ],
