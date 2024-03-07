@@ -1,5 +1,5 @@
 <template>
-  <div class="usergroup-auth-table">
+  <div class="group-auth-table">
     <a-table
       :span-method="dataSpanMethod"
       :scroll="props.scroll"
@@ -53,12 +53,7 @@
       </template>
     </a-table>
   </div>
-  <div
-    v-if="props.showBottom"
-    v-permission="props.savePermission || []"
-    class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
-    :style="{ width: props.width }"
-  >
+  <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer" :style="{ width: props.width }">
     <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
     <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">{{
       t('system.userGroup.save')
@@ -239,8 +234,8 @@
 
   /**
    * 生成数据
+   * @param item
    * @param type
-   * @param idx
    */
   const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
     const result: AuthTableItem[] = [];
@@ -495,7 +490,7 @@
 </script>
 
 <style scoped lang="less">
-  .usergroup-auth-table {
+  .group-auth-table {
     position: relative;
     min-height: calc(100vh - 230px);
     :deep(.arco-table-container) {
@@ -512,5 +507,17 @@
         background: rgb(var(--primary-1));
       }
     }
+  }
+  .footer {
+    position: fixed;
+    right: 17px;
+    bottom: 24px;
+    z-index: 999;
+    display: flex;
+    justify-content: flex-end;
+    padding: 24px;
+    background-color: #ffffff;
+    box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
+    gap: 16px;
   }
 </style>
