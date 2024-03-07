@@ -310,6 +310,7 @@
       </div>
       <a-switch
         v-if="record.type === 'CASE_RELATED' && allValueMap['CASE_RELATED_CASE_ENABLE']"
+        v-model="allValueMap['CASE_RELATED_CASE_ENABLE']"
         :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
