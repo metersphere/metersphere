@@ -18,7 +18,7 @@
       <template v-if="$slots['title']" #title="_props">
         <a-tooltip
           :content="_props[props.fieldNames.title]"
-          :mouse-enter-delay="500"
+          :mouse-enter-delay="800"
           :position="props.titleTooltipPosition"
         >
           <slot name="title" v-bind="_props"></slot>
@@ -128,7 +128,7 @@
       defaultExpandAll: false,
       selectable: true,
       draggable: false,
-      titleTooltipPosition: 'right',
+      titleTooltipPosition: 'top',
       fieldNames: () => ({
         key: 'key',
         title: 'title',
@@ -437,7 +437,7 @@
           }
         }
         .arco-tree-node-title-block {
-          width: 80%;
+          width: 60%;
         }
         .ms-tree-node-extra {
           @apply invisible relative w-0;
