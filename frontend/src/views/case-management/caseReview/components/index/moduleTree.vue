@@ -50,7 +50,7 @@
           count: 'count',
         }"
         block-node
-        title-tooltip-position="left"
+        title-tooltip-position="top"
         @select="folderNodeSelect"
         @more-action-select="handleFolderMoreSelect"
         @more-actions-close="moreActionsClose"
