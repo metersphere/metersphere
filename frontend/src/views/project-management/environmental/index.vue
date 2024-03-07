@@ -419,26 +419,26 @@
 
       const params = {
         projectId: appStore.currentProjectId,
-        targetId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_newIndex].id : evnGroupList.value[_newIndex].id,
-        moveId: '',
+        moveId: type === EnvAuthTypeEnum.ENVIRONMENT ? envList.value[_newIndex].id : evnGroupList.value[_newIndex].id,
+        targetId: '',
         moveMode: 'AFTER',
       };
       if (type === EnvAuthTypeEnum.ENVIRONMENT) {
         if (envList.value[_newIndex + 1].id) {
           params.moveMode = 'BEFORE';
-          params.moveId = envList.value[_newIndex + 1].id;
+          params.targetId = envList.value[_newIndex + 1].id;
         } else if (envList.value[_newIndex - 1].id && !envList.value[_newIndex + 1].id) {
           params.moveMode = 'AFTER';
-          params.moveId = envList.value[_newIndex - 1].id;
+          params.targetId = envList.value[_newIndex - 1].id;
         }
       }
       if (type === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
         if (evnGroupList.value[_newIndex + 1].id) {
           params.moveMode = 'AFTER';
-          params.moveId = evnGroupList.value[_newIndex + 1].id;
+          params.targetId = evnGroupList.value[_newIndex + 1].id;
         } else if (evnGroupList.value[_newIndex - 1].id && !evnGroupList.value[_newIndex + 1].id) {
           params.moveMode = 'BEFORE';
-          params.moveId = evnGroupList.value[_newIndex - 1].id;
+          params.targetId = evnGroupList.value[_newIndex - 1].id;
         }
       }
 

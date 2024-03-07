@@ -307,6 +307,7 @@ public class EnvironmentService {
         environment.setUpdateUser(userId);
         environment.setProjectId(request.getProjectId());
         environment.setName(request.getName());
+        environment.setDescription(request.getDescription());
         checkEnvironmentExist(environment);
         environment.setUpdateTime(System.currentTimeMillis());
         environmentMapper.updateByPrimaryKeySelective(environment);
