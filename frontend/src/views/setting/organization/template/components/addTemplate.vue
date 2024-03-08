@@ -507,6 +507,7 @@
     return customFields.map((item: any) => {
       const currentFormRules = FieldTypeFormRules[item.type];
       let selectOptions: any = [];
+      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
       if (item.options && item.options.length) {
         selectOptions = item.options.map((optionItem: any) => {
           return {
@@ -514,8 +515,17 @@
             value: optionItem.value,
           };
         });
+
         currentFormRules.options = selectOptions;
       }
+      let initValue;
+      if (multipleType.includes(item.type)) {
+        const optionsIds = selectOptions.map((e: any) => e.value);
+        initValue = optionsIds.filter((e: any) => item.defaultValue.includes(e));
+      } else {
+        initValue = item.defaultValue;
+      }
+
       return {
         ...item,
         id: item.fieldId,
@@ -526,11 +536,11 @@
             effect: {
               required: item.required,
             },
-            value: item.defaultValue,
+            value: initValue,
             props: {
               ...currentFormRules.props,
               options: selectOptions,
-              modelValue: item.defaultValue,
+              modelValue: initValue,
               placeholder: t('system.orgTemplate.defaultValue'),
             },
           },

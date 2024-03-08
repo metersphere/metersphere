@@ -271,17 +271,19 @@
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { downloadByteFile, getGenerateId } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     AssociatedList,
     AttachFileInfo,
     CreateOrUpdateCase,
+    CustomAttributes,
     DetailCase,
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
-  import { convertToFile } from './utils';
+  import { convertToFile, initFormCreate } from './utils';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -496,39 +498,7 @@
       name: route.params.mode === 'copy' ? `copy_${detailResult.name}` : detailResult.name,
     };
     // 处理自定义字段
-    formRules.value = (customFields || []).map((item: any) => {
-      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
-      const numberType = ['INT', 'FLOAT'];
-
-      let currentDefaultValue;
-      if (numberType.includes(item.type)) {
-        currentDefaultValue = item.defaultValue * 1;
-      } else if (
-        multipleType.includes(item.type) &&
-        Array.isArray(item.defaultValue) &&
-        item.defaultValue.length === 0
-      ) {
-        currentDefaultValue = item.defaultValue;
-      } else if (multipleType.includes(item.type)) {
-        currentDefaultValue = JSON.parse(item.defaultValue);
-      } else {
-        currentDefaultValue = item.defaultValue;
-      }
-
-      return {
-        ...item,
-        type: item.type,
-        name: item.fieldId,
-        label: item.fieldName,
-        value: currentDefaultValue,
-        required: item.required,
-        options: item.options || [],
-        props: {
-          modelValue: currentDefaultValue,
-          options: item.options || [],
-        },
-      };
-    });
+    formRules.value = initFormCreate(customFields as CustomAttributes[], ['FUNCTIONAL_CASE:READ+UPDATE']);
     // 处理步骤
     if (steps) {
       stepData.value = JSON.parse(steps).map((item: any) => {
