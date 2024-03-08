@@ -62,6 +62,8 @@
         ch.create_user,
         ch.create_time,
         ch.content,
+        ch.deleted,
+        ch.abandoned,
         u.name as userName,
         ux.avatar as userLogo,
         cr.name as reviewName,

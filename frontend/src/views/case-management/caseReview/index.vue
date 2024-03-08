@@ -18,9 +18,9 @@
               ref="folderTreeRef"
               :show-type="showType"
               :modules-count="modulesCount"
+              :is-expand-all="true"
               @folder-node-select="handleFolderNodeSelect"
               @init="initModuleTree"
-              :is-expand-all="true"
             />
           </div>
         </template>

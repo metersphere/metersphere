@@ -13,7 +13,7 @@
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
       <template #reviewName="{ record }">
-        <a-button type="text" class="px-0">{{ record.reviewName }}</a-button>
+        <a-button type="text" class="px-0" @click="review(record)">{{ record.reviewName }}</a-button>
       </template>
       <template #reviewStatus="{ record }">
         <statusTag :status="record.reviewStatus || 'PREPARED'" />
@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -42,12 +43,16 @@
   import { useI18n } from '@/hooks/useI18n';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
+  import { ReviewCaseItem } from '@/models/caseManagement/caseReview';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { statusIconMap } from '../utils';
   import debounce from 'lodash-es/debounce';
 
   const featureCaseStore = useFeatureCaseStore();
+  const router = useRouter();
+  const route = useRoute();
   // const activeTab = computed(() => featureCaseStore.activeTab);
   const { t } = useI18n();
 
@@ -122,6 +127,21 @@
   //     }
   //   }
   // );
+
+  // 去用例评审页面
+  function review(record: ReviewCaseItem) {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
+      query: {
+        ...route.query,
+        caseId: record.caseId,
+        id: record.reviewId,
+      },
+      state: {
+        params: JSON.stringify(setLoadListParams()),
+      },
+    });
+  }
 
   onMounted(() => {
     initData();
