@@ -163,6 +163,7 @@
   });
   const initFieldForm: AddOrUpdateField = {
     name: '',
+    used: false,
     type: undefined,
     remark: '',
     scopeId: scopeId.value,
@@ -278,6 +279,7 @@
 
       const params: AddOrUpdateField = {
         name,
+        used: false,
         options,
         scopeId: scopeId.value,
         scene,

@@ -15,6 +15,7 @@ import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.mapper.ExtTemplateCustomFieldMapper;
 import io.metersphere.system.mapper.TemplateCustomFieldMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -50,6 +51,8 @@ public class BaseCustomFieldService {
     protected BaseOrganizationParameterService baseOrganizationParameterService;
     @Resource
     protected TemplateCustomFieldMapper templateCustomFieldMapper;
+    @Resource
+    private ExtTemplateCustomFieldMapper extTemplateCustomFieldMapper;
 
     private static final String CREATE_USER = "CREATE_USER";
 
@@ -57,6 +60,11 @@ public class BaseCustomFieldService {
         checkScene(scene);
         List<CustomField> customFields = getByScopeIdAndScene(scopeId, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
+        List<String> usedFieldIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            usedFieldIds.addAll(extTemplateCustomFieldMapper.selectUsedFieldIds(customFields.stream().map(CustomField::getId).toList()));
+        }
+
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         List<CustomFieldOption> customFieldOptions = baseCustomFieldOptionService.getByFieldIds(customFields.stream().map(CustomField::getId).toList());
         Map<String, List<CustomFieldOption>> optionMap = customFieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
@@ -67,6 +75,10 @@ public class BaseCustomFieldService {
             }
             CustomFieldDTO customFieldDTO = new CustomFieldDTO();
             BeanUtils.copyBean(customFieldDTO, item);
+            //判断有没有用到
+            if (usedFieldIds.contains(item.getId())) {
+                customFieldDTO.setUsed(true);
+            }
             customFieldDTO.setOptions(optionMap.get(item.getId()));
             if (CustomFieldType.getHasOptionValueSet().contains(customFieldDTO.getType()) && customFieldDTO.getOptions() == null) {
                 customFieldDTO.setOptions(List.of());

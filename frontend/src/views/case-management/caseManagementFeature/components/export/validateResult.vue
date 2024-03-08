@@ -57,7 +57,9 @@
           </template>
         </a-popover>
       </div>
-      <div> {{ t('caseManagement.featureCase.afterFailingToModify', { type: props.validateType }) }}</div>
+      <div v-if="validateResultInfo.failCount > 0">
+        {{ t('caseManagement.featureCase.afterFailingToModify', { type: props.validateType }) }}</div
+      >
     </div>
     <template #footer>
       <div class="flex justify-end">

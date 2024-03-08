@@ -325,10 +325,14 @@
   const deleteApi = getFieldRequestApi(props.mode).delete;
   // 删除字段
   const handlerDelete = (record: AddOrUpdateField) => {
+    let contentStr = t('system.orgTemplate.deleteFiledContentNotUsed');
+    if (record.used) {
+      contentStr = t('system.orgTemplate.deleteFiledContent');
+    }
     openModal({
       type: 'error',
       title: t('system.orgTemplate.deleteTitle', { name: characterLimit(record.name) }),
-      content: t('system.orgTemplate.deleteFiledContent'),
+      content: contentStr,
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {

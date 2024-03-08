@@ -9,4 +9,5 @@ import java.util.List;
 @Data
 public class CustomFieldDTO extends CustomField {
     private List<CustomFieldOption> options;
+    private boolean used;
 }

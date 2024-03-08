@@ -63,6 +63,7 @@ export interface FieldOption {
 export interface AddOrUpdateField {
   id?: string;
   name: string;
+  used: boolean;
   scene: SeneType; // 使用场景
   type: FormItemType;
   remark: string; // 备注

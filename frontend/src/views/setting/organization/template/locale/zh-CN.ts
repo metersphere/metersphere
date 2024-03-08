@@ -123,6 +123,7 @@ export default {
   'system.orgTemplate.deleteStateTitle': '确定删除 {name} 状态吗？',
   'system.orgTemplate.deleteStateContent': '删除后，会在项目中立即生效且删除不可撤回，请谨慎操作！',
   'system.orgTemplate.deleteFiledContent': '该字段在模板中已使用，删除后数据将会丢失，请谨慎操作！',
+  'system.orgTemplate.deleteFiledContentNotUsed': '删除后，字段将从字段列表移除，请谨慎操作！',
   'system.orgTemplate.deleteSuccess': '删除成功',
   'system.orgTemplate.setInitStateSuccess': '设置初始态成功',
   'system.orgTemplate.setEndStateSuccess': '设置结束状态成功',
