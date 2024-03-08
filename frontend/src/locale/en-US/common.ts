@@ -69,6 +69,7 @@ export default {
   'common.resetDefault': 'Reset default',
   'common.tagPlaceholder': 'Add tag and press Enter to end',
   'common.tagInputMaxLength': 'The tag must not exceed {number} characters',
+  'common.tagCountMax': 'The number of labels must not exceed 10',
   'common.batchModify': 'Batch Edit',
   'common.batchAdd': 'Batch Add',
   'common.pleaseSelect': 'please choose',
@@ -124,5 +125,5 @@ export default {
   'common.stop': 'Stop',
   'common.module': 'Module',
   'common.yes': 'Yes',
-  'common.no': 'No'
+  'common.no': 'No',
 };
