@@ -2,6 +2,7 @@ package io.metersphere.system.config.interceptor;
 
 import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.FileModuleRepository;
+import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.sdk.util.EncryptUtils;
 import io.metersphere.system.utils.MybatisInterceptorConfig;
@@ -21,6 +22,7 @@ public class ProjectInterceptor {
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "script", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "result", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "params", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(EnvironmentBlob.class, "config", CompressUtils.class, "zip", "unzip"));
 
         return configList;
     }
