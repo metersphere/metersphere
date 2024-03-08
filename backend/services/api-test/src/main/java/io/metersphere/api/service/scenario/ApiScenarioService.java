@@ -82,7 +82,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
@@ -249,9 +248,9 @@ public class ApiScenarioService {
      * @param cron cron表达式
      * @return 下次执行时间
      */
-    private static long getNextTriggerTime(String cron) {
+    private static Long getNextTriggerTime(String cron) {
         if (!CronExpression.isValidExpression(cron)) {
-            return 0;
+            return null;
         }
         CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();
