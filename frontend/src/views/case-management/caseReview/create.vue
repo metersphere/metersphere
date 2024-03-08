@@ -325,8 +325,8 @@
               name,
               moduleId: folderId,
               reviewPassRule: type, // 评审通过规则
-              startTime: cycle[0],
-              endTime: cycle[1],
+              startTime: cycle ? cycle[0] : null,
+              endTime: cycle ? cycle[1] : null,
               tags,
               description: desc,
               reviewers, // 评审人员
@@ -337,8 +337,8 @@
               name,
               moduleId: folderId,
               reviewPassRule: type, // 评审通过规则
-              startTime: cycle[0],
-              endTime: cycle[1],
+              startTime: cycle ? cycle[0] : null,
+              endTime: cycle ? cycle[1] : null,
               tags,
               description: desc,
               reviewers, // 评审人员
@@ -381,8 +381,8 @@
             name,
             moduleId: folderId,
             reviewPassRule: type, // 评审通过规则
-            startTime: cycle[0],
-            endTime: cycle[1],
+            startTime: cycle ? cycle[0] : null,
+            endTime: cycle ? cycle[1] : null,
             tags,
             description: desc,
             reviewers, // 评审人员

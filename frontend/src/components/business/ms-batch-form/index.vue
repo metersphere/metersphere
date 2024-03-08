@@ -289,7 +289,7 @@
    */
   function addField() {
     const item = [{ ...formItem }];
-    item[0].type = []
+    item[0].type = [];
     formValidate(() => {
       form.value.list.push(item[0]); // 序号自增，不会因为删除而重复
     }, false);

@@ -41,7 +41,7 @@
       </a-dropdown>
       <!-- baseAction多菜单选择 -->
     </template>
-    <div v-if="moreAction?.length" class="drop-down relative ml-[16px] inline-block">
+    <div v-if="moreActionLength > 0" class="drop-down relative ml-[16px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
@@ -92,6 +92,8 @@
   const refResizeObserver = ref<ResizeObserver>();
   // 控制是否重新计算
   const computedStatus = ref(true);
+
+  const moreActionLength = ref<number>(0);
 
   const titleClass = 'title';
   const dividerClass = 'divider';
@@ -150,6 +152,11 @@
     }
     moreAction.value = props.actionConfig?.moreAction || [];
     baseAction.value = props.actionConfig?.baseAction || [];
+    moreAction.value.forEach((key) => {
+      if (key.permission && hasAllPermission(key.permission as string[])) {
+        moreActionLength.value += 1;
+      }
+    });
   };
 
   watch(
