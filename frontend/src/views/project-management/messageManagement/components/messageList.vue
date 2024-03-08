@@ -86,7 +86,8 @@
         <div v-if="!record.children && record.projectRobotConfigMap?.[dataIndex as string]" class="flex items-center">
           <a-switch
             v-model:model-value="record.projectRobotConfigMap[dataIndex as string].enable"
-            v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
+            v-permission="['PROJECT_MESSAGE:READ+UPDATE', 'PROJECT_MESSAGE:READ']"
+            :disabled="robotEnable"
             :before-change="(val) => handleChangeIntercept(!!val, record, dataIndex as string)"
             size="small"
             type="line"
@@ -156,6 +157,7 @@
 
   const robotFilters = ref<string[]>([]);
   const robotOptions = ref<(SelectOptionData & RobotItem)[]>([]);
+  const robotEnable = ref<boolean>(!hasAnyPermission(['PROJECT_MESSAGE:READ+UPDATE']));
 
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
   const staticColumns: MsTableColumn = [
