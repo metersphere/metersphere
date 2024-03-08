@@ -221,7 +221,7 @@ public class FunctionalCaseService {
         for (String saveAttachmentFileId : saveAttachmentFileIds) {
             FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO = attachmentDTOMap.get(saveAttachmentFileId);
             FunctionalCaseAttachment caseAttachment = functionalCaseAttachmentService.creatAttachment(saveAttachmentFileId, functionalCaseAttachmentDTO.getFileName(), functionalCaseAttachmentDTO.getSize(), caseId, functionalCaseAttachmentDTO.getLocal(), userId);
-            if(functionalCaseAttachmentDTO.getLocal()) {
+            if (functionalCaseAttachmentDTO.getLocal()) {
                 caseAttachment.setFileSource(CaseFileSourceType.ATTACHMENT.toString());
                 LogUtils.info("开始复制文件");
                 copyFile(request, caseId, saveAttachmentFileId, oldFileMap, functionalCaseAttachmentDTO, defaultRepository);
@@ -244,7 +244,7 @@ public class FunctionalCaseService {
             try {
                 defaultRepository.copyFile(fileCopyRequest);
             } catch (Exception e) {
-                LogUtils.error("复制文件失败：{}",e);
+                LogUtils.error("复制文件失败：{}", e);
             }
         }
     }
@@ -413,7 +413,7 @@ public class FunctionalCaseService {
 
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
-        List<String>types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
+        List<String> types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
         List<String> modules = List.of(OperationLogModule.CASE_MANAGEMENT_CASE_CREATE, OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
         operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andTypeIn(types).andModuleIn(modules);
         functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
@@ -1078,7 +1078,14 @@ public class FunctionalCaseService {
                 FunctionalCaseCustomField caseCustomField = new FunctionalCaseCustomField();
                 caseCustomField.setCaseId(caseId);
                 caseCustomField.setFieldId(templateCustomFieldDTO.getFieldId());
-                caseCustomField.setValue(v.toString());
+                if (StringUtils.equalsIgnoreCase(v.toString(), "[]")) {
+                    //数组类型
+                    caseCustomField.setValue(JSON.toJSONString(templateCustomFieldDTO.getDefaultValue()));
+                } else {
+                    caseCustomField.setValue(StringUtils.defaultIfBlank(v.toString(),
+                            Optional.ofNullable(templateCustomFieldDTO.getDefaultValue()).map(Object::toString).orElse(StringUtils.EMPTY)
+                    ));
+                }
                 customFieldMapper.insertSelective(caseCustomField);
             }
         });
