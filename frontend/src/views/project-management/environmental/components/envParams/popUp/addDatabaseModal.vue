@@ -12,7 +12,6 @@
     <template #title>
       <span v-if="props.currentId && !props.isCopy">
         {{ t('project.environmental.database.updateDatabase') }}
-        <span class="text-[var(--color-text-4)]">({{ updateName }})</span>
       </span>
       <span v-else>
         {{ t('project.environmental.database.addDatabase') }}
@@ -254,7 +253,6 @@
     getDriverOption();
   });
 
-  const updateName = ref<string>('');
   watchEffect(() => {
     if (props.currentId) {
       const currentItem = store.currentEnvDetailInfo.config.dataSources.find(
@@ -265,7 +263,6 @@
           ...currentItem,
         };
       }
-      updateName.value = form.value.dataSource;
     } else {
       formReset();
     }
