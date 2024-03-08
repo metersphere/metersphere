@@ -106,12 +106,26 @@
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
-      showDrag: true,
+      width: 80,
+      showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
+      width: 200,
       showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.creator',
