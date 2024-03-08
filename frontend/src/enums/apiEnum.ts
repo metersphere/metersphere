@@ -56,6 +56,7 @@ export enum ResponseComposition {
 }
 // 接口响应体格式
 export enum ResponseBodyFormat {
+  NONE = 'NONE',
   JSON = 'JSON',
   XML = 'XML',
   RAW = 'RAW',
@@ -70,7 +71,17 @@ export enum RequestDefinitionStatus {
 }
 // 接口导入支持格式
 export enum RequestImportFormat {
-  SWAGGER = 'SWAGGER',
+  SWAGGER = 'Swagger3',
+  // MeterSphere = 'MeterSphere',
+  // Postman= 'Postman',
+  // Plugin = 'Plugin',
+  // Jmeter = 'Jmeter',
+  // Har = 'Har',
+}
+// 接口导入方式
+export enum RequestImportType {
+  API = 'API',
+  SCHEDULE = 'Schedule',
 }
 // 接口认证设置类型
 export enum RequestAuthType {

@@ -1,69 +1,78 @@
 <template>
   <div>
-    <a-select
-      v-if="!props.readOnly"
-      v-model:model-value="moduleProtocol"
-      :options="moduleProtocolOptions"
-      class="mb-[8px]"
-      @change="() => handleProtocolChange()"
-    />
-    <div class="mb-[8px] flex items-center gap-[8px]">
-      <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
-      <a-dropdown v-if="!props.readOnly" @select="handleSelect">
-        <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
-        <template #content>
-          <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
-          <a-doption value="import">{{ t('apiTestManagement.importApi') }}</a-doption>
-        </template>
-      </a-dropdown>
-    </div>
-    <div class="folder" @click="setActiveFolder('all')">
-      <div :class="allFolderClass">
-        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-        <div class="folder-name">{{ t('apiTestManagement.allApi') }}</div>
-        <div class="folder-count">({{ allFileCount }})</div>
+    <template v-if="!props.isModal">
+      <a-select
+        v-if="!props.readOnly"
+        v-model:model-value="moduleProtocol"
+        :options="moduleProtocolOptions"
+        class="mb-[8px]"
+        @change="() => handleProtocolChange()"
+      />
+      <div class="mb-[8px] flex items-center gap-[8px]">
+        <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
+        <a-dropdown v-if="!props.readOnly" @select="handleSelect">
+          <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
+          <template #content>
+            <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
+            <a-doption value="import">{{ t('apiTestManagement.importApi') }}</a-doption>
+          </template>
+        </a-dropdown>
       </div>
-      <div class="ml-auto flex items-center">
-        <a-tooltip
-          v-if="!props.readOnly"
-          :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
-        >
-          <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
-            <MsIcon :type="isExpandApi ? 'icon-icon_collapse_interface' : 'icon-icon_expand_interface'" />
-          </MsButton>
-        </a-tooltip>
-        <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
-          <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
-            <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-          </MsButton>
-        </a-tooltip>
-        <template v-if="!props.readOnly">
-          <a-dropdown @select="handleSelect">
-            <MsButton type="icon" class="!mr-0 p-[2px]">
-              <MsIcon
-                type="icon-icon_create_planarity"
-                size="18"
-                class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-              />
-            </MsButton>
-            <template #content>
-              <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
-              <a-doption value="addModule">{{ t('apiTestManagement.addSubModule') }}</a-doption>
-            </template>
-          </a-dropdown>
-          <popConfirm
-            mode="add"
-            :all-names="rootModulesName"
-            parent-id="NONE"
-            :add-module-api="addModule"
-            @add-finish="initModules"
+      <div class="folder" @click="setActiveFolder('all')">
+        <div :class="allFolderClass">
+          <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+          <div class="folder-name">{{ t('apiTestManagement.allApi') }}</div>
+          <div class="folder-count">({{ allFileCount }})</div>
+        </div>
+        <div class="ml-auto flex items-center">
+          <a-tooltip
+            v-if="!props.readOnly"
+            :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
           >
-            <span id="addModulePopSpan"></span>
-          </popConfirm>
-        </template>
+            <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
+              <MsIcon :type="isExpandApi ? 'icon-icon_collapse_interface' : 'icon-icon_expand_interface'" />
+            </MsButton>
+          </a-tooltip>
+          <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
+            <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
+              <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+            </MsButton>
+          </a-tooltip>
+          <template v-if="!props.readOnly">
+            <a-dropdown @select="handleSelect">
+              <MsButton type="icon" class="!mr-0 p-[2px]">
+                <MsIcon
+                  type="icon-icon_create_planarity"
+                  size="18"
+                  class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                />
+              </MsButton>
+              <template #content>
+                <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
+                <a-doption value="addModule">{{ t('apiTestManagement.addSubModule') }}</a-doption>
+              </template>
+            </a-dropdown>
+            <popConfirm
+              mode="add"
+              :all-names="rootModulesName"
+              parent-id="NONE"
+              :add-module-api="addModule"
+              @add-finish="initModules"
+            >
+              <span id="addModulePopSpan"></span>
+            </popConfirm>
+          </template>
+        </div>
       </div>
-    </div>
-    <a-divider class="my-[8px]" />
+      <a-divider class="my-[8px]" />
+    </template>
+    <a-input
+      v-else
+      v-model:model-value="moduleKeyword"
+      :placeholder="t('apiTestManagement.searchTip')"
+      class="mb-[16px]"
+      allow-clear
+    />
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
@@ -81,8 +90,9 @@
           children: 'children',
           count: 'count',
         }"
-        :draggable="!props.readOnly"
+        :draggable="!props.readOnly && !props.isModal"
         :filter-more-action-func="filterMoreActionFunc"
+        :allow-drop="allowDrop"
         block-node
         title-tooltip-position="left"
         @select="folderNodeSelect"
@@ -99,12 +109,12 @@
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
-          <div v-else class="inline-flex w-full">
+          <div v-else :id="nodeData.id" class="inline-flex w-full">
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
           </div>
         </template>
-        <template v-if="!props.readOnly" #extra="nodeData">
+        <template v-if="!props.readOnly && !props.isModal" #extra="nodeData">
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
           <popConfirm
             v-if="nodeData.id !== 'root' && nodeData.type === 'MODULE'"
@@ -122,12 +132,13 @@
           <popConfirm
             v-if="nodeData.id !== 'root'"
             mode="rename"
+            :node-type="nodeData.type"
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :update-module-api="updateModule"
-            :update-api-node-api="updateModule"
+            :update-api-node-api="updateDefinition"
             @close="resetFocusNodeKey"
             @rename-finish="initModules"
           >
@@ -159,8 +170,11 @@
     getModuleTree,
     getModuleTreeOnlyModules,
     moveModule,
+    sortDefinition,
+    updateDefinition,
     updateModule,
   } from '@/api/modules/api-test/management';
+  import { dropPositionMap } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -174,9 +188,12 @@
       activeModule?: string | number; // 选中的节点 key
       readOnly?: boolean; // 是否是只读模式
       activeNodeId?: string | number; // 当前选中节点 id
+      isModal?: boolean; // 是否弹窗模式，只读且只可见模块树
     }>(),
     {
       activeModule: 'all',
+      readOnly: false,
+      isModal: false,
     }
   );
   const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode', 'changeProtocol']);
@@ -224,7 +241,7 @@
   }
 
   const virtualListProps = computed(() => {
-    if (props.readOnly) {
+    if (props.readOnly || props.isModal) {
       return {
         height: 'calc(60vh - 190px)',
         threshold: 200,
@@ -335,28 +352,38 @@
           moduleIds: [],
         });
       }
-      if (props.readOnly) {
-        folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+      const nodePathObj: Record<string, any> = {};
+      if (props.readOnly || props.isModal) {
+        folderTree.value = mapTree<ModuleTreeNode>(res, (e, fullPath) => {
+          // 拼接当前节点的完整路径
+          nodePathObj[e.id] = {
+            path: e.path,
+            fullPath,
+          };
           return {
             ...e,
             hideMoreAction: true,
             draggable: false,
+            disabled: e.id === selectedKeys.value[0],
           };
         });
       } else {
-        folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+        folderTree.value = mapTree<ModuleTreeNode>(res, (e, fullPath) => {
+          // 拼接当前节点的完整路径
+          nodePathObj[e.id] = {
+            path: e.path,
+            fullPath,
+          };
           return {
             ...e,
             hideMoreAction: e.id === 'root',
-            draggable: e.id !== 'root',
-            disabled: e.id === selectedKeys.value[0],
           };
         });
       }
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
       }
-      emit('init', folderTree.value, moduleProtocol.value);
+      emit('init', folderTree.value, moduleProtocol.value, nodePathObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -378,7 +405,8 @@
         return {
           ...node,
           count: res[node.id] || 0,
-          draggable: props.readOnly ? false : node.id !== 'root',
+          draggable: !(props.readOnly || props.isModal),
+          disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
         };
       });
     } catch (error) {
@@ -482,6 +510,19 @@
     }
   }
 
+  function allowDrop(dropNode: MsTreeNodeData, dropPosition: number, dragNode?: MsTreeNodeData | null) {
+    if (dropNode.type === 'API' && dropPosition === 0) {
+      // API节点不可添加子节点
+      return false;
+    }
+    if (dropNode.type === 'MODULE' && dragNode?.type === 'API' && dropPosition !== 0) {
+      // API节点不移动到模块的前后位置
+      document.querySelector('.arco-tree-node-title-draggable::before')?.setAttribute('style', 'display: none');
+      return false;
+    }
+    return true;
+  }
+
   /**
    * 处理文件夹树节点拖拽事件
    * @param tree 树数据
@@ -495,13 +536,27 @@
     dropNode: MsTreeNodeData,
     dropPosition: number
   ) {
+    if (dragNode.id === 'root' || (dragNode.type === 'MODULE' && dropNode.id === 'root')) {
+      // 根节点不可拖拽；模块不可拖拽到根节点
+      return;
+    }
     try {
       loading.value = true;
-      await moveModule({
-        dragNodeId: dragNode.id as string,
-        dropNodeId: dropNode.id || '',
-        dropPosition,
-      });
+      if (dragNode.type === 'MODULE') {
+        await moveModule({
+          dragNodeId: dragNode.id as string,
+          dropNodeId: dropNode.id || '',
+          dropPosition,
+        });
+      } else {
+        await sortDefinition({
+          projectId: appStore.currentProjectId,
+          moveMode: dropPositionMap[dropPosition],
+          moveId: dragNode.id,
+          targetId: dropNode.id,
+          moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
+        });
+      }
       Message.success(t('apiTestDebug.moduleMoveSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -566,5 +621,8 @@
         color: rgb(var(--primary-5));
       }
     }
+  }
+  :deep(#root ~ .arco-tree-node-drag-icon) {
+    @apply hidden;
   }
 </style>

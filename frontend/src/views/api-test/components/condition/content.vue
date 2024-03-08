@@ -217,14 +217,15 @@
       <div class="mb-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
         <a-input
-          v-model:model-value="condition.description"
+          v-model:model-value="condition.name"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
+          @input="() => emit('change')"
         />
       </div>
       <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
         <div class="text-[var(--color-text-2)]">
-          {{ condition.scriptName || '-' }}
+          {{ condition.dataSourceName || '-' }}
         </div>
         <a-divider margin="8px" direction="vertical" />
         <MsButton type="text" class="font-medium" @click="quoteSqlSourceDrawerVisible = true">
@@ -240,7 +241,7 @@
           :language="LanguageEnum.SQL"
           :show-full-screen="false"
           :show-theme-change="false"
-          read-only
+          @change="() => emit('change')"
         >
         </MsCodeEditor>
       </div>
@@ -265,23 +266,26 @@
           v-model:model-value="condition.variableNames"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
+          @input="() => emit('change')"
         />
       </div>
       <div class="sql-table-container">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.extractParameter') }}</div>
         <paramTable
-          v-model:params="condition.variables"
+          v-model:params="condition.extractParams"
           :columns="sqlSourceColumns"
           :selectable="false"
+          :default-param-item="defaultKeyValueParamItem"
           @change="handleSqlSourceParamTableChange"
         />
       </div>
-      <div class="mb-[16px]">
+      <div class="mt-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
         <a-input
           v-model:model-value="condition.resultVariable"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
+          @input="() => emit('change')"
         />
       </div>
     </template>
@@ -431,6 +435,7 @@
   import type { ProtocolItem } from '@/models/apiTest/common';
   import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
+  import { DataSourceItem } from '@/models/projectManagement/environmental';
   import {
     RequestConditionProcessor,
     RequestExtractEnvType,
@@ -440,6 +445,8 @@
     RequestExtractScope,
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
+
+  import { defaultKeyValueParamItem } from '@/views/api-test/components/config';
 
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
   const appStore = useAppStore();
@@ -598,14 +605,14 @@ if (!result){
     },
   ];
   const quoteSqlSourceDrawerVisible = ref(false);
-  function handleQuoteSqlSourceApply(sqlSource: Record<string, any>) {
-    condition.value.script = sqlSource.script;
+  function handleQuoteSqlSourceApply(sqlSource: DataSourceItem) {
+    condition.value.dataSourceName = sqlSource.dataSource;
     condition.value.dataSourceId = sqlSource.id;
     emit('change');
   }
 
   function handleSqlSourceParamTableChange(resultArr: any[], isInit?: boolean) {
-    condition.value.variables = [...resultArr];
+    condition.value.extractParams = [...resultArr];
     if (!isInit) {
       emit('change');
     }

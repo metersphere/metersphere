@@ -103,12 +103,12 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
     addDebug,
     executeDebug,
     getDebugDetail,
     getTransferOptions,
-    localExecuteApiDebug,
     transferFile,
     updateDebug,
     uploadTempFile,

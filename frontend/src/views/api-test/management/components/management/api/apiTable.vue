@@ -1,10 +1,6 @@
 <template>
   <div :class="['p-[16px_22px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div v-if="!props.readOnly" class="flex items-center gap-[8px]">
-        <a-switch v-model:model-value="showSubdirectory" size="small" type="line"></a-switch>
-        {{ t('apiTestManagement.showSubdirectory') }}
-      </div>
       <div class="flex items-center gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -37,7 +33,7 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="methodFilterVisible = true">
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="methodFilterVisible = true">
             {{ t(columnConfig.title as string) }}
             <icon-down :class="methodFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
           </MsButton>
@@ -81,12 +77,22 @@
         <MsButton type="text" @click="openApiTab(record)">{{ record.num }}</MsButton>
       </template>
       <template #method="{ record }">
-        <apiMethodName :method="record.method" is-tag />
+        <a-select
+          v-model:model-value="record.method"
+          class="param-input w-full"
+          @change="() => handleMethodChange(record)"
+        >
+          <template #label>
+            <apiMethodName :method="record.method" is-tag />
+          </template>
+          <a-option v-for="item of Object.values(RequestMethods)" :key="item" :value="item">
+            <apiMethodName :method="item" is-tag />
+          </a-option>
+        </a-select>
       </template>
       <template #status="{ record }">
         <a-select
           v-model:model-value="record.status"
-          :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
           @change="() => handleStatusChange(record)"
         >
@@ -103,7 +109,7 @@
           {{ t('apiTestManagement.execute') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0">
+        <MsButton type="text" class="!mr-0" @click="copyDefinition(record)">
           {{ t('common.copy') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -136,12 +142,14 @@
         </a-select>
       </a-form-item>
       <a-form-item
-        v-if="batchForm.attr === 'tag'"
+        v-if="batchForm.attr === 'tags'"
         field="values"
         :label="t('apiTestManagement.batchUpdate')"
+        :validate-trigger="['blur', 'input']"
         :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
         asterisk-position="end"
         class="mb-0"
+        required
       >
         <MsTagsInput
           v-model:model-value="batchForm.values"
@@ -159,11 +167,7 @@
         asterisk-position="end"
         class="mb-0"
       >
-        <apiMethodSelect
-          v-if="batchForm.attr === 'type'"
-          v-model:model-value="batchForm.value"
-          @change="handleActiveDebugChange"
-        />
+        <apiMethodSelect v-if="batchForm.attr === 'method'" v-model:model-value="batchForm.value" />
         <a-select
           v-else
           v-model="batchForm.value"
@@ -218,7 +222,7 @@
     <moduleTree
       v-if="moveModalVisible"
       :is-expand-all="true"
-      is-modal
+      :is-modal="true"
       :active-module="props.activeModule"
       @folder-node-select="folderNodeSelect"
     />
@@ -241,7 +245,14 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
-  import { deleteDefinition, getDefinitionPage } from '@/api/modules/api-test/management';
+  import {
+    batchDeleteDefinition,
+    batchMoveDefinition,
+    batchUpdateDefinition,
+    deleteDefinition,
+    getDefinitionPage,
+    updateDefinition,
+  } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -259,39 +270,16 @@
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
-    (e: 'init', params: any): void;
-    (e: 'change'): void;
     (e: 'openApiTab', record: ApiDefinitionDetail): void;
+    (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
   }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  function handleActiveDebugChange() {
-    emit('change');
-  }
-
-  const showSubdirectory = ref(false);
-  const checkedEnv = ref('DEV');
-  const envOptions = ref([
-    {
-      label: 'DEV',
-      value: 'DEV',
-    },
-    {
-      label: 'TEST',
-      value: 'TEST',
-    },
-    {
-      label: 'PRE',
-      value: 'PRE',
-    },
-    {
-      label: 'PROD',
-      value: 'PROD',
-    },
-  ]);
+  const folderTreePathMap = inject('folderTreePathMap');
+  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const keyword = ref('');
 
   let columns: MsTableColumn = [
@@ -322,7 +310,7 @@
       dataIndex: 'method',
       slotName: 'method',
       titleSlotName: 'methodFilter',
-      width: 120,
+      width: 140,
     },
     {
       title: 'apiTestManagement.apiStatus',
@@ -333,7 +321,6 @@
     },
     {
       title: 'apiTestManagement.path',
-      slotName: 'path',
       dataIndex: 'path',
       showTooltip: true,
       width: 200,
@@ -386,19 +373,21 @@
       selectable: true,
       showSelectAll: !props.readOnly,
       draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+      heightUsed: 374,
     },
     (item) => ({
       ...item,
+      fullPath: folderTreePathMap?.[item.moduleId],
       createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
   const batchActions = {
     baseAction: [
-      {
-        label: 'common.export',
-        eventTag: 'export',
-      },
+      // {
+      //   label: 'common.export',
+      //   eventTag: 'export',
+      // },
       {
         label: 'common.edit',
         eventTag: 'edit',
@@ -432,10 +421,6 @@
     if (props.activeModule === 'all') {
       return [];
     }
-    if (showSubdirectory.value) {
-      // 显示子目录接口
-      return [props.activeModule, ...props.offspringIds];
-    }
     return [props.activeModule];
   });
   const tableQueryParams = ref<any>();
@@ -444,9 +429,8 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
-      env: checkedEnv.value,
       protocol: props.protocol,
-      filter: { status: statusFilters.value, type: methodFilters.value },
+      filter: { status: statusFilters.value, method: methodFilters.value },
     };
     setLoadListParams(params);
     loadList();
@@ -455,14 +439,12 @@
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     };
-    emit('init', {
-      ...tableQueryParams.value,
-    });
   }
 
   watch(
     () => props.activeModule,
     () => {
+      resetSelector();
       loadApiList();
     }
   );
@@ -470,6 +452,7 @@
   watch(
     () => props.protocol,
     () => {
+      resetSelector();
       loadApiList();
     }
   );
@@ -480,8 +463,25 @@
     }
   }
 
+  async function handleMethodChange(record: ApiDefinitionDetail) {
+    try {
+      await updateDefinition({
+        id: record.id,
+        method: record.method,
+      });
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   async function handleStatusChange(record: ApiDefinitionDetail) {
     try {
+      await updateDefinition({
+        id: record.id,
+        status: record.status,
+      });
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -492,16 +492,6 @@
   onBeforeMount(() => {
     loadApiList();
   });
-
-  function emitTableParams() {
-    emit('init', {
-      keyword: keyword.value,
-      moduleIds: [],
-      projectId: appStore.currentProjectId,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
-  }
 
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
@@ -536,20 +526,25 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
-            // await batchDeleteDefinition({
-            //   selectIds,
-            //   selectAll: !!params?.selectAll,
-            //   excludeIds: params?.excludeIds || [],
-            //   condition: { keyword: keyword.value },
-            //   projectId: appStore.currentProjectId,
-            //   moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
-            // });
+            await batchDeleteDefinition({
+              selectIds,
+              selectAll: !!params?.selectAll,
+              excludeIds: params?.excludeIds || [],
+              condition: { keyword: keyword.value },
+              projectId: appStore.currentProjectId,
+              moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+              deleteAll: true,
+              protocol: props.protocol,
+            });
           } else {
             await deleteDefinition(record?.id as string);
           }
           Message.success(t('common.deleteSuccess'));
           resetSelector();
           loadList();
+          if (typeof refreshModuleTree === 'function') {
+            refreshModuleTree();
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -588,20 +583,26 @@
     value: '',
     values: [],
   });
-  const attrOptions = [
+  const fullAttrs = [
     {
       name: 'apiTestManagement.apiStatus',
       value: 'status',
     },
     {
       name: 'apiTestManagement.apiType',
-      value: 'type',
+      value: 'method',
     },
     {
       name: 'common.tag',
-      value: 'tag',
+      value: 'tags',
     },
   ];
+  const attrOptions = computed(() => {
+    if (props.protocol === 'HTTP') {
+      return fullAttrs;
+    }
+    return fullAttrs.filter((e) => e.value !== 'method');
+  });
   const valueOptions = computed(() => {
     switch (batchForm.value.attr) {
       case 'status':
@@ -643,6 +644,17 @@
       if (!errors) {
         try {
           batchUpdateLoading.value = true;
+          await batchUpdateDefinition({
+            selectIds: batchParams.value?.selectedIds || [],
+            selectAll: !!batchParams.value?.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            condition: { keyword: keyword.value },
+            projectId: appStore.currentProjectId,
+            moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+            protocol: props.protocol,
+            type: batchForm.value.attr,
+            [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
+          });
           Message.success(t('common.updateSuccess'));
           cancelBatch();
           resetSelector();
@@ -669,16 +681,17 @@
   async function handleApiMove() {
     try {
       batchMoveApiLoading.value = true;
-      // await batchMoveFile({
-      //   selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeApi.value?.id || ''],
-      //   selectAll: !!batchParams.value?.selectAll,
-      //   excludeIds: batchParams.value?.excludeIds || [],
-      //   condition: { keyword: keyword.value },
-      //   projectId: appStore.currentProjectId,
-      //   moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
-      //   moveModuleId: selectedModuleKeys.value[0],
-      // });
-      Message.success(t('apiTestManagement.batchMoveSuccess'));
+      await batchMoveDefinition({
+        selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeApi.value?.id || ''],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value },
+        projectId: appStore.currentProjectId,
+        moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+        moduleId: selectedModuleKeys.value[0],
+        protocol: props.protocol,
+      });
+      Message.success(t('common.batchMoveSuccess'));
       if (isBatchMove.value) {
         tableSelected.value = [];
         isBatchMove.value = false;
@@ -687,7 +700,9 @@
       }
       loadList();
       resetSelector();
-      emitTableParams();
+      if (typeof refreshModuleTree === 'function') {
+        refreshModuleTree();
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -733,6 +748,10 @@
 
   function openApiTab(record: ApiDefinitionDetail) {
     emit('openApiTab', record);
+  }
+
+  function copyDefinition(record: ApiDefinitionDetail) {
+    emit('openCopyApiTab', record);
   }
 
   defineExpose({
