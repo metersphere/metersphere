@@ -127,7 +127,7 @@ public class EnvironmentController {
     @Operation(summary = "项目管理-环境-环境目录-修改排序")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
     public void editPos(@Validated @RequestBody PosRequest request) {
-        environmentService.editPos(request);
+        environmentService.moveNode(request);
     }
 
     @GetMapping("/get-options/{projectId}")

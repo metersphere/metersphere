@@ -21,6 +21,8 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.MoveNodeSortDTO;
+import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
@@ -29,12 +31,18 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +57,7 @@ import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiDebugService {
+public class ApiDebugService extends MoveNodeService {
     @Resource
     private ApiDebugMapper apiDebugMapper;
     @Resource
@@ -64,8 +72,8 @@ public class ApiDebugService {
     private ApiDebugModuleMapper apiDebugModuleMapper;
     @Resource
     private ApiCommonService apiCommonService;
-
-    public static final Long ORDER_STEP = 5000L;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<ApiDebugSimpleDTO> list(String protocol, String userId) {
         return extApiDebugMapper.list(protocol, userId);
@@ -112,9 +120,9 @@ public class ApiDebugService {
     }
 
 
-    private Long getNextOrder(String userId) {
+    public long getNextOrder(String userId) {
         Long pos = extApiDebugMapper.getPos(userId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
@@ -243,13 +251,37 @@ public class ApiDebugService {
             return;
         }
         request.setProjectId(userId);
-        ServiceUtils.updatePosField(request,
-                ApiDebug.class,
-                apiDebugMapper::selectByPrimaryKey,
-                extApiDebugMapper::getPrePos,
-                extApiDebugMapper::getLastPos,
-                apiDebugMapper::updateByPrimaryKeySelective);
+        moveNode(request);
     }
+
+    @Override
+    public void updatePos(String id, long pos) {
+        extApiDebugMapper.updatePos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> posIds = extApiDebugMapper.selectIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtApiDebugMapper batchUpdateMapper = sqlSession.getMapper(ExtApiDebugMapper.class);
+        for (int i = 0; i < posIds.size(); i++) {
+            batchUpdateMapper.updatePos(posIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extApiDebugMapper::selectDragInfoById,
+                extApiDebugMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
+    }
+
 
     /**
      * 处理关联的文件被更新

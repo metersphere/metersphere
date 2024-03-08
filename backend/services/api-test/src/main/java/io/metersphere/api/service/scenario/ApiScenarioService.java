@@ -31,6 +31,7 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
@@ -59,6 +60,7 @@ import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.ScheduleConfig;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -82,7 +84,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
@@ -102,7 +103,7 @@ import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EX
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiScenarioService {
+public class ApiScenarioService extends MoveNodeService{
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
 
@@ -883,8 +884,9 @@ public class ApiScenarioService {
         return NumGenerator.nextNum(projectId, ApplicationNumScope.API_SCENARIO);
     }
 
-    public Long getNextOrder(String projectId) {
-        return projectService.getNextOrder(extApiScenarioMapper::getLastPos, projectId);
+    public long getNextOrder(String projectId) {
+        Long pos = extApiScenarioMapper.getPos(projectId);
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     public void delete(String id, String operator) {
@@ -2138,13 +2140,32 @@ public class ApiScenarioService {
         return steps;
     }
 
-    public void editPos(PosRequest request) {
-        ServiceUtils.updatePosField(request,
-                ApiScenario.class,
-                apiScenarioMapper::selectByPrimaryKey,
-                extApiScenarioMapper::getPrePos,
-                extApiScenarioMapper::getLastPosEdit,
-                apiScenarioMapper::updateByPrimaryKeySelective);
+    @Override
+    public void updatePos(String id, long pos) {
+        extApiScenarioMapper.updatePos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> posIds = extApiScenarioMapper.selectIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtApiTestCaseMapper batchUpdateMapper = sqlSession.getMapper(ExtApiTestCaseMapper.class);
+        for (int i = 0; i < posIds.size(); i++) {
+            batchUpdateMapper.updatePos(posIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extApiScenarioMapper::selectDragInfoById,
+                extApiScenarioMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
     }
 
     public List<ExecuteReportDTO> getExecuteList(ExecutePageRequest request) {

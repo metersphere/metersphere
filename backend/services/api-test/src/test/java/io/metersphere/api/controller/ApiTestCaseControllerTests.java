@@ -14,6 +14,7 @@ import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectVersion;
@@ -130,6 +131,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ApiCommonService apiCommonService;
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
 
     @Override
     public String getBasePath() {
@@ -647,7 +650,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn(POS_URL, posRequest);
-
+        apiTestCaseService.refreshPos(DEFAULT_PROJECT_ID);
     }
 
     @Test

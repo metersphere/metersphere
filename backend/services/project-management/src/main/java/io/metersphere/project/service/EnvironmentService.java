@@ -4,6 +4,7 @@ package io.metersphere.project.service;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
@@ -21,6 +22,7 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.PluginScript;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -32,11 +34,14 @@ import io.metersphere.system.service.JdbcDriverPluginService;
 import io.metersphere.system.service.PluginScriptService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +60,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class EnvironmentService {
+public class EnvironmentService extends MoveNodeService {
     @Resource
     private EnvironmentMapper environmentMapper;
     @Resource
@@ -80,7 +85,8 @@ public class EnvironmentService {
     private SystemParameterService systemParameterService;
     @Resource
     private EnvironmentGroupRelationMapper environmentGroupRelationMapper;
-    public static final Long ORDER_STEP = 5000L;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";
@@ -213,9 +219,9 @@ public class EnvironmentService {
         }
     }
 
-    public Long getNextOrder(String projectId) {
+    public long getNextOrder(String projectId) {
         Long pos = extEnvironmentMapper.getPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     public ResponseEntity<byte[]> exportJson(TableBatchProcessDTO request, String projectId) {
@@ -387,15 +393,6 @@ public class EnvironmentService {
         }
     }
 
-    public void editPos(PosRequest request) {
-        ServiceUtils.updatePosField(request,
-                Environment.class,
-                environmentMapper::selectByPrimaryKey,
-                extEnvironmentMapper::getPrePos,
-                extEnvironmentMapper::getLastPos,
-                environmentMapper::updateByPrimaryKeySelective);
-    }
-
     public List<EnvironmentPluginScriptDTO> getPluginScripts(String projectId) {
         Project project = projectService.checkProjectNotExist(projectId);
         // 查询组织下有权限的接口插件
@@ -519,5 +516,33 @@ public class EnvironmentService {
             environmentOptions.add(environmentOptionsDTO);
         });
         return environmentOptions;
+    }
+
+    @Override
+    public void updatePos(String id, long pos) {
+        extEnvironmentMapper.updatePos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> caseIdList = extEnvironmentMapper.selectIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtEnvironmentMapper batchUpdateMapper = sqlSession.getMapper(ExtEnvironmentMapper.class);
+        for (int i = 0; i < caseIdList.size(); i++) {
+            batchUpdateMapper.updatePos(caseIdList.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extEnvironmentMapper::selectDragInfoById,
+                extEnvironmentMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
     }
 }

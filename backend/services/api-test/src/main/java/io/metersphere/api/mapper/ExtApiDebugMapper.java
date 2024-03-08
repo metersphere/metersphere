@@ -2,6 +2,8 @@ package io.metersphere.api.mapper;
 
 
 import io.metersphere.api.dto.debug.ApiDebugSimpleDTO;
+import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +23,11 @@ public interface ExtApiDebugMapper {
 
     Long getLastPos(@Param("userId") String userId, @Param("basePos") Long basePos);
 
+    void updatePos(String id, long pos);
+
+    List<String> selectIdByProjectIdOrderByPos(String userId);
+
+    DropNode selectDragInfoById(String id);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 }

@@ -29,6 +29,7 @@ import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
+import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
@@ -111,6 +112,8 @@ public class ApiDebugControllerTests extends BaseTest {
     private CustomFunctionService customFunctionService;
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ApiDebugService apiDebugService;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -424,6 +427,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setModuleId("def");
         requestPost("edit/pos", request).andExpect(status().is5xxServerError());
         request.setModuleId("root");
+        apiDebugService.refreshPos("admin");
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, "edit/pos", request);
     }

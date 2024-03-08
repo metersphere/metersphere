@@ -7,6 +7,8 @@ import io.metersphere.project.api.assertion.body.*;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
@@ -20,6 +22,7 @@ import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
+import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.MsAssertionCondition;
@@ -114,6 +117,8 @@ public class EnvironmentControllerTests extends BaseTest {
     private PluginScriptMapper pluginScriptMapper;
     @Resource
     private EnvironmentService environmentService;
+    @Resource
+    private ExtEnvironmentMapper extEnvironmentMapper;
     @Value("${spring.datasource.url}")
     private String dburl;
     @Value("${spring.datasource.username}")
@@ -995,6 +1000,21 @@ public class EnvironmentControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
 
         posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
+        //extEnvironmentMapper
+        DropNode environmentId1 = extEnvironmentMapper.selectDragInfoById("environmentId1");
+
+        NodeSortQueryParam sortParam = new NodeSortQueryParam();
+        sortParam.setPos(environmentId1.getPos());
+        sortParam.setOperator("lessThan");
+        sortParam.setParentId(DEFAULT_PROJECT_ID);
+
+        DropNode dropNode = extEnvironmentMapper.selectNodeByPosOperator(sortParam);
+        extEnvironmentMapper.updatePos(dropNode.getId(), 999);
+        Assertions.assertNotNull(dropNode);
+        environments = environmentMapper.selectByExample(example);
+        posRequest.setMoveMode("AFTER");
+        posRequest.setMoveId(environments.getFirst().getId());
         this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
 
     }

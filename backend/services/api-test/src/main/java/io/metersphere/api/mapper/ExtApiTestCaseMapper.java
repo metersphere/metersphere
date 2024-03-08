@@ -5,7 +5,9 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.dto.TestCaseProviderDTO;
+import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -64,4 +66,12 @@ public interface ExtApiTestCaseMapper {
     List<String> getIdsByModules(@Param("request") ScenarioSystemRequest caseRequest);
 
     List<ApiTestCase> getApiCaseDefinitionInfo(@Param("ids") List<String> ids);
+
+    void updatePos(String id, long pos);
+
+    List<String> selectIdByProjectIdOrderByPos(String projectId);
+
+    DropNode selectDragInfoById(String id);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 }

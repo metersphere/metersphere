@@ -19,8 +19,10 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -33,6 +35,7 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -60,9 +63,7 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiTestCaseService {
-
-    public static final Long ORDER_STEP = 5000L;
+public class ApiTestCaseService extends MoveNodeService {
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -134,9 +135,9 @@ public class ApiTestCaseService {
         }
     }
 
-    public Long getNextOrder(String projectId) {
+    public long getNextOrder(String projectId) {
         Long pos = extApiTestCaseMapper.getPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
@@ -522,14 +523,6 @@ public class ApiTestCaseService {
         mapper.updateByExampleSelective(updateCase, example);
     }
 
-    public void editPos(PosRequest request) {
-        ServiceUtils.updatePosField(request,
-                ApiTestCase.class,
-                apiTestCaseMapper::selectByPrimaryKey,
-                extApiTestCaseMapper::getPrePos,
-                extApiTestCaseMapper::getLastPos,
-                apiTestCaseMapper::updateByPrimaryKeySelective);
-    }
 
     public String uploadTempFile(MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
@@ -684,5 +677,33 @@ public class ApiTestCaseService {
         apiRunModeConfig.setRunMode(runModule);
         taskRequest.setRunModeConfig(apiRunModeConfig);
         return taskRequest;
+    }
+
+    @Override
+    public void updatePos(String id, long pos) {
+        extApiTestCaseMapper.updatePos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> posIds = extApiTestCaseMapper.selectIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtApiTestCaseMapper batchUpdateMapper = sqlSession.getMapper(ExtApiTestCaseMapper.class);
+        for (int i = 0; i < posIds.size(); i++) {
+            batchUpdateMapper.updatePos(posIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extApiTestCaseMapper::selectDragInfoById,
+                extApiTestCaseMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
     }
 }

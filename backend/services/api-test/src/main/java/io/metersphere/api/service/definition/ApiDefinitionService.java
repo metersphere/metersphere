@@ -25,9 +25,11 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -43,6 +45,8 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -70,9 +74,7 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiDefinitionService {
-
-    public static final Long ORDER_STEP = 5000L;
+public class ApiDefinitionService extends MoveNodeService {
 
     private static final String ALL_API = "api_definition_module.api.all";
 
@@ -489,9 +491,9 @@ public class ApiDefinitionService {
                 .collect(Collectors.toSet());
     }
 
-    public Long getNextOrder(String projectId) {
+    public long getNextOrder(String projectId) {
         Long pos = extApiDefinitionMapper.getPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     public long getNextNum(String projectId) {
@@ -1067,12 +1069,35 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
             return;
         }
-        ServiceUtils.updatePosField(request,
-                ApiDefinition.class,
-                apiDefinitionMapper::selectByPrimaryKey,
-                extApiDefinitionMapper::getPrePos,
-                extApiDefinitionMapper::getLastPos,
-                apiDefinitionMapper::updateByPrimaryKeySelective);
+        moveNode(request);
+    }
+
+    @Override
+    public void updatePos(String id, long pos) {
+        extApiDefinitionMapper.updatePos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> posIds = extApiDefinitionMapper.selectIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtApiDefinitionMapper batchUpdateMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
+        for (int i = 0; i < posIds.size(); i++) {
+            batchUpdateMapper.updatePos(posIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extApiDefinitionMapper::selectDragInfoById,
+                extApiDefinitionMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
     }
 
     private void checkResponseNameCode(Object response) {
