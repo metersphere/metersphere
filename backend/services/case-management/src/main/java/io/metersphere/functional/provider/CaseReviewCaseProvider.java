@@ -128,30 +128,33 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
         if (CollectionUtils.isEmpty(otherReviewFunctionalCases)) {
-            for (String id : caseIdList) {
-                FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setId(id);
-                functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
-                mapper.updateByPrimaryKeySelective(functionalCase);
-            }
+            setUnReviewCase(caseIdList, mapper);
         } else {
+            //如果不为空，那就把不为空的设置为上一次的结果，再取caseIdList的id,与map的key的差集，则为要置为未评审的
             Map<String, List<CaseReviewFunctionalCase>> collect = otherReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getCaseId));
+            List<String>hasMoreReviewCaseIds = new ArrayList<>(collect.keySet());
+            caseIdList.removeAll(hasMoreReviewCaseIds);
+            if (CollectionUtils.isNotEmpty(caseIdList)) {
+                setUnReviewCase(caseIdList, mapper);
+            }
             collect.forEach((caseId, caseList) -> {
-                if (!caseIdList.contains(caseId)) {
-                    FunctionalCase functionalCase = new FunctionalCase();
-                    functionalCase.setId(caseId);
-                    functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
-                    mapper.updateByPrimaryKeySelective(functionalCase);
-                } else {
-                    FunctionalCase functionalCase = new FunctionalCase();
-                    functionalCase.setId(caseId);
-                    functionalCase.setReviewStatus(caseList.get(0).getStatus());
-                    mapper.updateByPrimaryKeySelective(functionalCase);
-                }
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setId(caseId);
+                functionalCase.setReviewStatus(caseList.get(0).getStatus());
+                mapper.updateByPrimaryKeySelective(functionalCase);
             });
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    private static void setUnReviewCase(List<String> caseIdList, FunctionalCaseMapper mapper) {
+        for (String id : caseIdList) {
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setId(id);
+            functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+            mapper.updateByPrimaryKeySelective(functionalCase);
+        }
     }
 
     /**
