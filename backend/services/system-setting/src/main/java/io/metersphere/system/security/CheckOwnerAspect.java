@@ -71,8 +71,23 @@ public class CheckOwnerAspect {
         Object v = titleExp.getValue(context, Object.class);
         if (orgResources.contains(resourceType)) {
             handleOrganizationResource(v, resourceType);
+        } else if (StringUtils.equals(resourceType, "organization")) {
+            handleOrganization(v);
         } else {
             handleProjectResource(v, resourceType);
+        }
+    }
+
+    private void handleOrganization(Object v) {
+        if (v instanceof String id) {
+            if (!extCheckOwnerMapper.checkoutOrganization(SessionUtils.getUserId(), List.of(id))) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+        if (v instanceof List ids) {
+            if (!extCheckOwnerMapper.checkoutOrganization(SessionUtils.getUserId(), ids)) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
         }
     }
 
