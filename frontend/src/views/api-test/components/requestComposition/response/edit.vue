@@ -193,6 +193,15 @@
   });
   const activeResponse = ref<ResponseItem>(responseTabs.value[0]);
 
+  watch(
+    () => responseTabs.value,
+    (arr) => {
+      if (arr[0]) {
+        [activeResponse.value] = arr;
+      }
+    }
+  );
+
   function addResponseTab(defaultProps?: Partial<ResponseItem>) {
     responseTabs.value.push({
       ...cloneDeep(defaultResponseItem),

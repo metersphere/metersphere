@@ -339,6 +339,7 @@
 
   import {
     ExecuteApiRequestFullParams,
+    ExecuteConditionConfig,
     ExecuteRequestParams,
     PluginConfig,
     RequestTaskResult,
@@ -348,6 +349,7 @@
     RequestAuthType,
     RequestBodyFormat,
     RequestComposition,
+    RequestConditionProcessor,
     RequestMethods,
     RequestParamsType,
   } from '@/enums/apiEnum';
@@ -356,6 +358,7 @@
   import {
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
+    defaultKeyValueParamItem,
     defaultRequestParamsItem,
   } from '@/views/api-test/components/config';
   import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
@@ -849,6 +852,20 @@
     }
   );
 
+  function filterConditionsSqlValidParams(condition: ExecuteConditionConfig) {
+    const conditionCopy = cloneDeep(condition);
+    conditionCopy.processors = conditionCopy.processors.map((processor) => {
+      if (processor.processorType === RequestConditionProcessor.SQL) {
+        processor.extractParams = filterKeyValParams(
+          processor.extractParams || [],
+          defaultKeyValueParamItem
+        ).validParams;
+      }
+      return processor;
+    });
+    return conditionCopy;
+  }
+
   /**
    * 生成请求参数
    * @param executeType 执行类型，执行时传入
@@ -930,12 +947,11 @@
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
             assertionConfig: {
-              // TODO:暂时不做断言
               enableGlobal: false,
               assertions: [],
             },
-            postProcessorConfig: requestVModel.value.children[0].postProcessorConfig,
-            preProcessorConfig: requestVModel.value.children[0].preProcessorConfig,
+            postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
+            preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
           },
         ],
       },

@@ -86,11 +86,10 @@ export default {
   'apiTestDebug.quoteSource': 'Reference data source',
   'apiTestDebug.sourceList': 'Data source list',
   'apiTestDebug.quoteSourcePlaceholder': 'Please select a data source',
-  'apiTestDebug.storageType': 'Storage method',
-  'apiTestDebug.storageTypeTip1':
-    'Store by column: Specify the names of columns extracted from the database result set; multiple columns can be separated by ","',
-  'apiTestDebug.storageTypeTip2':
-    'Store by result: Save the entire result set as a variable instead of saving each column value as a separate variable',
+  'apiTestDebug.storageColTip':
+    'Specify the names of columns extracted from the database result set; multiple columns can be separated by ","',
+  'apiTestDebug.storageResultTip':
+    'Save the entire result set as a variable instead of saving each column value as a separate variable',
   'apiTestDebug.storageByCol': 'Store by columns',
   'apiTestDebug.storageByColPlaceholder': 'For example, {a} is changed to {b}',
   'apiTestDebug.storageByResult': 'Store by result',

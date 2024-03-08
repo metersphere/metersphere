@@ -217,14 +217,15 @@
       <div class="mb-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
         <a-input
-          v-model:model-value="condition.description"
+          v-model:model-value="condition.name"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
+          @input="() => emit('change')"
         />
       </div>
       <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
         <div class="text-[var(--color-text-2)]">
-          {{ condition.scriptName || '-' }}
+          {{ condition.dataSourceName || '-' }}
         </div>
         <a-divider margin="8px" direction="vertical" />
         <MsButton type="text" class="font-medium" @click="quoteSqlSourceDrawerVisible = true">
@@ -240,48 +241,52 @@
           :language="LanguageEnum.SQL"
           :show-full-screen="false"
           :show-theme-change="false"
-          read-only
+          @change="() => emit('change')"
         >
         </MsCodeEditor>
       </div>
       <div class="mb-[16px]">
         <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
-          {{ t('apiTestDebug.storageType') }}
-          <a-tooltip position="right">
+          {{ t('apiTestDebug.storageByCol') }}
+          <a-tooltip position="right" :content="t('apiTestDebug.storageColTip')">
             <icon-question-circle
               class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
               size="16"
             />
-            <template #content>
-              <div>{{ t('apiTestDebug.storageTypeTip1') }}</div>
-              <div>{{ t('apiTestDebug.storageTypeTip2') }}</div>
-            </template>
           </a-tooltip>
         </div>
-      </div>
-      <div class="mb-[16px]">
-        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByCol') }}</div>
         <a-input
           v-model:model-value="condition.variableNames"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
+          @input="() => emit('change')"
         />
       </div>
       <div class="sql-table-container">
-        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.extractParameter') }}</div>
+        <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
+          {{ t('apiTestDebug.extractParameter') }}
+          <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
         <paramTable
-          v-model:params="condition.variables"
+          v-model:params="condition.extractParams"
           :columns="sqlSourceColumns"
           :selectable="false"
+          :default-param-item="defaultKeyValueParamItem"
           @change="handleSqlSourceParamTableChange"
         />
       </div>
-      <div class="mb-[16px]">
+      <div class="mt-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
         <a-input
           v-model:model-value="condition.resultVariable"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
+          @input="() => emit('change')"
         />
       </div>
     </template>
@@ -431,6 +436,7 @@
   import type { ProtocolItem } from '@/models/apiTest/common';
   import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
+  import { DataSourceItem, EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestConditionProcessor,
     RequestExtractEnvType,
@@ -440,6 +446,8 @@
     RequestExtractScope,
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
+
+  import { defaultKeyValueParamItem } from '@/views/api-test/components/config';
 
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
   const appStore = useAppStore();
@@ -468,7 +476,31 @@
 
   const { t } = useI18n();
 
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const condition = useVModel(props, 'data', emit);
+
+  watchEffect(() => {
+    if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
+      // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
+      const dataSourceItem = currentEnvConfig?.value.dataSources.find(
+        (item) => item.dataSource === condition.value.dataSourceName
+      );
+      if (dataSourceItem) {
+        // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
+        condition.value.dataSourceName = dataSourceItem.dataSource;
+        condition.value.dataSourceId = dataSourceItem.id;
+      } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
+        // 如果没有找到，就默认取第一个数据源
+        condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
+        condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
+      } else {
+        // 如果没有数据源，就清除已选的数据源
+        condition.value.dataSourceName = '';
+        condition.value.dataSourceId = '';
+      }
+    }
+  });
+
   // 是否显示脚本名称编辑框
   const isShowEditScriptNameInput = ref(false);
   const scriptNameInputRef = ref<InputInstance>();
@@ -490,9 +522,9 @@ if (!result){
 }`);
   const { copy, isSupported } = useClipboard();
 
-  function copyScriptEx() {
+  async function copyScriptEx() {
     if (isSupported) {
-      copy(scriptEx.value);
+      await copy(scriptEx.value);
       Message.success(t('apiTestDebug.scriptExCopySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
@@ -598,14 +630,14 @@ if (!result){
     },
   ];
   const quoteSqlSourceDrawerVisible = ref(false);
-  function handleQuoteSqlSourceApply(sqlSource: Record<string, any>) {
-    condition.value.script = sqlSource.script;
+  function handleQuoteSqlSourceApply(sqlSource: DataSourceItem) {
+    condition.value.dataSourceName = sqlSource.dataSource;
     condition.value.dataSourceId = sqlSource.id;
     emit('change');
   }
 
   function handleSqlSourceParamTableChange(resultArr: any[], isInit?: boolean) {
-    condition.value.variables = [...resultArr];
+    condition.value.extractParams = [...resultArr];
     if (!isInit) {
       emit('change');
     }

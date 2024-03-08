@@ -1,5 +1,5 @@
 <template>
-  <MsCard simple no-content-padding>
+  <MsCard :min-width="1180" simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
         <div class="p-[24px]">
@@ -36,6 +36,7 @@
               v-model:visible="importDrawerVisible"
               :module-tree="folderTree"
               popup-container="#managementContainer"
+              @done="handleImportDone"
             />
           </div>
           <management
@@ -65,6 +66,7 @@
 
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
+  const folderTreePathMap = ref<Record<string, any>>({});
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
   const protocol = ref('HTTP');
@@ -72,9 +74,10 @@
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
-  function handleModuleInit(tree, _protocol: string) {
+  function handleModuleInit(tree, _protocol: string, pathMap: Record<string, any>) {
     folderTree.value = tree;
     protocol.value = _protocol;
+    folderTreePathMap.value = pathMap;
   }
 
   function newApi() {
@@ -102,9 +105,15 @@
     moduleTreeRef.value?.refresh();
   }
 
-  /** 向子孙组件提供方法 */
+  function handleImportDone() {
+    refreshModuleTree();
+    managementRef.value?.refreshApiTable();
+  }
+
+  /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);
   provide('refreshModuleTree', refreshModuleTree);
+  provide('folderTreePathMap', folderTreePathMap.value);
 </script>
 
 <style lang="less" scoped></style>

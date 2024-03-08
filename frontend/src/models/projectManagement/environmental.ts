@@ -155,3 +155,16 @@ export interface HttpForm {
     condition: '';
   };
 }
+// 环境列表项
+export interface EnvironmentItem {
+  id: string;
+  name: string;
+  projectId: string;
+  createUser: string;
+  updateUser: string;
+  createTime: number;
+  updateTime: number;
+  mock: boolean;
+  description: string;
+  pos: number;
+}

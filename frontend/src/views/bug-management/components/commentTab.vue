@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-  import MsComment from '@/components/business/ms-comment';
+  import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
   import { createOrUpdateComment, deleteComment, getCommentList } from '@/api/modules/bug-management/index';

@@ -1,28 +1,43 @@
 import MSR from '@/api/http/index';
 import {
+  AddDefinitionScheduleUrl,
   AddDefinitionUrl,
   AddModuleUrl,
   BatchDeleteDefinitionUrl,
+  BatchMoveDefinitionUrl,
+  BatchUpdateDefinitionUrl,
+  CheckDefinitionScheduleUrl,
+  DebugDefinitionUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
+  DeleteDefinitionScheduleUrl,
   DeleteDefinitionUrl,
   DeleteMockUrl,
   DeleteModuleUrl,
   GetDefinitionDetailUrl,
+  GetDefinitionScheduleUrl,
   GetEnvModuleUrl,
   GetModuleCountUrl,
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
+  ImportDefinitionUrl,
   MoveModuleUrl,
+  SortDefinitionUrl,
+  SwitchDefinitionScheduleUrl,
   TransferFileModuleOptionUrl,
   TransferFileUrl,
+  UpdateDefinitionScheduleUrl,
   UpdateDefinitionUrl,
   UpdateMockStatusUrl,
   UpdateModuleUrl,
   UploadTempFileUrl,
 } from '@/api/requrls/api-test/management';
 
+import { ExecuteRequestParams } from '@/models/apiTest/common';
 import {
+  ApiDefinitionBatchDeleteParams,
+  ApiDefinitionBatchMoveParams,
+  ApiDefinitionBatchUpdateParams,
   ApiDefinitionCreateParams,
   ApiDefinitionDetail,
   ApiDefinitionGetEnvModuleParams,
@@ -32,10 +47,21 @@ import {
   ApiDefinitionPageParams,
   ApiDefinitionUpdateModuleParams,
   ApiDefinitionUpdateParams,
+  CheckScheduleParams,
+  CreateImportApiDefinitionScheduleParams,
   EnvModule,
+  ImportApiDefinitionParams,
   mockParams,
+  UpdateScheduleParams,
 } from '@/models/apiTest/management';
-import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
+import {
+  AddModuleParams,
+  CommonList,
+  DragSortParams,
+  ModuleTreeNode,
+  MoveModules,
+  TransferFileParams,
+} from '@/models/common';
 
 // 更新模块
 export function updateModule(data: ApiDefinitionUpdateModuleParams) {
@@ -94,7 +120,7 @@ export function updateDefinition(data: ApiDefinitionUpdateParams) {
 
 // 获取接口定义详情
 export function getDefinitionDetail(id: string) {
-  return MSR.get({ url: GetDefinitionDetailUrl, params: id });
+  return MSR.get<ApiDefinitionDetail>({ url: GetDefinitionDetailUrl, params: id });
 }
 
 // 文件转存
@@ -118,8 +144,63 @@ export function deleteDefinition(id: string) {
 }
 
 // 批量删除定义
-export function batchDeleteDefinition(id: string) {
-  return MSR.get({ url: BatchDeleteDefinitionUrl, params: id });
+export function batchDeleteDefinition(data: ApiDefinitionBatchDeleteParams) {
+  return MSR.post({ url: BatchDeleteDefinitionUrl, data });
+}
+
+// 导入定义
+export function importDefinition(params: ImportApiDefinitionParams) {
+  return MSR.uploadFile({ url: ImportDefinitionUrl }, { fileList: [params.file], request: params.request }, 'file');
+}
+
+// 拖拽定义节点
+export function sortDefinition(data: DragSortParams) {
+  return MSR.post({ url: SortDefinitionUrl, data });
+}
+
+// 批量更新定义
+export function batchUpdateDefinition(data: ApiDefinitionBatchUpdateParams) {
+  return MSR.post({ url: BatchUpdateDefinitionUrl, data });
+}
+
+// 批量移动定义
+export function batchMoveDefinition(data: ApiDefinitionBatchMoveParams) {
+  return MSR.post({ url: BatchMoveDefinitionUrl, data });
+}
+
+// 更新定时同步
+export function updateDefinitionSchedule(data: UpdateScheduleParams) {
+  return MSR.post({ url: UpdateDefinitionScheduleUrl, data });
+}
+
+// 定时同步-检查 url 是否存在
+export function checkDefinitionSchedule(data: CheckScheduleParams) {
+  return MSR.post({ url: CheckDefinitionScheduleUrl, data });
+}
+
+// 添加定时同步
+export function createDefinitionSchedule(data: CreateImportApiDefinitionScheduleParams) {
+  return MSR.post({ url: AddDefinitionScheduleUrl, data });
+}
+
+// 定时同步-开启关闭
+export function switchDefinitionSchedule(id: string) {
+  return MSR.get({ url: SwitchDefinitionScheduleUrl, params: id });
+}
+
+// 查询定时同步详情
+export function getDefinitionSchedule(id: string) {
+  return MSR.get({ url: GetDefinitionScheduleUrl, params: id });
+}
+
+// 删除定时同步
+export function deleteDefinitionSchedule(id: string) {
+  return MSR.get({ url: DeleteDefinitionScheduleUrl, params: id });
+}
+
+// 接口定义调试
+export function debugDefinition(data: ExecuteRequestParams) {
+  return MSR.post({ url: DebugDefinitionUrl, data });
 }
 
 /**

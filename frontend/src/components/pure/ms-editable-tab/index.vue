@@ -120,6 +120,9 @@
   const { arrivedState } = useScroll(tabNav);
   const isNotOverflow = computed(() => arrivedState.left && arrivedState.right); // 内容是否溢出，用于判断左右滑动按钮是否展示
 
+  /**
+   * 滚动tab
+   */
   const scrollTabs = (direction: 'left' | 'right') => {
     if (tabNav.value) {
       const tabNavWidth = tabNav.value?.clientWidth || 0;
@@ -139,6 +142,9 @@
     }
   };
 
+  /**
+   * 滚动到当前激活的tab
+   */
   const scrollToActiveTab = () => {
     const activeTabDom = tabNav.value?.querySelector('.ms-editable-tab.active');
     if (activeTabDom) {
@@ -169,6 +175,9 @@
     return props.moreActionList ? [...dl, ...props.moreActionList] : dl;
   });
 
+  /**
+   * 监听激活的tab变化，滚动到激活的tab
+   */
   watch(
     () => props.activeTab,
     () => {
@@ -192,14 +201,21 @@
     emit('add');
   }
 
+  /**
+   * 关闭一个tab
+   */
   function closeOneTab(item: TabItem) {
     const index = innerTabs.value.findIndex((e) => e.id === item.id);
     innerTabs.value.splice(index, 1);
     if (innerActiveTab.value?.id === item.id && innerTabs.value[0]) {
       [innerActiveTab.value] = innerTabs.value;
+      emit('change', innerTabs.value[0]);
     }
   }
 
+  /**
+   * 关闭tab前处理
+   */
   function close(item: TabItem) {
     if (item.unSaved) {
       openModal({
@@ -219,18 +235,24 @@
   }
 
   function handleTabClick(item: TabItem) {
-    innerActiveTab.value = item;
-    nextTick(() => {
-      tabNav.value?.querySelector('.tab.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-    emit('change', item);
+    if (innerActiveTab.value?.id !== item.id) {
+      innerActiveTab.value = item;
+      nextTick(() => {
+        tabNav.value?.querySelector('.tab.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      emit('change', item);
+    }
   }
 
+  /**
+   * 执行更多操作
+   */
   function executeAction(event: ActionsItem) {
     switch (event.eventTag) {
       case 'closeAll':
         innerTabs.value = innerTabs.value.filter((item) => item.closable === false);
         [innerActiveTab.value] = innerTabs.value;
+        emit('change', innerActiveTab.value);
         break;
       case 'closeOther':
         innerTabs.value = innerTabs.value.filter(
@@ -243,6 +265,9 @@
     }
   }
 
+  /**
+   * 处理更多操作选择
+   */
   function handleMoreActionSelect(event: ActionsItem) {
     if (
       (event.eventTag === 'closeAll' && innerTabs.value.some((item) => item.unSaved)) ||

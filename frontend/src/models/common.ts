@@ -44,6 +44,8 @@ export interface BatchApiParams {
   selectAll: boolean; // 是否跨页全选，即选择当前筛选条件下的全部表格数据
   condition: Record<string, any>; // 当前表格查询的筛选条件
   currentSelectCount?: number; // 当前已选择的数量
+  projectId?: string; // 项目 ID
+  moduleIds?: (string | number)[]; // 模块 ID 集合
 }
 
 // 移动模块树

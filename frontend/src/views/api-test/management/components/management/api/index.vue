@@ -28,6 +28,7 @@
         :offspring-ids="props.offspringIds"
         :protocol="props.protocol"
         @open-api-tab="openApiTab"
+        @open-copy-api-tab="openApiTab($event, true)"
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
@@ -49,7 +50,7 @@
                 hide-response-layout-switch
                 :create-api="addDefinition"
                 :update-api="updateDefinition"
-                :execute-api="executeDebug"
+                :execute-api="debugDefinition"
                 :local-execute-api="localExecuteApiDebug"
                 :permission-map="{
                   execute: 'PROJECT_API_DEFINITION:READ+EXECUTE',
@@ -196,9 +197,10 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
-  import { executeDebug, localExecuteApiDebug } from '@/api/modules/api-test/debug';
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
     addDefinition,
+    debugDefinition,
     getDefinitionDetail,
     getTransferOptions,
     transferFile,
@@ -411,9 +413,9 @@
   }
 
   const loading = ref(false);
-  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail) {
+  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail, isCopy = false) {
     const isLoadedTabIndex = apiTabs.value.findIndex((e) => e.id === apiInfo.id);
-    if (isLoadedTabIndex > -1) {
+    if (isLoadedTabIndex > -1 && !isCopy) {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeApiTab.value = apiTabs.value[isLoadedTabIndex] as RequestParam;
       return;
@@ -421,14 +423,17 @@
     try {
       loading.value = true;
       const res = await getDefinitionDetail(apiInfo.id);
+      const name = isCopy ? `${res.name}-copy` : res.name;
       addApiTab({
-        label: apiInfo.name,
+        label: name,
         ...res.request,
         ...res,
         response: cloneDeep(defaultResponse),
+        responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })),
         url: res.path,
-        name: res.name, // request里面还有个name但是是null
-        isNew: false,
+        name, // request里面还有个name但是是null
+        isNew: isCopy,
+        unSaved: isCopy,
       });
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
@@ -483,7 +488,7 @@
   const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const activeApiTabFormRef = ref<FormInstance>();
 
-  function handleSave(params: ApiDefinitionCreateParams | ApiDefinitionUpdateParams) {
+  function handleSave(params: ApiDefinitionCreateParams) {
     activeApiTabFormRef.value?.validate(async (errors) => {
       if (errors) {
         splitBoxRef.value?.expand();
@@ -521,9 +526,14 @@
     console.log(params);
   }
 
+  function refreshTable() {
+    apiTableRef.value?.loadApiList();
+  }
+
   defineExpose({
     openApiTab,
     addApiTab,
+    refreshTable,
   });
 </script>
 

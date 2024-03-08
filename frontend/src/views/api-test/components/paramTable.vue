@@ -1,12 +1,5 @@
 <template>
-  <MsBaseTable
-    v-bind="propsRes"
-    :hoverable="false"
-    no-disable
-    is-simple-setting
-    :span-method="props.spanMethod"
-    v-on="propsEvent"
-  >
+  <MsFormTable v-bind="props" :data="paramsData">
     <!-- 展开行-->
     <template #expand-icon="{ record }">
       <div class="flex flex-row items-center gap-[2px] text-[var(--color-text-4)]">
@@ -404,7 +397,7 @@
         />
       </div>
     </template>
-  </MsBaseTable>
+  </MsFormTable>
   <a-modal
     v-model:visible="showQuickInputParam"
     :title="t('ms.paramsInput.value')"
@@ -463,9 +456,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumnData } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
+  import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
@@ -476,13 +467,12 @@
 
   import { groupProjectEnv, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import { ProjectOptionItem } from '@/models/projectManagement/environmental';
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
-  import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { filterKeyValParams } from './utils';
   import { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
@@ -490,7 +480,7 @@
   const MsAddAttachment = defineAsyncComponent(() => import('@/components/business/ms-add-attachment/index.vue'));
   const MsParamsInput = defineAsyncComponent(() => import('@/components/business/ms-params-input/index.vue'));
 
-  export type ParamTableColumn = MsTableColumnData & {
+  export interface ParamTableColumn extends FormTableColumn {
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
     typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
@@ -499,7 +489,7 @@
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
     addLineDisabled?: boolean; // 用于 是否禁用添加新行
-  };
+  }
 
   const props = withDefaults(
     defineProps<{
@@ -565,75 +555,22 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const tableStore = useTableStore();
-
-  async function initColumns() {
-    if (props.showSetting && props.tableKey) {
-      await tableStore.initColumn(props.tableKey, props.columns);
-    }
-  }
-
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
-    firstColumnWidth: 32,
-    tableKey: props.showSetting ? props.tableKey : undefined,
-    scroll: props.scroll,
-    heightUsed: props.heightUsed,
-    columns: props.columns,
-    selectable: props.selectable,
-    draggable: props.draggable ? { type: 'handle', width: 24 } : undefined,
-    showSetting: props.showSetting,
-    disabled: props.disabled,
-    showSelectorAll: props.showSelectorAll,
-    isSimpleSetting: props.isSimpleSetting,
-    showPagination: false,
-  });
+  const paramsData = ref<any[]>(props.params);
 
   function emitChange(from: string, isInit?: boolean) {
     if (!isInit) {
-      emit('change', propsRes.value.data);
+      emit('change', paramsData.value);
     }
   }
 
-  const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
-  propsEvent.value.rowSelectChange = (key: string) => {
-    propsRes.value.data = propsRes.value.data.map((e) => {
-      if (e.id === key) {
-        e.enable = !e.enable;
-      }
-      return e;
-    });
-    emitChange('rowSelectChange');
-  };
-  propsEvent.value.selectAllChange = (v: SelectAllEnum) => {
-    propsRes.value.data = propsRes.value.data.map((e) => {
-      e.enable = v !== SelectAllEnum.NONE;
-      return e;
-    });
-    emitChange('selectAllChange');
-  };
-
-  watch(
-    () => selectedKeys.value,
-    (arr) => {
-      propsRes.value.selectedKeys = new Set(arr);
-    }
-  );
-
-  watch(
-    () => props.heightUsed,
-    (val) => {
-      propsRes.value.heightUsed = val;
-    }
-  );
-
-  const paramsLength = computed(() => propsRes.value.data.length);
+  const paramsLength = computed(() => paramsData.value.length);
 
   function deleteParam(record: Record<string, any>, rowIndex: number) {
     if (props.isTreeTable) {
       emit('treeDelete', record);
       return;
     }
-    propsRes.value.data.splice(rowIndex, 1);
+    paramsData.value.splice(rowIndex, 1);
     emitChange('deleteParam');
   }
 
@@ -644,17 +581,14 @@
   const handleMustIncludeChange = (val: boolean) => {
     mustIncludeAllChecked.value = val;
     mustIncludeIndeterminate.value = false;
-    const { data } = propsRes.value;
-    data.forEach((e: any) => {
+    paramsData.value.forEach((e: any) => {
       e.mustInclude = val;
     });
-    propsRes.value.data = data;
     emitChange('handleMustIncludeChange');
   };
   const handleMustContainColChange = (notEmit?: boolean) => {
-    const { data } = propsRes.value;
-    const checkedList = data.filter((e: any) => e.mustInclude).map((e: any) => e.id);
-    if (checkedList.length === data.length) {
+    const checkedList = paramsData.value.filter((e: any) => e.mustInclude).map((e: any) => e.id);
+    if (checkedList.length === paramsData.value.length) {
       mustIncludeAllChecked.value = true;
       mustIncludeIndeterminate.value = false;
     } else if (checkedList.length === 0) {
@@ -674,17 +608,14 @@
   const handleTypeCheckingChange = (val: boolean) => {
     typeCheckingAllChecked.value = val;
     typeCheckingIndeterminate.value = false;
-    const { data } = propsRes.value;
-    data.forEach((e: any) => {
+    paramsData.value.forEach((e: any) => {
       e.typeChecking = val;
     });
-    propsRes.value.data = data;
     emitChange('handleTypeCheckingChange');
   };
   const handleTypeCheckingColChange = (notEmit?: boolean) => {
-    const { data } = propsRes.value;
-    const checkedList = data.filter((e: any) => e.typeChecking).map((e: any) => e.id);
-    if (checkedList.length === data.length) {
+    const checkedList = paramsData.value.filter((e: any) => e.typeChecking).map((e: any) => e.id);
+    if (checkedList.length === paramsData.value.length) {
       typeCheckingAllChecked.value = true;
       typeCheckingIndeterminate.value = false;
     } else if (checkedList.length === 0) {
@@ -766,10 +697,10 @@
     if (addLineDisabled) {
       return;
     }
-    if (rowIndex === propsRes.value.data.length - 1) {
+    if (rowIndex === paramsData.value.length - 1) {
       // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
-      propsRes.value.data.push({
+      paramsData.value.push({
         id,
         ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
@@ -785,7 +716,14 @@
     (arr) => {
       if (arr.length > 0) {
         let hasNoIdItem = false; // 是否有没有id的项，用以判断是否是后台数据初始化表格
-        propsRes.value.data = arr.map((item, i) => {
+        paramsData.value = arr.map((item, i) => {
+          if (!item) {
+            // 批量添加过来的数据最后一行会是 undefined
+            return {
+              ...props.defaultParamItem,
+              id: new Date().getTime() + i,
+            };
+          }
           if (!item.id) {
             // 后台存储无id，渲染时需要手动添加一次
             hasNoIdItem = true;
@@ -801,7 +739,7 @@
         }
       } else {
         const id = new Date().getTime().toString();
-        propsRes.value.data = [
+        paramsData.value = [
           {
             id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
             ...props.defaultParamItem,
@@ -880,7 +818,7 @@
   function applyQuickInputParam() {
     activeQuickInputRecord.value.value = quickInputParamValue.value;
     showQuickInputParam.value = false;
-    addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
+    addTableLine(paramsData.value.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputParam();
     emitChange('applyQuickInputParam');
   }
@@ -902,7 +840,7 @@
   function applyQuickInputDesc() {
     activeQuickInputRecord.value.description = quickInputDescValue.value;
     showQuickInputDesc.value = false;
-    addTableLine(propsRes.value.data.findIndex((e) => e.id === activeQuickInputRecord.value.id));
+    addTableLine(paramsData.value.findIndex((e) => e.id === activeQuickInputRecord.value.id));
     clearQuickInputDesc();
     emitChange('applyQuickInputDesc');
   }
@@ -959,61 +897,9 @@
   defineExpose({
     addTableLine,
   });
-
-  await initColumns();
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-table-th) {
-    background-color: var(--color-text-n9);
-    line-height: normal;
-  }
-  :deep(.arco-table .arco-table-cell) {
-    padding: 8px 2px;
-  }
-  :deep(.arco-table-cell-align-left) {
-    padding: 8px;
-  }
-  :deep(.arco-table-col-fixed-right) {
-    .arco-table-cell-align-left {
-      padding: 8px;
-    }
-  }
-  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
-    &:not(:hover) {
-      border-color: transparent !important;
-      .arco-input::placeholder {
-        @apply invisible;
-      }
-      .arco-select-view-icon {
-        @apply invisible;
-      }
-      .arco-select-view-value {
-        color: var(--color-text-1);
-      }
-      .arco-select {
-        border-color: transparent !important;
-      }
-    }
-  }
-  :deep(.param-input-number) {
-    @apply pr-0;
-    .arco-input {
-      @apply text-right;
-    }
-    .arco-input-suffix {
-      @apply hidden;
-    }
-    &:hover,
-    &.arco-input-focus {
-      .arco-input {
-        @apply text-left;
-      }
-      .arco-input-suffix {
-        @apply inline-flex;
-      }
-    }
-  }
   .content-type-trigger-content {
     @apply bg-white;
 
@@ -1042,8 +928,5 @@
     font-size: 12px;
     line-height: 16px;
     color: var(--color-text-1);
-  }
-  :deep(.arco-table-expand-btn) {
-    background: transparent;
   }
 </style>
