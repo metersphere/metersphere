@@ -1,7 +1,7 @@
 <template>
   <div>
     <paramsTable
-      v-model:params="innerParams"
+      v-model:params="condition.assertions"
       :selectable="false"
       :columns="columns"
       :scroll="{ minWidth: '700px' }"
@@ -12,25 +12,32 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import type { ExecuteAssertionItem } from '@/models/apiTest/common';
+
   interface Param {
     [key: string]: any;
+    assertions: ExecuteAssertionItem[];
   }
 
-  const innerParams = defineModel<Param[]>('modelValue', { default: [] });
-
-  const emit = defineEmits<{
-    (e: 'change', val: any[]): void; //  数据发生变化
+  const props = defineProps<{
+    data: Param;
   }>();
 
+  const emit = defineEmits<{
+    (e: 'change', data: Param): void;
+  }>();
+
+  const condition = useVModel(props, 'data', emit);
+
   const defaultParamItem = {
-    responseHeader: '',
-    matchCondition: '',
-    matchValue: '',
+    header: '',
+    condition: '',
+    expectedValue: '',
     enable: true,
   };
 
@@ -52,24 +59,24 @@
   const columns: ParamTableColumn[] = [
     {
       title: 'ms.assertion.responseHeader', // 响应头
-      dataIndex: 'responseHeader',
-      slotName: 'responseHeader',
+      dataIndex: 'header',
+      slotName: 'header',
       showInTable: true,
       showDrag: true,
       options: responseHeaderOption,
     },
     {
       title: 'ms.assertion.matchCondition', // 匹配条件
-      dataIndex: 'matchCondition',
-      slotName: 'matchCondition',
+      dataIndex: 'condition',
+      slotName: 'condition',
       showInTable: true,
       showDrag: true,
       options: statusCodeOptions,
     },
     {
       title: 'ms.assertion.matchValue', // 匹配值
-      dataIndex: 'matchValue',
-      slotName: 'matchValue',
+      dataIndex: 'expectedValue',
+      slotName: 'expectedValue',
       showInTable: true,
       showDrag: true,
     },
@@ -82,10 +89,11 @@
       showDrag: true,
     },
   ];
+
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
-    innerParams.value = [...resultArr];
+    condition.value.assertions = [...resultArr];
     if (!isInit) {
-      emit('change', resultArr);
+      emit('change', { ...condition.value });
     }
   }
 </script>

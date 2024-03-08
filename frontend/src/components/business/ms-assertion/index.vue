@@ -12,9 +12,9 @@
       </template>
     </a-dropdown>
     <div v-if="showBody" class="ms-assertion-body">
-      <VueDraggable v-model="selectItems" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
+      <VueDraggable v-model="assertions" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
         <div
-          v-for="(item, index) in selectItems"
+          v-for="(item, index) in assertions"
           :key="item.id"
           class="ms-assertion-body-left-item"
           :class="{
@@ -25,7 +25,7 @@
         >
           <div class="ms-assertion-body-left-item-row">
             <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-            <span class="ms-assertion-body-left-item-row-title">{{ item.label }}</span>
+            <span class="ms-assertion-body-left-item-row-title">{{ item.name }}</span>
           </div>
           <div class="ms-assertion-body-left-item-switch">
             <div class="ms-assertion-body-left-item-switch-action">
@@ -50,40 +50,46 @@
               </MsTableMoreAction>
             </div>
 
-            <a-switch type="line" size="small" />
+            <a-switch v-model:model-value="item.enable" type="line" size="small" />
           </div>
         </div>
       </VueDraggable>
       <section class="ms-assertion-body-right">
-        <StatusCodeTab
-          v-if="valueKey === 'statusCode'"
-          :value="codeTabState.statusCode"
-          @change="(val) => handleChange(val, 'statusCode')"
-        />
+        <!-- 响应头 -->
         <ResponseHeaderTab
-          v-if="valueKey === 'responseHeader'"
-          :value="codeTabState.responseHeader"
-          @change="(val) => handleChange(val, 'responseHeader')"
+          v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
         />
+        <!-- 状态码 -->
+        <StatusCodeTab
+          v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 响应体 -->
         <ResponseBodyTab
-          v-if="valueKey === 'responseBody'"
-          :value="codeTabState.responseBody"
-          @change="(val) => handleChange(val, 'responseBody')"
+          v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
+          :value="getCurrentItemState"
+          @change="handleChange"
         />
+        <!-- 响应时间 -->
         <ResponseTimeTab
-          v-if="valueKey === 'responseTime'"
-          :value="codeTabState.responseTime"
-          @="(val) => handleChange(val, 'responseTime')"
+          v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
         />
+        <!-- 变量 -->
         <VariableTab
-          v-if="valueKey === 'variable'"
-          :value="codeTabState.variable"
-          @change="(val) => handleChange(val, 'variable')"
+          v-if="valueKey === ResponseAssertionType.VARIABLE"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
         />
+        <!-- 脚本 -->
         <ScriptTab
-          v-if="valueKey === 'script'"
-          :value="codeTabState.script"
-          @change="(val) => handleChange(val, 'script')"
+          v-if="valueKey === ResponseAssertionType.SCRIPT"
+          :value="getCurrentItemState"
+          @change="handleChange"
         />
       </section>
     </div>
@@ -92,6 +98,7 @@
 
 <script lang="ts" setup>
   import { defineModel } from 'vue';
+  import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -107,7 +114,9 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { MsAssertionItem, ValueObject } from './type';
+  import { ResponseAssertionType } from '@/enums/apiEnum';
+
+  import { ExecuteAssertion, MsAssertionItem } from './type';
 
   defineOptions({
     name: 'MsAssertion',
@@ -116,26 +125,28 @@
   const { t } = useI18n();
   // 当前鼠标所在的key
   const focusKey = ref<string>('');
-  // 选中的选项
-  const selectItems = defineModel<any[]>('params', { default: [] });
+  // 所有的断言列表参数
+  const assertions = defineModel<any[]>('params', { default: [] });
   // Item点击的key
-  const activeKey = ref<string>('');
-  // valueKey
+  const activeKey = ref<string>(assertions.value[0].id);
+  // 展示的value
   const valueKey = computed(() => {
-    return activeKey.value && selectItems.value.find((item) => item.id === activeKey.value)?.value;
+    return activeKey.value && assertions.value.find((item) => item.id === activeKey.value)?.assertionType;
   });
-  // 存储当前页面的所有状态
-  const codeTabState = computed({
+
+  // 计算当前页面的存储的状态
+  const getCurrentItemState = computed({
     get: () => {
-      return (selectItems.value.find((item) => item.id === activeKey.value)?.valueObj || {}) as ValueObject;
+      return assertions.value.find((item) => item.id === activeKey.value);
     },
-    set: (val: ValueObject) => {
-      const currentIndex = selectItems.value.findIndex((item) => item.id === val.assertionType);
-      const tmpArr = selectItems.value;
-      tmpArr[currentIndex].valueObj = { ...val };
-      selectItems.value = tmpArr;
+    set: (val: ExecuteAssertion) => {
+      const currentIndex = assertions.value.findIndex((item) => item.id === activeKey.value);
+      const tmpArr = assertions.value;
+      tmpArr[currentIndex] = cloneDeep(val);
+      assertions.value = tmpArr;
     },
   });
+
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -150,62 +161,111 @@
   const assertOptionSource = [
     {
       label: t('ms.assertion.statusCode'),
-      value: 'statusCode',
+      value: ResponseAssertionType.RESPONSE_CODE,
     },
     {
       label: t('ms.assertion.responseHeader'),
-      value: 'responseHeader',
+      value: ResponseAssertionType.RESPONSE_HEADER,
     },
     {
       label: t('ms.assertion.responseBody'),
-      value: 'responseBody',
+      value: ResponseAssertionType.RESPONSE_BODY,
     },
     {
       label: t('ms.assertion.responseTime'),
-      value: 'responseTime',
+      value: ResponseAssertionType.RESPONSE_TIME,
     },
     {
       label: t('ms.assertion.param'),
-      value: 'variable',
+      value: ResponseAssertionType.VARIABLE,
     },
     {
       label: t('ms.assertion.script'),
-      value: 'script',
+      value: ResponseAssertionType.SCRIPT,
     },
   ];
 
   // 是否显示主体
   const showBody = computed(() => {
-    return selectItems.value.length > 0;
+    return assertions.value.length > 0;
   });
   // dropdown选择
   const handleSelect = (value: string | number | Record<string, any> | undefined) => {
+    const id = new Date().getTime().toString();
     const tmpObj = {
-      label: assertOptionSource.find((item) => item.value === value)?.label || '',
-      value: value as string,
-      id: new Date().getTime().toString(),
+      name: assertOptionSource.find((item) => item.value === value)?.label || '',
+      assertionType: value,
+      id,
+      enable: true,
     };
-    if (activeKey.value) {
-      const currentIndex = selectItems.value.findIndex((item) => item.id === activeKey.value);
-      const tmpArr = selectItems.value;
-      tmpArr.splice(currentIndex, 0, tmpObj);
-      selectItems.value = tmpArr;
-    } else {
-      selectItems.value.push(tmpObj);
+
+    switch (value) {
+      // 请求头
+      case ResponseAssertionType.RESPONSE_HEADER:
+        assertions.value.push({
+          ...tmpObj,
+          assertions: [],
+        });
+        break;
+      // 状态码
+      case ResponseAssertionType.RESPONSE_CODE:
+        assertions.value.push({
+          ...tmpObj,
+          condition: '',
+          expectedValue: '',
+        });
+        break;
+      case ResponseAssertionType.RESPONSE_BODY:
+        assertions.value.push({
+          ...tmpObj,
+          assertionBodyType: '',
+          jsonPathAssertion: {
+            assertions: [],
+          },
+          xpathAssertion: {
+            assertions: [],
+          },
+          regexAssertion: {
+            assertions: [],
+          },
+          bodyAssertionDataByType: {},
+        });
+        break;
+      // 响应时间
+      case ResponseAssertionType.RESPONSE_TIME:
+        assertions.value.push({
+          ...tmpObj,
+          expectedValue: 0,
+        });
+        break;
+      case ResponseAssertionType.VARIABLE:
+        assertions.value.push({
+          ...tmpObj,
+          condition: '',
+          expectedValue: '',
+          variableAssertionItems: [],
+        });
+        break;
+      case ResponseAssertionType.SCRIPT:
+        break;
+
+      default:
+        break;
     }
-    activeKey.value = tmpObj.id;
+    activeKey.value = id;
   };
+
   const handleMoreActionSelect = (event: ActionsItem, item: MsAssertionItem) => {
-    const currentIndex = selectItems.value.findIndex((tmpItem) => tmpItem.id === item.id);
+    const currentIndex = assertions.value.findIndex((tmpItem) => tmpItem.id === item.id);
     if (event.eventTag === 'delete') {
-      selectItems.value.splice(currentIndex, 1);
-      activeKey.value = currentIndex > 0 ? selectItems.value[currentIndex - 1].id : '';
+      assertions.value.splice(currentIndex, 1);
+      activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
     } else {
       // copy 当前item
-      const tmpObj = { ...selectItems.value[currentIndex], id: new Date().getTime().valueOf().toString() };
-      const tmpArr = selectItems.value;
+      const tmpObj = { ...assertions.value[currentIndex], id: new Date().getTime().valueOf().toString() };
+      const tmpArr = assertions.value;
       tmpArr.splice(currentIndex, 0, tmpObj);
-      selectItems.value = tmpArr;
+      assertions.value = tmpArr;
       activeKey.value = tmpObj.id;
     }
   };
@@ -215,9 +275,33 @@
     activeKey.value = item.id;
   };
 
-  const handleChange = (val: any, key: string) => {
-    codeTabState[key] = { ...val, assertionType: key };
+  const handleChange = (val: any) => {
+    switch (val.assertionType) {
+      case ResponseAssertionType.RESPONSE_HEADER:
+        getCurrentItemState.value = { ...val };
+        break;
+      case ResponseAssertionType.RESPONSE_CODE:
+        getCurrentItemState.value = { ...val };
+        break;
+      case ResponseAssertionType.RESPONSE_BODY:
+        break;
+      case ResponseAssertionType.RESPONSE_TIME:
+        getCurrentItemState.value = { ...val };
+        break;
+      case ResponseAssertionType.VARIABLE:
+        getCurrentItemState.value = { ...val };
+        break;
+      case ResponseAssertionType.SCRIPT:
+        break;
+
+      default:
+        break;
+    }
   };
+
+  watchEffect(() => {
+    console.log(getCurrentItemState.value);
+  });
 </script>
 
 <style lang="less" scoped>
