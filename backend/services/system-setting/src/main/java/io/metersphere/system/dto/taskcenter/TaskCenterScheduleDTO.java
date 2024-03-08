@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author: LAN
@@ -48,7 +47,7 @@ public class TaskCenterScheduleDTO implements Serializable {
     private String value;
 
     @Schema(description = "下次执行时间")
-    private Date nextTime;
+    private Long nextTime;
 
     @Schema(description = "任务状态")
     private boolean enable;

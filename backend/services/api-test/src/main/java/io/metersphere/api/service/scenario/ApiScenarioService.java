@@ -250,9 +250,9 @@ public class ApiScenarioService extends MoveNodeService{
      * @param cron cron表达式
      * @return 下次执行时间
      */
-    private static long getNextTriggerTime(String cron) {
+    private static Long getNextTriggerTime(String cron) {
         if (!CronExpression.isValidExpression(cron)) {
-            return 0;
+            return null;
         }
         CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();

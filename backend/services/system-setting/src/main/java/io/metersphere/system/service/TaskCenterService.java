@@ -21,10 +21,12 @@ import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronExpression;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -129,7 +131,7 @@ public class TaskCenterService {
                 item.setCreateUserName(userMap.getOrDefault(item.getCreateUserName(), StringUtils.EMPTY));
                 item.setProjectName(projectMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
-                item.setNextTime(getNextExecution(item.getValue()));
+                item.setNextTime(getNextTriggerTime(item.getValue()));
             });
         }
     }
@@ -175,22 +177,19 @@ public class TaskCenterService {
     }
 
     /**
-     * 返回下一个执行时间根据给定的Cron表达式
+     * 获取下次执行时间（getFireTimeAfter，也可以下下次...）
      *
-     * @param cronExpression Cron表达式
-     * @return Date 下次Cron表达式执行时间
+     * @param cron cron表达式
+     * @return 下次执行时间
      */
-    public static Date getNextExecution(String cronExpression)
-    {
-        try
-        {
-            CronExpression cron = new CronExpression(cronExpression);
-            return cron.getNextValidTimeAfter(new Date(System.currentTimeMillis()));
+    private static Long getNextTriggerTime(String cron) {
+        if (!CronExpression.isValidExpression(cron)) {
+            return null;
         }
-        catch (ParseException e)
-        {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        Date time0 = trigger.getStartTime();
+        Date time1 = trigger.getFireTimeAfter(time0);
+        return time1 == null ? 0 : time1.getTime();
     }
 
 
