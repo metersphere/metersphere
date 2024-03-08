@@ -221,6 +221,8 @@ public class BugAttachmentService {
             fileId = fileAssociationService.transferAndAssociation(association);
             // 删除本地上传的附件
             deleteLocalFile(request.getBugId(), null, request.getProjectId(), null, attachment.getId(), null);
+        } catch (MSException e) {
+            throw e;
         } catch (Exception e) {
             throw new MSException(Translator.get("file.transfer.failed"));
         }
