@@ -624,6 +624,12 @@
     { deep: true }
   );
 
+  function renameCopyBug() {
+    if (isCopy.value) {
+      form.value.title = `copy_${form.value.title}`;
+    }
+  }
+
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
       fileList: [file],
@@ -636,6 +642,7 @@
     if (isEditOrCopy.value) {
       // 详情
       await getDetailInfo();
+      renameCopyBug();
     }
   });
 </script>
