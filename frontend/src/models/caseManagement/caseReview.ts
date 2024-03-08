@@ -43,8 +43,8 @@ export interface Review {
   name: string;
   moduleId: string;
   reviewPassRule: ReviewPassRule; // 评审通过规则
-  startTime: number;
-  endTime: number;
+  startTime: number | null;
+  endTime: number | null;
   tags: string[];
   description: string;
   reviewers: string[]; // 评审人员

@@ -43,9 +43,15 @@
               </div>
             </div>
           </div>
-          <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
+          <div class="markdown-body" style="margin-left: 48px" v-html="item.contentText"></div>
           <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+            <span v-if="item.deleted" class="ml-[16px]">
+              {{ item.reviewName }}
+            </span>
+            <span v-else class="cursor-pointer ml-[16px] text-[rgb(var(--primary-5))]"  @click="review(item)">
+              {{ item.reviewName }}
+            </span>
           </div>
         </div>
         <MsEmpty v-if="reviewCommentList.length === 0" />
@@ -56,6 +62,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -74,7 +81,12 @@
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
+  import { ReviewCaseItem } from '@/models/caseManagement/caseReview';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
   const featureCaseStore = useFeatureCaseStore();
+  const router = useRouter();
+  const route = useRoute();
   // const activeTab = computed(() => featureCaseStore.activeTab);
   const { openModal } = useModal();
   const { t } = useI18n();
@@ -160,6 +172,21 @@
         }
       },
       hideCancel: false,
+    });
+  }
+
+  // 去用例评审页面
+  function review(record: CommentItem) {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
+      query: {
+        ...route.query,
+        caseId: record.caseId,
+        id: record.reviewId,
+      },
+      state: {
+        params: JSON.stringify(record.moduleName),
+      },
     });
   }
 

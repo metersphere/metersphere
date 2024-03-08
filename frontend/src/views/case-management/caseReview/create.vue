@@ -319,14 +319,15 @@
           let res: Record<string, any> = {};
           if (isCopy.value) {
             // 复制评审场景
+            console.log(cycle);
             res = await copyReview({
               copyId: route.query.copyId as string,
               projectId: appStore.currentProjectId,
               name,
               moduleId: folderId,
               reviewPassRule: type, // 评审通过规则
-              startTime: cycle[0],
-              endTime: cycle[1],
+              startTime: cycle ? cycle[0] : null,
+              endTime: cycle ? cycle[1] : null,
               tags,
               description: desc,
               reviewers, // 评审人员
@@ -337,8 +338,8 @@
               name,
               moduleId: folderId,
               reviewPassRule: type, // 评审通过规则
-              startTime: cycle[0],
-              endTime: cycle[1],
+              startTime: cycle ? cycle[0] : null,
+              endTime: cycle ? cycle[1] : null,
               tags,
               description: desc,
               reviewers, // 评审人员
@@ -381,8 +382,8 @@
             name,
             moduleId: folderId,
             reviewPassRule: type, // 评审通过规则
-            startTime: cycle[0],
-            endTime: cycle[1],
+            startTime: cycle ? cycle[0] : null,
+            endTime: cycle ? cycle[1] : null,
             tags,
             description: desc,
             reviewers, // 评审人员

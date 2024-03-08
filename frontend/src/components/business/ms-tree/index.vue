@@ -228,7 +228,7 @@
           }
         }
       });
-      result.forEach((item) => expandedKeys.value.push(item[props.fieldNames.key]));    // 搜索时，匹配的节点需要自动展开
+      result.forEach((item) => expandedKeys.value.push(item[props.fieldNames.key])); // 搜索时，匹配的节点需要自动展开
       return result;
     };
 
