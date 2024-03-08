@@ -194,6 +194,7 @@
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useVisit from '@/hooks/useVisit';
   import router from '@/router';
   import { useAppStore } from '@/store';
@@ -215,9 +216,10 @@
   import { convertToFileByBug } from './utils';
 
   defineOptions({ name: 'BugEditPage' });
+  const { setState } = useLeaveUnSaveTip();
+  setState(false);
 
   const { t } = useI18n();
-
   interface TemplateOption {
     label: string;
     value: string;
@@ -494,6 +496,7 @@
               // 执行保存操作
               const res = await createOrUpdateBug({ request: tmpObj, fileList: localFiles as unknown as File[] });
               if (isEdit.value) {
+                setState(true);
                 Message.success(t('common.updateSuccess'));
                 router.push({
                   name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
@@ -501,6 +504,7 @@
               } else {
                 Message.success(t('common.createSuccess'));
                 if (isContinue) {
+                  setState(false);
                   // 如果是保存并继续创建
                   const { templateId } = form.value;
                   // 用当前模板初始化自定义字段
@@ -515,6 +519,7 @@
                   // 清空文件列表
                   fileList.value = [];
                 } else {
+                  setState(true);
                   // 否则跳转到成功页
                   if (getIsVisited()) {
                     router.push({
