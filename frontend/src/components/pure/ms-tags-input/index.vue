@@ -111,6 +111,23 @@
     }
   );
 
+  function validateTagsCountEnter() {
+    if (innerModelValue.value.length > 10) {
+      innerModelValue.value.pop();
+      Message.warning(t('common.tagCountMax'));
+      return false;
+    }
+    return true;
+  }
+
+  function validateTagsCountBlur() {
+    if (tagsLength.value >= 10) {
+      Message.warning(t('common.tagCountMax'));
+      return false;
+    }
+    return true;
+  }
+
   function validateUniqueValue() {
     if (
       props.uniqueValue &&
@@ -130,6 +147,7 @@
       innerInputValue.value &&
       innerInputValue.value.trim() !== '' &&
       validateUniqueValue() &&
+      validateTagsCountBlur() &&
       (innerInputValue.value || '').trim().length <= props.maxLength
     ) {
       innerModelValue.value.push(innerInputValue.value.trim());
@@ -139,7 +157,11 @@
   }
 
   function tagInputEnter() {
-    if (validateUniqueValue() && (innerInputValue.value || '').trim().length <= props.maxLength) {
+    if (
+      validateTagsCountEnter() &&
+      validateUniqueValue() &&
+      (innerInputValue.value || '').trim().length <= props.maxLength
+    ) {
       innerInputValue.value = '';
       tagsLength.value += 1;
     } else {

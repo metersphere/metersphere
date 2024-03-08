@@ -71,6 +71,7 @@ export default {
   'common.resetDefault': '恢复默认',
   'common.tagPlaceholder': '添加标签回车结束',
   'common.tagInputMaxLength': '标签不得超过 {number} 个字符',
+  'common.tagCountMax': '标签个数不得超过 10 个',
   'common.batchModify': '批量修改',
   'common.batchAdd': '批量添加',
   'common.pleaseInput': '请输入',
@@ -127,5 +128,5 @@ export default {
   'common.stop': '停止',
   'common.module': '模块',
   'common.yes': '是',
-  'common.no': '否'
+  'common.no': '否',
 };
