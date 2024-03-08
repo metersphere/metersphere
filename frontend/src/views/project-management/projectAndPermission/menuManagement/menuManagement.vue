@@ -265,6 +265,7 @@
           </template>
 
           <a-switch
+            v-model="allValueMap['BUG_SYNC_SYNC_ENABLE']"
             checked-value="true"
             unchecked-value="false"
             :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
