@@ -323,6 +323,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
 
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn(POS_URL, posRequest);
+        environmentGroupService.refreshPos(DEFAULT_PROJECT_ID);
 
     }
 

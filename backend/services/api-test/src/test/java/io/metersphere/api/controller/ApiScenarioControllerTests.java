@@ -2347,6 +2347,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn("/edit/pos", posRequest);
+        apiScenarioService.refreshPos(DEFAULT_PROJECT_ID);
 
     }
 

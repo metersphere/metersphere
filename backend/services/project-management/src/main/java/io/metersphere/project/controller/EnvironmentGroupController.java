@@ -83,7 +83,7 @@ public class EnvironmentGroupController {
     @Operation(summary = "项目管理-环境-环境组-修改排序")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
     public void editPos(@Validated @RequestBody PosRequest request) {
-        environmentGroupService.editPos(request);
+        environmentGroupService.moveNode(request);
     }
 
 }

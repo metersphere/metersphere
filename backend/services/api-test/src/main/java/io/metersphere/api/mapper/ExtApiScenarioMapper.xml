@@ -13,6 +13,11 @@
     <resultMap id="TestCaseProviderDTO" type="io.metersphere.dto.TestCaseProviderDTO">
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
+    <update id="updatePos">
+        update api_scenario
+        set pos =#{pos}
+        where id = #{id}
+    </update>
 
     <select id="list" resultMap="ApiScenarioDTO">
         select
@@ -463,6 +468,39 @@
         <include refid="report_filters">
             <property name="filter" value="request.filter"/>
         </include>
+    </select>
+    <select id="selectIdByProjectIdOrderByPos" resultType="java.lang.String">
+        select id from api_scenario
+        where project_id = #{projectId}
+        order by pos
+    </select>
+    <select id="selectDragInfoById" resultType="io.metersphere.project.dto.DropNode">
+        select id, pos from api_scenario where id = #{id}
+    </select>
+    <select id="selectNodeByPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.project.dto.DropNode">
+        SELECT id, pos
+        FROM api_scenario
+        WHERE project_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
+        LIMIT 1
+    </select>
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM api_scenario
+        WHERE project_id = #{projectId}
+        ORDER BY pos DESC
+            LIMIT 1;
     </select>
 
     <sql id="report_filters">

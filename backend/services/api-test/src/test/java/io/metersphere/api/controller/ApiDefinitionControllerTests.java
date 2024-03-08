@@ -16,6 +16,7 @@ import io.metersphere.api.model.CheckLogModel;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
+import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -150,6 +151,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiFileResourceMapper apiFileResourceMapper;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
     private static String fileMetadataId;
     private static String uploadFileId;
 
@@ -1173,6 +1176,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         request.setModuleId("module-st-6");
         requestPost("edit/pos", request).andExpect(status().is5xxServerError());
+        apiDefinitionService.refreshPos(DEFAULT_PROJECT_ID);
+
 
     }
 

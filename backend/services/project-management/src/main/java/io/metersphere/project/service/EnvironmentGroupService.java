@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ExtProjectMapper;
@@ -20,11 +21,12 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -42,7 +44,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class EnvironmentGroupService {
+public class EnvironmentGroupService extends MoveNodeService{
 
     @Resource
     private EnvironmentGroupMapper environmentGroupMapper;
@@ -62,8 +64,6 @@ public class EnvironmentGroupService {
     private ExtProjectMapper extProjectMapper;
     @Resource
     private EnvironmentService environmentService;
-
-    public static final Long ORDER_STEP = 5000L;
     private static final String MOCK_EVN_SOCKET = "/mock-server/";
 
     public EnvironmentGroup add(EnvironmentGroupRequest request, String userId) {
@@ -87,9 +87,9 @@ public class EnvironmentGroupService {
         return environmentGroup;
     }
 
-    public Long getNextOrder(String projectId) {
+    public long getNextOrder(String projectId) {
         Long pos = extEnvironmentMapper.getGroupPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     private void insertGroupProject(EnvironmentGroupRequest request) {
@@ -245,15 +245,6 @@ public class EnvironmentGroupService {
         return result;
     }
 
-    public void editPos(PosRequest request) {
-        ServiceUtils.updatePosField(request,
-                EnvironmentGroup.class,
-                environmentGroupMapper::selectByPrimaryKey,
-                extEnvironmentMapper::getGroupPrePos,
-                extEnvironmentMapper::getGroupLastPos,
-                environmentGroupMapper::updateByPrimaryKeySelective);
-    }
-
     public List<EnvironmentGroupRelation> getEnvironmentGroupRelations(List<String> envGroupIds) {
         if (CollectionUtils.isEmpty(envGroupIds)) {
             return Collections.emptyList();
@@ -261,5 +252,33 @@ public class EnvironmentGroupService {
         EnvironmentGroupRelationExample example = new EnvironmentGroupRelationExample();
         example.createCriteria().andEnvironmentGroupIdIn(envGroupIds);
         return environmentGroupRelationMapper.selectByExample(example);
+    }
+
+    @Override
+    public void updatePos(String id, long pos) {
+        extEnvironmentMapper.updateGroupPos(id, pos);
+    }
+
+    @Override
+    public void refreshPos(String projectId) {
+        List<String> groupIds = extEnvironmentMapper.selectGroupIdByProjectIdOrderByPos(projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtEnvironmentMapper batchUpdateMapper = sqlSession.getMapper(ExtEnvironmentMapper.class);
+        for (int i = 0; i < groupIds.size(); i++) {
+            batchUpdateMapper.updateGroupPos(groupIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void moveNode(PosRequest posRequest) {
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                posRequest.getProjectId(),
+                request,
+                extEnvironmentMapper::selectGroupDragInfoById,
+                extEnvironmentMapper::selectGroupNodeByPosOperator
+        );
+        this.sort(sortDTO);
     }
 }

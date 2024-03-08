@@ -6,6 +6,8 @@ import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
+import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
@@ -66,4 +68,12 @@ public interface ExtApiDefinitionMapper {
     List<ApiResourceModuleInfo> getModuleInfoByIds(@Param("ids") List<String> ids);
 
     ApiDefinition selectByProjectNumAndApiNum(@Param("projectNum") String projectNum, @Param("apiNum") String apiNum);
+
+    void updatePos(String id, long pos);
+
+    List<String> selectIdByProjectIdOrderByPos(String projectId);
+
+    DropNode selectDragInfoById(String id);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 }

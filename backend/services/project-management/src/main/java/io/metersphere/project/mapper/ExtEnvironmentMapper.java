@@ -1,5 +1,7 @@
 package io.metersphere.project.mapper;
 
+import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import org.apache.ibatis.annotations.Param;
@@ -23,4 +25,19 @@ public interface ExtEnvironmentMapper {
     Long getGroupPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     Long getGroupLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    DropNode selectDragInfoById(String id);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<String> selectIdByProjectIdOrderByPos(String projectId);
+    long updatePos(@Param("id") String id, @Param("pos") long pos);
+
+    void updateGroupPos(String id, long pos);
+
+    List<String> selectGroupIdByProjectIdOrderByPos(String projectId);
+
+    DropNode selectGroupDragInfoById(String id);
+
+    DropNode selectGroupNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 }

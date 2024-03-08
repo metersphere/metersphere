@@ -222,7 +222,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-场景-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     public void editPos(@Validated @RequestBody PosRequest request) {
-        apiScenarioService.editPos(request);
+        apiScenarioService.moveNode(request);
     }
 
     @PostMapping("/execute/page")

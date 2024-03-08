@@ -5,7 +5,9 @@ import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.dto.TestCaseProviderDTO;
+import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -43,4 +45,14 @@ public interface ExtApiScenarioMapper {
     Long getLastPosEdit(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     List<ExecuteReportDTO> getExecuteList(@Param("request") ExecutePageRequest request);
+
+    List<String> selectIdByProjectIdOrderByPos(String projectId);
+
+    DropNode selectDragInfoById(String id);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    void updatePos(String id, long pos);
+
+    Long getPos(String projectId);
 }

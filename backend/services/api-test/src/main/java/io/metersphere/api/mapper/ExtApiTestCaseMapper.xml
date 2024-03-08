@@ -23,6 +23,11 @@
             #{id}
         </foreach>
     </update>
+    <update id="updatePos">
+        update api_test_case
+        set pos =#{pos}
+        where id = #{id}
+    </update>
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT pos
@@ -281,6 +286,35 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="selectIdByProjectIdOrderByPos" resultType="java.lang.String">
+        SELECT id
+        FROM api_test_case
+        WHERE project_id = #{projectId}
+        ORDER BY pos
+    </select>
+    <select id="selectDragInfoById" resultType="io.metersphere.project.dto.DropNode">
+        SELECT id, pos
+        FROM api_test_case
+        WHERE id = #{id}
+    </select>
+    <select id="selectNodeByPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.project.dto.DropNode">
+        SELECT id, pos
+        FROM api_test_case
+        WHERE project_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
+        LIMIT 1
     </select>
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">

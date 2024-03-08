@@ -198,7 +198,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     public void editPos(@Validated @RequestBody PosRequest request) {
-        apiTestCaseService.editPos(request);
+        apiTestCaseService.moveNode(request);
     }
 
     @PostMapping("/upload/temp/file")
