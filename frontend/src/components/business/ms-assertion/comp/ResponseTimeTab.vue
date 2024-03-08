@@ -4,29 +4,37 @@
       <span class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseTime') }}</span>
       <span class="text-[var(--color-text-4)]">(ms)</span>
     </div>
-    <a-input-number v-model:model-value="innerParams" :step="100" mode="button" />
+    <a-input-number
+      v-model="condition.expectedValue"
+      :step="100"
+      mode="button"
+      @blur="
+        emit('change', {
+          ...condition,
+        })
+      "
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { useVModel } from '@vueuse/core';
+
   import { useI18n } from '@/hooks/useI18n';
+
+  import { ExecuteAssertion } from '../type';
 
   const { t } = useI18n();
 
-  interface ResponseTimeTabProps {
-    responseTime: number;
-  }
   const props = defineProps<{
-    value: ResponseTimeTabProps;
+    data: ExecuteAssertion;
   }>();
 
-  const innerParams = ref(props.value.responseTime);
   const emit = defineEmits<{
-    (e: 'change', val: ResponseTimeTabProps): void; // 数据发生变化
+    (e: 'change', data: ExecuteAssertion): void;
   }>();
-  watchEffect(() => {
-    emit('change', { responseTime: innerParams.value });
-  });
+
+  const condition = useVModel(props, 'data', emit);
 </script>
 
 <style lang="less" scoped></style>

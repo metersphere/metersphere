@@ -3,12 +3,11 @@
     <div>
       <div class="mb-[8px]">{{ t('ms.assertion.statusCode') }}</div>
       <a-select
-        v-model="selectValue"
+        v-model="condition.condition"
         class="w-[157px]"
         @change="
           emit('change', {
-            statusCode: statusCode,
-            selectValue: selectValue,
+            ...condition,
           })
         "
       >
@@ -17,15 +16,14 @@
         </a-option>
       </a-select>
     </div>
-    <a-input-number
+    <a-input
       v-if="showInput"
-      v-model:modelValue="statusCode"
+      v-model="condition.expectedValue"
       hide-button
       class="w-[157px]"
       @change="
         emit('change', {
-          statusCode: statusCode,
-          selectValue: selectValue,
+          ...condition,
         })
       "
     />
@@ -34,28 +32,30 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
 
   import { useI18n } from '@/hooks/useI18n';
 
+  const { t } = useI18n();
+  interface Param {
+    id: string;
+    name: string;
+    assertionType: string;
+    condition: string;
+    expectedValue: string;
+  }
+
   const props = defineProps<{
-    value: {
-      statusCode: number;
-      selectValue: string;
-    };
+    data: Param;
   }>();
 
-  const emit = defineEmits(['change']);
-  const selectValue = ref<string>('');
-  const statusCode = ref<number>(200);
-  const showInput = computed(() => selectValue.value !== 'none' && selectValue.value !== '');
-
-  const { t } = useI18n();
-  watchEffect(() => {
-    selectValue.value = props.value.selectValue;
-    statusCode.value = props.value.statusCode;
-  });
+  const emit = defineEmits<{
+    (e: 'change', data: Param): void;
+  }>();
+  const condition = useVModel(props, 'data', emit);
+  const showInput = computed(() => condition.value.condition !== 'none' && condition.value.condition !== '');
 </script>
 
 <style lang="less" scoped></style>

@@ -264,17 +264,22 @@
         @change="handleTypeCheckingColChange(false)"
       />
     </template>
-    <template #responseHeader="{ record, columnConfig, rowIndex }">
-      <a-select v-model="record.responseHeader" class="param-input" size="mini" @change="() => addTableLine(rowIndex)">
+    <!-- 响应头 -->
+    <template #header="{ record, columnConfig, rowIndex }">
+      <a-select v-model="record.header" class="param-input" size="mini" @change="() => addTableLine(rowIndex)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
-    <template #matchCondition="{ record, columnConfig }">
+    <!-- 匹配条件 -->
+    <template #condition="{ record, columnConfig }">
       <a-select v-model="record.condition" size="mini" class="param-input">
-        <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
+        <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">{{
+          t(item.label)
+        }}</a-option>
       </a-select>
     </template>
-    <template #matchValue="{ record, rowIndex, columnConfig }">
+    <!-- 匹配值 -->
+    <template #expectedValue="{ record, rowIndex, columnConfig }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
@@ -291,7 +296,7 @@
           <div>*</div>
         </MsButton>
       </a-tooltip>
-      <a-input v-model="record.matchValue" size="mini" class="param-input" />
+      <a-input v-model="record.expectedValue" size="mini" class="param-input" />
     </template>
     <template #project="{ record, rowIndex }">
       <a-select
