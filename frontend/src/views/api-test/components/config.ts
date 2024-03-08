@@ -2,6 +2,7 @@ import {
   EnableKeyValueParam,
   ExecuteRequestCommonParam,
   ExecuteRequestFormBodyFormValue,
+  KeyValueParam,
   ResponseDefinition,
 } from '@/models/apiTest/common';
 import { RequestContentTypeEnum, RequestParamsType, ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
@@ -72,6 +73,12 @@ export const defaultResponseItem: ResponseDefinition = {
       file: undefined,
     },
   },
+};
+
+// 默认提取参数的 key-value 表格行的值
+export const defaultKeyValueParamItem: KeyValueParam = {
+  key: '',
+  value: '',
 };
 
 // 请求的响应 response 的响应状态码集合

@@ -3,8 +3,6 @@ import { cloneDeep, isEqual } from 'lodash-es';
 import { ExecuteBody } from '@/models/apiTest/common';
 import { RequestParamsType } from '@/enums/apiEnum';
 
-export default {};
-
 export interface ParseResult {
   uploadFileIds: string[];
   linkFileIds: string[];
@@ -108,7 +106,7 @@ export function parseRequestBodyFiles(
  * @param params 原始参数数组
  * @param defaultParamItem 默认参数项
  */
-export function filterKeyValParams(params: Record<string, any>[], defaultParamItem: Record<string, any>) {
+export function filterKeyValParams<T>(params: (T & Record<string, any>)[], defaultParamItem: Record<string, any>) {
   const lastData = cloneDeep(params[params.length - 1]);
   const defaultParam = cloneDeep(defaultParamItem);
   if (!lastData || !defaultParam) {
@@ -123,7 +121,7 @@ export function filterKeyValParams(params: Record<string, any>[], defaultParamIt
   delete defaultParam.id;
   delete defaultParam.enable;
   const lastDataIsDefault = isEqual(lastData, defaultParam);
-  let validParams: Record<string, any>[] = [];
+  let validParams: (T & Record<string, any>)[];
   if (lastDataIsDefault) {
     // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个
     validParams = params.slice(0, params.length - 1);

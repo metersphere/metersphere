@@ -254,14 +254,13 @@ export interface ExecuteConditionProcessorCommon {
 export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
 // 执行请求-前后置条件-SQL脚本处理器
 export interface SQLProcessor extends ExecuteConditionProcessorCommon {
-  description: string; // 描述
+  name: string; // 描述
   dataSourceId: string; // 数据源ID
-  environmentId: string; // 环境ID
+  dataSourceName: string; // 数据源名称
   queryTimeout: number; // 超时时间
   resultVariable: string; // 按结果存储时的结果变量
   script: string; // 脚本内容
   variableNames: string; // 按列存储时的变量名集合,多个列可以使用逗号分隔
-  variables: EnableKeyValueParam[]; // 变量列表
   extractParams: KeyValueParam[]; // 提取参数列表
 }
 // 执行请求-前后置条件-等待时间处理器

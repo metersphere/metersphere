@@ -169,15 +169,13 @@
           associateScenarioResult: false,
           ignoreProtocols: [],
           beforeStepScript: true,
-          description: '',
+          name: '',
           enable: true,
           dataSourceId: '',
-          environmentId: '',
           queryTimeout: 0,
           resultVariable: '',
           script: '',
           variableNames: '',
-          variables: [],
           extractParams: [],
         });
 

@@ -160,7 +160,7 @@
 
   import { APIKEY } from '@/models/user';
 
-  const { copy } = useClipboard();
+  const { copy, isSupported } = useClipboard();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -226,8 +226,12 @@
   ];
 
   async function handleCopy(val: string) {
-    await copy(val);
-    Message.success(t('ms.personal.copySuccess'));
+    if (isSupported) {
+      await copy(val);
+      Message.success(t('ms.personal.copySuccess'));
+    } else {
+      Message.warning(t('common.copyNotSupport'));
+    }
   }
 
   function desensitization(item: APIKEYItem) {

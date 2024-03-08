@@ -106,7 +106,7 @@
                   <BugCaseTab
                     v-else-if="activeTab === 'case'"
                     :bug-id="detailInfo.id"
-                    @updateCaseSuccess="updateSuccess"
+                    @update-case-success="updateSuccess"
                   />
 
                   <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
@@ -170,7 +170,7 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import { CommentInput } from '@/components/business/ms-comment';
+  import CommentInput from '@/components/business/ms-comment/input.vue';
   import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import BugCaseTab from './bugCaseTab.vue';

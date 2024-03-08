@@ -131,9 +131,9 @@
 
   const { copy, isSupported } = useClipboard();
 
-  function copyScript() {
+  async function copyScript() {
     if (isSupported) {
-      copy(props.requestResult?.responseResult.body || '');
+      await copy(props.requestResult?.responseResult.body || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));

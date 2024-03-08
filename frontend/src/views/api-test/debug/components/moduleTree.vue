@@ -249,7 +249,6 @@
         return {
           ...e,
           hideMoreAction: e.id === 'root',
-          draggable: e.id !== 'root',
         };
       });
       rootModulesName.value = folderTree.value.map((e) => e.name || '');
@@ -381,6 +380,7 @@
     }
     if (dropNode.type === 'MODULE' && dragNode?.type === 'API' && dropPosition !== 0) {
       // API节点不移动到模块的前后位置
+      document.querySelector('.arco-tree-node-title-draggable::before')?.setAttribute('style', 'display: none');
       return false;
     }
     return true;
@@ -400,6 +400,10 @@
     dropPosition: number
   ) {
     try {
+      if (dragNode.id === 'root' || (dragNode.type === 'MODULE' && dropNode.id === 'root')) {
+        // 根节点不可拖拽；模块不可拖拽到根节点
+        return;
+      }
       loading.value = true;
       if (dragNode.type === 'MODULE') {
         await moveDebugModule({
@@ -411,8 +415,8 @@
         await dragDebug({
           projectId: appStore.currentProjectId,
           moveMode: dropPositionMap[dropPosition],
-          moveId: dropNode.id,
-          targetId: dragNode.id,
+          moveId: dragNode.id,
+          targetId: dropNode.id,
           moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
         });
       }

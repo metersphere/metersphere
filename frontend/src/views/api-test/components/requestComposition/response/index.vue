@@ -117,8 +117,8 @@
     </div>
     <a-spin :loading="props.loading" class="h-[calc(100%-35px)] w-full px-[18px] pb-[18px]">
       <edit
-        v-if="props.isEdit && activeResponseType === 'content' && props.responseDefinition"
-        :response-definition="props.responseDefinition"
+        v-if="props.isEdit && activeResponseType === 'content' && validResponseDefinition"
+        :response-definition="validResponseDefinition"
         :upload-temp-file-api="props.uploadTempFileApi"
         @change="handleResponseChange"
       />
@@ -144,7 +144,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { RequestTaskResult } from '@/models/apiTest/common';
-  import { ResponseComposition } from '@/enums/apiEnum';
+  import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
   const props = withDefaults(
     defineProps<{
@@ -215,6 +215,45 @@
     }
     return '';
   });
+  // 过滤无效数据后的有效响应数据
+  const validResponseDefinition = computed(() => {
+    return props.responseDefinition?.map((item, i) => {
+      // 某些字段在导入时接口返回 null，需要设置默认值
+      if (!item.headers) {
+        item.headers = [];
+      }
+      if (!item.id) {
+        item.id = new Date().getTime() + i;
+      }
+      if (item.body.bodyType === ResponseBodyFormat.NONE) {
+        item.body.bodyType = ResponseBodyFormat.RAW;
+      }
+      if (!item.body.binaryBody) {
+        item.body.binaryBody = {
+          description: '',
+          file: undefined,
+        };
+      }
+      if (!item.body.jsonBody) {
+        item.body.jsonBody = {
+          jsonValue: '',
+          enableJsonSchema: false,
+          enableTransition: false,
+        };
+        if (!item.body.xmlBody) {
+          item.body.xmlBody = {
+            value: '',
+          };
+        }
+        if (!item.body.rawBody) {
+          item.body.rawBody = {
+            value: '',
+          };
+        }
+      }
+      return item;
+    });
+  });
 
   function handleResponseChange() {
     emit('change');
@@ -229,7 +268,7 @@
   watch(
     () => props.requestTaskResult,
     (task) => {
-      if (task) {
+      if (task?.requestResults[0]?.responseResult?.responseCode) {
         setActiveResponse('result');
       }
     }

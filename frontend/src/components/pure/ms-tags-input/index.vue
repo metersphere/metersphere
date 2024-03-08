@@ -69,12 +69,14 @@
   const { t } = useI18n();
 
   const innerModelValue = ref(props.modelValue);
-  const innerInputValue = ref(props.inputValue);
+  const innerInputValue = defineModel<string>('inputValue', {
+    default: '',
+  });
   const tagsLength = ref(0); // 记录每次回车或失去焦点前的tags长度，以判断是否有新的tag被添加，新标签添加时需要判断是否重复的标签
 
   const isError = computed(
     () =>
-      (innerInputValue.value || '').length > props.maxLength ||
+      innerInputValue.value.length > props.maxLength ||
       innerModelValue.value.some((item) => item.toString().length > props.maxLength)
   );
   watch(
@@ -94,20 +96,6 @@
       }
       emit('update:modelValue', val);
       emit('change', val);
-    }
-  );
-
-  watch(
-    () => props.inputValue,
-    (val) => {
-      innerInputValue.value = val;
-    }
-  );
-
-  watch(
-    () => innerInputValue.value,
-    (val) => {
-      emit('update:inputValue', val);
     }
   );
 
@@ -160,7 +148,8 @@
     if (
       validateTagsCountEnter() &&
       validateUniqueValue() &&
-      (innerInputValue.value || '').trim().length <= props.maxLength
+      innerInputValue.value &&
+      innerInputValue.value.trim().length <= props.maxLength
     ) {
       innerInputValue.value = '';
       tagsLength.value += 1;

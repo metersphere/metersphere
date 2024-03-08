@@ -1,4 +1,6 @@
-import { ModuleTreeNode, TableQueryParams } from '../common';
+import { RequestDefinitionStatus, RequestImportFormat, RequestImportType } from '@/enums/apiEnum';
+
+import { BatchApiParams, ModuleTreeNode, TableQueryParams } from '../common';
 import { ExecuteRequestParams, ResponseDefinition } from './common';
 
 // 定义-自定义字段
@@ -13,7 +15,7 @@ export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
   tags: string[];
   response: ResponseDefinition;
   description: string;
-  status: string;
+  status: RequestDefinitionStatus;
   customFields: ApiDefinitionCustomField[];
   moduleId: string;
   versionId: string;
@@ -22,10 +24,10 @@ export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
 }
 
 // 更新定义参数
-export interface ApiDefinitionUpdateParams extends ApiDefinitionCreateParams {
+export interface ApiDefinitionUpdateParams extends Partial<ApiDefinitionCreateParams> {
   id: string;
-  deleteFileIds: string[];
-  unLinkFileIds: string[];
+  deleteFileIds?: string[];
+  unLinkFileIds?: string[];
 }
 
 // 定义-自定义字段详情
@@ -163,4 +165,68 @@ export interface ApiDefinitionMockDetail {
 export interface mockParams {
   id: string;
   projectId: string;
+}
+// 批量操作参数
+export interface ApiDefinitionBatchParams extends BatchApiParams {
+  protocol: string;
+}
+// 批量更新定义参数
+export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams {
+  type?: string;
+  append?: boolean;
+  method?: string;
+  status?: RequestDefinitionStatus;
+  versionId?: string;
+  tags?: string[];
+  customField?: Record<string, any>;
+}
+// 批量移动定义参数
+export interface ApiDefinitionBatchMoveParams extends ApiDefinitionBatchParams {
+  moduleId: string | number;
+}
+// 批量删除定义参数
+export interface ApiDefinitionBatchDeleteParams extends ApiDefinitionBatchParams {
+  deleteAll: boolean;
+}
+// 定义-定时同步-更新参数
+export interface UpdateScheduleParams {
+  id: string;
+  taskId: string;
+}
+// 定义-定时同步-检查 url 是否存在参数
+export interface CheckScheduleParams {
+  projectId: string;
+  swaggerUrl: string;
+}
+// 导入定义-request参数
+export interface ImportApiDefinitionRequest {
+  userId: string;
+  versionId?: string;
+  updateVersionId?: string;
+  defaultVersion?: boolean;
+  platform: RequestImportFormat;
+  type: RequestImportType;
+  coverModule: boolean; // 是否覆盖子目录
+  coverData: boolean; // 是否覆盖数据
+  syncCase: boolean; // 是否同步导入用例
+  protocol: string;
+  authSwitch?: boolean;
+  authUsername?: string;
+  authPassword?: string;
+  uniquelyIdentifies?: string;
+  resourceId?: string;
+  swaggerUrl?: string;
+  moduleId: string;
+  projectId: string;
+  name?: string;
+}
+// 导入定义参数
+export interface ImportApiDefinitionParams {
+  file: File | null;
+  request: ImportApiDefinitionRequest;
+}
+// 导入定义-创建定时同步参数
+export interface CreateImportApiDefinitionScheduleParams extends ImportApiDefinitionRequest {
+  value: string; // cron 表达式
+  config?: string;
 }

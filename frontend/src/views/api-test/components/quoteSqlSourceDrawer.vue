@@ -13,8 +13,9 @@
         :placeholder="t('project.projectVersion.searchPlaceholder')"
         class="w-[230px]"
         allow-clear
-        @search="searchSource"
-        @press-enter="searchSource"
+        @search="searchDataSource"
+        @press-enter="searchDataSource"
+        @clear="searchDataSource"
       />
     </div>
     <MsBaseTable v-bind="propsRes" v-model:selected-key="selectedKey" v-on="propsEvent">
@@ -29,6 +30,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
+  import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -36,6 +38,8 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  import { EnvConfig } from '@/models/projectManagement/environmental';
 
   const props = defineProps<{
     visible: boolean;
@@ -48,6 +52,8 @@
 
   const { t } = useI18n();
 
+  /** 接收祖先组件提供的属性 */
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const innerVisible = useVModel(props, 'visible', emit);
   const keyword = ref('');
   const selectedKey = ref(props.selectedKey || '');
@@ -55,7 +61,7 @@
   const columns: MsTableColumn = [
     {
       title: 'apiTestDebug.sqlSourceName',
-      dataIndex: 'name',
+      dataIndex: 'dataSource',
       showTooltip: true,
     },
     {
@@ -71,7 +77,7 @@
     },
     {
       title: 'apiTestDebug.maxConnection',
-      dataIndex: 'maxConnection',
+      dataIndex: 'poolMax',
       width: 140,
     },
     {
@@ -82,47 +88,8 @@
       width: 120,
     },
   ];
-  async function loadSource() {
-    return Promise.resolve({
-      list: [
-        {
-          id: '1',
-          name: 'test',
-          driver: 'com.mysql.cj.jdbc.Driver',
-          username: 'root',
-          maxConnection: 10,
-          timeout: 1000,
-          storageType: 'column',
-          params: [],
-          script: 'select * from test1',
-        },
-        {
-          id: '2',
-          name: 'test2',
-          driver: 'com.mysql.cj.jdbc.Driver',
-          username: 'root',
-          maxConnection: 10,
-          timeout: 1000,
-          storageType: 'column',
-          params: [],
-          script: 'select * from test2',
-        },
-        {
-          id: '3',
-          name: 'test3',
-          driver: 'com.mysql.cj.jdbc.Driver',
-          username: 'root',
-          maxConnection: 10,
-          timeout: 10000000000,
-          storageType: 'result',
-          params: [],
-          script: 'select * from test3',
-        },
-      ],
-      total: 99,
-    });
-  }
-  const { propsRes, propsEvent, setLoadListParams, loadList } = useTable(loadSource, {
+
+  const { propsRes, propsEvent } = useTable(undefined, {
     columns,
     scroll: { x: '100%' },
     heightUsed: 300,
@@ -130,14 +97,28 @@
     showSelectorAll: false,
     selectorType: 'radio',
     firstColumnWidth: 44,
+    showPagination: false,
   });
-  function searchSource() {
-    setLoadListParams({
-      keyword: keyword.value,
-    });
-    loadList();
+
+  watch(
+    () => currentEnvConfig?.value,
+    (config) => {
+      if (config) {
+        propsRes.value.data = cloneDeep(config.dataSources) as any[];
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function searchDataSource() {
+    if (keyword.value.trim() !== '') {
+      propsRes.value.data = propsRes.value.data.filter((e) => e.dataSource.includes(keyword.value));
+    } else {
+      propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];
+    }
   }
-  searchSource();
 
   function handleConfirm() {
     innerVisible.value = false;

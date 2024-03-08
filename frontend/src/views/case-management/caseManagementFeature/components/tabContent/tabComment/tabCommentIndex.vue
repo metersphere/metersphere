@@ -68,7 +68,7 @@
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
-  import MsComment from '@/components/business/ms-comment';
+  import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
   import {

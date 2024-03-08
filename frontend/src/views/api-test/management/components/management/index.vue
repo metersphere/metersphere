@@ -28,12 +28,14 @@
           </template>
         </a-button>
         <MsSelect
-          v-model:model-value="checkedEnv"
+          v-model:model-value="currentEnv"
           mode="static"
           :options="envOptions"
           class="!w-[150px]"
           :search-keys="['label']"
+          :loading="envLoading"
           allow-search
+          @change="initEnvironment"
         />
       </div>
     </template>
@@ -41,11 +43,14 @@
 </template>
 
 <script setup lang="ts">
+  import { SelectOptionData } from '@arco-design/web-vue';
+
   import MsSelect from '@/components/business/ms-select';
   import api from './api/index.vue';
   import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
+  import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -56,7 +61,7 @@
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
 
-  const { t } = useI18n();
+  const appStore = useAppStore();
 
   const activeTab = ref('api');
   const apiRef = ref<InstanceType<typeof api>>();
@@ -69,28 +74,52 @@
     }
   }
 
-  const checkedEnv = ref('DEV');
-  const envOptions = ref([
-    {
-      label: 'DEV',
-      value: 'DEV',
-    },
-    {
-      label: 'TEST',
-      value: 'TEST',
-    },
-    {
-      label: 'PRE',
-      value: 'PRE',
-    },
-    {
-      label: 'PROD',
-      value: 'PROD',
-    },
-  ]);
+  const currentEnv = ref('');
+  const currentEnvConfig = ref({});
+  const envLoading = ref(false);
+  const envOptions = ref<SelectOptionData[]>([]);
+
+  async function initEnvironment() {
+    try {
+      currentEnvConfig.value = await getEnvironment(currentEnv.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  async function initEnvList() {
+    try {
+      envLoading.value = true;
+      const res = await getEnvList(appStore.currentProjectId);
+      envOptions.value = res.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+      currentEnv.value = res[0]?.id || '';
+      initEnvironment();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      envLoading.value = false;
+    }
+  }
+
+  function refreshApiTable() {
+    apiRef.value?.refreshTable();
+  }
+
+  onBeforeMount(() => {
+    initEnvList();
+  });
+
+  /** 向孙组件提供属性 */
+  provide('currentEnvConfig', readonly(currentEnvConfig));
 
   defineExpose({
     newTab,
+    refreshApiTable,
   });
 </script>
 
