@@ -123,9 +123,12 @@ export function formatFileSize(fileSize: number): string {
     size /= 1024;
     unitIndex++;
   }
-  const formattedSize = size.toFixed(2);
   const unit = units[unitIndex];
-
+  if (size) {
+    const formattedSize = size.toFixed(2);
+    return `${formattedSize} ${unit}`;
+  }
+  const formattedSize = 0;
   return `${formattedSize} ${unit}`;
 }
 

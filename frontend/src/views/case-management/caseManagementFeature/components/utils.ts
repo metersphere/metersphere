@@ -1,9 +1,11 @@
+import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
 import { MsTableColumnData } from '@/components/pure/ms-table/type';
 import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { useI18n } from '@/hooks/useI18n';
+import { hasAnyPermission } from '@/utils/permission';
 
 import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
 import { StatusType } from '@/enums/caseEnum';
@@ -163,4 +165,41 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
     }
     return currentColumnData.defaultValue || '-';
   }
+}
+
+export function initFormCreate(customFields: CustomAttributes[], permission: string[]) {
+  return customFields.map((item: any) => {
+    const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
+    const numberType = ['INT', 'FLOAT'];
+    let currentDefaultValue;
+    if (numberType.includes(item.type)) {
+      currentDefaultValue = item.defaultValue * 1;
+    } else if (multipleType.includes(item.type) && Array.isArray(item.defaultValue) && item.defaultValue.length === 0) {
+      currentDefaultValue = item.defaultValue;
+    } else if (multipleType.includes(item.type)) {
+      const tempValue = JSON.parse(item.defaultValue);
+      if (item.type !== 'MULTIPLE_INPUT') {
+        const optionsIds = item.options?.map((e: any) => e.value);
+        currentDefaultValue = optionsIds.filter((e: any) => tempValue.includes(e));
+      } else {
+        currentDefaultValue = JSON.parse(item.defaultValue);
+      }
+    } else {
+      currentDefaultValue = item.defaultValue;
+    }
+    return {
+      ...item,
+      type: item.type,
+      name: item.fieldId,
+      label: item.fieldName,
+      value: currentDefaultValue,
+      required: item.required,
+      options: item.options || [],
+      props: {
+        modelValue: currentDefaultValue,
+        disabled: !hasAnyPermission(permission),
+        options: item.options || [],
+      },
+    };
+  }) as FormItem[];
 }

@@ -192,15 +192,15 @@
               <!-- 自定义字段结束 -->
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
-                <span>{{ detailInfo?.createUserName }}</span>
+                <span class="value">{{ detailInfo?.createUserName }}</span>
               </div>
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
-                <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                <span class="value">{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
               </div>
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnTag') }}</span>
-                <span>
+                <span class="value">
                   <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
                 </span>
               </div>
@@ -261,7 +261,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { getCaseLevels } from './utils';
+  import { getCaseLevels, initFormCreate } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
   import debounce from 'lodash-es/debounce';
   // 异步加载组件
@@ -483,6 +483,7 @@
       wrapperColProps: {
         span: 15,
       },
+      contentClass: 'contentClass',
     },
     // 暂时默认
     row: {
@@ -498,38 +499,7 @@
   const fApi = ref(null);
   // 初始化表单
   function initForm() {
-    formRules.value = customFields.value.map((item: any) => {
-      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
-      const numberType = ['INT', 'FLOAT'];
-      let currentDefaultValue;
-      if (numberType.includes(item.type)) {
-        currentDefaultValue = item.defaultValue * 1;
-      } else if (
-        multipleType.includes(item.type) &&
-        Array.isArray(item.defaultValue) &&
-        item.defaultValue.length === 0
-      ) {
-        currentDefaultValue = item.defaultValue;
-      } else if (multipleType.includes(item.type)) {
-        currentDefaultValue = JSON.parse(item.defaultValue);
-      } else {
-        currentDefaultValue = item.defaultValue;
-      }
-      return {
-        ...item,
-        type: item.type,
-        name: item.fieldId,
-        label: item.fieldName,
-        value: currentDefaultValue,
-        required: item.required,
-        options: item.options || [],
-        props: {
-          modelValue: currentDefaultValue,
-          disabled: !hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']),
-          options: item.options || [],
-        },
-      };
-    }) as FormItem[];
+    formRules.value = initFormCreate(customFields.value, ['FUNCTIONAL_CASE:READ+UPDATE']);
   }
 
   const tabDetailRef = ref();
@@ -656,12 +626,37 @@
         width: 38%;
         color: var(--color-text-3);
       }
+      .value {
+        padding-left: 10px;
+      }
     }
     :deep(.arco-form-item-layout-horizontal) {
       margin-bottom: 16px !important;
     }
     :deep(.arco-form-item-label-col > .arco-form-item-label) {
       color: var(--color-text-3) !important;
+    }
+    :deep(.arco-select-view-single) {
+      border-color: transparent !important;
+      .arco-select-view-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        .arco-select-view-suffix {
+          visibility: visible !important;
+        }
+      }
+      &:hover > .arco-input {
+        font-weight: normal;
+        text-decoration: none;
+        color: var(--color-text-1);
+      }
+      & > .arco-input {
+        font-weight: 500;
+        text-decoration: underline;
+        color: var(--color-text-1);
+      }
     }
   }
   .rightButtons {
