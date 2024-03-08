@@ -129,6 +129,7 @@ export default {
     'After delete, will be effective in the project and delete irrevocable, please careful operation.',
   'system.orgTemplate.deleteFiledContent':
     'This field has been used in the template, data will be lost after deletion, please be careful!',
+  'system.orgTemplate.deleteFiledContentNotUsed': 'This field will be lost, please be careful!',
   'system.orgTemplate.deleteSuccess': 'Delete Successfully',
   'system.orgTemplate.setInitStateSuccess': 'Set the initial state successfully',
   'system.orgTemplate.setEndStateSuccess': 'Setting the end status succeeded',

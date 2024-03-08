@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtTemplateCustomFieldMapper">
+
+    <select id="selectUsedFieldIds" resultType="java.lang.String">
+        SELECT distinct field_id
+        FROM template_custom_field
+        WHERE field_id in
+        <foreach collection="fieldIds" item="fieldId" open="(" close=")" separator=",">
+            #{fieldId}
+        </foreach>
+    </select>
+</mapper>
