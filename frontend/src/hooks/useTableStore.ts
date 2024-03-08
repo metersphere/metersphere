@@ -78,7 +78,6 @@ export default function useTableStore() {
   ) {
     try {
       const selectorColumnMap = await getSelectorColumnMap();
-      console.log(showSubdirectory);
       if (!selectorColumnMap[tableKey]) {
         // 如果没有在indexDB里初始化
         column = columnsTransform(column);
