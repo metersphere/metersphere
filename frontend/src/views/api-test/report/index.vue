@@ -1,22 +1,49 @@
 <template>
-  <!-- <MsCard class="mb-[16px]" :title="props.title" hide-back hide-footer auto-height no-content-padding no-bottom-radius>
-    <a-tabs v-model:active-key="innerTab" class="no-content">
-      <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
+  <MsCard simple no-content-padding>
+    <a-tabs v-model:active-key="activeTab" class="no-content">
+      <a-tab-pane v-for="item of realTabList" :key="item.value" :title="item.label" />
     </a-tabs>
-  </MsCard> -->
-  <div></div>
+    <a-divider margin="0" class="!mb-[16px]"></a-divider>
+    <!-- 报告列表-->
+    <ReportList :name="listName" :module-type="activeTab" />
+  </MsCard>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import ReportList from './component/reportList.vue';
 
-  const tabList = [
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { ReportEnum } from '@/enums/reportEnum';
+
+  const { t } = useI18n();
+  const activeTab = ref<keyof typeof ReportEnum>(ReportEnum.API_SCENARIO_REPORT);
+
+  const realTabList = ref([
     {
-      value: '',
+      value: ReportEnum.API_SCENARIO_REPORT,
+      label: t('report.api.scenario'),
     },
-  ];
+    {
+      value: ReportEnum.API_REPORT,
+      label: t('report.api.case'),
+    },
+  ]);
+
+  const rightTabList = computed(() => {
+    return realTabList.value;
+  });
+
+  const listName = computed(() => {
+    return rightTabList.value.find((item) => item.value === activeTab.value)?.label || '';
+  });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-tabs-content) {
+    padding-top: 0;
+  }
+</style>

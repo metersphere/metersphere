@@ -65,6 +65,13 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
+      {
+        key: 'API_TEST_REPORT', // 接口测试-接口测试报告
+        locale: 'menu.apiTest.report',
+        route: RouteEnum.API_TEST_REPORT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
     ],
   },
   {
