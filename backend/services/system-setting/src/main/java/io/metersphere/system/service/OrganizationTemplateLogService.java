@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import com.alibaba.excel.util.BooleanUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.EnumValidator;
@@ -102,7 +103,7 @@ public class OrganizationTemplateLogService {
                     null,
                     OperationLogType.UPDATE.name(),
                     getOperationLogModule(template.getScene()),
-                    template.getName());
+                    BooleanUtils.isTrue(template.getInternal()) ? Translator.get("template.default") : template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;
