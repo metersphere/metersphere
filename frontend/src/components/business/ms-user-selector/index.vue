@@ -94,6 +94,9 @@
     }
   };
   const optionLabelRender = (option: SelectOptionData) => {
-    return `<span class='text-[var(--color-text-1)]'>${option.name}</span><span class='text-[var(--color-text-4)] ml-[4px]'>(${option.email})</span>`;
+    if (option.email !== '') {
+      return `<span class='text-[var(--color-text-1)]'>${option.name}</span><span class='text-[var(--color-text-4)] ml-[4px]'>(${option.email})</span>`;
+    }
+    return `<span class='text-[var(--color-text-1)]'>${option.name}</span>`;
   };
 </script>
