@@ -202,6 +202,10 @@
   const { t } = useI18n();
   const { openDeleteModal } = useModal();
 
+  const emit = defineEmits<{
+    (e: 'submit'): void;
+  }>();
+
   const props = defineProps<{
     visible: boolean;
     detailId: string; // 详情 id
@@ -276,6 +280,8 @@
       detail.customFields.forEach((item) => {
         if (item.type === 'MULTIPLE_SELECT') {
           tmpObj[item.id] = JSON.parse(item.value);
+        } else if (item.type === 'INT') {
+          tmpObj[item.id] = Number(item.value);
         } else {
           tmpObj[item.id] = item.value;
         }
@@ -306,6 +312,7 @@
 
   function updateSuccess() {
     detailDrawerRef.value?.initDetail();
+    emit('submit');
   }
 
   const contentTabList = computed(() => {

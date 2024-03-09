@@ -108,6 +108,7 @@
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
+    @submit="fetchData"
   />
   <DeleteModal
     :id="currentDeleteObj.id"
