@@ -71,7 +71,7 @@ public class OrganizationController {
 
     @PostMapping("/project/add-member")
     @Operation(summary = "系统设置-组织-成员-添加组织成员至项目")
-    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD})
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
     public void addMemberToProject(@Validated @RequestBody OrgMemberExtendProjectRequest orgMemberExtendProjectRequest) {
         organizationService.addMemberToProject(orgMemberExtendProjectRequest, SessionUtils.getUserId());
     }

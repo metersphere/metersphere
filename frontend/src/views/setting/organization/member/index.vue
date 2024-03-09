@@ -225,12 +225,12 @@
       {
         label: 'organization.member.batchActionAddProject',
         eventTag: 'batchAddProject',
-        permission: ['ORGANIZATION_MEMBER:READ+ADD'],
+        permission: ['ORGANIZATION_MEMBER:READ+UPDATE'],
       },
       {
         label: 'organization.member.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
-        permission: ['ORGANIZATION_MEMBER:READ+ADD'],
+        permission: ['ORGANIZATION_MEMBER:READ+UPDATE'],
       },
     ],
   };
@@ -239,7 +239,7 @@
     {
       tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
       scroll: { x: 1600 },
-      selectable: !!hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+ADD']),
+      selectable: hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       heightUsed: 288,
       showSetting: true,
       showJumpMethod: true,
