@@ -79,8 +79,6 @@
 
   const loading = ref<boolean>(false);
 
-  const requestParams = ref<OperationFile>({ ...props.params });
-
   function handleCancel() {
     transferVisible.value = false;
     transferId.value = '';
@@ -89,7 +87,7 @@
   async function handleBeforeOk() {
     loading.value = true;
     try {
-      await props.requestFun({ ...requestParams.value, moduleId: transferId.value });
+      await props.requestFun({ ...props.params, moduleId: transferId.value });
       Message.success(t('caseManagement.featureCase.transferFileSuccess'));
       handleCancel();
       emit('success');
