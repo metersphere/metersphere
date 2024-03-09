@@ -1,1 +1,21 @@
-export default {};
+export default {
+  'report.api.case': 'Case report',
+  'report.api.scenario': 'Scenario report',
+  'report.all': 'All',
+  'report.independent': 'Independent report',
+  'report.collection': 'Collection report',
+  'report.name': 'Report name',
+  'report.type': 'Report type',
+  'report.result': 'Report result',
+  'report.trigger.mode': 'Trigger mode',
+  'report.operator': 'Create User',
+  'report.operating': 'Create time',
+  'report.batch.delete': 'Batch delete',
+  'report.successful': 'Successful',
+  'report.failure': 'failure',
+  'report.fake.error': 'Fake error',
+  'report.status.running': 'Running',
+  'report.status.rerunning': 'Rerunning',
+  'report.status.pending': 'Pending',
+  'report.stopped': 'Stopped',
+};
