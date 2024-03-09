@@ -170,7 +170,6 @@
                   </MsMoreAction>
                   <MsMoreAction
                     v-if="isOrdShowAll"
-                    v-permission="props.updatePermission"
                     :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
