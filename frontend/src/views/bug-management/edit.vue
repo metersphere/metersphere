@@ -588,6 +588,8 @@
           tmpObj[item.id] = '';
         } else if (item.type === 'MULTIPLE_SELECT') {
           tmpObj[item.id] = JSON.parse(item.value);
+        } else if (item.type === 'INT') {
+          tmpObj[item.id] = Number(item.value);
         } else {
           tmpObj[item.id] = item.value;
         }

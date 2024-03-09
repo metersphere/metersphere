@@ -25,6 +25,7 @@ export default {
   'caseManagement.featureCase.renameSuccess': '重命名成功',
   'caseManagement.featureCase.nameNotNullTip': '名称不能为空',
   'caseManagement.featureCase.deleteTipTitle': '是否删除 {name} 用例 ？',
+  'caseManagement.featureCase.moduleDeleteTipTitle': '是否删除 {name} 模块 ？',
   'caseManagement.featureCase.deleteCaseTipContent': '删除后，此节点下的所有资源都会被删除，请谨慎操作。',
   'caseManagement.featureCase.deleteConfirm': '确认删除',
   'caseManagement.featureCase.deleteSuccess': '删除成功',

@@ -191,7 +191,7 @@
   const deleteHandler = (node: MsTreeNodeData) => {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.deleteTipTitle', { name: node.name }),
+      title: t('caseManagement.featureCase.moduleDeleteTipTitle', { name: node.name }),
       content: t('caseManagement.featureCase.deleteCaseTipContent'),
       okText: t('caseManagement.featureCase.deleteConfirm'),
       okButtonProps: {
