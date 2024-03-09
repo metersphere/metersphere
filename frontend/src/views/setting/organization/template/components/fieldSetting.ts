@@ -85,12 +85,12 @@ export function getCardList(type: string): Record<string, any>[] {
       value: TemplateCardEnum.FUNCTIONAL,
       name: t('system.orgTemplate.caseTemplates'),
     },
-    {
+    /* {
       id: 1002,
       key: 'API',
       value: TemplateCardEnum.API,
       name: t('system.orgTemplate.APITemplates'),
-    },
+    }, */
     // {
     //   id: 1003,
     //   key: 'UI',
