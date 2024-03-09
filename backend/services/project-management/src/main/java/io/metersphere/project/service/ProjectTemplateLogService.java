@@ -1,5 +1,6 @@
 package io.metersphere.project.service;
 
+import com.alibaba.excel.util.BooleanUtils;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
@@ -66,7 +67,7 @@ public class ProjectTemplateLogService {
                     null,
                     OperationLogType.UPDATE.name(),
                     getOperationLogModule(template.getScene()),
-                    template.getName());
+                    BooleanUtils.isTrue(template.getInternal()) ? Translator.get("template.default") : template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;
