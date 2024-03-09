@@ -178,13 +178,35 @@
     return authRef.value?.canSave;
   });
 
-  const userGroupcolumns: MsTableColumn = [
+  const userGroupPermissionColumns: MsTableColumn = [
     {
       title: 'project.userGroup.name',
       dataIndex: 'name',
       slotName: 'name',
       showTooltip: true,
       editType: ColumnEditTypeEnum.INPUT,
+    },
+    {
+      title: 'project.userGroup.memberCount',
+      slotName: 'memberCount',
+      showDrag: true,
+      dataIndex: 'memberCount',
+    },
+    {
+      title: 'common.operation',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      fixed: 'right',
+      width: 150,
+    },
+  ];
+
+  const userGroupNoPermissionColumns: MsTableColumn = [
+    {
+      title: 'project.userGroup.name',
+      dataIndex: 'name',
+      slotName: 'name',
+      showTooltip: true,
     },
     {
       title: 'project.userGroup.memberCount',
@@ -215,7 +237,9 @@
     postUserGroupList,
     {
       tableKey: TableKeyEnum.PROJECT_USER_GROUP,
-      columns: userGroupcolumns,
+      columns: hasAnyPermission(['PROJECT_GROUP:READ+UPDATE'])
+        ? userGroupPermissionColumns
+        : userGroupNoPermissionColumns,
       selectable: false,
       scroll: { x: '100%' },
       noDisable: true,
