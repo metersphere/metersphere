@@ -53,7 +53,13 @@
             >
               {{ t('ms.upload.preview') }}
             </MsButton>
-            <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferVisible = true">
+            <MsButton
+              v-if="item.status === 'done'"
+              type="button"
+              status="primary"
+              class="!mr-[4px]"
+              @click="transferVisible = true"
+            >
               {{ t('caseManagement.featureCase.storage') }}
             </MsButton>
             <TransferModal

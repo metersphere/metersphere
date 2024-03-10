@@ -98,7 +98,7 @@
                 {{ t('ms.upload.reUpload') }}
               </MsButton>
               <MsButton
-                v-if="props.showDelete"
+                v-if="props.showDelete && item.status !== 'uploading'"
                 type="button"
                 :status="item.deleteContent ? 'primary' : 'danger'"
                 class="!mr-[4px]"
@@ -224,14 +224,14 @@
   });
 
   function getUploadDesc(item: MsFileItem) {
-    if (item.local !== undefined ) {
+    if (item.local !== undefined) {
       return item.local ? t('ms.upload.uploadAt') : t('ms.upload.associatedAt');
     }
     return t('ms.upload.uploadAt');
   }
   function showUploadSuccess(item: MsFileItem) {
-    if (item.local !== undefined ) {
-      return item.local ;
+    if (item.local !== undefined) {
+      return item.local;
     }
     return true;
   }
