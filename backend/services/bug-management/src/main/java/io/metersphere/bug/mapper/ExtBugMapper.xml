@@ -143,7 +143,7 @@
             <if test="request.projectId">
                 and b.project_id = #{request.projectId}
             </if>
-            <if test="request.keyword != null">
+            <if test="request.keyword != null and request.keyword != ''">
                 and (
                 b.title like concat('%', #{request.keyword},'%')
                 or b.num like concat('%', #{request.keyword},'%')

@@ -19,6 +19,17 @@ export interface BugListItem {
   deleted: boolean; // 删除标志
 }
 
+export interface BugOptionItem {
+  value: string; // 缺陷id
+  text: string; // 缺陷编号
+}
+
+export interface BugOptionListItem {
+  userOption: BugOptionItem[]; // 处理人下拉选项
+  handleUserOption: BugOptionItem[]; // 处理人下拉选项
+  statusOption: BugOptionItem[]; // 缺陷状态下拉选项
+}
+
 export interface BugExportColumn {
   key: string; // 字段key
   text?: string; // 字段名称

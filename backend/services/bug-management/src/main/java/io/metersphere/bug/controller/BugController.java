@@ -6,10 +6,10 @@ import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.*;
+import io.metersphere.bug.dto.response.BugColumnsOptionResponse;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugDetailDTO;
 import io.metersphere.bug.service.*;
-import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -66,20 +66,12 @@ public class BugController {
         return bugService.getHeaderCustomFields(projectId);
     }
 
-    @GetMapping("/header/status-option/{projectId}")
+    @GetMapping("/header/columns-option/{projectId}")
     @Operation(summary = "缺陷管理-列表-获取表头状态选项")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<SelectOption> getHeaderStatusOption(@PathVariable String projectId) {
-        return bugStatusService.getHeaderStatusOption(projectId);
-    }
-
-    @GetMapping("/header/handler-option/{projectId}")
-    @Operation(summary = "缺陷管理-列表-获取表头处理人选项")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
-    @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<SelectOption> getHeaderHandleOption(@PathVariable String projectId) {
-        return bugCommonService.getHeaderHandlerOption(projectId);
+    public BugColumnsOptionResponse getHeaderStatusOption(@PathVariable String projectId) {
+        return bugStatusService.getColumnsOption(projectId);
     }
 
     @PostMapping("/page")
