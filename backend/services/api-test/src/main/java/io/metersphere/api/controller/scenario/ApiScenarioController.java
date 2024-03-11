@@ -4,6 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.dto.ReferenceDTO;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.request.ApiTransferRequest;
@@ -259,5 +261,15 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
+    }
+
+    @PostMapping("/get-reference")
+    @Operation(summary = "接口测试-接口场景管理-场景-引用关系")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "api_scenario")
+    public Pager<List<ReferenceDTO>> getReference(@Validated @RequestBody ReferenceRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
+        return PageUtils.setPageInfo(page, apiScenarioService.getReference(request));
     }
 }

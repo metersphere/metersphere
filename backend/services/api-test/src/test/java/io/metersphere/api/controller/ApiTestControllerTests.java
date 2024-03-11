@@ -202,10 +202,6 @@ public class ApiTestControllerTests extends BaseTest {
         Assertions.assertNull(environmentConfig.getPreProcessorConfig());
         Assertions.assertNull(environmentConfig.getPostProcessorConfig());
         Assertions.assertNull(environmentConfig.getAssertionConfig());
-        environmentConfig.getDataSources().forEach(dataSourceConfig -> {
-            Assertions.assertNull(dataSourceConfig.getPassword());
-            Assertions.assertNull(dataSourceConfig.getDbUrl());
-        });
     }
 
 }

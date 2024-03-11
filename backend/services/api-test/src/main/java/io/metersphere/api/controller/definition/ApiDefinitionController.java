@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.dto.ReferenceDTO;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
@@ -281,5 +283,15 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
         return apiDefinitionService.debug(request);
+    }
+
+    @PostMapping("/get-reference")
+    @Operation(summary = "接口测试-接口管理-引用关系")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "api_definition")
+    public Pager<List<ReferenceDTO>> getReference(@Validated @RequestBody ReferenceRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
+        return PageUtils.setPageInfo(page, apiDefinitionService.getReference(request));
     }
 }

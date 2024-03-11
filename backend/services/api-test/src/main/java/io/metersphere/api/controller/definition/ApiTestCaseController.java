@@ -3,6 +3,8 @@ package io.metersphere.api.controller.definition;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.ReferenceDTO;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.definition.ApiTestCaseLogService;
@@ -256,5 +258,15 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
         return apiTestCaseService.debug(request);
+    }
+
+    @PostMapping("/get-reference")
+    @Operation(summary = "接口测试-接口管理-接口用例-引用关系")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "api_test_case")
+    public Pager<List<ReferenceDTO>> getReference(@Validated @RequestBody ReferenceRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
+        return PageUtils.setPageInfo(page, apiTestCaseService.getReference(request));
     }
 }

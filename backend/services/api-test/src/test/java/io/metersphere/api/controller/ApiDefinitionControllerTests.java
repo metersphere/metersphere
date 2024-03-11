@@ -6,6 +6,7 @@ import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
@@ -23,6 +24,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -41,6 +43,7 @@ import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -153,6 +156,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiScenarioStepMapper apiScenarioStepMapper;
     private static String fileMetadataId;
     private static String uploadFileId;
 
@@ -2149,6 +2156,83 @@ public class ApiDefinitionControllerTests extends BaseTest {
                                         }            
                 """;
         requestPost("preview", jsonArray).andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(20)
+    public void testGetRef() throws Exception {
+        //插入假数据
+        ApiScenario apiScenario = new ApiScenario();
+        apiScenario.setId(IDGenerator.nextStr());
+        apiScenario.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenario.setName(StringUtils.join("接口场景", apiScenario.getId()));
+        apiScenario.setModuleId("scenario-moduleId");
+        apiScenario.setStatus("未规划");
+        apiScenario.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_SCENARIO));
+        apiScenario.setPos(0L);
+        apiScenario.setPriority("P0");
+        apiScenario.setLatest(true);
+        apiScenario.setVersionId("1.0");
+        apiScenario.setRefId(apiScenario.getId());
+        apiScenario.setCreateTime(System.currentTimeMillis());
+        apiScenario.setUpdateTime(System.currentTimeMillis());
+        apiScenario.setCreateUser("admin");
+        apiScenario.setUpdateUser("admin");
+        apiScenario.setGrouped(false);
+        apiScenarioMapper.insertSelective(apiScenario);
+        List<ApiScenarioStep> apiScenarioSteps = new ArrayList<>();
+        ApiScenarioStep apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-api-get-ref");
+        apiScenarioStep.setRefType("COPY");
+        apiScenarioStep.setStepType("API");
+        apiScenarioStep.setName("接口步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-api-get-ref");
+        apiScenarioStep.setRefType("REF");
+        apiScenarioStep.setStepType("API");
+        apiScenarioStep.setName("接口步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-api-get-ref");
+        apiScenarioStep.setRefType("REF");
+        apiScenarioStep.setStepType("API");
+        apiScenarioStep.setName("接口步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStepMapper.batchInsert(apiScenarioSteps);
+        ReferenceRequest request = new ReferenceRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setResourceId("test-api-get-ref");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn("/get-reference", request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Assertions.assertNotNull(pageData);
     }
 
 }

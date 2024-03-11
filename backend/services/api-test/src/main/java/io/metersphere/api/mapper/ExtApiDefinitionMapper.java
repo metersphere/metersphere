@@ -3,6 +3,8 @@ package io.metersphere.api.mapper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
+import io.metersphere.api.dto.ReferenceDTO;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
@@ -76,4 +78,6 @@ public interface ExtApiDefinitionMapper {
     DropNode selectDragInfoById(String id);
 
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<ReferenceDTO> getReference(@Param("request") ReferenceRequest request);
 }

@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.*;
@@ -2572,5 +2573,83 @@ public class ApiScenarioControllerTests extends BaseTest {
         mockMvc.perform(getPostRequestBuilder(STEP_GET, stepRequest))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(20)
+    public void testGetRef() throws Exception {
+        //插入假数据
+        ApiScenario apiScenario = new ApiScenario();
+        apiScenario.setId(IDGenerator.nextStr());
+        apiScenario.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenario.setName(StringUtils.join("接口场景", apiScenario.getId()));
+        apiScenario.setModuleId("scenario-moduleId");
+        apiScenario.setStatus("未规划");
+        apiScenario.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_SCENARIO));
+        apiScenario.setPos(0L);
+        apiScenario.setPriority("P0");
+        apiScenario.setLatest(true);
+        apiScenario.setVersionId("1.0");
+        apiScenario.setRefId(apiScenario.getId());
+        apiScenario.setCreateTime(System.currentTimeMillis());
+        apiScenario.setUpdateTime(System.currentTimeMillis());
+        apiScenario.setCreateUser("admin");
+        apiScenario.setUpdateUser("admin");
+        apiScenario.setGrouped(false);
+        apiScenarioMapper.insertSelective(apiScenario);
+        List<ApiScenarioStep> apiScenarioSteps = new ArrayList<>();
+        ApiScenarioStep apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-scenario-get-ref");
+        apiScenarioStep.setRefType("COPY");
+        apiScenarioStep.setStepType("CASE");
+        apiScenarioStep.setName("用例步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-api-get-ref");
+        apiScenarioStep.setRefType("REF");
+        apiScenarioStep.setStepType("CASE");
+        apiScenarioStep.setName("用例步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStep = new ApiScenarioStep();
+        apiScenarioStep.setId(IDGenerator.nextStr());
+        apiScenarioStep.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioStep.setScenarioId(apiScenario.getId());
+        apiScenarioStep.setResourceId("test-api-get-ref");
+        apiScenarioStep.setRefType("REF");
+        apiScenarioStep.setStepType("CASE");
+        apiScenarioStep.setName("用例步骤");
+        apiScenarioStep.setSort(1L);
+        apiScenarioStep.setParentId("NONE");
+        apiScenarioStep.setVersionId("1.0");
+        apiScenarioStep.setEnable(true);
+        apiScenarioSteps.add(apiScenarioStep);
+        apiScenarioStepMapper.batchInsert(apiScenarioSteps);
+        ReferenceRequest request = new ReferenceRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setResourceId("test-scenario-get-ref");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn("/get-reference", request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Assertions.assertNotNull(pageData);
+    }
+
 
 }
