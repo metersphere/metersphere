@@ -169,6 +169,16 @@
                             and b.handle_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 删除人 -->
+                        <when test="key == 'deleteUser'">
+                            and b.delete_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 更新人 -->
+                        <when test="key == 'updateUser'">
+                            and b.update_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                         <!-- 创建人 -->
                         <when test="key == 'createUser'">
                             and b.create_user in

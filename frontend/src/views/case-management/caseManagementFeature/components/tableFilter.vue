@@ -1,6 +1,6 @@
 <template>
   <a-trigger v-model:popup-visible="innerVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-    <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="innerVisible = true">
+    <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="innerVisible = true">
       <div class="font-medium">
         {{ t(props.title) }}
       </div>
