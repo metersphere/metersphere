@@ -57,7 +57,7 @@ public class ApiScenarioBatchOperationController {
     //需求补充：回收站里的相关操作都不需要发通知
     @PostMapping("/batch-operation/recover-gc")
     @Operation(summary = "接口测试-接口场景批量操作-回收站列表-批量恢复")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_RECOVER)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiScenarioBatchOperationResponse recoverFromGc(@Validated @RequestBody ApiScenarioBatchRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());

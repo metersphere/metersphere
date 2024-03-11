@@ -42,7 +42,8 @@
             "id": "PROJECT_API_DEFINITION:READ+UPDATE"
           },
           {
-            "id": "PROJECT_API_DEFINITION:READ+DELETE"
+            "id": "PROJECT_API_DEFINITION:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "PROJECT_API_DEFINITION:READ+IMPORT"
@@ -69,7 +70,8 @@
             "id": "PROJECT_API_DEFINITION_CASE:READ+UPDATE"
           },
           {
-            "id": "PROJECT_API_DEFINITION_CASE:READ+DELETE"
+            "id": "PROJECT_API_DEFINITION_CASE:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "PROJECT_API_DEFINITION_CASE:READ+EXECUTE"
@@ -90,7 +92,8 @@
             "id": "PROJECT_API_DEFINITION_MOCK:READ+UPDATE"
           },
           {
-            "id": "PROJECT_API_DEFINITION_MOCK:READ+DELETE"
+            "id": "PROJECT_API_DEFINITION_MOCK:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "PROJECT_API_DEFINITION_MOCK:READ+EXECUTE"
@@ -124,7 +127,8 @@
             "id": "PROJECT_API_SCENARIO:READ+UPDATE"
           },
           {
-            "id": "PROJECT_API_SCENARIO:READ+DELETE"
+            "id": "PROJECT_API_SCENARIO:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "PROJECT_API_SCENARIO:READ+EXECUTE"

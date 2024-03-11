@@ -77,7 +77,7 @@ public class ApiTestCaseController {
 
     @GetMapping("recover/{id}")
     @Operation(summary = "接口测试-接口管理-接口用例-恢复")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void recover(@PathVariable String id) {
@@ -179,7 +179,7 @@ public class ApiTestCaseController {
 
     @PostMapping("/batch/recover")
     @Operation(summary = "接口测试-接口管理-接口用例-批量恢复")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRecover(@Validated @RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());

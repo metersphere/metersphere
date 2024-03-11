@@ -171,7 +171,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/recover")
     @Operation(summary = "接口测试-接口管理-恢复回收站接口定义")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_RECOVER)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#request)", msClass = ApiDefinitionLogService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
     public void recover(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
@@ -180,7 +180,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/batch-recover")
     @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_RECOVER)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchRecover(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchRecover(request, SessionUtils.getUserId());

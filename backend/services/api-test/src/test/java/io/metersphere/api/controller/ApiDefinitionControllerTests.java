@@ -1343,7 +1343,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@校验权限
         apiDefinitionDeleteRequest.setId(apiDefinition.getId());
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_RECOVER, RESTORE, apiDefinitionDeleteRequest);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, RESTORE, apiDefinitionDeleteRequest);
     }
 
     @Test
@@ -1391,7 +1391,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             checkLogModelList.add(new CheckLogModel(id, OperationLogType.RECOVER, BATCH_RESTORE));
         }
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_RECOVER, BATCH_RESTORE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_RESTORE, request);
     }
 
     @Test
