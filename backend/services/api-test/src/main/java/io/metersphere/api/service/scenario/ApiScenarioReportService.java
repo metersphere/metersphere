@@ -3,6 +3,7 @@ package io.metersphere.api.service.scenario;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
@@ -82,19 +83,21 @@ public class ApiScenarioReportService {
         }
     }
 
-    public List<ApiScenarioReport> getPage(ApiReportPageRequest request) {
+    public List<ApiScenarioReportListDTO> getPage(ApiReportPageRequest request) {
         List<ApiScenarioReport> list = extApiScenarioReportMapper.list(request);
+        List<ApiScenarioReportListDTO> result = new ArrayList<>();
         //取所有的userid
         Set<String> userSet = list.stream()
                 .flatMap(scenarioReport -> Stream.of(scenarioReport.getUpdateUser(), scenarioReport.getDeleteUser(), scenarioReport.getCreateUser()))
                 .collect(Collectors.toSet());
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         list.forEach(scenarioReport -> {
-            scenarioReport.setCreateUser(userMap.get(scenarioReport.getCreateUser()));
-            scenarioReport.setUpdateUser(userMap.get(scenarioReport.getUpdateUser()));
-            scenarioReport.setDeleteUser(userMap.get(scenarioReport.getDeleteUser()));
+            ApiScenarioReportListDTO scenarioReportListDTO = new ApiScenarioReportListDTO();
+            BeanUtils.copyBean(scenarioReportListDTO, scenarioReport);
+            scenarioReportListDTO.setCreateUserName(userMap.get(scenarioReport.getCreateUser()));
+            scenarioReportListDTO.setUpdateUserName(userMap.get(scenarioReport.getUpdateUser()));
         });
-        return list;
+        return result;
     }
 
     public void rename(String id, String name, String userId) {

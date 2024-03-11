@@ -219,7 +219,13 @@
                     <choose>
                         <when test="key=='integrated'">
                             and api_scenario_report.integrated in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                <choose>
+                                    <when test="value == 'true'">1</when>
+                                    <when test="value == 'false'">0</when>
+                                    <otherwise>0</otherwise>
+                                </choose>
+                            </foreach>
                         </when>
                         <when test="key=='status'">
                             and api_scenario_report.status in
@@ -227,6 +233,14 @@
                         </when>
                         <when test="key=='triggerMode'">
                             and api_scenario_report.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='createUser'">
+                            and api_scenario_report.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='updateUSer'">
+                            and api_scenario_report.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

@@ -90,6 +90,7 @@ public class ApiReportControllerTests extends BaseTest {
                 apiReport.setStatus(ApiReportStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
                 apiReport.setStatus(ApiReportStatus.ERROR.name());
+                apiReport.setIntegrated(true);
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
             apiReport.setVersionId("api-version-id" + i);
@@ -164,6 +165,11 @@ public class ApiReportControllerTests extends BaseTest {
         list.forEach(apiReport -> {
             Assertions.assertTrue(apiReport.getStatus().equals(ApiReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ApiReportStatus.ERROR.name()));
         });
+        request.setFilter(new HashMap<>() {{
+            put("integrated", List.of("true"));
+        }});
+        mvcResult = responsePost(PAGE, request);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
 
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, PAGE, request);
