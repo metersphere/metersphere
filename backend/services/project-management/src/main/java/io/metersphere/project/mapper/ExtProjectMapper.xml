@@ -51,7 +51,7 @@
           and p.enable = 1
           and user.deleted = 0
           and p.organization_id = #{organizationId}
-        order by create_time desc
+        order by p.create_time desc
         limit 100
     </select>
     <select id="resourcePoolIsExist" resultType="int">

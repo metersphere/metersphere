@@ -2,9 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.ApiFile;
-import io.metersphere.api.dto.ApiParamConfig;
-import io.metersphere.api.dto.ApiResourceModuleInfo;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
@@ -705,5 +703,9 @@ public class ApiTestCaseService extends MoveNodeService {
                 extApiTestCaseMapper::selectNodeByPosOperator
         );
         this.sort(sortDTO);
+    }
+
+    public List<ReferenceDTO> getReference(ReferenceRequest request) {
+        return extApiDefinitionMapper.getReference(request);
     }
 }

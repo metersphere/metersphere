@@ -8,8 +8,6 @@ import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
-import io.metersphere.project.dto.environment.EnvironmentDTO;
-import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.domain.Environment;
@@ -94,17 +92,11 @@ public class ApiTestService {
         EnvironmentConfig newEnvironmentConfig = new EnvironmentConfig();
         newEnvironmentConfig.setHttpConfig(environmentConfig.getHttpConfig());
         newEnvironmentConfig.setCommonVariables(environmentConfig.getCommonVariables());
-        List<DataSource> dataSources = environmentConfig.getDataSources().stream().map(dataSource -> {
-            DataSource newDataSource = new DataSource();
-            newDataSource.setId(dataSource.getId());
-            newDataSource.setDataSource(dataSource.getDataSource());
-            return newDataSource;
-        }).toList();
         newEnvironmentConfig.setAuthConfig(null);
         newEnvironmentConfig.setPreProcessorConfig(null);
         newEnvironmentConfig.setPostProcessorConfig(null);
         newEnvironmentConfig.setAssertionConfig(null);
-        newEnvironmentConfig.setDataSources(dataSources);
+        newEnvironmentConfig.setDataSources(environmentConfig.getDataSources());
         return newEnvironmentConfig;
     }
 }

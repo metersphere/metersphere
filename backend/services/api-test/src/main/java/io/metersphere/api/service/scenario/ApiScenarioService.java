@@ -2222,4 +2222,8 @@ public class ApiScenarioService extends MoveNodeService{
     public String transfer(ApiTransferRequest request, String userId) {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API_SCENARIO.name());
     }
+
+    public List<ReferenceDTO> getReference(ReferenceRequest request) {
+        return extApiDefinitionMapper.getReference(request);
+    }
 }

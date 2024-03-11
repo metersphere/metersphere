@@ -5,9 +5,7 @@ import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.ApiFile;
-import io.metersphere.api.dto.ApiParamConfig;
-import io.metersphere.api.dto.ApiResourceModuleInfo;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
@@ -1183,5 +1181,9 @@ public class ApiDefinitionService extends MoveNodeService {
         // 设置环境
         apiParamConfig.setEnvConfig(environmentInfoDTO);
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    public List<ReferenceDTO> getReference(ReferenceRequest request) {
+        return extApiDefinitionMapper.getReference(request);
     }
 }

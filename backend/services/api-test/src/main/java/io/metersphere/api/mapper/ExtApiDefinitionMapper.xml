@@ -594,4 +594,29 @@
         </if>
         LIMIT 1
     </select>
+    <select id="getReference" resultType="io.metersphere.api.dto.ReferenceDTO">
+        select
+            a.id as id,
+            max(a.num) as num,
+            max(a.name) as resourceName,
+            'API' as resourceType,
+            ass.ref_type as refType,
+            max(p.id) as projectId ,
+            max(p.name) as projectName,
+            max(o.id) as organizationId,
+            max(o.name) as organizationName
+        from api_scenario_step ass inner join api_scenario a on ass.scenario_id = a.id
+        inner join project p on p.id = ass.project_id
+        inner join organization o on p.organization_id = o.id
+        <where>
+            ass.resource_id = #{request.resourceId}
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                a.num like concat('%', #{request.keyword},'%')
+                or a.name like concat('%', #{request.keyword},'%')
+                )
+            </if>
+        </where>
+        group by a.id, ass.ref_type
+    </select>
 </mapper>
