@@ -11,86 +11,101 @@
         <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">{{ item.label }}</a-doption>
       </template>
     </a-dropdown>
-    <div v-if="showBody" class="ms-assertion-body">
-      <VueDraggable v-model="assertions" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
-        <div
-          v-for="(item, index) in assertions"
-          :key="item.id"
-          class="ms-assertion-body-left-item"
-          :class="{
-            'ms-assertion-body-left-item-active': activeKey === item.id,
-            'ms-assertion-body-left-item-active-focus': focusKey === item.id,
-          }"
-          @click="handleItemClick(item)"
-        >
-          <div class="ms-assertion-body-left-item-row">
-            <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-            <span class="ms-assertion-body-left-item-row-title">{{ item.name }}</span>
-          </div>
-          <div class="ms-assertion-body-left-item-switch">
-            <div class="ms-assertion-body-left-item-switch-action">
-              <MsIcon
-                type="icon-icon_drag"
-                class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
-              />
-              <MsTableMoreAction
-                :list="itemMoreActions"
-                trigger="click"
-                @select="handleMoreActionSelect($event, item)"
-                @close="focusKey = ''"
-              >
-                <MsButton type="icon" size="mini" class="action-btn-more">
-                  <MsIcon
-                    type="icon-icon_more_outlined"
-                    size="14"
-                    class="text-[var(--color-text-4)]"
-                    @click="focusKey = item.id"
-                  />
-                </MsButton>
-              </MsTableMoreAction>
-            </div>
 
-            <a-switch v-model:model-value="item.enable" type="line" size="small" />
+    <div v-if="showBody" class="ms-assertion-body">
+      <a-scrollbar
+        :style="{
+          overflow: 'auto',
+          height: 'calc(100vh - 458px)',
+        }"
+      >
+        <VueDraggable v-model="assertions" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
+          <div
+            v-for="(item, index) in assertions"
+            :key="item.id"
+            class="ms-assertion-body-left-item"
+            :class="{
+              'ms-assertion-body-left-item-active': activeKey === item.id,
+              'ms-assertion-body-left-item-active-focus': focusKey === item.id,
+            }"
+            @click="handleItemClick(item)"
+          >
+            <div class="ms-assertion-body-left-item-row">
+              <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
+              <span class="ms-assertion-body-left-item-row-title">{{ item.name }}</span>
+            </div>
+            <div class="ms-assertion-body-left-item-switch">
+              <div class="ms-assertion-body-left-item-switch-action">
+                <MsIcon
+                  type="icon-icon_drag"
+                  class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
+                />
+                <MsTableMoreAction
+                  :list="itemMoreActions"
+                  trigger="click"
+                  @select="handleMoreActionSelect($event, item)"
+                  @close="focusKey = ''"
+                >
+                  <MsButton type="icon" size="mini" class="action-btn-more">
+                    <MsIcon
+                      type="icon-icon_more_outlined"
+                      size="14"
+                      class="text-[var(--color-text-4)]"
+                      @click="focusKey = item.id"
+                    />
+                  </MsButton>
+                </MsTableMoreAction>
+              </div>
+
+              <a-switch v-model:model-value="item.enable" type="line" size="small" />
+            </div>
           </div>
-        </div>
-      </VueDraggable>
+        </VueDraggable>
+      </a-scrollbar>
       <section class="ms-assertion-body-right">
-        <!-- 响应头 -->
-        <ResponseHeaderTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
-          v-model:data="getCurrentItemState"
-          @change="handleChange"
-        />
-        <!-- 状态码 -->
-        <StatusCodeTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
-          v-model:data="getCurrentItemState"
-          @change="handleChange"
-        />
-        <!-- 响应体 -->
-        <ResponseBodyTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
-          :value="getCurrentItemState"
-          @change="handleChange"
-        />
-        <!-- 响应时间 -->
-        <ResponseTimeTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
-          v-model:data="getCurrentItemState"
-          @change="handleChange"
-        />
-        <!-- 变量 -->
-        <VariableTab
-          v-if="valueKey === ResponseAssertionType.VARIABLE"
-          v-model:data="getCurrentItemState"
-          @change="handleChange"
-        />
-        <!-- 脚本 -->
-        <ScriptTab
-          v-if="valueKey === ResponseAssertionType.SCRIPT"
-          :value="getCurrentItemState"
-          @change="handleChange"
-        />
+        <a-scrollbar
+          :style="{
+            overflow: 'auto',
+            height: '200px',
+          }"
+        >
+          <!-- 响应头 -->
+          <ResponseHeaderTab
+            v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
+            v-model:data="getCurrentItemState"
+            @change="handleChange"
+          />
+          <!-- 状态码 -->
+          <StatusCodeTab
+            v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
+            v-model:data="getCurrentItemState"
+            @change="handleChange"
+          />
+          <!-- 响应体 -->
+          <ResponseBodyTab
+            v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
+            v-model:data="getCurrentItemState"
+            @change="handleChange"
+          />
+          <!-- 响应时间 -->
+          <ResponseTimeTab
+            v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
+            v-model:data="getCurrentItemState"
+            @change="handleChange"
+          />
+          <!-- 变量 -->
+          <VariableTab
+            v-if="valueKey === ResponseAssertionType.VARIABLE"
+            v-model:data="getCurrentItemState"
+            @change="handleChange"
+          />
+          <!-- 脚本 -->
+          <ScriptTab
+            v-if="valueKey === ResponseAssertionType.SCRIPT"
+            :value="getCurrentItemState"
+            @change="handleChange"
+          />
+        </a-scrollbar>
       </section>
     </div>
   </div>
@@ -133,11 +148,50 @@
   const valueKey = computed(() => {
     return activeKey.value && assertions.value.find((item) => item.id === activeKey.value)?.assertionType;
   });
+  const defaultResBodyItem = {
+    jsonPathAssertion: {
+      assertions: [],
+    },
+    xpathAssertion: { responseFormat: 'XML', assertions: [] },
+    assertionBodyType: '',
+    regexAssertion: {
+      assertions: [],
+    },
+    // TODO文档暂时不做
+    // documentAssertion: {
+    //   jsonAssertion: [
+    //     {
+    //       id: rootId,
+    //       paramsName: 'root',
+    //       mustInclude: false,
+    //       typeChecking: false,
+    //       paramType: 'object',
+    //       matchCondition: '',
+    //       matchValue: '',
+    //     },
+    //   ],
+    //   responseFormat: 'JSON',
+    //   followApi: false,
+    // },
+  };
 
   // 计算当前页面的存储的状态
   const getCurrentItemState = computed({
     get: () => {
-      return assertions.value.find((item) => item.id === activeKey.value);
+      const currentResItem =
+        assertions.value.find((item: any) => item.id === activeKey.value) || assertions.value[0] || {};
+      if (currentResItem && currentResItem?.assertionType === ResponseAssertionType.RESPONSE_BODY) {
+        const { jsonPathAssertion, xpathAssertion, regexAssertion } = currentResItem;
+        return {
+          ...currentResItem,
+          jsonPathAssertion: jsonPathAssertion || defaultResBodyItem.jsonPathAssertion,
+          xpathAssertion: xpathAssertion || defaultResBodyItem.xpathAssertion,
+          assertionBodyType: '',
+          regexAssertion: regexAssertion || defaultResBodyItem.regexAssertion,
+          bodyAssertionDataByType: {},
+        };
+      }
+      return currentResItem;
     },
     set: (val: ExecuteAssertion) => {
       const currentIndex = assertions.value.findIndex((item) => item.id === activeKey.value);
@@ -223,11 +277,12 @@
             assertions: [],
           },
           xpathAssertion: {
+            responseFormat: 'XML',
             assertions: [],
           },
-          regexAssertion: {
-            assertions: [],
-          },
+          // regexAssertion: {
+          //   assertions: [],
+          // },
           bodyAssertionDataByType: {},
         });
         break;
@@ -284,6 +339,7 @@
         getCurrentItemState.value = { ...val };
         break;
       case ResponseAssertionType.RESPONSE_BODY:
+        getCurrentItemState.value = { ...val };
         break;
       case ResponseAssertionType.RESPONSE_TIME:
         getCurrentItemState.value = { ...val };
@@ -300,7 +356,9 @@
   };
 
   watchEffect(() => {
-    console.log(getCurrentItemState.value);
+    getCurrentItemState.value =
+      assertions.value.find((item: any) => item.id === activeKey.value) || assertions.value[0] || {};
+    activeKey.value = getCurrentItemState.value.id;
   });
 </script>
 
@@ -317,7 +375,6 @@
         padding: 12px;
         width: 216px;
         min-width: 216px;
-        height: calc(100vh - 394px);
         background-color: var(--color-text-n9);
         flex-direction: column;
         gap: 4px;

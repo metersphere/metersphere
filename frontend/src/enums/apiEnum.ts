@@ -113,6 +113,7 @@ export enum ResponseBodyAssertionType {
   JSON_PATH = 'JSON_PATH',
   REGEX = 'REGEX', // 正则表达式
   XPATH = 'XPATH',
+  SCRIPT = 'SCRIPT',
 }
 // 接口断言-响应体断言-文档类型
 export enum ResponseBodyAssertionDocumentType {

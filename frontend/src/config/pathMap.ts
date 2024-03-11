@@ -657,7 +657,7 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
-        key: 'PROJECT_MANAGEMENT_COMMON_SCRIPT', // 项目管理-公共脚本
+        key: ' PROJECT_CUSTOM_FUNCTION', // 项目管理-公共脚本
         locale: 'menu.projectManagement.commonScript',
         route: RouteEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT,
         permission: [],

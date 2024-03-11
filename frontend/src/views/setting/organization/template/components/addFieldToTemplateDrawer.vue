@@ -119,7 +119,7 @@
     tableSelectData: DefinedFieldItem[]; // 表格选择字段
   }>();
 
-  const emit = defineEmits(['confirm', 'update:visible', 'update-data']);
+  const emit = defineEmits(['confirm', 'update:visible', 'update-data', 'brash']);
 
   const totalList = ref<DefinedFieldItem[]>([]);
 
@@ -229,9 +229,9 @@
     showAddDrawer.value = false;
   };
 
-  const okHandler = () => {
+  const okHandler = (editFlag: boolean, fieldId: string) => {
     // eslint-disable-next-line vue/custom-event-name-casing
-    emit('update-data');
+    emit('update-data', editFlag, fieldId);
   };
 
   watch(

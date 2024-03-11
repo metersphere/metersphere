@@ -182,6 +182,7 @@
         :table-select-data="(selectData as DefinedFieldItem[])"
         :mode="props.mode"
         @confirm="confirmHandler"
+        @update-data="updateFieldHandler"
       />
       <EditFieldDrawer
         ref="fieldDrawerRef"
