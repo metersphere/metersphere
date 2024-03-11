@@ -270,6 +270,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import useUserStore from '@/store/modules/user';
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -279,11 +280,14 @@
     CreateOrUpdateCase,
     CustomAttributes,
     DetailCase,
+    OptionsFieldId,
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
   import { convertToFile, initFormCreate } from './utils';
+
+  const userStore = useUserStore();
 
   const { t } = useI18n();
   const route = useRoute();
@@ -382,16 +386,33 @@
       const { customFields, id } = res;
       form.value.templateId = id;
       const result = customFields.map((item: any) => {
+        const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
+        let initValue = item.defaultValue;
+        let optionsValue: OptionsFieldId[] = item.options;
+        if (memberType.includes(item.type)) {
+          optionsValue = [
+            {
+              fieldId: item.fieldId,
+              internal: item.internal,
+              text: userStore.name || '',
+              value: userStore.id || '',
+            },
+          ];
+          if (item.defaultValue === 'CREATE_USER') {
+            initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
+          }
+        }
+
         return {
           type: item.type,
           name: item.fieldId,
           label: item.fieldName,
-          value: item.defaultValue,
+          value: initValue,
           required: item.required,
           options: item.options || [],
           props: {
-            modelValue: item.defaultValue,
-            options: item.options || [],
+            modelValue: initValue,
+            options: optionsValue || [],
           },
         };
       });

@@ -7,14 +7,16 @@
         </a-radio>
       </a-radio-group>
     </div>
-    <div v-if="activeTab === 'jsonPath'" class="mt-[16px]">
+    <!-- jsonPath开始 -->
+    <div v-if="activeTab === ResponseBodyAssertionType.JSON_PATH" class="mt-[16px]">
       <paramsTable
-        v-model:params="innerParams.jsonPath"
+        ref="extractParamsTableRef"
+        v-model:params="condition.jsonPathAssertion.assertions"
         :selectable="false"
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
-        @change="(data) => handleChange(data, 'jsonPath')"
+        @change="(data) => handleChange(data, ResponseBodyAssertionType.JSON_PATH)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -82,24 +84,22 @@
         </template>
       </paramsTable>
     </div>
-    <div v-if="activeTab === 'xPath'" class="mt-[16px]">
+    <!-- jsonPath结束 -->
+    <!-- xPath开始 -->
+    <div v-if="activeTab === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
-      <a-radio-group
-        v-model:model-value="innerParams.xPath.responseFormat"
-        class="mb-[16px] mt-[16px]"
-        type="button"
-        size="small"
-      >
-        <a-radio value="XML">XML</a-radio>
-        <a-radio value="HTML">HTML</a-radio>
+      <a-radio-group v-model="activeResponseFormat" class="mb-[16px] mt-[16px]" type="button" size="small">
+        <a-radio key="XML" value="XML">XML</a-radio>
+        <a-radio key="HTML" value="HTML">HTML</a-radio>
       </a-radio-group>
       <paramsTable
-        v-model:params="innerParams.xPath.data"
+        ref="extractParamsTableRef"
+        v-model:params="condition.xpathAssertion.assertions"
         :selectable="false"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="(data) => handleChange(data, 'xPath')"
+        @change="(data) => handleChange(data, ResponseBodyAssertionType.XPATH)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -167,22 +167,24 @@
         </template>
       </paramsTable>
     </div>
-    <div v-if="activeTab === 'document'" class="relative mt-[16px]">
+    <!-- xPath结束 -->
+    <!-- document开始 -->
+    <div v-if="activeTab === ResponseBodyAssertionType.DOCUMENT" class="relative mt-[16px]">
       <div class="text-[var(--color-text-1)]">
         {{ t('ms.assertion.responseContentType') }}
       </div>
-      <a-radio-group v-model:model-value="innerParams.document.responseFormat" class="mt-[16px]" size="small">
+      <a-radio-group v-model:model-value="condition.document.responseFormat" class="mt-[16px]" size="small">
         <a-radio value="JSON">JSON</a-radio>
         <a-radio value="XML">XML</a-radio>
       </a-radio-group>
       <div class="mt-[16px]">
-        <a-checkbox v-model:model-value="innerParams.document.followApi">
+        <a-checkbox v-model:model-value="condition.document.followApi">
           <span class="text-[var(--color-text-1)]">{{ t('ms.assertion.followApi') }}</span>
         </a-checkbox>
       </div>
       <div class="mt-[16px]">
         <paramsTable
-          v-model:params="innerParams.document.data"
+          v-model:params="condition.document.jsonAssertion"
           :selectable="false"
           :columns="documentColumns"
           :scroll="{
@@ -193,7 +195,7 @@
           :span-method="documentSpanMethod"
           is-tree-table
           @tree-delete="deleteAllParam"
-          @change="(data) => handleChange(data, 'document')"
+          @change="(data) => handleChange(data, ResponseBodyAssertionType.DOCUMENT)"
         >
           <template #matchValueDelete="{ record }">
             <icon-minus-circle
@@ -227,14 +229,17 @@
         </paramsTable>
       </div>
     </div>
-    <div v-if="activeTab === 'regular'" class="mt-[16px]">
+    <!-- document结束 -->
+    <!-- 正则开始 -->
+    <div v-if="activeTab === ResponseBodyAssertionType.REGEX" class="mt-[16px]">
       <paramsTable
-        v-model:params="innerParams.regular"
+        ref="extractParamsTableRef"
+        v-model:params="condition.regexAssertion.assertions"
         :selectable="false"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="(data) => handleChange(data, 'regular')"
+        @change="(data) => handleChange(data, ResponseBodyAssertionType.REGEX)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -302,14 +307,17 @@
         </template>
       </paramsTable>
     </div>
-    <div v-if="activeTab === 'script'" class="mt-[16px]">
-      <conditionContent v-model:data="innerParams.script" :height-used="600" is-build-in class="mt-[16px]" />
-    </div>
+    <!-- 正则结束 -->
+    <!-- 这一版断言里边的脚本不需要 -->
+    <!-- <div v-if="activeTab === ResponseBodyAssertionType.SCRIPT" class="mt-[16px]">
+      <conditionContent v-model:data="condition.script" :height-used="600" is-build-in class="mt-[16px]" />
+    </div> -->
   </div>
   <fastExtraction v-model:visible="fastExtractionVisible" :config="activeRecord" @apply="handleFastExtractionApply" />
 </template>
 
 <script setup lang="ts">
+  import { useVModel } from '@vueuse/core';
   import { TableColumnData, TableData } from '@arco-design/web-vue';
 
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
@@ -345,6 +353,7 @@
     RequestExtractExpressionRuleType,
     RequestExtractResultMatchingRule,
     RequestExtractScope,
+    ResponseBodyAssertionType,
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
 
@@ -353,7 +362,7 @@
   }
 
   const emit = defineEmits<{
-    (e: 'update:data', data: ExecuteConditionProcessor): void;
+    // (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
     (e: 'delete', id: number): void;
     (e: 'change', param: Param): void;
@@ -362,44 +371,43 @@
   const rootId = 0; // 1970-01-01 00:00:00 UTC
 
   const props = defineProps<{
-    value: Param;
+    data: Param;
   }>();
-
+  const activeTab = ref(ResponseBodyAssertionType.JSON_PATH);
+  const activeResponseFormat = ref('XML');
   const defaultParamItem = {
-    jsonPath: [],
-    xPath: { responseFormat: 'XML', data: [] },
-    document: {
-      data: [
-        {
-          id: rootId,
-          paramsName: 'root',
-          mustInclude: false,
-          typeChecking: false,
-          paramType: 'object',
-          matchCondition: '',
-          matchValue: '',
-        },
-      ],
-      responseFormat: 'JSON',
-      followApi: false,
+    jsonPathAssertion: {
+      assertions: [],
     },
-    script: {
-      id: new Date().getTime(),
-      processorType: RequestConditionProcessor.SCRIPT,
-      scriptName: '断言脚本名称',
-      enableCommonScript: false,
-      params: [],
-      scriptId: '',
-      scriptLanguage: RequestConditionScriptLanguage.JAVASCRIPT,
-      script: new Date().getTime().toString(),
+    xpathAssertion: { responseFormat: 'XML', assertions: [] },
+    assertionBodyType: activeTab.value,
+    regexAssertion: {
+      assertions: [],
     },
+    // TODO文档暂时不做
+    // documentAssertion: {
+    //   jsonAssertion: [
+    //     {
+    //       id: rootId,
+    //       paramsName: 'root',
+    //       mustInclude: false,
+    //       typeChecking: false,
+    //       paramType: 'object',
+    //       matchCondition: '',
+    //       matchValue: '',
+    //     },
+    //   ],
+    //   responseFormat: 'JSON',
+    //   followApi: false,
+    // },
   };
 
-  const innerParams = ref<Param>(props.value || defaultParamItem);
-  watchEffect(() => {
-    emit('change', innerParams.value);
-  });
-  const activeTab = ref('jsonPath');
+  const condition = useVModel(props, 'data', emit);
+  // const condition = ref<Param>(props.data || defaultParamItem);
+  // watchEffect(() => {
+  //   emit('change', { ...condition.value });
+  // });
+
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
   const disabledExpressionSuffix = ref(false);
@@ -422,11 +430,10 @@
   const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
   const responseRadios = [
-    { label: 'ms.assertion.jsonPath', value: 'jsonPath' },
-    { label: 'ms.assertion.xpath', value: 'xPath' },
+    { label: 'ms.assertion.jsonPath', value: ResponseBodyAssertionType.JSON_PATH },
+    { label: 'ms.assertion.xpath', value: ResponseBodyAssertionType.XPATH },
     // { label: 'ms.assertion.document', value: 'document' },
-    { label: 'ms.assertion.regular', value: 'regular' },
-    { label: 'ms.assertion.script', value: 'script' },
+    { label: 'ms.assertion.regular', value: ResponseBodyAssertionType.REGEX },
   ];
 
   const jsonPathColumns: ParamTableColumn[] = [
@@ -438,15 +445,15 @@
     },
     {
       title: 'ms.assertion.matchCondition',
-      dataIndex: 'matchCondition',
-      slotName: 'matchCondition',
+      dataIndex: 'condition',
+      slotName: 'condition',
       options: statusCodeOptions,
       width: 120,
     },
     {
       title: 'ms.assertion.matchValue',
-      dataIndex: 'matchValue',
-      slotName: 'matchValue',
+      dataIndex: 'expectedValue',
+      slotName: 'expectedValue',
     },
     {
       title: '',
@@ -469,19 +476,38 @@
 
   const jsonPathDefaultParamItem = {
     expression: '',
-    matchCondition: '',
-    matchValue: '',
-    enable: true,
+    condition: '',
+    expectedValue: '',
+    valid: true,
   };
+
   const handleChange = (data: any[], type: string) => {
-    if (type === 'jsonPath') {
-      innerParams.value.jsonPath = data;
-    } else if (type === 'xPath') {
-      innerParams.value.xPath.data = data;
-    } else if (type === 'document') {
-      innerParams.value.document.data = data;
-    } else if (type === 'regular') {
-      innerParams.value.regular = data;
+    switch (type) {
+      case ResponseBodyAssertionType.JSON_PATH:
+        if (data.length > 1) {
+          data.splice(data.length - 1, 1);
+        }
+        condition.value.jsonPathAssertion.assertions = data;
+        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        break;
+      case ResponseBodyAssertionType.XPATH:
+        condition.value.xpathAssertion.assertions = data;
+        emit('change', {
+          ...defaultParamItem,
+          ...condition.value,
+          assertionBodyType: activeTab.value,
+          responseFormat: activeResponseFormat.value,
+        });
+        break;
+      case ResponseBodyAssertionType.DOCUMENT:
+        condition.value.documentAssertion.jsonAssertion = data;
+        break;
+      case ResponseBodyAssertionType.REGEX:
+        condition.value.regexAssertion.assertions = data;
+        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        break;
+      default:
+        break;
     }
   };
   function handleExpressionChange(rowIndex: number) {
@@ -615,20 +641,22 @@
    * 提取参数表格-保存快速提取的配置
    */
   function handleFastExtractionApply(config: RegexExtract | JSONPathExtract | XPathExtract) {
-    // condition.value.extractParams = condition.value.extractParams?.map((e) => {
-    //   if (e.id === activeRecord.value.id) {
-    //     return {
-    //       ...e,
-    //       ...config,
-    //     };
-    //   }
-    //   return e;
-    // });
-    // fastExtractionVisible.value = false;
-    // nextTick(() => {
-    //   extractParamsTableRef.value?.addTableLine();
-    // });
-    // emit('change');
+    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
+      if (e.id === activeRecord.value.id) {
+        return {
+          ...e,
+          ...config,
+        };
+      }
+      return e;
+    });
+    fastExtractionVisible.value = false;
+    nextTick(() => {
+      extractParamsTableRef.value?.addTableLine(
+        condition.value.jsonPathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
+      );
+    });
+    emit('change', { ...condition.value });
   }
 
   /**
@@ -672,9 +700,9 @@
   const addValidateChild = (record: Record<string, any>) => {
     if (record.groupId) {
       // 子项点击，找到父级
-      const parent = innerParams.value.document.data.find((item: any) => item.id === record.groupId);
+      const parent = condition.value.documentAssertion.jsonAssertion.find((item: any) => item.id === record.groupId);
       insertNode(
-        innerParams.value.document.data,
+        condition.value.documentAssertion.jsonAssertion,
         { id: record.id, groupId: record.groupId },
         {
           ...record,
@@ -688,18 +716,18 @@
         parent.rowSpan = parent.rowSpan ? parent.rowSpan + 1 : 2;
       } else {
         // 找到第一个子节点
-        const fisrtChildNode = findFirstByGroupId(innerParams.value.document.data, record.groupId);
+        const fisrtChildNode = findFirstByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId);
         if (fisrtChildNode) {
           fisrtChildNode.rowSpan = fisrtChildNode.rowSpan
             ? fisrtChildNode.rowSpan + 1
-            : countNodesByGroupId(innerParams.value.document.data, record.groupId) + 1;
+            : countNodesByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId) + 1;
         }
       }
     } else {
       record.rowSpan = record.rowSpan ? record.rowSpan + 1 : 2;
       // 父级点击
       insertNode(
-        innerParams.value.document.data,
+        condition.value.documentAssertion.jsonAssertion,
         { id: record.id, groupId: record.groupId },
         {
           ...record,
@@ -712,23 +740,23 @@
     }
   };
   const showDeleteSingle = computed(() => {
-    return countNodes(innerParams.value.document.data) > 1;
+    return countNodes(condition.value.documentAssertion.jsonAssertion) > 1;
   });
   const deleteSingleParam = (record: Record<string, any>) => {
-    deleteNodeById(innerParams.value.document.data, record.id);
+    deleteNodeById(condition.value.documentAssertion.jsonAssertion, record.id);
   };
   const deleteAllParam = (record: Record<string, any>) => {
     if (record.groupId) {
       // 验证子项,根据groupId删除
-      deleteNodesByGroupId(innerParams.value.document.data, record.groupId);
+      deleteNodesByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId);
     } else if (record.rowspan > 2) {
       // 验证主体, 根据主体的id 作为groupId删除
-      deleteNodesByGroupId(innerParams.value.document.data, record.id);
+      deleteNodesByGroupId(condition.value.documentAssertion.jsonAssertion, record.id);
       // 删除本体
-      deleteNodeById(innerParams.value.document.data, record.id);
+      deleteNodeById(condition.value.documentAssertion.jsonAssertion, record.id);
     } else {
       // 删除本体
-      deleteNodeById(innerParams.value.document.data, record.id);
+      deleteNodeById(condition.value.documentAssertion.jsonAssertion, record.id);
     }
   };
 
@@ -752,6 +780,6 @@
     }
   };
   const handleScriptChange = (data: ExecuteConditionProcessor) => {
-    innerParams.value.script = data;
+    condition.value.script = data;
   };
 </script>

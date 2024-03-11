@@ -119,4 +119,8 @@ export const editorProps = {
     type: Boolean as PropType<boolean>,
     default: false,
   },
+  widthClass: {
+    type: String as PropType<string>,
+    default: '',
+  },
 };
