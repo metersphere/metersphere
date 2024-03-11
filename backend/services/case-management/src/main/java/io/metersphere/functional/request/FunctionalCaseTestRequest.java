@@ -10,7 +10,7 @@ import lombok.Data;
 public class FunctionalCaseTestRequest extends BasePageRequest {
 
     @Schema(description = "关联关系表里主ID eg:功能用例关联接口用例时为功能用例id")
-    @NotBlank(message = "{api_definition.project_id.not_blank}")
+    @NotBlank(message = "{custom_field_test_case.resource_id.not_blank}")
     @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}")
     private String sourceId;
 

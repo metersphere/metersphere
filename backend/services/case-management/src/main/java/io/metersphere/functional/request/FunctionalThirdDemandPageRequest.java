@@ -10,7 +10,7 @@ public class FunctionalThirdDemandPageRequest extends BasePageRequest {
 
 
     @Schema(description = "ms系统当前的项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_third_demand_page_request.project_id.not_blank}")
+    @NotBlank(message = "{case_review.project_id.not_blank}")
     private String projectId;
 
 }

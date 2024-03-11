@@ -25,6 +25,6 @@ public class FunctionalCaseImportRequest implements Serializable {
     private String versionId;
 
     @Schema(description = "是否覆盖原用例", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{is_null}")
+    @NotBlank(message = "{functional_case.cover.not_blank}")
     private boolean cover;
 }

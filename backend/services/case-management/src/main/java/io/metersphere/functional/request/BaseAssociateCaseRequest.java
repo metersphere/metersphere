@@ -12,7 +12,7 @@ import java.util.List;
 public class BaseAssociateCaseRequest extends BaseFunctionalCaseBatchDTO {
 
     @Schema(description = "功能用例选择的项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_associate_request.project_id.not_blank}")
+    @NotBlank(message = "{case_review_case.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "默认评审人", requiredMode = Schema.RequiredMode.REQUIRED)

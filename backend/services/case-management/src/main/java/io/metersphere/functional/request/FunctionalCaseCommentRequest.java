@@ -37,7 +37,7 @@ public class FunctionalCaseCommentRequest {
     private String event;
 
     @Schema(description = "项目Id")
-    @NotBlank(message = "{project.id.not_blank}")
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
     /**

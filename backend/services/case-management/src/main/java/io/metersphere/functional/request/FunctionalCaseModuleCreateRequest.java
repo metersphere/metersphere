@@ -19,7 +19,7 @@ public class FunctionalCaseModuleCreateRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project.id.not_blank}")
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)

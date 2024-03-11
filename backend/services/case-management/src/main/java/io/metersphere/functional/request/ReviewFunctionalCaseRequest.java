@@ -14,11 +14,11 @@ public class ReviewFunctionalCaseRequest {
     private String projectId;
 
     @Schema(description = "用例评审Id")
-    @NotBlank(message = "{case_review.review_id.not_blank}")
+    @NotBlank(message = "{case_review.case_review_id.not_blank}")
     private String reviewId;
 
     @Schema(description = "功能用例id")
-    @NotBlank(message = "{functional_case.case_id.not_blank}")
+    @NotBlank(message = "{functional_case_blob.functional_case_id.not_blank}")
     private String caseId;
 
     @Schema(description = "评审规则")

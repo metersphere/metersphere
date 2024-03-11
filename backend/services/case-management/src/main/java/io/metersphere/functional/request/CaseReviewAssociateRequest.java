@@ -19,15 +19,15 @@ public class CaseReviewAssociateRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "用例评审id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_associate_request.case_review_id.not_blank}")
+    @NotBlank(message = "{case_review.case_review_id.not_blank}")
     private String reviewId;
 
     @Schema(description = "用例评审所在的项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_associate_request.project_id.not_blank}")
+    @NotBlank(message = "{case_review.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "评审人")
-    @NotEmpty(message = "{case_review_associate_request.user_ids.not_empty}")
+    @NotEmpty(message = "{case_review.user_ids.not_empty}")
     private List<String> reviewers;
 
     @Schema(description = "查询功能用例的条件")

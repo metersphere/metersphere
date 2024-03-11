@@ -23,14 +23,14 @@ public class PosRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "目标用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.name.not_blank}")
+    @NotBlank(message = "{functional_case_relationship_edge.target_id.not_blank}")
     private String targetId;
 
     @Schema(description = "移动类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"BEFORE", "AFTER", "APPEND"})
-    @NotBlank(message = "{case_review.module_id.not_blank}")
+    @NotBlank(message = "{case_review.moveMode.not_blank}")
     private String moveMode;
 
     @Schema(description = "移动用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.module_id.not_blank}")
+    @NotBlank(message = "{functional_case_relationship_edge.source_id.not_blank}")
     private String moveId;
 }
