@@ -758,12 +758,6 @@
     sort.value = sortObj;
   }
 
-  async function searchData() {
-    // eslint-disable-next-line no-use-before-define
-    setLoadListParams(initTableParams());
-    await loadList();
-  }
-
   function initTableParams() {
     const filterParams = {
       status: statusFilterValue.value,
@@ -782,6 +776,12 @@
       },
     };
   }
+
+  function searchData() {
+    setLoadListParams(initTableParams());
+    loadList();
+  }
+
   watchEffect(() => {
     setProps({ heightUsed: heightUsed.value });
   });
