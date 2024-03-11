@@ -96,6 +96,7 @@ public class ApiScenarioReportService {
             BeanUtils.copyBean(scenarioReportListDTO, scenarioReport);
             scenarioReportListDTO.setCreateUserName(userMap.get(scenarioReport.getCreateUser()));
             scenarioReportListDTO.setUpdateUserName(userMap.get(scenarioReport.getUpdateUser()));
+            result.add(scenarioReportListDTO);
         });
         return result;
     }

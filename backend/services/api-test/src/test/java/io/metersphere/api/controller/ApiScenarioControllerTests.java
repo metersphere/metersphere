@@ -2053,7 +2053,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(resultResponse.getSuccess(), 0);
 
         //校验权限
-        this.requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_RECOVER, testUrl, request);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, testUrl, request);
 
         //反例测试 ->参数校验：项目ID为空
         request = new ApiScenarioBatchCopyMoveRequest();

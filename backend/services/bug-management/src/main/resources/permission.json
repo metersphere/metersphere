@@ -18,7 +18,8 @@
             "id": "PROJECT_BUG:READ+UPDATE"
           },
           {
-            "id": "PROJECT_BUG:READ+DELETE"
+            "id": "PROJECT_BUG:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "PROJECT_BUG:READ+EXPORT"

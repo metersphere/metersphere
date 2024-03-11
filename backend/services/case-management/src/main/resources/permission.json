@@ -18,7 +18,8 @@
             "id": "FUNCTIONAL_CASE:READ+UPDATE"
           },
           {
-            "id": "FUNCTIONAL_CASE:READ+DELETE"
+            "id": "FUNCTIONAL_CASE:READ+DELETE",
+            "name": "permission.api_definition.delete_and_recover"
           },
           {
             "id": "FUNCTIONAL_CASE:READ+COMMENT",

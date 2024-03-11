@@ -500,7 +500,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         this.requestGet(RECOVER + "111").andExpect(ERROR_REQUEST_MATCHER);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER, RECOVER + apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, RECOVER + apiTestCase.getId());
     }
 
     //关注
@@ -1050,7 +1050,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER, BATCH_RECOVER, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, BATCH_RECOVER, request);
         ApiTestCaseBatchRequest gcRequest = new ApiTestCaseBatchRequest();
         gcRequest.setProjectId(DEFAULT_PROJECT_ID);
         gcRequest.setSelectAll(true);
