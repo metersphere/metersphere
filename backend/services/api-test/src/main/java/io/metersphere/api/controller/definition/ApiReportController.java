@@ -2,11 +2,11 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.definition.ApiReportLogService;
 import io.metersphere.api.service.definition.ApiReportService;
@@ -42,7 +42,7 @@ public class ApiReportController {
     @Operation(summary = "接口测试-接口报告-用例()")
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public Pager<List<ApiReport>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
+    public Pager<List<ApiReportListDTO>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
         return PageUtils.setPageInfo(page, apiReportService.getPage(request));

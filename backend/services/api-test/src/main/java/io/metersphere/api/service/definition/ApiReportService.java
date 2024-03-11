@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.dto.api.result.RequestResult;
@@ -79,19 +80,22 @@ public class ApiReportService {
         }
     }
 
-    public List<ApiReport> getPage(ApiReportPageRequest request) {
+    public List<ApiReportListDTO> getPage(ApiReportPageRequest request) {
         List<ApiReport> list = extApiReportMapper.list(request);
+        List<ApiReportListDTO> results = new ArrayList<>();
         //取所有的userid
         Set<String> userSet = list.stream()
                 .flatMap(apiReport -> Stream.of(apiReport.getUpdateUser(), apiReport.getDeleteUser(), apiReport.getCreateUser()))
                 .collect(Collectors.toSet());
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         list.forEach(apiReport -> {
-            apiReport.setCreateUser(userMap.get(apiReport.getCreateUser()));
-            apiReport.setUpdateUser(userMap.get(apiReport.getUpdateUser()));
-            apiReport.setDeleteUser(userMap.get(apiReport.getDeleteUser()));
+            ApiReportListDTO apiReportDTO = new ApiReportListDTO();
+            BeanUtils.copyBean(apiReportDTO, apiReport);
+            apiReportDTO.setCreateUserName(userMap.get(apiReport.getCreateUser()));
+            apiReportDTO.setUpdateUserName(userMap.get(apiReport.getUpdateUser()));
+            results.add(apiReportDTO);
         });
-        return list;
+        return results;
     }
 
     public void rename(String id, String name, String userId) {

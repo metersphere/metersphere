@@ -2,9 +2,9 @@ package io.metersphere.api.controller.scenario;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.ApiReportShareService;
@@ -42,7 +42,7 @@ public class ApiScenarioReportController {
     @Operation(summary = "接口测试-接口报告-场景()")
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public Pager<List<ApiScenarioReport>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
+    public Pager<List<ApiScenarioReportListDTO>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
         return PageUtils.setPageInfo(page, apiScenarioReportService.getPage(request));
