@@ -142,8 +142,9 @@
   const focusKey = ref<string>('');
   // 所有的断言列表参数
   const assertions = defineModel<any[]>('params', { default: [] });
+  const activeIds = ref('');
   // Item点击的key
-  const activeKey = ref<string>(assertions.value[0].id);
+  const activeKey = ref<string>('');
   // 展示的value
   const valueKey = computed(() => {
     return activeKey.value && assertions.value.find((item) => item.id === activeKey.value)?.assertionType;

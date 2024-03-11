@@ -202,6 +202,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { Message } from '@arco-design/web-vue';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -464,12 +465,16 @@
       if (store.currentId === NEW_ENV_PARAM) {
         // 删除id为newEnvParam的环境
         envList.value = envList.value.filter((item) => item.id !== id);
-      } else {
-        await deleteEnv(id);
+        store.setCurrentId(envList.value[0].id);
       }
-      if (store.currentId === id) {
-        store.setCurrentId('');
+      if (id === NEW_ENV_PARAM) {
+        envList.value = envList.value.filter((item) => item.id !== id);
+        store.setCurrentId(envList.value[0].id);
+        return;
       }
+      await deleteEnv(id);
+      Message.success(t('common.deleteSuccess'));
+      store.setCurrentId(envList.value[0].id);
       searchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -575,7 +580,7 @@
     padding: 7px 8px;
     height: 38px;
     box-sizing: border-box;
-    border-radius: var(--border-radius-base);
+    border-radius: 4px;
     cursor: pointer;
     .node-extra {
       opacity: 0;
