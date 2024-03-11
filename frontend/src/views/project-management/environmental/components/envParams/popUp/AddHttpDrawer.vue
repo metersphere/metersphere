@@ -259,7 +259,7 @@
     if (index > -1 && !props.isCopy) {
       const httpItem = {
         ...form.value,
-        hostname: `${protocol}:${url}`,
+        hostname: `${protocol}://${url}`,
         pathMatchRule: {
           path,
           condition,
@@ -273,7 +273,7 @@
       const insertItem = {
         ...form.value,
         id: getGenerateId(),
-        hostname: `${protocol}:${url}`,
+        hostname: `${protocol}://${url}`,
         order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
         moduleMatchRule: { modules },
       };
@@ -325,7 +325,7 @@
           moduleId: currentItem.moduleMatchRule.modules.map((item) => item.moduleId) || [],
           path,
           condition,
-          url: urlPath && urlPath?.length > 1 ? `//${urlPath[1]}` : '',
+          url: urlPath && urlPath?.length > 1 ? `${urlPath[1]}` : '',
         };
       }
     } else {
