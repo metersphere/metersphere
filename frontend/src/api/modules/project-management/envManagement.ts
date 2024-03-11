@@ -25,7 +25,7 @@ export function updateOrAddEnv(data: { request: EnvDetailItem; fileList: FileIte
 export function listEnv(data: { projectId: string; keyword: string }) {
   return MSR.post<EnvListItem[]>({ url: envURL.listEnvUrl, data });
 }
-export function importEnv(data: { request: any; fileList: FileItem[] }) {
+export function importEnv(data: { request: any; fileList: File[] }) {
   return MSR.uploadFile({ url: envURL.importEnvUrl }, data, '', false);
 }
 export function getEntryEnv(data: EnvListItem) {
@@ -94,7 +94,7 @@ export function updateOrAddGlobalParam(data: GlobalParams) {
   return MSR.post<EnvListItem>({ url: data.id ? envURL.updateGlobalParamUrl : envURL.addGlobalParamUrl, data });
 }
 /** 项目管理-环境-全局参数-导入 */
-export function importGlobalParam(data: { request: any; fileList: FileItem[] }) {
+export function importGlobalParam(data: { request: any; fileList: File[] }) {
   return MSR.uploadFile<EnvListItem>({ url: envURL.importGlobalParamUrl }, data, '', false);
 }
 /** 项目管理-环境-全局参数-详情 */

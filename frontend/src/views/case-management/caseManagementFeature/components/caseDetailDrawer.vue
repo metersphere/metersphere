@@ -679,6 +679,36 @@
         color: var(--color-text-1);
       }
     }
+    :deep(.arco-input-tag) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-select-view-multiple) {
+      border-color: transparent !important;
+      .arco-select-view-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        .arco-select-view-suffix {
+          visibility: visible !important;
+        }
+      }
+    }
+    :deep(.arco-textarea-wrapper) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-input-number) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
   }
   .rightButtons {
     :deep(.ms-button--secondary):hover,

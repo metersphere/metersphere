@@ -409,7 +409,7 @@
           label: item.fieldName,
           value: initValue,
           required: item.required,
-          options: item.options || [],
+          options: optionsValue || [],
           props: {
             modelValue: initValue,
             options: optionsValue || [],

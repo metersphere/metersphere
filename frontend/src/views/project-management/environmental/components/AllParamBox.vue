@@ -54,6 +54,13 @@
     },
   ];
 
+  function initEnvDetail() {
+    projectEnvStore.initEnvDetail().then(() => {
+      headerParams.value = projectEnvStore.allParamDetailInfo?.globalParams.headers || [];
+      GlobalVariable.value = projectEnvStore.allParamDetailInfo?.globalParams.commonVariables || [];
+    });
+  }
+
   const handleSave = async () => {
     try {
       loading.value = true;
@@ -75,6 +82,7 @@
       await updateOrAddGlobalParam(params);
       Message.success(t('common.saveSuccess'));
       canSave.value = false;
+      initEnvDetail();
     } catch (error) {
       Message.error(t('common.saveFailed'));
       // eslint-disable-next-line no-console
@@ -83,11 +91,13 @@
       loading.value = false;
     }
   };
+
   onBeforeMount(() => {
-    projectEnvStore.initEnvDetail().then(() => {
-      headerParams.value = projectEnvStore.allParamDetailInfo?.globalParams.headers || [];
-      GlobalVariable.value = projectEnvStore.allParamDetailInfo?.globalParams.commonVariables || [];
-    });
+    initEnvDetail();
+  });
+
+  defineExpose({
+    initEnvDetail,
   });
 </script>
 

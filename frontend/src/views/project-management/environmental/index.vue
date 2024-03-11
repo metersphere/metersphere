@@ -182,9 +182,13 @@
       </template>
       <template #second>
         <!-- 全局参数 -->
-        <AllParamBox v-if="showType === 'PROJECT' && activeKey === ALL_PARAM" />
+        <AllParamBox v-if="showType === 'PROJECT' && activeKey === ALL_PARAM" ref="globalEnvRef" />
         <!-- 环境变量 -->
-        <EnvParamBox v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM" @ok="initData()" />
+        <EnvParamBox
+          v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM"
+          @reset-env="resetHandler"
+          @ok="initData()"
+        />
         <!-- 环境组 -->
         <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
       </template>
@@ -197,6 +201,11 @@
     :default-selected-keys="[]"
     is-array-column
     :array-column="envList"
+    :title-props="{
+      selectableTitle: t('project.environmental.env.selectableTitle'),
+      systemTitle: t('project.environmental.env.systemTitle'),
+      selectedTitle: t('project.environmental.env.selectedTitle'),
+    }"
     @confirm="(v) => handleEnvExport(v.map((item) => item.id))"
   />
 </template>
@@ -339,13 +348,13 @@
       console.log(error);
     }
   };
-
+  const globalEnvRef = ref();
   const handleSubmit = (shouldSearch: boolean) => {
     if (shouldSearch) {
       if (importAuthType.value === EnvAuthTypeEnum.GLOBAL && store.currentId === ALL_PARAM) {
-        store.initEnvDetail();
+        globalEnvRef.value.initEnvDetail();
       } else if (importAuthType.value === EnvAuthTypeEnum.ENVIRONMENT && store.currentId !== ALL_PARAM) {
-        store.initEnvDetail();
+        globalEnvRef.value.initEnvDetail();
       }
     }
   };
@@ -358,12 +367,15 @@
   // 创建环境变量
   const handleCreateEnv = () => {
     const tmpArr = envList.value;
-    tmpArr.unshift({
-      id: NEW_ENV_PARAM,
-      name: t('project.environmental.newEnv'),
-    });
-    store.setCurrentId(NEW_ENV_PARAM);
-    envList.value = tmpArr;
+    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length < 1;
+    if (unSaveEnv) {
+      tmpArr.unshift({
+        id: NEW_ENV_PARAM,
+        name: t('project.environmental.newEnv'),
+      });
+      store.setCurrentId(NEW_ENV_PARAM);
+      envList.value = tmpArr;
+    }
   };
   // 创建环境组
   const handleCreateGroup = () => {
@@ -562,6 +574,21 @@
         break;
     }
   };
+
+  function resetHandler() {
+    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length < 2;
+    // 如果未保存环境存在环境为NEW_ENV_PARAM的id类型
+    if (unSaveEnv) {
+      envList.value = envList.value.filter((item: any) => item.id !== NEW_ENV_PARAM);
+      const excludeMock = envList.value.filter((item) => !item.mock);
+      if (showType.value === 'PROJECT' && !excludeMock.length) {
+        store.setCurrentId(ALL_PARAM);
+      } else if (excludeMock.length) {
+        store.setCurrentId(excludeMock[0].id);
+      }
+    }
+  }
+
   onMounted(() => {
     initData(keyword.value, true);
   });

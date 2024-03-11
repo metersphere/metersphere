@@ -12,11 +12,12 @@
       </template>
     </a-dropdown>
 
-    <div v-if="showBody" class="ms-assertion-body">
+    <div v-if="showBody" class="ms-assertion-body w-full">
       <a-scrollbar
         :style="{
           overflow: 'auto',
           height: 'calc(100vh - 458px)',
+          width: '100%',
         }"
       >
         <VueDraggable v-model="assertions" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
@@ -63,49 +64,49 @@
         </VueDraggable>
       </a-scrollbar>
       <section class="ms-assertion-body-right">
-        <a-scrollbar
+        <!-- <a-scrollbar
           :style="{
             overflow: 'auto',
-            height: '200px',
+            height: 'calc(100vh - 458px)',
           }"
-        >
-          <!-- 响应头 -->
-          <ResponseHeaderTab
-            v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
-            v-model:data="getCurrentItemState"
-            @change="handleChange"
-          />
-          <!-- 状态码 -->
-          <StatusCodeTab
-            v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
-            v-model:data="getCurrentItemState"
-            @change="handleChange"
-          />
-          <!-- 响应体 -->
-          <ResponseBodyTab
-            v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
-            v-model:data="getCurrentItemState"
-            @change="handleChange"
-          />
-          <!-- 响应时间 -->
-          <ResponseTimeTab
-            v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
-            v-model:data="getCurrentItemState"
-            @change="handleChange"
-          />
-          <!-- 变量 -->
-          <VariableTab
-            v-if="valueKey === ResponseAssertionType.VARIABLE"
-            v-model:data="getCurrentItemState"
-            @change="handleChange"
-          />
-          <!-- 脚本 -->
-          <ScriptTab
-            v-if="valueKey === ResponseAssertionType.SCRIPT"
-            :value="getCurrentItemState"
-            @change="handleChange"
-          />
-        </a-scrollbar>
+        > -->
+        <!-- 响应头 -->
+        <ResponseHeaderTab
+          v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 状态码 -->
+        <StatusCodeTab
+          v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 响应体 -->
+        <ResponseBodyTab
+          v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 响应时间 -->
+        <ResponseTimeTab
+          v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 变量 -->
+        <VariableTab
+          v-if="valueKey === ResponseAssertionType.VARIABLE"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- 脚本 -->
+        <ScriptTab
+          v-if="valueKey === ResponseAssertionType.SCRIPT"
+          v-model:data="getCurrentItemState"
+          @change="handleChange"
+        />
+        <!-- </a-scrollbar> -->
       </section>
     </div>
   </div>
@@ -117,6 +118,7 @@
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -129,7 +131,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ResponseAssertionType } from '@/enums/apiEnum';
+  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { RequestConditionScriptLanguage, ResponseAssertionType } from '@/enums/apiEnum';
 
   import { ExecuteAssertion, MsAssertionItem } from './type';
 
@@ -190,6 +193,12 @@
           assertionBodyType: '',
           regexAssertion: regexAssertion || defaultResBodyItem.regexAssertion,
           bodyAssertionDataByType: {},
+        };
+      }
+      if (currentResItem && currentResItem?.assertionType === ResponseAssertionType.SCRIPT) {
+        return {
+          ...currentResItem,
+          processorType: ResponseAssertionType.SCRIPT,
         };
       }
       return currentResItem;
@@ -303,6 +312,23 @@
         });
         break;
       case ResponseAssertionType.SCRIPT:
+        assertions.value.push({
+          ...tmpObj,
+          id,
+          processorType: ResponseAssertionType.SCRIPT,
+          scriptName: t('apiTestDebug.preconditionScriptName'),
+          enableCommonScript: true,
+          script: '',
+          scriptId: '',
+          scriptLanguage: LanguageEnum.BEANSHELL,
+          commonScriptInfo: {
+            id: '',
+            name: '',
+            script: '',
+            params: [{}],
+            scriptLanguage: LanguageEnum.BEANSHELL,
+          },
+        });
         break;
 
       default:
@@ -360,6 +386,7 @@
     getCurrentItemState.value =
       assertions.value.find((item: any) => item.id === activeKey.value) || assertions.value[0] || {};
     activeKey.value = getCurrentItemState.value.id;
+    console.log(getCurrentItemState.value, 'getCurrentItemState.value');
   });
 </script>
 

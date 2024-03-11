@@ -1,30 +1,32 @@
 <template>
-  <conditionContent v-model:data="innerParams" :height-used="600" is-build-in class="mt-[16px]" />
+  <div class="h-full w-full">
+    <a-scrollbar
+      :style="{
+        overflow: 'auto',
+        height: 'calc(100vh - 490px)',
+      }"
+    >
+      <conditionContent v-model:data="condition" is-build-in />
+    </a-scrollbar>
+  </div>
 </template>
 
 <script lang="ts" setup>
+  import { useVModel } from '@vueuse/core';
+
   import conditionContent from '@/views/api-test/components/condition/content.vue';
 
-  import { RequestConditionProcessor, RequestConditionScriptLanguage } from '@/enums/apiEnum';
+  import { getEnvironment } from '@/api/modules/api-test/common';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
+  const store = useProjectEnvStore();
   interface ScriptItem {
     [key: string]: any;
   }
 
   interface ScriptTabProps {
-    value: ScriptItem;
+    data: any;
   }
-
-  const defaultScriptItem: ScriptItem = {
-    id: new Date().getTime(),
-    processorType: RequestConditionProcessor.SCRIPT,
-    scriptName: '断言脚本名称',
-    enableCommonScript: false,
-    params: [],
-    scriptId: '',
-    scriptLanguage: RequestConditionScriptLanguage.JAVASCRIPT,
-    script: '',
-  };
 
   const props = defineProps<ScriptTabProps>();
 
@@ -32,9 +34,20 @@
     (e: 'change', val: ScriptItem): void; //  数据发生变化
   }>();
 
-  const innerParams = ref<any>(props.value || defaultScriptItem);
-  watchEffect(() => {
-    emit('change', innerParams.value);
+  const condition = useVModel(props, 'data', emit);
+  const currentEnvConfig = ref({});
+  async function initEnvironment() {
+    try {
+      currentEnvConfig.value = await getEnvironment(store.currentId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  /** 向孙组件提供属性 */
+  provide('currentEnvConfig', readonly(currentEnvConfig));
+  onBeforeMount(() => {
+    initEnvironment();
   });
 </script>
 

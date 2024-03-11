@@ -1,5 +1,5 @@
 <template>
-  <div class="condition-content">
+  <div class="condition-content h-full">
     <!-- 脚本操作 -->
     <template
       v-if="
@@ -45,7 +45,7 @@
       </div>
       <!-- 前后置请求结束 -->
       <div class="flex items-center justify-between">
-        <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[8px]">
+        <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]">
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
           <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
         </a-radio-group>
