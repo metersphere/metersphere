@@ -734,7 +734,7 @@ public class FunctionalCaseService {
      * @param userId  userId
      */
     @Async
-    public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
+    public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId, String organizationId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
             //基本信息
@@ -800,6 +800,14 @@ public class FunctionalCaseService {
                     functionalCaseAttachmentService.association(fileIds, id, userId, FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL, request.getProjectId());
                 }
 
+                //日志
+                FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO();
+                historyLogDTO.setFunctionalCase(functionalCase);
+                historyLogDTO.setFunctionalCaseBlob(functionalCaseBlob);
+                historyLogDTO.setCustomFields(customFields);
+                historyLogDTO.setCaseAttachments(caseAttachments);
+                historyLogDTO.setFileAssociationList(fileAssociationList);
+                saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
             }
         }
     }

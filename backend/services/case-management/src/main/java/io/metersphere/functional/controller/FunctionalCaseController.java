@@ -190,7 +190,8 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchCopyFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
         String userId = SessionUtils.getUserId();
-        functionalCaseService.batchCopyFunctionalCase(request, userId);
+        String organizationId = SessionUtils.getCurrentOrganizationId();
+        functionalCaseService.batchCopyFunctionalCase(request, userId, organizationId);
     }
 
 
@@ -246,7 +247,7 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "functional_case")
     public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-               StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, functionalCaseService.operationHistoryList(request));
     }
 }
