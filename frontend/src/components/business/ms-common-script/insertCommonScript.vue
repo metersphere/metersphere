@@ -33,7 +33,7 @@
       <template #name="{ record }">
         <div class="flex items-center">
           <div class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]">{{ record.name }}</div>
-          <a-popover :title="t('project.commonScript.publicScriptName')" position="right">
+          <a-popover :title="record.name" position="right">
             <a-button type="text" class="ml-2 px-0">{{ t('project.commonScript.preview') }}</a-button>
             <template #content>
               <div class="w-[436px] bg-[var(--color-bg-3)] px-2 pb-2">

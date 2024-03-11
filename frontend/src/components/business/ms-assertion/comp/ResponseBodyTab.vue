@@ -88,7 +88,13 @@
     <!-- xPath开始 -->
     <div v-if="activeTab === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
-      <a-radio-group v-model="activeResponseFormat" class="mb-[16px] mt-[16px]" type="button" size="small">
+      <a-radio-group
+        v-model="activeResponseFormat"
+        class="mb-[16px] mt-[16px]"
+        type="button"
+        size="small"
+        @change="(value: string | number | boolean)=>changeHandler(value,ResponseBodyAssertionType.XPATH)"
+      >
         <a-radio key="XML" value="XML">XML</a-radio>
         <a-radio key="HTML" value="HTML">HTML</a-radio>
       </a-radio-group>
@@ -328,6 +334,7 @@
   import moreSetting from '@/views/api-test/components/fastExtraction/moreSetting.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import {
     countNodes,
@@ -403,10 +410,6 @@
   };
 
   const condition = useVModel(props, 'data', emit);
-  // const condition = ref<Param>(props.data || defaultParamItem);
-  // watchEffect(() => {
-  //   emit('change', { ...condition.value });
-  // });
 
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
@@ -782,4 +785,10 @@
   const handleScriptChange = (data: ExecuteConditionProcessor) => {
     condition.value.script = data;
   };
+  // XML改变
+  function changeHandler(value: string | number | boolean, type: string) {
+    if (value === condition.value.responseFormat) {
+      handleChange([], type);
+    }
+  }
 </script>

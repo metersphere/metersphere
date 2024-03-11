@@ -15,7 +15,9 @@
       <div class="inner-wrapper">
         <div class="optional-field">
           <div class="optional-header">
-            <div class="font-medium">{{ t('system.orgTemplate.optionalField') }}</div>
+            <div class="font-medium">{{
+              props.titleProps?.selectableTitle || t('system.orgTemplate.optionalField')
+            }}</div>
             <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll">
               <span class="font-medium text-[var(--color-text-3)]">{{ t('system.orgTemplate.selectAll') }}</span>
             </a-checkbox>
@@ -23,7 +25,9 @@
           <div class="p-[16px]">
             <a-checkbox-group :model-value="selectedIds" @change="handleGroupChange">
               <div v-if="systemList.length" class="mb-[32px]">
-                <div class="text-[var(--color-text-4)]">{{ t('ms-export-drawer.systemFiled') }}</div>
+                <div class="text-[var(--color-text-4)]">{{
+                  props.titleProps?.systemTitle || t('ms-export-drawer.systemFiled')
+                }}</div>
                 <div class="flex flex-row flex-wrap">
                   <a-checkbox
                     v-for="item in systemList"
@@ -80,7 +84,9 @@
         </div>
         <div>
           <div class="optional-header min-w-[270px]">
-            <div class="font-medium">{{ t('system.orgTemplate.selectedField') }}</div>
+            <div class="font-medium">{{
+              props.titleProps?.selectedTitle || t('system.orgTemplate.selectedField')
+            }}</div>
             <MsButton @click="handleReset">{{ t('system.orgTemplate.clear') }}</MsButton>
           </div>
           <div class="p-[16px]">
@@ -140,6 +146,11 @@
     defaultSelectedKeys?: string[];
     isArrayColumn?: boolean;
     arrayColumn?: EnvListItem[];
+    titleProps?: {
+      selectableTitle: string; // 可选字段
+      systemTitle: string; // 已选字段| 环境
+      selectedTitle: string; // 已选字段| 环境
+    };
   }
 
   const props = withDefaults(defineProps<MsExportDrawerProps>(), {

@@ -222,6 +222,7 @@
       if (errors) {
         return;
       }
+      const { driverId } = form.value;
       try {
         const index = store.currentEnvDetailInfo.config.dataSources.findIndex((item: any) => item.id === form.value.id);
         if (index > -1 && !props.isCopy) {
@@ -231,12 +232,14 @@
             ...form.value,
             dataSource: `copy_${form.value.dataSource}`,
             id: getGenerateId(),
+            driver: driverOption.value.find((item) => item.value === driverId)?.label,
           };
           store.currentEnvDetailInfo.config.dataSources.splice(index + 1, 0, insertItem);
         } else {
           const dataSourceItem = {
             ...form.value,
             id: getGenerateId(),
+            driver: driverOption.value.find((item) => item.value === driverId)?.label,
           };
           store.currentEnvDetailInfo.config.dataSources.push(dataSourceItem);
         }

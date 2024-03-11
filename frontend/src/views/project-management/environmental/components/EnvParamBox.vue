@@ -45,14 +45,17 @@
         '!mb-[16px]': !(activeKey === 'pre' || activeKey === 'post'),
       }"
     />
-    <div class="content">
+    <div class="content h-full">
       <EnvParamsTab v-if="activeKey === 'envParams'" />
       <HttpTab v-else-if="activeKey === 'http'" />
       <DataBaseTab v-else-if="activeKey === 'database'" />
       <HostTab v-else-if="activeKey === 'host'" />
       <!-- <PreTab v-else-if="activeKey === 'pre'" />
       <PostTab v-else-if="activeKey === 'post'" /> -->
-      <PreAndPostTab v-else-if="activeKey === 'pre' || activeKey === 'post'" :active-type="activeKey" />
+      <div v-else-if="activeKey === 'pre' || activeKey === 'post'" class="h-full">
+        <PreAndPostTab :active-type="activeKey" />
+      </div>
+
       <AssertTab v-else-if="activeKey === 'assert'" />
       <template v-for="item in envPluginList" :key="item.pluginId">
         <PluginTab
@@ -67,7 +70,7 @@
     </div>
 
     <div class="footer" :style="{ width: '100%' }">
-      <a-button @click="handleReset">{{ t('common.cancel') }}</a-button>
+      <a-button :disabled="loading" @click="handleReset">{{ t('common.cancel') }}</a-button>
       <a-button type="primary" :loading="loading" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
   </div>
@@ -98,6 +101,7 @@
 
   const emit = defineEmits<{
     (e: 'ok'): void;
+    (e: 'resetEnv'): void;
   }>();
 
   const activeKey = ref('envParams');
@@ -186,7 +190,7 @@
 
   const handleReset = () => {
     envForm.value?.resetFields();
-    store.initEnvDetail();
+    emit('resetEnv');
   };
 
   const handleSave = async () => {
@@ -256,6 +260,7 @@
     .content {
       overflow-y: auto;
       padding: 0 24px;
+      height: 100%;
       max-height: calc(100% - 320px);
       background-color: #ffffff;
     }

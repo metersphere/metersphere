@@ -519,6 +519,16 @@
 
         currentFormRules.options = selectOptions;
       }
+      // 如果为成员需要默认创建人
+      if (item.type === 'MEMBER' || item.type === 'MULTIPLE_MEMBER') {
+        selectOptions = [
+          {
+            label: t('system.organization.creator'),
+            value: 'CREATE_USER',
+          },
+        ];
+        currentFormRules.options = selectOptions;
+      }
       let initValue;
       if (multipleType.includes(item.type)) {
         const optionsIds = selectOptions.map((e: any) => e.value);

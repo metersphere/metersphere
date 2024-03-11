@@ -1,25 +1,32 @@
 <template>
-  <div>
+  <div class="h-full">
     <a-tabs v-model:active-key="activeTab" lazy-load class="no-content">
       <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.label"></a-tab-pane>
     </a-tabs>
     <a-divider margin="0"></a-divider>
-    <div v-if="activeTab === 'scenarioProcessorConfig'" class="mt-4">
+    <div v-if="activeTab === 'scenarioProcessorConfig'" class="h-[calc(100vh - 100px)] mt-4">
       <a-alert class="mb-4"> {{ t('project.environmental.sceneAlertDesc') }} </a-alert>
-      <PreTab
-        v-if="props.activeType === 'pre'"
-        :show-associated-scene="showAssociatedScene"
-        :show-pre-post-request="!showAssociatedScene"
-        :active-tab="activeTab"
-      />
-      <PostTab
-        v-if="props.activeType === 'post'"
-        :show-associated-scene="showAssociatedScene"
-        :show-pre-post-request="!showAssociatedScene"
-        :active-tab="activeTab"
-      />
+      <a-scrollbar
+        :style="{
+          overflow: 'auto',
+          height: 'calc(100vh - 540px)',
+        }"
+      >
+        <PreTab
+          v-if="props.activeType === 'pre'"
+          :show-associated-scene="showAssociatedScene"
+          :show-pre-post-request="!showAssociatedScene"
+          :active-tab="activeTab"
+        />
+        <PostTab
+          v-if="props.activeType === 'post'"
+          :show-associated-scene="showAssociatedScene"
+          :show-pre-post-request="!showAssociatedScene"
+          :active-tab="activeTab"
+        />
+      </a-scrollbar>
     </div>
-    <div v-if="activeTab === 'requestProcessorConfig'" class="mt-4">
+    <div v-if="activeTab === 'requestProcessorConfig'" class="mt-4 h-full">
       <a-alert class="mb-4"> {{ t('project.environmental.requestAlertDesc') }} </a-alert>
       <PreTab
         v-if="props.activeType === 'pre'"
@@ -45,7 +52,11 @@
   import PostTab from './PostTab.vue';
   import PreTab from './PreTab.vue';
 
+  import { getEnvironment } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  const store = useProjectEnvStore();
 
   const { t } = useI18n();
 
@@ -84,6 +95,14 @@
             postTip: t('project.environmental.http.postTextPostTip'),
           };
     }
+  });
+
+  const currentEnvConfig = ref({});
+  /** 向孙组件提供属性 */
+  provide('currentEnvConfig', readonly(currentEnvConfig));
+
+  onBeforeMount(() => {
+    currentEnvConfig.value = store.currentEnvDetailInfo.config;
   });
 </script>
 

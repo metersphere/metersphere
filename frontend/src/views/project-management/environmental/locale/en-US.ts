@@ -3,7 +3,7 @@ export default {
   'project.environmental.project': 'Project',
   'project.environmental.envGroup': 'Environmental group',
   'project.environmental.searchHolder': 'Please enter the environment name',
-  'project.environmental.allParam': 'All Parameters',
+  'project.environmental.allParam': 'Global request header',
   'project.environmental.env': 'Environment',
   'project.environmental.envListIsNull': 'No data, please click "+" above to create an environment',
   'project.environmental.requestHeader': 'Request Header',
@@ -108,4 +108,7 @@ export default {
   'project.environmental.cover.enable': 'Enable: Import and cover the environment with the same name',
   'project.environmental.cover.disable': 'Disable: Import and do not cover the environment with the same name',
   'project.environmental.ENVIRONMENT': 'Environment',
+  'project.environmental.env.selectableTitle': 'Optional Environments',
+  'project.environmental.env.systemTitle': 'environment',
+  'project.environmental.env.selectedTitle': 'Selected environment',
 };

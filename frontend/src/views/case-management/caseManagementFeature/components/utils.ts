@@ -5,10 +5,13 @@ import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { useI18n } from '@/hooks/useI18n';
+import useUserStore from '@/store/modules/user';
 import { hasAnyPermission } from '@/utils/permission';
 
 import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
 import { StatusType } from '@/enums/caseEnum';
+
+const userStore = useUserStore();
 
 const { t } = useI18n();
 
@@ -171,19 +174,45 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
   return customFields.map((item: any) => {
     const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
     const numberType = ['INT', 'FLOAT'];
+    const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
     let currentDefaultValue;
+    let optionsValue = item.options;
+    // 处理数字类型
     if (numberType.includes(item.type)) {
       currentDefaultValue = item.defaultValue * 1;
+      // 处理多选项类型为空的默认值
     } else if (multipleType.includes(item.type) && Array.isArray(item.defaultValue) && item.defaultValue.length === 0) {
       currentDefaultValue = item.defaultValue;
+      // 处理多选情况
     } else if (multipleType.includes(item.type)) {
       const tempValue = JSON.parse(item.defaultValue);
-      if (item.type !== 'MULTIPLE_INPUT') {
+      if (item.type !== 'MULTIPLE_INPUT' && !item.type.includes('MEMBER')) {
         const optionsIds = item.options?.map((e: any) => e.value);
         currentDefaultValue = optionsIds.filter((e: any) => tempValue.includes(e));
+        // 多选成员
+      } else if (memberType.includes(item.type)) {
+        optionsValue = [
+          {
+            fieldId: item.fieldId,
+            internal: item.internal,
+            text: userStore.name || '',
+            value: userStore.id || '',
+          },
+        ];
+        currentDefaultValue = item.defaultValue;
       } else {
         currentDefaultValue = JSON.parse(item.defaultValue);
       }
+    } else if (memberType.includes(item.type)) {
+      optionsValue = [
+        {
+          fieldId: item.fieldId,
+          internal: item.internal,
+          text: userStore.name || '',
+          value: userStore.id || '',
+        },
+      ];
+      currentDefaultValue = item.defaultValue;
     } else {
       currentDefaultValue = item.defaultValue;
     }
@@ -194,11 +223,11 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
       label: item.fieldName,
       value: currentDefaultValue,
       required: item.required,
-      options: item.options || [],
+      options: optionsValue || [],
       props: {
         modelValue: currentDefaultValue,
         disabled: !hasAnyPermission(permission),
-        options: item.options || [],
+        options: optionsValue || [],
       },
     };
   }) as FormItem[];

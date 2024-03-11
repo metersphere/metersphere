@@ -57,8 +57,10 @@
           </a-spin>
         </a-spin>
         <div>
-          <a-button type="secondary">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button class="ml-3" type="primary" @click="confirmHandler">{{ t('common.import') }}</a-button>
+          <a-button type="secondary" @click="handleCancel(false)">{{ t('system.plugin.pluginCancel') }}</a-button>
+          <a-button class="ml-3" type="primary" :loading="confirmLoading" @click="confirmHandler">{{
+            t('common.import')
+          }}</a-button>
         </div>
       </div>
     </template>
@@ -102,15 +104,19 @@
   const confirmHandler = async () => {
     try {
       confirmLoading.value = true;
-      const params = {
+      const params: { request: Record<string, any>; fileList: File[] } = {
         request: { cover: isCover.value },
-        fileList: fileList.value,
+        fileList: fileList.value.map((item: any) => item.file),
       };
       if (props.type === EnvAuthTypeEnum.GLOBAL) {
         await importGlobalParam(params);
+        emit('submit', true);
       } else if (props.type === EnvAuthTypeEnum.ENVIRONMENT) {
         await importEnv(params);
+        emit('submit', true);
       }
+      fileList.value = [];
+
       Message.success(t('common.importSuccess'));
       handleCancel(true);
     } catch (error) {
