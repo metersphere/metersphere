@@ -2,7 +2,6 @@ package io.metersphere.api.controller.scenario;
 
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
-import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -87,7 +86,7 @@ public class ApiScenarioModuleController {
     @Operation(summary = "接口测试-接口场景-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
+    public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiScenarioModuleRequest request) {
         return apiScenarioModuleService.getTrashTree(request);
     }
 }

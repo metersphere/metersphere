@@ -7,7 +7,6 @@ import io.metersphere.api.domain.ApiScenarioModule;
 import io.metersphere.api.domain.ApiScenarioModuleExample;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
-import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioModuleMapper;
@@ -252,7 +251,7 @@ public class ApiScenarioModuleService extends ModuleTreeService {
         return moduleCountMap;
     }
 
-    public List<BaseTreeNode> getTrashTree(ApiModuleRequest request) {
+    public List<BaseTreeNode> getTrashTree(ApiScenarioModuleRequest request) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andDeletedEqualTo(true);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
