@@ -30,7 +30,7 @@
         v-if="showBatchAddParamDrawer"
         v-model:model-value="batchParamsCode"
         class="flex-1"
-        theme="MS-text"
+        theme="vs"
         height="100%"
         :show-full-screen="false"
         :show-theme-change="false"

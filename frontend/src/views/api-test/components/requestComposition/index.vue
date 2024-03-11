@@ -249,8 +249,8 @@
             v-show="showResponse"
             v-model:active-layout="activeLayout"
             v-model:active-tab="requestVModel.responseActiveTab"
+            v-model:response-definition="requestVModel.responseDefinition"
             :is-expanded="isExpanded"
-            :response-definition="requestVModel.responseDefinition"
             :hide-layout-switch="props.hideResponseLayoutSwitch"
             :request-task-result="requestVModel.response"
             :is-edit="props.isDefinition && isHttpProtocol"
@@ -376,6 +376,7 @@
     activeTab: RequestComposition;
     mode?: 'definition' | 'debug';
     executeLoading: boolean; // 执行中loading
+    isCopy?: boolean; // 是否是复制
   }
   export type RequestParam = ExecuteApiRequestFullParams & {
     responseDefinition?: ResponseItem[];
@@ -616,7 +617,7 @@
    */
   function setPluginFormData() {
     const tempForm = temporaryPluginFormMap[requestVModel.value.id];
-    if (tempForm || !requestVModel.value.isNew) {
+    if (tempForm || !requestVModel.value.isNew || requestVModel.value.isCopy) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = tempForm || requestVModel.value;
       if (fApi.value) {
@@ -918,13 +919,17 @@
     let requestModuleId = '';
     let apiDefinitionParams: Record<string, any> = {};
     if (props.isDefinition) {
+      // 接口定义有响应内容定义
       requestName = requestVModel.value.name;
       requestModuleId = requestVModel.value.moduleId;
       apiDefinitionParams = {
         tags: requestVModel.value.tags,
         description: requestVModel.value.description,
         status: requestVModel.value.status,
-        response: requestVModel.value.responseDefinition,
+        response: requestVModel.value.responseDefinition?.map((e) => ({
+          ...e,
+          headers: filterKeyValParams(e.headers, defaultKeyValueParamItem).validParams,
+        })),
       };
     } else {
       requestName = requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name;

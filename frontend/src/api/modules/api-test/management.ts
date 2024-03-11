@@ -24,6 +24,7 @@ import {
   MoveModuleUrl,
   SortDefinitionUrl,
   SwitchDefinitionScheduleUrl,
+  ToggleFollowDefinitionUrl,
   TransferFileModuleOptionUrl,
   TransferFileUrl,
   UpdateDefinitionScheduleUrl,
@@ -201,6 +202,11 @@ export function deleteDefinitionSchedule(id: string) {
 // 接口定义调试
 export function debugDefinition(data: ExecuteRequestParams) {
   return MSR.post({ url: DebugDefinitionUrl, data });
+}
+
+// 关注/取消关注接口定义
+export function toggleFollowDefinition(id: string | number) {
+  return MSR.get({ url: ToggleFollowDefinitionUrl, params: id });
 }
 
 /**

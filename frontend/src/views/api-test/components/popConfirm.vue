@@ -150,7 +150,6 @@
             emit('renameFinish', form.value.field, props.nodeId);
           } else if (props.mode === 'tabRename') {
             // 响应 tab 重命名
-            Message.success(t('common.updateSuccess'));
             emit('renameFinish', form.value.field);
           }
           if (done) {

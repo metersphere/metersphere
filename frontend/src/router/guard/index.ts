@@ -17,8 +17,8 @@ function setupPageGuard(router: Router) {
     // 取消上个路由未完成的请求（不包含设置了ignoreCancelToken的请求）
     axiosCanceler.removeAllPending();
     const appStore = useAppStore();
-    const urlOrgId = to.query.organizationId;
-    const urlProjectId = to.query.projectId;
+    const urlOrgId = to.query.orgId;
+    const urlProjectId = to.query.pId;
     // 如果访问页面的时候携带了项目 ID 或组织 ID，则将页面上的组织 ID和项目 ID设置为当前选中的组织和项目
     if (urlOrgId) {
       appStore.setCurrentOrgId(urlOrgId as string);
@@ -31,7 +31,7 @@ function setupPageGuard(router: Router) {
         if (urlOrgId === undefined) {
           to.query = {
             ...to.query,
-            organizationId: appStore.currentOrgId,
+            orgId: appStore.currentOrgId,
           };
           next(to);
           return;
@@ -41,8 +41,8 @@ function setupPageGuard(router: Router) {
         if (urlOrgId === undefined && urlProjectId === undefined) {
           to.query = {
             ...to.query,
-            organizationId: appStore.currentOrgId,
-            projectId: appStore.currentProjectId,
+            orgId: appStore.currentOrgId,
+            pId: appStore.currentProjectId,
           };
 
           next(to);

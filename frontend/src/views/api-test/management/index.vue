@@ -54,6 +54,7 @@
 
 <script lang="ts" setup>
   import { provide } from 'vue';
+  import { useRoute } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -63,6 +64,8 @@
   import moduleTree from './components/moduleTree.vue';
 
   import { ModuleTreeNode } from '@/models/common';
+
+  const route = useRoute();
 
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -109,6 +112,13 @@
     refreshModuleTree();
     managementRef.value?.refreshApiTable();
   }
+
+  onMounted(() => {
+    if (route.query.dId) {
+      // 携带 dId 参数，自动打开接口定义详情 tab
+      managementRef.value?.newTab(route.query.dId as string);
+    }
+  });
 
   /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);

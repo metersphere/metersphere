@@ -117,14 +117,14 @@
     </div>
     <a-spin :loading="props.loading" class="h-[calc(100%-35px)] w-full px-[18px] pb-[18px]">
       <edit
-        v-if="props.isEdit && activeResponseType === 'content' && validResponseDefinition"
-        :response-definition="validResponseDefinition"
+        v-if="props.isEdit && activeResponseType === 'content' && innerResponseDefinition"
+        v-model:response-definition="innerResponseDefinition"
         :upload-temp-file-api="props.uploadTempFileApi"
         @change="handleResponseChange"
       />
       <result
         v-else-if="!props.isEdit || (props.isEdit && activeResponseType === 'result')"
-        v-model:activeTab="activeTab"
+        v-model:active-tab="innerActiveTab"
         :request-result="props.requestTaskResult?.requestResults[0]"
         :console="props.requestTaskResult?.console"
       />
@@ -133,8 +133,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { Direction } from '@/components/pure/ms-split-box/index.vue';
   import edit, { ResponseItem } from './edit.vue';
@@ -164,8 +162,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:activeLayout', value: Direction): void;
-    (e: 'update:activeTab', value: ResponseComposition): void;
     (e: 'changeExpand', value: boolean): void;
     (e: 'changeLayout', value: Direction): void;
     (e: 'change'): void;
@@ -173,8 +169,15 @@
 
   const { t } = useI18n();
 
-  const innerLayout = useVModel(props, 'activeLayout', emit);
-  const activeTab = useVModel(props, 'activeTab', emit);
+  const innerLayout = defineModel<Direction>('activeLayout', {
+    default: 'vertical',
+  });
+  const innerActiveTab = defineModel<ResponseComposition>('activeTab', {
+    required: true,
+  });
+  const innerResponseDefinition = defineModel<ResponseItem[]>('responseDefinition', {
+    default: [],
+  });
   // 响应时间信息
   const timingInfo = computed(() => {
     if (props.requestTaskResult) {
@@ -215,44 +218,56 @@
     }
     return '';
   });
-  // 过滤无效数据后的有效响应数据
-  const validResponseDefinition = computed(() => {
-    return props.responseDefinition?.map((item, i) => {
-      // 某些字段在导入时接口返回 null，需要设置默认值
-      if (!item.headers) {
-        item.headers = [];
-      }
-      if (!item.id) {
-        item.id = new Date().getTime() + i;
-      }
-      if (item.body.bodyType === ResponseBodyFormat.NONE) {
-        item.body.bodyType = ResponseBodyFormat.RAW;
-      }
-      if (!item.body.binaryBody) {
-        item.body.binaryBody = {
-          description: '',
-          file: undefined,
-        };
-      }
-      if (!item.body.jsonBody) {
-        item.body.jsonBody = {
-          jsonValue: '',
-          enableJsonSchema: false,
-          enableTransition: false,
-        };
-        if (!item.body.xmlBody) {
-          item.body.xmlBody = {
-            value: '',
-          };
+  watchEffect(() => {
+    // 过滤无效数据后的有效响应数据；当接口导入时会存在部分字段为 null 的数据，需要设置默认值
+    let hasInvalid = false;
+    let validResponseDefinition: ResponseItem[] = [];
+    if (props.responseDefinition && props.responseDefinition.length > 0) {
+      validResponseDefinition = props.responseDefinition.map((item, i) => {
+        // 某些字段在导入时接口返回 null，需要设置默认值
+        if (!item.headers) {
+          item.headers = [];
+          hasInvalid = true;
         }
-        if (!item.body.rawBody) {
-          item.body.rawBody = {
-            value: '',
-          };
+        if (!item.id) {
+          item.id = new Date().getTime() + i;
+          hasInvalid = true;
         }
-      }
-      return item;
-    });
+        if (item.body.bodyType === ResponseBodyFormat.NONE) {
+          item.body.bodyType = ResponseBodyFormat.RAW;
+          hasInvalid = true;
+        }
+        if (!item.body.binaryBody) {
+          item.body.binaryBody = {
+            description: '',
+            file: undefined,
+          };
+          hasInvalid = true;
+        }
+        if (!item.body.jsonBody) {
+          item.body.jsonBody = {
+            jsonValue: '',
+            enableJsonSchema: false,
+            enableTransition: false,
+          };
+          if (!item.body.xmlBody) {
+            item.body.xmlBody = {
+              value: '',
+            };
+          }
+          if (!item.body.rawBody) {
+            item.body.rawBody = {
+              value: '',
+            };
+          }
+          hasInvalid = true;
+        }
+        return item;
+      });
+    }
+    if (hasInvalid) {
+      innerResponseDefinition.value = validResponseDefinition;
+    }
   });
 
   function handleResponseChange() {

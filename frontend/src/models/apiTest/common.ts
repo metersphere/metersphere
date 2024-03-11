@@ -145,7 +145,7 @@ export interface JsonSchema {
 export interface ExecuteJsonBody {
   enableJsonSchema?: boolean;
   enableTransition?: boolean;
-  jsonSchema?: JsonSchema;
+  jsonSchema?: JsonSchema[];
   jsonValue: string;
 }
 // 执行请求配置

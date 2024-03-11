@@ -126,4 +126,8 @@ export default {
   'common.module': 'Module',
   'common.yes': 'Yes',
   'common.no': 'No',
+  'common.creator': 'Creator',
+  'common.followSuccess': 'Followed',
+  'common.unFollowSuccess': 'Unfollow successfully',
+  'common.share': 'Share',
 };

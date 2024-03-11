@@ -66,7 +66,7 @@
   const activeTab = ref('api');
   const apiRef = ref<InstanceType<typeof api>>();
 
-  function newTab(apiInfo?: ModuleTreeNode) {
+  function newTab(apiInfo?: ModuleTreeNode | string) {
     if (apiInfo) {
       apiRef.value?.openApiTab(apiInfo);
     } else {

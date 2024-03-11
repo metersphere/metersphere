@@ -52,6 +52,8 @@
 <style lang="less" scoped>
   .param-input:not(.arco-input-focus) {
     &:not(:hover) {
+      @apply bg-transparent;
+
       border-color: transparent;
     }
   }

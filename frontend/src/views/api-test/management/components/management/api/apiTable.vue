@@ -27,7 +27,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #methodFilter="{ columnConfig }">
+      <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="methodFilterVisible"
           trigger="click"
@@ -78,6 +78,7 @@
       </template>
       <template #method="{ record }">
         <a-select
+          v-if="props.protocol === 'HTTP'"
           v-model:model-value="record.method"
           class="param-input w-full"
           @change="() => handleMethodChange(record)"
@@ -89,6 +90,7 @@
             <apiMethodName :method="item" is-tag />
           </a-option>
         </a-select>
+        <apiMethodName v-else :method="record.method" is-tag />
       </template>
       <template #status="{ record }">
         <a-select
@@ -430,7 +432,11 @@
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
       protocol: props.protocol,
-      filter: { status: statusFilters.value, method: methodFilters.value },
+      filter: {
+        status:
+          statusFilters.value.length === Object.keys(RequestDefinitionStatus).length ? undefined : statusFilters.value,
+        method: methodFilters.value.length === Object.keys(RequestMethods).length ? undefined : methodFilters.value,
+      },
     };
     setLoadListParams(params);
     loadList();

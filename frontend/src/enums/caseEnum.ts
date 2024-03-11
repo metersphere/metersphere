@@ -1,3 +1,4 @@
+// @ts-ignore @typescript-eslint/no-duplicate-enum-values
 export enum StatusType {
   UN_REVIEWED = 'icon-icon_block_filled', // 未评审
   UNDER_REVIEWED = 'icon-icon_testing', // 评审中

@@ -10,7 +10,7 @@
       <template #label="{ tab }">
         <div class="response-tab">
           <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
-          {{ t(tab.label || '') }}({{ tab.statusCode }})
+          {{ t(tab.name || tab.label) }}({{ tab.statusCode }})
           <MsMoreAction
             :list="
               tab.defaultFlag
@@ -23,12 +23,13 @@
           <popConfirm
             v-model:visible="tab.showRenamePopConfirm"
             mode="tabRename"
-            :field-config="{ field: t(tab.label || '') }"
-            :all-names="responseTabs.map((e) => t(tab.label || ''))"
+            :field-config="{ field: t(tab.label || tab.name) }"
+            :all-names="responseTabs.map((e) => t(e.label || e.name))"
             :popup-offset="20"
             @rename-finish="
               (val) => {
                 tab.label = val;
+                tab.name = val;
                 emit('change');
               }
             "
@@ -48,7 +49,7 @@
             </template>
             <template #content>
               <div class="font-semibold text-[var(--color-text-1)]">
-                {{ t('apiTestManagement.confirmDelete', { name: tab.label }) }}
+                {{ t('apiTestManagement.confirmDelete', { name: tab.label || tab.name }) }}
               </div>
             </template>
             <div class="relative"></div>
@@ -72,11 +73,16 @@
           size="small"
           @change="(val) => changeBodyFormat(val as ResponseBodyFormat)"
         >
-          <a-radio v-for="item of ResponseBodyFormat" :key="item" :value="item">
+          <a-radio
+            v-for="item of ResponseBodyFormat"
+            v-show="item !== ResponseBodyFormat.NONE"
+            :key="item"
+            :value="item"
+          >
             {{ ResponseBodyFormat[item].toLowerCase() }}
           </a-radio>
         </a-radio-group>
-        <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
+        <!-- <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
           <a-radio-group
             v-model:model-value="activeResponse.body.jsonBody.enableJsonSchema"
             size="mini"
@@ -89,7 +95,7 @@
             <a-switch v-model:model-value="activeResponse.body.jsonBody.enableTransition" size="small" type="line" />
             {{ t('apiTestManagement.dynamicConversion') }}
           </div>
-        </div>
+        </div> -->
       </div>
       <div
         v-if="
@@ -99,6 +105,11 @@
         "
         class="h-[calc(100%-35px)]"
       >
+        <!-- <MsJsonSchema
+          v-if="activeResponse.body.jsonBody.enableJsonSchema"
+          :data="activeResponse.body.jsonBody.jsonSchema"
+          :columns="jsonSchemaColumns"
+        /> -->
         <MsCodeEditor
           ref="responseEditorRef"
           v-model:model-value="currentBodyCode"
@@ -137,16 +148,17 @@
       v-else-if="activeResponse.responseActiveTab === ResponseComposition.HEADER"
       v-model:params="activeResponse.headers"
       :columns="columns"
-      :default-param-item="[
-        {
-          key: '',
-          value: '',
-        },
-      ]"
+      :default-param-item="defaultKeyValueParamItem"
       :selectable="false"
-      @change="emit('change')"
+      @change="handleResponseTableChange"
     />
-    <a-select v-else v-model:model-value="activeResponse.statusCode" :options="statusCodeOptions" class="w-[200px]" />
+    <a-select
+      v-else
+      v-model:model-value="activeResponse.statusCode"
+      :options="statusCodeOptions"
+      class="w-[200px]"
+      @change="handleStatusCodeChange"
+    />
   </div>
 </template>
 
@@ -157,6 +169,8 @@
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
+  // import { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
+  // import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -170,7 +184,7 @@
   import { ResponseDefinition } from '@/models/apiTest/common';
   import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
-  import { defaultResponseItem, statusCodes } from '../../config';
+  import { defaultKeyValueParamItem, defaultResponseItem, statusCodes } from '../../config';
 
   const props = defineProps<{
     responseDefinition: ResponseDefinition[];
@@ -193,19 +207,11 @@
   });
   const activeResponse = ref<ResponseItem>(responseTabs.value[0]);
 
-  watch(
-    () => responseTabs.value,
-    (arr) => {
-      if (arr[0]) {
-        [activeResponse.value] = arr;
-      }
-    }
-  );
-
   function addResponseTab(defaultProps?: Partial<ResponseItem>) {
     responseTabs.value.push({
       ...cloneDeep(defaultResponseItem),
       label: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
+      name: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
       ...defaultProps,
       id: new Date().getTime(),
       defaultFlag: false,
@@ -243,17 +249,23 @@
   function handleMoreActionSelect(e: ActionsItem, _tab: ResponseItem) {
     switch (e.eventTag) {
       case 'setDefault':
-        responseTabs.value = responseTabs.value.map((tab) => {
-          tab.defaultFlag = _tab.id === tab.id;
-          return tab;
-        });
+        _tab.defaultFlag = true;
+        responseTabs.value = [
+          _tab,
+          ...responseTabs.value.filter((tab) => {
+            if (tab.id !== _tab.id) {
+              tab.defaultFlag = false;
+            }
+            return tab.id !== _tab.id;
+          }),
+        ];
         break;
       case 'rename':
-        renameValue.value = _tab.label || '';
+        renameValue.value = _tab.label || _tab.name || '';
         document.querySelector(`#renameSpan${_tab.id}`)?.dispatchEvent(new Event('click'));
         break;
       case 'copy':
-        addResponseTab({ ..._tab, label: `${_tab.label}-Copy` });
+        addResponseTab({ ..._tab, label: `${_tab.label || _tab.name}-Copy`, name: `${_tab.label || _tab.name}-Copy` });
         break;
       case 'delete':
         _tab.showPopConfirm = true;
@@ -290,6 +302,21 @@
     activeResponse.value.body.bodyType = val;
     emit('change');
   }
+
+  // const jsonSchemaColumns: FormTableColumn[] = [
+  //   {
+  //     title: 'apiTestManagement.paramName',
+  //     dataIndex: 'key',
+  //     slotName: 'key',
+  //     inputType: 'input',
+  //   },
+  //   {
+  //     title: 'apiTestManagement.paramVal',
+  //     dataIndex: 'value',
+  //     slotName: 'value',
+  //     inputType: 'input',
+  //   },
+  // ];
 
   // 当前显示的代码
   const currentBodyCode = computed({
@@ -365,12 +392,20 @@
       title: 'apiTestManagement.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      inputType: 'input',
     },
     {
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       slotName: 'value',
       isNormal: true,
+      inputType: 'input',
+    },
+    {
+      title: '',
+      dataIndex: 'operation',
+      slotName: 'operation',
+      width: 35,
     },
   ];
 
@@ -378,10 +413,22 @@
     label: e.toString(),
     value: e,
   }));
+
+  function handleResponseTableChange(arr: any[]) {
+    activeResponse.value.headers = [...arr];
+    emit('change');
+  }
+
+  function handleStatusCodeChange() {
+    emit('change');
+  }
 </script>
 
 <style lang="less" scoped>
   .response-container {
+    @apply overflow-y-auto;
+    .ms-scroll-bar();
+
     margin-top: 8px;
     height: calc(100% - 88px);
     .response-header-pre {

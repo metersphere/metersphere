@@ -32,7 +32,21 @@
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
-      <a-tabs default-active-key="definition" animation lazy-load class="ms-api-tab-nav">
+      <a-tabs v-model:active-key="definitionActiveKey" animation lazy-load class="ms-api-tab-nav">
+        <a-tab-pane
+          v-if="!activeApiTab.isNew"
+          key="preview"
+          :title="t('apiTestManagement.preview')"
+          class="ms-api-tab-pane"
+        >
+          <preview
+            v-if="definitionActiveKey === 'preview'"
+            :detail="activeApiTab"
+            :module-tree="props.moduleTree"
+            :protocols="protocols"
+            @update-follow="activeApiTab.follow = !activeApiTab.follow"
+          />
+        </a-tab-pane>
         <a-tab-pane key="definition" :title="t('apiTestManagement.definition')" class="ms-api-tab-pane">
           <MsSplitBox
             ref="splitBoxRef"
@@ -68,8 +82,8 @@
               />
             </template>
             <template #second>
-              <div class="p-[24px]">
-                <!-- 第一版没有模板 -->
+              <div class="p-[18px]">
+                <!-- TODO:第一版没有模板 -->
                 <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
                 <a-form ref="activeApiTabFormRef" :model="activeApiTab" layout="vertical">
                   <a-form-item
@@ -127,7 +141,8 @@
                     />
                   </a-form-item>
                 </a-form>
-                <div class="mb-[8px] flex items-center">
+                <!-- TODO:第一版先不做依赖 -->
+                <!-- <div class="mb-[8px] flex items-center">
                   <div class="text-[var(--color-text-2)]">
                     {{ t('apiTestManagement.addDependency') }}
                   </div>
@@ -168,7 +183,7 @@
                       {{ t('apiTestManagement.addPostDependency') }}
                     </MsButton>
                   </div>
-                </div>
+                </div> -->
               </div>
             </template>
           </MsSplitBox>
@@ -183,10 +198,10 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
+  // import MsButton from '@/components/pure/ms-button/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
@@ -197,7 +212,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { getProtocolList, localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
     addDefinition,
     debugDefinition,
@@ -211,7 +226,7 @@
   import useAppStore from '@/store/modules/app';
   import { filterTree } from '@/utils';
 
-  import { ExecuteBody, RequestTaskResult } from '@/models/apiTest/common';
+  import { ExecuteBody, ProtocolItem, RequestTaskResult } from '@/models/apiTest/common';
   import {
     ApiDefinitionCreateParams,
     ApiDefinitionDetail,
@@ -229,10 +244,12 @@
 
   import { defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   // 懒加载requestComposition组件
   const requestComposition = defineAsyncComponent(
     () => import('@/views/api-test/components/requestComposition/index.vue')
   );
+  const preview = defineAsyncComponent(() => import('./preview.vue'));
 
   const props = defineProps<{
     activeModule: string;
@@ -241,11 +258,26 @@
     protocol: string;
   }>();
   const emit = defineEmits(['addDone']);
+  const definitionActiveKey = ref('definition');
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
   const appStore = useAppStore();
   const { t } = useI18n();
+
+  const protocols = ref<ProtocolItem[]>([]);
+  async function initProtocolList() {
+    try {
+      protocols.value = await getProtocolList(appStore.currentOrgId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  onBeforeMount(() => {
+    initProtocolList();
+  });
 
   const apiTabs = ref<RequestParam[]>([
     {
@@ -401,7 +433,7 @@
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       ...defaultProps,
     });
-    activeApiTab.value = apiTabs.value[apiTabs.value.length - 1] as RequestParam;
+    activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
   }
 
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
@@ -413,8 +445,10 @@
   }
 
   const loading = ref(false);
-  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail, isCopy = false) {
-    const isLoadedTabIndex = apiTabs.value.findIndex((e) => e.id === apiInfo.id);
+  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail | string, isCopy = false) {
+    const isLoadedTabIndex = apiTabs.value.findIndex(
+      (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
+    );
     if (isLoadedTabIndex > -1 && !isCopy) {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeApiTab.value = apiTabs.value[isLoadedTabIndex] as RequestParam;
@@ -422,8 +456,13 @@
     }
     try {
       loading.value = true;
-      const res = await getDefinitionDetail(apiInfo.id);
+      const res = await getDefinitionDetail(typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
       const name = isCopy ? `${res.name}-copy` : res.name;
+      definitionActiveKey.value = isCopy ? 'definition' : 'preview';
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
       addApiTab({
         label: name,
         ...res.request,
@@ -434,6 +473,8 @@
         name, // request里面还有个name但是是null
         isNew: isCopy,
         unSaved: isCopy,
+        isCopy,
+        ...parseRequestBodyResult,
       });
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
@@ -465,25 +506,25 @@
   const showAddDependencyDrawer = ref(false);
   const addDependencyMode = ref<'pre' | 'post'>('pre');
 
-  function handleDddDependency(value: string | number | Record<string, any> | undefined) {
-    switch (value) {
-      case 'pre':
-        addDependencyMode.value = 'pre';
-        showAddDependencyDrawer.value = true;
-        break;
-      case 'post':
-        addDependencyMode.value = 'post';
-        showAddDependencyDrawer.value = true;
-        break;
-      default:
-        break;
-    }
-  }
+  // function handleDddDependency(value: string | number | Record<string, any> | undefined) {
+  //   switch (value) {
+  //     case 'pre':
+  //       addDependencyMode.value = 'pre';
+  //       showAddDependencyDrawer.value = true;
+  //       break;
+  //     case 'post':
+  //       addDependencyMode.value = 'post';
+  //       showAddDependencyDrawer.value = true;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
-  function clearAllDependency() {
-    activeApiTab.value.preDependency = [];
-    activeApiTab.value.postDependency = [];
-  }
+  // function clearAllDependency() {
+  //   activeApiTab.value.preDependency = [];
+  //   activeApiTab.value.postDependency = [];
+  // }
 
   const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const activeApiTabFormRef = ref<FormInstance>();

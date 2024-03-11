@@ -1,9 +1,9 @@
 <template>
-  <MsTag :self-style="status.style"> {{ status.text }}</MsTag>
+  <MsTag :self-style="status.style" :size="props.size"> {{ status.text }}</MsTag>
 </template>
 
 <script setup lang="ts">
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -11,6 +11,7 @@
 
   const props = defineProps<{
     status: RequestDefinitionStatus;
+    size?: Size;
   }>();
 
   const { t } = useI18n();

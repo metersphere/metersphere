@@ -70,6 +70,11 @@
       showTooltip: true,
     },
     {
+      title: 'URL',
+      dataIndex: 'dbUrl',
+      showTooltip: true,
+    },
+    {
       title: 'apiTestDebug.username',
       dataIndex: 'username',
       showTooltip: true,

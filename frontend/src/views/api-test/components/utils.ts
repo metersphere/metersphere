@@ -1,7 +1,16 @@
 import { cloneDeep, isEqual } from 'lodash-es';
 
+import { RequestParam } from './requestComposition/index.vue';
+
 import { ExecuteBody } from '@/models/apiTest/common';
 import { RequestParamsType } from '@/enums/apiEnum';
+
+import {
+  defaultBodyParamsItem,
+  defaultHeaderParamsItem,
+  defaultKeyValueParamItem,
+  defaultRequestParamsItem,
+} from './config';
 
 export interface ParseResult {
   uploadFileIds: string[];
@@ -131,5 +140,25 @@ export function filterKeyValParams<T>(params: (T & Record<string, any>)[], defau
   return {
     lastDataIsDefault,
     validParams,
+  };
+}
+
+/**
+ * 获取有效的请求表格参数
+ * @param requestVModel 请求参数对象
+ */
+export function getValidRequestTableParams(requestVModel: RequestParam) {
+  const { formDataBody, wwwFormBody } = requestVModel.body;
+  return {
+    formDataBodyTableParams: filterKeyValParams(formDataBody.formValues, defaultBodyParamsItem).validParams,
+    wwwFormBodyTableParams: filterKeyValParams(wwwFormBody.formValues, defaultBodyParamsItem).validParams,
+    headers: filterKeyValParams(requestVModel.headers, defaultHeaderParamsItem).validParams,
+    query: filterKeyValParams(requestVModel.query, defaultRequestParamsItem).validParams,
+    rest: filterKeyValParams(requestVModel.rest, defaultRequestParamsItem).validParams,
+    response:
+      requestVModel.responseDefinition?.map((e) => ({
+        ...e,
+        headers: filterKeyValParams(e.headers, defaultKeyValueParamItem).validParams,
+      })) || [],
   };
 }

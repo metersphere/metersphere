@@ -43,7 +43,7 @@ export enum TableKeyEnum {
   CASE_MANAGEMENT_REVIEW = 'caseManagementReview',
   CASE_MANAGEMENT_REVIEW_CASE = 'caseManagementReviewCase',
   CASE_MANAGEMENT_TAB_DEFECT = 'caseManagementTabDefect',
-  CASE_MANAGEMENT_TAB_DEFECT_TEST_PLAN = 'caseManagementTabTestPlan',
+  // CASE_MANAGEMENT_TAB_DEFECT_TEST_PLAN = 'caseManagementTabTestPlan',
   CASE_MANAGEMENT_TAB_DEPENDENCY_PRE_CASE = 'caseManagementTabPreDependency',
   CASE_MANAGEMENT_TAB_DEPENDENCY_POST_CASE = 'caseManagementTabPostDependency',
   CASE_MANAGEMENT_TAB_REVIEW = 'caseManagementTabCaseReview',
