@@ -15,7 +15,7 @@ import java.util.List;
 public class FunctionalCaseDemandBatchRequest extends BaseFunctionalCaseBatchDTO {
 
     @Schema(description = "项目ID")
-    @NotBlank(message = "{functional_case_demand.projectId.not_blank}")
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "需求所属平台(本地创建为系统平台名称)")

@@ -14,7 +14,7 @@ public class AssociatePlanPageRequest extends BaseProviderCondition {
 
 
     @Schema(description = "功能用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{associate_plan_page_request.case_id.not_blank}")
+    @NotBlank(message = "{functional_case_comment.case_id.not_blank}")
     private String caseId;
 
 

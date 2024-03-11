@@ -9,6 +9,6 @@ import lombok.Data;
 public class CaseReviewFunctionalCasePosRequest extends PosRequest {
 
     @Schema(description = "用例评审Id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.review_id.not_blank}")
+    @NotBlank(message = "{case_review.case_review_id.not_blank}")
     private String reviewId;
 }

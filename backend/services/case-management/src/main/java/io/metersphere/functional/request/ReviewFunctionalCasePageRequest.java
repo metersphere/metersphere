@@ -18,11 +18,11 @@ public class ReviewFunctionalCasePageRequest extends BasePageRequest implements 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_user.review_id.not_blank}")
+    @NotBlank(message = "{case_review.case_review_id.not_blank}")
     private String reviewId;
 
     @Schema(description = "用例所在项目ID(默认当前项目)", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_user.project_id.not_blank}")
+    @NotBlank(message = "{case_review.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "是否只看我的", requiredMode = Schema.RequiredMode.REQUIRED)

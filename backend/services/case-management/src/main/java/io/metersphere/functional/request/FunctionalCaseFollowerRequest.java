@@ -17,7 +17,7 @@ public class FunctionalCaseFollowerRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "用户id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_id.not_blank}")
+    @NotBlank(message = "{bug_follower.user_id.not_blank}")
     private String userId;
 
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)

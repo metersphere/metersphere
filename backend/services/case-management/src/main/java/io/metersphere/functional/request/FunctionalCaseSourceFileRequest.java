@@ -25,7 +25,7 @@ public class FunctionalCaseSourceFileRequest implements Serializable {
     private String caseId;
 
     @Schema(description = "文件来源:附件(ATTACHMENT)/功能用例详情(CASE_DETAIL)/用例评论(CASE_COMMENT)/评审评论(REVIEW_COMMENT)")
-    @NotBlank(message = "{functional_case_source_file_request.file_source.not_blank}")
+    @NotBlank(message = "{functional_case.file_source.not_blank}")
     private String fileSource;
 
     @Schema(description = "是否本地",requiredMode = Schema.RequiredMode.REQUIRED)
