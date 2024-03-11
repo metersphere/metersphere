@@ -120,6 +120,14 @@
     (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
+  const resetForm = () => {
+    formRef.value?.resetFields();
+    platformItem.value = [];
+    platformRules.value = [];
+    formCreateValue.value = {};
+    sessionStorage.removeItem('platformKey');
+  };
+
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
     sessionStorage.removeItem('platformKey');
@@ -136,7 +144,9 @@
             }
           });
         }
+        resetForm();
         platformRules.value = res.formItems;
+        sessionStorage.setItem('platformKey', value as string);
       } else {
         platformRules.value = [];
       }
