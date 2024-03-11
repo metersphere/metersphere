@@ -26,7 +26,9 @@
         {{ t('common.save') }}
       </a-button>
     </div>
-    <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
+    <div style="margin-top: 20px">
+      <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
+    </div>
     <MsFileList
       ref="fileListRef"
       v-model:file-list="fileList"
