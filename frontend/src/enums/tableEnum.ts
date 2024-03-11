@@ -10,6 +10,7 @@ export enum TableKeyEnum {
   API_TEST = 'apiTest',
   API_TEST_DEBUG_FORM_DATA = 'apiTestDebugFormData',
   API_TEST_DEBUG_FORM_URL_ENCODE = 'apiTestDebugFormUrlEncoded',
+  API_TEST_REPORT = 'apiTestReport',
   SYSTEM_USER = 'systemUser',
   SYSTEM_RESOURCEPOOL = 'systemResourcePool',
   SYSTEM_AUTH = 'systemAuth',
