@@ -6,6 +6,9 @@ export const GetEnvModuleUrl = '/api/definition/module/env/tree'; // 获取环�
 export const GetModuleCountUrl = '/api/definition/module/count'; // 获取模块统计数量
 export const AddModuleUrl = '/api/definition/module/add'; // 添加模块
 export const DeleteModuleUrl = '/api/definition/module/delete'; // 删除模块
+/**
+ * 接口定义
+ */
 export const DefinitionPageUrl = '/api/definition/page'; // 接口定义列表
 export const AddDefinitionUrl = '/api/definition/add'; // 添加接口定义
 export const UpdateDefinitionUrl = '/api/definition/update'; // 更新接口定义
@@ -13,9 +16,6 @@ export const GetDefinitionDetailUrl = '/api/definition/get-detail'; // 获取接
 export const TransferFileUrl = '/api/definition/transfer'; // 文件转存
 export const TransferFileModuleOptionUrl = '/api/definition/transfer/options'; // 文件转存目录
 export const UploadTempFileUrl = '/api/definition/upload/temp/file'; // 临时文件上传
-export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
-export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
-export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
 export const DeleteDefinitionUrl = '/api/definition/delete-to-gc'; // 删除接口定义
 export const ImportDefinitionUrl = '/api/definition/import'; // 导入接口定义
 export const SortDefinitionUrl = '/api/definition/edit/pos'; // 接口定义拖拽
@@ -30,3 +30,10 @@ export const SwitchDefinitionScheduleUrl = '/api/definition/schedule/switch'; //
 export const GetDefinitionScheduleUrl = '/api/definition/schedule/get'; // 接口定义-定时同步-查询
 export const DeleteDefinitionScheduleUrl = '/api/definition/schedule/delete'; // 接口定义-定时同步-删除
 export const DebugDefinitionUrl = '/api/definition/debug'; // 接口定义-调试
+export const ToggleFollowDefinitionUrl = '/api/definition/follow'; // 接口定义-关注/取消关注
+/**
+ * Mock
+ */
+export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
+export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
+export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock

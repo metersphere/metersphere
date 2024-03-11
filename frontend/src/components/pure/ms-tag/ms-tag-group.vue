@@ -1,10 +1,10 @@
 <template>
   <a-tooltip :content="tagsTooltip">
     <div class="flex max-w-[440px] flex-row">
-      <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" v-bind="attrs">
+      <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
         {{ props.isStringTag ? tag : tag[props.nameKey] }}
       </MsTag>
-      <MsTag v-if="props.tagList.length > props.showNum" :width="numberTagWidth" v-bind="attrs">
+      <MsTag v-if="props.tagList.length > props.showNum" :width="numberTagWidth" :size="props.size" v-bind="attrs">
         +{{ props.tagList.length - props.showNum }}</MsTag
       >
     </div>
@@ -14,7 +14,7 @@
 <script setup lang="ts">
   import { computed, useAttrs } from 'vue';
 
-  import MsTag from './ms-tag.vue';
+  import MsTag, { Size } from './ms-tag.vue';
 
   const props = withDefaults(
     defineProps<{
@@ -22,10 +22,12 @@
       showNum?: number;
       nameKey?: string;
       isStringTag?: boolean; // 是否是字符串数组的标签
+      size?: Size;
     }>(),
     {
       showNum: 2,
       nameKey: 'name',
+      size: 'medium',
     }
   );
 

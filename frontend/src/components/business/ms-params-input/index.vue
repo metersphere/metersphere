@@ -632,6 +632,8 @@
     }
   }
   .ms-params-input:not(.arco-input-focus) {
+    @apply bg-transparent;
+
     border-color: transparent;
     &:not(:hover) {
       .arco-input::placeholder {

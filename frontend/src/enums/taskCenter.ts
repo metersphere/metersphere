@@ -14,7 +14,7 @@ export enum ExecutionMethods {
   SCHEDULE = 'SCHEDULE', // 定时任务
   MANUAL = 'MANUAL', // 手动执行
   API = 'API', // 接口调用
-  BATCH = 'API', // 批量执行
+  // BATCH = 'API', // 批量执行
 }
 
 export enum ExecutionMethodsLabel {

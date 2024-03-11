@@ -284,7 +284,7 @@
       const res = await getDebugDetail(apiInfo.id);
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body);
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
       addDebugTab({
         label: apiInfo.name,

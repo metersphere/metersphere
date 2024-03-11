@@ -147,6 +147,7 @@
                   placement="top"
                   content-class="max-w-[400px]"
                   :content="String(record[item.dataIndex as string])"
+                  :disabled="record[item.dataIndex as string] === '' || record[item.dataIndex as string] === undefined || record[item.dataIndex as string] === null"
                 >
                   <div class="one-line-text">
                     <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }">

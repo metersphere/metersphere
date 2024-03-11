@@ -129,4 +129,8 @@ export default {
   'common.module': '模块',
   'common.yes': '是',
   'common.no': '否',
+  'common.creator': '创建人',
+  'common.followSuccess': '关注成功',
+  'common.unFollowSuccess': '取消关注成功',
+  'common.share': '分享',
 };

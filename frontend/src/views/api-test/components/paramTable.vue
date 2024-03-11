@@ -72,7 +72,7 @@
         <a-input
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
-          class="param-input"
+          class="ms-form-table-input"
           :max-length="255"
           size="mini"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
@@ -99,7 +99,7 @@
       <a-select
         v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
-        class="param-input w-full"
+        class="ms-form-table-input w-full"
         size="mini"
         @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
@@ -108,7 +108,7 @@
       <a-select
         v-model:model-value="record.extractType"
         :options="columnConfig.typeOptions || []"
-        class="param-input w-[110px]"
+        class="ms-form-table-input w-[110px]"
         size="mini"
         @change="() => addTableLine(rowIndex)"
       />
@@ -117,7 +117,7 @@
       <a-select
         v-model:model-value="record.variableType"
         :options="columnConfig.typeOptions || []"
-        class="param-input w-[110px]"
+        class="ms-form-table-input w-[110px]"
         size="mini"
         @change="() => addTableLine(rowIndex)"
       />
@@ -126,7 +126,7 @@
       <a-select
         v-model:model-value="record.extractScope"
         :options="columnConfig.typeOptions || []"
-        class="param-input w-[180px]"
+        class="ms-form-table-input w-[180px]"
         size="mini"
         @change="() => addTableLine(rowIndex)"
       />
@@ -151,7 +151,7 @@
         </template>
         <a-input
           v-model:model-value="record.value"
-          class="param-input"
+          class="ms-form-table-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
           size="mini"
@@ -170,7 +170,7 @@
         :file-save-as-source-id="props.fileSaveAsSourceId"
         :file-save-as-api="props.fileSaveAsApi"
         :file-module-options-api="props.fileModuleOptionsApi"
-        input-class="param-input h-[24px]"
+        input-class="ms-form-table-input h-[24px]"
         input-size="small"
         tag-size="small"
         @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
@@ -190,8 +190,9 @@
           v-model:model-value="record.minLength"
           :placeholder="t('apiTestDebug.paramMin')"
           :min="0"
-          class="param-input param-input-number"
+          class="ms-form-table-input ms-form-table-input-number"
           size="mini"
+          model-event="input"
           @change="() => addTableLine(rowIndex)"
         />
         <div class="mx-[4px]">{{ t('common.to') }}</div>
@@ -199,13 +200,14 @@
           v-model:model-value="record.maxLength"
           :placeholder="t('apiTestDebug.paramMax')"
           :min="0"
-          class="param-input"
+          class="ms-form-table-input"
           size="mini"
+          model-event="input"
           @change="() => addTableLine(rowIndex)"
         />
       </div>
     </template>
-    <template #tag="{ record, columnConfig }">
+    <template #tag="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
         :disabled="record[columnConfig.dataIndex as string].length === 0"
@@ -222,8 +224,10 @@
         <MsTagsInput
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :max-tag-count="1"
-          input-class="param-input"
+          input-class="ms-form-table-input"
           size="mini"
+          @change="() => addTableLine(rowIndex)"
+          @clear="() => addTableLine(rowIndex)"
         />
       </a-popover>
     </template>
@@ -240,7 +244,7 @@
       <a-switch
         v-model:model-value="record.encode"
         size="small"
-        class="param-input-switch"
+        class="ms-form-table-input-switch"
         type="line"
         @change="() => addTableLine(rowIndex)"
       />
@@ -259,13 +263,13 @@
     </template>
     <!-- 响应头 -->
     <template #header="{ record, columnConfig, rowIndex }">
-      <a-select v-model="record.header" class="param-input" size="mini" @change="() => addTableLine(rowIndex)">
+      <a-select v-model="record.header" class="ms-form-table-input" size="mini" @change="() => addTableLine(rowIndex)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
     <!-- 匹配条件 -->
     <template #condition="{ record, columnConfig }">
-      <a-select v-model="record.condition" size="mini" class="param-input">
+      <a-select v-model="record.condition" size="mini" class="ms-form-table-input">
         <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">{{
           t(item.label)
         }}</a-option>
@@ -289,12 +293,12 @@
           <div>*</div>
         </MsButton>
       </a-tooltip>
-      <a-input v-model="record.expectedValue" size="mini" class="param-input" />
+      <a-input v-model="record.expectedValue" size="mini" class="ms-form-table-input" />
     </template>
     <template #project="{ record, rowIndex }">
       <a-select
         v-model:model-value="record.projectId"
-        class="param-input w-max-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+        class="ms-form-table-input w-max-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
         :bordered="false"
         allow-search
         @change="(val) => handleProjectChange(val as string,record.projectId, rowIndex)"
@@ -330,7 +334,7 @@
         :search-keys="['name']"
         size="mini"
         allow-search
-        class="param-input"
+        class="ms-form-table-input"
         :remote-func="initEnvOptions"
         :remote-extra-params="{ projectId: record.projectId, keyword: record.environmentInput }"
         @change-object="(val) => handleEnvironment(val, record)"
@@ -413,7 +417,7 @@
     <MsCodeEditor
       v-if="showQuickInputParam"
       v-model:model-value="quickInputParamValue"
-      theme="MS-text"
+      theme="vs"
       height="300px"
       :show-full-screen="false"
     >
