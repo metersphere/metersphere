@@ -2022,7 +2022,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
                                               "enumInteger":  null,
                                               "enumNumber":  null,
                                               "extensions":  null
-                                    }
+                                    },
+                                    "testass": null
                           },
                           "additionalProperties":  null,
                           "required":  [
@@ -2222,7 +2223,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiScenarioSteps.add(apiScenarioStep);
         apiScenarioStepMapper.batchInsert(apiScenarioSteps);
         ReferenceRequest request = new ReferenceRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setResourceId("test-api-get-ref");
         request.setCurrent(1);
         request.setPageSize(10);

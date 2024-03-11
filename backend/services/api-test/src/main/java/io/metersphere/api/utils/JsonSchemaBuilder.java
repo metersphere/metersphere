@@ -87,6 +87,9 @@ public class JsonSchemaBuilder {
 
     private static JsonNode generateValue(String propertyName, JsonNode propertyNode, Map<String, String> processMap) {
         // 获取属性类型
+        if (propertyNode instanceof NullNode) {
+            return NullNode.getInstance();
+        }
         String type = propertyNode.get(PropertyConstant.TYPE).asText();
         String value = propertyNode.get(PropertyConstant.EXAMPLE).asText();
         return switch (type) {

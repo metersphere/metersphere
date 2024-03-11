@@ -2638,7 +2638,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiScenarioSteps.add(apiScenarioStep);
         apiScenarioStepMapper.batchInsert(apiScenarioSteps);
         ReferenceRequest request = new ReferenceRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setResourceId("test-scenario-get-ref");
         request.setCurrent(1);
         request.setPageSize(10);
