@@ -4,17 +4,11 @@ export enum ReportEnum {
   API_REPORT = 'API_REPORT',
 }
 
-export enum ReportType {
-  ALL = 'ALL',
-  COLLECTION = 'COLLECTION',
-  INDEPENDENT = 'INDEPENDENT',
-}
-
 export enum TriggerModeLabel {
-  SCHEDULE = 'project.taskCenter.scheduledTask', // 定时任务
-  MANUAL = 'project.taskCenter.manualExecution', // 手动执行
-  API = 'project.taskCenter.interfaceCall', // 接口调用
-  BATCH = 'project.taskCenter.batchExecution', // 批量执行
+  MANUAL = 'report.trigger.manual', // 手动执行
+  SCHEDULE = 'report.trigger.scheduled', // 定时任务
+  BATCH = 'report.trigger.batch.execution', // 批量执行
+  API = 'report.trigger.interface', // 接口调用
 }
 
 export const ReportStatus = {
