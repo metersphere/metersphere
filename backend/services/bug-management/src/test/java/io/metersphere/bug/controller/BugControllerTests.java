@@ -72,8 +72,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BugControllerTests extends BaseTest {
 
     public static final String BUG_HEADER_CUSTOM_FIELD = "/bug/header/custom-field";
-    public static final String BUG_HEADER_STATUS_OPTION = "/bug/header/status-option";
-    public static final String BUG_HEADER_HANDLER_OPTION = "/bug/header/handler-option";
+    public static final String BUG_HEADER_COLUMNS_OPTION = "/bug/header/columns-option";
     public static final String BUG_PAGE = "/bug/page";
     public static final String BUG_EDIT_POS = "/bug/edit/pos";
     public static final String BUG_ADD = "/bug/add";
@@ -136,8 +135,7 @@ public class BugControllerTests extends BaseTest {
     void testBugPageSuccess() throws Exception {
         // 表头字段, 状态选项, 处理人选项
         this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
-        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
-        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_COLUMNS_OPTION + "/default-project-for-bug");
         BugPageRequest bugRequest = new BugPageRequest();
         bugRequest.setCurrent(1);
         bugRequest.setPageSize(10);
@@ -539,7 +537,7 @@ public class BugControllerTests extends BaseTest {
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
         this.requestPost(BUG_TEMPLATE_DETAIL, request, status().is5xxServerError());
         // 获取处理人选项(Local)
-        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_COLUMNS_OPTION + "/default-project-for-bug");
         // 开启插件集成
         record.setEnable(true);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
@@ -563,8 +561,7 @@ public class BugControllerTests extends BaseTest {
         this.requestGetWithOk(BUG_DETAIL + "/default-bug-id-jira-sync");
         // 表头字段, 状态选项, 处理人选项 (非Local平台)
         this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
-        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
-        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_COLUMNS_OPTION + "/default-project-for-bug");
 
         // 同步并删除的两条缺陷
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
@@ -698,7 +695,7 @@ public class BugControllerTests extends BaseTest {
         // 获取禅道模板(删除默认项目模板)
         bugService.attachTemplateStatusField(null, null, null, null);
         // 获取处理人选项
-        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_COLUMNS_OPTION + "/default-project-for-bug");
         // 批量删除
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");

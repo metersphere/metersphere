@@ -92,9 +92,11 @@
         </if>
     </select>
     <select id="countByCaseId" resultType="java.lang.Long">
-        SELECT count(id)
+        SELECT count(fc.id)
         FROM bug_relation_case brc
+                 INNER JOIN functional_case fc ON brc.case_id = fc.id
         where brc.bug_id = #{caseId}
+          AND fc.deleted = false
     </select>
 
     <sql id="queryWhereConditionByProvider">

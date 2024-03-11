@@ -50,6 +50,82 @@
           />
         </div>
       </template>
+
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="createUserFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #updateUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="updateUserFilterVisible"
+          v-model:status-filters="updateUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="updateUserFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #handleUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="handleUserFilterVisible"
+          v-model:status-filters="handleUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="handleUserFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #statusFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="statusFilterVisible"
+          v-model:status-filters="statusFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="statusFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #severityFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="severityFilterVisible"
+          v-model:status-filters="severityFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="severityFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
       <template #empty> </template>
     </MsBaseTable>
   </MsCard>
@@ -126,6 +202,7 @@
 </template>
 
 <script lang="ts" async setup>
+  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { useIntervalFn } from '@vueuse/core';
   import { Message, TableData } from '@arco-design/web-vue';
@@ -144,6 +221,7 @@
   import BatchEditModal from './components/batchEditModal.vue';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
   import DeleteModal from './components/deleteModal.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     deleteBatchBug,
@@ -151,6 +229,7 @@
     exportBug,
     getBugList,
     getCustomFieldHeader,
+    getCustomOptionHeader,
     getExportConfig,
     getSyncStatus,
     syncBugEnterprise,
@@ -168,7 +247,7 @@
     tableParamsToRequestParams,
   } from '@/utils';
 
-  import { BugEditCustomField, BugListItem } from '@/models/bug-management';
+  import { BugEditCustomField, BugListItem, BugOptionItem, BugOptionListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -194,6 +273,23 @@
   const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
   const route = useRoute();
+  const createUserFilterOptions = ref<BugOptionItem[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilterValue = ref<string[]>([]);
+  const updateUserFilterOptions = ref<BugOptionItem[]>([]);
+  const updateUserFilterVisible = ref(false);
+  const updateUserFilterValue = ref<string[]>([]);
+  const handleUserFilterOptions = ref<BugOptionItem[]>([]);
+  const handleUserFilterVisible = ref(false);
+  const handleUserFilterValue = ref<string[]>([]);
+  const statusFilterOptions = ref<BugOptionItem[]>([]);
+  const statusFilterVisible = ref(false);
+  const statusFilterValue = ref<string[]>([]);
+  const severityFilterOptions = ref<BugOptionItem[]>([]);
+  const severityFilterVisible = ref(false);
+  const severityFilterValue = ref<string[]>([]);
+  const severityColumnId = ref('');
+
   // 是否同步完成
   const isComplete = ref(false);
   // 自定义字段
@@ -236,6 +332,21 @@
   const getCustomFieldColumns = async () => {
     const res = await getCustomFieldHeader(projectId.value);
     customFields.value = res;
+
+    //  实例化自定义字段的filters
+    customFields.value.forEach((item) => {
+      if ((item.fieldName === '严重程度' || item.fieldName === 'Bug Degree') && item.options) {
+        severityFilterOptions.value = [];
+        severityColumnId.value = `custom_single_${item.fieldId}`;
+        item.options.forEach((option) => {
+          severityFilterOptions.value.push({
+            value: option.value,
+            text: option.text,
+          });
+        });
+      }
+    });
+
     return customFieldToColumns(res);
   };
 
@@ -269,13 +380,16 @@
       dataIndex: 'statusName',
       width: 84,
       slotName: 'status',
+      titleSlotName: 'statusFilter',
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUser',
+      slotName: 'handleUser',
       showTooltip: true,
+      titleSlotName: 'handleUserFilter',
       width: 75,
       showDrag: true,
       showInTable: true,
@@ -299,16 +413,18 @@
       title: 'bugManagement.tag',
       showDrag: true,
       isStringTag: true,
-      width: 200,
+      width: 456,
       dataIndex: 'tags',
       showInTable: true,
     },
     {
       title: 'bugManagement.creator',
       dataIndex: 'createUser',
+      slotName: 'createUser',
       width: 112,
       showTooltip: true,
       showDrag: true,
+      titleSlotName: 'createUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -332,6 +448,7 @@
       width: 112,
       showTooltip: true,
       showDrag: true,
+      titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -358,8 +475,15 @@
     },
   ];
   const customColumns = await getCustomFieldColumns();
+
   customColumns.forEach((item) => {
-    item.showInTable = item.title === '严重程度';
+    if (item.title === '严重程度' || item.title === 'Bug Degree') {
+      item.showInTable = true;
+      item.titleSlotName = 'severityFilter';
+      item.slotName = 'severity';
+    } else {
+      item.showInTable = false;
+    }
   });
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
@@ -622,10 +746,42 @@
     }
   }
 
+  async function initFilterOptions() {
+    const res = await getCustomOptionHeader(appStore.currentProjectId);
+    createUserFilterOptions.value = res.userOption;
+    updateUserFilterOptions.value = res.userOption;
+    handleUserFilterOptions.value = res.handleUserOption;
+    statusFilterOptions.value = res.statusOption;
+  }
+
   function saveSort(sortObj: { [key: string]: string }) {
     sort.value = sortObj;
   }
 
+  async function searchData() {
+    // eslint-disable-next-line no-use-before-define
+    setLoadListParams(initTableParams());
+    await loadList();
+  }
+
+  function initTableParams() {
+    const filterParams = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+      updateUser: updateUserFilterValue.value,
+      createUser: createUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    return {
+      keyword: keyword.value,
+      projectId: projectId.value,
+      filter: { ...filterParams },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+      },
+    };
+  }
   watchEffect(() => {
     setProps({ heightUsed: heightUsed.value });
   });
@@ -638,6 +794,7 @@
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
     setExportOptionData();
+    initFilterOptions();
     fetchData();
     if (route.query.id) {
       // 分享或成功进来的页面

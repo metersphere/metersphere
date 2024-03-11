@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ExtProjectMemberMapper">
     <select id="listMember" resultType="java.lang.String">
-        select distinct u.id
-        from user_role_relation urr
+        select distinct t.id FROM (
+        SELECT u.id AS id,urr.create_time from user_role_relation urr
         join `user` u on urr.user_id = u.id
         <where>
             urr.source_id = #{request.projectId} and u.deleted = 0
@@ -15,6 +15,7 @@
             <include refid="filter"/>
         </where>
         order by urr.create_time desc
+        ) t
     </select>
 
     <select id="getMemberByOrg" resultType="io.metersphere.system.dto.user.UserExtendDTO">

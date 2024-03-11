@@ -2,8 +2,9 @@ import { CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
+import { getCustomOptionHeaderUrl } from '@/api/requrls/bug-management';
 
-import { BugEditFormObject, BugListItem } from '@/models/bug-management';
+import { BugEditFormObject, BugListItem, BugOptionListItem } from '@/models/bug-management';
 import { AssociatedList, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
@@ -14,6 +15,14 @@ import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
  */
 export function getBugList(data: TableQueryParams) {
   return MSR.post<CommonList<BugListItem>>({ url: bugURL.postTableListUrl, data });
+}
+
+/**
+ * 表格筛选字段的数据查询
+ * @param data
+ */
+export function getCustomOptionHeader(projectId: string) {
+  return MSR.get<BugOptionListItem>({ url: `${bugURL.getCustomOptionHeaderUrl}${projectId}` });
 }
 /**
  * 更新Bug

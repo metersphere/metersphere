@@ -25,6 +25,7 @@ export const postCreateCommentUrl = '/bug/comment/add';
 export const getCommentListUrl = '/bug/comment/get/';
 export const getDeleteCommentUrl = '/bug/comment/delete/';
 export const getCustomFieldHeaderUrl = '/bug/header/custom-field/';
+export const getCustomOptionHeaderUrl = '/bug/header/columns-option/';
 // 上传or关联文件
 export const uploadOrAssociationFileUrl = '/bug/attachment/upload';
 // 转存文件
