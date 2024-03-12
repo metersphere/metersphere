@@ -276,3 +276,58 @@ export interface BatchRecoverApiParams extends ApiDefinitionBatchParams {
   projectId: string;
   moduleIds?: string[];
 }
+
+// --------------------用例
+// 用例列表查询参数
+export interface ApiCasePageParams extends TableQueryParams {
+  protocol: string;
+  projectId: string;
+  versionId?: string;
+  refId?: string;
+  moduleIds?: string[];
+  apiDefinitionId?: string;
+}
+// 用例列表
+export interface ApiCaseDetail {
+  id: string;
+  name: string;
+  priority: string;
+  num: number;
+  status: string;
+  lastReportStatus: string;
+  lastReportId: string;
+  projectId: string;
+  apiDefinitionId: string;
+  environmentId: string;
+  environmentName: string;
+  follow: boolean;
+  method: string;
+  path: string;
+  tags: string[];
+  passRate: string;
+  modulePath: string;
+  moduleId: string;
+  createTime: number;
+  createUser: string;
+  createName: string;
+  updateTime: number;
+  updateUser: string;
+  updateName: string;
+  deleteTime: number;
+  deleteUser: string;
+  deleteName: string;
+}
+// 批量操作参数
+export interface ApiCaseBatchParams extends BatchApiParams {
+  protocol: string;
+  apiDefinitionId?: string[];
+  versionId?: string;
+}
+// 用例批量编辑参数
+export interface ApiCaseBatchEditParams extends ApiCaseBatchParams {
+  priority?: string;
+  tags?: string[];
+  status?: string;
+  environmentId?: string;
+  type: string;
+}

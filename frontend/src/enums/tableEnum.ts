@@ -8,6 +8,7 @@ export enum TableModuleEnum {
 
 export enum TableKeyEnum {
   API_TEST = 'apiTest',
+  API_TEST_MANAGEMENT_CASE = 'apiTestMenagementCase',
   API_TEST_DEBUG_FORM_DATA = 'apiTestDebugFormData',
   API_TEST_DEBUG_FORM_URL_ENCODE = 'apiTestDebugFormUrlEncoded',
   API_TEST_REPORT = 'apiTestReport',
