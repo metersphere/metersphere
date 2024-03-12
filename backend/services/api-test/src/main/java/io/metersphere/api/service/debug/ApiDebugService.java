@@ -238,7 +238,7 @@ public class ApiDebugService extends MoveNodeService {
     }
 
     public void editPos(ApiEditPosRequest request, String userId) {
-        ApiDebug apiDebug = checkResourceExist(request.getTargetId());
+        ApiDebug apiDebug = checkResourceExist(request.getMoveId());
         if (!StringUtils.equals(request.getModuleId(), apiDebug.getModuleId())) {
             checkModuleExist(request.getModuleId());
             apiDebug.setModuleId(request.getModuleId());

@@ -1057,7 +1057,7 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     public void editPos(ApiEditPosRequest request, String userId) {
-        ApiDefinition apiDefinition = checkApiDefinition(request.getTargetId());
+        ApiDefinition apiDefinition = checkApiDefinition(request.getMoveId());
         if (!StringUtils.equals(request.getModuleId(), apiDefinition.getModuleId())) {
             checkModuleExist(request.getModuleId());
             apiDefinition.setUpdateTime(System.currentTimeMillis());

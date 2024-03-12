@@ -419,7 +419,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setMoveMode("AFTER");
         requestPost("edit/pos", request).andExpect(status().isOk());
         // @@请求成功
-        request.setMoveId(anotherAddApiDebug.getId());
+        request.setTargetId(anotherAddApiDebug.getId());
         this.requestPostWithOk("edit/pos", request);
         // 校验请求成功数据
         ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(addApiDebug.getId());
