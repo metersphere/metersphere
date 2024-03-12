@@ -322,7 +322,7 @@
         ...files,
         ...resultArr,
         currentTableParams.value[currentTableParams.value.length - 1],
-      ];
+      ].filter(Boolean);
     }
     emit('change');
   }

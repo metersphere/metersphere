@@ -174,6 +174,7 @@
         input-size="small"
         tag-size="small"
         @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
+        @delete-file="() => emitChange('deleteFile')"
       />
       <MsParamsInput
         v-else

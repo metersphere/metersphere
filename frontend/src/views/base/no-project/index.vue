@@ -76,8 +76,8 @@
         name: getFirstRouteNameByPermission(router.getRoutes()),
         query: {
           ...route.query,
-          organizationId: appStore.currentOrgId,
-          projectId: appStore.currentProjectId,
+          orgId: appStore.currentOrgId,
+          pId: appStore.currentProjectId,
         },
       });
     }

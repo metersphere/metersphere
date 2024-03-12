@@ -138,12 +138,12 @@ const useUserStore = defineStore('user', {
         const appStore = useAppStore();
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
-        const { organizationId, projectId } = getHashParameters();
+        const { orgId, pId } = getHashParameters();
         // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
-        if (!organizationId || forceSet) {
+        if (!orgId || forceSet) {
           appStore.setCurrentOrgId(res.lastOrganizationId || '');
         }
-        if (!projectId || forceSet) {
+        if (!pId || forceSet) {
           appStore.setCurrentProjectId(res.lastProjectId || '');
         }
         return true;

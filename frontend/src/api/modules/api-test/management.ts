@@ -22,6 +22,9 @@ import {
   GetModuleTreeUrl,
   ImportDefinitionUrl,
   MoveModuleUrl,
+  OperationHistoryUrl,
+  RecoverOperationHistoryUrl,
+  SaveOperationHistoryUrl,
   SortDefinitionUrl,
   SwitchDefinitionScheduleUrl,
   ToggleFollowDefinitionUrl,
@@ -50,9 +53,12 @@ import {
   ApiDefinitionUpdateParams,
   CheckScheduleParams,
   CreateImportApiDefinitionScheduleParams,
+  DefinitionHistoryItem,
+  DefinitionHistoryPageParams,
   EnvModule,
   ImportApiDefinitionParams,
   mockParams,
+  RecoverDefinitionParams,
   UpdateScheduleParams,
 } from '@/models/apiTest/management';
 import {
@@ -207,6 +213,21 @@ export function debugDefinition(data: ExecuteRequestParams) {
 // 关注/取消关注接口定义
 export function toggleFollowDefinition(id: string | number) {
   return MSR.get({ url: ToggleFollowDefinitionUrl, params: id });
+}
+
+// 接口定义-变更历史
+export function operationHistory(data: DefinitionHistoryPageParams) {
+  return MSR.post<CommonList<DefinitionHistoryItem>>({ url: OperationHistoryUrl, data });
+}
+
+// 接口定义-保存变更历史为指定版本
+export function saveOperationHistory(data: ExecuteRequestParams) {
+  return MSR.post({ url: SaveOperationHistoryUrl, data });
+}
+
+// 接口定义-恢复至指定变更历史
+export function recoverOperationHistory(data: RecoverDefinitionParams) {
+  return MSR.post({ url: RecoverOperationHistoryUrl, data });
 }
 
 /**

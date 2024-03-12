@@ -425,7 +425,6 @@
     }
     return [props.activeModule];
   });
-  const tableQueryParams = ref<any>();
   function loadApiList() {
     const params = {
       keyword: keyword.value,
@@ -440,11 +439,6 @@
     };
     setLoadListParams(params);
     loadList();
-    tableQueryParams.value = {
-      ...params,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    };
   }
 
   watch(

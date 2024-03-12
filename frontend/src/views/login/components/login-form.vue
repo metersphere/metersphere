@@ -166,8 +166,8 @@
           name: redirectHasPermission ? (redirect as string) : currentRouteName,
           query: {
             ...othersQuery,
-            organizationId: appStore.currentOrgId,
-            projectId: appStore.currentProjectId,
+            orgId: appStore.currentOrgId,
+            pId: appStore.currentProjectId,
           },
         });
       } catch (err) {

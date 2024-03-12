@@ -31,6 +31,10 @@ export const GetDefinitionScheduleUrl = '/api/definition/schedule/get'; // 接�
 export const DeleteDefinitionScheduleUrl = '/api/definition/schedule/delete'; // 接口定义-定时同步-删除
 export const DebugDefinitionUrl = '/api/definition/debug'; // 接口定义-调试
 export const ToggleFollowDefinitionUrl = '/api/definition/follow'; // 接口定义-关注/取消关注
+export const OperationHistoryUrl = '/api/definition/operation-history'; // 接口定义-变更历史
+export const SaveOperationHistoryUrl = '/api/definition/operation-history/save'; // 接口定义-另存变更历史为指定版本
+export const RecoverOperationHistoryUrl = '/api/definition/operation-history/recover'; // 接口定义-变更历史恢复
+
 /**
  * Mock
  */

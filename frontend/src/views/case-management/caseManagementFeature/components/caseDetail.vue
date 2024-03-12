@@ -86,7 +86,7 @@
         Message.success(t('caseManagement.featureCase.editSuccess'));
         router.push({
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
-          query: { organizationId: route.query.orgId, projectId: route.query.pId },
+          query: { orgId: route.query.orgId, pId: route.query.pId },
         });
         setState(true);
         // 创建用例
@@ -120,8 +120,8 @@
           router.push({
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
             query: {
-              organizationId: route.query.orgId,
-              projectId: route.query.pId,
+              orgId: route.query.orgId,
+              pId: route.query.pId,
             },
           });
         }
