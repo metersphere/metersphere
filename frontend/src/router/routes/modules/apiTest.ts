@@ -43,6 +43,26 @@ const ApiTest: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 接口定义回收站
+    {
+      path: 'recycle',
+      name: ApiTestRouteEnum.API_TEST_MANAGEMENT_RECYCLE,
+      component: () => import('@/views/api-test/management/recycle.vue'),
+      meta: {
+        locale: 'common.recycle',
+        roles: ['FUNCTIONAL_CASE:READ'],
+        breadcrumbs: [
+          {
+            name: ApiTestRouteEnum.API_TEST_MANAGEMENT,
+            locale: 'menu.apiTest.api',
+          },
+          {
+            name: ApiTestRouteEnum.API_TEST_MANAGEMENT_RECYCLE,
+            locale: 'common.recycle',
+          },
+        ],
+      },
+    },
     {
       path: 'report',
       name: ApiTestRouteEnum.API_TEST_REPORT,

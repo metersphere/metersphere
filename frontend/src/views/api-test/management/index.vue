@@ -14,16 +14,15 @@
             @change-protocol="handleProtocolChange"
           />
         </div>
-        <!-- <div class="b-0 absolute w-[88%]">
-                <a-divider class="!my-0 !mb-2" />
-                <div class="case h-[38px]">
-                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
-                    <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                    <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div
-                  >
-                </div>
-              </div> -->
+        <div class="b-0 absolute w-full p-[24px]">
+          <a-divider class="!my-0 !mb-2" />
+          <div class="case h-[38px]">
+            <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
+              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+              <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+            </div>
+          </div>
+        </div>
       </template>
       <template #second>
         <div class="relative flex h-full flex-col">
@@ -54,7 +53,7 @@
 
 <script lang="ts" setup>
   import { provide } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -63,10 +62,14 @@
   import management from './components/management/index.vue';
   import moduleTree from './components/moduleTree.vue';
 
+  import { useI18n } from '@/hooks/useI18n';
+
   import { ModuleTreeNode } from '@/models/common';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const route = useRoute();
-
+  const { t } = useI18n();
+  const router = useRouter();
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
@@ -120,10 +123,88 @@
     }
   });
 
+  // 获取激活用例类型样式
+  const getActiveClass = (type: string) => {
+    return activeModule.value === type ? 'folder-text case-active' : 'folder-text';
+  };
+
+  // 设置当前激活用例类型公共用例|全部用例|回收站
+  const setActiveFolder = (type: string) => {
+    if (type === 'recycle') {
+      router.push({
+        name: ApiTestRouteEnum.API_TEST_MANAGEMENT_RECYCLE,
+      });
+    }
+  };
+
   /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);
   provide('refreshModuleTree', refreshModuleTree);
   provide('folderTreePathMap', folderTreePathMap.value);
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .case {
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    @apply flex cursor-pointer items-center justify-between;
+
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+
+    .folder-icon {
+      margin-right: 4px;
+      color: var(--color-text-4);
+    }
+
+    .folder-name {
+      color: var(--color-text-1);
+    }
+
+    .folder-count {
+      margin-left: 4px;
+      color: var(--color-text-4);
+    }
+
+    .case-active {
+      .folder-icon,
+      .folder-name,
+      .folder-count {
+        color: rgb(var(--primary-5));
+      }
+    }
+
+    .back {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ffffff;
+      background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+      box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+
+      .arco-icon {
+        color: rgb(var(--primary-5));
+      }
+
+      @apply flex cursor-pointer items-center rounded-full;
+    }
+  }
+
+  .recycle {
+    @apply absolute bottom-0 bg-white pb-4;
+
+    :deep(.arco-divider-horizontal) {
+      margin: 8px 0;
+    }
+
+    .recycle-bin {
+      @apply bottom-0 flex items-center bg-white;
+
+      .recycle-count {
+        margin-left: 4px;
+        color: var(--color-text-4);
+      }
+    }
+  }
+</style>
