@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
@@ -29,12 +30,10 @@ public class LicenseController {
     @PostMapping("/add")
     @Operation(summary = "添加有效的License")
     @RequiresPermissions(value= {PermissionConstants.SYSTEM_AUTH_READ, PermissionConstants.SYSTEM_AUTH_READ_UPDATE}, logical = Logical.OR)
-    public LicenseDTO addLicense(@RequestBody String licenseCode) {
+    public LicenseDTO addLicense(@RequestBody TextNode licenseCode) {
         LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
-        // 前端传入的JSON会被加上双引号，需要去掉
-        licenseCode = StringUtils.strip(licenseCode, "\"");
         if (licenseService != null) {
-            return licenseService.addLicense(licenseCode, SessionUtils.getUserId());
+            return licenseService.addLicense(licenseCode.asText(), SessionUtils.getUserId());
         }
         return new LicenseDTO();
     }
