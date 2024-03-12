@@ -304,6 +304,7 @@
       };
     }
     const storageItem = props.storageList.find((item) => item.id === props.activeFolder);
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
     storageItemCount.value = props.storageList.reduce((prev, item) => prev + item.count, 0);
     if (props.activeFolder === 'all') {
       return {

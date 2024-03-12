@@ -71,6 +71,7 @@
         return false;
       }
     }
+    return result;
   });
 
   // 检测在横线之后是否有action
@@ -87,6 +88,7 @@
         return false;
       }
     }
+    return result;
   });
 
   function selectHandler(value: SelectedValue) {
