@@ -7,7 +7,7 @@ export default {
   'project.fileManagement.addSubModule': '添加子模块',
   'project.fileManagement.addStorage': '添加存储库',
   'project.fileManagement.rename': '重命名',
-  'project.fileManagement.nameNotNull': '名字不能为空',
+  'project.fileManagement.nameNotNull': '模块名称不能为空',
   'project.fileManagement.namePlaceholder': '请输入模块名称，按回车键保存',
   'project.fileManagement.renameSuccess': '重命名成功',
   'project.fileManagement.updateDescSuccess': '文件描述更新成功',
