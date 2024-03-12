@@ -203,6 +203,7 @@ public class EnvironmentService extends MoveNodeService {
                 if (StringUtils.isNotEmpty(baseUrl)) {
                     Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
                     environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
                 }
             }
         }
