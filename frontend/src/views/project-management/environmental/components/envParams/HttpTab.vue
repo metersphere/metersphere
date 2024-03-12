@@ -93,8 +93,8 @@
   const columns: MsTableColumn = [
     {
       title: 'project.environmental.http.host',
-      dataIndex: 'hostname',
-      slotName: 'hostname',
+      dataIndex: 'url',
+      slotName: 'url',
       showTooltip: true,
       showDrag: true,
       showInTable: true,

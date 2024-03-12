@@ -14,7 +14,7 @@
       <a-form-item
         class="mb-[16px]"
         asterisk-position="end"
-        field="url"
+        field="hostname"
         :label="t('project.environmental.http.hostName')"
         :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
       >
@@ -36,7 +36,7 @@
             <a-option value="https">https://</a-option>
           </a-select>
           <a-input
-            v-model="form.url"
+            v-model="form.hostname"
             class="w-full"
             :max-length="255"
             :placeholder="
@@ -245,7 +245,7 @@
   const handleAddOrUpdate = () => {
     const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
     let modules: { moduleId: string; containChildModule: boolean }[] = [];
-    const { protocol, url, condition, path } = form.value;
+    const { protocol, hostname, condition, path } = form.value;
     if (form.value.type === 'MODULE') {
       modules = form.value.moduleId.map((item) => {
         return {
@@ -259,7 +259,7 @@
     if (index > -1 && !props.isCopy) {
       const httpItem = {
         ...form.value,
-        hostname: `${protocol}://${url}`,
+        url: `${protocol}://${hostname}`,
         pathMatchRule: {
           path,
           condition,
@@ -273,7 +273,7 @@
       const insertItem = {
         ...form.value,
         id: getGenerateId(),
-        hostname: `${protocol}://${url}`,
+        url: `${protocol}://${hostname}`,
         order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
         moduleMatchRule: { modules },
       };
@@ -282,7 +282,7 @@
     } else {
       const httpItem = {
         ...form.value,
-        hostname: `${protocol}://${url}`,
+        url: `${protocol}://${hostname}`,
         pathMatchRule: {
           path,
           condition,
@@ -319,13 +319,13 @@
       ) as HttpForm;
       if (currentItem) {
         const { path, condition } = currentItem.pathMatchRule;
-        const urlPath = currentItem.hostname.match(/\/\/(.*)/);
+        const urlPath = currentItem.url.match(/\/\/(.*)/);
         form.value = {
           ...currentItem,
           moduleId: currentItem.moduleMatchRule.modules.map((item) => item.moduleId) || [],
           path,
           condition,
-          url: urlPath && urlPath?.length > 1 ? `${urlPath[1]}` : '',
+          hostname: urlPath && urlPath?.length > 1 ? `${urlPath[1]}` : '',
         };
       }
     } else {

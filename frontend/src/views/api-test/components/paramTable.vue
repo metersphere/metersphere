@@ -666,7 +666,7 @@
     },
     {
       title: t('project.environmental.http.desc'),
-      dataIndex: 'desc',
+      dataIndex: 'description',
     },
   ];
 
