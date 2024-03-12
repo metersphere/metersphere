@@ -44,6 +44,28 @@ const ApiTest: AppRouteRecordRaw = {
       },
     },
     {
+      path: 'scenario',
+      name: ApiTestRouteEnum.API_TEST_SCENARIO,
+      component: () => import('@/views/api-test/scenario/index.vue'),
+      meta: {
+        locale: 'menu.apiTest.scenario',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
+
+    {
+      path: 'scenarioRecycle',
+      name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,
+      component: () => import('@/views/api-test/scenario/index.vue'),
+      meta: {
+        locale: 'menu.apiTest.scenario',
+        roles: ['*'],
+        isTopMenu: false,
+      },
+    },
+
+    {
       path: 'report',
       name: ApiTestRouteEnum.API_TEST_REPORT,
       component: () => import('@/views/api-test/report/index.vue'),
