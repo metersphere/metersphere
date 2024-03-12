@@ -27,6 +27,7 @@ export default {
     'menu.apiTest.debug': 'API debug',
     'menu.apiTest.debug.debug': 'Debug',
     'menu.apiTest.management': 'API Management',
+    'menu.apiTest.scenario': 'API Scenario',
     'menu.apiTest.report': 'API Report',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',
