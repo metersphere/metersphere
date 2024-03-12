@@ -24,6 +24,7 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
+  import { getDefinitionReference } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -78,20 +79,7 @@
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: '1',
-            resourceName: '资源名称',
-            resourceType: '资源类型',
-            quoteType: '引用类型',
-            belongOrg: '所属组织',
-            belongProject: '所属项目',
-          },
-        ],
-        total: 1,
-      }),
+    getDefinitionReference,
     {
       columns,
       scroll: { x: '100%' },
@@ -106,9 +94,7 @@
 
   function loadQuoteList() {
     setLoadListParams({
-      projectId: appStore.currentProjectId,
-      sourceId: props.sourceId,
-      keyword: keyword.value,
+      resourceId: props.sourceId,
     });
     loadList();
   }

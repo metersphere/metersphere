@@ -41,3 +41,8 @@ export const RecoverOperationHistoryUrl = '/api/definition/operation-history/rec
 export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
 export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
 export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
+
+/**
+ * 接口引用关系
+ */
+export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
