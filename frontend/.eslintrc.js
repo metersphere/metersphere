@@ -55,6 +55,8 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-duplicate-enum-values': 0,
     'consistent-return': 'off',
+    'vue/return-in-computed-property': ['off'],
+    'vue/no-side-effects-in-computed-properties': 'off',
     'import/extensions': [
       2,
       'ignorePackages',
