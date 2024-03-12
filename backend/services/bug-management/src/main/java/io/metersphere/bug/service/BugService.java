@@ -259,9 +259,9 @@ public class BugService {
         detail.setPlatformDefault(template.getPlatformDefault());
         detail.setStatus(bug.getStatus());
         detail.setPlatformBugId(bug.getPlatformBugId());
+        detail.setTitle(bug.getTitle());
         if (!detail.getPlatformDefault()) {
-            // 非平台默认模板 {标题, 内容, 标签, 自定义字段: 处理人, 状态}
-            detail.setTitle(bug.getTitle());
+            // 非平台默认模板 {内容, 标签, 自定义字段: 处理人, 状态}
             BugContent bugContent = bugContentMapper.selectByPrimaryKey(id);
             detail.setDescription(bugContent.getDescription());
             detail.setTags(bug.getTags());
@@ -286,7 +286,7 @@ public class BugService {
                 }
             });
         } else {
-            // 平台默认模板
+            // 平台默认模板 {自定义字段}
             allCustomFields.forEach(field -> template.getCustomFields().stream().filter(templateField -> StringUtils.equals(templateField.getFieldId(), field.getId())).findFirst().ifPresent(templateField -> {
                 field.setName(templateField.getFieldName());
                 field.setType(templateField.getType());
@@ -697,7 +697,7 @@ public class BugService {
             handleUserField.setFieldId(BugTemplateCustomField.HANDLE_USER.getId());
             handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
             handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
-            handleUserField.setType(CustomFieldType.SELECT.getType());
+            handleUserField.setType(CustomFieldType.SELECT.name());
             List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
             handleUserOption = localHandlerOption.stream().map(user -> {
                 CustomFieldOption option = new CustomFieldOption();
@@ -713,7 +713,7 @@ public class BugService {
         // 成员类型的自定义字段, 选项值与处理人选项保持一致
         final List<CustomFieldOption> memberOption = handleUserOption;
         templateDTO.getCustomFields().forEach(field -> {
-            if (StringUtils.equalsAny(field.getType(), CustomFieldType.MEMBER.getType(), CustomFieldType.MULTIPLE_MEMBER.getType())) {
+            if (StringUtils.equalsAny(field.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                 field.setPlatformOptionJson(JSON.toJSONString(memberOption));
             }
         });
@@ -737,7 +737,7 @@ public class BugService {
         statusField.setFieldId(BugTemplateCustomField.STATUS.getId());
         statusField.setFieldName(BugTemplateCustomField.STATUS.getName());
         statusField.setFieldKey(BugTemplateCustomField.STATUS.getId());
-        statusField.setType(CustomFieldType.SELECT.getType());
+        statusField.setType(CustomFieldType.SELECT.name());
         List<SelectOption> statusOption = bugStatusService.getToStatusItemOption(projectId, fromStatusId, platformBugKey);
         List<CustomFieldOption> statusCustomOption = statusOption.stream().map(option -> {
             CustomFieldOption customFieldOption = new CustomFieldOption();
@@ -1252,6 +1252,8 @@ public class BugService {
                    customField.setFieldId(platformCustomField.getId());
                    customField.setFieldName(platformCustomField.getName());
                    customField.setPlatformOptionJson(platformCustomField.getOptions());
+                   customField.setPlatformPlaceHolder(platformCustomField.getPlaceHolder());
+                   customField.setPlatformSystemField(platformCustomField.getSystemField());
                    return customField;
                }).collect(Collectors.toList());
                template.setCustomFields(customFields);

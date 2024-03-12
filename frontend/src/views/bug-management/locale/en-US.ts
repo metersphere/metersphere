@@ -53,6 +53,7 @@ export default {
       linkFile: 'Link file',
       contentEdit: 'Content edit',
       linkCase: 'Link case',
+      cannotBeNull: 'is empty',
     },
     detail: {
       title: '【{id}】{name}',

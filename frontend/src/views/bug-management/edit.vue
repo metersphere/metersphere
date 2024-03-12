@@ -24,7 +24,9 @@
     <a-form ref="formRef" :model="form" layout="vertical">
       <div class="flex flex-row">
         <div class="left mt-[16px] min-w-[732px] grow pl-[24px]">
+          <!-- 平台默认模板不展示缺陷名称, 描述 -->
           <a-form-item
+            v-if="!isPlatformDefaultTemplate"
             field="title"
             :label="t('bugManagement.bugName')"
             :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
@@ -32,13 +34,38 @@
           >
             <a-input v-model="form.title" :max-length="255" />
           </a-form-item>
-          <a-form-item field="description" :label="t('bugManagement.edit.content')">
+          <a-form-item v-if="!isPlatformDefaultTemplate" field="description" :label="t('bugManagement.edit.content')">
             <MsRichText
               v-model:raw="form.description"
               v-model:filed-ids="richTextFileIds"
               :upload-image="handleUploadImage"
             />
           </a-form-item>
+          <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型   -->
+          <div v-if="isPlatformDefaultTemplate">
+            <a-form-item
+              v-for="(value, key) in form.platformSystemFields"
+              :key="key"
+              :field="'platformSystemFields.' + key"
+              :label="platformSystemFieldMap[key].fieldName"
+              :rules="[
+                {
+                  required: platformSystemFieldMap[key].required,
+                  message: `${platformSystemFieldMap[key].fieldName}` + t('bugManagement.edit.cannotBeNull'),
+                },
+              ]"
+            >
+              <a-input
+                v-if="platformSystemFieldMap[key].type === 'INPUT'"
+                v-model="form.platformSystemFields[key]"
+                :max-length="255"
+              />
+              <MsRichText
+                v-if="platformSystemFieldMap[key].type === 'RICH_TEXT'"
+                v-model:raw="form.platformSystemFields[key]"
+              />
+            </a-form-item>
+          </div>
           <a-form-item field="attachment">
             <div class="flex flex-col">
               <div class="mb-1">
@@ -124,7 +151,8 @@
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
           <div style="min-width: 250px; overflow: auto">
             <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
-            <a-form-item field="tag" :label="t('bugManagement.tag')">
+            <!-- 平台默认模板不展示标签, 与第三方保持一致  -->
+            <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
               <MsTagsInput
                 v-model:model-value="form.tags"
                 :placeholder="t('bugManagement.edit.tagPlaceholder')"
@@ -200,6 +228,7 @@
   import { useAppStore } from '@/store';
   import { downloadByteFile } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
+  import { findParents, Option } from '@/utils/recursion';
 
   import {
     BugEditCustomField,
@@ -237,7 +266,12 @@
     deleteLocalFileIds: [],
     unLinkRefIds: [],
     linkFileIds: [],
+    // 平台默认模板系统字段
+    platformSystemFields: {},
   });
+
+  // 平台默认模板系统字段
+  const platformSystemFieldMap = {};
 
   const getListFunParams = ref<TableQueryParams>({
     combine: {
@@ -262,6 +296,7 @@
   const bugId = computed(() => route.query.id || '');
   const isEditOrCopy = computed(() => !!bugId.value);
   const isCopy = computed(() => route.params.mode === 'copy');
+  const isPlatformDefaultTemplate = ref(false);
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
   const richTextFileIds = ref<string[]>([]);
@@ -323,6 +358,7 @@
           value: item.defaultValue,
           options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           required: item.required as boolean,
+          platformPlaceHolder: item.platformPlaceHolder,
           props: {
             modelValue: item.defaultValue,
             options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
@@ -335,12 +371,22 @@
   const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
     if (v) {
       try {
+        loading.value = true;
         let param = { projectId: appStore.currentProjectId, id: v };
         if (request) {
           param = { ...param, ...request };
         }
         const res = await getTemplateById(param);
-        getFormRules(res.customFields);
+        isPlatformDefaultTemplate.value = res.platformDefault;
+        if (isPlatformDefaultTemplate.value) {
+          const systemFields = res.customFields.filter((field) => field.platformSystemField);
+          systemFields.forEach((field) => {
+            form.value.platformSystemFields[field.fieldId] = field.defaultValue;
+            platformSystemFieldMap[field.fieldId] = field;
+          });
+        }
+        getFormRules(res.customFields.filter((field) => !field.platformSystemField));
+        loading.value = false;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -461,6 +507,9 @@
               const customFields: BugEditCustomFieldItem[] = [];
               if (formItem.value && formItem.value.length) {
                 formItem.value.forEach((item: FormRuleItem) => {
+                  if (item.sourceType === 'CASCADER') {
+                    item.value = findParents(item.options as Option[], item.value as string, []);
+                  }
                   customFields.push({
                     id: item.field as string,
                     name: item.title as string,
@@ -468,6 +517,21 @@
                     value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
                   });
                 });
+              }
+              if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
+                Object.keys(form.value.platformSystemFields).forEach((key) => {
+                  customFields.push({
+                    id: platformSystemFieldMap[key].fieldId,
+                    name: platformSystemFieldMap[key].fieldName,
+                    type: platformSystemFieldMap[key].type,
+                    value: form.value.platformSystemFields[key],
+                  });
+                });
+                delete form.value.platformSystemFields;
+                // 平台默认模板不传递名称, 描述, 标签等参数
+                delete form.value.title;
+                delete form.value.description;
+                delete form.value.tags;
               }
               // 过滤出复制的附件
               const copyFileList = fileList.value.filter((item) => item.isCopyFlag);
@@ -550,6 +614,7 @@
   };
   // 获取详情
   const getDetailInfo = async () => {
+    loading.value = true;
     const id = route.query.id as string;
     if (!id) return;
     const res = await getBugDetail(id);
@@ -580,16 +645,24 @@
         });
     }
 
-    const tmpObj = {};
+    let tmpObj = {};
+    if (isEdit.value) {
+      tmpObj = { status: res.status };
+    }
     if (customFields && Array.isArray(customFields)) {
       customFields.forEach((item) => {
         if (item.id === 'status' && isCopy.value) {
           // 复制时, 状态赋值为空
           tmpObj[item.id] = '';
-        } else if (item.type === 'MULTIPLE_SELECT') {
+        } else if (item.type === 'MULTIPLE_SELECT' || item.type === 'MULTIPLE_INPUT' || item.type === 'CHECKBOX') {
           tmpObj[item.id] = JSON.parse(item.value);
         } else if (item.type === 'INT') {
           tmpObj[item.id] = Number(item.value);
+        } else if (item.type === 'CASCADER') {
+          const arr = JSON.parse(item.value);
+          if (arr && arr instanceof Array && arr.length > 0) {
+            tmpObj[item.id] = arr[arr.length - 1];
+          }
         } else {
           tmpObj[item.id] = item.value;
         }
@@ -597,6 +670,13 @@
     }
     // 自定义字段赋值
     fApi.value.setValue(tmpObj);
+    // 平台默认模板系统字段单独处理
+    if (isPlatformDefaultTemplate && form.value.platformSystemFields) {
+      Object.keys(form.value.platformSystemFields).forEach((key) => {
+        form.value.platformSystemFields[key] = tmpObj[key];
+      });
+    }
+    const { platformSystemFields } = form.value;
     // 表单赋值
     form.value = {
       id: res.id,
@@ -605,7 +685,9 @@
       templateId: res.templateId,
       tags: res.tags,
       projectId: res.projectId,
+      platformSystemFields,
     };
+    loading.value = false;
   };
 
   const initDefaultFields = async () => {

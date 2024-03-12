@@ -8,71 +8,63 @@ public enum CustomFieldType {
     /**
      * 输入框
      */
-    INPUT(false, "input"),
+    INPUT(false),
     /**
      * 文本框
      */
-    TEXTAREA(false, "textarea"),
+    TEXTAREA(false),
     /**
      * 单选下拉框框
      */
-    SELECT(true, "select"),
+    SELECT(true),
     /**
      * 多选下拉框框
      */
-    MULTIPLE_SELECT(true, "multipleSelect"),
+    MULTIPLE_SELECT(true),
     /**
      * 单选框
      */
-    RADIO(true, "radio"),
+    RADIO(true),
     /**
      * 复选框
      */
-    CHECKBOX(true, "checkbox"),
+    CHECKBOX(true),
     /**
      * 单选成员
      */
-    MEMBER(true, "member"),
+    MEMBER(true),
     /**
      * 多选成员
      */
-    MULTIPLE_MEMBER(true, "multipleMember"),
+    MULTIPLE_MEMBER(true),
     /**
      * 日期
      */
-    DATE(false, "date"),
+    DATE(false),
     /**
      * 日期时间
      */
-    DATETIME(false, "datetime"),
+    DATETIME(false),
     /**
      * 整型
      */
-    INT(false, "int"),
+    INT(false),
     /**
      * 浮点型
      */
-    FLOAT(false, "float"),
+    FLOAT(false),
     /**
      * 多值输入框（标签输入框）
      */
-    MULTIPLE_INPUT(false, "multipleInput");
+    MULTIPLE_INPUT(false);
 
     private final Boolean hasOption;
-
-    private final String type;
-
-    CustomFieldType(Boolean hasOption, String type) {
+    CustomFieldType(Boolean hasOption) {
         this.hasOption = hasOption;
-        this.type = type;
     }
 
     public Boolean getHasOption() {
         return this.hasOption;
-    }
-
-    public String getType() {
-        return this.type;
     }
 
     public static Set<String> getHasOptionValueSet() {
