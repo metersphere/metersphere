@@ -10,14 +10,14 @@
       t('project.environmental.addHttp')
     }}</a-button>
     <div class="flex flex-row gap-[8px]">
-      <a-input-number v-model:model-value="form.requestTimeout" class="w-[180px]">
+      <a-input-number v-model:model-value="form.requestTimeout" :min="0" class="w-[180px]">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
       </a-input-number>
-      <a-input-number v-model:model-value="form.responseTimeout" class="w-[180px]">
+      <a-input-number v-model:model-value="form.responseTimeout" :min="0" class="w-[180px]">
         <template #prefix>
-          <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
+          <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.resTimeOut') }}</span>
         </template>
       </a-input-number>
       <!-- TOTO 第一个版本不做 -->
@@ -130,11 +130,11 @@
   ];
   await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP, columns);
   const { propsRes, propsEvent } = useTable(undefined, {
-    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP,
+    columns,
     scroll: { x: '100%' },
     selectable: false,
     noDisable: true,
-    showSetting: true,
+    showSetting: false,
     showPagination: false,
     enableDrag: true,
     showMode: false,
@@ -255,11 +255,29 @@
   }
   await initModuleTree();
 
+  const OPERATOR_MAP = [
+    {
+      value: 'CONTAINS',
+      label: '包含',
+    },
+    {
+      value: 'EQUALS',
+      label: '等于',
+    },
+  ];
+
+  function getCondition(condition: string) {
+    return OPERATOR_MAP.find((item) => item.value === condition)?.label;
+  }
+
   function getModuleName(record: HttpForm) {
     if (record.type === 'MODULE') {
       const moduleIds: string[] = record.moduleMatchRule.modules.map((item) => item.moduleId);
       const result = findNodeNames(moduleTree.value, moduleIds);
       return result.join(',');
+    }
+    if (record.type === 'PATH') {
+      return `${getCondition(record.pathMatchRule.condition)}${record.pathMatchRule.path}`;
     }
     return '-';
   }

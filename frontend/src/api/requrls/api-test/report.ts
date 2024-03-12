@@ -15,3 +15,6 @@ export const ApiReportRenameUrl = '/api/report/case/rename';
 export const ApiDeleteUrl = '/api/report/case/delete';
 // 批量删除接口用例报告
 export const ApiBatchDeleteUrl = '/api/report/case/batch/delete';
+
+// 场景报告拔高详情获取
+export const ScenarioReportDetailUrl = '/api/report/scenario/get';

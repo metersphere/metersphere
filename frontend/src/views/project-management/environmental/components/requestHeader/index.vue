@@ -1,7 +1,7 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
-    <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal :no-param-type="props.noParamType" :params="innerParams" @apply="handleBatchParamApply" />
   </div>
   <paramsTable
     v-model:params="innerParams"
@@ -30,6 +30,7 @@
 
   const props = defineProps<{
     params: any[];
+    noParamType?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;

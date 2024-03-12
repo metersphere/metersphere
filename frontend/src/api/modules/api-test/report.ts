@@ -36,4 +36,9 @@ export function reportBathDelete(moduleType: string, data: TableQueryParams) {
   return MSR.post({ url: reportUrl.ApiBatchDeleteUrl, data });
 }
 
+// 报告详情
+export function reportDetail(reportId: string) {
+  return MSR.get<Record<string, any>>({ url: `${reportUrl.ScenarioReportDetailUrl}/${reportId}` });
+}
+
 export default {};

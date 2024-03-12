@@ -23,18 +23,26 @@
           t('project.environmental.nonClose')
         }}</span></a-divider
       >
-      <div v-for="element in couldCloseColumn" :key="element.value" class="column-drag-item">
-        <div class="flex w-[90%] items-center">
-          <span class="ml-[8px]">{{ t(element.label) }}</span>
+      <VueDraggable
+        v-model="couldCloseColumn"
+        class="ms-assertion-body-left"
+        ghost-class="ghost"
+        handle=".column-drag-item"
+      >
+        <div v-for="element in couldCloseColumn" :key="element.value" class="column-drag-item">
+          <div class="flex w-[90%] items-center">
+            <span class="ml-[8px]">{{ t(element.label) }}</span>
+          </div>
+          <a-switch v-model="element.isShow" size="small" type="line" @change="handleSwitchChange" />
         </div>
-        <a-switch v-model="element.isShow" size="small" type="line" @change="handleSwitchChange" />
-      </div>
+      </VueDraggable>
     </div>
   </MsDrawer>
 </template>
 
 <script lang="ts" setup>
   import { defineModel, onBeforeMount, ref } from 'vue';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';

@@ -23,4 +23,9 @@ export default {
   'report.trigger.interface': 'API 执行',
   'report.trigger.batch.execution': '批量执行',
   'report.delete.tip': '确认删除已选中的 {count} 个报告吗？',
+  'report.detail.successCount': '通过',
+  'report.detail.errorCount': '失败',
+  'report.detail.fakeErrorCount': '误报',
+  'report.detail.pendingCount': '未执行',
+  'report.detail.stepTotal': '总数',
 };

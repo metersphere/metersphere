@@ -91,13 +91,15 @@
       title: 'project.environmental.env',
       dataIndex: 'environmentId',
       slotName: 'environment',
-      width: 200,
+      width: 300,
     },
     {
       title: 'project.environmental.host',
       dataIndex: 'host',
       slotName: 'host',
-      width: 200,
+      showTooltip: true,
+      isTag: true,
+      width: 456,
     },
     {
       title: 'project.environmental.desc',

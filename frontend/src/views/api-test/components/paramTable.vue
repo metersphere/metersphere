@@ -211,7 +211,7 @@
     <template #tag="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
-        :disabled="record[columnConfig.dataIndex as string].length === 0"
+        :disabled="(record[columnConfig.dataIndex as string]||[]).length === 0"
         class="ms-params-input-popover"
       >
         <template #content>
@@ -307,15 +307,13 @@
         <template #arrow-icon>
           <icon-caret-down />
         </template>
-        <a-tooltip
-          v-for="project of appStore.projectList"
-          :key="project.id"
-          :mouse-enter-delay="500"
-          :content="project.name"
-        >
+
+        <a-tooltip v-for="project of disProjectList" :key="project.id" :mouse-enter-delay="500" :content="project.name">
           <a-option
+            :key="project.id"
             :value="project.id"
             :class="project.id === appStore.currentProjectId ? 'arco-select-option-selected' : ''"
+            :disabled="project.disabled"
           >
             {{ project.name }}
           </a-option>
@@ -343,17 +341,13 @@
       <span v-else></span>
     </template>
     <template #host="{ record }">
-      <span v-if="!record.domain || record.domain.length === 0"></span>
-      <span v-else-if="Array.isArray(record.domain) && record.domain.length === 1" class="text-[var(--color-text-4)]">{{
-        record.domain[0].protocol + '://' + (record.domain[0].hostname || '')
-      }}</span>
-      <span
-        v-if="Array.isArray(record.domain) && record.domain.length > 1"
-        class="cursor-pointer text-[var(--color-text-4)]"
+      <MsTagGroup
+        v-if="Array.isArray(record.domain)"
+        :tag-list="getDomain(record.domain)"
+        size="small"
         @click="showHostModal(record)"
-      >
-        {{ t('common.more') }}
-      </span>
+      />
+      <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
@@ -450,9 +444,10 @@
       :max-length="1000"
     ></a-textarea>
   </a-modal>
-  <a-modal v-model:visible="hostVisible" :title="t('project.environmental.host')" @close="hostModalClose">
+  <!-- <a-modal v-model:visible="hostVisible" :title="t('project.environmental.host')" @close="hostModalClose">
     <a-table :columns="hostColumn" :data="hostData" />
-  </a-modal>
+  </a-modal> -->
+  <DomainModal v-model:visible="hostVisible" :data="hostData" />
 </template>
 
 <script async setup lang="ts">
@@ -464,18 +459,20 @@
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsSelect from '@/components/business/ms-select/index';
   import paramDescInput from './paramDescInput.vue';
+  import DomainModal from '@/views/project-management/environmental/components/envParams/popUp/domain.vue';
 
-  import { groupProjectEnv, listEnv } from '@/api/modules/project-management/envManagement';
+  import { groupCategoryEnvList, groupProjectEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
-  import { ProjectOptionItem } from '@/models/projectManagement/environmental';
+  import { HttpForm, ProjectOptionItem } from '@/models/projectManagement/environmental';
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -645,15 +642,18 @@
     const res = await groupProjectEnv(appStore.currentOrgId);
     sourceProjectOptions.value = res;
   };
+  // 获取所有环境目录
+  const envDomainList = ref<ProjectOptionItem[]>([]);
   // 获取环境的options
   const initEnvOptions = async (params: Record<string, any>) => {
-    const { projectId, keyword } = params;
-    const res = await listEnv({ projectId, keyword });
+    const { projectId } = params;
+    const res = await groupCategoryEnvList(projectId);
+    envDomainList.value = res;
     return res;
   };
 
   const handleEnvironment = (obj: Record<string, any>, record: Record<string, any>) => {
-    record.domain = {};
+    record.domain = obj.domain;
     emitChange('handleEnvironment');
   };
 
@@ -663,6 +663,8 @@
     {
       title: t('project.environmental.http.host'),
       dataIndex: 'host',
+      showTooltip: true,
+      width: 300,
     },
     {
       title: t('project.environmental.http.desc'),
@@ -672,10 +674,6 @@
 
   const showHostModal = (record: Record<string, any>) => {
     hostVisible.value = true;
-    record.domain?.forEach((e: any) => {
-      e.host = `${e.protocol} :// ${e.hostname || ''}`;
-    });
-
     hostData.value = record.domain || [];
   };
 
@@ -897,6 +895,29 @@
   function handleProjectChange(val: string, projectId: string, rowIndex: number) {
     emit('projectChange', projectId);
     addTableLine(rowIndex);
+  }
+
+  const disProjectList = computed(() => {
+    const selectProjectIds = (props.params || []).map((item) => item.projectId).filter((item) => item);
+    return appStore.projectList.map((item: any) => {
+      if (selectProjectIds.includes(item.id)) {
+        return {
+          ...item,
+          disabled: true,
+        };
+      }
+      return {
+        ...item,
+      };
+    });
+  });
+  function getDomain(domain: HttpForm[]) {
+    return (domain || []).map((item: any) => {
+      return {
+        id: item.id,
+        name: item.hostname,
+      };
+    });
   }
 
   defineExpose({

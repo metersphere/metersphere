@@ -386,7 +386,6 @@
     getCurrentItemState.value =
       assertions.value.find((item: any) => item.id === activeKey.value) || assertions.value[0] || {};
     activeKey.value = getCurrentItemState.value.id;
-    console.log(getCurrentItemState.value, 'getCurrentItemState.value');
   });
 </script>
 
