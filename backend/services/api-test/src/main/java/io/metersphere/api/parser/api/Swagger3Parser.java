@@ -6,6 +6,7 @@ import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
@@ -13,6 +14,7 @@ import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.JsonSchemaBuilder;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -137,6 +139,12 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                     parseParameters(pathItem, request);
                     //构建请求体
                     parseRequestBody(operation.getRequestBody(), request.getBody());
+                    //构造 children
+                    LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+                    children.add(new MsCommonElement());
+                    request.setChildren(children);
+                    //认证
+                    request.setAuthConfig(new NoAuth());
                     apiDefinitionDTO.setRequest(request);
 
                     //解析请求内容
@@ -150,6 +158,13 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     }
 
     private void parseRequestBody(RequestBody requestBody, Body body) {
+        body.setBinaryBody(new BinaryBody());
+        body.setFormDataBody(new FormDataBody());
+        body.setXmlBody(new XmlBody());
+        body.setRawBody(new RawBody());
+        body.setNoneBody(new NoneBody());
+        body.setJsonBody(new JsonBody());
+        body.setWwwFormBody(new WWWFormBody());
         if (requestBody != null) {
             Content content = requestBody.getContent();
             if (content != null) {
