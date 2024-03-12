@@ -4,15 +4,19 @@ import {
   AddDefinitionUrl,
   AddModuleUrl,
   BatchCleanOutApiUrl,
+  BatchDeleteCaseUrl,
   BatchDeleteDefinitionUrl,
+  BatchEditCaseUrl,
   BatchMoveDefinitionUrl,
   BatchRecoverApiUrl,
   BatchUpdateDefinitionUrl,
+  CasePageUrl,
   CheckDefinitionScheduleUrl,
   DebugDefinitionUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
   DefinitionReferenceUrl,
+  DeleteCaseUrl,
   DeleteDefinitionScheduleUrl,
   DeleteDefinitionUrl,
   DeleteMockUrl,
@@ -32,11 +36,14 @@ import {
   RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
   SaveOperationHistoryUrl,
+  SortCaseUrl,
   SortDefinitionUrl,
   SwitchDefinitionScheduleUrl,
   ToggleFollowDefinitionUrl,
   TransferFileModuleOptionUrl,
   TransferFileUrl,
+  UpdateCasePriorityUrl,
+  UpdateCaseStatusUrl,
   UpdateDefinitionScheduleUrl,
   UpdateDefinitionUrl,
   UpdateMockStatusUrl,
@@ -46,6 +53,10 @@ import {
 
 import { ExecuteRequestParams } from '@/models/apiTest/common';
 import {
+  ApiCaseBatchEditParams,
+  ApiCaseBatchParams,
+  ApiCaseDetail,
+  ApiCasePageParams,
   ApiDefinitionBatchDeleteParams,
   ApiDefinitionBatchMoveParams,
   ApiDefinitionBatchUpdateParams,
@@ -294,4 +305,40 @@ export function getTrashModuleTree(data: ApiDefinitionGetModuleParams) {
 // 获取回收站模块统计数量
 export function getTrashModuleCount(data: ApiDefinitionGetModuleParams) {
   return MSR.post({ url: GetTrashModuleCountUrl, data });
+}
+
+// --------------------用例
+// 获取接口用例列表
+export function getCasePage(data: ApiCasePageParams) {
+  return MSR.post<CommonList<ApiCaseDetail>>({ url: CasePageUrl, data });
+}
+
+// 接口用例更新状态
+export function updateCaseStatus(id: string, status: string) {
+  return MSR.get({ url: `${UpdateCaseStatusUrl}/${id}/${status}` });
+}
+
+// 接口用例更新等级
+export function updateCasePriority(id: string, priority: string) {
+  return MSR.get({ url: `${UpdateCasePriorityUrl}/${id}/${priority}` });
+}
+
+// 删除接口用例
+export function deleteCase(id: string) {
+  return MSR.get({ url: DeleteCaseUrl, params: id });
+}
+
+// 批量删除接口用例
+export function batchDeleteCase(data: ApiCaseBatchParams) {
+  return MSR.post({ url: BatchDeleteCaseUrl, data });
+}
+
+// 批量编辑接口用例
+export function batchEditCase(data: ApiCaseBatchEditParams) {
+  return MSR.post({ url: BatchEditCaseUrl, data });
+}
+
+// 拖拽排序
+export function dragSort(data: DragSortParams) {
+  return MSR.post({ url: SortCaseUrl, data });
 }

@@ -56,3 +56,12 @@ export const BatchRecoverApiUrl = '/api/definition/batch-recover'; // 回收站-
 export const BatchCleanOutApiUrl = '/api/definition/batch/delete'; // 回收站-接口定义-批量彻底删除
 export const GetTrashModuleTreeUrl = '/api/definition/module/trash/tree'; // 回收站查找模块
 export const GetTrashModuleCountUrl = '/api/definition/module/trash/count'; // 获取回收站模块统计数量
+
+// --------------------用例
+export const CasePageUrl = '/api/case/page'; // 接口用例列表
+export const UpdateCaseStatusUrl = '/api/case/update-status'; // 接口用例更新状态
+export const UpdateCasePriorityUrl = '/api/case/update-priority'; // 接口用例更新等级
+export const DeleteCaseUrl = '/api/case/delete'; // 删除接口用例
+export const BatchDeleteCaseUrl = '/api/case/batch/delete'; // 批量删除接口用例
+export const BatchEditCaseUrl = '/api/case/batch/edit'; // 批量编辑接口用例
+export const SortCaseUrl = '/api/case/edit/pos'; // 接口用例拖拽
