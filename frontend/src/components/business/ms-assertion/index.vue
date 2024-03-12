@@ -290,9 +290,9 @@
             responseFormat: 'XML',
             assertions: [],
           },
-          // regexAssertion: {
-          //   assertions: [],
-          // },
+          regexAssertion: {
+            assertions: [],
+          },
           bodyAssertionDataByType: {},
         });
         break;

@@ -16,7 +16,7 @@
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
-        @change="(data) => handleChange(data, ResponseBodyAssertionType.JSON_PATH)"
+        @change="(data:any[],isInit?: boolean) => handleChange(data, ResponseBodyAssertionType.JSON_PATH,isInit)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -88,13 +88,7 @@
     <!-- xPath开始 -->
     <div v-if="activeTab === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
-      <a-radio-group
-        v-model="activeResponseFormat"
-        class="mb-[16px] mt-[16px]"
-        type="button"
-        size="small"
-        @change="(value: string | number | boolean)=>changeHandler(value,ResponseBodyAssertionType.XPATH)"
-      >
+      <a-radio-group v-model="activeResponseFormat" class="mb-[16px] mt-[16px]" type="button" size="small">
         <a-radio key="XML" value="XML">XML</a-radio>
         <a-radio key="HTML" value="HTML">HTML</a-radio>
       </a-radio-group>
@@ -481,33 +475,40 @@
     expression: '',
     condition: '',
     expectedValue: '',
-    valid: true,
+    enable: true,
+    moreSettingPopoverVisible: false,
+    disable: true,
   };
 
-  const handleChange = (data: any[], type: string) => {
+  const handleChange = (data: any[], type: string, isInit?: boolean) => {
     switch (type) {
       case ResponseBodyAssertionType.JSON_PATH:
-        if (data.length > 1) {
-          data.splice(data.length - 1, 1);
-        }
         condition.value.jsonPathAssertion.assertions = data;
-        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        if (!isInit) {
+          emit('change', { ...condition.value, assertionBodyType: activeTab.value });
+        }
+
         break;
       case ResponseBodyAssertionType.XPATH:
         condition.value.xpathAssertion.assertions = data;
-        emit('change', {
-          ...defaultParamItem,
-          ...condition.value,
-          assertionBodyType: activeTab.value,
-          responseFormat: activeResponseFormat.value,
-        });
+        if (!isInit) {
+          emit('change', {
+            ...defaultParamItem,
+            ...condition.value,
+            assertionBodyType: activeTab.value,
+            responseFormat: activeResponseFormat.value,
+          });
+        }
         break;
       case ResponseBodyAssertionType.DOCUMENT:
         condition.value.documentAssertion.jsonAssertion = data;
         break;
       case ResponseBodyAssertionType.REGEX:
         condition.value.regexAssertion.assertions = data;
-        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        if (!isInit) {
+          emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        }
+
         break;
       default:
         break;
@@ -627,17 +628,17 @@
    * 提取参数表格-应用更多设置
    */
   function applyMoreSetting(record: ExpressionConfig) {
-    // condition.value.extractParams = condition.value.extractParams?.map((e) => {
-    //   if (e.id === activeRecord.value.id) {
-    //     record.moreSettingPopoverVisible = false;
-    //     return {
-    //       ...activeRecord.value,
-    //       moreSettingPopoverVisible: false,
-    //     } as any; // TOOD: 这里的后台类型应该是不对的，需要修改
-    //   }
-    //   return e;
-    // });
-    // emit('change');
+    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
+      if (e.id === activeRecord.value.id) {
+        record.moreSettingPopoverVisible = false;
+        return {
+          ...activeRecord.value,
+          moreSettingPopoverVisible: false,
+        } as any; // TOOD: 这里的后台类型应该是不对的，需要修改
+      }
+      return e;
+    });
+    handleChange(condition.value.assertion, condition.value.assertion);
   }
 
   /**
@@ -655,11 +656,67 @@
     });
     fastExtractionVisible.value = false;
     nextTick(() => {
-      extractParamsTableRef.value?.addTableLine(
-        condition.value.jsonPathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
-      );
+      if (activeTab.value === ResponseBodyAssertionType.JSON_PATH) {
+        extractParamsTableRef.value?.addTableLine(
+          condition.value.jsonPathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
+        );
+      }
+      if (activeTab.value === ResponseBodyAssertionType.XPATH) {
+        extractParamsTableRef.value?.addTableLine(
+          condition.value.xpathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
+        );
+      }
+      if (activeTab.value === ResponseBodyAssertionType.REGEX) {
+        extractParamsTableRef.value?.addTableLine(
+          condition.value.xpathAssertion.regexAssertion?.findIndex((e) => e.id === activeRecord.value.id) || 0
+        );
+      }
     });
     emit('change', { ...condition.value });
+  }
+
+  function copyItem(record) {
+    switch (activeTab.value) {
+      case ResponseBodyAssertionType.JSON_PATH:
+        const index = condition.value.jsonPathAssertion.assertions.findIndex((item) => item.id === record.id);
+        if (index > -1) {
+          condition.value.jsonPathAssertion.assertions.splice(index, 0, {
+            ...record,
+            id: new Date().getTime().toString(),
+          });
+          emit('change', { ...condition.value, assertionBodyType: activeTab.value });
+        }
+
+        break;
+      case ResponseBodyAssertionType.XPATH:
+        condition.value.xpathAssertion.assertions.push({
+          ...record,
+          id: new Date().getTime().toString(),
+        });
+
+        emit('change', {
+          ...defaultParamItem,
+          ...condition.value,
+          assertionBodyType: activeTab.value,
+          responseFormat: activeResponseFormat.value,
+        });
+        break;
+      case ResponseBodyAssertionType.DOCUMENT:
+        condition.value.documentAssertion.jsonAssertion.push({
+          ...record,
+          id: new Date().getTime().toString(),
+        });
+        break;
+      case ResponseBodyAssertionType.REGEX:
+        condition.value.regexAssertion.assertions.push({
+          ...record,
+          id: new Date().getTime().toString(),
+        });
+        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -668,16 +725,11 @@
   function handleExtractParamMoreActionSelect(event: ActionsItem, record: ExpressionConfig) {
     activeRecord.value = { ...record };
     if (event.eventTag === 'copy') {
-      emit('copy');
+      copyItem(record);
     } else if (event.eventTag === 'setting') {
       record.moreSettingPopoverVisible = true;
     }
   }
-
-  /**
-   * 复制列表项
-   */
-  function copyListItem() {}
 
   /**
    * 删除列表项
@@ -785,10 +837,4 @@
   const handleScriptChange = (data: ExecuteConditionProcessor) => {
     condition.value.script = data;
   };
-  // XML改变
-  function changeHandler(value: string | number | boolean, type: string) {
-    if (value === condition.value.responseFormat) {
-      handleChange([], type);
-    }
-  }
 </script>
