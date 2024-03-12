@@ -41,7 +41,7 @@ export default {
   'project.environmental.httpNoWarning': 'No warning',
   'project.environmental.addHttp': 'Add HTTP',
   'project.environmental.http.linkTimeOut': 'Link Timeout (ms):',
-  'project.environmental.http.timeTimeOut': 'Timeout Time (ms):',
+  'project.environmental.http.resTimeOut': 'Response timeout (ms) :',
   'project.environmental.http.authType': 'Authentication Type:',
   'project.environmental.http.host': 'Host',
   'project.environmental.http.desc': 'Description',
@@ -96,11 +96,11 @@ export default {
   'project.environmental.postScriptBefore': 'Post script front',
   'project.environmental.postScriptAfter': 'After the script',
   'project.environmental.http.preTextPreTip':
-    'Before pre script, environment scripts executed before buy scripts in the request;',
+    'Before the pre-script, the script in the environment is executed before the requested pre-script is executed.',
   'project.environmental.http.preTextPostTip':
     'After the preset script, the script in the environment is executed after the requested preset script is executed;',
   'project.environmental.http.postTextPreTip':
-    'The script in the environment is executed before the requested script is executed.',
+    'The script in the environment is executed before the requested postscript is executed;',
   'project.environmental.http.postTextPostTip':
     'After rear script, environment a prerequisite for the script in the request after the script execution;',
   'project.environmental.preOrPost.ignoreProtocols': 'Ignore request:',
@@ -111,4 +111,5 @@ export default {
   'project.environmental.env.selectableTitle': 'Optional Environments',
   'project.environmental.env.systemTitle': 'environment',
   'project.environmental.env.selectedTitle': 'Selected environment',
+  'project.environmental.env.constantBatchAddTip': 'Only supports batch adding const type',
 };

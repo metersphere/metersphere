@@ -94,11 +94,14 @@
 
   import { getEnvPlugin, updateOrAddEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
 
+  const { setState } = useLeaveUnSaveTip();
+  setState(false);
   const emit = defineEmits<{
     (e: 'ok'): void;
     (e: 'resetEnv'): void;
@@ -200,6 +203,7 @@
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
           await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
+          setState(true);
           Message.success(t('common.saveSuccess'));
           emit('ok');
         } catch (error) {

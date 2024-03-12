@@ -88,6 +88,10 @@ export function groupDeleteEnv(data: EnvListItem) {
 export function groupProjectEnv(organizationId: string) {
   return MSR.get<ProjectOptionItem[]>({ url: envURL.groupProjectEnvUrl + organizationId });
 }
+// 获取项目组的项目
+export function groupCategoryEnvList(projectId: string) {
+  return MSR.get<ProjectOptionItem[]>({ url: `${envURL.getProjectEnvCategoryUrl}/${projectId}` });
+}
 
 /** 项目管理-环境-全局参数-更新or新增 */
 export function updateOrAddGlobalParam(data: GlobalParams) {

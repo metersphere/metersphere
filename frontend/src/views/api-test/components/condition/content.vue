@@ -138,7 +138,7 @@
               {{ t('common.clear') }}
             </a-button>
             <a-button
-              v-if="!props.isBuildIn"
+              v-if="!props.isBuildIn && !props.showPrePostRequest"
               type="outline"
               class="arco-btn-outline--secondary p-[0_8px]"
               size="mini"

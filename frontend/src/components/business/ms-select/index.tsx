@@ -372,9 +372,10 @@ export default defineComponent(
       }
       emit('update:modelValue', value);
       emit('change', value);
+
       emit(
         'changeObject',
-        remoteOriginOptions.value.filter((e) => value === e[props.valueKey || 'value'])
+        remoteOriginOptions.value.find((e) => value === e[props.valueKey || 'value'])
       );
     }
 

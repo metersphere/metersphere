@@ -24,6 +24,11 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
+      <template #name="{ record, rowIndex }">
+        <a-button type="text" class="flex w-full" @click="showReportDetail(record.id, rowIndex)">{{
+          record.name
+        }}</a-button>
+      </template>
       <!-- 报告类型 -->
       <template #integrated="{ record }">
         <MsTag theme="light" :type="record.integrated ? 'primary' : undefined">
@@ -101,6 +106,14 @@
         >
       </template>
     </ms-base-table>
+    <ReportDetailDrawer
+      v-model:visible="showDetailDrawer"
+      :report-id="activeDetailId"
+      :active-report-index="activeReportIndex"
+      :table-data="propsRes.data"
+      :page-change="propsEvent.pageChange"
+      :pagination="propsRes.msPagination!"
+    />
   </div>
 </template>
 
@@ -114,6 +127,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/api-test/report';
@@ -359,6 +373,18 @@
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     initData();
+  }
+
+  /**
+   * 报告详情 showReportDetail
+   */
+  const activeDetailId = ref<string>('');
+  const activeReportIndex = ref<number>(0);
+  const showDetailDrawer = ref<boolean>(false);
+  function showReportDetail(id: string, rowIndex: number) {
+    showDetailDrawer.value = true;
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex;
   }
 
   watch(

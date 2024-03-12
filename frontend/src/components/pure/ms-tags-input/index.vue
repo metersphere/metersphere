@@ -77,7 +77,7 @@
   const isError = computed(
     () =>
       innerInputValue.value.length > props.maxLength ||
-      innerModelValue.value.some((item) => item.toString().length > props.maxLength)
+      (innerModelValue.value || []).some((item) => item.toString().length > props.maxLength)
   );
   watch(
     () => props.modelValue,

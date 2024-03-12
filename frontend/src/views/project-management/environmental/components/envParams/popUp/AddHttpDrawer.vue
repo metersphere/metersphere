@@ -155,7 +155,7 @@
         </a-input-group>
       </a-form-item>
     </a-form>
-    <RequestHeader v-model:params="form.headers" />
+    <RequestHeader v-model:params="form.headers" :no-param-type="true" />
   </MsDrawer>
 </template>
 

@@ -24,3 +24,5 @@ export const addGlobalParamUrl = '/project/global/params/add';
 export const importGlobalParamUrl = '/project/global/params/import';
 export const detailGlobalParamUrl = '/project/global/params/get/';
 export const exportGlobalParamUrl = '/project/global/params/export/';
+// 获取环境目录列表
+export const getProjectEnvCategoryUrl = '/project/environment/get-options';

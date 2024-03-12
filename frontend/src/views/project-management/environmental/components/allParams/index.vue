@@ -14,14 +14,19 @@
         </span>
       </template>
     </a-input-search>
-    <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal
+      :add-type-text="t('project.environmental.env.constantBatchAddTip')"
+      :params="innerParams"
+      no-param-type
+      @apply="handleBatchParamApply"
+    />
   </div>
   <paramsTable
     v-model:params="innerParams"
     :table-key="props.tableKey"
     :columns="columns"
     show-setting
-    :selectable="false"
+    :selectable="true"
     :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
@@ -67,6 +72,7 @@
     value: '',
     description: '',
     tags: [],
+    enable: true,
   };
 
   const columns: ParamTableColumn[] = [
@@ -84,7 +90,7 @@
       slotName: 'paramType',
       showInTable: true,
       showDrag: true,
-      hasRequired: true,
+      hasRequired: false,
       columnSelectorDisabled: true,
       typeOptions: [
         {
@@ -162,7 +168,9 @@
     if (!searchValue.value) {
       innerParams.value = [...backupParams.value];
     } else {
-      const result = backupParams.value.filter((item) => item.key.includes(searchValue.value));
+      const result = backupParams.value.filter(
+        (item) => item.key.includes(searchValue.value) || item.tags.includes(searchValue.value)
+      );
       innerParams.value = [...result];
     }
   }

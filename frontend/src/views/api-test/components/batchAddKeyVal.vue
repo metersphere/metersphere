@@ -18,7 +18,7 @@
             size="16"
           />
           <template #content>
-            <div>{{ t('apiTestDebug.batchAddParamsTip1') }}</div>
+            <div>{{ props?.addTypeText || t('apiTestDebug.batchAddParamsTip1') }}</div>
             <div v-if="!props.noParamType">{{ t('apiTestDebug.batchAddParamsTip2') }}</div>
             <div>{{ t('apiTestDebug.batchAddParamsTip3') }}</div>
           </template>
@@ -53,6 +53,7 @@
       params: Record<string, any>[];
       defaultParamItem?: Record<string, any>; // 默认参数项
       noParamType?: boolean; // 是否有参数类型
+      addTypeText?: string; // 添加类型文案
     }>(),
     {
       noParamType: false,

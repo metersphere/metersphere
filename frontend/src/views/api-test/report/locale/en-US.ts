@@ -23,4 +23,9 @@ export default {
   'report.trigger.interface': 'API',
   'report.trigger.batch.execution': 'Batch',
   'report.delete.tip': 'Are you sure you want to delete {count} selected reports?',
+  'report.detail.successCount': 'pass',
+  'report.detail.errorCount': 'Failure',
+  'report.detail.fakeErrorCount': 'False alarm',
+  'report.detail.pendingCount': 'Not executed',
+  'report.detail.stepTotal': 'total',
 };
