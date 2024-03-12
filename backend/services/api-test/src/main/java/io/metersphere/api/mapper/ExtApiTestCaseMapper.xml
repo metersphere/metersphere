@@ -57,6 +57,7 @@
         atc.environment_id,
         atc.tags,
         a.module_id,
+        a.path,
         atc.pos
         FROM
         api_test_case atc
