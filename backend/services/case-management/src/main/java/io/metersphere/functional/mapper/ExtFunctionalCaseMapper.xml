@@ -246,6 +246,11 @@
                             and functional_case.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 创建人 -->
+                        <when test="key=='deleteUserName'">
+                            and functional_case.delete_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
             </foreach>

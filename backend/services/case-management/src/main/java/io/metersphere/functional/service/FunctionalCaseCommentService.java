@@ -308,7 +308,7 @@ public class FunctionalCaseCommentService {
             List<String> notifiers = Arrays.asList(notifierStr.split(";"));
             userIds.addAll(notifiers);
         }
-        userIds = userIds.stream().distinct().toList();
+        userIds = userIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
         return userIds;
     }
 

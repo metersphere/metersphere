@@ -73,10 +73,17 @@
             @refresh="fetchData()"
           >
             <template #left>
-              <div class="text-[var(--color-text-1)]"
-                >{{ moduleNamePath }}
-                <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
+              <a-tooltip
+                :content="moduleNamePath + '(' + (recycleModulesCount[activeFolder] || 0) + ')'"
+                position="bottom"
+                background-color="#FFFFFF"
+                :content-style="{ color: '#000000' }"
               >
+                <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
+                  >{{ moduleNamePath }}
+                  <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
+                >
+              </a-tooltip>
             </template>
           </MsAdvanceFilter>
           <ms-base-table
@@ -605,7 +612,7 @@
   const moduleNamePath = computed(() => {
     return activeFolder.value === 'all'
       ? t('caseManagement.featureCase.allCase')
-      : findNodeByKey<Record<string, any>>(caseTree.value, featureCaseStore.moduleId[0], 'id')?.name;
+      : findNodeByKey<Record<string, any>>(caseTree.value, activeFolder.value, 'id')?.name;
   });
   const memberOptions = ref<{ label: string; value: string }[]>([]);
 

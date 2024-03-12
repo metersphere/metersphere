@@ -329,8 +329,12 @@
             class: 'mention',
           },
           // TODO第一版本先按照初始化评论的人 不加userMap
-          renderLabel({ options, node }) {
-            return `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
+          renderHTML({ options, node }) {
+            return [
+              'span',
+              { style: 'color: #783887' },
+              `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
+            ];
             // return `${options.suggestion.char}${userMap[node.attrs.id]}`;
           },
           suggestion,
