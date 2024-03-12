@@ -46,3 +46,13 @@ export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
  * 接口引用关系
  */
 export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
+
+/**
+ * api回收站
+ */
+export const RecoverDefinitionUrl = '/api/definition/recover'; // 回收站-接口定义-恢复
+export const DeleteRecycleApiUrl = '/api/definition/delete/'; // 回收站-接口定义-彻底删除
+export const BatchRecoverApiUrl = '/api/definition/batch-recover'; // 回收站-接口定义-批量恢复
+export const BatchCleanOutApiUrl = '/api/definition/batch/delete'; // 回收站-接口定义-批量彻底删除
+export const GetTrashModuleTreeUrl = '/api/definition/module/trash/tree'; // 回收站查找模块
+export const GetTrashModuleCountUrl = '/api/definition/module/trash/count'; // 获取回收站模块统计数量

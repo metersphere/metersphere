@@ -3,8 +3,10 @@ import {
   AddDefinitionScheduleUrl,
   AddDefinitionUrl,
   AddModuleUrl,
+  BatchCleanOutApiUrl,
   BatchDeleteDefinitionUrl,
   BatchMoveDefinitionUrl,
+  BatchRecoverApiUrl,
   BatchUpdateDefinitionUrl,
   CheckDefinitionScheduleUrl,
   DebugDefinitionUrl,
@@ -15,15 +17,19 @@ import {
   DeleteDefinitionUrl,
   DeleteMockUrl,
   DeleteModuleUrl,
+  DeleteRecycleApiUrl,
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
   GetEnvModuleUrl,
   GetModuleCountUrl,
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
+  GetTrashModuleCountUrl,
+  GetTrashModuleTreeUrl,
   ImportDefinitionUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
+  RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
   SaveOperationHistoryUrl,
   SortDefinitionUrl,
@@ -44,6 +50,7 @@ import {
   ApiDefinitionBatchMoveParams,
   ApiDefinitionBatchUpdateParams,
   ApiDefinitionCreateParams,
+  ApiDefinitionDeleteParams,
   ApiDefinitionDetail,
   ApiDefinitionGetEnvModuleParams,
   ApiDefinitionGetModuleParams,
@@ -52,6 +59,7 @@ import {
   ApiDefinitionPageParams,
   ApiDefinitionUpdateModuleParams,
   ApiDefinitionUpdateParams,
+  BatchRecoverApiParams,
   CheckScheduleParams,
   CreateImportApiDefinitionScheduleParams,
   DefinitionHistoryItem,
@@ -253,4 +261,37 @@ export function updateMockStatusPage(id: string) {
 // 刪除mock接口
 export function deleteDefinitionMockMock(data: mockParams) {
   return MSR.post({ url: DeleteMockUrl, data });
+}
+
+/**
+ * 回收站
+ */
+// 回收站-恢复接口定义
+export function recoverDefinition(data: ApiDefinitionDeleteParams) {
+  return MSR.post({ url: RecoverDefinitionUrl, data });
+}
+
+// 回收站-彻底删除接口定义
+export function deleteRecycleApiList(id: string) {
+  return MSR.get({ url: DeleteRecycleApiUrl, params: id });
+}
+
+// 回收站-批量恢复接口定义
+export function batchRecoverDefinition(data: BatchRecoverApiParams) {
+  return MSR.post({ url: BatchRecoverApiUrl, data });
+}
+
+// 回收站-批量彻底删除接口定义
+export function batchCleanOutDefinition(data: BatchRecoverApiParams) {
+  return MSR.post({ url: BatchCleanOutApiUrl, data });
+}
+
+// 回收站-模块树
+export function getTrashModuleTree(data: ApiDefinitionGetModuleParams) {
+  return MSR.post<ModuleTreeNode[]>({ url: GetTrashModuleTreeUrl, data });
+}
+
+// 获取回收站模块统计数量
+export function getTrashModuleCount(data: ApiDefinitionGetModuleParams) {
+  return MSR.post({ url: GetTrashModuleCountUrl, data });
 }

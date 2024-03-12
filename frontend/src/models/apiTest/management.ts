@@ -262,3 +262,17 @@ export interface RecoverDefinitionParams {
 export interface DefinitionReferencePageParams extends TableQueryParams {
   resourceId: string;
 }
+
+// 回收站-恢复接口定义参数
+export interface ApiDefinitionDeleteParams {
+  id: string;
+  projectId: string;
+  protocol: string;
+  deleteAll?: boolean;
+}
+
+// 回收站-批量恢复接口定义参数
+export interface BatchRecoverApiParams extends ApiDefinitionBatchParams {
+  projectId: string;
+  moduleIds?: string[];
+}

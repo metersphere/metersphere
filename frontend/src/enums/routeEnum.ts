@@ -2,6 +2,7 @@ export enum ApiTestRouteEnum {
   API_TEST = 'apiTest',
   API_TEST_DEBUG_MANAGEMENT = 'apiTestDebug',
   API_TEST_MANAGEMENT = 'apiTestManagement',
+  API_TEST_MANAGEMENT_RECYCLE = 'apiTestManagementRecycle',
   API_TEST_REPORT = 'apiTestReport',
 }
 

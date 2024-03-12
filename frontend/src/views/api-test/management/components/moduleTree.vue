@@ -10,7 +10,7 @@
       />
       <div class="mb-[8px] flex items-center gap-[8px]">
         <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
-        <a-dropdown v-if="!props.readOnly" @select="handleSelect">
+        <a-dropdown v-if="!props.readOnly && !props.trash" @select="handleSelect">
           <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
           <template #content>
             <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
@@ -28,7 +28,7 @@
         </div>
         <div class="ml-auto flex items-center">
           <a-tooltip
-            v-if="!props.readOnly"
+            v-if="!props.readOnly && !props.trash"
             :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
           >
             <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
@@ -40,7 +40,7 @@
               <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
             </MsButton>
           </a-tooltip>
-          <template v-if="!props.readOnly">
+          <template v-if="!props.readOnly && !props.trash">
             <a-dropdown @select="handleSelect">
               <MsButton type="icon" class="!mr-0 p-[2px]">
                 <MsIcon
@@ -167,6 +167,8 @@
     getModuleCount,
     getModuleTree,
     getModuleTreeOnlyModules,
+    getTrashModuleCount,
+    getTrashModuleTree,
     moveModule,
     sortDefinition,
     updateDefinition,
@@ -187,11 +189,13 @@
       readOnly?: boolean; // 是否是只读模式
       activeNodeId?: string | number; // 当前选中节点 id
       isModal?: boolean; // 是否弹窗模式，只读且只可见模块树
+      trash?: boolean; // 是否是回收站
     }>(),
     {
       activeModule: 'all',
       readOnly: false,
       isModal: false,
+      trash: false,
     }
   );
   const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode', 'changeProtocol']);
@@ -312,6 +316,7 @@
     (action) => action.eventTag === undefined || !['execute', 'share'].includes(action.eventTag)
   );
   const apiActions = folderMoreActions.filter((action) => action.eventTag !== 'shareModule');
+
   function filterMoreActionFunc(actions, node) {
     if (node.type === 'MODULE') {
       return moduleActions;
@@ -333,7 +338,15 @@
     try {
       loading.value = true;
       let res;
-      if (isExpandApi.value && !props.readOnly) {
+      if (props.trash) {
+        res = await getTrashModuleTree({
+          // 回收站下的模块
+          keyword: moduleKeyword.value,
+          protocol: moduleProtocol.value,
+          projectId: appStore.currentProjectId,
+          moduleIds: [],
+        });
+      } else if (isExpandApi.value && !props.readOnly) {
         // 查看模块及模块下的请求
         res = await getModuleTree({
           keyword: moduleKeyword.value,
@@ -392,12 +405,22 @@
 
   async function initModuleCount() {
     try {
-      const res = await getModuleCount({
-        keyword: moduleKeyword.value,
-        protocol: moduleProtocol.value,
-        projectId: appStore.currentProjectId,
-        moduleIds: [],
-      });
+      let res;
+      if (props.trash) {
+        res = await getTrashModuleCount({
+          keyword: moduleKeyword.value,
+          protocol: moduleProtocol.value,
+          projectId: appStore.currentProjectId,
+          moduleIds: [],
+        });
+      } else {
+        res = await getModuleCount({
+          keyword: moduleKeyword.value,
+          protocol: moduleProtocol.value,
+          projectId: appStore.currentProjectId,
+          moduleIds: [],
+        });
+      }
       modulesCount.value = res;
       folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
         return {
@@ -597,23 +620,29 @@
 
     padding: 8px 4px;
     border-radius: var(--border-radius-small);
+
     &:hover {
       background-color: rgb(var(--primary-1));
     }
+
     .folder-text {
       @apply flex flex-1 cursor-pointer items-center;
+
       .folder-icon {
         margin-right: 4px;
         color: var(--color-text-4);
       }
+
       .folder-name {
         color: var(--color-text-1);
       }
+
       .folder-count {
         margin-left: 4px;
         color: var(--color-text-4);
       }
     }
+
     .folder-text--active {
       .folder-icon,
       .folder-name,
@@ -622,6 +651,7 @@
       }
     }
   }
+
   :deep(#root ~ .arco-tree-node-drag-icon) {
     @apply hidden;
   }
