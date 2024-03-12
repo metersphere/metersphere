@@ -358,7 +358,7 @@
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
-          v-model:model-value="record.disable"
+          v-model:model-value="record.enable"
           size="small"
           type="line"
           class="mr-[8px]"
