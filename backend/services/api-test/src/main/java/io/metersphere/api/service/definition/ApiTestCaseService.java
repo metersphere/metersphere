@@ -454,7 +454,7 @@ public class ApiTestCaseService extends MoveNodeService {
             case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority(), mapper);
             case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus(), mapper);
             case TAGS -> batchUpdateTags(example, updateCase, request, ids, mapper);
-            case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId(), mapper);
+            case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvironmentId(), mapper);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         sqlSession.flushStatements();

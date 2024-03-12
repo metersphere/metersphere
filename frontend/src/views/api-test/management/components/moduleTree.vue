@@ -555,7 +555,7 @@
           projectId: appStore.currentProjectId,
           moveMode: dropPositionMap[dropPosition],
           moveId: dragNode.id,
-          targetId: dropNode.id,
+          targetId: dropNode.type === 'MODULE' ? dragNode.id : dropNode.id,
           moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
         });
       }

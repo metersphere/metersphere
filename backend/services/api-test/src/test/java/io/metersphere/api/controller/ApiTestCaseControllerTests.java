@@ -882,16 +882,16 @@ public class ApiTestCaseControllerTests extends BaseTest {
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-        request.setEnvId(environments.get(0).getId());
+        request.setEnvironmentId(environments.get(0).getId());
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         //判断数据的环境是不是environments.get(0).getId()
         caseList = apiTestCaseMapper.selectByExample(example);
         caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.get(0).getId()));
         //环境数据为空
-        request.setEnvId(null);
+        request.setEnvironmentId(null);
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
         //环境不存在
-        request.setEnvId("111");
+        request.setEnvironmentId("111");
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
         //类型错误
         request.setType("111");

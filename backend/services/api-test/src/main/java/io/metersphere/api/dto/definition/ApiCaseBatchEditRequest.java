@@ -29,7 +29,7 @@ public class ApiCaseBatchEditRequest extends ApiTestCaseBatchRequest implements 
     private boolean appendTag = false;
     @Schema(description = "环境id")
     @Size(max = 50, message = "{api_test_case.env_id.length_range}")
-    private String envId;
+    private String environmentId;
     @Schema(description = "用例状态")
     @Size(max = 20, message = "{api_test_case.status.length_range}")
     private String status;
