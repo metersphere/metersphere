@@ -1,7 +1,6 @@
 <template>
   <div class="relative p-[16px] pb-[16px]">
     <div class="header">
-      <div class="header-title">{{ t('bugManagement.edit.content') }}</div>
       <div v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
         <a-button type="text" @click="contentEditAble = !contentEditAble">
           <template #icon> <MsIconfont type="icon-icon_edit_outlined" /> </template>
@@ -9,24 +8,53 @@
         </a-button>
       </div>
     </div>
-    <div class="mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
-      <MsRichText
-        v-if="contentEditAble"
-        v-model:raw="form.description"
-        v-model:filed-ids="fileIds"
-        :disabled="!contentEditAble"
-        :placeholder="t('bugManagement.edit.contentPlaceholder')"
-        :upload-image="handleUploadImage"
-      />
-      <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
+    <!-- 左侧布局默认内容(非平台默认模板时默认展示) -->
+    <div v-if="!isPlatformDefaultTemplate" class="default-content">
+      <div class="header-title">{{ t('bugManagement.edit.content') }}</div>
+      <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+        <MsRichText
+          v-if="contentEditAble"
+          v-model:raw="form.description"
+          v-model:filed-ids="fileIds"
+          :disabled="!contentEditAble"
+          :placeholder="t('bugManagement.edit.contentPlaceholder')"
+          :upload-image="handleUploadImage"
+        />
+        <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
+      </div>
+      <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
+        <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+        <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
+          {{ t('common.save') }}
+        </a-button>
+      </div>
     </div>
-    <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
-      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
-        {{ t('common.save') }}
-      </a-button>
+    <!-- 特殊布局内容(平台默认模板时展示) -->
+    <div v-if="isPlatformDefaultTemplate" class="special-content">
+      <div v-for="(item, index) in platformSystemFields" :key="index">
+        <div v-if="item.fieldId !== 'summary'">
+          <h1 class="header-title">
+            <strong>{{ item.fieldName }}</strong>
+          </h1>
+          <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+            <MsRichText
+              v-if="contentEditAble"
+              v-model:raw="item.defaultValue"
+              :disabled="!contentEditAble"
+              :placeholder="t('bugManagement.edit.contentPlaceholder')"
+            />
+            <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
+          </div>
+        </div>
+      </div>
+      <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
+        <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+        <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
+          {{ t('common.save') }}
+        </a-button>
+      </div>
     </div>
-    <div style="margin-top: 20px">
+    <div class="mt-4">
       <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
     </div>
     <MsFileList
@@ -180,8 +208,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { downloadByteFile, sleep } from '@/utils';
+  import { findParents, Option } from '@/utils/recursion';
 
-  import { BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
+  import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
@@ -197,6 +226,8 @@
     detailInfo: BugEditFormObject;
     formItem: FormRuleItem[];
     allowEdit?: boolean; // 是否允许编辑
+    isPlatformDefaultTemplate: boolean; // 是否是平台默认模板
+    platformSystemFields: BugEditCustomField[]; // 平台系统字段
   }>();
 
   const emit = defineEmits<{
@@ -401,21 +432,42 @@
       const customFields: BugEditCustomFieldItem[] = [];
       if (formItem && formItem.length) {
         formItem.forEach((item: FormRuleItem) => {
+          let itemVal = item.value;
+          if (item.sourceType === 'CASCADER') {
+            itemVal = findParents(item.options as Option[], item.value as string, []);
+          }
           customFields.push({
             id: item.field as string,
             name: item.title as string,
             type: item.sourceType as string,
-            value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
+            value: Array.isArray(itemVal) ? JSON.stringify(itemVal) : (itemVal as string),
+          });
+        });
+      }
+      if (props.isPlatformDefaultTemplate) {
+        // 平台系统默认字段插入自定义集合
+        props.platformSystemFields.forEach((item) => {
+          customFields.push({
+            id: item.fieldId,
+            name: item.fieldName,
+            type: item.type,
+            value: item.defaultValue,
           });
         });
       }
       const tmpObj: BugEditFormObject = {
-        ...form.value,
         id: props.detailInfo.id,
         projectId: currentProjectId.value,
         templateId: props.detailInfo.templateId,
+        deleteLocalFileIds: form.value.deleteLocalFileIds,
+        unLinkRefIds: form.value.unLinkRefIds,
+        linkFileIds: form.value.linkFileIds,
         customFields,
       };
+      if (!props.isPlatformDefaultTemplate) {
+        tmpObj.description = form.value.description;
+        tmpObj.title = form.value.title;
+      }
       // 执行保存操作。 保存成功后将富文本内容赋值给默认值
       const res = await createOrUpdateBug({ request: tmpObj, fileList: [] as unknown as File[] });
       if (res) {

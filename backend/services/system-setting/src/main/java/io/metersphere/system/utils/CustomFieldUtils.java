@@ -69,8 +69,8 @@ public class CustomFieldUtils {
             String fieldType = custom.get(COMBINE_CUSTOM_FIELD_TYPE).toString();
             String fieldValue = custom.get(COMBINE_CUSTOM_FIELD_VALUE).toString();
 
-            if (StringUtils.equalsAny(fieldType, CustomFieldType.MULTIPLE_MEMBER.getType(),
-                    CustomFieldType.CHECKBOX.getType(), CustomFieldType.MULTIPLE_SELECT.getType()) && StringUtils.isNotEmpty(fieldValue)) {
+            if (StringUtils.equalsAny(fieldType, CustomFieldType.MULTIPLE_MEMBER.name(),
+                    CustomFieldType.CHECKBOX.name(), CustomFieldType.MULTIPLE_SELECT.name()) && StringUtils.isNotEmpty(fieldValue)) {
                 List<String> customValues = JSON.parseArray(fieldValue, String.class);
                 List<String> jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).toList();
                 custom.put(COMBINE_CUSTOM_FIELD_VALUE, "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));

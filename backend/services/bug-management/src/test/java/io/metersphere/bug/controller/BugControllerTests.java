@@ -588,7 +588,7 @@ public class BugControllerTests extends BaseTest {
         BugCustomFieldDTO summary = new BugCustomFieldDTO();
         summary.setId("summary");
         summary.setName("摘要");
-        summary.setType("input");
+        summary.setType("INPUT");
         summary.setValue("这是一个系统Jira模板创建的缺陷");
         addRequest.getCustomFields().add(summary);
         MultiValueMap<String, Object> addParam3 = getMultiPartParam(addRequest, null);
@@ -667,7 +667,7 @@ public class BugControllerTests extends BaseTest {
         field.setId("test_field");
         field.setName("test");
         field.setValue("test");
-        field.setType("multipleSelect");
+        field.setType("MULTIPLE_SELECT");
         bugService.transferCustomToPlatformField(null, List.of(field), true);
         // 添加没有配置自定义映射字段的Jira缺陷
         removeApiFieldTmp();

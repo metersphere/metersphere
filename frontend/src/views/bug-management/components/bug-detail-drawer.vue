@@ -100,6 +100,8 @@
                     :form-item="formItem"
                     :allow-edit="true"
                     :detail-info="detailInfo"
+                    :is-platform-default-template="isPlatformDefaultTemplate"
+                    :platform-system-fields="platformSystemFields"
                     @update-success="updateSuccess"
                   />
 
@@ -118,7 +120,11 @@
           </template>
           <template #second>
             <div class="rightWrapper p-[24px]">
-              <div class="mb-4 font-medium">{{ t('bugManagement.detail.basicInfo') }}</div>
+              <div class="mb-4 font-medium">
+                <strong>
+                  {{ t('bugManagement.detail.basicInfo') }}
+                </strong>
+              </div>
               <!-- 自定义字段开始 -->
               <MsFormCreate
                 v-if="formRules.length"
@@ -131,7 +137,8 @@
                 @change="handelFormCreateChange"
               />
               <!-- 自定义字段结束 -->
-              <div class="baseItem">
+              <!-- 内置基础信息开始 -->
+              <div v-if="!isPlatformDefaultTemplate" class="baseItem">
                 <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
                   <MsTagsInput v-model:model-value="tags" />
                 </a-form-item>
@@ -140,6 +147,7 @@
                 <!--                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>-->
                 <!--                </span>-->
               </div>
+              <!-- 内置基础信息结束 -->
             </div>
           </template>
         </MsSplitBox>
@@ -226,17 +234,19 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const showDrawerVisible = defineModel<boolean>('visible', { default: false });
   const bugDetailTabRef = ref();
+  const isPlatformDefaultTemplate = ref(false);
 
   const activeTab = ref<string>('detail');
 
   const detailInfo = ref<Record<string, any>>({ match: [] }); // 存储当前详情信息，通过loadBug 获取
   const tags = ref([]);
+  const platformSystemFields = ref<BugEditCustomField[]>([]); // 平台系统字段
 
   // 处理表单格式
   const getFormRules = (arr: BugEditCustomField[], valueObj: BugEditFormObject) => {
     formRules.value = [];
     if (Array.isArray(arr) && arr.length) {
-      formRules.value = arr.map((item) => {
+      formRules.value = arr.map((item: any) => {
         return {
           type: item.type,
           name: item.fieldId,
@@ -244,6 +254,7 @@
           value: valueObj[item.fieldId],
           options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           required: item.required as boolean,
+          platformPlaceHolder: item.platformPlaceHolder,
           props: {
             modelValue: valueObj[item.fieldId],
             options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
@@ -262,7 +273,14 @@
           fromStatusId: request.fromStatusId,
           platformBugKey: request.platformBugKey,
         });
-        getFormRules(res.customFields, valueObj);
+        platformSystemFields.value = res.customFields.filter((field) => field.platformSystemField);
+        platformSystemFields.value.forEach((item) => {
+          item.defaultValue = valueObj[item.fieldId];
+        });
+        getFormRules(
+          res.customFields.filter((field) => !field.platformSystemField),
+          valueObj
+        );
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -272,16 +290,24 @@
   async function loadedBug(detail: BugEditFormObject) {
     detailInfo.value = { ...detail };
     const { templateId } = detail;
-    // tag 赋值
+
+    // 是否平台默认模板
+    isPlatformDefaultTemplate.value = detail.platformDefault;
+    // TAG 赋值
     tags.value = detail.tags || [];
     caseCount.value = detail.linkCaseCount;
-    const tmpObj = {};
+    const tmpObj = { status: detail.status };
     if (detail.customFields && Array.isArray(detail.customFields)) {
       detail.customFields.forEach((item) => {
-        if (item.type === 'MULTIPLE_SELECT') {
+        if (item.type === 'MULTIPLE_SELECT' || item.type === 'MULTIPLE_INPUT' || item.type === 'CHECKBOX') {
           tmpObj[item.id] = JSON.parse(item.value);
         } else if (item.type === 'INT') {
           tmpObj[item.id] = Number(item.value);
+        } else if (item.type === 'CASCADER') {
+          const arr = JSON.parse(item.value);
+          if (arr && arr instanceof Array && arr.length > 0) {
+            tmpObj[item.id] = arr[arr.length - 1];
+          }
         } else {
           tmpObj[item.id] = item.value;
         }

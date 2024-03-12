@@ -1,6 +1,6 @@
-import {FormItemType} from '@/components/pure/ms-form-create/types';
+import { FormItemType } from '@/components/pure/ms-form-create/types';
 
-import {BatchApiParams} from './common';
+import { BatchApiParams } from './common';
 
 export interface BugListItem {
   id: string; // 缺陷id
@@ -47,6 +47,8 @@ export interface BugEditCustomField {
   required: boolean;
   isMutiple?: boolean;
   options?: any[];
+  defaultValue: string;
+  platformSystemField: boolean;
 }
 export interface BugEditFormObject {
   [key: string]: any;
@@ -54,7 +56,7 @@ export interface BugEditFormObject {
 export interface BugEditCustomFieldItem {
   id: string;
   name: string;
-  type: string;
+  type: string | undefined;
   value: string;
 }
 export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tags' | 'input' | 'user_selector' | 'date';
@@ -104,6 +106,6 @@ export interface OperationFile {
 }
 
 export interface BugTemplateRequest {
-  fromStatusId: string;    // 缺陷当前状态
-  platformBugKey: string;  // 缺陷第三方平台Key
+  fromStatusId: string; // 缺陷当前状态
+  platformBugKey: string; // 缺陷第三方平台Key
 }

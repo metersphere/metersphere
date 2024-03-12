@@ -33,9 +33,6 @@ public class TemplateCustomFieldDTO {
     @Schema(title = "选项值")
     private List<CustomFieldOption> options;
 
-    @Schema(title = "平台选项值")
-    private String platformOptionJson;
-
     @Schema(title = "是否支持搜索")
     private Boolean supportSearch;
 
@@ -44,4 +41,16 @@ public class TemplateCustomFieldDTO {
 
     @Schema(description = "是否内置字段")
     private Boolean internal;
+
+    /**
+     * 平台字段相关属性    -- start
+     */
+    @Schema(title = "平台选项值")
+    private String platformOptionJson;
+
+    @Schema(description = "平台字段占位提示")
+    private String platformPlaceHolder;
+
+    @Schema(description = "是否平台系统字段")
+    private Boolean platformSystemField;
 }

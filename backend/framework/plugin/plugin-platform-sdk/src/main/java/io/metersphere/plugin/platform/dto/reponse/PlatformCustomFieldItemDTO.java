@@ -13,4 +13,6 @@ public class PlatformCustomFieldItemDTO extends PlatformCustomFieldDTO {
     private String defaultValue;
     private Boolean supportSearch;
     private String searchMethod;
+    private String placeHolder;
+    private Boolean systemField;
 }

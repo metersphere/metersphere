@@ -38,13 +38,13 @@ class CustomFieldTests extends BaseTest {
         Map<String, Object> custom = new HashMap<>();
         custom.put("id", "test_field");
         custom.put("operator", "in");
-        custom.put("type", "multipleSelect");
+        custom.put("type", "MULTIPLE_SELECT");
         custom.put("value",  JSON.toJSONString(List.of("test", "default")));
         customs.add(custom);
         Map<String, Object> currentUserCustom = new HashMap<>();
         currentUserCustom.put("id", "test_field");
         currentUserCustom.put("operator", "current user");
-        currentUserCustom.put("type", "multipleMember");
+        currentUserCustom.put("type", "MULTIPLE_MEMBER");
         currentUserCustom.put("value", "current user");
         customs.add(currentUserCustom);
         currentUserCustom.put("value", "");
