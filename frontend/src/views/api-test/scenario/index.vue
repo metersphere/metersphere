@@ -18,7 +18,7 @@
               <div class="b-0 absolute w-[88%]">
                 <a-divider class="!my-0 !mb-2" />
                 <div class="case h-[38px]">
-                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
+                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="redirectRecycle()">
                     <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
                     <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
                     <!--                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div-->
@@ -44,8 +44,7 @@
    * @description 接口测试-接口场景主页
    */
 
-  import { computed, ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { ref } from 'vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -53,10 +52,8 @@
   import ApiTable from '@/views/api-test/management/components/management/api/apiTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import router from '@/router';
 
   import { ModuleTreeNode } from '@/models/common';
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -64,7 +61,6 @@
   const activeFolder = ref<string>('all');
   const activeModule = ref<string>('all');
   const offspringIds = ref<string[]>([]);
-  const addSubVisible = ref(false);
 
   const isShowScenario = ref(false);
 
@@ -84,6 +80,8 @@
     [activeModule.value] = keys;
     offspringIds.value = _offspringIds;
   }
+
+  function redirectRecycle() {}
 </script>
 
 <style scoped lang="less">
