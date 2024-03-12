@@ -3,6 +3,7 @@ package io.metersphere.api.dto.request.http.body;
 import jakarta.validation.Valid;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,5 +14,5 @@ import java.util.List;
 @Data
 public class WWWFormBody {
     @Valid
-    private List<WWWFormKV> formValues;
+    private List<WWWFormKV> formValues = new ArrayList<>();
 }

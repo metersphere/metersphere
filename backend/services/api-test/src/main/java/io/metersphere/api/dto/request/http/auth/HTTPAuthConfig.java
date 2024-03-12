@@ -19,8 +19,8 @@ public class HTTPAuthConfig {
      */
     @EnumValue(enumClass = HTTPAuthType.class)
     private String authType = HTTPAuthType.NONE.name();
-    private BasicAuth basicAuth;
-    private DigestAuth digestAuth;
+    private BasicAuth basicAuth = new BasicAuth();
+    private DigestAuth digestAuth = new DigestAuth();
 
     public boolean isHTTPAuthValid() {
         HashMap<String, HTTPAuth> httpAuthHashMap = HashMap.newHashMap(2);

@@ -24,6 +24,8 @@ public class HttpConfig implements Serializable {
     private String protocol = HttpProtocolType.HTTP.name();
     @Schema(description = "环境域名")
     private String hostname;
+    @Schema(description = "完整url")
+    private String url;
     /**
      * 启用条件
      * {@link HttpConfigMatchType}
