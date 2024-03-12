@@ -7,7 +7,7 @@ export default {
   'project.fileManagement.addSubModule': 'Add submodule',
   'project.fileManagement.addStorage': 'Add repository',
   'project.fileManagement.rename': 'Rename',
-  'project.fileManagement.nameNotNull': 'name cannot be empty',
+  'project.fileManagement.nameNotNull': 'Module name cannot be empty',
   'project.fileManagement.namePlaceholder': 'Please enter the module name and press Enter to save',
   'project.fileManagement.renameSuccess': 'Rename successful',
   'project.fileManagement.updateDescSuccess': 'File description updated successfully',
