@@ -53,6 +53,7 @@ export default {
       linkFile: '关联文件',
       contentEdit: '内容编辑',
       linkCase: '关联用例',
+      cannotBeNull: '不能为空',
     },
     detail: {
       title: '【{id}】{name}',

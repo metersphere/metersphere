@@ -180,6 +180,16 @@ export const PASSWORD = {
   },
 };
 
+export const CASCADER = {
+  type: 'cascader',
+  field: 'fieldName',
+  title: '',
+  value: [],
+  props: {
+    'allow-clear': true,
+  },
+};
+
 export const FieldTypeFormRules: Record<string, FormRule> = {
   INPUT,
   SELECT,
@@ -196,4 +206,5 @@ export const FieldTypeFormRules: Record<string, FormRule> = {
   TEXTAREA,
   JIRAKEY,
   PASSWORD,
+  CASCADER,
 };

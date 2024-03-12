@@ -588,7 +588,7 @@ public class BugControllerTests extends BaseTest {
         BugCustomFieldDTO summary = new BugCustomFieldDTO();
         summary.setId("summary");
         summary.setName("摘要");
-        summary.setType("input");
+        summary.setType("INPUT");
         summary.setValue("这是一个系统Jira模板创建的缺陷");
         addRequest.getCustomFields().add(summary);
         MultiValueMap<String, Object> addParam3 = getMultiPartParam(addRequest, null);
@@ -667,7 +667,7 @@ public class BugControllerTests extends BaseTest {
         field.setId("test_field");
         field.setName("test");
         field.setValue("test");
-        field.setType("multipleSelect");
+        field.setType("MULTIPLE_SELECT");
         bugService.transferCustomToPlatformField(null, List.of(field), true);
         // 添加没有配置自定义映射字段的Jira缺陷
         removeApiFieldTmp();
@@ -694,8 +694,6 @@ public class BugControllerTests extends BaseTest {
         this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
         // 获取禅道模板(删除默认项目模板)
         bugService.attachTemplateStatusField(null, null, null, null);
-        // 获取处理人选项
-        this.requestGetWithOk(BUG_HEADER_COLUMNS_OPTION + "/default-project-for-bug");
         // 批量删除
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");

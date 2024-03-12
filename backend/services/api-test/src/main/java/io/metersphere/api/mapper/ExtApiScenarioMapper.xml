@@ -314,16 +314,16 @@
                     </if>
                     select api_id from api_definition_custom_field where field_id = #{custom.id}
                     <choose>
-                        <when test="custom.type == 'richText' or custom.type == 'textarea' or custom.operator == 'current user'">
+                        <when test="custom.type == 'TEXTAREA' or custom.operator == 'current user'">
                             and `value`
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="object" value="custom"/>
                             </include>
                         </when>
-                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                        <when test="custom.type == 'MULTIPLE_MEMBER' or custom.type == 'CHECKBOX' or custom.type == 'MULTIPLE_SELECT'">
                             and ${custom.value}
                         </when>
-                        <when test="custom.type == 'date' or custom.type == 'datetime'">
+                        <when test="custom.type == 'DATE' or custom.type == 'DATETIME'">
                             and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="object" value="custom"/>

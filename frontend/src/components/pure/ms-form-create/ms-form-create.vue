@@ -16,9 +16,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { FormItem } from './types';
-  import { FormRuleItem } from './types';
-  import formCreate, { Rule } from '@form-create/arco-design';
+  import { FormItem, FormRuleItem } from './types';
+  import formCreate from '@form-create/arco-design';
 
   defineOptions({ name: 'MsFormCreate' });
 
@@ -147,6 +146,20 @@
     formItems.value = formItems.value.filter((item: FormItem) => !item.displayConditions?.field);
   }
 
+  function mapOption(options: any[]) {
+    return options.map((optionsItem) => {
+      const mappedItem: any = {
+        label: optionsItem.text,
+        value: optionsItem.value,
+      };
+
+      if (optionsItem.children) {
+        mappedItem.children = mapOption(optionsItem.children);
+      }
+      return mappedItem;
+    });
+  }
+
   function convertItem(item: FormItem) {
     // 当前类型
     let fieldType;
@@ -162,12 +175,7 @@
         fieldType = FieldTypeFormRules[currentTypeForm].type;
       }
       const options = item?.options;
-      const currentOptions = options?.map((optionsItem: any) => {
-        return {
-          label: optionsItem.text,
-          value: optionsItem.value,
-        };
-      });
+      const currentOptions = mapOption(options || []);
       const ruleItem: any = {
         type: fieldType, // 表单类型
         field: item.name, // 字段
@@ -206,6 +214,10 @@
           tooltip: item.tooltip,
         },
       };
+      // 如果存在placeholder, 替换掉默认的placeholder
+      if (item.platformPlaceHolder) {
+        ruleItem.props.placeholder = item.platformPlaceHolder;
+      }
       // 如果不存在关联name删除link关联属性
       if (!ruleItem.link.filter((ink: string) => ink).length) {
         delete ruleItem.link;

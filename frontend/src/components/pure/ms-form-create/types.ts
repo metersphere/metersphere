@@ -18,6 +18,7 @@ export type FormItemType =
   | 'FLOAT'
   | 'NUMBER'
   | 'PassWord'
+  | 'CASCADER'
   | undefined;
 
 // 表单选项
@@ -64,6 +65,7 @@ export interface FormItem {
   inputSearch?: boolean; // 是否支持远程搜索
   tooltip?: string; // 表单后边的提示info
   instructionsIcon?: ''; // 是否有图片在表单后边展示
+  platformPlaceHolder?: string; // 平台表单项占位符
   optionMethod?: string; // 请求检索的方法 两个参数 表单项的所有值
   options?: FormItemDefaultOptions[];
   required: boolean;
