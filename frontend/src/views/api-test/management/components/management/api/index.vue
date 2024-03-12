@@ -190,7 +190,7 @@
         </a-tab-pane>
         <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
         </a-tab-pane>
-        <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane>
+        <!-- <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane> -->
       </a-tabs>
     </div>
   </div>
@@ -198,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   // import MsButton from '@/components/pure/ms-button/index.vue';
@@ -249,7 +249,7 @@
   const requestComposition = defineAsyncComponent(
     () => import('@/views/api-test/components/requestComposition/index.vue')
   );
-  const preview = defineAsyncComponent(() => import('./preview.vue'));
+  const preview = defineAsyncComponent(() => import('./preview/index.vue'));
 
   const props = defineProps<{
     activeModule: string;

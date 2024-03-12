@@ -157,12 +157,9 @@
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
-  import useLicenseStore from '@/store/modules/setting/license';
   import useUserStore from '@/store/modules/user';
 
   import { IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
-
-  const licenseStore = useLicenseStore();
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -212,8 +209,8 @@
         path: route.path,
         query: {
           ...route.query,
-          organizationId: appStore.currentOrgId,
-          projectId: appStore.currentProjectId,
+          orgId: appStore.currentOrgId,
+          pId: appStore.currentProjectId,
         },
       });
     }

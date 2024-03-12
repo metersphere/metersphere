@@ -148,8 +148,8 @@
             path: route.path,
             query: {
               ...route.query,
-              organizationId: appStore.currentOrgId,
-              projectId: appStore.currentProjectId,
+              orgId: appStore.currentOrgId,
+              pId: appStore.currentProjectId,
             },
           });
         } catch (error) {

@@ -77,13 +77,16 @@
         @more-action-select="handleFolderMoreSelect"
         @more-actions-close="moreActionsClose"
         @drop="handleDrop"
+        @select="
+          (keys, node) => {
+            if (node.type === 'API') {
+              emit('clickApiNode', node);
+            }
+          }
+        "
       >
         <template #title="nodeData">
-          <div
-            v-if="nodeData.type === 'API'"
-            class="inline-flex w-full cursor-pointer gap-[4px]"
-            @click="emit('clickApiNode', nodeData)"
-          >
+          <div v-if="nodeData.type === 'API'" class="inline-flex w-full cursor-pointer gap-[4px]">
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
@@ -101,7 +104,8 @@
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :node-type="nodeData.type"
-            :add-module-api="addDebugModule"
+            :update-module-api="updateDebugModule"
+            :update-api-node-api="updateDebug"
             @close="resetFocusNodeKey"
             @rename-finish="handleRenameFinish"
           >
@@ -113,8 +117,7 @@
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
-            :update-module-api="updateDebugModule"
-            :update-api-node-api="updateDebug"
+            :add-module-api="addDebugModule"
             @close="resetFocusNodeKey"
             @add-finish="() => initModules()"
           >

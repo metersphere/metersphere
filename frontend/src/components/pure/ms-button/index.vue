@@ -54,6 +54,10 @@
     color: rgb(var(--danger-2)) !important;
     cursor: not-allowed;
   }
+  .ms-button--text--disabled {
+    color: rgb(var(--primary-3)) !important;
+    cursor: not-allowed;
+  }
   .ms-button-text {
     @apply p-0;
 

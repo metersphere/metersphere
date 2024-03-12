@@ -230,3 +230,30 @@ export interface CreateImportApiDefinitionScheduleParams extends ImportApiDefini
   value: string; // cron 表达式
   config?: string;
 }
+// 定义-变更历史列表项
+export interface DefinitionHistoryItem {
+  id: number;
+  projectId: string;
+  createTime: number;
+  createUser: string;
+  sourceId: string;
+  type: string;
+  module: string;
+  refId: number;
+  createUserName: string;
+  versionName: string;
+}
+// 变更历史列表查询参数
+export interface DefinitionHistoryPageParams extends TableQueryParams {
+  projectId: string;
+  sourceId: string;
+  createUser: string;
+  types: string[];
+  modules: string[];
+}
+// 定义-恢复历史版本参数
+export interface RecoverDefinitionParams {
+  id: string | number;
+  sourceId: string | number;
+  versionId?: string;
+}

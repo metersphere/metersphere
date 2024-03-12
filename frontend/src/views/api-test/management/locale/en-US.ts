@@ -131,4 +131,17 @@ export default {
   'apiTestManagement.paramsType': 'Param type',
   'apiTestManagement.required': 'Required',
   'apiTestManagement.requestData': 'Request data',
+  'apiTestManagement.apiNameRequired': 'Interface name cannot be empty',
+  'apiTestManagement.historyListTip':
+    'View and compare historical changes. According to the rules set by the administrator, the change history data will be automatically deleted.',
+  'apiTestManagement.changeOrder': 'Change serial number',
+  'apiTestManagement.type': 'Type',
+  'apiTestManagement.recover': 'Recover',
+  'apiTestManagement.quote': 'Quote',
+  'apiTestManagement.resourceName': 'Resource name',
+  'apiTestManagement.resourceType': 'Resource type',
+  'apiTestManagement.quoteType': 'Quote type',
+  'apiTestManagement.belongOrg': 'Organization',
+  'apiTestManagement.belongProject': 'Project',
+  'apiTestManagement.quoteSearchPlaceholder': 'Enter ID or name to search',
 };

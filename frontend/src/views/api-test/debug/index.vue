@@ -293,6 +293,7 @@
         ...res.request,
         url: res.path,
         name: res.name, // request里面还有个name但是是null
+        moduleId: res.moduleId, // request里面还有个moduleId但是是null
         ...parseRequestBodyResult,
       });
       nextTick(() => {

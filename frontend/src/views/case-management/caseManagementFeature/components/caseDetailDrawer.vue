@@ -414,7 +414,7 @@
 
   function shareHandler() {
     const { origin } = window.location;
-    const url = `${origin}/#${route.path}?id=${detailInfo.value.id}&projectId=${appStore.currentProjectId}&organizationId=${appStore.currentOrgId}`;
+    const url = `${origin}/#${route.path}?id=${detailInfo.value.id}&pId=${appStore.currentProjectId}&orgId=${appStore.currentOrgId}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(
         () => {

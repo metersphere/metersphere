@@ -97,9 +97,9 @@
               </div>
               <div class="file-list">
                 <div v-for="file of alreadyDeleteFiles" :key="file.value" class="file-list-item">
-                  <a-tooltip :content="file.name" :mouse-enter-delay="300">
+                  <a-tooltip :content="file.label" :mouse-enter-delay="300">
                     <MsTag size="small" max-width="100%">
-                      {{ file.name }}
+                      {{ file.label }}
                     </MsTag>
                   </a-tooltip>
                   <a-tooltip :content="t('ms.add.attachment.remove')">
@@ -116,9 +116,9 @@
               </div>
               <div class="file-list">
                 <div v-for="file of otherFiles" :key="file.value" class="file-list-item">
-                  <a-tooltip :content="file.name" :mouse-enter-delay="300">
+                  <a-tooltip :content="file.label" :mouse-enter-delay="300">
                     <MsTag size="small" max-width="100%">
-                      {{ file.name }}
+                      {{ file.label }}
                     </MsTag>
                   </a-tooltip>
                   <div v-if="file.local === true" class="flex items-center">
@@ -175,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Message, TagData } from '@arco-design/web-vue';
+  import { TagData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -199,7 +199,6 @@
   const props = withDefaults(
     defineProps<{
       mode?: 'button' | 'input';
-      fileList: MsFileItem[]; // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性
       multiple?: boolean;
       inputClass?: string;
       inputSize?: 'small' | 'medium' | 'large' | 'mini';
@@ -222,7 +221,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:fileList', fileList: MsFileItem[]): void;
     (e: 'upload', file: File): void;
     (e: 'change', _fileList: MsFileItem[], fileItem?: MsFileItem): void;
     (e: 'linkFile'): void;
@@ -232,6 +230,7 @@
   const { t } = useI18n();
 
   const innerFileList = defineModel<MsFileItem[]>('fileList', {
+    // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性
     required: true,
   });
   const inputFileName = ref('');
@@ -244,9 +243,12 @@
   });
   const buttonDropDownVisible = ref(false);
 
+  watchEffect(() => {
+    console.log('innerFileList', innerFileList.value);
+  });
   onBeforeMount(() => {
     // 回显文件
-    const defaultFiles = props.fileList.filter((item) => item) || [];
+    const defaultFiles = innerFileList.value.filter((item) => item) || [];
     if (defaultFiles.length > 0) {
       if (props.multiple) {
         inputFiles.value = defaultFiles.map((item) => ({
@@ -298,7 +300,7 @@
   watch(
     () => innerFileList.value,
     (arr) => {
-      getListFunParams.value.combine.hiddenIds = innerFileList.value
+      getListFunParams.value.combine.hiddenIds = arr
         .filter((item) => !item.local)
         .map((item) => item[props.fields.id] || item.uid);
     },

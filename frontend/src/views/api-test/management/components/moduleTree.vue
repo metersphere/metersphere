@@ -103,11 +103,7 @@
         @drop="handleDrop"
       >
         <template #title="nodeData">
-          <div
-            v-if="nodeData.type === 'API'"
-            class="inline-flex w-full cursor-pointer gap-[4px]"
-            @click="emit('clickApiNode', nodeData)"
-          >
+          <div v-if="nodeData.type === 'API'" class="inline-flex w-full cursor-pointer gap-[4px]">
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
@@ -451,6 +447,8 @@
         return e;
       });
       emit('folderNodeSelect', _selectedKeys, offspringIds);
+    } else if (node.type === 'API') {
+      emit('clickApiNode', node);
     }
   }
 

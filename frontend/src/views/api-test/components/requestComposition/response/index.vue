@@ -127,6 +127,10 @@
         v-model:active-tab="innerActiveTab"
         :request-result="props.requestTaskResult?.requestResults[0]"
         :console="props.requestTaskResult?.console"
+        :is-http-protocol="props.isHttpProtocol"
+        :is-priority-local-exec="props.isPriorityLocalExec"
+        :request-url="props.requestUrl"
+        @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
       />
     </a-spin>
   </div>
@@ -147,8 +151,11 @@
   const props = withDefaults(
     defineProps<{
       activeTab: ResponseComposition;
-      activeLayout?: Direction;
       isExpanded: boolean;
+      isPriorityLocalExec: boolean;
+      requestUrl: string;
+      isHttpProtocol: boolean;
+      activeLayout?: Direction;
       responseDefinition?: ResponseItem[];
       requestTaskResult?: RequestTaskResult;
       hideLayoutSwitch?: boolean; // 隐藏布局切换
@@ -165,6 +172,7 @@
     (e: 'changeExpand', value: boolean): void;
     (e: 'changeLayout', value: Direction): void;
     (e: 'change'): void;
+    (e: 'execute', executeType: 'localExec' | 'serverExec'): void;
   }>();
 
   const { t } = useI18n();

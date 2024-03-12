@@ -301,7 +301,6 @@
     dropNode: MsTreeNodeData; // 放入的节点
     dropPosition: number; // 放入的位置，-1 为放入节点前，1 为放入节点后，0 为放入节点内
   }) {
-    console.log('dropNode', dropNode);
     loop(originalTreeData.value, dragNode.key, (item, index, arr) => {
       arr.splice(index, 1);
     });

@@ -133,4 +133,5 @@ export default {
   'common.followSuccess': '关注成功',
   'common.unFollowSuccess': '取消关注成功',
   'common.share': '分享',
+  'common.notRemind': '不再提醒',
 };

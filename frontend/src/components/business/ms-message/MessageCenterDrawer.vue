@@ -295,8 +295,8 @@
   // 点击名称跳转
   function handleNameClick(item: MessageHistoryItem) {
     const routeQuery: Record<string, any> = {
-      organizationId: item.organizationId,
-      projectId: item.projectId,
+      orgId: item.organizationId,
+      pId: item.projectId,
       id: item.resourceId,
     };
     if (item.organizationId === 'SYSTEM') {
@@ -340,16 +340,15 @@
   .right-align {
     float: right;
   }
-
   :deep(.arco-list) {
     display: flex;
+    overflow-y: auto;
+    width: 100%;
+    font-size: 14px;
+    border-radius: var(--border-radius-medium);
+    color: var(--color-text-1);
     flex-direction: column;
     box-sizing: border-box;
-    width: 100%;
-    overflow-y: auto;
-    color: var(--color-text-1);
-    font-size: 14px;
     line-height: 1.8715;
-    border-radius: var(--border-radius-medium);
   }
 </style>

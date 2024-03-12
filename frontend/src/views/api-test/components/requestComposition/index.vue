@@ -250,6 +250,9 @@
             v-model:active-layout="activeLayout"
             v-model:active-tab="requestVModel.responseActiveTab"
             v-model:response-definition="requestVModel.responseDefinition"
+            :is-http-protocol="isHttpProtocol"
+            :is-priority-local-exec="isPriorityLocalExec"
+            :request-url="requestVModel.url"
             :is-expanded="isExpanded"
             :hide-layout-switch="props.hideResponseLayoutSwitch"
             :request-task-result="requestVModel.response"
@@ -259,6 +262,7 @@
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
             @change="handleActiveDebugChange"
+            @execute="execute"
           />
         </template>
       </MsSplitBox>
@@ -1049,6 +1053,7 @@
               ...props.otherParams,
             });
             requestVModel.value.id = res.id;
+            requestVModel.value.num = res.num;
             requestVModel.value.isNew = false;
             Message.success(t('common.saveSuccess'));
             requestVModel.value.unSaved = false;

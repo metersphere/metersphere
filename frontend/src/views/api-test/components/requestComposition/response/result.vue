@@ -1,67 +1,90 @@
 <template>
-  <a-tabs v-model:active-key="activeTab" class="no-content border-b border-[var(--color-text-n8)]">
-    <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
-  </a-tabs>
-  <div class="response-container">
-    <MsCodeEditor
-      v-if="activeTab === ResponseComposition.BODY"
-      ref="responseEditorRef"
-      :model-value="props.requestResult?.responseResult.body"
-      :language="responseLanguage"
-      theme="vs"
-      height="100%"
-      :languages="[LanguageEnum.JSON, LanguageEnum.HTML, LanguageEnum.XML, LanguageEnum.PLAINTEXT]"
-      :show-full-screen="false"
-      :show-theme-change="false"
-      show-language-change
-      show-charset-change
-      read-only
-    >
-      <template #rightTitle>
-        <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
-          <template #icon>
-            <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-          </template>
-        </a-button>
-      </template>
-    </MsCodeEditor>
-    <MsCodeEditor
-      v-else-if="activeTab === ResponseComposition.CONSOLE"
-      :model-value="props.console?.trim()"
-      :language="LanguageEnum.PLAINTEXT"
-      theme="MS-text"
-      height="100%"
-      :show-full-screen="false"
-      :show-theme-change="false"
-      :show-language-change="false"
-      :show-charset-change="false"
-      read-only
-    >
-    </MsCodeEditor>
-    <div
-      v-else-if="
-        activeTab === ResponseComposition.HEADER ||
-        activeTab === ResponseComposition.REAL_REQUEST ||
-        activeTab === ResponseComposition.EXTRACT
-      "
-      class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
-    >
-      <pre class="response-header-pre">{{ getResponsePreContent(activeTab) }}</pre>
+  <div v-show="props.requestResult?.responseResult.responseCode" class="h-full">
+    <a-tabs v-model:active-key="activeTab" class="no-content border-b border-[var(--color-text-n8)]">
+      <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
+    </a-tabs>
+    <div class="response-container">
+      <MsCodeEditor
+        v-if="activeTab === ResponseComposition.BODY"
+        ref="responseEditorRef"
+        :model-value="props.requestResult?.responseResult.body"
+        :language="responseLanguage"
+        theme="vs"
+        height="100%"
+        :languages="[LanguageEnum.JSON, LanguageEnum.HTML, LanguageEnum.XML, LanguageEnum.PLAINTEXT]"
+        :show-full-screen="false"
+        :show-theme-change="false"
+        show-language-change
+        show-charset-change
+        read-only
+      >
+        <template #rightTitle>
+          <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
+            <template #icon>
+              <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
+            </template>
+          </a-button>
+        </template>
+      </MsCodeEditor>
+      <MsCodeEditor
+        v-else-if="activeTab === ResponseComposition.CONSOLE"
+        :model-value="props.console?.trim()"
+        :language="LanguageEnum.PLAINTEXT"
+        theme="MS-text"
+        height="100%"
+        :show-full-screen="false"
+        :show-theme-change="false"
+        :show-language-change="false"
+        :show-charset-change="false"
+        read-only
+      >
+      </MsCodeEditor>
+      <div
+        v-else-if="
+          activeTab === ResponseComposition.HEADER ||
+          activeTab === ResponseComposition.REAL_REQUEST ||
+          activeTab === ResponseComposition.EXTRACT
+        "
+        class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
+      >
+        <pre class="response-header-pre">{{ getResponsePreContent(activeTab) }}</pre>
+      </div>
+      <MsBaseTable v-else-if="activeTab === 'ASSERTION'" v-bind="propsRes" v-on="propsEvent">
+        <template #status="{ record }">
+          <MsTag :type="record.status === 1 ? 'success' : 'danger'" theme="light">
+            {{ record.status === 1 ? t('common.success') : t('common.fail') }}
+          </MsTag>
+        </template>
+      </MsBaseTable>
     </div>
-    <MsBaseTable v-else-if="activeTab === 'ASSERTION'" v-bind="propsRes" v-on="propsEvent">
-      <template #status="{ record }">
-        <MsTag :type="record.status === 1 ? 'success' : 'danger'" theme="light">
-          {{ record.status === 1 ? t('common.success') : t('common.fail') }}
-        </MsTag>
-      </template>
-    </MsBaseTable>
   </div>
+  <a-empty
+    v-show="!props.requestResult?.responseResult.responseCode"
+    class="flex h-[150px] items-center gap-[16px] p-[16px]"
+  >
+    <template #image>
+      <img :src="noDataSvg" class="!h-[60px] w-[78px]" />
+    </template>
+    <div class="flex items-center gap-[8px]">
+      <div>{{ t('apiTestManagement.click') }}</div>
+      <MsButton
+        class="!mr-0"
+        type="text"
+        :disabled="props.isHttpProtocol && !props.requestUrl"
+        @click="emit('execute')"
+      >
+        {{ props.isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+      </MsButton>
+      <div>{{ t('apiTestManagement.getResponse') }}</div>
+    </div>
+  </a-empty>
 </template>
 
 <script setup lang="ts">
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -78,9 +101,15 @@
   const props = defineProps<{
     requestResult?: RequestResult;
     console?: string;
+    isPriorityLocalExec: boolean;
+    requestUrl: string;
+    isHttpProtocol: boolean;
   }>();
+  const emit = defineEmits(['execute']);
+
   const { t } = useI18n();
 
+  const noDataSvg = `${import.meta.env.BASE_URL}images/noResponse.svg`;
   const responseCompositionTabList = [
     {
       label: t('apiTestDebug.responseBody'),

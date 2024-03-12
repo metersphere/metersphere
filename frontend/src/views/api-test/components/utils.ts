@@ -34,8 +34,9 @@ export function parseRequestBodyFiles(
   const tempSaveUploadFileIds = new Set<string>(); // 临时存储 body 内已保存的上传文件 id 集合，用于对比 saveUploadFileIds 以判断有哪些文件被删除
   const tempSaveLinkFileIds = new Set<string>(); // 临时存储 body 内已保存的关联文件 id 集合，用于对比 saveLinkFileIds 以判断有哪些文件被取消关联
   // 获取上传文件和关联文件
-  for (let i = 0; i < formDataBody.formValues.length; i++) {
-    const item = formDataBody.formValues[i];
+  const formValues = formDataBody?.formValues.filter((e) => e) || [];
+  for (let i = 0; i < formValues.length; i++) {
+    const item = formValues[i];
     if (item.paramType === RequestParamsType.FILE) {
       if (item.files) {
         for (let j = 0; j < item.files.length; j++) {
@@ -150,15 +151,15 @@ export function filterKeyValParams<T>(params: (T & Record<string, any>)[], defau
 export function getValidRequestTableParams(requestVModel: RequestParam) {
   const { formDataBody, wwwFormBody } = requestVModel.body;
   return {
-    formDataBodyTableParams: filterKeyValParams(formDataBody.formValues, defaultBodyParamsItem).validParams,
-    wwwFormBodyTableParams: filterKeyValParams(wwwFormBody.formValues, defaultBodyParamsItem).validParams,
-    headers: filterKeyValParams(requestVModel.headers, defaultHeaderParamsItem).validParams,
-    query: filterKeyValParams(requestVModel.query, defaultRequestParamsItem).validParams,
-    rest: filterKeyValParams(requestVModel.rest, defaultRequestParamsItem).validParams,
+    formDataBodyTableParams: filterKeyValParams(formDataBody.formValues || [], defaultBodyParamsItem).validParams,
+    wwwFormBodyTableParams: filterKeyValParams(wwwFormBody.formValues || [], defaultBodyParamsItem).validParams,
+    headers: filterKeyValParams(requestVModel.headers || [], defaultHeaderParamsItem).validParams,
+    query: filterKeyValParams(requestVModel.query || [], defaultRequestParamsItem).validParams,
+    rest: filterKeyValParams(requestVModel.rest || [], defaultRequestParamsItem).validParams,
     response:
       requestVModel.responseDefinition?.map((e) => ({
         ...e,
-        headers: filterKeyValParams(e.headers, defaultKeyValueParamItem).validParams,
+        headers: filterKeyValParams(e.headers || [], defaultKeyValueParamItem).validParams,
       })) || [],
   };
 }
