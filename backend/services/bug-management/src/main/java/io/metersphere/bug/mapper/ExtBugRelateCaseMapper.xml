@@ -83,6 +83,7 @@
         left join test_plan tp on brc.test_plan_id = tp.id
         where b.deleted = false
         <include refid="queryWhereConditionByProvider"/>
+        <include refid="filter"/>
         order by
         <if test="sort != null and sort != ''">
             brc.${sort}
@@ -105,6 +106,63 @@
         </if>
         <if test="request.keyword != null and request.keyword != ''">
             and b.title like concat('%', #{request.keyword},'%')
+        </if>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 处理人 -->
+                        <when test="key == 'handleUser'">
+                            and b.handle_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 删除人 -->
+                        <when test="key == 'deleteUser'">
+                            and b.delete_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 更新人 -->
+                        <when test="key == 'updateUser'">
+                            and b.update_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 创建人 -->
+                        <when test="key == 'createUser'">
+                            and b.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 平台 -->
+                        <when test="key == 'platform'">
+                            and b.platform in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 状态 -->
+                        <when test="key == 'status'">
+                            and b.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 自定义单选字段 -->
+                        <when test="key.startsWith('custom_single')">
+                            and b.id in (
+                            select bug_id from bug_custom_field where concat('custom_single_', field_id) = #{key}
+                            and trim(both '"' from `value`) in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <!-- 自定义多选字段 -->
+                        <when test="key.startsWith('custom_multiple')">
+                            and b.id in (
+                            select bug_id from bug_custom_field where concat('custom_multiple_', field_id) = #{key}
+                            and
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterMultipleWrapper"/>
+                            )
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
         </if>
     </sql>
 

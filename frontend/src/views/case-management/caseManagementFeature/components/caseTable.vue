@@ -12,10 +12,12 @@
     @refresh="fetchData()"
   >
     <template #left>
-      <div class="text-[var(--color-text-1)]"
-        >{{ moduleNamePath }}
-        <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
-      >
+      <a-tooltip :content="moduleNamePath + '('+(props.modulesCount[props.activeFolder] || 0) +')' " position="bottom" background-color="#FFFFFF" :content-style="{color: '#000000'}">
+        <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
+          >{{ moduleNamePath }}
+          <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
+        >
+      </a-tooltip>
     </template>
     <template #right>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">

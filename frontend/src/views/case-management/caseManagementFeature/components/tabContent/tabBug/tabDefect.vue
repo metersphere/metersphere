@@ -5,17 +5,21 @@
         <a-tooltip>
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
-            <span class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
+            <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
               t('caseManagement.featureCase.createDefect')
             }}</span>
           </template>
-          <a-button class="mr-3" type="primary" @click="linkDefect">
+          <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="mr-3" type="primary" @click="linkDefect">
             {{ t('caseManagement.featureCase.linkDefect') }}
           </a-button>
         </a-tooltip>
-        <a-button type="outline" @click="createDefect">{{ t('caseManagement.featureCase.createDefect') }} </a-button>
+        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createDefect"
+          >{{ t('caseManagement.featureCase.createDefect') }}
+        </a-button>
       </div>
-      <div v-else class="font-medium">{{ t('caseManagement.featureCase.testPlanLinkList') }}</div>
+      <div v-else v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="font-medium">{{
+        t('caseManagement.featureCase.testPlanLinkList')
+      }}</div>
       <div class="mb-4">
         <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
@@ -29,10 +33,10 @@
           v-model:model-value="keyword"
           :placeholder="t('caseManagement.featureCase.searchByName')"
           allow-clear
+          class="mx-[8px] w-[240px]"
           @search="getFetch"
           @press-enter="getFetch"
           @clear="resetFetch"
-          class="mx-[8px] w-[240px]"
         ></a-input-search>
       </div>
     </div>
@@ -48,17 +52,69 @@
           </template>
         </a-popover>
       </template>
+      <template #handleUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="handleUserFilterVisible"
+          v-model:status-filters="handleUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="handleUserFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #statusFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="statusFilterVisible"
+          v-model:status-filters="statusFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="statusFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #severityFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="severityFilterVisible"
+          v-model:status-filters="severityFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="severityFilterOptions"
+          value-key="value"
+          @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
       <template #operation="{ record }">
-        <MsButton @click="cancelLink(record.id)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
+        <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="cancelLink(record.id)">{{
+          t('caseManagement.featureCase.cancelLink')
+        }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="linkDefect">
+          {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
+          <span v-permission="['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD']">{{
+            t('caseManagement.featureCase.please')
+          }}</span>
+          <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="ml-[8px]" @click="linkDefect">
             {{ t('caseManagement.featureCase.linkDefect') }}
           </MsButton>
-          {{ t('caseManagement.featureCase.or') }}
-          <MsButton class="ml-[8px]" @click="createDefect">
+          <span v-permission="['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD']">{{
+            t('caseManagement.featureCase.or')
+          }}</span>
+          <MsButton v-permission="['PROJECT_BUG:READ+ADD']" class="ml-[8px]" @click="createDefect">
             {{ t('caseManagement.featureCase.createDefect') }}
           </MsButton>
         </div>
@@ -75,6 +131,49 @@
             </div>
           </template>
         </a-popover>
+      </template>
+      <template #handleUserFilter="{ columnConfig }">
+        <TableFilter
+            v-model:visible="handleUserFilterVisible"
+            v-model:status-filters="handleUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="handleUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+      <template #statusFilter="{ columnConfig }">
+        <TableFilter
+            v-model:visible="statusFilterVisible"
+            v-model:status-filters="statusFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="statusFilterOptions"
+            value-key="value"
+            @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
+
+      <template #severityFilter="{ columnConfig }">
+        <TableFilter
+            v-model:visible="severityFilterVisible"
+            v-model:status-filters="severityFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="severityFilterOptions"
+            value-key="value"
+            @search="searchData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
       </template>
       <template #operation="{ record }">
         <MsButton @click="cancelLink(record.id)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
@@ -111,7 +210,9 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import AddDefectDrawer from './addDefectDrawer.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
+  import { getCustomOptionHeader } from '@/api/modules/bug-management';
   import {
     associatedDrawerDebug,
     cancelAssociatedDebug,
@@ -120,8 +221,8 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit } from '@/utils';
 
+  import { BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
 
   const featureCaseStore = useFeatureCaseStore();
@@ -136,6 +237,16 @@
   const showType = ref('link');
 
   const keyword = ref<string>('');
+  const handleUserFilterVisible = ref(false);
+  const handleUserFilterValue = ref<string[]>([]);
+  const handleUserFilterOptions = ref<BugOptionItem[]>([]);
+  const statusFilterVisible = ref(false);
+  const statusFilterValue = ref<string[]>([]);
+  const statusFilterOptions = ref<BugOptionItem[]>([]);
+  const severityFilterOptions = ref<BugOptionItem[]>([]);
+  const severityFilterVisible = ref(false);
+  const severityFilterValue = ref<string[]>([]);
+  const severityColumnId = ref('');
 
   const columns: MsTableColumn = [
     {
@@ -160,6 +271,7 @@
       title: 'caseManagement.featureCase.defectState',
       slotName: 'statusName',
       dataIndex: 'statusName',
+      titleSlotName: 'statusFilter',
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -168,8 +280,9 @@
     },
     {
       title: 'caseManagement.featureCase.updateUser',
-      slotName: 'name',
-      dataIndex: 'updateUser',
+      slotName: 'handleUserName',
+      dataIndex: 'handleUserName',
+      titleSlotName: 'handleUserFilter',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -261,6 +374,40 @@
     enableDrag: true,
   });
 
+  function initTableParams() {
+    const filterParams = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    return {
+      keyword: keyword.value,
+      caseId: props.caseId,
+      projectId: appStore.currentProjectId,
+      filter: { ...filterParams },
+      condition: {
+        keyword: keyword.value,
+        filter: showType.value === 'link' ? linkPropsRes : 'testPlanPropsRes',
+      },
+    };
+  }
+
+  function searchData() {
+    if (showType.value === 'link') {
+      setLinkListParams(initTableParams());
+      loadLinkList();
+    } else {
+      setTestPlanListParams(initTableParams());
+      testPlanLinkList();
+    }
+  }
+
+  async function initFilterOptions() {
+    const res = await getCustomOptionHeader(appStore.currentProjectId);
+    handleUserFilterOptions.value = res.handleUserOption;
+    statusFilterOptions.value = res.statusOption;
+  }
+
   async function getFetch() {
     if (showType.value === 'link') {
       setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
@@ -348,6 +495,7 @@
 
   onMounted(() => {
     getFetch();
+    initFilterOptions();
   });
 </script>
 

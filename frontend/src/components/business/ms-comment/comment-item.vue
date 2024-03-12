@@ -2,7 +2,10 @@
   <div class="flex flex-row gap-[8px]">
     <div class="p-1"> <MsAvatar :avatar="creatorInfo.avatar" /></div>
     <div class="flex w-full flex-col">
-      <div class="font-medium text-[var(--color-text-1)]">{{ creatorInfo.name }}</div>
+      <div class="font-medium text-[var(--color-text-1)]">
+        {{ creatorInfo.name }}
+        <span v-if="props.element.replyUser">{{ t('ms.comment.reply') }} {{ replyUserName }}</span>
+      </div>
       <div v-dompurify-html="props.element.content" class="markdown-body mt-[4px]"></div>
 
       <div class="mb-4 mt-[16px] flex flex-row items-center">
@@ -112,7 +115,14 @@
   };
 
   const creatorInfo = computed(() => {
-    return props.element.commentUserInfos.filter((item) => item.id === props.element.createUser)[0];
+    return props.element.commentUserInfos.filter((item) => item != null && item.id === props.element.createUser)[0];
+  });
+  const replyUserName = computed(() => {
+    if (props.element.replyUser) {
+      return props.element.commentUserInfos.filter((item) => item != null && item.id === props.element.replyUser)[0]
+        .name;
+    }
+    return '';
   });
 </script>
 
