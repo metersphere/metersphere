@@ -10,6 +10,7 @@ import {
   DebugDefinitionUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
+  DefinitionReferenceUrl,
   DeleteDefinitionScheduleUrl,
   DeleteDefinitionUrl,
   DeleteMockUrl,
@@ -55,6 +56,7 @@ import {
   CreateImportApiDefinitionScheduleParams,
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
+  DefinitionReferencePageParams,
   EnvModule,
   ImportApiDefinitionParams,
   mockParams,
@@ -228,6 +230,11 @@ export function saveOperationHistory(data: ExecuteRequestParams) {
 // 接口定义-恢复至指定变更历史
 export function recoverOperationHistory(data: RecoverDefinitionParams) {
   return MSR.post({ url: RecoverOperationHistoryUrl, data });
+}
+
+// 接口定义-引用关系
+export function getDefinitionReference(data: DefinitionReferencePageParams) {
+  return MSR.post({ url: DefinitionReferenceUrl, data });
 }
 
 /**

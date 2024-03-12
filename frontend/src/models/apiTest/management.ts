@@ -257,3 +257,8 @@ export interface RecoverDefinitionParams {
   sourceId: string | number;
   versionId?: string;
 }
+
+// 引用关系列表查询参数
+export interface DefinitionReferencePageParams extends TableQueryParams {
+  resourceId: string;
+}
