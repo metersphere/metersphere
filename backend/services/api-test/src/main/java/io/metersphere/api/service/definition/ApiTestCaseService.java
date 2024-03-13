@@ -21,9 +21,7 @@ import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.MoveNodeService;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -98,6 +96,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ApiCommonService apiCommonService;
     @Resource
     private ApiExecuteService apiExecuteService;
+    @Resource
+    private ApiReportService apiReportService;
     @Resource
     private EnvironmentService environmentService;
 
@@ -626,14 +626,19 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API_CASE.name());
     }
 
-    public TaskRequestDTO run(String id, String reportId) {
+    public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiTestCase apiTestCase = checkResourceExist(id);
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
 
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
         runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
 
+        String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
+        // 初始化报告
+        initApiReport(apiTestCase, reportId, poolId, userId);
+
         TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+        taskRequest.getRunModeConfig().setPoolId(poolId);
         taskRequest.setSaveResult(true);
         taskRequest.setRealTime(true);
 
@@ -642,6 +647,56 @@ public class ApiTestCaseService extends MoveNodeService {
         apiParamConfig.setEnvConfig(environmentService.get(apiTestCase.getEnvironmentId()));
 
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    /**
+     * 预生成用例的执行报告
+     *
+     * @param apiTestCase
+     * @param poolId
+     * @param userId
+     * @return
+     */
+    public List<ApiTestCaseRecord> initApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
+        List<ApiReport> apiReports = new ArrayList<>();
+        List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
+
+        // 初始化报告
+        ApiReport apiReport = getApiReport(userId);
+        apiReport.setId(reportId);
+        apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        apiReports.add(apiReport);
+        apiReport.setName(apiTestCase.getName());
+        apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiReport.setPoolId(poolId);
+        apiReport.setProjectId(apiTestCase.getProjectId());
+
+        // 创建报告和用例的关联关系
+        ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
+        apiTestCaseRecords.add(apiTestCaseRecord);
+
+        apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
+        return apiTestCaseRecords;
+    }
+
+    public ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {
+        ApiTestCaseRecord apiTestCaseRecord = new ApiTestCaseRecord();
+        apiTestCaseRecord.setApiTestCaseId(apiTestCase.getId());
+        apiTestCaseRecord.setApiReportId(apiReport.getId());
+        return apiTestCaseRecord;
+    }
+
+    public ApiReport getApiReport(String userId) {
+        ApiReport apiReport = new ApiReport();
+        apiReport.setId(IDGenerator.nextStr());
+        apiReport.setDeleted(false);
+        apiReport.setIntegrated(false);
+        apiReport.setStatus(ApiReportStatus.PENDING.name());
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReport.setUpdateUser(userId);
+        apiReport.setCreateUser(userId);
+        return apiReport;
     }
 
     public TaskRequestDTO debug(ApiRunRequest request) {

@@ -17,12 +17,12 @@ public class ApiRunModeConfigDTO implements Serializable {
      * 是否并行执行
      * {@link io.metersphere.sdk.constants.ApiBatchRunMode}
      */
-    private String runMode;
+    private String runMode = ApiBatchRunMode.PARALLEL.name();
 
     /**
      * 是否是集成报告
      */
-    private Boolean integratedReport;
+    private Boolean integratedReport = false;
 
     /**
      * 集合报告配置

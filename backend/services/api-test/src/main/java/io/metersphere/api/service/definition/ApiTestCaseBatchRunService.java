@@ -308,6 +308,7 @@ public class ApiTestCaseBatchRunService {
         return taskRequest;
     }
 
+
     /**
      * 预生成用例的执行报告
      *
@@ -315,48 +316,37 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCases
      * @return
      */
-    private List<ApiTestCaseRecord> initApiReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
+    public List<ApiTestCaseRecord> initApiReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
         for (ApiTestCase apiTestCase : apiTestCases) {
+            // 初始化报告
             ApiReport apiReport = getApiReport(runModeConfig, apiTestCase, userId);
-            ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
             apiReports.add(apiReport);
+            // 创建报告和用例的关联关系
+            ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
         return apiTestCaseRecords;
     }
 
-    private ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {
-        ApiTestCaseRecord apiTestCaseRecord = new ApiTestCaseRecord();
-        apiTestCaseRecord.setApiTestCaseId(apiTestCase.getId());
-        apiTestCaseRecord.setApiReportId(apiReport.getId());
-        return apiTestCaseRecord;
-    }
 
     private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
         apiReport.setEnvironmentId(getEnvId(runModeConfig, apiTestCase));
         apiReport.setName(apiTestCase.getName());
         apiReport.setProjectId(apiTestCase.getProjectId());
+        apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());
         return apiReport;
     }
 
-    private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, String userId) {
-        ApiReport apiReport = new ApiReport();
-        apiReport.setId(IDGenerator.nextStr());
-        apiReport.setDeleted(false);
-        apiReport.setIntegrated(false);
+    public ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, String userId) {
+        ApiReport apiReport = apiTestCaseService.getApiReport(userId);
         apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         apiReport.setRunMode(runModeConfig.getRunMode());
-        apiReport.setStatus(ApiReportStatus.PENDING.name());
-        apiReport.setStartTime(System.currentTimeMillis());
-        apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());
-        apiReport.setUpdateUser(userId);
-        apiReport.setCreateUser(userId);
         apiReport.setPoolId(runModeConfig.getPoolId());
+        apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());
         return apiReport;
     }
 
@@ -369,7 +359,7 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCase
      * @return
      */
-    private String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
+    public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
         return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiTestCase.getEnvironmentId() : runModeConfig.getEnvironmentId();
     }
 

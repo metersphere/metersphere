@@ -97,7 +97,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String EXECUTE = "execute/page";
     private static final String HISTORY = "operation-history/page";
     private static final String DEBUG = "debug";
-    private static final String RUN = "run/{0}/{1}";
+    private static final String RUN_REAL_TIME = "run/{0}/{1}";
+    private static final String RUN = "run/{0}";
     private static final String BATCH_RUN = "batch/run";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -429,10 +430,15 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void run() throws Exception {
-        assertErrorCode(this.requestGet(RUN, apiTestCase.getId(), "111"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertErrorCode(this.requestGet(RUN_REAL_TIME, apiTestCase.getId(), "111"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN, apiTestCase.getId(), "11111");
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN_REAL_TIME, apiTestCase.getId(), "11111");
+
+        assertErrorCode(this.requestGet(RUN, apiTestCase.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN, apiTestCase.getId());
     }
 
     @Test
