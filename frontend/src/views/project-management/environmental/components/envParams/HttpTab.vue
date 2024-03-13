@@ -31,7 +31,7 @@
       </a-select> -->
     </div>
   </div>
-  <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent" @change="changeHandler">
+  <MsBaseTable ref="tableRef" class="mt-[16px]" v-bind="propsRes" v-on="propsEvent" @change="changeHandler">
     <template #type="{ record }">
       <span>{{ getEnableScope(record.type) }}</span>
     </template>
@@ -41,7 +41,7 @@
       </a-tooltip>
     </template>
     <template #operation="{ record }">
-      <div v-show="!store.currentEnvDetailInfo.mock" class="flex flex-row flex-nowrap items-center">
+      <div class="flex flex-row flex-nowrap items-center">
         <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
         <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
@@ -96,21 +96,17 @@
       dataIndex: 'url',
       slotName: 'url',
       showTooltip: true,
-      showDrag: true,
-      showInTable: true,
     },
     {
       title: 'project.environmental.http.desc',
       dataIndex: 'description',
       showDrag: true,
-      showInTable: true,
     },
     {
       title: 'project.environmental.http.enableScope',
       dataIndex: 'type',
       slotName: 'type',
       showDrag: true,
-      showInTable: true,
     },
     {
       title: 'project.environmental.http.value',
@@ -118,7 +114,6 @@
       slotName: 'moduleValue',
       showTooltip: false,
       showDrag: true,
-      showInTable: true,
     },
     {
       title: 'common.operation',
@@ -128,7 +123,6 @@
       width: 170,
     },
   ];
-  await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_HTTP, columns);
   const { propsRes, propsEvent } = useTable(undefined, {
     columns,
     scroll: { x: '100%' },
@@ -281,6 +275,18 @@
     }
     return '-';
   }
+  const tableRef = ref();
+  watch(
+    () => store.currentEnvDetailInfo.mock,
+    (val) => {
+      if (val) {
+        const tempColumn = columns.slice(0, columns.length - 1);
+        tableRef.value.initColumn(tempColumn);
+      } else {
+        tableRef.value.initColumn(columns);
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>
