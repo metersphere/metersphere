@@ -11,6 +11,7 @@
       :expanded-keys="props.expandedKeys"
       :span-all="props.spanAll"
       @expand="(rowKey, record) => emit('expand', record)"
+      @change="(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => handleDragChange(data, extra, currentData)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
       @cell-click="(record: TableData,column: TableColumnData,ev: Event) => emit('cell-click',record, column,ev)"
     >
@@ -264,6 +265,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
 
+  import { DragSortParams } from '@/models/common';
   import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum } from '@/enums/tableEnum';
 
   import type {
@@ -275,7 +277,7 @@
     MsTableDataItem,
     MsTableProps,
   } from './type';
-  import type { TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
   import type { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
 
   const batchLeft = ref('10px');
@@ -317,6 +319,7 @@
     (e: 'rowNameChange', value: TableData, cb: (v: boolean) => void): void;
     (e: 'rowSelectChange', key: string): void;
     (e: 'selectAllChange', value: SelectAllEnum): void;
+    (e: 'dragChange', value: DragSortParams): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
@@ -513,6 +516,34 @@
     }
 
     emit('sorterChange', sortOrder ? { [dataIndex]: sortOrder } : {});
+  };
+
+  // 拖拽排序
+  const handleDragChange = (data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => {
+    if (!currentData || currentData.length === 1) {
+      return;
+    }
+
+    if (extra && extra.dragTarget?.id) {
+      const params: DragSortParams = {
+        projectId: appStore.currentProjectId,
+        targetId: '', // 放置目标id
+        moveMode: 'BEFORE',
+        moveId: extra.dragTarget.id as string, // 拖拽id
+      };
+      const index = currentData.findIndex((item: any) => item.key === extra.dragTarget?.id);
+
+      if (index > -1 && currentData[index + 1]) {
+        params.moveMode = 'BEFORE';
+        params.targetId = currentData[index + 1].raw.id;
+      } else if (index > -1 && !currentData[index + 1]) {
+        if (index > -1 && currentData[index - 1]) {
+          params.moveMode = 'AFTER';
+          params.targetId = currentData[index - 1].raw.id;
+        }
+      }
+      emit('dragChange', params);
+    }
   };
 
   // 编辑单元格的input
