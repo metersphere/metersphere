@@ -471,6 +471,7 @@
     },
   ];
 
+  // json默认值
   const jsonPathDefaultParamItem = {
     expression: '',
     condition: '',
@@ -478,6 +479,12 @@
     enable: true,
     moreSettingPopoverVisible: false,
     disable: true,
+  };
+  // xpath默认值
+  const xPathDefaultParamItem = {
+    expression: '',
+    enable: true,
+    valid: true,
   };
 
   const handleChange = (data: any[], type: string, isInit?: boolean) => {
@@ -542,11 +549,6 @@
       ],
     },
   ];
-
-  const xPathDefaultParamItem = {
-    expression: '',
-    enable: true,
-  };
 
   const documentColumns: ParamTableColumn[] = [
     {
@@ -678,9 +680,9 @@
   function copyItem(record) {
     switch (activeTab.value) {
       case ResponseBodyAssertionType.JSON_PATH:
-        const index = condition.value.jsonPathAssertion.assertions.findIndex((item) => item.id === record.id);
-        if (index > -1) {
-          condition.value.jsonPathAssertion.assertions.splice(index, 0, {
+        const jsonIndex = condition.value.jsonPathAssertion.assertions.findIndex((item) => item.id === record.id);
+        if (jsonIndex > -1) {
+          condition.value.jsonPathAssertion.assertions.splice(jsonIndex, 0, {
             ...record,
             id: new Date().getTime().toString(),
           });
@@ -689,13 +691,14 @@
 
         break;
       case ResponseBodyAssertionType.XPATH:
-        condition.value.xpathAssertion.assertions.push({
-          ...record,
-          id: new Date().getTime().toString(),
-        });
-
+        const xpathIndex = condition.value.xpathAssertion.assertions.findIndex((item) => item.id === record.id);
+        if (xpathIndex > -1) {
+          condition.value.xpathAssertion.assertions.splice(xpathIndex, 0, {
+            ...record,
+            id: new Date().getTime().toString(),
+          });
+        }
         emit('change', {
-          ...defaultParamItem,
           ...condition.value,
           assertionBodyType: activeTab.value,
           responseFormat: activeResponseFormat.value,
@@ -708,11 +711,14 @@
         });
         break;
       case ResponseBodyAssertionType.REGEX:
-        condition.value.regexAssertion.assertions.push({
-          ...record,
-          id: new Date().getTime().toString(),
-        });
-        emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+        const regIndex = condition.value.xpathAssertion.assertions.findIndex((item) => item.id === record.id);
+        if (regIndex > -1) {
+          condition.value.regexAssertion.assertions.splice(regIndex, 0, {
+            ...record,
+            id: new Date().getTime().toString(),
+          });
+        }
+        emit('change', { ...condition.value, assertionBodyType: activeTab.value });
         break;
       default:
         break;

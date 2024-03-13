@@ -187,7 +187,7 @@
         <EnvParamBox
           v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM"
           @reset-env="resetHandler"
-          @ok="initData()"
+          @ok="getDetail"
         />
         <!-- 环境组 -->
         <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
@@ -587,6 +587,10 @@
         store.setCurrentId(excludeMock[0].id);
       }
     }
+  }
+
+  function getDetail() {
+    store.initEnvDetail();
   }
 
   onMounted(() => {

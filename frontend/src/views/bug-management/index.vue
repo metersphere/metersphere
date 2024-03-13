@@ -36,11 +36,11 @@
         <div class="flex flex-row flex-nowrap">
           <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row">
             <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-            <a-divider direction="vertical" />
+            <a-divider class="h-[16px]" direction="vertical" />
           </span>
           <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row">
             <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-            <a-divider direction="vertical" />
+            <a-divider class="h-[16px]" direction="vertical" />
           </span>
           <MsTableMoreAction
             v-permission="['PROJECT_BUG:READ+DELETE']"

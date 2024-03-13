@@ -99,9 +99,14 @@
               </div>
             </div>
             <StepProgress :report-detail="reportStepDetail" height="8px" radius="var(--border-radius-mini)" />
+            <div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
           </div>
 
-          <div class="request-analyze"></div>
+          <div class="request-analyze"> </div>
         </div>
         <!-- 报告步骤分析和请求分析结束 -->
         <!-- 报告明细开始 -->
@@ -184,18 +189,21 @@
       @apply mb-4 bg-white;
     }
     .analyze {
-      padding: 16px;
       min-height: 196px;
       border-radius: 4px;
-      @apply flex justify-between bg-white;
+      @apply mb-4 flex justify-between;
       .step-analyze {
-        @apply mb-4 h-full;
+        padding: 16px;
+        border-radius: 4px;
+        @apply h-full bg-white;
         .countItem {
           @apply mr-6 flex items-center;
         }
       }
       .request-analyze {
-        @apply h-full;
+        padding: 16px;
+        border-radius: 4px;
+        @apply h-full bg-white;
       }
     }
   }
