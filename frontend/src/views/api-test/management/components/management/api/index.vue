@@ -262,6 +262,9 @@
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
+    if (!defaultProps) {
+      definitionActiveKey.value = 'definition';
+    }
   }
 
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
@@ -326,7 +329,6 @@
   }
 
   function handleAddDone() {
-    definitionActiveKey.value = 'preview'; // 保存完毕后切换到预览页
     if (typeof refreshModuleTree === 'function') {
       refreshModuleTree();
     }

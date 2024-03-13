@@ -92,9 +92,9 @@
 
   const apiRef = ref<InstanceType<typeof api>>();
 
-  function newTab(apiInfo?: ModuleTreeNode | string) {
+  function newTab(apiInfo?: ModuleTreeNode | string, isCopy?: boolean, isExecute?: boolean) {
     if (apiInfo) {
-      apiRef.value?.openApiTab(apiInfo);
+      apiRef.value?.openApiTab(apiInfo, isCopy, isExecute);
     } else {
       apiRef.value?.addApiTab();
     }
@@ -105,9 +105,21 @@
       id: 'all',
       label: t('apiTestManagement.allApi'),
       closable: false,
-    } as RequestParam,
+      moduleId: 'root',
+    } as unknown as RequestParam,
   ]);
   const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
+
+  // 监听模块树的激活节点变化，记录表格数据的模块 id
+  watch(
+    () => props.activeModule,
+    (val) => {
+      const defaultTab = apiTabs.value.find((item) => item.id === 'all');
+      if (defaultTab) {
+        defaultTab.moduleId = val;
+      }
+    }
+  );
 
   // 下拉框切换
   function currentTabChange(val: any) {
@@ -117,7 +129,8 @@
   watch(
     () => activeApiTab.value.id,
     () => {
-      if (typeof setActiveApi === 'function') {
+      if (typeof setActiveApi === 'function' && !activeApiTab.value.isNew) {
+        // 打开的 tab 是接口详情的 tab 才需要同步设置模块树的激活节点
         setActiveApi(activeApiTab.value);
       }
     }
@@ -166,6 +179,53 @@
     });
   }
 
+  /**
+   * 同步模块树的接口信息更新操作
+   */
+  function handleApiUpdateFromModuleTree(newInfo: { id: string; name: string; moduleId?: string; [key: string]: any }) {
+    apiTabs.value = apiTabs.value.map((item) => {
+      if (item.id === newInfo.id) {
+        item.label = newInfo.name;
+        item.name = newInfo.name;
+        if (newInfo.moduleId) {
+          item.moduleId = newInfo.moduleId;
+        }
+      }
+      return item;
+    });
+    if (activeApiTab.value.id === newInfo.id) {
+      activeApiTab.value.label = newInfo.name;
+      activeApiTab.value.name = newInfo.name;
+      if (newInfo.moduleId) {
+        activeApiTab.value.moduleId = newInfo.moduleId;
+      }
+    }
+  }
+
+  /**
+   * 同步模块树的接口信息删除操作
+   * @param id 接口 id
+   * @param isModule 是否是删除模块
+   */
+  function handleDeleteApiFromModuleTree(id: string, isModule = false) {
+    if (isModule) {
+      // 删除整个模块
+      apiTabs.value = apiTabs.value.filter((item) => {
+        if (activeApiTab.value.id === item.id) {
+          // 删除的是当前激活的 tab, 切换到第一个 tab
+          [activeApiTab.value] = apiTabs.value;
+        }
+        return item.moduleId !== id || item.id === 'all';
+      });
+    } else {
+      // 删除单个 api
+      apiTabs.value = apiTabs.value.filter((item) => item.id !== id);
+      if (activeApiTab.value.id === id) {
+        [activeApiTab.value] = apiTabs.value;
+      }
+    }
+  }
+
   onBeforeMount(() => {
     initEnvList();
   });
@@ -176,6 +236,8 @@
   defineExpose({
     newTab,
     refreshApiTable,
+    handleApiUpdateFromModuleTree,
+    handleDeleteApiFromModuleTree,
   });
 </script>
 
