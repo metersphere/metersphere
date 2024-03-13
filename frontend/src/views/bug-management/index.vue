@@ -247,7 +247,7 @@
     tableParamsToRequestParams,
   } from '@/utils';
 
-  import { BugEditCustomField, BugListItem, BugOptionItem, BugOptionListItem } from '@/models/bug-management';
+  import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -474,18 +474,6 @@
       width: 158,
     },
   ];
-  const customColumns = await getCustomFieldColumns();
-
-  customColumns.forEach((item) => {
-    if (item.title === '严重程度' || item.title === 'Bug Degree') {
-      item.showInTable = true;
-      item.titleSlotName = 'severityFilter';
-      item.slotName = 'severity';
-    } else {
-      item.showInTable = false;
-    }
-  });
-  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
   const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, setProps, resetSelector, loadList } =
     useTable(
@@ -801,6 +789,27 @@
       handleShowDetail(route.query.id as string, 0);
     }
   });
+
+  let customColumns: MsTableColumn = [];
+  async function getColumnHeaders() {
+    try {
+      customColumns = await getCustomFieldColumns();
+      customColumns.forEach((item) => {
+        if (item.title === '严重程度' || item.title === 'Bug Degree') {
+          item.showInTable = true;
+          item.titleSlotName = 'severityFilter';
+          item.slotName = 'severity';
+        } else {
+          item.showInTable = false;
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  await getColumnHeaders();
+
+  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
   onUnmounted(() => {
     // 组件销毁时关闭轮询
     pause();
