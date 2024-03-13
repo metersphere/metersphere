@@ -110,11 +110,13 @@
         b.title as name,
         b.handle_user as handleUser,
         createUser.name AS createUser,
+        bc.description AS content,
         b.`status` as status,
         b.tags as tag,
         b.create_time createTime
         FROM
         bug b
+        inner join bug_content bc on  b.id = bc.bug_id
         INNER JOIN user createUser ON b.create_user = createUser.id
         WHERE
         b.deleted = #{deleted}
