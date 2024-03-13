@@ -44,7 +44,16 @@
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
-            <div class="folder-count">({{ modulesCount['all'] }})</div>
+            <div class="folder-count">({{ modulesCount.total || 0 }})</div>
+          </div>
+          <div class="ml-auto flex items-center">
+            <a-tooltip
+              :content="isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')"
+            >
+              <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
+                <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+              </MsButton>
+            </a-tooltip>
           </div>
         </div>
         <a-divider class="my-[8px]" />
@@ -61,6 +70,7 @@
               children: 'children',
               count: 'count',
             }"
+            :expand-all="isExpandAll"
             block-node
             title-tooltip-position="left"
             @select="folderNodeSelect"
@@ -83,6 +93,7 @@
           :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
           @keyword-search="searchCase"
           @adv-search="searchCase"
+          @refresh="searchCase()"
         >
           <template #left>
             <div class="flex items-center justify-between">
@@ -224,6 +235,11 @@
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
   const modulesCount = ref<Record<string, any>>({});
+  const isExpandAll = ref(false);
+  // 全部展开或折叠
+  const expandHandler = () => {
+    isExpandAll.value = !isExpandAll.value;
+  };
 
   // 选中用例类型
   const caseType = computed({
@@ -527,7 +543,7 @@
   function openDetail(id: string) {
     window.open(
       `${window.location.origin}#${
-        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL }).fullPath
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
       }?id=${id}`
     );
   }

@@ -79,7 +79,6 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
-  import { isEqual } from 'lodash-es';
 
   import TabSettingDrawer from './common/TabSettingDrawer.vue';
   import AssertTab from './envParams/AssertTab.vue';
@@ -88,9 +87,7 @@
   import HostTab from './envParams/HostTab.vue';
   import HttpTab from './envParams/HttpTab.vue';
   import PluginTab from './envParams/PluginTab.vue';
-  import PostTab from './envParams/PostTab.vue';
   import PreAndPostTab from './envParams/preAndPost.vue';
-  import PreTab from './envParams/PreTab.vue';
 
   import { getEnvPlugin, updateOrAddEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -104,7 +101,7 @@
   const { setState } = useLeaveUnSaveTip();
   setState(false);
   const emit = defineEmits<{
-    (e: 'ok'): void;
+    (e: 'ok', envId: string | undefined): void;
     (e: 'resetEnv'): void;
   }>();
 
@@ -206,8 +203,9 @@
           store.currentEnvDetailInfo.mock = true;
           await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
           setState(true);
-          Message.success(t('common.saveSuccess'));
-          emit('ok');
+
+          Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
+          emit('ok', store.currentEnvDetailInfo.id);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -231,13 +229,6 @@
       form.description = currentEnvDetailInfo.description as string;
     }
   });
-
-  // watchEffect(() => {
-  //   if (store.currentEnvDetailInfo) {
-  //     const { currentEnvDetailInfo, backupEnvDetailInfo } = store;
-  //     canSave.value = !isEqual(currentEnvDetailInfo, backupEnvDetailInfo);
-  //   }
-  // });
 
   const initTab = async () => {
     tabSettingVisible.value = false;

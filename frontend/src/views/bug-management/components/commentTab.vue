@@ -1,8 +1,20 @@
 <template>
-  <MsComment :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdate" />
+  <div class="pr-4">
+    <a-scrollbar
+      :style="{
+        overflow: 'auto',
+        height: 'calc(100vh - 236px)',
+        width: '100%',
+      }"
+    >
+      <MsEmpty v-if="commentList.length === 0" />
+      <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdate" />
+    </a-scrollbar>
+  </div>
 </template>
 
 <script lang="ts" setup>
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 

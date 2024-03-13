@@ -12,7 +12,7 @@ const BugManagement: AppRouteRecordRaw = {
     locale: 'menu.bugManagement',
     icon: 'icon-icon_defect',
     order: 2,
-    roles: ['PROJECT_BUG:READ+ADD'],
+    roles: ['PROJECT_BUG:READ'],
     hideChildrenInMenu: true,
   },
   children: [

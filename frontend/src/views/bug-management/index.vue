@@ -14,7 +14,7 @@
           <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
             >{{ t('bugManagement.createBug') }}
           </a-button>
-          <a-button v-permission="['PROJECT_BUG:READ+IMPORT']" :loading="!isComplete" type="outline" @click="handleSync"
+          <a-button :loading="!isComplete" type="outline" @click="handleSync"
             >{{ t('bugManagement.syncBug') }}
           </a-button>
         </div>
@@ -33,14 +33,14 @@
         <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
       </template>
       <template #operation="{ record }">
-        <div class="flex flex-row flex-nowrap">
-          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row">
+        <div class="flex flex-nowrap items-center">
+          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
             <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-            <a-divider class="h-[16px]" direction="vertical" />
+            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
           </span>
-          <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row">
+          <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row items-center">
             <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-            <a-divider class="h-[16px]" direction="vertical" />
+            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
           </span>
           <MsTableMoreAction
             v-permission="['PROJECT_BUG:READ+DELETE']"
@@ -471,7 +471,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 158,
+      width: 200,
     },
   ];
 
@@ -616,6 +616,7 @@
         pre: syncObject.operator === 'lt',
         createTime: syncObject.time,
       });
+      Message.success(t('bugManagement.syncSuccess'));
       isComplete.value = false;
       // 开始轮询
       resume();

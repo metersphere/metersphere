@@ -13,6 +13,7 @@
     :table-data="props.tableData"
     :page-change="props.pageChange"
     show-full-screen
+    unmount-on-close
     @loaded="loadedBug"
   >
     <template #titleRight="{ loading }">
@@ -91,7 +92,7 @@
                   v-model:active-key="activeTab"
                   :content-tab-list="contentTabList"
                   :get-text-func="getTabBadge"
-                  class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
+                  class="no-content relative mb-[8px]"
                 />
                 <div class="tab-pane-container">
                   <BugDetailTab
@@ -137,11 +138,23 @@
                 @change="handelFormCreateChange"
               />
               <!-- 自定义字段结束 -->
-              <!-- 内置基础信息开始 -->
               <div v-if="!isPlatformDefaultTemplate" class="baseItem">
-                <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                  <MsTagsInput v-model:model-value="tags" />
-                </a-form-item>
+                <a-form
+                  :model="{}"
+                  :label-col-props="{
+                    span: 9,
+                  }"
+                  :wrapper-col-props="{
+                    span: 15,
+                  }"
+                  label-align="left"
+                  content-class="tags-class"
+                >
+                  <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
+                    <MsTagsInput v-model:model-value="tags" />
+                  </a-form-item>
+                </a-form>
+
                 <!--                <span class="label"> {{ t('bugManagement.detail.tag') }}</span>-->
                 <!--                <span style="width: 200px">-->
                 <!--                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>-->
@@ -518,6 +531,11 @@
       }
     }
   );
+  watchEffect(() => {
+    if (props.detailIndex) {
+      activeTab.value = 'detail';
+    }
+  });
 </script>
 
 <style scoped lang="less">
@@ -544,6 +562,76 @@
     :deep(.arco-form-item-label-col > .arco-form-item-label) {
       color: var(--color-text-3) !important;
     }
+    :deep(.arco-select-view-single) {
+      border-color: transparent !important;
+      .arco-select-view-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        .arco-select-view-suffix {
+          visibility: visible !important;
+        }
+      }
+      &:hover > .arco-input {
+        font-weight: normal;
+        text-decoration: none;
+        color: var(--color-text-1);
+      }
+      & > .arco-input {
+        font-weight: 500;
+        text-decoration: underline;
+        color: var(--color-text-1);
+      }
+    }
+    :deep(.arco-input-tag) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-input-wrapper) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-select-view-multiple) {
+      border-color: transparent !important;
+      .arco-select-view-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        .arco-select-view-suffix {
+          visibility: visible !important;
+        }
+      }
+    }
+    :deep(.arco-textarea-wrapper) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-input-number) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-picker) {
+      border-color: transparent !important;
+      .arco-picker-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        arco-picker-suffix {
+          visibility: visible !important;
+        }
+      }
+    }
   }
   .rightButtons {
     :deep(.ms-button--secondary):hover,
@@ -563,6 +651,9 @@
   }
   :deep(.active .arco-badge-text) {
     background: rgb(var(--primary-5));
+  }
+  :deep(.tags-class .arco-form-item-label-col) {
+    justify-content: flex-start !important;
   }
   .left-bug-detail {
     height: 88%;

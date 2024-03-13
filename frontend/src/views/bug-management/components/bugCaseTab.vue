@@ -12,6 +12,14 @@
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
+      <template #relateCaseNum="{ record }">
+        <a-tooltip :content="`${record.relateCaseNum}`">
+          <!-- TOTO 暂时没有用例id的字段 需要后台加caseId -->
+          <a-button type="text" class="px-0" @click="openDetail(record.relateCaseId)">
+            <div class="one-line-text max-w-[168px]">{{ record.relateCaseNum }}</div>
+          </a-button>
+        </a-tooltip>
+      </template>
       <template #defectName="{ record }">
         <span class="one-line-text max-w[300px]"> {{ record.relateCaseName }}</span
         ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
@@ -75,6 +83,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -96,12 +105,13 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { TableQueryParams } from '@/models/common';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
   const appStore = useAppStore();
   const featureCaseStore = useFeatureCaseStore();
-
+  const router = useRouter();
   const { t } = useI18n();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -122,7 +132,8 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'relateCaseId',
+      dataIndex: 'relateCaseNum',
+      slotName: 'relateCaseNum',
       width: 200,
       showInTable: true,
       showTooltip: true,
@@ -172,7 +183,7 @@
     columns,
     scroll: { x: '100%' },
     heightUsed: 340,
-    enableDrag: true,
+    enableDrag: false,
   });
 
   const innerVisible = ref(false);
@@ -263,6 +274,14 @@
       bugId: props.bugId,
     });
     await loadList();
+  }
+
+  function openDetail(id: string) {
+    window.open(
+      `${window.location.origin}#${
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
+      }?id=${id}`
+    );
   }
 
   onMounted(async () => {

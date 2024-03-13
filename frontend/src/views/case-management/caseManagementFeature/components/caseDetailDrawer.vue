@@ -685,6 +685,12 @@
         border-color: rgb(var(--primary-5)) !important;
       }
     }
+    :deep(.arco-input-wrapper) {
+      border-color: transparent !important;
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+      }
+    }
     :deep(.arco-select-view-multiple) {
       border-color: transparent !important;
       .arco-select-view-suffix {
@@ -707,6 +713,18 @@
       border-color: transparent !important;
       &:hover {
         border-color: rgb(var(--primary-5)) !important;
+      }
+    }
+    :deep(.arco-picker) {
+      border-color: transparent !important;
+      .arco-picker-suffix {
+        visibility: hidden;
+      }
+      &:hover {
+        border-color: rgb(var(--primary-5)) !important;
+        arco-picker-suffix {
+          visibility: visible !important;
+        }
       }
     }
   }
