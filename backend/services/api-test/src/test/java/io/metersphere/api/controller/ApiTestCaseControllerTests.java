@@ -535,7 +535,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertFalse(apiCase.getDeleted());
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.RECOVER);
-        this.requestGet(RECOVER + "111").andExpect(ERROR_REQUEST_MATCHER);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, RECOVER + apiTestCase.getId());

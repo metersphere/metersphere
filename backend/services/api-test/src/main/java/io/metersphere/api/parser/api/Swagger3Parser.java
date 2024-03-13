@@ -20,6 +20,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.uid.IDGenerator;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.media.*;
@@ -147,6 +148,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                     request.setAuthConfig(new NoAuth());
                     apiDefinitionDTO.setRequest(request);
 
+
                     //解析请求内容
                     parseResponse(operation.getResponses(), apiDefinitionDTO.getResponse());
                     results.add(apiDefinitionDTO);
@@ -158,13 +160,6 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     }
 
     private void parseRequestBody(RequestBody requestBody, Body body) {
-        body.setBinaryBody(new BinaryBody());
-        body.setFormDataBody(new FormDataBody());
-        body.setXmlBody(new XmlBody());
-        body.setRawBody(new RawBody());
-        body.setNoneBody(new NoneBody());
-        body.setJsonBody(new JsonBody());
-        body.setWwwFormBody(new WWWFormBody());
         if (requestBody != null) {
             Content content = requestBody.getContent();
             if (content != null) {
@@ -365,6 +360,16 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         httpConfig.setResponseTimeout(60000L);
         request.setOtherConfig(httpConfig);
         request.setAuthConfig(new NoAuth());
+        Body body = new Body();
+        body.setBinaryBody(new BinaryBody());
+        body.setFormDataBody(new FormDataBody());
+        body.setXmlBody(new XmlBody());
+        body.setRawBody(new RawBody());
+        body.setNoneBody(new NoneBody());
+        body.setJsonBody(new JsonBody());
+        body.setWwwFormBody(new WWWFormBody());
+        body.setNoneBody(new NoneBody());
+        request.setBody(body);
         return request;
     }
 
@@ -532,6 +537,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
         jsonSchemaItem.setType(PropertyConstant.OBJECT);
         jsonSchemaItem.setRequired(objectSchema.getRequired());
+        jsonSchemaItem.setId(IDGenerator.nextStr());
         jsonSchemaItem.setDescription(objectSchema.getDescription());
         Map<String, Schema> properties = objectSchema.getProperties();
         Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
@@ -617,6 +623,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private JsonSchemaItem parseString(StringSchema stringSchema) {
         JsonSchemaItem jsonSchemaString = new JsonSchemaItem();
         jsonSchemaString.setType(PropertyConstant.STRING);
+        jsonSchemaString.setId(IDGenerator.nextStr());
         jsonSchemaString.setFormat(StringUtils.isNotBlank(stringSchema.getFormat()) ? stringSchema.getFormat() : StringUtils.EMPTY);
         jsonSchemaString.setDescription(getDefaultStringValue(stringSchema.getDescription()));
         jsonSchemaString.setExample(stringSchema.getExample());
@@ -637,6 +644,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private JsonSchemaItem parseInteger(IntegerSchema integerSchema) {
         JsonSchemaItem jsonSchemaInteger = new JsonSchemaItem();
         jsonSchemaInteger.setType(PropertyConstant.INTEGER);
+        jsonSchemaInteger.setId(IDGenerator.nextStr());
         jsonSchemaInteger.setFormat(StringUtils.isNotBlank(integerSchema.getFormat()) ? integerSchema.getFormat() : StringUtils.EMPTY);
         jsonSchemaInteger.setDescription(StringUtils.isNotBlank(integerSchema.getDescription()) ? integerSchema.getDescription() : StringUtils.EMPTY);
         jsonSchemaInteger.setExample(integerSchema.getExample());
@@ -649,6 +657,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private JsonSchemaItem parseNumber(NumberSchema numberSchema) {
         JsonSchemaItem jsonSchemaNumber = new JsonSchemaItem();
         jsonSchemaNumber.setType(PropertyConstant.NUMBER);
+        jsonSchemaNumber.setId(IDGenerator.nextStr());
         jsonSchemaNumber.setDescription(StringUtils.isNotBlank(numberSchema.getDescription()) ? numberSchema.getDescription() : StringUtils.EMPTY);
         jsonSchemaNumber.setExample(numberSchema.getExample());
         jsonSchemaNumber.setEnumNumber(numberSchema.getEnum());
@@ -658,6 +667,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private JsonSchemaItem parseBoolean(BooleanSchema booleanSchema) {
         JsonSchemaItem jsonSchemaBoolean = new JsonSchemaItem();
         jsonSchemaBoolean.setType(PropertyConstant.BOOLEAN);
+        jsonSchemaBoolean.setId(IDGenerator.nextStr());
         jsonSchemaBoolean.setDescription(getDefaultStringValue(booleanSchema.getDescription()));
         jsonSchemaBoolean.setExample(booleanSchema.getExample());
         return jsonSchemaBoolean;
@@ -665,6 +675,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
 
     private JsonSchemaItem parseNull() {
         JsonSchemaItem jsonSchemaNull = new JsonSchemaItem();
+        jsonSchemaNull.setId(IDGenerator.nextStr());
         jsonSchemaNull.setType(PropertyConstant.NULL);
         return jsonSchemaNull;
     }
@@ -672,6 +683,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private JsonSchemaItem parseArraySchema(Schema<?> items) {
         JsonSchemaItem jsonSchemaArray = new JsonSchemaItem();
         jsonSchemaArray.setType(PropertyConstant.ARRAY);
+        jsonSchemaArray.setId(IDGenerator.nextStr());
         Schema itemsSchema = null;
         if (StringUtils.isNotBlank(items.get$ref())) {
             itemsSchema = getModelByRef(items.get$ref());

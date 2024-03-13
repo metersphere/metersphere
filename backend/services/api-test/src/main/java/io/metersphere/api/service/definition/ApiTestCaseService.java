@@ -336,11 +336,6 @@ public class ApiTestCaseService extends MoveNodeService {
         }
     }
 
-    public void recover(String id, String userId, String projectId) {
-        ApiTestCase apiCase = checkResourceExist(id);
-        batchRecover(List.of(apiCase), userId, projectId);
-    }
-
     public void batchRecover(List<ApiTestCase> apiTestCases, String userId, String projectId) {
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
             apiTestCases.forEach(apiTestCase -> {

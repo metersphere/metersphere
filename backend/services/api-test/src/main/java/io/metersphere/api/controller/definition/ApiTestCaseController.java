@@ -33,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -79,10 +80,14 @@ public class ApiTestCaseController {
     @GetMapping("recover/{id}")
     @Operation(summary = "接口测试-接口管理-接口用例-恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
-    @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void recover(@PathVariable String id) {
-        apiTestCaseService.recover(id, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+        ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        request.setSelectIds(ids);
+        request.setProjectId(SessionUtils.getCurrentProjectId());
+        apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());
     }
 
     @GetMapping("follow/{id}")
