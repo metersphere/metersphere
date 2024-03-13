@@ -245,6 +245,8 @@
                     <assertion
                       v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                       v-model:params="requestVModel.children[0].assertionConfig.assertions"
+                      :is-definition="props.isDefinition"
+                      :assertion-config="requestVModel.children[0].assertionConfig"
                     />
                     <auth
                       v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
