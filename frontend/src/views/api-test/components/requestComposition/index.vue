@@ -242,6 +242,10 @@
                       :is-definition="props.isDefinition"
                       @change="handleActiveDebugChange"
                     />
+                    <assertion
+                      v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
+                      v-model:params="requestVModel.children[0].assertionConfig.assertions"
+                    />
                     <auth
                       v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
                       v-model:params="requestVModel.authConfig"
@@ -488,6 +492,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import assertion from '@/components/business/ms-assertion/index.vue';
   import auth from './auth.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
@@ -710,6 +715,8 @@
         return `${requestVModel.value.children[0].preProcessorConfig.processors.length || ''}`;
       case RequestComposition.POST_CONDITION:
         return `${requestVModel.value.children[0].postProcessorConfig.processors.length || ''}`;
+      case RequestComposition.ASSERTION:
+        return `${requestVModel.value.children[0].assertionConfig.assertions.length || ''}`;
       case RequestComposition.AUTH:
         return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
       default:
@@ -1147,10 +1154,7 @@
         children: [
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-            assertionConfig: {
-              enableGlobal: false,
-              assertions: [],
-            },
+            assertionConfig: requestVModel.value.children[0].assertionConfig,
             postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
             preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
           },
