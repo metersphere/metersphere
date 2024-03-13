@@ -312,16 +312,16 @@
     // link file
     const associateFileIds = attachmentsList.value.filter((item) => !item.local).map((item) => item.fileId);
     form.value.linkFileIds = fileList.value
-      .filter((item) => !item.local && !associateFileIds.includes(item.uid))
+      .filter((item) => !item.local && !item.isCopyFlag && !associateFileIds.includes(item.uid))
       .map((item) => item.uid);
     // unlink file
-    const remainLinkFileIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
+    const remainLinkFileIds = fileList.value.filter((item) => !item.local && !item.isCopyFlag).map((item) => item.uid);
     form.value.unLinkRefIds = attachmentsList.value
       .filter((item) => !item.local && !remainLinkFileIds.includes(item.fileId))
       .map((item) => item.refId);
     // delete local file
     const remainLocalFileIds = fileList.value
-      .filter((item) => item.local && item.status !== 'init')
+      .filter((item) => item.local && !item.isCopyFlag && item.status !== 'init')
       .map((item) => item.uid);
     form.value.deleteLocalFileIds = attachmentsList.value
       .filter((item) => item.local && !remainLocalFileIds.includes(item.fileId))
@@ -627,7 +627,10 @@
       await templateChange(templateId, { fromStatusId: res.status, platformBugKey: res.platformBugId });
     }
     if (attachments && attachments.length) {
-      attachmentsList.value = attachments;
+      if (!isCopy.value) {
+        // 非Copy时, 附件列表赋值
+        attachmentsList.value = attachments;
+      }
       // 检查文件是否有更新
       const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.map((item: any) => item.fileId));
       // 处理文件列表
