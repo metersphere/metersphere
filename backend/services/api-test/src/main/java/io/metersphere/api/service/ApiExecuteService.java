@@ -23,7 +23,6 @@ import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -131,7 +130,7 @@ public class ApiExecuteService {
         // 设置执行文件参数
         setTaskFileParam(runRequest, taskRequest);
 
-        //  误报处理
+        //  误报处理 todo 多项目
         taskRequest.setMsRegexList(projectApplicationService.get(Collections.singletonList(taskRequest.getProjectId())));
 
         if (!StringUtils.equals(taskRequest.getResourceType(), ApiExecuteResourceType.API_DEBUG.name())) {
@@ -142,14 +141,14 @@ public class ApiExecuteService {
         // 解析执行脚本
         String executeScript = parseExecuteScript(runRequest.getTestElement(), parameterConfig);
 
-        // 设置插件文件信息
+        // 设置插件文件信息 todo 多项目
         taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(taskRequest.getProjectId()));
 
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(taskRequest.getReportId(), taskRequest.getResourceId());
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
 
-        if (StringUtils.equals(taskRequest.getRunModeConfig().getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
+        if (StringUtils.equals(taskRequest.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
             // 前端调试返回执行参数，由前端调用本地资源池执行
             return taskRequest;
         }
@@ -194,7 +193,7 @@ public class ApiExecuteService {
 
         String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
         LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskRequest.getReportId(), taskRequest.getResourceId(), endpoint);
-        if (StringUtils.equalsAny(taskRequest.getRunModeConfig().getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name())) {
+        if (StringUtils.equalsAny(taskRequest.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name())) {
             TaskRunnerClient.debugApi(endpoint, taskRequest);
         } else {
             TaskRunnerClient.runApi(endpoint, taskRequest);
@@ -256,11 +255,8 @@ public class ApiExecuteService {
         setServerInfoParam(taskRequest);
         taskRequest.setRealTime(true);
         taskRequest.setSaveResult(false);
-
         taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
-        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
-        runModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
-        taskRequest.setRunModeConfig(runModeConfig);
+        taskRequest.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
 
         return execute(apiRunRequest, taskRequest, new ApiParamConfig());
     }
@@ -490,7 +486,10 @@ public class ApiExecuteService {
      */
     public TaskRequestDTO apiExecute(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest, ApiParamConfig apiParamConfig) {
         // 设置使用脚本前后置的公共脚本信息
-        apiCommonService.setEnableCommonScriptProcessorInfo(runRequest.getTestElement());
+        AbstractMsTestElement testElement = runRequest.getTestElement();
+        apiCommonService.setEnableCommonScriptProcessorInfo(testElement);
+        testElement.setResourceId(taskRequest.getResourceId());
+        testElement.setStepId(taskRequest.getResourceId());
         return execute(runRequest, taskRequest, apiParamConfig);
     }
 

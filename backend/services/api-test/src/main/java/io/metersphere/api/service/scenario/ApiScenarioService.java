@@ -44,7 +44,6 @@ import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.EnvironmentGroupExample;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -1159,9 +1158,7 @@ public class ApiScenarioService extends MoveNodeService{
     private TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(reportId, resourceId, projectId);
         taskRequest.setResourceType(ApiResourceType.API_SCENARIO.name());
-        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
-        apiRunModeConfig.setRunMode(runModule);
-        taskRequest.setRunModeConfig(apiRunModeConfig);
+        taskRequest.setRunMode(runModule);
         return taskRequest;
     }
 

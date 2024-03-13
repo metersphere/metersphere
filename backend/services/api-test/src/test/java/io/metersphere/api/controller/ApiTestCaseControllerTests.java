@@ -68,7 +68,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -97,6 +98,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String HISTORY = "operation-history/page";
     private static final String DEBUG = "debug";
     private static final String RUN = "run/{0}/{1}";
+    private static final String BATCH_RUN = "batch/run";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -435,6 +437,37 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     @Test
     @Order(3)
+    public void batchRun() throws Exception {
+        ApiTestCaseBatchRunRequest request = new ApiTestCaseBatchRunRequest();
+        List<String> ids = new ArrayList<>();
+        ids.add(apiTestCase.getId());
+        request.setSelectIds(ids);
+        request.setProjectId(apiTestCase.getProjectId());
+        ApiTestCaseBatchRunRequest.ApiRunModeRequest apiRunModeRequest = new ApiTestCaseBatchRunRequest.ApiRunModeRequest();
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiRunModeRequest.setIntegratedReport(true);
+        apiRunModeRequest.setStopOnFailure(false);
+        apiRunModeRequest.setIntegratedReportName("aaaa");
+        apiRunModeRequest.setPoolId("poolId");
+        request.setRunModeConfig(apiRunModeRequest);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(false);
+        apiRunModeRequest.setStopOnFailure(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.SERIAL.name());
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, BATCH_RUN, request);
+    }
+
+    @Test
+    @Order(3)
     public void get() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(GET + apiTestCase.getId())
@@ -682,7 +715,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
                 apiReport.setStatus(ApiReportStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiTestCaseRecord record = new ApiTestCaseRecord();
             record.setApiTestCaseId(first.getId());

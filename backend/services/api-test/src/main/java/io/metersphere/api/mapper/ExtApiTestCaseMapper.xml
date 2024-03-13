@@ -317,6 +317,14 @@
         </if>
         LIMIT 1
     </select>
+    <select id="getApiCaseExecuteInfoByIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        select id, name, environment_id, project_id
+        from api_test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">

@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
@@ -23,6 +24,8 @@ public class ApiExecuteResourceController {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private ApiExecuteService apiExecuteService;
+    @Resource
+    private ApiReportService apiReportService;
 
     /**
      * 获取执行脚本
@@ -37,6 +40,7 @@ public class ApiExecuteResourceController {
         LogUtils.info("获取执行脚本: ", key);
         String script = stringRedisTemplate.opsForValue().get(key);
         stringRedisTemplate.delete(key);
+        apiReportService.updateRunningReport(reportId);
         return Optional.ofNullable(script).orElse(StringUtils.EMPTY);
     }
 

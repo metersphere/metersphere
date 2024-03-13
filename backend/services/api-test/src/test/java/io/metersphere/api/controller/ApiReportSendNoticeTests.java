@@ -96,7 +96,6 @@ public class ApiReportSendNoticeTests extends BaseTest {
                 apiReport.setStatus(ApiReportStatus.FAKE_ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiTestCaseRecord record = new ApiTestCaseRecord();
             record.setApiTestCaseId("send-api-resource-id" + i);

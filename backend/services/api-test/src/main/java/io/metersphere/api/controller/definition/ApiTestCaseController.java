@@ -7,10 +7,7 @@ import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
-import io.metersphere.api.service.definition.ApiTestCaseLogService;
-import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
-import io.metersphere.api.service.definition.ApiTestCaseRecoverService;
-import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.service.definition.*;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -49,6 +46,8 @@ public class ApiTestCaseController {
     private ApiTestCaseRecoverService apiTestCaseRecoverService;
     @Resource
     private FileModuleService fileModuleService;
+    @Resource
+    private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-接口用例-新增")
@@ -258,6 +257,13 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
         return apiTestCaseService.debug(request);
+    }
+
+    @PostMapping("/batch/run")
+    @Operation(summary = "批量执行")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    public void batchRun(@Validated @RequestBody ApiTestCaseBatchRunRequest request) {
+        apiTestCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/get-reference")

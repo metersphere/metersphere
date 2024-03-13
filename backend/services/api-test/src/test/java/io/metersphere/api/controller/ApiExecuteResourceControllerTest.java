@@ -20,7 +20,6 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**

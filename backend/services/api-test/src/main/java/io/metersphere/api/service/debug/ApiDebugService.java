@@ -25,7 +25,6 @@ import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -220,10 +219,7 @@ public class ApiDebugService extends MoveNodeService {
         taskRequest.setSaveResult(false);
         taskRequest.setRealTime(true);
         taskRequest.setResourceType(ApiResourceType.API_DEBUG.name());
-        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
-        apiRunModeConfig.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
-        taskRequest.setRunModeConfig(apiRunModeConfig);
-
+        taskRequest.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 

@@ -247,7 +247,6 @@ public class ApiTaskCenterControllerTests extends BaseTest {
                 apiReport.setStatus(ApiReportStatus.RUNNING.name());
             }
             apiReport.setTriggerMode("task-MANUAL");
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiTestCaseRecord record = new ApiTestCaseRecord();
             record.setApiTestCaseId("task-api-resource-id" + i);

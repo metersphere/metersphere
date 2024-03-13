@@ -74,4 +74,6 @@ public interface ExtApiTestCaseMapper {
     DropNode selectDragInfoById(String id);
 
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<ApiTestCase> getApiCaseExecuteInfoByIds(@Param("ids")List<String> ids);
 }

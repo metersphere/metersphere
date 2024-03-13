@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -187,5 +188,17 @@ public class ApiReportService {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
         return apiReportDetails;
+    }
+
+    /**
+     * 更新执行中的用例报告
+     * @param reportId
+     */
+    public void updateRunningReport(String reportId) {
+        ApiReport apiReport = new ApiReport();
+        apiReport.setId(reportId);
+        apiReport.setStatus(ApiReportStatus.RUNNING.name());
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReportMapper.updateByPrimaryKeySelective(apiReport);
     }
 }
