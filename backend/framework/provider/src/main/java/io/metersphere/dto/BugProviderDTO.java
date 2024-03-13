@@ -31,6 +31,9 @@ public class BugProviderDTO implements Serializable {
     @Schema(description = "处理人")
     private String handleUser;
 
+    @Schema(description = "创建人")
+    private String createUser;
+
     @Schema(description = "处理人名称")
     private String handleUserName;
 
