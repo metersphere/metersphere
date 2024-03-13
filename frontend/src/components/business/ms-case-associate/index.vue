@@ -90,7 +90,7 @@
           :filter-config-list="filterConfigList"
           :custom-fields-config-list="searchCustomFields"
           :row-count="filterRowCount"
-          :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
+          :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
           @keyword-search="searchCase"
           @adv-search="searchCase"
           @refresh="searchCase()"

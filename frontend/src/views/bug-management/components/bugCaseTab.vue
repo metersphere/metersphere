@@ -4,7 +4,7 @@
       <a-button type="primary" @click="handleSelect">{{ t('caseManagement.featureCase.linkCase') }}</a-button>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchCase"

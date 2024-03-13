@@ -27,7 +27,6 @@ import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileService;
-import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -74,6 +73,8 @@ public class BugAttachmentService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
+    private BugPlatformService bugPlatformService;
+    @Resource
     private FileMetadataService fileMetadataService;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
@@ -81,8 +82,6 @@ public class BugAttachmentService {
     private FileAssociationService fileAssociationService;
     @Resource
     private BugLocalAttachmentMapper bugLocalAttachmentMapper;
-    @Resource
-    private ProjectApplicationService projectApplicationService;
 
     @Value("50MB")
     private DataSize maxFileSize;
@@ -135,8 +134,7 @@ public class BugAttachmentService {
      */
     public void uploadFile(BugUploadFileRequest request, MultipartFile file, String currentUser) {
         Bug bug = bugMapper.selectByPrimaryKey(request.getBugId());
-        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath() + File.separator + "tmp"
-                + File.separator);
+        File tempFileDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath());
         List<SyncAttachmentToPlatformRequest> platformAttachments = new ArrayList<>();
         if (file == null) {
             // 缺陷与文件库关联
@@ -153,7 +151,7 @@ public class BugAttachmentService {
 
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            bugPlatformService.syncAttachmentToPlatform(platformAttachments, request.getProjectId());
         }
     }
 
@@ -163,8 +161,7 @@ public class BugAttachmentService {
      */
     public void deleteFile(BugDeleteFileRequest request) {
         Bug bug = bugMapper.selectByPrimaryKey(request.getBugId());
-        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath() + File.separator + "tmp"
-                + File.separator);
+        File tempFileDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath());
         List<SyncAttachmentToPlatformRequest> platformAttachments = new ArrayList<>();
         if (request.getAssociated()) {
             // 取消关联
@@ -179,7 +176,7 @@ public class BugAttachmentService {
         }
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            bugPlatformService.syncAttachmentToPlatform(platformAttachments, request.getProjectId());
         }
     }
 
@@ -237,8 +234,7 @@ public class BugAttachmentService {
      */
     public String upgrade(BugDeleteFileRequest request, String currentUser) {
         Bug bug = bugMapper.selectByPrimaryKey(request.getBugId());
-        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath() + File.separator + "tmp"
-                + File.separator);
+        File tempFileDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath());
         // 取消关联附件->同步
         List<SyncAttachmentToPlatformRequest> syncUnlinkFiles = unLinkFile(bug.getPlatformBugId(), request.getProjectId(),
                 tempFileDir, request.getRefId(), currentUser, bug.getPlatform(), true);
@@ -248,7 +244,7 @@ public class BugAttachmentService {
         List<SyncAttachmentToPlatformRequest> syncLinkFiles = uploadLinkFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, List.of(upgradeFileId), currentUser, bug.getPlatform(), true);
         List<SyncAttachmentToPlatformRequest> platformAttachments = Stream.concat(syncUnlinkFiles.stream(), syncLinkFiles.stream()).toList();
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            bugPlatformService.syncAttachmentToPlatform(platformAttachments, request.getProjectId());
         }
         return upgradeFileId;
     }
@@ -280,19 +276,6 @@ public class BugAttachmentService {
         return fileId;
     }
 
-    /**
-     * 同步附件到平台
-     * @param platformAttachments 平台附件参数
-     * @param projectId 项目ID
-     * @param tmpFilePath 临时文件路径
-     */
-    @Async
-    public void syncAttachmentToPlatform(List<SyncAttachmentToPlatformRequest> platformAttachments, String projectId, File tmpFilePath) {
-        // 平台缺陷需同步附件
-        Platform platform = projectApplicationService.getPlatform(projectId, true);
-        platformAttachments.forEach(platform::syncAttachmentToPlatform);
-        tmpFilePath.deleteOnExit();
-    }
 
     /**
      * 同步平台附件到MS
