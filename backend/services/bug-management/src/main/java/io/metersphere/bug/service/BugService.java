@@ -1036,7 +1036,9 @@ public class BugService {
                     throw new MSException(Translator.get("bug_attachment_upload_error"));
                 }
             });
-            extBugLocalAttachmentMapper.batchInsert(copyFiles);
+            if (CollectionUtils.isNotEmpty(copyFiles)) {
+                extBugLocalAttachmentMapper.batchInsert(copyFiles);
+            }
             // 关联的附件, 直接合并, 后续逻辑会处理
             List<String> copyLinkFileIds = request.getCopyFiles().stream().filter(file -> !file.getLocal()).map(BugFileDTO::getFileId).collect(Collectors.toList());
             request.setLinkFileIds(ListUtils.union(request.getLinkFileIds(), copyLinkFileIds));
