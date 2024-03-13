@@ -7,9 +7,11 @@ import {
   BatchCleanOutApiUrl,
   BatchDeleteCaseUrl,
   BatchDeleteDefinitionUrl,
+  BatchDeleteRecycleCaseUrl,
   BatchEditCaseUrl,
   BatchMoveDefinitionUrl,
   BatchRecoverApiUrl,
+  BatchRecoverCaseUrl,
   BatchUpdateDefinitionUrl,
   CasePageUrl,
   CheckDefinitionScheduleUrl,
@@ -23,6 +25,7 @@ import {
   DeleteMockUrl,
   DeleteModuleUrl,
   DeleteRecycleApiUrl,
+  DeleteRecycleCaseUrl,
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
   GetEnvModuleUrl,
@@ -34,8 +37,10 @@ import {
   ImportDefinitionUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
+  RecoverCaseUrl,
   RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
+  RecycleCasePageUrl,
   SaveOperationHistoryUrl,
   SortCaseUrl,
   SortDefinitionUrl,
@@ -343,6 +348,34 @@ export function batchEditCase(data: ApiCaseBatchEditParams) {
 // 拖拽排序
 export function dragSort(data: DragSortParams) {
   return MSR.post({ url: SortCaseUrl, data });
+}
+
+/**
+ * 接口用例回收站
+ */
+// 获取回收站接口用例列表
+export function getRecycleCasePage(data: ApiCasePageParams) {
+  return MSR.post<CommonList<ApiCaseDetail>>({ url: RecycleCasePageUrl, data });
+}
+
+// 恢复接口用例
+export function recoverCase(id: string) {
+  return MSR.get({ url: RecoverCaseUrl, params: id });
+}
+
+// 批量恢复接口用例
+export function batchRecoverCase(data: ApiCaseBatchParams) {
+  return MSR.post({ url: BatchRecoverCaseUrl, data });
+}
+
+// 彻底删除接口用例
+export function deleteRecycleCase(id: string) {
+  return MSR.get({ url: DeleteRecycleCaseUrl, params: id });
+}
+
+// 批量彻底删除接口用例
+export function batchDeleteRecycleCase(data: ApiCaseBatchParams) {
+  return MSR.post({ url: BatchDeleteRecycleCaseUrl, data });
 }
 
 // 添加接口用例

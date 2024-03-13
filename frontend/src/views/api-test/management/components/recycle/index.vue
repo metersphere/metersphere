@@ -9,12 +9,15 @@
         :protocol="protocol"
       />
     </a-tab-pane>
-    <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane"></a-tab-pane>
+    <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane">
+      <api-case :active-module="props.activeModule" :offspring-ids="props.offspringIds" :protocol="protocol"></api-case>
+    </a-tab-pane>
   </a-tabs>
 </template>
 
 <script setup lang="ts">
   import api from './api/apiTable.vue';
+  import apiCase from './case/caseTable.vue';
 
   import useAppStore from '@/store/modules/app';
 

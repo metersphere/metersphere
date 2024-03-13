@@ -165,9 +165,16 @@ export default {
   'case.passRate': 'Pass Rate',
   'case.passRateTip': 'Number of success case executions/Total number of case executions *%',
   'case.batchModalSubTitle': '({count} cases selected)',
+  'case.batchDeleteCaseTipTitle': 'Are you sure you want to delete {name} ？',
+  'case.batchRecoverCaseTipTitle': 'Are you sure you want to recover {name} ？',
   'case.batchDeleteCaseTip': 'Are you sure you want to delete {count} selected cases?',
+  'case.recycle.cleanOutDeleteOnRecycleTip':
+    'After deletion, the case cannot be restored. Please operate with caution!',
   'case.deleteCaseTip':
     'Deleting an case will result in the execution failure of the test task that references the use case. Please be cautious!',
   'apiTestManagement.click': 'Click',
   'apiTestManagement.getResponse': 'Get response content',
+  'case.batchRecoverCaseTip': 'Are you sure you want to recover {count} selected cases?',
+  'case.recycle.recoverCaseTip': 'When restoring the case, the deleted API will be restored simultaneously.',
+  'case.recycle.confirmRecovery': 'Confirm recovery',
 };
