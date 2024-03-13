@@ -76,7 +76,7 @@ public class FunctionalCaseDemandController {
 
     @PostMapping("/third/list/page")
     @Operation(summary = "用例管理-功能用例-关联需求-获取三方需求列表")
-    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     public PluginPager<PlatformDemandDTO> pageDemand(@RequestBody @Validated FunctionalThirdDemandPageRequest request) {
        return functionalCaseDemandService.pageDemand(request);
     }

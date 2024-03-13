@@ -49,7 +49,7 @@
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
       </MsButton>
-      <MsButton type="button" status="default" :loading="followLoading" @click="toggleFollowReview">
+      <MsButton v-permission="['CASE_REVIEW:READ+UPDATE']" type="button" status="default" :loading="followLoading" @click="toggleFollowReview">
         <MsIcon
           :type="reviewDetail.followFlag ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
           :class="`mr-[8px] ${reviewDetail.followFlag ? 'text-[rgb(var(--warning-6))]' : ''}`"
