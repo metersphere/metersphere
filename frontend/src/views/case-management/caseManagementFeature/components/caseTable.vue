@@ -12,7 +12,12 @@
     @refresh="fetchData()"
   >
     <template #left>
-      <a-tooltip :content="moduleNamePath + '('+(props.modulesCount[props.activeFolder] || 0) +')' " position="bottom" background-color="#FFFFFF" :content-style="{color: '#000000'}">
+      <a-tooltip
+        :content="moduleNamePath + '(' + (props.modulesCount[props.activeFolder] || 0) + ')'"
+        position="bottom"
+        background-color="#FFFFFF"
+        :content-style="{ color: '#000000' }"
+      >
         <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
           >{{ moduleNamePath }}
           <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
@@ -198,14 +203,24 @@
     </template>
     <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
-      <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="operateCase(record, 'edit')">{{
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, 'edit')">{{
         t('common.edit')
       }}</MsButton>
-      <a-divider v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" direction="vertical" :margin="8"></a-divider>
-      <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" @click="operateCase(record, 'copy')">{{
+      <a-divider
+        v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+        class="!mx-2 h-[12px]"
+        direction="vertical"
+        :margin="8"
+      ></a-divider>
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, 'copy')">{{
         t('caseManagement.featureCase.copy')
       }}</MsButton>
-      <a-divider v-permission="['FUNCTIONAL_CASE:READ+ADD']" direction="vertical" :margin="8"></a-divider>
+      <a-divider
+        v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+        class="!mx-2 h-[12px]"
+        direction="vertical"
+        :margin="8"
+      ></a-divider>
       <span v-permission="['FUNCTIONAL_CASE:READ+DELETE']">
         <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
       </span>
@@ -611,7 +626,7 @@
       fixed: 'right',
       showInTable: true,
       showDrag: false,
-      width: hasOperationPermission.value ? 260 : 50,
+      width: hasOperationPermission.value ? 200 : 50,
     },
   ];
   const platformInfo = ref<Record<string, any>>({});

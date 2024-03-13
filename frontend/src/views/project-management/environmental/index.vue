@@ -213,7 +213,7 @@
         <EnvParamBox
           v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM"
           @reset-env="resetHandler"
-          @ok="getDetail"
+          @ok="successHandler"
         />
         <!-- 环境组 -->
         <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
@@ -287,7 +287,14 @@
 
   const showType = ref<EnvAuthScopeEnum>(EnvAuthScopeEnum.PROJECT); // 展示类型
 
-  const activeKey = computed(() => store.currentId); // 当前选中的id
+  const activeKey = computed({
+    get() {
+      return store.currentId;
+    },
+    set(val) {
+      activeKey.value = val;
+    },
+  }); // 当前选中的id
 
   const activeGroupKey = computed(() => store.currentGroupId); // 当前选中的group id
 
@@ -518,8 +525,7 @@
       }
       await deleteEnv(id);
       Message.success(t('common.deleteSuccess'));
-      store.setCurrentId(envList.value[0].id);
-      searchData();
+      initData(keyword.value, true);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -621,8 +627,12 @@
     }
   }
 
-  function getDetail() {
-    store.initEnvDetail();
+  function successHandler(envId: string | undefined) {
+    if (!envId) {
+      initData(keyword.value, true);
+    } else {
+      store.initEnvDetail();
+    }
   }
 
   onMounted(() => {

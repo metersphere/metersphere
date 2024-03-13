@@ -19,6 +19,7 @@ export default {
     addBug: 'Create Bug',
     editBug: 'Edit Bug',
     sync: 'Sync',
+    syncSuccess: 'Synchronous success',
     syncBugTipRowOne: 'Sync third plant bug，',
     syncBugTipRowTwo: 'Create bug and sync bug？',
     bugAutoSync: 'System {name} auto sync',

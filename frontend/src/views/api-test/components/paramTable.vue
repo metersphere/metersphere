@@ -353,11 +353,11 @@
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
-          v-model:model-value="record.enable"
+          v-model="record.enable"
           size="small"
           type="line"
           class="mr-[8px]"
-          @change="(val) => addTableLine(val as number)"
+          @change="() => addTableLine(rowIndex)"
         />
         <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
         <MsTableMoreAction

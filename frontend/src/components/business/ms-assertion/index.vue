@@ -132,7 +132,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
-  import { RequestConditionScriptLanguage, ResponseAssertionType } from '@/enums/apiEnum';
+  import { RequestConditionScriptLanguage, ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import { ExecuteAssertion, MsAssertionItem } from './type';
 
@@ -282,7 +282,7 @@
       case ResponseAssertionType.RESPONSE_BODY:
         assertions.value.push({
           ...tmpObj,
-          assertionBodyType: '',
+          assertionBodyType: ResponseBodyAssertionType.JSON_PATH,
           jsonPathAssertion: {
             assertions: [],
           },

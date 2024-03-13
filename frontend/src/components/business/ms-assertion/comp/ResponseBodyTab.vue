@@ -515,7 +515,6 @@
         if (!isInit) {
           emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
         }
-
         break;
       default:
         break;

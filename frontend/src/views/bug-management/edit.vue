@@ -149,16 +149,22 @@
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
-          <div style="min-width: 250px; overflow: auto">
-            <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
-            <!-- 平台默认模板不展示标签, 与第三方保持一致  -->
-            <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
-              <MsTagsInput
-                v-model:model-value="form.tags"
-                :placeholder="t('bugManagement.edit.tagPlaceholder')"
-                allow-clear
-              />
-            </a-form-item>
+          <div class="min-w-[250px] overflow-auto">
+            <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
+              <a-space direction="vertical" class="w-full" size="large">
+                <a-skeleton-line :rows="rowLength" :line-height="30" :line-spacing="30" />
+              </a-space>
+            </a-skeleton>
+            <a-form v-else :model="form" layout="vertical">
+              <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
+              <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
+                <MsTagsInput
+                  v-model:model-value="form.tags"
+                  :placeholder="t('bugManagement.edit.tagPlaceholder')"
+                  allow-clear
+                />
+              </a-form-item>
+            </a-form>
           </div>
         </div>
       </div>
@@ -306,6 +312,8 @@
   const title = computed(() => {
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
   });
+  const isLoading = ref<boolean>(true);
+  const rowLength = ref<number>(0);
 
   // 处理文件参数
   function getFilesParams() {
@@ -371,12 +379,13 @@
   const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
     if (v) {
       try {
-        loading.value = true;
+        isLoading.value = true;
         let param = { projectId: appStore.currentProjectId, id: v };
         if (request) {
           param = { ...param, ...request };
         }
         const res = await getTemplateById(param);
+        await getFormRules(res.customFields);
         isPlatformDefaultTemplate.value = res.platformDefault;
         if (isPlatformDefaultTemplate.value) {
           const systemFields = res.customFields.filter((field) => field.platformSystemField);
@@ -386,7 +395,7 @@
           });
         }
         getFormRules(res.customFields.filter((field) => !field.platformSystemField));
-        loading.value = false;
+        isLoading.value = false;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -693,6 +702,15 @@
   const initDefaultFields = async () => {
     await getTemplateOptions();
   };
+
+  // 监视自定义字段改变处理formCreate
+  watch(
+    () => formRules.value,
+    () => {
+      rowLength.value = formRules.value.length + 2;
+    },
+    { deep: true }
+  );
 
   // 监视文件列表处理关联和本地文件
   watch(

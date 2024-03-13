@@ -338,6 +338,7 @@
   // 预览图片
   async function handlePreview(item: MsFileItem) {
     try {
+      imageUrl.value = '';
       previewVisible.value = true;
       if (item.status !== 'init') {
         const res = await previewFile({
