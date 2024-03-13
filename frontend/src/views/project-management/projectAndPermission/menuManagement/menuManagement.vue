@@ -279,6 +279,7 @@
 
       <a-switch
         v-if="record.type === 'BUG_SYNC' && allValueMap['BUG_SYNC_SYNC_ENABLE']"
+        v-model="allValueMap['BUG_SYNC_SYNC_ENABLE']"
         checked-value="true"
         unchecked-value="false"
         :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
@@ -449,6 +450,9 @@
     CASE_RELATED: true,
     CASE_RE_REVIEW: true,
     PERFORMANCE_TEST_SCRIPT_REVIEWER: true,
+    CASE_ENABLE: true,
+    BUG_SYNC_SYNC_ENABLE: false,
+    CASE_RELATED_CASE_ENABLE: false,
   };
 
   const allValueMap = ref<MenuTableConfigItem>(defaultValueMap);
