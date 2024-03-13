@@ -207,3 +207,9 @@ export enum RequestExtractResultMatchingRule {
   RANDOM = 'RANDOM', // 随机匹配
   SPECIFIC = 'SPECIFIC', // 指定匹配
 }
+// 接口用例状态
+export enum RequestCaseStatus {
+  DEPRECATED = 'DEPRECATED',
+  PROCESSING = 'PROCESSING',
+  DONE = 'DONE',
+}

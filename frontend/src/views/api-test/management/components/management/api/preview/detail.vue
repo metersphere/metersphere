@@ -14,7 +14,7 @@
       </template>
       <div class="detail-collapse-item">
         <template v-if="props.detail.protocol === 'HTTP'">
-          <div v-if="preivewDetail.headers.length > 0" class="detail-item">
+          <div v-if="previewDetail.headers.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">{{ t('apiTestManagement.requestHeader') }}</div>
               <a-radio-group v-model:model-value="headerShowType" type="button" size="mini">
@@ -25,7 +25,7 @@
             <MsFormTable
               v-show="headerShowType === 'table'"
               :columns="headerColumns"
-              :data="preivewDetail.headers || []"
+              :data="previewDetail.headers || []"
               :selectable="false"
             />
             <MsCodeEditor
@@ -53,7 +53,7 @@
             </MsCodeEditor>
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
-          <div v-if="preivewDetail.query.length > 0" class="detail-item">
+          <div v-if="previewDetail.query.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">Query</div>
               <a-radio-group v-model:model-value="queryShowType" type="button" size="mini">
@@ -64,7 +64,7 @@
             <MsFormTable
               v-show="queryShowType === 'table'"
               :columns="queryRestColumns"
-              :data="preivewDetail.query || []"
+              :data="previewDetail.query || []"
               :selectable="false"
             />
             <MsCodeEditor
@@ -92,7 +92,7 @@
             </MsCodeEditor>
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
-          <div v-if="preivewDetail.rest.length > 0" class="detail-item">
+          <div v-if="previewDetail.rest.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">Rest</div>
               <a-radio-group v-model:model-value="restShowType" type="button" size="mini">
@@ -103,7 +103,7 @@
             <MsFormTable
               v-show="restShowType === 'table'"
               :columns="queryRestColumns"
-              :data="preivewDetail.rest || []"
+              :data="previewDetail.rest || []"
               :selectable="false"
             />
             <MsCodeEditor
@@ -134,10 +134,10 @@
           <div class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">
-                {{ `${t('apiTestManagement.requestBody')}-${preivewDetail.body.bodyType}` }}
+                {{ `${t('apiTestManagement.requestBody')}-${previewDetail.body.bodyType}` }}
               </div>
               <!-- <a-radio-group
-                    v-if="preivewDetail.body.bodyType !== RequestBodyFormat.NONE"
+                    v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE"
                     v-model:model-value="bodyShowType"
                     type="button"
                     size="mini"
@@ -147,15 +147,16 @@
                   </a-radio-group> -->
             </div>
             <div
-              v-if="preivewDetail.body.bodyType === RequestBodyFormat.NONE"
+              v-if="previewDetail.body.bodyType === RequestBodyFormat.NONE"
               class="flex h-[100px] items-center justify-center rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] text-[var(--color-text-4)]"
             >
               {{ t('apiTestDebug.noneBody') }}
             </div>
             <MsFormTable
               v-else-if="
-                preivewDetail.body.bodyType === RequestBodyFormat.FORM_DATA ||
-                preivewDetail.body.bodyType === RequestBodyFormat.WWW_FORM
+                previewDetail.body.bodyType === RequestBodyFormat.FORM_DATA ||
+                previewDetail.body.bodyType === RequestBodyFormat.WWW_FORM ||
+                previewDetail.body.bodyType === RequestBodyFormat.BINARY
               "
               :columns="bodyColumns"
               :data="bodyTableData"
@@ -164,7 +165,7 @@
             <MsCodeEditor
               v-else-if="
                 [RequestBodyFormat.JSON, RequestBodyFormat.RAW, RequestBodyFormat.XML].includes(
-                  preivewDetail.body.bodyType
+                  previewDetail.body.bodyType
                 )
               "
               :model-value="bodyCode"
@@ -235,8 +236,8 @@
     </a-collapse-item>
     <a-collapse-item
       v-if="
-        preivewDetail.responseDefinition &&
-        preivewDetail.responseDefinition.length > 0 &&
+        previewDetail.responseDefinition &&
+        previewDetail.responseDefinition.length > 0 &&
         props.detail.protocol === 'HTTP'
       "
       key="response"
@@ -254,7 +255,7 @@
       </template>
       <MsEditableTab
         v-model:active-tab="activeResponse"
-        :tabs="preivewDetail.responseDefinition?.map((e) => ({ ...e, closable: false })) || []"
+        :tabs="previewDetail.responseDefinition?.map((e) => ({ ...e, closable: false })) || []"
         hide-more-action
         readonly
         class="my-[8px]"
@@ -272,8 +273,14 @@
             {{ `${t('apiTestDebug.responseBody')}-${activeResponse?.body.bodyType}` }}
           </div>
         </div>
+        <MsFormTable
+          v-if="activeResponse?.body.bodyType === ResponseBodyFormat.BINARY"
+          :columns="responseBodyColumns"
+          :data="responseBodyTableData"
+          :selectable="false"
+        />
         <MsCodeEditor
-          v-if="activeResponse?.body.bodyType !== ResponseBodyFormat.BINARY"
+          v-else
           :model-value="responseCode"
           class="flex-1"
           theme="vs"
@@ -329,7 +336,6 @@
   import { RequestBodyFormat, RequestParamsType, ResponseBodyFormat } from '@/enums/apiEnum';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
-  import { getValidRequestTableParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     detail: RequestParam;
@@ -339,7 +345,7 @@
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard();
 
-  const preivewDetail = ref<RequestParam>(cloneDeep(props.detail));
+  const previewDetail = ref<RequestParam>(props.detail);
   const activeResponse = ref<TabItem & ResponseItem>();
 
   const pluginLoading = ref(false);
@@ -358,21 +364,21 @@
     },
   ];
   const pluginTableData = computed(() => {
-    if (pluginScriptMap.value[preivewDetail.value.protocol]) {
+    if (pluginScriptMap.value[previewDetail.value.protocol]) {
       return (
-        pluginScriptMap.value[preivewDetail.value.protocol].apiDefinitionFields?.map((e) => ({
+        pluginScriptMap.value[previewDetail.value.protocol].apiDefinitionFields?.map((e) => ({
           key: e,
-          value: preivewDetail.value[e],
+          value: previewDetail.value[e],
         })) || []
       );
     }
     return [];
   });
   const pluginRawCode = computed(() => {
-    if (pluginScriptMap.value[preivewDetail.value.protocol]) {
+    if (pluginScriptMap.value[previewDetail.value.protocol]) {
       return (
-        pluginScriptMap.value[preivewDetail.value.protocol].apiDefinitionFields
-          ?.map((e) => `${e}:${preivewDetail.value[e]}`)
+        pluginScriptMap.value[previewDetail.value.protocol].apiDefinitionFields
+          ?.map((e) => `${e}:${previewDetail.value[e]}`)
           .join('\n') || ''
       );
     }
@@ -404,28 +410,11 @@
   }
 
   watchEffect(() => {
-    preivewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
-    const tableParam = getValidRequestTableParams(preivewDetail.value); // 在编辑props.detail时，参数表格会多出一行默认数据，需要去除
-    preivewDetail.value = {
-      ...preivewDetail.value,
-      body: {
-        ...preivewDetail.value.body,
-        formDataBody: {
-          formValues: tableParam.formDataBodyTableParams,
-        },
-        wwwFormBody: {
-          formValues: tableParam.wwwFormBodyTableParams,
-        },
-      },
-      headers: tableParam.headers,
-      rest: tableParam.rest,
-      query: tableParam.query,
-      responseDefinition: tableParam.response,
-    };
-    [activeResponse.value] = tableParam.response;
-    if (preivewDetail.value.protocol !== 'HTTP') {
+    previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+    [activeResponse.value] = previewDetail.value.responseDefinition || [];
+    if (previewDetail.value.protocol !== 'HTTP') {
       // 初始化插件脚本
-      initPluginScript(preivewDetail.value.protocol);
+      initPluginScript(previewDetail.value.protocol);
     }
   });
 
@@ -463,7 +452,7 @@
   ];
   const headerShowType = ref('table');
   const headerRawCode = computed(() => {
-    return preivewDetail.value.headers?.map((item) => `${item.key}:${item.value}`).join('\n');
+    return previewDetail.value.headers?.map((item) => `${item.key}:${item.value}`).join('\n');
   });
 
   /**
@@ -523,105 +512,130 @@
   ];
   const queryShowType = ref('table');
   const queryRawCode = computed(() => {
-    return preivewDetail.value.query?.map((item) => `${item.key}:${item.value}`).join('\n');
+    return previewDetail.value.query?.map((item) => `${item.key}:${item.value}`).join('\n');
   });
   const restShowType = ref('table');
   const restRawCode = computed(() => {
-    return preivewDetail.value.rest?.map((item) => `${item.key}:${item.value}`).join('\n');
+    return previewDetail.value.rest?.map((item) => `${item.key}:${item.value}`).join('\n');
   });
 
   /**
    * 请求体
    */
-  const bodyColumns: FormTableColumn[] = [
-    {
-      title: 'apiTestManagement.paramName',
-      dataIndex: 'key',
-      inputType: 'text',
-    },
-    {
-      title: 'apiTestManagement.paramsType',
-      dataIndex: 'paramType',
-      inputType: 'text',
-    },
-    {
-      title: 'apiTestManagement.paramVal',
-      dataIndex: 'value',
-      inputType: 'text',
-      showTooltip: true,
-    },
-    {
-      title: 'apiTestManagement.required',
-      dataIndex: 'required',
-      slotName: 'required',
-      inputType: 'text',
-      valueFormat: (record) => {
-        return record.required ? t('common.yes') : t('common.no');
+  const bodyColumns = computed<FormTableColumn[]>(() => {
+    if ([RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(previewDetail.value.body.bodyType)) {
+      return [
+        {
+          title: 'apiTestManagement.paramName',
+          dataIndex: 'key',
+          inputType: 'text',
+        },
+        {
+          title: 'apiTestManagement.paramsType',
+          dataIndex: 'paramType',
+          inputType: 'text',
+        },
+        {
+          title: 'apiTestManagement.paramVal',
+          dataIndex: 'value',
+          inputType: 'text',
+          showTooltip: true,
+        },
+        {
+          title: 'apiTestManagement.required',
+          dataIndex: 'required',
+          slotName: 'required',
+          inputType: 'text',
+          valueFormat: (record) => {
+            return record.required ? t('common.yes') : t('common.no');
+          },
+        },
+        {
+          title: 'apiTestDebug.paramLengthRange',
+          dataIndex: 'lengthRange',
+          slotName: 'lengthRange',
+          inputType: 'text',
+          valueFormat: (record) => {
+            return [null, undefined].includes(record.minLength) && [null, undefined].includes(record.maxLength)
+              ? '-'
+              : `${record.minLength} ${t('common.to')} ${record.maxLength}`;
+          },
+        },
+        {
+          title: 'apiTestDebug.encode',
+          dataIndex: 'encode',
+          slotName: 'encode',
+          inputType: 'text',
+          valueFormat: (record) => {
+            return record.encode ? t('common.yes') : t('common.no');
+          },
+        },
+        {
+          title: 'common.desc',
+          dataIndex: 'description',
+          inputType: 'text',
+          showTooltip: true,
+          width: 100,
+        },
+      ];
+    }
+    return [
+      {
+        title: 'common.desc',
+        dataIndex: 'description',
+        inputType: 'text',
+        showTooltip: true,
       },
-    },
-    {
-      title: 'apiTestDebug.paramLengthRange',
-      dataIndex: 'lengthRange',
-      slotName: 'lengthRange',
-      inputType: 'text',
-      valueFormat: (record) => {
-        return [null, undefined].includes(record.minLength) && [null, undefined].includes(record.maxLength)
-          ? '-'
-          : `${record.minLength} ${t('common.to')} ${record.maxLength}`;
+      {
+        title: 'apiTestManagement.paramVal',
+        dataIndex: 'value',
+        inputType: 'text',
+        showTooltip: true,
       },
-    },
-    {
-      title: 'apiTestDebug.encode',
-      dataIndex: 'encode',
-      slotName: 'encode',
-      inputType: 'text',
-      valueFormat: (record) => {
-        return record.encode ? t('common.yes') : t('common.no');
-      },
-    },
-    {
-      title: 'common.desc',
-      dataIndex: 'description',
-      inputType: 'text',
-      showTooltip: true,
-      width: 100,
-    },
-  ];
+    ];
+  });
   // const bodyShowType = ref('table');
   const bodyTableData = computed(() => {
-    switch (preivewDetail.value.body.bodyType) {
+    switch (previewDetail.value.body.bodyType) {
       case RequestBodyFormat.FORM_DATA:
-        return (preivewDetail.value.body.formDataBody?.formValues || []).map((e) => ({
+        return (previewDetail.value.body.formDataBody?.formValues || []).map((e) => ({
           ...e,
           value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('\n') : e.value,
         }));
       case RequestBodyFormat.WWW_FORM:
-        return preivewDetail.value.body.wwwFormBody?.formValues || [];
+        return previewDetail.value.body.wwwFormBody?.formValues || [];
+      case RequestBodyFormat.BINARY:
+        return [
+          {
+            description: previewDetail.value.body.binaryBody.description,
+            value: previewDetail.value.body.binaryBody.file?.fileName,
+          },
+        ];
       default:
         return [];
     }
   });
   const bodyCode = computed(() => {
-    switch (preivewDetail.value.body.bodyType) {
+    switch (previewDetail.value.body.bodyType) {
       case RequestBodyFormat.FORM_DATA:
-        return preivewDetail.value.body.formDataBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
+        return previewDetail.value.body.formDataBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
       case RequestBodyFormat.WWW_FORM:
-        return preivewDetail.value.body.wwwFormBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
+        return previewDetail.value.body.wwwFormBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
       case RequestBodyFormat.RAW:
-        return preivewDetail.value.body.rawBody?.value;
+        return previewDetail.value.body.rawBody?.value;
       case RequestBodyFormat.JSON:
-        return preivewDetail.value.body.jsonBody?.jsonValue;
+        return previewDetail.value.body.jsonBody?.jsonValue;
       case RequestBodyFormat.XML:
-        return preivewDetail.value.body.xmlBody?.value;
+        return previewDetail.value.body.xmlBody?.value;
       default:
         return '';
     }
   });
   const bodyCodeLanguage = computed(() => {
-    if (preivewDetail.value.body.bodyType === RequestBodyFormat.JSON) {
+    if (previewDetail.value.body.bodyType === RequestBodyFormat.JSON) {
       return LanguageEnum.JSON;
     }
-    if (preivewDetail.value.body.bodyType === RequestBodyFormat.XML) {
+    if (previewDetail.value.body.bodyType === RequestBodyFormat.XML) {
       return LanguageEnum.XML;
     }
     return LanguageEnum.PLAINTEXT;
@@ -663,6 +677,30 @@
       inputType: 'text',
     },
   ];
+  const responseBodyColumns: FormTableColumn[] = [
+    {
+      title: 'common.desc',
+      dataIndex: 'description',
+      inputType: 'text',
+      showTooltip: true,
+    },
+    {
+      title: 'apiTestManagement.paramVal',
+      dataIndex: 'value',
+      inputType: 'text',
+      showTooltip: true,
+    },
+  ];
+  const responseBodyTableData = computed(() => {
+    return activeResponse.value?.body.bodyType === ResponseBodyFormat.BINARY
+      ? [
+          {
+            description: activeResponse.value?.body.binaryBody.description,
+            value: activeResponse.value?.body.binaryBody.file?.fileName,
+          },
+        ]
+      : [];
+  });
 </script>
 
 <style lang="less" scoped>

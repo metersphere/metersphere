@@ -153,7 +153,7 @@
       activeTab: ResponseComposition;
       isExpanded: boolean;
       isPriorityLocalExec: boolean;
-      requestUrl: string;
+      requestUrl?: string;
       isHttpProtocol: boolean;
       activeLayout?: Direction;
       responseDefinition?: ResponseItem[];

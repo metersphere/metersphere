@@ -72,6 +72,8 @@ export default {
   'apiTestDebug.preconditionScriptName': 'Pre-script name',
   'apiTestDebug.preconditionAssociatedSceneResult': 'Associated scene result',
   'apiTestDebug.preconditionScriptNamePlaceholder': 'Please enter the pre-script name',
+  'apiTestDebug.postConditionScriptName': 'Postscript name',
+  'apiTestDebug.postConditionScriptNamePlaceholder': 'Please enter the postscript name',
   'apiTestDebug.preconditionAssociateResultDesc':
     'Counted in the scene execution result as a custom script step. Execution error will affect the final scene execution result',
   'apiTestDebug.manual': 'Manual entry',

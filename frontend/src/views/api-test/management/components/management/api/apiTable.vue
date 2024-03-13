@@ -1,5 +1,5 @@
 <template>
-  <div :class="['p-[16px_22px]', props.class]">
+  <div :class="['p-[0_16px_16px_16px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
       <div class="flex items-center gap-[8px]">
         <a-input-search
@@ -26,6 +26,7 @@
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
+      @drag-change="handleTableDragSort"
     >
       <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
@@ -81,28 +82,30 @@
           v-if="props.protocol === 'HTTP'"
           v-model:model-value="record.method"
           class="param-input w-full"
+          size="mini"
           @change="() => handleMethodChange(record)"
         >
           <template #label>
-            <apiMethodName :method="record.method" is-tag />
+            <apiMethodName :method="record.method" tag-size="small" is-tag />
           </template>
           <a-option v-for="item of Object.values(RequestMethods)" :key="item" :value="item">
-            <apiMethodName :method="item" is-tag />
+            <apiMethodName :method="item" tag-size="small" is-tag />
           </a-option>
         </a-select>
-        <apiMethodName v-else :method="record.method" is-tag />
+        <apiMethodName v-else :method="record.method" tag-size="small" is-tag />
       </template>
       <template #status="{ record }">
         <a-select
           v-model:model-value="record.status"
           class="param-input w-full"
+          size="mini"
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" />
+            <apiStatus :status="record.status" size="small" />
           </template>
           <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
-            <apiStatus :status="item" />
+            <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
       </template>
@@ -253,6 +256,7 @@
     batchUpdateDefinition,
     deleteDefinition,
     getDefinitionPage,
+    sortDefinition,
     updateDefinition,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
@@ -261,6 +265,7 @@
   import useAppStore from '@/store/modules/app';
 
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
+  import { DragSortParams } from '@/models/common';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -375,7 +380,7 @@
       selectable: true,
       showSelectAll: !props.readOnly,
       draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
-      heightUsed: 374,
+      heightUsed: 308,
     },
     (item) => ({
       ...item,
@@ -752,6 +757,20 @@
 
   function copyDefinition(record: ApiDefinitionDetail) {
     emit('openCopyApiTab', record);
+  }
+
+  // 拖拽排序
+  async function handleTableDragSort(params: DragSortParams) {
+    try {
+      await sortDefinition({
+        ...params,
+        moduleId: moduleIds.value[0] || '',
+      });
+      Message.success(t('caseManagement.featureCase.sortSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   defineExpose({

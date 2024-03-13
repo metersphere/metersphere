@@ -16,7 +16,7 @@
     />
   </div>
   <paramTable
-    v-model:params="innerParams"
+    :params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
@@ -36,6 +36,7 @@
   import { ExecuteRequestCommonParam } from '@/models/apiTest/common';
   import { RequestParamsType } from '@/enums/apiEnum';
 
+  import { filterKeyValParams } from '../utils';
   import { defaultRequestParamsItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
@@ -131,10 +132,11 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
-    if (resultArr.length < innerParams.value.length) {
-      innerParams.value.splice(0, innerParams.value.length - 1, ...resultArr);
+    const filterResult = filterKeyValParams(innerParams.value, defaultRequestParamsItem);
+    if (filterResult.lastDataIsDefault) {
+      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
     } else {
-      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]];
+      innerParams.value = resultArr.filter(Boolean);
     }
     emit('change');
   }

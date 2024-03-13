@@ -21,7 +21,10 @@
         :style="{ width: item.width }"
       >
         <div class="text-[var(--color-text-4)]">{{ t(item.locale) }}</div>
-        <MsTagGroup v-if="Array.isArray(item.value)" :tag-list="item.value" size="small" is-string-tag />
+        <div v-if="Array.isArray(item.value)">
+          <MsTagGroup v-if="item.value.length > 0" :tag-list="item.value" size="small" is-string-tag />
+          <div v-else>-</div>
+        </div>
         <slot v-else :name="item.key" :value="item.value">
           <a-tooltip :content="item.value" :disabled="isEmpty(item.value)">
             <div class="text-[var(--color-text-1)]">{{ item.value || '-' }}</div>

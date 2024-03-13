@@ -1,5 +1,5 @@
 <template>
-  <MsFormTable v-bind="props" :data="paramsData">
+  <MsFormTable v-bind="props" :data="paramsData" @change="handleFormTableChange">
     <!-- 展开行-->
     <template #expand-icon="{ record }">
       <div class="flex flex-row items-center gap-[2px] text-[var(--color-text-4)]">
@@ -341,7 +341,7 @@
       <span v-else></span>
     </template>
     <template #host="{ record }">
-      <MsTagGroup
+      <MsTagsGroup
         v-if="Array.isArray(record.domain)"
         :tag-list="getDomain(record.domain)"
         size="small"
@@ -459,7 +459,6 @@
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -495,7 +494,7 @@
 
   const props = withDefaults(
     defineProps<{
-      params?: any[];
+      params?: Record<string, any>[];
       defaultParamItem?: Record<string, any>; // 默认参数项，用于添加新行时的默认值
       columns: ParamTableColumn[];
       scroll?: {
@@ -548,7 +547,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'change', data: any[]): void; // 都触发这个事件以通知父组件参数数组被更改
+    (e: 'change', data: Record<string, any>[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
     (e: 'treeDelete', record: Record<string, any>): void;
@@ -557,12 +556,10 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const paramsData = ref<any[]>(props.params);
+  const paramsData = ref<Record<string, any>[]>([]);
 
   function emitChange(from: string, isInit?: boolean) {
-    if (!isInit) {
-      emit('change', paramsData.value);
-    }
+    emit('change', paramsData.value, isInit);
   }
 
   const paramsLength = computed(() => paramsData.value.length);
@@ -659,28 +656,28 @@
 
   const hostVisible = ref(false);
   const hostData = ref<any[]>([]);
-  const hostColumn = [
-    {
-      title: t('project.environmental.http.host'),
-      dataIndex: 'host',
-      showTooltip: true,
-      width: 300,
-    },
-    {
-      title: t('project.environmental.http.desc'),
-      dataIndex: 'description',
-    },
-  ];
+  // const hostColumn = [
+  //   {
+  //     title: t('project.environmental.http.host'),
+  //     dataIndex: 'host',
+  //     showTooltip: true,
+  //     width: 300,
+  //   },
+  //   {
+  //     title: t('project.environmental.http.desc'),
+  //     dataIndex: 'description',
+  //   },
+  // ];
 
   const showHostModal = (record: Record<string, any>) => {
     hostVisible.value = true;
     hostData.value = record.domain || [];
   };
 
-  const hostModalClose = () => {
-    hostVisible.value = false;
-    hostData.value = [];
-  };
+  // const hostModalClose = () => {
+  //   hostVisible.value = false;
+  //   hostData.value = [];
+  // };
 
   watchEffect(() => {
     if (props.columns.some((e) => e.dataIndex === 'projectId')) {
@@ -698,6 +695,7 @@
    */
   function addTableLine(rowIndex: number, addLineDisabled?: boolean, isInit?: boolean) {
     if (addLineDisabled) {
+      emitChange('addTableLine addLineDisabled', isInit);
       return;
     }
     if (rowIndex === paramsData.value.length - 1) {
@@ -708,8 +706,8 @@
         ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
       } as any);
-      emitChange('addTableLine', isInit);
     }
+    emitChange('addTableLine', isInit);
     handleMustContainColChange(true);
     handleTypeCheckingColChange(true);
   }
@@ -920,6 +918,11 @@
     });
   }
 
+  function handleFormTableChange(data: any[]) {
+    paramsData.value = [...data];
+    emitChange('handleFormTableChange');
+  }
+
   defineExpose({
     addTableLine,
   });
@@ -941,12 +944,6 @@
     font-weight: 500;
     line-height: 16px;
     color: var(--color-text-1);
-  }
-  .param-popover-subtitle {
-    margin-bottom: 2px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-4);
   }
   .param-popover-value {
     min-width: 100px;

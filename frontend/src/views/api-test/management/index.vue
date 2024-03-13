@@ -1,8 +1,8 @@
 <template>
-  <MsCard :min-width="1180" simple no-content-padding>
+  <MsCard simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
-        <div class="p-[9px]">
+        <div class="p-[16px]">
           <moduleTree
             ref="moduleTreeRef"
             :active-node-id="activeApi?.id"

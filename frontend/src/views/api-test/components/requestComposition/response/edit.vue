@@ -146,7 +146,7 @@
     </template>
     <paramTable
       v-else-if="activeResponse.responseActiveTab === ResponseComposition.HEADER"
-      v-model:params="activeResponse.headers"
+      :params="activeResponse.headers"
       :columns="columns"
       :default-param-item="defaultKeyValueParamItem"
       :selectable="false"

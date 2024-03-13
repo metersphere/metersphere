@@ -34,6 +34,7 @@ export const ToggleFollowDefinitionUrl = '/api/definition/follow'; // 接口定�
 export const OperationHistoryUrl = '/api/definition/operation-history'; // 接口定义-变更历史
 export const SaveOperationHistoryUrl = '/api/definition/operation-history/save'; // 接口定义-另存变更历史为指定版本
 export const RecoverOperationHistoryUrl = '/api/definition/operation-history/recover'; // 接口定义-变更历史恢复
+export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
 
 /**
  * Mock
@@ -41,11 +42,6 @@ export const RecoverOperationHistoryUrl = '/api/definition/operation-history/rec
 export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
 export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
 export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
-
-/**
- * 接口引用关系
- */
-export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
 
 /**
  * api回收站
@@ -65,3 +61,4 @@ export const DeleteCaseUrl = '/api/case/delete'; // 删除接口用例
 export const BatchDeleteCaseUrl = '/api/case/batch/delete'; // 批量删除接口用例
 export const BatchEditCaseUrl = '/api/case/batch/edit'; // 批量编辑接口用例
 export const SortCaseUrl = '/api/case/edit/pos'; // 接口用例拖拽
+export const AddCaseUrl = '/api/case/add'; // 添加用例

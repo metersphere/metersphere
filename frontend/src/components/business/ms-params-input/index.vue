@@ -193,9 +193,6 @@
       <div class="ms-params-popover-title !mb-[8px]">
         {{ t('ms.paramsInput.value') }}
       </div>
-      <div class="ms-params-popover-subtitle">
-        {{ t('ms.paramsInput.value') }}
-      </div>
       <div class="ms-params-popover-value mb-[8px]">
         {{ innerValue }}
       </div>
@@ -702,7 +699,7 @@
     margin-bottom: 2px;
     font-size: 12px;
     line-height: 16px;
-    color: var(--color-text-4);
+    color: var(--color-text-1);
   }
   .ms-params-popover-value {
     min-width: 100px;

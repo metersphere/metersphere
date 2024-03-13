@@ -21,13 +21,13 @@
       >
         <div
           v-if="props.direction === 'horizontal' && props.expandDirection === 'right' && !props.disabled"
-          class="absolute right-0 h-full w-[16px]"
+          class="absolute right-0 h-full w-[12px]"
         >
           <div class="expand-icon expand-icon--left" @click="() => changeExpand()">
             <MsIcon
               :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
-              class="text-[var(--color-text-brand)]"
-              size="12"
+              class="!w-auto text-[var(--color-text-brand)]"
+              size="9"
             />
           </div>
         </div>
@@ -43,13 +43,13 @@
       <div class="ms-split-box-second">
         <div
           v-if="props.direction === 'horizontal' && props.expandDirection === 'left' && !props.disabled"
-          class="absolute h-full w-[16px]"
+          class="absolute h-full w-[12px]"
         >
           <div class="expand-icon" @click="() => changeExpand()">
             <MsIcon
               :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
-              class="text-[var(--color-text-brand)]"
-              size="12"
+              class="!w-auto text-[var(--color-text-brand)]"
+              size="9"
             />
           </div>
         </div>

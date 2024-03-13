@@ -51,6 +51,7 @@ export interface CommonParams {
   [key: string]: any;
 }
 export interface EnvConfig {
+  id?: string;
   commonParams?: CommonParams;
   commonVariables: EnvConfigItem[];
   httpConfig: EnvConfigItem[];

@@ -5,7 +5,13 @@ import {
   KeyValueParam,
   ResponseDefinition,
 } from '@/models/apiTest/common';
-import { RequestContentTypeEnum, RequestParamsType, ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
+import {
+  RequestCaseStatus,
+  RequestContentTypeEnum,
+  RequestParamsType,
+  ResponseBodyFormat,
+  ResponseComposition,
+} from '@/enums/apiEnum';
 
 // 请求 body 参数表格默认行的值
 export const defaultBodyParamsItem: ExecuteRequestFormBodyFormValue = {
@@ -83,3 +89,18 @@ export const defaultKeyValueParamItem: KeyValueParam = {
 
 // 请求的响应 response 的响应状态码集合
 export const statusCodes = [200, 201, 202, 203, 204, 205, 400, 401, 402, 403, 404, 405, 500, 501, 502, 503, 504, 505];
+
+// 用例等级选项
+export const casePriorityOptions = [
+  { label: 'P0', value: 'P0' },
+  { label: 'P1', value: 'P1' },
+  { label: 'P2', value: 'P2' },
+  { label: 'P3', value: 'P3' },
+];
+
+// 用例状态选项
+export const caseStatusOptions = [
+  { label: 'apiTestManagement.processing', value: RequestCaseStatus.PROCESSING },
+  { label: 'apiTestManagement.deprecate', value: RequestCaseStatus.DEPRECATED },
+  { label: 'apiTestManagement.done', value: RequestCaseStatus.DONE },
+];

@@ -149,6 +149,8 @@ export default {
   'apiTestManagement.getResponse': '获取响应内容',
   'case.allCase': '全部CASE',
   'case.caseName': '用例名称',
+  'case.caseNameRequired': '用例名称不能为空',
+  'case.caseNamePlaceholder': '请输入用例名称',
   'case.caseLevel': '用例等级',
   'case.caseEnvironment': '用例环境',
   'case.tableColumnCreateUser': '创建人',
