@@ -80,6 +80,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -119,21 +120,25 @@
   }
 
   async function getAllCommentList() {
-    switch (activeComment.value) {
-      case 'caseComment':
-        await initCommentList();
-        featureCaseStore.getCaseCounts(props.caseId);
-        break;
-      case 'reviewComment':
-        await initReviewCommentList();
-        featureCaseStore.getCaseCounts(props.caseId);
-        break;
-      case 'executiveComment':
-        await initCommentList();
-        featureCaseStore.getCaseCounts(props.caseId);
-        break;
-      default:
-        break;
+    if (hasAnyPermission(['FUNCTIONAL_CASE:READ+COMMENT'])) {
+      switch (activeComment.value) {
+        case 'caseComment':
+          await initCommentList();
+          featureCaseStore.getCaseCounts(props.caseId);
+          break;
+        case 'reviewComment':
+          await initReviewCommentList();
+          featureCaseStore.getCaseCounts(props.caseId);
+          break;
+        case 'executiveComment':
+          await initCommentList();
+          featureCaseStore.getCaseCounts(props.caseId);
+          break;
+        default:
+          break;
+      }
+    } else {
+      Message.error(t('common.noPermission'));
     }
   }
 

@@ -2,10 +2,20 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button v-if="platformInfo.platform_key" type="primary" @click="associatedDemand">
+        <a-button
+          v-if="platformInfo.platform_key"
+          v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+          type="primary"
+          @click="associatedDemand"
+        >
           {{ t('caseManagement.featureCase.associatedDemand') }}</a-button
         >
-        <a-button class="mx-3" type="outline" @click="addDemand">
+        <a-button
+          v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+          class="mx-3"
+          type="outline"
+          @click="addDemand"
+        >
           {{ t('caseManagement.featureCase.addDemand') }}</a-button
         >
       </div>

@@ -156,6 +156,7 @@ export default {
   'caseManagement.featureCase.pleaseEnterTitle': 'Please enter a requirement title',
   'caseManagement.featureCase.requirementUrl': 'Demand url',
   'caseManagement.featureCase.pleaseEnterRequirementUrl': 'Please input requirements url',
+  'caseManagement.featureCase.pleaseEnterCorrectURLFormat': 'Please enter the correct URL format',
   'caseManagement.featureCase.cancelAssociation': 'Cancel Association',
   'caseManagement.featureCase.caseDetailTitle': '【{id}】{name}',
   'caseManagement.featureCase.share': 'share',

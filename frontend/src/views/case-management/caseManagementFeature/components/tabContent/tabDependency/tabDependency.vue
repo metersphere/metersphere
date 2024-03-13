@@ -2,10 +2,16 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button v-if="showType === 'preposition'" class="mr-3" type="primary" @click="addCase">
+        <a-button
+          v-if="showType === 'preposition'"
+          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+          class="mr-3"
+          type="primary"
+          @click="addCase"
+        >
           {{ t('caseManagement.featureCase.addPresetCase') }}
         </a-button>
-        <a-button v-else type="primary" @click="addCase">
+        <a-button v-else v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="primary" @click="addCase">
           {{ t('caseManagement.featureCase.addPostCase') }}
         </a-button>
       </div>

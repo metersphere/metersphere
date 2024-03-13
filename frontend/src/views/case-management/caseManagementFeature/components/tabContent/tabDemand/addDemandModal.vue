@@ -12,6 +12,7 @@
         <span> {{ characterLimit(title) }}</span>
       </a-tooltip>
     </template>
+
     <div class="form">
       <a-form ref="demandFormRef" :model="modelForm" size="large" layout="vertical">
         <a-form-item :label="t('caseManagement.featureCase.tableColumnID')" asterisk-position="end" field="demandId">
@@ -33,7 +34,26 @@
             :placeholder="t('caseManagement.featureCase.pleaseEnterTitle')"
           />
         </a-form-item>
-        <a-form-item :label="t('caseManagement.featureCase.requirementUrl')" asterisk-position="end" field="demandUrl">
+        <a-form-item
+          :label="t('caseManagement.featureCase.requirementUrl')"
+          asterisk-position="end"
+          field="demandUrl"
+          :rules="[
+            {
+              validator(value, cb) {
+                if (value) {
+                  if (regexUrl.test(value)) {
+                    return cb();
+                  } else {
+                    return cb(t('caseManagement.featureCase.pleaseEnterCorrectURLFormat'));
+                  }
+                } else {
+                  return cb();
+                }
+              },
+            },
+          ]"
+        >
           <a-input
             v-model="modelForm.demandUrl"
             :max-length="255"
@@ -54,11 +74,11 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, regexUrl } from '@/utils';
 
   import type { CreateOrUpdateDemand, DemandFormList, DemandItem } from '@/models/caseManagement/featureCase';
 

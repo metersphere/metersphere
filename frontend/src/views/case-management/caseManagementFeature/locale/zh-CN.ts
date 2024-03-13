@@ -155,6 +155,7 @@ export default {
   'caseManagement.featureCase.pleaseEnterTitle': '请输入需求标题',
   'caseManagement.featureCase.requirementUrl': '需求地址',
   'caseManagement.featureCase.pleaseEnterRequirementUrl': '请输入需求地址',
+  'caseManagement.featureCase.pleaseEnterCorrectURLFormat': '请输入正确的URL格式',
   'caseManagement.featureCase.cancelAssociation': '取消关联',
   'caseManagement.featureCase.caseDetailTitle': '【{id}】{name}',
   'caseManagement.featureCase.share': '分享',
