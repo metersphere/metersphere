@@ -6,16 +6,20 @@
     }}</span>
   </div>
   <div class="flex items-center justify-between">
-    <a-button :disabled="store.currentEnvDetailInfo.mock" type="outline" @click="handleAddHttp">{{
-      t('project.environmental.addHttp')
-    }}</a-button>
+    <a-button
+      v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+      :disabled="store.currentEnvDetailInfo.mock"
+      type="outline"
+      @click="handleAddHttp"
+      >{{ t('project.environmental.addHttp') }}</a-button
+    >
     <div class="flex flex-row gap-[8px]">
-      <a-input-number v-model:model-value="form.requestTimeout" :min="0" class="w-[180px]">
+      <a-input-number v-model:model-value="form.requestTimeout" :min="0" class="w-[180px]" :disabled="isDisabled">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
       </a-input-number>
-      <a-input-number v-model:model-value="form.responseTimeout" :min="0" class="w-[180px]">
+      <a-input-number v-model:model-value="form.responseTimeout" :min="0" class="w-[180px]" :disabled="isDisabled">
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.resTimeOut') }}</span>
         </template>
@@ -42,11 +46,16 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap items-center">
-        <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
-        <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
-        <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
+        <MsTableMoreAction
+          v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+          :list="moreActionList"
+          trigger="click"
+          @select="handleMoreActionSelect($event, record)"
+        />
       </div>
     </template>
   </MsBaseTable>
@@ -75,6 +84,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
   import { findNodeNames } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugListItem } from '@/models/bug-management';
   import type { ModuleTreeNode } from '@/models/common';
@@ -135,6 +145,7 @@
     heightUsed: 644,
     debug: true,
   });
+  const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
 
   const moreActionList: ActionsItem[] = [
     {

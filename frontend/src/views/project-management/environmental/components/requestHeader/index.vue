@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-[8px] flex items-center justify-between">
+  <div v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="mb-[8px] flex items-center justify-between">
     <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
     <batchAddKeyVal :no-param-type="props.noParamType" :params="innerParams" @apply="handleBatchParamApply" />
   </div>
@@ -51,16 +51,19 @@
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
     },
     {
       title: 'apiTestDebug.paramValue',
       dataIndex: 'value',
       slotName: 'value',
+      permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
     },
     {
       title: 'apiTestDebug.desc',
       dataIndex: 'description',
       slotName: 'description',
+      permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
     },
     {
       title: '',

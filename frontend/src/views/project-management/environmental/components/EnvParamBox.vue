@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="header">
-      <a-form ref="envForm" layout="vertical" :model="form">
+      <a-form ref="envForm" layout="vertical" :model="form" :disabled="isDisabled">
         <a-form-item
           class="mb-[16px]"
           asterisk-position="end"
@@ -69,7 +69,7 @@
       </template>
     </div>
 
-    <div class="footer" :style="{ width: '100%' }">
+    <div v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="footer" :style="{ width: '100%' }">
       <a-button :disabled="loading" @click="handleReset">{{ t('common.cancel') }}</a-button>
       <a-button type="primary" :loading="loading" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
@@ -97,6 +97,7 @@
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
 
@@ -131,6 +132,7 @@
   });
 
   const contentTabList = ref<ContentTabItem[]>([]);
+  const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
 
   const sourceTabList = [
     {
