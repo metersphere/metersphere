@@ -1,17 +1,30 @@
 <template>
   <div class="ms-assertion">
-    <a-dropdown trigger="hover" @select="handleSelect">
-      <a-button class="w-[84px]" type="outline">
-        <div class="flex flex-row items-center gap-[8px]">
-          <icon-plus />
-          <span>{{ t('ms.assertion.button') }}</span>
-        </div>
-      </a-button>
-      <template #content>
-        <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">{{ item.label }}</a-doption>
-      </template>
-    </a-dropdown>
-
+    <div class="mb-[8px] flex items-center justify-between">
+      <a-dropdown trigger="hover" @select="handleSelect">
+        <a-button class="w-[84px]" type="outline">
+          <div class="flex flex-row items-center gap-[8px]">
+            <icon-plus />
+            <span>{{ t('ms.assertion.button') }}</span>
+          </div>
+        </a-button>
+        <template #content>
+          <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">{{
+            item.label
+          }}</a-doption>
+        </template>
+      </a-dropdown>
+      <div v-if="props.isDefinition && innerConfig" class="flex items-center">
+        <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line" />
+        <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('ms.assertion.openGlobal') }}</div>
+        <a-tooltip :content="t('ms.assertion.openGlobalTip')" position="left">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </a-tooltip>
+      </div>
+    </div>
     <div v-if="showBody" class="ms-assertion-body w-full">
       <a-scrollbar
         :style="{
@@ -114,6 +127,7 @@
 
 <script lang="ts" setup>
   import { defineModel } from 'vue';
+  import { useVModel } from '@vueuse/core';
   import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
@@ -131,7 +145,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { ExecuteAssertionConfig , ExecuteConditionProcessor} from '@/models/apiTest/common';
   import { RequestConditionScriptLanguage, ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import { ExecuteAssertion, MsAssertionItem } from './type';
@@ -145,6 +159,19 @@
   const focusKey = ref<string>('');
   // 所有的断言列表参数
   const assertions = defineModel<any[]>('params', { default: [] });
+
+  const props = defineProps<{
+    isDefinition?: boolean; // 是否是定义页面
+    assertionConfig?: ExecuteAssertionConfig; // 是否开启全局
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'update:assertionConfig', params: ExecuteAssertionConfig): void;
+    (e: 'change'): void;
+  }>();
+
+  const innerConfig = useVModel(props, 'assertionConfig', emit);
+
   const activeIds = ref('');
   // Item点击的key
   const activeKey = ref<string>('');
