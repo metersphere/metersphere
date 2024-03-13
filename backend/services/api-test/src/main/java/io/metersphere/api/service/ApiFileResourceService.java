@@ -121,19 +121,27 @@ public class ApiFileResourceService {
         if (CollectionUtils.isNotEmpty(uploadFileIds)) {
             // 添加文件与接口的关联关系
             Map<String, String> addFileMap = new HashMap<>();
-            List<ApiFileResource> apiFileResources = uploadFileIds.stream().map(fileId -> {
-                ApiFileResource apiFileResource = new ApiFileResource();
+            List<ApiFileResource> apiFileResources = new ArrayList<>(uploadFileIds.size());
+            for (String fileId : uploadFileIds) {
                 String fileName = getTempFileNameByFileId(fileId);
+                if (StringUtils.isBlank(fileName)) {
+                    // 如果 fileName 查不到，说明该文件已经从临时目录移到正式目录，已经关联过了，无需关联
+                    break;
+                }
+                ApiFileResource apiFileResource = new ApiFileResource();
                 apiFileResource.setFileId(fileId);
                 apiFileResource.setResourceId(resourceId);
                 apiFileResource.setResourceType(apiResourceType.name());
                 apiFileResource.setProjectId(projectId);
                 apiFileResource.setCreateTime(System.currentTimeMillis());
                 apiFileResource.setFileName(fileName);
+                apiFileResources.add(apiFileResource);
                 addFileMap.put(fileId, fileName);
-                return apiFileResource;
-            }).toList();
-            apiFileResourceMapper.batchInsert(apiFileResources);
+            }
+
+            if (CollectionUtils.isNotEmpty(apiFileResources)) {
+                apiFileResourceMapper.batchInsert(apiFileResources);
+            }
 
             // 上传文件到对象存储
             uploadFileResource(resourceUpdateRequest.getFolder(), addFileMap);

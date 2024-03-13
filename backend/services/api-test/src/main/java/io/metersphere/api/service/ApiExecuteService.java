@@ -312,6 +312,8 @@ public class ApiExecuteService {
                         String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
                         return getApiExecuteFileInfo(tempFileId, fileName, taskRequest.getProjectId());
                     })
+                    // uploadFileIds 查不到，则已经移动到正式目录
+                    .filter(i -> StringUtils.isNotBlank(i.getFileName()))
                     .collect(Collectors.toList());
             taskRequest.setLocalTempFiles(localTempFiles);
         }
