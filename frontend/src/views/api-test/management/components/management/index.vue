@@ -1,6 +1,6 @@
 <template>
   <div class="flex gap-[8px] px-[16px] pt-[16px]">
-    <a-select v-model:model-value="currentTab" class="w-[80px]" :options="tabOptions" />
+    <a-select v-model:model-value="currentTab" class="w-[80px]" :options="tabOptions" @change="currentTabChange" />
     <MsEditableTab
       v-model:active-tab="activeApiTab"
       v-model:tabs="apiTabs"
@@ -45,6 +45,12 @@
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
   />
+  <apiCase
+    v-show="currentTab === 'case'"
+    v-model:active-api-tab="activeApiTab"
+    :active-module="props.activeModule"
+    :protocol="props.protocol"
+  />
 </template>
 
 <script setup lang="ts">
@@ -52,6 +58,7 @@
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import api from './api/index.vue';
+  import apiCase from './case/index.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
@@ -101,6 +108,11 @@
     } as RequestParam,
   ]);
   const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
+
+  // 下拉框切换
+  function currentTabChange(val: any) {
+    apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
+  }
 
   watch(
     () => activeApiTab.value.id,

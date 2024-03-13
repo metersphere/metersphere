@@ -52,7 +52,7 @@
       </MsButton>
     </a-tooltip>
     <a-tooltip
-      v-if="!props.readonly"
+      v-if="!props.readonly && showAdd"
       :content="t('ms.editableTab.limitTip', { max: props.limit })"
       :disabled="!props.limit || props.tabs.length >= props.limit"
     >
@@ -93,15 +93,21 @@
 
   import type { TabItem } from './types';
 
-  const props = defineProps<{
-    tabs: TabItem[];
-    activeTab?: TabItem;
-    moreActionList?: ActionsItem[];
-    limit?: number; // 最多可打开的tab数量
-    atLeastOne?: boolean; // 是否至少保留一个tab
-    hideMoreAction?: boolean; // 是否隐藏更多操作
-    readonly?: boolean; // 是否只读
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      tabs: TabItem[];
+      activeTab?: TabItem;
+      moreActionList?: ActionsItem[];
+      showAdd?: boolean; // 是否展示增加tab按钮
+      limit?: number; // 最多可打开的tab数量
+      atLeastOne?: boolean; // 是否至少保留一个tab
+      hideMoreAction?: boolean; // 是否隐藏更多操作
+      readonly?: boolean; // 是否只读
+    }>(),
+    {
+      showAdd: true,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:tabs', tabs: TabItem[]): void;
     (e: 'update:activeTab', activeTab: TabItem): void;

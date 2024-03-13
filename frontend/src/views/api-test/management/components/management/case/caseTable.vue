@@ -260,7 +260,6 @@
 
   const props = defineProps<{
     activeModule: string;
-    offspringIds: string[];
     protocol: string; // 查看的协议类型
   }>();
 
