@@ -45,8 +45,8 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      slotName: 'id',
+      dataIndex: 'num',
+      slotName: 'num',
       width: 150,
     },
     {
@@ -62,18 +62,18 @@
     },
     {
       title: 'apiTestManagement.quoteType',
-      dataIndex: 'quoteType',
+      dataIndex: 'refType',
       width: 100,
     },
     {
       title: 'apiTestManagement.belongOrg',
-      dataIndex: 'belongOrg',
+      dataIndex: 'organizationName',
       showTooltip: true,
       width: 150,
     },
     {
       title: 'apiTestManagement.belongProject',
-      dataIndex: 'belongProject',
+      dataIndex: 'projectName',
       showTooltip: true,
       width: 150,
     },

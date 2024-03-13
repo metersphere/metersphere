@@ -764,7 +764,6 @@
     try {
       await sortDefinition({
         ...params,
-        moduleId: moduleIds.value[0] || '',
       });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
     } catch (error) {
