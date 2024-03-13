@@ -155,7 +155,15 @@
               </a-space>
             </a-skeleton>
             <a-form v-else :model="form" layout="vertical">
-              <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
+              <div style="display: inline-block; width: 100%; word-wrap: break-word">
+                <MsFormCreate
+                  ref="formCreateRef"
+                  v-model:formItem="formItem"
+                  v-model:api="fApi"
+                  :form-rule="formRules"
+                />
+              </div>
+
               <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
                 <MsTagsInput
                   v-model:model-value="form.tags"

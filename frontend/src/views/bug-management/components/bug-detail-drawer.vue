@@ -127,16 +127,19 @@
                 </strong>
               </div>
               <!-- 自定义字段开始 -->
-              <MsFormCreate
-                v-if="formRules.length"
-                ref="formCreateRef"
-                v-model:form-item="formItem"
-                v-model:api="fApi"
-                :form-rule="formRules"
-                class="w-full"
-                :option="options"
-                @change="handelFormCreateChange"
-              />
+              <div style="display: inline-block; width: 100%; word-wrap: break-word">
+                <MsFormCreate
+                  v-if="formRules.length"
+                  ref="formCreateRef"
+                  v-model:form-item="formItem"
+                  v-model:api="fApi"
+                  :form-rule="formRules"
+                  class="w-full"
+                  :option="options"
+                  @change="handelFormCreateChange"
+                />
+              </div>
+
               <!-- 自定义字段结束 -->
               <div v-if="!isPlatformDefaultTemplate" class="baseItem">
                 <a-form
@@ -658,4 +661,9 @@
   .left-bug-detail {
     height: 88%;
   }
+  //:deep(.w-full .arco-form-item-label) {
+  //  display: inline-block;
+  //  width: 100%;
+  //  word-wrap: break-word;
+  //}
 </style>
