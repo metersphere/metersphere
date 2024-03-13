@@ -107,13 +107,15 @@
         SELECT
         b.id as id,
         b.num as num,
-        b.title name,
-        b.handle_user handleUser,
+        b.title as name,
+        b.handle_user as handleUser,
+        createUser.name AS createUser,
         b.`status` as status,
         b.tags as tag,
         b.create_time createTime
         FROM
         bug b
+        INNER JOIN user createUser ON b.create_user = createUser.id
         WHERE
         b.deleted = #{deleted}
         AND b.id NOT IN
