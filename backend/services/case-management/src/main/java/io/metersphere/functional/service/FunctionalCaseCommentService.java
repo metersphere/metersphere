@@ -266,7 +266,7 @@ public class FunctionalCaseCommentService {
             }
             if (StringUtils.isNotBlank(functionalCaseComment.getNotifier())) {
                 List<String> notifiers = Arrays.asList(functionalCaseComment.getNotifier().split(";"));
-                notifiers.forEach(t-> commentUserInfos.add(userMap.get(functionalCaseComment.getReplyUser())));
+                notifiers.forEach(t-> commentUserInfos.add(userMap.get(t)));
             }
             functionalCaseCommentDTO.setCommentUserInfos(commentUserInfos);
             list.add(functionalCaseCommentDTO);
