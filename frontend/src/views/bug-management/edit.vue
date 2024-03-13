@@ -10,9 +10,8 @@
     @save="saveHandler(false)"
     @save-and-continue="saveHandler(true)"
   >
-    <template #headerRight>
+    <template v-if="!isEdit" #headerRight>
       <a-select
-        v-if="!isEdit"
         v-model="form.templateId"
         class="w-[240px]"
         :options="templateOption"
