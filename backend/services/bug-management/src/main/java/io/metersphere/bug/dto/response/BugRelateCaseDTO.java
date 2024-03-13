@@ -12,6 +12,9 @@ public class BugRelateCaseDTO{
     @Schema(description = "关联用例ID")
     private String relateCaseId;
 
+    @Schema(description = "关联用例业务ID")
+    private String relateCaseNum;
+
     @Schema(description = "关联用例名称")
     private String relateCaseName;
 
