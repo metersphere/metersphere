@@ -263,6 +263,8 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setDeleteFileIds(null);
         request.setUnLinkFileIds(null);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
+        // 校验 UploadFileIds 参数重复关联
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
         assertUpdateApiDebug(request, msHttpElement, request.getId());
         assertUploadFile(addApiDebug.getId(), List.of(fileId));
