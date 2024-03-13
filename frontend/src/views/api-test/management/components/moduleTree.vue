@@ -75,7 +75,7 @@
       class="mb-[16px]"
       allow-clear
     />
-    <a-spin class="min-h-[400px] w-full" :loading="loading">
+    <a-spin class="w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         v-model:selected-keys="selectedKeys"
@@ -620,29 +620,23 @@
 
     padding: 8px 4px;
     border-radius: var(--border-radius-small);
-
     &:hover {
       background-color: rgb(var(--primary-1));
     }
-
     .folder-text {
       @apply flex flex-1 cursor-pointer items-center;
-
       .folder-icon {
         margin-right: 4px;
         color: var(--color-text-4);
       }
-
       .folder-name {
         color: var(--color-text-1);
       }
-
       .folder-count {
         margin-left: 4px;
         color: var(--color-text-4);
       }
     }
-
     .folder-text--active {
       .folder-icon,
       .folder-name,
@@ -651,7 +645,6 @@
       }
     }
   }
-
   :deep(#root ~ .arco-tree-node-drag-icon) {
     @apply hidden;
   }
