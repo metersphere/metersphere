@@ -184,6 +184,9 @@ public class EnvironmentService extends MoveNodeService {
     }
 
     public EnvironmentInfoDTO get(String environmentId) {
+        if (StringUtils.isBlank(environmentId)) {
+            return null;
+        }
         EnvironmentInfoDTO environmentInfoDTO = new EnvironmentInfoDTO();
         Environment environment = environmentMapper.selectByPrimaryKey(environmentId);
         if (environment == null) {

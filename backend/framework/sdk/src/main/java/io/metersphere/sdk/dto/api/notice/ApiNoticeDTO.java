@@ -45,7 +45,7 @@ public class ApiNoticeDTO implements java.io.Serializable {
      */
     private String queueId;
     /**
-     * 报告类型
+     * 是否是集成报告
      */
-    private String reportType;
+    private Boolean integratedReport;
 }

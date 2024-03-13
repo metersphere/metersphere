@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.queue;
 
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import lombok.Data;
 
 import java.io.Serial;
@@ -13,29 +14,14 @@ public class ExecutionQueue implements Serializable {
     private String queueId;
 
     /**
-     * 报告类型/测试计划类型/测试用例类型/测试集类型/场景集合类型
+     * 执行人
      */
-    private String reportType;
-
-    /**
-     * 运行模式
-     */
-    private String runMode;
-
-    /**
-     * 资源池ID
-     */
-    private String poolId;
+    private String userId;
 
     /**
      * 创建时间
      */
     private Long createTime;
-
-    /**
-     * 是否失败继续
-     */
-    private Boolean failure;
 
     /**
      * 开启重试
@@ -48,9 +34,9 @@ public class ExecutionQueue implements Serializable {
     private Long retryNumber;
 
     /**
-     * 环境Id
+     * 运行模式配置
      */
-    private String environmentId;
+    private ApiRunModeConfigDTO runModeConfig;
 
     @Serial
     private static final long serialVersionUID = 1L;

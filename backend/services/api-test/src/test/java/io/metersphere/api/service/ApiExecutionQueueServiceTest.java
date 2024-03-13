@@ -1,6 +1,8 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import jakarta.annotation.Resource;
@@ -15,7 +17,6 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,27 +41,24 @@ public class ApiExecutionQueueServiceTest {
     void testInsertQueue() {
         ExecutionQueue queue = new ExecutionQueue();
         queue.setQueueId("queueId1");
-        queue.setReportType("REPORT");
-        queue.setRunMode("SEQUENTIAL");
-        queue.setPoolId("poolId1");
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        runModeConfig.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        runModeConfig.setGrouped(false);
+        runModeConfig.setEnvironmentId("envId");
+        queue.setRunModeConfig(runModeConfig);
         queue.setCreateTime(System.currentTimeMillis());
-        queue.setFailure(true);
         queue.setRetryEnable(true);
         queue.setRetryNumber(3L);
 
         ExecutionQueueDetail queueDetail1 = new ExecutionQueueDetail();
         queueDetail1.setResourceId("resourceId1");
         queueDetail1.setSort(1);
-        queueDetail1.setReportId("reportId1");
         queueDetail1.setResourceType("API");
-        queueDetail1.setEnvMap(Map.of("projectID1", "envID1", "projectID2", "envID2"));
 
         ExecutionQueueDetail queueDetail2 = new ExecutionQueueDetail();
         queueDetail2.setResourceId("resourceId2");
         queueDetail2.setSort(2);
-        queueDetail2.setReportId("reportId2");
         queueDetail2.setResourceType("CASE");
-        queueDetail2.setEnvMap(Map.of("projectID1", "envID1", "projectID2", "envID2"));
 
         List<ExecutionQueueDetail> queueDetails = List.of(queueDetail1, queueDetail2);
 

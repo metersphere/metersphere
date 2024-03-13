@@ -75,9 +75,6 @@ public class ApiReport implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report.pool_id.length_range}", groups = {Created.class, Updated.class})
     private String poolId;
 
-    @Schema(description = "版本fk")
-    private String versionId;
-
     @Schema(description = "是否是集成报告", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_report.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
@@ -161,7 +158,6 @@ public class ApiReport implements Serializable {
         triggerMode("trigger_mode", "triggerMode", "VARCHAR", false),
         runMode("run_mode", "runMode", "VARCHAR", false),
         poolId("pool_id", "poolId", "VARCHAR", false),
-        versionId("version_id", "versionId", "VARCHAR", false),
         integrated("integrated", "integrated", "BIT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         environmentId("environment_id", "environmentId", "VARCHAR", false),

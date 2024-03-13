@@ -10,6 +10,7 @@ import io.metersphere.api.service.CleanupApiResourceServiceImpl;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
@@ -254,7 +255,6 @@ public class CleanupApiTests {
                 apiReport.setStatus(ApiReportStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiTestCaseRecord record = new ApiTestCaseRecord();
             record.setApiTestCaseId("clean-resource-id" + i);
@@ -268,7 +268,7 @@ public class CleanupApiTests {
             apiReportStep.setStepId("clean-api-report-step-id" + projectId + i);
             apiReportStep.setReportId("clean-report-id" + projectId + i);
             apiReportStep.setSort(0L);
-            apiReportStep.setStepType("case");
+            apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
             steps.add(apiReportStep);
         }
         apiReportService.insertApiReportStep(steps);

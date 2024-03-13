@@ -18,6 +18,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -93,7 +94,6 @@ public class ApiReportControllerTests extends BaseTest {
                 apiReport.setIntegrated(true);
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiTestCaseRecord record = new ApiTestCaseRecord();
             record.setApiTestCaseId("api-resource-id" + i);
@@ -108,7 +108,7 @@ public class ApiReportControllerTests extends BaseTest {
             apiReportStep.setStepId("api-report-step-id" + i);
             apiReportStep.setReportId("api-report-id-success" + i);
             apiReportStep.setSort(0L);
-            apiReportStep.setStepType("case");
+            apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
             steps.add(apiReportStep);
         }
         apiReportService.insertApiReportStep(steps);
@@ -250,7 +250,6 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
-        apiReport.setVersionId("api-version-id");
         reports.add(apiReport);
         ApiTestCaseRecord record = new ApiTestCaseRecord();
         record.setApiTestCaseId("api-resource-id");
@@ -262,7 +261,7 @@ public class ApiReportControllerTests extends BaseTest {
             apiReportStep.setStepId("test-report-step-id" + i);
             apiReportStep.setReportId("test-report-id");
             apiReportStep.setSort((long) i);
-            apiReportStep.setStepType("case");
+            apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
             steps.add(apiReportStep);
         }
 

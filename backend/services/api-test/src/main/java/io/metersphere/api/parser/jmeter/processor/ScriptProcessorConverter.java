@@ -9,6 +9,7 @@ import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.CommonScriptInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.save.SaveService;
@@ -86,7 +87,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
     }
 
     public static boolean isJSR233(ScriptProcessor scriptProcessor) {
-        if (scriptProcessor.getEnableCommonScript()) {
+        if (BooleanUtils.isTrue(scriptProcessor.getEnableCommonScript())) {
             return !StringUtils.equals(scriptProcessor.getCommonScriptInfo().getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());
         } else {
             return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());

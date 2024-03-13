@@ -34,7 +34,6 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.OperationLogBlob;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.OperationLogBlobMapper;
@@ -1174,9 +1173,7 @@ public class ApiDefinitionService extends MoveNodeService {
         taskRequest.setSaveResult(false);
         taskRequest.setRealTime(true);
         taskRequest.setResourceType(ApiResourceType.API.name());
-        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
-        apiRunModeConfig.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
-        taskRequest.setRunModeConfig(apiRunModeConfig);
+        taskRequest.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
 
         // 设置环境
         apiParamConfig.setEnvConfig(environmentInfoDTO);

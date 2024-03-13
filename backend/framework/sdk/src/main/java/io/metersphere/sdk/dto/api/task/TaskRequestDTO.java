@@ -22,8 +22,11 @@ public class TaskRequestDTO implements Serializable {
     private String msUrl;
     private String kafkaConfig;
     private String minioConfig;
-    private String queueId;
     private int poolSize;
+    /**
+     * 批量执行时的队列ID
+     */
+    private String queueId;
     /**
      * 是否需要实时接收单个步骤的结果
      */
@@ -83,6 +86,12 @@ public class TaskRequestDTO implements Serializable {
      */
     @NotBlank
     private String projectId;
+
+    /**
+     * {@link io.metersphere.sdk.constants.ApiBatchRunMode}
+     */
+    @NotBlank
+    private String runMode;
 
     /**
      * 运行配置

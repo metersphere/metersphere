@@ -26,7 +26,6 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -400,10 +399,7 @@ public class ApiTestCaseService extends MoveNodeService {
     public List<String> doSelectIds(ApiTestCaseBatchRequest request, boolean deleted) {
         if (request.isSelectAll()) {
             List<String> ids = extApiTestCaseMapper.getIds(request, deleted);
-            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getSelectIds())) {
-                ids.addAll(request.getSelectIds());
-            }
-            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
             return new ArrayList<>(ids.stream().distinct().toList());
@@ -668,12 +664,10 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 
-    private TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
+    public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(reportId, resourceId, projectId);
         taskRequest.setResourceType(ApiResourceType.API_CASE.name());
-        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
-        apiRunModeConfig.setRunMode(runModule);
-        taskRequest.setRunModeConfig(apiRunModeConfig);
+        taskRequest.setRunMode(runModule);
         return taskRequest;
     }
 
