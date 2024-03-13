@@ -46,6 +46,9 @@ public class BugProviderDTO implements Serializable {
     @Schema(description = "标签")
     private List<String> tags;
 
+    @Schema(description = "内容")
+    private String content;
+
     @Schema(description = "创建时间")
     private Long createTime;
 

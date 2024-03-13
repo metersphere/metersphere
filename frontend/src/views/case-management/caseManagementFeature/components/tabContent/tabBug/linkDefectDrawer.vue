@@ -34,7 +34,7 @@
             <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
             <template #content>
               <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
-                {{ record.name }}
+                {{ record.content }}
               </div>
             </template>
           </a-popover>

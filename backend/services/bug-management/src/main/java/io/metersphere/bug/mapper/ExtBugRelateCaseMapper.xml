@@ -75,11 +75,13 @@
             b.title as name,
             b.handle_user handleUser,
             b.`status`,
+            bc.description as content,
             brc.test_plan_id testPlanId,
             tp.name testPlanName
         FROM
             bug_relation_case brc
                 INNER JOIN bug b ON brc.bug_id = b.id
+                INNER JOIN bug_content bc ON brc.bug_id = bc.bug_id
         left join test_plan tp on brc.test_plan_id = tp.id
         where b.deleted = false
         <include refid="queryWhereConditionByProvider"/>
