@@ -46,9 +46,9 @@
         >
           <a-option v-for="item of platFormList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
         </a-select> -->
-        <a-checkbox v-if="route.query.type === 'BUG'" v-model="templateForm.enableThirdPart" class="mx-2">{{
-          t('system.orgTemplate.thirdParty')
-        }}</a-checkbox>
+        <a-checkbox v-if="route.query.type === 'BUG'" v-model="templateForm.enableThirdPart" class="mx-2"
+          >{{ t('system.orgTemplate.thirdParty') }}
+        </a-checkbox>
         <MsTag size="large" class="cursor-pointer" theme="outline" @click="brash">
           <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
         </MsTag>
@@ -66,11 +66,15 @@
             <div class="action">
               <span class="required">
                 <a-checkbox
+                  v-if="!formItem.internal"
                   v-model="formItem.required"
                   class="mr-1"
                   @change="(value) => changeState(value, formItem)"
                   >{{ t('system.orgTemplate.required') }}</a-checkbox
                 >
+                <a-checkbox v-else v-model="formItem.required" class="mr-1" disabled>{{
+                  t('system.orgTemplate.required')
+                }}</a-checkbox>
               </span>
               <div class="actionList">
                 <a-tooltip :content="t('system.orgTemplate.toTop')">
@@ -142,7 +146,8 @@
                     :placeholder="t('system.orgTemplate.pleaseEnterAPITip')"
                     class="mt-1"
                     :max-length="255"
-                /></a-form-item>
+                  />
+                </a-form-item>
               </a-form>
             </div>
           </div>
@@ -339,6 +344,7 @@
   function resetForm() {
     templateForm.value = { ...initTemplateForm };
   }
+
   const isError = ref(false);
 
   function inputHandler(value: string) {
@@ -347,6 +353,7 @@
     }
     isError.value = false;
   }
+
   // 保存回调
   async function save() {
     try {
@@ -382,12 +389,15 @@
       loading.value = false;
     }
   }
+
   const refStepMap: Record<string, any> = {};
+
   function setStepRefMap(el: refItem, formItem: DefinedFieldItem) {
     if (el) {
       refStepMap[`${formItem.id}`] = el;
     }
   }
+
   // 保存
   function saveHandler(isContinue = false) {
     isContinueFlag.value = isContinue;
@@ -442,14 +452,17 @@
   });
 
   const showFieldDrawer = ref<boolean>(false);
+
   function createField() {
     showFieldDrawer.value = true;
   }
 
   const showDrawer = ref<boolean>(false);
+
   function associatedField() {
     showDrawer.value = true;
   }
+
   const selectFiled = ref<DefinedFieldItem[]>([]);
   const selectedIds = ref<string[]>();
 
@@ -502,6 +515,7 @@
     formItem.required = value;
     formItem.formRules[0].effect.required = value;
   }
+
   const systemFieldData = ref<CustomField[]>([]);
 
   function getSelectData(customFields: DefinedFieldItem[]) {
@@ -561,6 +575,7 @@
       };
     });
   }
+
   // 获取模板详情
   const getTemplateInfo = async () => {
     try {
@@ -620,6 +635,7 @@
   });
 
   const activeIndex = ref(-1);
+
   async function brash() {
     activeIndex.value = -1;
     await getClassifyField();
@@ -636,6 +652,7 @@
   function changeDrag() {
     activeIndex.value = -1;
   }
+
   const configOptions = ref({
     resetBtn: false,
     submitBtn: false,
@@ -659,29 +676,35 @@
   .wrapper-preview {
     display: flex;
     height: 100%;
+
     .preview-left {
       width: 100%;
       border-right: 1px solid var(--color-text-n8);
     }
+
     .preview-right {
       padding-top: 8px;
       width: 428px;
       min-width: 428px;
+
       .customWrapper {
         position: relative;
         margin-bottom: 4px;
         border: 1px solid transparent;
         border-radius: 6px;
         @apply flex flex-col justify-between;
+
         .form {
           padding: 8px;
           border: 1px solid transparent;
           border-radius: 6px;
         }
+
         .form.activeStyle {
           border-color: rgb(var(--primary-5));
           background: var(--color-text-n9);
         }
+
         .action {
           position: absolute;
           top: -12px;
@@ -690,24 +713,29 @@
           background: white;
           opacity: 0;
           @apply flex items-center justify-end;
+
           .actionList {
             padding: 4px;
             border-radius: 4px;
             @apply flex items-center justify-center;
           }
+
           .required > .arco-checkbox {
             padding: 2px 4px;
             border-radius: 4px;
             box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
           }
         }
+
         &:hover {
           border: 1px solid var(--color-text-n8);
           background: var(--color-text-n9);
         }
+
         &:hover > .action {
           opacity: 1;
         }
+
         &:hover > .action > .actionList {
           color: rgb(var(--primary-5));
           box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
@@ -715,19 +743,23 @@
       }
     }
   }
+
   .hoverStyle {
     .customWrapper:hover > .form {
       border-color: var(--color-text-n8) !important;
     }
   }
+
   .activeStyle {
     .customWrapper:hover .form {
       border-color: rgb(var(--primary-5));
     }
   }
+
   :deep(.selfClass) {
     margin-bottom: 0;
   }
+
   // :deep(.contentClass > .arco-input-wrapper) {
   // border-color: transparent;
   // &:hover {
@@ -755,6 +787,7 @@
     border: 1px solid rgba(var(--primary-5));
     background-color: var(--color-text-n9);
   }
+
   :deep(.apiFieldIdClass) {
     margin-bottom: 0;
   }
