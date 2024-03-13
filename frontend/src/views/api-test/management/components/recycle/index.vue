@@ -1,25 +1,50 @@
 <template>
-  <a-tabs v-model:active-key="activeTab" animation lazy-load class="ms-api-tab-nav">
-    <a-tab-pane key="api" title="API" class="ms-api-tab-pane">
-      <api
-        ref="apiRef"
-        :module-tree="props.moduleTree"
-        :active-module="props.activeModule"
-        :offspring-ids="props.offspringIds"
-        :protocol="protocol"
-      />
-    </a-tab-pane>
-    <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane">
-      <api-case :active-module="props.activeModule" :offspring-ids="props.offspringIds" :protocol="protocol"></api-case>
-    </a-tab-pane>
-  </a-tabs>
+  <div class="flex gap-[8px] px-[16px] pt-[16px]">
+    <a-select v-model:model-value="currentTab" class="w-[80px]" :options="tabOptions" @change="currentTabChange" />
+    <MsEditableTab
+      v-model:active-tab="activeApiTab"
+      v-model:tabs="apiTabs"
+      :show-add="false"
+      class="flex-1 overflow-hidden"
+    >
+      <template #label="{ tab }">
+        <apiMethodName
+          v-if="tab.id !== 'all'"
+          :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol"
+          class="mr-[4px]"
+        />
+        <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
+          <div class="one-line-text max-w-[144px]">
+            {{ tab.name || tab.label }}
+          </div>
+        </a-tooltip>
+      </template>
+    </MsEditableTab>
+  </div>
+  <api
+    v-show="currentTab === 'api'"
+    ref="apiRef"
+    :module-tree="props.moduleTree"
+    :active-module="props.activeModule"
+    :offspring-ids="props.offspringIds"
+    :protocol="protocol"
+  />
+  <api-case
+    v-show="currentTab === 'case'"
+    :active-module="props.activeModule"
+    :offspring-ids="props.offspringIds"
+    :protocol="protocol"
+  ></api-case>
 </template>
 
 <script setup lang="ts">
+  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import api from './api/apiTable.vue';
   import apiCase from './case/caseTable.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  import useAppStore from '@/store/modules/app';
+  import { useI18n } from '@/hooks/useI18n';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -30,27 +55,41 @@
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
 
-  const appStore = useAppStore();
+  const { t } = useI18n();
 
-  const activeTab = ref('api');
+  const currentTab = ref('api');
+  const tabOptions = [
+    { label: 'API', value: 'api' },
+    { label: 'CASE', value: 'case' },
+  ];
+
+  const apiTabs = ref<RequestParam[]>([
+    {
+      id: 'all',
+      label: t('apiTestManagement.allApi'),
+      closable: false,
+    } as RequestParam,
+  ]);
+  const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
+
+  // 下拉框切换
+  function currentTabChange(val: any) {
+    apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
+  }
 </script>
 
 <style lang="less" scoped>
   .ms-api-tab-nav {
     @apply h-full;
-
     :deep(.arco-tabs-content) {
       height: calc(100% - 51px);
-
       .arco-tabs-content-list {
         @apply h-full;
-
         .arco-tabs-pane {
           @apply h-full;
         }
       }
     }
-
     :deep(.arco-tabs-nav) {
       border-bottom: 1px solid var(--color-text-n8);
     }
