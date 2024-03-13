@@ -4,8 +4,12 @@
       <template #first>
         <div class="p-[24px]">
           <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
-            <a-radio value="PROJECT">{{ t('project.environmental.env') }}</a-radio>
-            <a-radio value="PROJECT_GROUP">{{ t('project.environmental.envGroup') }}</a-radio>
+            <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT">{{
+              t('project.environmental.env')
+            }}</a-radio>
+            <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT_GROUP">{{
+              t('project.environmental.envGroup')
+            }}</a-radio>
           </a-radio-group>
           <template v-if="showType === 'PROJECT'">
             <a-input-search
@@ -27,6 +31,7 @@
               {{ t('project.environmental.allParam') }}
               <div class="node-extra">
                 <MsMoreAction
+                  v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                   :list="allMoreAction"
                   @select="(value) => handleMoreAction(value, 'allParams', EnvAuthTypeEnum.GLOBAL)"
                 />
@@ -39,11 +44,17 @@
               <div class="flex flex-row items-center">
                 <div class="env-row-extra">
                   <MsMoreAction
+                    v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                     :list="allMoreAction"
                     @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.ENVIRONMENT)"
                   />
                 </div>
-                <MsButton type="icon" class="!mr-0 p-[2px]" @click="handleCreateEnv">
+                <MsButton
+                  v-permission="['PROJECT_ENVIRONMENT:READ+ADD']"
+                  type="icon"
+                  class="!mr-0 p-[2px]"
+                  @click="handleCreateEnv"
+                >
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -84,7 +95,11 @@
                         </a-tooltip>
                         <div class="node-extra">
                           <div class="flex flex-row items-center gap-[8px]">
-                            <MsButton type="icon" class="drag-handle !mr-0 p-[2px]">
+                            <MsButton
+                              v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+                              type="icon"
+                              class="drag-handle !mr-0 p-[2px]"
+                            >
                               <MsIcon
                                 type="icon-icon_drag"
                                 size="16"
@@ -92,6 +107,7 @@
                               />
                             </MsButton>
                             <MsMoreAction
+                              v-permission="['PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                               :list="envMoreAction(element.mock || false)"
                               @select="
                                 (value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)
@@ -115,7 +131,12 @@
             <div class="env-row mt-[8px] p-[8px]">
               <div class="text-[var(--color-text-4)]">{{ t('project.environmental.group.envGroup') }}</div>
               <div class="flex flex-row items-center">
-                <MsButton type="icon" class="!mr-0 p-[2px]" @click="handleCreateGroup">
+                <MsButton
+                  v-permission="['PROJECT_ENVIRONMENT:READ+ADD']"
+                  type="icon"
+                  class="!mr-0 p-[2px]"
+                  @click="handleCreateGroup"
+                >
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -155,7 +176,11 @@
                       </a-tooltip>
                       <div class="node-extra">
                         <div class="flex flex-row items-center gap-[8px]">
-                          <MsButton type="icon" class="drag-handle !mr-0 p-[2px]">
+                          <MsButton
+                            v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+                            type="icon"
+                            class="drag-handle !mr-0 p-[2px]"
+                          >
                             <MsIcon
                               type="icon-icon_drag"
                               size="16"
@@ -163,6 +188,7 @@
                             />
                           </MsButton>
                           <MsMoreAction
+                            v-permission="['PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                             :list="groupMoreAction"
                             @select="(value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
                           />
@@ -245,6 +271,7 @@
     NEW_ENV_PARAM,
   } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
   import { PopVisible } from '@/models/setting/usergroup';
@@ -288,6 +315,7 @@
       {
         label: t('common.export'),
         eventTag: 'export',
+        permission: ['PROJECT_ENVIRONMENT:READ+EXPORT'],
       },
       {
         isDivider: true,
@@ -297,6 +325,7 @@
         danger: true,
         eventTag: 'delete',
         disabled: isMock,
+        permission: ['PROJECT_ENVIRONMENT:READ+DELETE'],
       },
     ];
   };
@@ -306,10 +335,12 @@
     {
       label: t('common.import'),
       eventTag: 'import',
+      permission: ['PROJECT_ENVIRONMENT:READ+IMPORT'],
     },
     {
       label: t('common.export'),
       eventTag: 'export',
+      permission: ['PROJECT_ENVIRONMENT:READ+EXPORT'],
     },
   ];
 
@@ -319,6 +350,7 @@
       label: t('common.delete'),
       danger: true,
       eventTag: 'delete',
+      permission: ['PROJECT_ENVIRONMENT:READ+DELETE'],
     },
   ];
 

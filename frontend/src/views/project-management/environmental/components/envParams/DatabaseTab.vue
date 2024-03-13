@@ -1,6 +1,8 @@
 <template>
   <div class="flex items-center justify-between">
-    <a-button type="outline" @click="handleAdd">{{ t('project.environmental.database.addDatabase') }}</a-button>
+    <a-button v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" type="outline" @click="handleAdd">{{
+      t('project.environmental.database.addDatabase')
+    }}</a-button>
     <a-input-search
       v-model="keyword"
       class="w-[240px]"
@@ -15,11 +17,16 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap items-center">
-        <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
-        <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
-        <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
+        <MsTableMoreAction
+          v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+          :list="moreActionList"
+          trigger="click"
+          @select="handleMoreActionSelect($event, record)"
+        />
       </div>
     </template>
   </MsBaseTable>
@@ -45,6 +52,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugListItem } from '@/models/bug-management';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -72,12 +80,16 @@
       slotName: 'driverId',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'URL',
       dataIndex: 'dbUrl',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'project.environmental.database.username',
@@ -125,6 +137,7 @@
     },
   ];
 
+  const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
   const handleSingleDelete = (record?: TableData) => {
     if (record) {
       const index = innerParam.value.findIndex((item) => item.id === record.id);

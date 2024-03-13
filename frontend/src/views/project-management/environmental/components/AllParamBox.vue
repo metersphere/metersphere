@@ -11,7 +11,7 @@
       :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM_VARIABLE"
       @change="canSave = true"
     /> -->
-    <div class="footer" :style="{ width: '100%' }">
+    <div v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="footer" :style="{ width: '100%' }">
       <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
   </div>

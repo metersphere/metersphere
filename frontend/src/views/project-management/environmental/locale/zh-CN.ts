@@ -43,7 +43,7 @@ export default {
   'project.environmental.displaySetting': '显示设置',
   'project.environmental.nonClose': '以上属性不关闭',
   'project.environmental.httpTitle': '当满足多个启用条件时，按从上到下的顺序匹配',
-  'project.environmental.httpNoWarning': '不在提醒',
+  'project.environmental.httpNoWarning': '不再提醒',
   'project.environmental.addHttp': '添加 HTTP',
   'project.environmental.http.linkTimeOut': '连接超时(ms):',
   'project.environmental.http.resTimeOut': '响应超时(ms):',

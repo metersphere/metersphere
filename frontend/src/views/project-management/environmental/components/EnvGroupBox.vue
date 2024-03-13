@@ -2,7 +2,12 @@
   <div class="page">
     <template v-if="store.currentGroupId">
       <div class="header">
-        <a-form ref="envGroupForm" layout="vertical" :model="form">
+        <a-form
+          ref="envGroupForm"
+          :disabled="!hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE'])"
+          layout="vertical"
+          :model="form"
+        >
           <a-form-item
             class="mb-[16px]"
             asterisk-position="end"
@@ -40,7 +45,7 @@
           @change="handleParamTableChange"
         />
       </div>
-      <div class="footer" :style="{ width: '100%' }">
+      <div v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="footer" :style="{ width: '100%' }">
         <a-button :disabled="!canSave" @click="handleReset">{{ t('common.cancel') }}</a-button>
         <a-button :disabled="!canSave" :loading="loading" type="primary" @click="handleSave">{{
           t('common.save')
@@ -64,6 +69,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
 
