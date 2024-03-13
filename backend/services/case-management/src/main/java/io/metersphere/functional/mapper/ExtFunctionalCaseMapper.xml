@@ -748,7 +748,9 @@
         <!-- 待补充关联Case弹窗中的高级搜索条件 -->
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            fc.num like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+                fc.num like concat('%', #{request.keyword}, '%')
+                or fc.name like concat('%', #{request.keyword}, '%')
+                or fc.tags like concat('%', #{request.keyword}, '%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">

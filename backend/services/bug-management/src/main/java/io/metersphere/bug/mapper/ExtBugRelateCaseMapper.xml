@@ -44,7 +44,7 @@
     </select>
 
     <select id="list" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
-        select brc.id relateId, fc.num relateCaseId, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
+        select brc.id relateId, fc.id relateCaseId, fc.num relateCaseNum, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
                brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
         from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
         where brc.bug_id = #{request.bugId} and fc.deleted = false
