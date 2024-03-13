@@ -131,4 +131,5 @@ export default {
   'common.unFollowSuccess': 'Unfollow successfully',
   'common.share': 'Share',
   'common.notRemind': `Don't remind again`,
+  'common.status': 'Status',
 };

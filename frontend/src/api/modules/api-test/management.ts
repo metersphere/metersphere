@@ -1,5 +1,6 @@
 import MSR from '@/api/http/index';
 import {
+  AddCaseUrl,
   AddDefinitionScheduleUrl,
   AddDefinitionUrl,
   AddModuleUrl,
@@ -53,6 +54,7 @@ import {
 
 import { ExecuteRequestParams } from '@/models/apiTest/common';
 import {
+  AddApiCaseParams,
   ApiCaseBatchEditParams,
   ApiCaseBatchParams,
   ApiCaseDetail,
@@ -341,4 +343,9 @@ export function batchEditCase(data: ApiCaseBatchEditParams) {
 // 拖拽排序
 export function dragSort(data: DragSortParams) {
   return MSR.post({ url: SortCaseUrl, data });
+}
+
+// 添加接口用例
+export function addCase(data: AddApiCaseParams) {
+  return MSR.post({ url: AddCaseUrl, data });
 }

@@ -36,7 +36,7 @@
           :add-module-api="addDebugModule"
           @add-finish="initModules"
         >
-          <MsButton v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
+          <MsButton type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"
               size="18"

@@ -114,7 +114,7 @@
               </template>
             </a-dropdown>
             <!-- 接口定义-定义模式，直接保存接口定义 -->
-            <a-button v-else type="primary" @click="() => handleSelect('save')">
+            <a-button v-else type="primary" :loading="saveLoading" @click="() => handleSelect('save')">
               {{ t('common.save') }}
             </a-button>
           </template>
@@ -138,132 +138,251 @@
         </div>
       </div>
     </div>
-    <div ref="splitContainerRef" class="h-[calc(100%-40px)]">
+    <div class="px-[16px]">
+      <MsTab
+        v-model:active-key="requestVModel.activeTab"
+        :content-tab-list="contentTabList"
+        :get-text-func="getTabBadge"
+        class="no-content relative mt-[8px]"
+      />
+    </div>
+    <div ref="splitContainerRef" class="h-[calc(100%-97px)]">
       <MsSplitBox
-        ref="splitBoxRef"
-        v-model:size="splitBoxSize"
-        :max="!showResponse ? 1 : 0.98"
-        min="10px"
-        :direction="activeLayout"
-        second-container-class="!overflow-y-hidden"
-        :class="!showResponse ? 'hidden-second' : ''"
-        @expand-change="handleExpandChange"
+        ref="horizontalSplitBoxRef"
+        :size="props.isDefinition ? 0.7 : 1"
+        :max="props.isDefinition ? 0.9 : 1"
+        :min="props.isDefinition ? 0.7 : 1"
+        :disabled="!props.isDefinition"
+        :class="!props.isDefinition ? 'hidden-second' : ''"
+        :first-container-class="!props.isDefinition ? 'border-r-0' : ''"
+        direction="horizontal"
+        expand-direction="right"
       >
         <template #first>
-          <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
-            <div
-              :class="`flex h-full min-w-[800px] flex-col px-[18px] pb-[16px] ${
-                activeLayout === 'horizontal' ? ' pr-[16px]' : ''
-              }`"
-            >
-              <div>
-                <MsTab
-                  v-model:active-key="requestVModel.activeTab"
-                  :content-tab-list="contentTabList"
-                  :get-text-func="getTabBadge"
-                  class="no-content relative mb-[8px] border-b border-[var(--color-text-n8)]"
-                />
-              </div>
-              <div class="tab-pane-container">
-                <a-spin
-                  v-if="requestVModel.activeTab === RequestComposition.PLUGIN"
-                  :loading="pluginLoading"
-                  class="min-h-[100px] w-full"
+          <MsSplitBox
+            ref="verticalSplitBoxRef"
+            v-model:size="splitBoxSize"
+            :max="!showResponse ? 1 : 0.98"
+            min="10px"
+            :direction="activeLayout"
+            second-container-class="!overflow-y-hidden"
+            :class="!showResponse ? 'hidden-second' : ''"
+            @expand-change="handleVerticalExpandChange"
+          >
+            <template #first>
+              <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
+                <div
+                  :class="`flex h-full min-w-[800px] flex-col p-[16px] ${
+                    activeLayout === 'horizontal' ? ' pr-[16px]' : ''
+                  }`"
                 >
-                  <MsFormCreate
-                    v-model:api="fApi"
-                    :rule="currentPluginScript"
-                    :option="currentPluginOptions"
-                    @change="
-                      () => {
-                        if (isInitPluginForm) {
-                          handlePluginFormChange();
-                        }
-                      }
-                    "
-                  />
-                </a-spin>
-                <httpHeader
-                  v-if="requestVModel.activeTab === RequestComposition.HEADER"
-                  v-model:params="requestVModel.headers"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <httpBody
-                  v-else-if="requestVModel.activeTab === RequestComposition.BODY"
-                  v-model:params="requestVModel.body"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  :upload-temp-file-api="props.uploadTempFileApi"
-                  :file-save-as-source-id="props.fileSaveAsSourceId"
-                  :file-save-as-api="props.fileSaveAsApi"
-                  :file-module-options-api="props.fileModuleOptionsApi"
-                  @change="handleActiveDebugChange"
-                />
-                <httpQuery
-                  v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
-                  v-model:params="requestVModel.query"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <httpRest
-                  v-else-if="requestVModel.activeTab === RequestComposition.REST"
-                  v-model:params="requestVModel.rest"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <precondition
-                  v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
-                  v-model:config="requestVModel.children[0].preProcessorConfig"
-                  :is-definition="props.isDefinition"
-                  @change="handleActiveDebugChange"
-                />
-                <postcondition
-                  v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
-                  v-model:config="requestVModel.children[0].postProcessorConfig"
-                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  :is-definition="props.isDefinition"
-                  @change="handleActiveDebugChange"
-                />
-                <auth
-                  v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
-                  v-model:params="requestVModel.authConfig"
-                  @change="handleActiveDebugChange"
-                />
-                <setting
-                  v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
-                  v-model:params="requestVModel.otherConfig"
-                  @change="handleActiveDebugChange"
-                />
-              </div>
-            </div>
-          </a-spin>
+                  <div class="tab-pane-container">
+                    <a-spin
+                      v-if="requestVModel.activeTab === RequestComposition.PLUGIN"
+                      :loading="pluginLoading"
+                      class="min-h-[100px] w-full"
+                    >
+                      <MsFormCreate
+                        v-model:api="fApi"
+                        :rule="currentPluginScript"
+                        :option="currentPluginOptions"
+                        @change="
+                          () => {
+                            if (isInitPluginForm) {
+                              handlePluginFormChange();
+                            }
+                          }
+                        "
+                      />
+                    </a-spin>
+                    <httpHeader
+                      v-if="requestVModel.activeTab === RequestComposition.HEADER"
+                      v-model:params="requestVModel.headers"
+                      :layout="activeLayout"
+                      :second-box-height="secondBoxHeight"
+                      @change="handleActiveDebugChange"
+                    />
+                    <httpBody
+                      v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+                      v-model:params="requestVModel.body"
+                      :layout="activeLayout"
+                      :second-box-height="secondBoxHeight"
+                      :upload-temp-file-api="props.uploadTempFileApi"
+                      :file-save-as-source-id="props.fileSaveAsSourceId"
+                      :file-save-as-api="props.fileSaveAsApi"
+                      :file-module-options-api="props.fileModuleOptionsApi"
+                      @change="handleActiveDebugChange"
+                    />
+                    <httpQuery
+                      v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+                      v-model:params="requestVModel.query"
+                      :layout="activeLayout"
+                      :second-box-height="secondBoxHeight"
+                      @change="handleActiveDebugChange"
+                    />
+                    <httpRest
+                      v-else-if="requestVModel.activeTab === RequestComposition.REST"
+                      v-model:params="requestVModel.rest"
+                      :layout="activeLayout"
+                      :second-box-height="secondBoxHeight"
+                      @change="handleActiveDebugChange"
+                    />
+                    <precondition
+                      v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+                      v-model:config="requestVModel.children[0].preProcessorConfig"
+                      :is-definition="props.isDefinition"
+                      @change="handleActiveDebugChange"
+                    />
+                    <postcondition
+                      v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+                      v-model:config="requestVModel.children[0].postProcessorConfig"
+                      :response="requestVModel.response?.requestResults[0]?.responseResult.body"
+                      :layout="activeLayout"
+                      :second-box-height="secondBoxHeight"
+                      :is-definition="props.isDefinition"
+                      @change="handleActiveDebugChange"
+                    />
+                    <auth
+                      v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+                      v-model:params="requestVModel.authConfig"
+                      @change="handleActiveDebugChange"
+                    />
+                    <setting
+                      v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+                      v-model:params="requestVModel.otherConfig"
+                      @change="handleActiveDebugChange"
+                    />
+                  </div>
+                </div>
+              </a-spin>
+            </template>
+            <template #second>
+              <response
+                v-show="showResponse"
+                v-model:active-layout="activeLayout"
+                v-model:active-tab="requestVModel.responseActiveTab"
+                v-model:response-definition="requestVModel.responseDefinition"
+                :is-http-protocol="isHttpProtocol"
+                :is-priority-local-exec="isPriorityLocalExec"
+                :request-url="requestVModel.url"
+                :is-expanded="isVerticalExpanded"
+                :hide-layout-switch="props.hideResponseLayoutSwitch"
+                :request-task-result="requestVModel.response"
+                :is-edit="props.isDefinition && isHttpProtocol"
+                :upload-temp-file-api="props.uploadTempFileApi"
+                :loading="requestVModel.executeLoading || loading"
+                @change-expand="changeVerticalExpand"
+                @change-layout="handleActiveLayoutChange"
+                @change="handleActiveDebugChange"
+                @execute="execute"
+              />
+            </template>
+          </MsSplitBox>
         </template>
-        <template #second>
-          <response
-            v-show="showResponse"
-            v-model:active-layout="activeLayout"
-            v-model:active-tab="requestVModel.responseActiveTab"
-            v-model:response-definition="requestVModel.responseDefinition"
-            :is-http-protocol="isHttpProtocol"
-            :is-priority-local-exec="isPriorityLocalExec"
-            :request-url="requestVModel.url"
-            :is-expanded="isExpanded"
-            :hide-layout-switch="props.hideResponseLayoutSwitch"
-            :request-task-result="requestVModel.response"
-            :is-edit="props.isDefinition && isHttpProtocol"
-            :upload-temp-file-api="props.uploadTempFileApi"
-            :loading="requestVModel.executeLoading || loading"
-            @change-expand="changeExpand"
-            @change-layout="handleActiveLayoutChange"
-            @change="handleActiveDebugChange"
-            @execute="execute"
-          />
+        <template v-if="props.isDefinition" #second>
+          <div class="p-[16px]">
+            <!-- TODO:第一版没有模板 -->
+            <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
+            <a-form ref="activeApiTabFormRef" :model="requestVModel" layout="vertical">
+              <a-form-item
+                field="name"
+                :label="t('apiTestManagement.apiName')"
+                class="mb-[16px]"
+                :rules="[{ required: true, message: t('apiTestManagement.apiNameRequired') }]"
+              >
+                <a-input
+                  v-model:model-value="requestVModel.name"
+                  :max-length="255"
+                  :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+                  allow-clear
+                  @change="handleActiveApiChange"
+                />
+              </a-form-item>
+              <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px]">
+                <a-tree-select
+                  v-model:modelValue="requestVModel.moduleId"
+                  :data="selectTree"
+                  :field-names="{ title: 'name', key: 'id', children: 'children' }"
+                  :tree-props="{
+                    virtualListProps: {
+                      height: 200,
+                      threshold: 200,
+                    },
+                  }"
+                  allow-search
+                  @change="handleActiveApiChange"
+                />
+              </a-form-item>
+              <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px]">
+                <a-select
+                  v-model:model-value="requestVModel.status"
+                  :placeholder="t('common.pleaseSelect')"
+                  class="param-input w-full"
+                  @change="handleActiveApiChange"
+                >
+                  <template #label>
+                    <apiStatus :status="requestVModel.status" />
+                  </template>
+                  <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
+                    <apiStatus :status="item" />
+                  </a-option>
+                </a-select>
+              </a-form-item>
+              <a-form-item :label="t('common.tag')" class="mb-[16px]">
+                <MsTagsInput v-model:model-value="requestVModel.tags" @change="handleActiveApiChange" />
+              </a-form-item>
+              <a-form-item :label="t('common.desc')" class="mb-[16px]">
+                <a-textarea
+                  v-model:model-value="requestVModel.description"
+                  :max-length="1000"
+                  @change="handleActiveApiChange"
+                />
+              </a-form-item>
+            </a-form>
+            <!-- TODO:第一版先不做依赖 -->
+            <!-- <div class="mb-[8px] flex items-center">
+                  <div class="text-[var(--color-text-2)]">
+                    {{ t('apiTestManagement.addDependency') }}
+                  </div>
+                  <a-divider margin="4px" direction="vertical" />
+                  <MsButton
+                    type="text"
+                    class="font-medium"
+                    :disabled="requestVModel.preDependency.length === 0 && requestVModel.postDependency.length === 0"
+                    @click="clearAllDependency"
+                  >
+                    {{ t('apiTestManagement.clearSelected') }}
+                  </MsButton>
+                </div>
+                <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
+                  <div class="flex items-center">
+                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
+                      {{ t('apiTestManagement.preDependency') }}
+                      <div class="text-[rgb(var(--primary-5))]">
+                        {{ requestVModel.preDependency.length }}
+                      </div>
+                      {{ t('apiTestManagement.dependencyUnit') }}
+                    </div>
+                    <a-divider margin="8px" direction="vertical" />
+                    <MsButton type="text" class="font-medium" @click="handleDddDependency('pre')">
+                      {{ t('apiTestManagement.addPreDependency') }}
+                    </MsButton>
+                  </div>
+                  <div class="mt-[8px] flex items-center">
+                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
+                      {{ t('apiTestManagement.postDependency') }}
+                      <div class="text-[rgb(var(--primary-5))]">
+                        {{ requestVModel.postDependency.length }}
+                      </div>
+                      {{ t('apiTestManagement.dependencyUnit') }}
+                    </div>
+                    <a-divider margin="8px" direction="vertical" />
+                    <MsButton type="text" class="font-medium" @click="handleDddDependency('post')">
+                      {{ t('apiTestManagement.addPostDependency') }}
+                    </MsButton>
+                  </div>
+                </div> -->
+          </div>
         </template>
       </MsSplitBox>
     </div>
@@ -285,7 +404,11 @@
         :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
         asterisk-position="end"
       >
-        <a-input v-model:model-value="saveModalForm.name" :placeholder="t('apiTestDebug.requestNamePlaceholder')" />
+        <a-input
+          v-model:model-value="saveModalForm.name"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.requestNamePlaceholder')"
+        />
       </a-form-item>
       <a-form-item
         v-if="isHttpProtocol"
@@ -294,7 +417,11 @@
         :rules="[{ required: true, message: t('apiTestDebug.requestUrlRequired') }]"
         asterisk-position="end"
       >
-        <a-input v-model:model-value="saveModalForm.path" :placeholder="t('apiTestDebug.commonPlaceholder')" />
+        <a-input
+          v-model:model-value="saveModalForm.path"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+        />
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
@@ -312,6 +439,43 @@
       </a-form-item>
     </a-form>
   </a-modal>
+  <a-modal
+    v-model:visible="saveCaseModalVisible"
+    :title="t('common.save')"
+    :ok-loading="saveCaseLoading"
+    class="ms-modal-form"
+    title-align="start"
+    body-class="!p-0"
+    @before-ok="saveAsCase"
+    @cancel="handleSaveCaseCancel"
+  >
+    <a-form ref="saveCaseModalFormRef" :model="saveCaseModalForm" layout="vertical">
+      <a-form-item
+        field="name"
+        :label="t('case.caseName')"
+        :rules="[{ required: true, message: t('case.caseNameRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input v-model:model-value="saveCaseModalForm.name" :placeholder="t('case.caseNamePlaceholder')" />
+      </a-form-item>
+      <a-form-item field="priority" :label="t('case.caseLevel')">
+        <a-select v-model:model-value="saveCaseModalForm.priority" :options="casePriorityOptions"></a-select>
+      </a-form-item>
+      <a-form-item field="status" :label="t('common.status')">
+        <a-select v-model:model-value="saveCaseModalForm.status" :options="caseStatusOptions"></a-select>
+      </a-form-item>
+      <a-form-item field="tags" :label="t('common.tag')">
+        <MsTagsInput
+          v-model:model-value="saveCaseModalForm.tags"
+          placeholder="common.tagsInputPlaceholder"
+          allow-clear
+          unique-value
+          retain-input-value
+        />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+  <addDependencyDrawer v-if="props.isDefinition" v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" />
 </template>
 
 <script setup lang="ts">
@@ -323,6 +487,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import auth from './auth.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
@@ -330,8 +495,10 @@
   import setting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
+  import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
+  import { addCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
@@ -348,18 +515,24 @@
     PluginConfig,
     RequestTaskResult,
   } from '@/models/apiTest/common';
+  import { AddApiCaseParams } from '@/models/apiTest/management';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestBodyFormat,
+    RequestCaseStatus,
     RequestComposition,
     RequestConditionProcessor,
+    RequestDefinitionStatus,
     RequestMethods,
     RequestParamsType,
   } from '@/enums/apiEnum';
 
   import type { ResponseItem } from './response/edit.vue';
   import {
+    casePriorityOptions,
+    caseStatusOptions,
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
@@ -373,6 +546,9 @@
   const httpBody = defineAsyncComponent(() => import('./body.vue'));
   const httpQuery = defineAsyncComponent(() => import('./query.vue'));
   const httpRest = defineAsyncComponent(() => import('./rest.vue'));
+  const addDependencyDrawer = defineAsyncComponent(
+    () => import('@/views/api-test/management/components/addDependencyDrawer.vue')
+  );
 
   export interface RequestCustomAttr {
     isNew: boolean;
@@ -395,6 +571,7 @@
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     otherParams?: Record<string, any>; // 保存请求时的其他参数
+    currentEnvConfig?: EnvConfig;
     executeApi: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
     localExecuteApi: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
     createApi: (...args) => Promise<any>; // 创建接口
@@ -409,7 +586,7 @@
       update: string;
     };
   }>();
-  const emit = defineEmits(['addDone', 'save', 'saveAsCase']);
+  const emit = defineEmits(['addDone']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -768,18 +945,18 @@
     }
   );
 
-  const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
-  const isExpanded = ref(true);
-
-  function handleExpandChange(val: boolean) {
-    isExpanded.value = val;
+  const horizontalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
+  const verticalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
+  const isVerticalExpanded = ref(true);
+  function handleVerticalExpandChange(val: boolean) {
+    isVerticalExpanded.value = val;
   }
-  function changeExpand(val: boolean) {
-    isExpanded.value = val;
+  function changeVerticalExpand(val: boolean) {
+    isVerticalExpanded.value = val;
     if (val) {
-      splitBoxRef.value?.expand(0.6);
+      verticalSplitBoxRef.value?.expand(0.6);
     } else {
-      splitBoxRef.value?.collapse(
+      verticalSplitBoxRef.value?.collapse(
         splitContainerRef.value
           ? `${splitContainerRef.value.clientHeight - (props.hideResponseLayoutSwitch ? 37 : 42)}px`
           : 0
@@ -791,17 +968,23 @@
     () => showResponse.value,
     (val) => {
       if (val) {
-        changeExpand(true);
+        changeVerticalExpand(true);
       } else {
-        changeExpand(false);
+        changeVerticalExpand(false);
       }
     }
   );
 
   function handleActiveLayoutChange() {
-    isExpanded.value = true;
+    isVerticalExpanded.value = true;
     splitBoxSize.value = 0.6;
-    splitBoxRef.value?.expand(0.6);
+    verticalSplitBoxRef.value?.expand(0.6);
+  }
+
+  function handleActiveApiChange() {
+    if (requestVModel.value) {
+      requestVModel.value.unSaved = true;
+    }
   }
 
   const reportId = ref('');
@@ -876,6 +1059,7 @@
    * @param executeType 执行类型，执行时传入
    */
   function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
+    const isExecute = executeType === 'localExec' || executeType === 'serverExec';
     const { formDataBody, wwwFormBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
       (e) => e.value === requestVModel.value.protocol
@@ -883,8 +1067,16 @@
     let parseRequestBodyResult;
     let requestParams;
     if (isHttpProtocol.value) {
-      const realFormDataBodyValues = filterKeyValParams(formDataBody.formValues, defaultBodyParamsItem).validParams;
-      const realWwwFormBodyValues = filterKeyValParams(wwwFormBody.formValues, defaultBodyParamsItem).validParams;
+      const realFormDataBodyValues = filterKeyValParams(
+        formDataBody.formValues,
+        defaultBodyParamsItem,
+        isExecute
+      ).validParams;
+      const realWwwFormBodyValues = filterKeyValParams(
+        wwwFormBody.formValues,
+        defaultBodyParamsItem,
+        isExecute
+      ).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
         requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
@@ -901,12 +1093,12 @@
             formValues: realWwwFormBodyValues,
           },
         },
-        headers: filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams,
+        headers: filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem, isExecute).validParams,
         method: requestVModel.value.method,
         otherConfig: requestVModel.value.otherConfig,
         path: requestVModel.value.url || requestVModel.value.path,
-        query: filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams,
-        rest: filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams,
+        query: filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem, isExecute).validParams,
+        rest: filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem, isExecute).validParams,
         url: requestVModel.value.url,
         polymorphicName,
       };
@@ -932,7 +1124,7 @@
         status: requestVModel.value.status,
         response: requestVModel.value.responseDefinition?.map((e) => ({
           ...e,
-          headers: filterKeyValParams(e.headers, defaultKeyValueParamItem).validParams,
+          headers: filterKeyValParams(e.headers, defaultKeyValueParamItem, isExecute).validParams,
         })),
       };
     } else {
@@ -942,7 +1134,7 @@
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
-      environmentId: '',
+      environmentId: props.currentEnvConfig?.id || '',
       name: requestName,
       moduleId: requestModuleId,
       ...apiDefinitionParams,
@@ -1018,7 +1210,7 @@
     requestVModel.value.executeLoading = false;
   }
 
-  async function updateDebug() {
+  async function updateRequest() {
     try {
       saveLoading.value = true;
       await props.updateApi({
@@ -1039,37 +1231,57 @@
   /**
    * 保存请求
    */
-  async function handleSave(done: (closed: boolean) => void) {
+  async function realSave(fullParams?: Record<string, any>, silence?: boolean) {
+    try {
+      if (!silence) {
+        saveLoading.value = true;
+      }
+      let params;
+      if (props.isDefinition) {
+        params = {
+          ...(fullParams || makeRequestParams()),
+          ...props.otherParams,
+        };
+      } else {
+        params = {
+          ...(fullParams || makeRequestParams()),
+          ...saveModalForm.value,
+          path: isHttpProtocol.value ? saveModalForm.value.path : undefined,
+          ...props.otherParams,
+        };
+      }
+      const res = await props.createApi(params);
+      if (!silence) {
+        Message.success(t('common.saveSuccess'));
+      }
+      requestVModel.value.id = res.id;
+      requestVModel.value.num = res.num;
+      requestVModel.value.isNew = false;
+      requestVModel.value.unSaved = false;
+      requestVModel.value.name = res.name;
+      requestVModel.value.label = res.name;
+      requestVModel.value.url = res.path;
+      requestVModel.value.path = res.path;
+      console.log('requestVModel.value', requestVModel.value);
+      if (!props.isDefinition) {
+        saveModalVisible.value = false;
+      }
+      if (!silence) {
+        saveLoading.value = false;
+        emit('addDone');
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      saveLoading.value = false;
+    }
+  }
+
+  function handleSave(done: (closed: boolean) => void) {
     saveModalFormRef.value?.validate(async (errors) => {
       if (!errors) {
-        try {
-          saveLoading.value = true;
-          if (requestVModel.value.isNew) {
-            // 若是新建的，走添加
-            const res = await props.createApi({
-              ...makeRequestParams(),
-              ...saveModalForm.value,
-              path: isHttpProtocol.value ? saveModalForm.value.path : undefined,
-              ...props.otherParams,
-            });
-            requestVModel.value.id = res.id;
-            requestVModel.value.num = res.num;
-            requestVModel.value.isNew = false;
-            Message.success(t('common.saveSuccess'));
-            requestVModel.value.unSaved = false;
-            requestVModel.value.name = saveModalForm.value.name;
-            requestVModel.value.label = saveModalForm.value.name;
-            requestVModel.value.url = saveModalForm.value.path;
-            saveLoading.value = false;
-            saveModalVisible.value = false;
-            done(true);
-            emit('addDone');
-          } else {
-            updateDebug();
-          }
-        } catch (error) {
-          saveLoading.value = false;
-        }
+        await realSave();
+        done(true);
       }
     });
     done(false);
@@ -1079,22 +1291,27 @@
    * 保存快捷键处理
    */
   async function handleSaveShortcut() {
-    if (!requestVModel.value.isNew) {
-      // 更新接口不需要弹窗，直接更新保存
-      updateDebug();
-      return;
-    }
     try {
       if (!isHttpProtocol.value) {
         // 插件需要校验动态表单
         await fApi.value?.validate();
       }
-      saveModalForm.value = {
-        name: requestVModel.value.name || '',
-        path: requestVModel.value.url || '',
-        moduleId: 'root',
-      };
-      saveModalVisible.value = true;
+      if (!requestVModel.value.isNew) {
+        // 更新接口不需要弹窗，直接更新保存
+        updateRequest();
+        return;
+      }
+      if (!props.isDefinition) {
+        // 接口调试需要弹窗保存
+        saveModalForm.value = {
+          name: requestVModel.value.name || '',
+          path: requestVModel.value.url || '',
+          moduleId: 'root',
+        };
+        saveModalVisible.value = true;
+      } else {
+        realSave();
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -1106,6 +1323,78 @@
     }
   }
 
+  const saveCaseModalVisible = ref(false);
+  const saveCaseLoading = ref(false);
+  const saveCaseModalForm = ref({
+    name: '',
+    priority: 'P0',
+    status: RequestCaseStatus.PROCESSING,
+    tags: [],
+  });
+  const saveCaseModalFormRef = ref<FormInstance>();
+
+  function handleSaveCaseCancel() {
+    saveCaseModalForm.value = {
+      name: '',
+      priority: 'P0',
+      status: RequestCaseStatus.PROCESSING,
+      tags: [],
+    };
+    saveCaseModalVisible.value = false;
+  }
+
+  // 保存为用例
+  function saveAsCase() {
+    saveCaseModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          saveCaseLoading.value = true;
+          const definitionParams = makeRequestParams();
+          if (requestVModel.value.isNew) {
+            // 未保存过的接口保存为用例，先保存接口定义，再保存为用例
+            await realSave(definitionParams, true);
+          }
+          const params: AddApiCaseParams = {
+            ...definitionParams,
+            ...saveCaseModalForm.value,
+            projectId: appStore.currentProjectId,
+            environmentId: props.currentEnvConfig?.id || '',
+            apiDefinitionId: requestVModel.value.id,
+          };
+          await addCase(params);
+          emit('addDone');
+          Message.success(t('common.saveSuccess'));
+          saveCaseModalVisible.value = false;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          saveCaseLoading.value = false;
+        }
+      }
+    });
+  }
+
+  // 未保存过的接口保存为用例，先保存接口定义，再保存为用例
+  async function saveNewDefinition() {
+    try {
+      if (!isHttpProtocol.value) {
+        // 插件需要校验动态表单
+        await fApi.value?.validate();
+      }
+      saveCaseModalVisible.value = true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      // 校验不通过则不进行保存
+      requestVModel.value.activeTab = RequestComposition.PLUGIN;
+      nextTick(() => {
+        scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+      });
+    }
+  }
+
+  const activeApiTabFormRef = ref<FormInstance>();
   const isUrlError = ref(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     if (requestVModel.value.url === '' && requestVModel.value.protocol === 'HTTP') {
@@ -1113,18 +1402,62 @@
       return;
     }
     isUrlError.value = false;
-
-    switch (value) {
-      case 'save':
-        emit('save', makeRequestParams());
-        break;
-      case 'saveAsCase':
-        emit('saveAsCase', makeRequestParams());
-        break;
-      default:
-        break;
-    }
+    activeApiTabFormRef.value?.validate(async (errors) => {
+      if (errors) {
+        horizontalSplitBoxRef.value?.expand();
+      } else {
+        switch (value) {
+          case 'save':
+            handleSaveShortcut();
+            break;
+          case 'saveAsCase':
+            saveNewDefinition();
+            break;
+          default:
+            break;
+        }
+      }
+    });
   }
+
+  // const fApi = ref();
+  // const options = {
+  //   form: {
+  //     layout: 'vertical',
+  //     labelPosition: 'right',
+  //     size: 'small',
+  //     labelWidth: '00px',
+  //     hideRequiredAsterisk: false,
+  //     showMessage: true,
+  //     inlineMessage: false,
+  //     scrollToFirstError: true,
+  //   },
+  //   submitBtn: false,
+  //   resetBtn: false,
+  // };
+  // const currentApiTemplateRules = [];
+  const showAddDependencyDrawer = ref(false);
+  const addDependencyMode = ref<'pre' | 'post'>('pre');
+
+  // function handleDddDependency(value: string | number | Record<string, any> | undefined) {
+  //   switch (value) {
+  //     case 'pre':
+  //       addDependencyMode.value = 'pre';
+  //       showAddDependencyDrawer.value = true;
+  //       break;
+  //     case 'post':
+  //       addDependencyMode.value = 'post';
+  //       showAddDependencyDrawer.value = true;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
+
+  // function clearAllDependency() {
+  //   activeApiTab.value.preDependency = [];
+  //   activeApiTab.value.postDependency = [];
+  // }
 
   function handleCancel() {
     saveModalFormRef.value?.resetFields();

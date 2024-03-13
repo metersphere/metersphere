@@ -1,61 +1,69 @@
 <template>
-  <a-tabs v-model:active-key="activeTab" animation lazy-load class="ms-api-tab-nav">
-    <a-tab-pane key="api" title="API" class="ms-api-tab-pane">
-      <api
-        ref="apiRef"
-        :module-tree="props.moduleTree"
-        :active-module="props.activeModule"
-        :offspring-ids="props.offspringIds"
-        :protocol="protocol"
-      />
-    </a-tab-pane>
-    <a-tab-pane key="case" title="CASE" class="ms-api-tab-pane">
-      <apiCase :active-module="props.activeModule" :offspring-ids="props.offspringIds" :protocol="protocol" />
-    </a-tab-pane>
-    <!-- <a-tab-pane key="mock" title="MOCK" class="ms-api-tab-pane">
-      <mock-table
-        ref="mockRef"
-        :module-tree="props.moduleTree"
-        :active-module="props.activeModule"
-        :offspring-ids="props.offspringIds"
-        :protocol="protocol"
-      />
-    </a-tab-pane> -->
-    <!-- <a-tab-pane key="doc" title="API Docs" class="ms-api-tab-pane"> </a-tab-pane> -->
-    <template #extra>
-      <div class="flex items-center gap-[8px] pr-[24px]">
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]">
-          <template #icon>
-            <icon-location class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-        <MsSelect
-          v-model:model-value="currentEnv"
-          mode="static"
-          :options="envOptions"
-          class="!w-[150px]"
-          :search-keys="['label']"
-          :loading="envLoading"
-          allow-search
-          @change="initEnvironment"
+  <div class="flex gap-[8px] px-[16px] pt-[16px]">
+    <a-select v-model:model-value="currentTab" class="w-[80px]" :options="tabOptions" />
+    <MsEditableTab
+      v-model:active-tab="activeApiTab"
+      v-model:tabs="apiTabs"
+      class="flex-1 overflow-hidden"
+      @add="newTab"
+    >
+      <template #label="{ tab }">
+        <apiMethodName
+          v-if="tab.id !== 'all'"
+          :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol"
+          class="mr-[4px]"
         />
-      </div>
-    </template>
-  </a-tabs>
+        <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
+          <div class="one-line-text max-w-[144px]">
+            {{ tab.name || tab.label }}
+          </div>
+        </a-tooltip>
+      </template>
+    </MsEditableTab>
+    <a-select
+      v-model:model-value="currentEnv"
+      :options="envOptions"
+      class="!w-[200px] pl-0 pr-[8px]"
+      :loading="envLoading"
+      allow-search
+      @change="initEnvironment"
+    >
+      <template #prefix>
+        <div class="flex cursor-pointer p-[8px]" @click.stop="goEnv">
+          <icon-location class="text-[var(--color-text-4)]" />
+        </div>
+      </template>
+    </a-select>
+  </div>
+  <api
+    v-if="currentTab === 'api'"
+    ref="apiRef"
+    v-model:active-api-tab="activeApiTab"
+    v-model:api-tabs="apiTabs"
+    :active-module="props.activeModule"
+    :offspring-ids="props.offspringIds"
+    :protocol="props.protocol"
+    :module-tree="props.moduleTree"
+  />
 </template>
 
 <script setup lang="ts">
   import { SelectOptionData } from '@arco-design/web-vue';
 
-  import MsSelect from '@/components/business/ms-select';
+  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import api from './api/index.vue';
-  import apiCase from './case/index.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
+  import { useI18n } from '@/hooks/useI18n';
+  import router from '@/router';
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     activeModule: string;
@@ -65,8 +73,16 @@
   }>();
 
   const appStore = useAppStore();
+  const { t } = useI18n();
 
-  const activeTab = ref('api');
+  const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
+
+  const currentTab = ref('api');
+  const tabOptions = [
+    { label: 'API', value: 'api' },
+    { label: 'CASE', value: 'case' },
+  ];
+
   const apiRef = ref<InstanceType<typeof api>>();
 
   function newTab(apiInfo?: ModuleTreeNode | string) {
@@ -77,14 +93,33 @@
     }
   }
 
+  const apiTabs = ref<RequestParam[]>([
+    {
+      id: 'all',
+      label: t('apiTestManagement.allApi'),
+      closable: false,
+    } as RequestParam,
+  ]);
+  const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
+
+  watch(
+    () => activeApiTab.value.id,
+    () => {
+      if (typeof setActiveApi === 'function') {
+        setActiveApi(activeApiTab.value);
+      }
+    }
+  );
+
   const currentEnv = ref('');
-  const currentEnvConfig = ref({});
+  const currentEnvConfig = ref<EnvConfig>();
   const envLoading = ref(false);
   const envOptions = ref<SelectOptionData[]>([]);
 
   async function initEnvironment() {
     try {
       currentEnvConfig.value = await getEnvironment(currentEnv.value);
+      currentEnvConfig.value.id = currentEnv.value;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -113,6 +148,12 @@
     apiRef.value?.refreshTable();
   }
 
+  function goEnv() {
+    router.push({
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
+    });
+  }
+
   onBeforeMount(() => {
     initEnvList();
   });
@@ -127,19 +168,10 @@
 </script>
 
 <style lang="less" scoped>
-  .ms-api-tab-nav {
-    @apply h-full;
-    :deep(.arco-tabs-content) {
-      height: calc(100% - 51px);
-      .arco-tabs-content-list {
-        @apply h-full;
-        .arco-tabs-pane {
-          @apply h-full;
-        }
-      }
-    }
-    :deep(.arco-tabs-nav) {
-      border-bottom: 1px solid var(--color-text-n8);
-    }
+  .ms-input-group--prepend();
+  :deep(.arco-select-view-prefix) {
+    margin-right: 8px;
+    padding-right: 0;
+    border-right: 1px solid var(--color-text-input-border);
   }
 </style>

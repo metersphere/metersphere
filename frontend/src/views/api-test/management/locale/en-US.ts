@@ -168,4 +168,6 @@ export default {
   'case.batchDeleteCaseTip': 'Are you sure you want to delete {count} selected cases?',
   'case.deleteCaseTip':
     'Deleting an case will result in the execution failure of the test task that references the use case. Please be cautious!',
+  'apiTestManagement.click': 'Click',
+  'apiTestManagement.getResponse': 'Get response content',
 };

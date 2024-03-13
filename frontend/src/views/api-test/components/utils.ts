@@ -115,8 +115,13 @@ export function parseRequestBodyFiles(
  * 过滤无效参数
  * @param params 原始参数数组
  * @param defaultParamItem 默认参数项
+ * @param filterEnable 是否过滤 enable 为 false 的参数
  */
-export function filterKeyValParams<T>(params: (T & Record<string, any>)[], defaultParamItem: Record<string, any>) {
+export function filterKeyValParams<T>(
+  params: (T & Record<string, any>)[],
+  defaultParamItem: Record<string, any>,
+  filterEnable = false
+) {
   const lastData = cloneDeep(params[params.length - 1]);
   const defaultParam = cloneDeep(defaultParamItem);
   if (!lastData || !defaultParam) {
@@ -137,6 +142,9 @@ export function filterKeyValParams<T>(params: (T & Record<string, any>)[], defau
     validParams = params.slice(0, params.length - 1);
   } else {
     validParams = params;
+  }
+  if (filterEnable) {
+    validParams = validParams.filter((e) => e.enable === true);
   }
   return {
     lastDataIsDefault,

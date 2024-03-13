@@ -25,7 +25,7 @@
   </div>
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.FORM_DATA"
-    v-model:params="currentTableParams"
+    :params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
     :height-used="heightUsed"
@@ -40,7 +40,7 @@
   />
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.WWW_FORM"
-    v-model:params="currentTableParams"
+    :params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
     :height-used="heightUsed"
@@ -115,6 +115,7 @@
   import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { filterKeyValParams } from '../utils';
   import { defaultBodyParamsItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
@@ -315,14 +316,15 @@
    */
   function handleBatchParamApply(resultArr: any[]) {
     const files = currentTableParams.value.filter((item) => item.paramType === RequestParamsType.FILE);
-    if (resultArr.length < currentTableParams.value.length) {
-      currentTableParams.value.splice(0, currentTableParams.value.length - 1, ...files, ...resultArr);
-    } else {
+    const filterResult = filterKeyValParams(currentTableParams.value, defaultBodyParamsItem);
+    if (filterResult.lastDataIsDefault) {
       currentTableParams.value = [
         ...files,
         ...resultArr,
         currentTableParams.value[currentTableParams.value.length - 1],
       ].filter(Boolean);
+    } else {
+      currentTableParams.value = [...files, ...resultArr].filter(Boolean);
     }
     emit('change');
   }

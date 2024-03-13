@@ -66,12 +66,6 @@
     line-height: 16px;
     color: var(--color-text-1);
   }
-  .param-popover-subtitle {
-    margin-bottom: 2px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-4);
-  }
   .param-popover-value {
     min-width: 100px;
     max-width: 280px;

@@ -134,4 +134,5 @@ export default {
   'common.unFollowSuccess': '取消关注成功',
   'common.share': '分享',
   'common.notRemind': '不再提醒',
+  'common.status': '状态',
 };

@@ -102,7 +102,7 @@
     requestResult?: RequestResult;
     console?: string;
     isPriorityLocalExec: boolean;
-    requestUrl: string;
+    requestUrl?: string;
     isHttpProtocol: boolean;
   }>();
   const emit = defineEmits(['execute']);

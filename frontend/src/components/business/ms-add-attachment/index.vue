@@ -243,9 +243,6 @@
   });
   const buttonDropDownVisible = ref(false);
 
-  watchEffect(() => {
-    console.log('innerFileList', innerFileList.value);
-  });
   onBeforeMount(() => {
     // 回显文件
     const defaultFiles = innerFileList.value.filter((item) => item) || [];

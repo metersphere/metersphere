@@ -273,7 +273,7 @@
           </a-tooltip>
         </div>
         <paramTable
-          v-model:params="condition.extractParams"
+          :params="condition.extractParams"
           :columns="sqlSourceColumns"
           :selectable="false"
           :default-param-item="defaultKeyValueParamItem"
@@ -301,6 +301,7 @@
         mode="button"
         :step="100"
         :min="0"
+        :precision="0"
         class="w-[160px]"
         model-event="input"
       />
@@ -309,7 +310,7 @@
     <div v-else-if="condition.processorType === RequestConditionProcessor.EXTRACT">
       <paramTable
         ref="extractParamsTableRef"
-        v-model:params="condition.extractors"
+        :params="condition.extractors"
         :default-param-item="defaultExtractParamItem"
         :columns="extractParamsColumns"
         :selectable="false"
@@ -842,8 +843,10 @@ if (!result){
   const protocolList = ref<ProtocolItem[]>([]);
   onBeforeMount(async () => {
     try {
+      // TODO:数据从外面传进来
       protocolList.value = await getProtocolList(appStore.currentOrgId);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   });
@@ -898,12 +901,6 @@ if (!result){
     font-weight: 500;
     line-height: 16px;
     color: var(--color-text-1);
-  }
-  .param-popover-subtitle {
-    margin-bottom: 2px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-4);
   }
   .param-popover-value {
     min-width: 100px;

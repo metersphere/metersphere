@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import apiTable from './apiTable.vue';
+  import apiTable from './management/api/apiTable.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';

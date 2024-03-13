@@ -32,7 +32,8 @@
             :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
           >
             <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
-              <MsIcon :type="isExpandApi ? 'icon-icon_collapse_interface' : 'icon-icon_expand_interface'" />
+              <icon-eye-invisible v-if="isExpandApi" />
+              <icon-eye v-else />
             </MsButton>
           </a-tooltip>
           <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">

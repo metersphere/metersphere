@@ -123,7 +123,7 @@
     {
       key: 'path',
       locale: 'apiTestManagement.path',
-      value: previewDetail.value.path,
+      value: previewDetail.value.url || previewDetail.value.path,
     },
     {
       key: 'tags',

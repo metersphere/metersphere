@@ -68,6 +68,8 @@ export default {
   'apiTestDebug.preconditionScriptName': '前置脚本名称',
   'apiTestDebug.preconditionAssociatedSceneResult': '关联场景结果',
   'apiTestDebug.preconditionScriptNamePlaceholder': '请输入前置脚本名称',
+  'apiTestDebug.postConditionScriptName': '后置脚本名称',
+  'apiTestDebug.postConditionScriptNamePlaceholder': '请输入后置脚本名称',
   'apiTestDebug.preconditionAssociateResultDesc':
     '当作自定义脚本步骤统计到场景执行结果中，执行报错时会影响场景的最终执行结果',
   'apiTestDebug.manual': '手动录入',

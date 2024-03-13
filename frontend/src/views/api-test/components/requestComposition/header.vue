@@ -24,10 +24,9 @@
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
   import { EnableKeyValueParam } from '@/models/apiTest/common';
 
+  import { filterKeyValParams } from '../utils';
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
@@ -40,8 +39,6 @@
     (e: 'update:params', value: EnableKeyValueParam[]): void;
     (e: 'change'): void; //  数据发生变化
   }>();
-
-  const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
 
@@ -80,10 +77,11 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
-    if (resultArr.length < innerParams.value.length) {
-      innerParams.value.splice(0, innerParams.value.length - 1, ...resultArr);
+    const filterResult = filterKeyValParams(innerParams.value, defaultHeaderParamsItem);
+    if (filterResult.lastDataIsDefault) {
+      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
     } else {
-      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]];
+      innerParams.value = resultArr.filter(Boolean);
     }
     emit('change');
   }
