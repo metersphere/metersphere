@@ -59,11 +59,41 @@ export const pathMap: PathMapItem[] = [
         ],
       },
       {
-        key: 'API_TEST_MANAGEMENT', // 接口测试-接口管理
+        key: 'API_TEST_MANAGEMENT', // 接口测试-接口定义
         locale: 'menu.apiTest.management',
         route: RouteEnum.API_TEST_MANAGEMENT,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'API_TEST_MANAGEMENT_MODULE', // 接口测试-接口定义-模块
+            locale: 'common.module',
+            route: RouteEnum.API_TEST_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_MANAGEMENT_DEFINITION', // 接口测试-接口定义
+            locale: 'menu.apiTest.management.definition',
+            route: RouteEnum.API_TEST_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_MANAGEMENT_MOCK', // 接口测试-接口定义-mock
+            locale: 'MOCK',
+            route: RouteEnum.API_TEST_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_MANAGEMENT_CASE', // 接口测试-接口定义-case
+            locale: 'CASE',
+            route: RouteEnum.API_TEST_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
       {
         key: 'API_TEST_REPORT', // 接口测试-接口测试报告

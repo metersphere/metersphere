@@ -213,3 +213,19 @@ export enum RequestCaseStatus {
   PROCESSING = 'PROCESSING',
   DONE = 'DONE',
 }
+// 创建接口场景组成部分
+export enum ScenarioCreateComposition {
+  STEP = 'STEP',
+  PARAMS = 'PARAMS',
+  PRE_POST = 'PRE_POST',
+  ASSERTION = 'ASSERTION',
+  SETTING = 'SETTING',
+}
+// 接口场景详情组成部分
+export enum ScenarioDetailComposition {
+  BASE_INFO = 'BASE_INFO',
+  EXECUTE_HISTORY = 'EXECUTE_HISTORY',
+  CHANGE_HISTORY = 'CHANGE_HISTORY',
+  DEPENDENCY = 'DEPENDENCY',
+  QUOTE = 'QUOTE',
+}

@@ -14,7 +14,7 @@
             @change-protocol="handleProtocolChange"
           />
         </div>
-        <div class="b-0 absolute w-full p-[9px]">
+        <div class="w-full p-[8px]">
           <a-divider class="!my-0 !mb-0" />
           <div class="case h-[38px]">
             <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
@@ -52,6 +52,9 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * @description 接口测试-接口管理
+   */
   import { provide } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
 

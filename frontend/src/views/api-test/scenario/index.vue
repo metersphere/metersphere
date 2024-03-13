@@ -1,10 +1,23 @@
 <template>
-  <div class="rounded-2xl bg-white">
-    <div class="p-[24px] pb-[16px]">
-      <span>场景列表接口(标签页配置未实现)</span>
+  <MsCard no-content-padding simple>
+    <div class="p-[24px_24px_8px_24px]">
+      <MsEditableTab
+        v-model:active-tab="activeApiTab"
+        v-model:tabs="apiTabs"
+        class="flex-1 overflow-hidden"
+        @add="newTab"
+      >
+        <template #label="{ tab }">
+          <a-tooltip :content="tab.label" :mouse-enter-delay="500">
+            <div class="one-line-text max-w-[144px]">
+              {{ tab.label }}
+            </div>
+          </a-tooltip>
+        </template>
+      </MsEditableTab>
     </div>
     <a-divider class="!my-0" />
-    <div class="pageWrap">
+    <div v-if="activeApiTab.id === 'all'" class="pageWrap">
       <MsSplitBox :size="300" :max="0.5">
         <template #first>
           <div class="p-[24px] pb-0">
@@ -36,7 +49,8 @@
         </template>
       </MsSplitBox>
     </div>
-  </div>
+    <detail v-else :detail="activeApiTab"></detail>
+  </MsCard>
 </template>
 
 <script setup lang="ts">
@@ -46,9 +60,12 @@
 
   import { ref } from 'vue';
 
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
+  import detail from './detail/index.vue';
   import ApiTable from '@/views/api-test/management/components/management/api/apiTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -56,6 +73,25 @@
   import { ModuleTreeNode } from '@/models/common';
 
   const { t } = useI18n();
+
+  const apiTabs = ref<any[]>([
+    {
+      id: 'all',
+      label: t('apiScenario.allScenario'),
+      closable: false,
+    },
+  ]);
+  const activeApiTab = ref<any>(apiTabs.value[0]);
+
+  function newTab() {
+    apiTabs.value.push({
+      id: `newTab${apiTabs.value.length}`,
+      label: `New Tab ${apiTabs.value.length}`,
+      closable: true,
+    });
+    activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
+  }
+
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
   const activeFolder = ref<string>('all');
@@ -86,8 +122,7 @@
 
 <style scoped lang="less">
   .pageWrap {
-    min-width: 1000px;
-    height: calc(100vh - 166px);
+    height: calc(100% - 65px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .case {

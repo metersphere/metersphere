@@ -483,6 +483,7 @@
 </template>
 
 <script setup lang="ts">
+  // TODO:代码拆分，结构优化
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -562,6 +563,7 @@
     mode?: 'definition' | 'debug';
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
+    isExecute?: boolean; // 是否是执行
   }
   export type RequestParam = ExecuteApiRequestFullParams & {
     responseDefinition?: ResponseItem[];
@@ -602,18 +604,6 @@
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
-
-  watch(
-    () => props.request.id,
-    () => {
-      if (temporaryResponseMap[props.request.reportId]) {
-        // 如果有缓存的报告未读取，则直接赋值
-        requestVModel.value.response = temporaryResponseMap[props.request.reportId];
-        requestVModel.value.executeLoading = false;
-        delete temporaryResponseMap[props.request.reportId];
-      }
-    }
-  );
 
   function handleActiveDebugChange() {
     if (!loading.value || (!isHttpProtocol.value && isInitPluginForm.value)) {
@@ -878,25 +868,6 @@
     handleActiveDebugChange();
   }
 
-  watch(
-    () => requestVModel.value.id,
-    async () => {
-      if (requestVModel.value.protocol !== 'HTTP') {
-        requestVModel.value.activeTab = RequestComposition.PLUGIN;
-        if (protocolOptions.value.length === 0) {
-          // 还没初始化过协议列表，则初始化；在这里初始化是为了阻塞脚本的初始化，避免脚本初始化时协议列表还没初始化
-          await initProtocolList();
-        }
-        initPluginScript();
-      } else {
-        initProtocolList();
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
-
   /**
    *  处理url输入框变化，解析成参数表格
    */
@@ -994,35 +965,6 @@
     }
   }
 
-  const reportId = ref('');
-  const websocket = ref<WebSocket>();
-  /**
-   * 开启websocket监听，接收执行结果
-   */
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      reportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl.value : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (requestVModel.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          requestVModel.value.response = data.taskResult;
-          requestVModel.value.executeLoading = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-      }
-    });
-  }
-
   const saveModalVisible = ref(false);
   const saveModalForm = ref({
     name: '',
@@ -1059,6 +1001,38 @@
       return processor;
     });
     return conditionCopy;
+  }
+
+  const reportId = ref('');
+  const websocket = ref<WebSocket>();
+  /**
+   * 开启websocket监听，接收执行结果
+   */
+  function debugSocket(executeType?: 'localExec' | 'serverExec') {
+    websocket.value = getSocket(
+      reportId.value,
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? localExecuteUrl.value : ''
+    );
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        if (requestVModel.value.reportId === data.reportId) {
+          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+          requestVModel.value.response = data.taskResult;
+          requestVModel.value.executeLoading = false;
+          requestVModel.value.isExecute = false;
+        } else {
+          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+          temporaryResponseMap[data.reportId] = data.taskResult;
+        }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
+        requestVModel.value.executeLoading = false;
+        requestVModel.value.isExecute = false;
+      }
+    });
   }
 
   /**
@@ -1214,6 +1188,34 @@
     requestVModel.value.executeLoading = false;
   }
 
+  watch(
+    () => requestVModel.value.id,
+    async () => {
+      if (requestVModel.value.protocol !== 'HTTP') {
+        requestVModel.value.activeTab = RequestComposition.PLUGIN;
+        if (protocolOptions.value.length === 0) {
+          // 还没初始化过协议列表，则初始化；在这里初始化是为了阻塞脚本的初始化，避免脚本初始化时协议列表还没初始化
+          await initProtocolList();
+        }
+        await initPluginScript();
+      } else {
+        await initProtocolList();
+      }
+      if (props.request.isExecute && !requestVModel.value.executeLoading) {
+        // 如果是执行操作打开接口详情，且该接口不在执行状态中，则立即执行
+        execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+      } else if (temporaryResponseMap[props.request.reportId]) {
+        // 如果有缓存的报告未读取，则直接赋值
+        requestVModel.value.response = temporaryResponseMap[props.request.reportId];
+        requestVModel.value.executeLoading = false;
+        delete temporaryResponseMap[props.request.reportId];
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
   async function updateRequest() {
     try {
       saveLoading.value = true;
@@ -1266,7 +1268,6 @@
       requestVModel.value.label = res.name;
       requestVModel.value.url = res.path;
       requestVModel.value.path = res.path;
-      console.log('requestVModel.value', requestVModel.value);
       if (!props.isDefinition) {
         saveModalVisible.value = false;
       }

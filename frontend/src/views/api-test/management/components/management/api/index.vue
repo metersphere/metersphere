@@ -6,7 +6,7 @@
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
         :protocol="props.protocol"
-        @open-api-tab="openApiTab"
+        @open-api-tab="(record, isExecute) => openApiTab(record, false, isExecute)"
         @open-copy-api-tab="openApiTab($event, true)"
       />
     </div>
@@ -107,7 +107,6 @@
     moduleTree: ModuleTreeNode[]; // 模块树
     protocol: string;
   }>();
-  const emit = defineEmits(['addDone']);
 
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
@@ -157,6 +156,7 @@
     },
     rawBody: { value: '' },
   };
+  // 调试返回的响应内容
   const defaultResponse: RequestTaskResult = {
     requestResults: [
       {
@@ -182,7 +182,7 @@
       },
     ],
     console: '',
-  }; // 调试返回的响应内容
+  };
   const defaultDefinitionParams: RequestParam = {
     id: initDefaultId,
     moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
@@ -276,20 +276,24 @@
   );
 
   const loading = ref(false);
-  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail | string, isCopy = false) {
+  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail | string, isCopy = false, isExecute = false) {
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
     if (isLoadedTabIndex > -1 && !isCopy) {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
-      activeApiTab.value = apiTabs.value[isLoadedTabIndex] as RequestParam;
+      activeApiTab.value = {
+        ...(apiTabs.value[isLoadedTabIndex] as RequestParam),
+        isExecute,
+        mode: isExecute ? 'debug' : 'definition',
+      };
       return;
     }
     try {
       loading.value = true;
       const res = await getDefinitionDetail(typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
-      const name = isCopy ? `${res.name}-copy` : res.name;
-      definitionActiveKey.value = isCopy ? 'definition' : 'preview';
+      const name = isCopy ? `copy-${res.name}` : res.name;
+      definitionActiveKey.value = isCopy || isExecute ? 'definition' : 'preview';
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
@@ -305,6 +309,9 @@
         isNew: isCopy,
         unSaved: isCopy,
         isCopy,
+        id: isCopy ? new Date().getTime() : res.id,
+        isExecute,
+        mode: isExecute ? 'debug' : 'definition',
         ...parseRequestBodyResult,
       });
       nextTick(() => {
