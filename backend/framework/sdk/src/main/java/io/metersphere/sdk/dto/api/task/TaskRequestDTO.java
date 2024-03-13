@@ -88,7 +88,7 @@ public class TaskRequestDTO implements Serializable {
     private String projectId;
 
     /**
-     * {@link io.metersphere.sdk.constants.ApiBatchRunMode}
+     * {@link io.metersphere.sdk.constants.ApiExecuteRunMode}
      */
     @NotBlank
     private String runMode;
@@ -97,7 +97,7 @@ public class TaskRequestDTO implements Serializable {
      * 运行配置
      */
     @Valid
-    private ApiRunModeConfigDTO runModeConfig;
+    private ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
 
     /**
      * TODO 要执行的请求总量，用于计算执行各种指标

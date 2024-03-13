@@ -23,6 +23,7 @@ import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -183,7 +184,7 @@ public class ApiExecuteService {
      */
     private TaskRequestDTO doExecute(TaskRequestDTO taskRequest) throws Exception {
         // 获取资源池
-        TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskRequest.getProjectId());
+        TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskRequest.getRunModeConfig(), taskRequest.getProjectId());
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
         if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
             // 如果资源池配置了当前站点，则使用资源池的
@@ -217,9 +218,12 @@ public class ApiExecuteService {
         }
     }
 
-    private TestResourcePoolReturnDTO getGetResourcePoolNodeDTO(String projectId) {
-        String resourcePoolId = getProjectApiResourcePoolId(projectId);
-        return getAvailableResourcePoolDTO(projectId, resourcePoolId);
+    private TestResourcePoolReturnDTO getGetResourcePoolNodeDTO(ApiRunModeConfigDTO runModeConfig, String projectId) {
+        String poolId = runModeConfig.getPoolId();
+        if (StringUtils.isBlank(poolId)) {
+            poolId = getProjectApiResourcePoolId(projectId);
+        }
+        return getAvailableResourcePoolDTO(projectId, poolId);
     }
 
     /**
@@ -436,7 +440,7 @@ public class ApiExecuteService {
         return testResourcePoolService.getTestResourcePoolDetail(resourcePoolId);
     }
 
-    private String getProjectApiResourcePoolId(String projectId) {
+    public String getProjectApiResourcePoolId(String projectId) {
         // 查询接口默认资源池
         ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
         // 没有配置接口默认资源池

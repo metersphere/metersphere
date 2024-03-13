@@ -20,6 +20,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -254,7 +255,14 @@ public class ApiTestCaseController {
     @Operation(summary = "用例执行，获取获取执行结果")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO run(@PathVariable String id, @PathVariable String reportId) {
-        return apiTestCaseService.run(id, reportId);
+        return apiTestCaseService.run(id, reportId, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/run/{id}")
+    @Operation(summary = "用例执行")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    public TaskRequestDTO run(@PathVariable String id) {
+        return apiTestCaseService.run(id, IDGenerator.nextStr(), SessionUtils.getUserId());
     }
 
     @PostMapping("/debug")
