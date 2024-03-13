@@ -156,6 +156,8 @@ public class BugService {
     private BugStatusService bugStatusService;
     @Resource
     private BugAttachmentService bugAttachmentService;
+    @Resource
+    private BugPlatformService bugPlatformService;
 
     public static final Long INTERVAL_POS = 5000L;
 
@@ -188,6 +190,7 @@ public class BugService {
      * @return 缺陷
      */
     public Bug addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
+        // 校验标签长度
         this.checkTagLength(request.getTags());
         /*
          *  缺陷创建或者修改逻辑:
@@ -205,7 +208,7 @@ public class BugService {
                // 项目未配置第三方平台
                throw new MSException(Translator.get("third_party_not_config"));
            }
-           // 获取配置平台, 插入平台缺陷
+           // 获取配置平台, 构建平台请求参数, 插入或更新平台缺陷
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                    new String(serviceIntegration.getConfiguration()));
            PlatformBugUpdateRequest platformRequest = buildPlatformBugRequest(request);
@@ -225,19 +228,8 @@ public class BugService {
         handleAndSaveCustomFields(request, isUpdate);
         // 处理附件
         handleAndSaveAttachments(request, files, currentUser, platformName, platformBug);
-
-        if (!isUpdate && StringUtils.isNotBlank(request.getCaseId())) {
-            //用例创建缺陷并关联
-            BugRelationCase bugRelationCase = new BugRelationCase();
-            bugRelationCase.setId(IDGenerator.nextStr());
-            bugRelationCase.setCaseId(request.getCaseId());
-            bugRelationCase.setBugId(bug.getId());
-            bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
-            bugRelationCase.setCreateUser(currentUser);
-            bugRelationCase.setCreateTime(System.currentTimeMillis());
-            bugRelationCase.setUpdateTime(System.currentTimeMillis());
-            bugRelationCaseMapper.insertSelective(bugRelationCase);
-        }
+        // 处理用例关联关系
+        handleAndSaveCaseRelation(request, isUpdate, bug, currentUser);
 
         return bug;
     }
@@ -921,12 +913,11 @@ public class BugService {
      */
     private void handleAndSaveAttachments(BugEditRequest request, List<MultipartFile> files, String currentUser, String platformName, PlatformBugUpdateDTO platformBug) {
         /*
-         * 附件处理逻辑
+         * 附件处理逻辑 (注意: 第三方平台缺陷需同步这些附件)
          * 1. 先处理删除, 及取消关联的附件
-         * 2. 再处理新上传的, 新关联的附件(注意: 第三方平台缺陷需同步这些附件)
+         * 2. 再处理新上传的, 新关联的附件
          */
-        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath() + File.separator + "tmp"
-                + File.separator);
+        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath());
         // 同步删除附件集合
         List<SyncAttachmentToPlatformRequest> removeAttachments = removeAttachment(request, platformBug, currentUser, platformName);
         // 同步上传附件集合
@@ -936,7 +927,7 @@ public class BugService {
 
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && CollectionUtils.isNotEmpty(allSyncAttachments)) {
-            bugAttachmentService.syncAttachmentToPlatform(allSyncAttachments, request.getProjectId(), tempFileDir);
+            bugPlatformService.syncAttachmentToPlatform(allSyncAttachments, request.getProjectId());
         }
     }
 
@@ -1097,6 +1088,28 @@ public class BugService {
         return uploadPlatformAttachments;
     }
 
+    /**
+     * 处理并保存缺陷用例关联关系
+     * @param request 请求参数
+     * @param isUpdate 是否更新
+     * @param bug 缺陷
+     * @param currentUser 当前用户
+     */
+    private void handleAndSaveCaseRelation(BugEditRequest request, boolean isUpdate, Bug bug, String currentUser) {
+        if (!isUpdate && StringUtils.isNotBlank(request.getCaseId())) {
+            //用例创建缺陷并关联
+            BugRelationCase bugRelationCase = new BugRelationCase();
+            bugRelationCase.setId(IDGenerator.nextStr());
+            bugRelationCase.setCaseId(request.getCaseId());
+            bugRelationCase.setBugId(bug.getId());
+            bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
+            bugRelationCase.setCreateUser(currentUser);
+            bugRelationCase.setCreateTime(System.currentTimeMillis());
+            bugRelationCase.setUpdateTime(System.currentTimeMillis());
+            bugRelationCaseMapper.insertSelective(bugRelationCase);
+        }
+    }
+
    /**
     * 封装缺陷平台请求参数
     * @param request 缺陷请求参数
@@ -1246,7 +1259,12 @@ public class BugService {
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                    new String(serviceIntegration.getConfiguration()));
            String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
-           List<PlatformCustomFieldItemDTO> platformCustomFields = platform.getDefaultTemplateCustomField(projectConfig);
+           List<PlatformCustomFieldItemDTO> platformCustomFields = new ArrayList<>();
+           try {
+               platformCustomFields = platform.getDefaultTemplateCustomField(projectConfig);
+           } catch (Exception e) {
+               LogUtils.error("获取平台默认模板字段失败: " + e.getMessage());
+           }
            if (CollectionUtils.isNotEmpty(platformCustomFields)) {
                List<TemplateCustomFieldDTO> customFields = platformCustomFields.stream().map(platformCustomField -> {
                    TemplateCustomFieldDTO customField = new TemplateCustomFieldDTO();
