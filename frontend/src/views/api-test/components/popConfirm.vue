@@ -78,7 +78,7 @@
     updateApiNodeApi?: (params: { id: string; name: string }) => Promise<any>;
   }>();
 
-  const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish', 'updateDescFinish']);
+  const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish']);
 
   const appStore = useAppStore();
   const { t } = useI18n();

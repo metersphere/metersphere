@@ -2,24 +2,33 @@
   <MsCard simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
-        <div class="p-[16px]">
-          <moduleTree
-            ref="moduleTreeRef"
-            :active-node-id="activeApi?.id"
-            @init="handleModuleInit"
-            @new-api="newApi"
-            @import="importDrawerVisible = true"
-            @folder-node-select="handleNodeSelect"
-            @click-api-node="handleApiNodeClick"
-            @change-protocol="handleProtocolChange"
-          />
-        </div>
-        <div class="w-full p-[8px]">
-          <a-divider class="!my-0 !mb-0" />
-          <div class="case h-[38px]">
-            <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
-              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-              <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+        <div class="flex flex-col">
+          <div class="p-[16px]">
+            <moduleTree
+              ref="moduleTreeRef"
+              :active-node-id="activeNodeId"
+              @init="handleModuleInit"
+              @new-api="newApi"
+              @import="importDrawerVisible = true"
+              @folder-node-select="handleNodeSelect"
+              @click-api-node="handleApiNodeClick"
+              @change-protocol="handleProtocolChange"
+              @update-api-node="handleUpdateApiNode"
+              @delete-node="handleDeleteApiFromModuleTree"
+              @execute="handleExecute"
+            />
+          </div>
+          <div class="flex-1">
+            <a-divider class="!my-0 !mb-0" />
+            <div class="case">
+              <div
+                class="flex items-center px-[20px]"
+                :class="getActiveClass('recycle')"
+                @click="setActiveFolder('recycle')"
+              >
+                <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -79,7 +88,7 @@
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
   const protocol = ref('HTTP');
-  const activeApi = ref<RequestParam>();
+  const activeNodeId = ref<string | number>('all');
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
@@ -103,7 +112,12 @@
   }
 
   function setActiveApi(params: RequestParam) {
-    activeApi.value = params;
+    if (params.id === 'all') {
+      // 切换到全部 tab 时需设置为上次激活的 api 节点的模块
+      activeNodeId.value = params.moduleId;
+    } else {
+      activeNodeId.value = params.id;
+    }
   }
 
   function handleProtocolChange(val: string) {
@@ -117,6 +131,18 @@
   function handleImportDone() {
     refreshModuleTree();
     managementRef.value?.refreshApiTable();
+  }
+
+  function handleUpdateApiNode(newInfo: { id: string; name: string; moduleId?: string; [key: string]: any }) {
+    managementRef.value?.handleApiUpdateFromModuleTree(newInfo);
+  }
+
+  function handleDeleteApiFromModuleTree(id: string, isModule?: boolean) {
+    managementRef.value?.handleDeleteApiFromModuleTree(id, isModule);
+  }
+
+  function handleExecute(id: string) {
+    managementRef.value?.newTab(id, false, true);
   }
 
   onMounted(() => {

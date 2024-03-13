@@ -20,23 +20,23 @@
     <div v-if="activeApiTab.id === 'all'" class="pageWrap">
       <MsSplitBox :size="300" :max="0.5">
         <template #first>
-          <div class="p-[24px] pb-0">
-            <div class="feature-case h-[100%]">
+          <div class="flex h-full flex-col">
+            <div class="p-[16px]">
               <scenarioModuleTree
                 ref="scenarioModuleTreeRef"
                 :is-show-scenario="isShowScenario"
                 @folder-node-select="handleNodeSelect"
                 @init="handleModuleInit"
               ></scenarioModuleTree>
-              <div class="b-0 absolute w-[88%]">
-                <a-divider class="!my-0 !mb-2" />
-                <div class="case h-[38px]">
-                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="redirectRecycle()">
-                    <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                    <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
-                    <!--                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div-->
-                    <div class="folder-count">({{ 0 }})</div></div
-                  >
+            </div>
+            <div class="flex-1">
+              <a-divider margin="0" />
+              <div class="case">
+                <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
+                  <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+                  <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
+                  <!--                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div-->
+                  <div class="folder-count">({{ 0 }})</div>
                 </div>
               </div>
             </div>

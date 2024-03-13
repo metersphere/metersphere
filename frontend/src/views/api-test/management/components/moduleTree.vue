@@ -60,7 +60,7 @@
               :all-names="rootModulesName"
               parent-id="NONE"
               :add-module-api="addModule"
-              @add-finish="initModules"
+              @add-finish="handleAddFinish"
             >
               <span id="addModulePopSpan"></span>
             </popConfirm>
@@ -122,7 +122,7 @@
             :parent-id="nodeData.id"
             :add-module-api="addModule"
             @close="resetFocusNodeKey"
-            @add-finish="() => initModules()"
+            @add-finish="handleAddFinish"
           >
             <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
               <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
@@ -139,7 +139,7 @@
             :update-module-api="updateModule"
             :update-api-node-api="updateDefinition"
             @close="resetFocusNodeKey"
-            @rename-finish="initModules"
+            @rename-finish="handleRenameFinish"
           >
             <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
           </popConfirm>
@@ -151,6 +151,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { useClipboard } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -164,6 +165,7 @@
   import { getProtocolList } from '@/api/modules/api-test/common';
   import {
     addModule,
+    deleteDefinition,
     deleteModule,
     getModuleCount,
     getModuleTree,
@@ -199,11 +201,22 @@
       trash: false,
     }
   );
-  const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode', 'changeProtocol']);
+  const emit = defineEmits([
+    'init',
+    'newApi',
+    'import',
+    'folderNodeSelect',
+    'clickApiNode',
+    'changeProtocol',
+    'updateApiNode',
+    'deleteNode',
+    'execute',
+  ]);
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+  const { copy, isSupported } = useClipboard();
 
   const moduleProtocol = ref('HTTP');
   const moduleProtocolOptions = ref<SelectOptionData[]>([]);
@@ -483,8 +496,11 @@
   function deleteFolder(node: MsTreeNodeData) {
     openModal({
       type: 'error',
-      title: t('apiTestDebug.deleteFolderTipTitle', { name: node.name }),
-      content: t('apiTestDebug.deleteFolderTipContent'),
+      title:
+        node.type === 'API'
+          ? t('apiTestDebug.deleteDebugTipTitle', { name: node.name })
+          : t('apiTestDebug.deleteFolderTipTitle', { name: node.name }),
+      content: node.type === 'API' ? t('apiTestDebug.deleteDebugTipContent') : t('apiTestDebug.deleteFolderTipContent'),
       okText: t('apiTestDebug.deleteConfirm'),
       okButtonProps: {
         status: 'danger',
@@ -492,8 +508,13 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteModule(node.id);
+          if (node.type === 'API') {
+            await deleteDefinition(node.id);
+          } else {
+            await deleteModule(node.id);
+          }
           Message.success(t('apiTestDebug.deleteSuccess'));
+          emit('deleteNode', node.id, node.type === 'MODULE');
           await initModules();
           initModuleCount();
         } catch (error) {
@@ -514,6 +535,15 @@
     renameFolderTitle.value = '';
   }
 
+  function share(id: string) {
+    if (isSupported) {
+      copy(`${window.location.href}&dId=${id}`);
+      Message.success(t('apiTestManagement.shareUrlCopied'));
+    } else {
+      Message.error(t('common.copyNotSupport'));
+    }
+  }
+
   /**
    * 处理树节点更多按钮事件
    * @param item
@@ -528,6 +558,12 @@
         renameFolderTitle.value = node.name || '';
         renamePopVisible.value = true;
         document.querySelector(`#renameSpan${node.id}`)?.dispatchEvent(new Event('click'));
+        break;
+      case 'share':
+        share(node.id);
+        break;
+      case 'execute':
+        emit('execute', node.id);
         break;
       default:
         break;
@@ -577,9 +613,10 @@
           projectId: appStore.currentProjectId,
           moveMode: dropPositionMap[dropPosition],
           moveId: dragNode.id,
-          targetId: dropNode.type === 'MODULE' ? dragNode.id : dropNode.id,
+          targetId: dropNode.type === 'MODULE' ? dragNode.id : dropNode.id, // 释放节点是模块，则传入当前拖动的 API 的id；释放节点是 API 节点的话就传入释放节点的 id
           moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
         });
+        emit('updateApiNode', { ...dragNode, moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id });
       }
       Message.success(t('apiTestDebug.moduleMoveSuccess'));
     } catch (error) {
@@ -590,6 +627,16 @@
       await initModules();
       initModuleCount();
     }
+  }
+
+  async function handleAddFinish() {
+    await initModules();
+    initModuleCount();
+  }
+
+  function handleRenameFinish(newName: string, id: string) {
+    emit('updateApiNode', { name: newName, id });
+    initModules();
   }
 
   function moreActionsClose() {
