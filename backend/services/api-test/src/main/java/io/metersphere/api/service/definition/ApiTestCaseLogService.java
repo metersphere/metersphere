@@ -97,23 +97,6 @@ public class ApiTestCaseLogService {
         return dto;
     }
 
-    public LogDTO recoverLog(String id) {
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
-        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
-        LogDTO dto = new LogDTO(
-                apiTestCase.getProjectId(),
-                project.getOrganizationId(),
-                id,
-                null,
-                OperationLogType.RECOVER.name(),
-                OperationLogModule.API_TEST_MANAGEMENT_CASE,
-                apiTestCase.getName());
-        dto.setHistory(false);
-        dto.setMethod(HttpMethodConstants.GET.name());
-        dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
-        return dto;
-    }
-
     public LogDTO followLog(String id) {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
