@@ -57,8 +57,17 @@ export const GetTrashModuleCountUrl = '/api/definition/module/trash/count'; // �
 export const CasePageUrl = '/api/case/page'; // 接口用例列表
 export const UpdateCaseStatusUrl = '/api/case/update-status'; // 接口用例更新状态
 export const UpdateCasePriorityUrl = '/api/case/update-priority'; // 接口用例更新等级
-export const DeleteCaseUrl = '/api/case/delete'; // 删除接口用例
-export const BatchDeleteCaseUrl = '/api/case/batch/delete'; // 批量删除接口用例
+export const DeleteCaseUrl = '/api/case/delete-to-gc'; // 删除接口用例
+export const BatchDeleteCaseUrl = '/api/case/batch/delete-to-gc'; // 批量删除接口用例
 export const BatchEditCaseUrl = '/api/case/batch/edit'; // 批量编辑接口用例
 export const SortCaseUrl = '/api/case/edit/pos'; // 接口用例拖拽
+
+/**
+ * 接口用例回收站
+ */
+export const RecycleCasePageUrl = '/api/case/trash/page'; // 接口用例回收站列表
+export const RecoverCaseUrl = '/api/case/recover'; // 接口用例恢复
+export const BatchRecoverCaseUrl = '/api/case/batch/recover'; // 接口用例批量恢复
+export const DeleteRecycleCaseUrl = '/api/case/delete'; // 接口用例彻底删除
+export const BatchDeleteRecycleCaseUrl = '/api/case/batch/delete'; // 接口用例批量彻底删除
 export const AddCaseUrl = '/api/case/add'; // 添加用例

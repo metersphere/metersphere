@@ -162,5 +162,11 @@ export default {
   'case.passRateTip': '用例执行success数/用例执行总数*%',
   'case.batchModalSubTitle': '（已选 {count} 个用例）',
   'case.batchDeleteCaseTip': '确认删除已选中的 {count} 个用例吗？',
+  'case.batchDeleteCaseTipTitle': '确认删除 {name} 吗？',
+  'case.batchRecoverCaseTipTitle': '确认恢复 {name} 吗？',
+  'case.recycle.cleanOutDeleteOnRecycleTip': '删除后，用例无法恢复，请谨慎操作!',
   'case.deleteCaseTip': '删除用例会导致引用了该用例的测试任务执行失败，请谨慎操作!',
+  'case.batchRecoverCaseTip': '确认恢复已选中的 {count} 个用例吗？',
+  'case.recycle.recoverCaseTip': '恢复case时会同步恢复被删除的api',
+  'case.recycle.confirmRecovery': '确认恢复',
 };
