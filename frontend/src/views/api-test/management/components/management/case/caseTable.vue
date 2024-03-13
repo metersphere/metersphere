@@ -24,7 +24,7 @@
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
-      @change="changeHandler"
+      @drag-change="handleDragChange"
     >
       <template #num="{ record }">
         <MsButton type="text">{{ record.num }}</MsButton>
@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -518,37 +518,14 @@
   }
 
   // 拖拽排序
-  async function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
-    if (!currentData || currentData.length === 1) {
-      return;
-    }
-
-    if (extra && extra.dragTarget?.id) {
-      const params: DragSortParams = {
-        projectId: appStore.currentProjectId,
-        targetId: '', // 放置目标id
-        moveMode: 'BEFORE',
-        moveId: extra.dragTarget.id as string, // 拖拽id
-      };
-      const index = currentData.findIndex((item: any) => item.key === extra.dragTarget?.id);
-
-      if (index > -1 && currentData[index + 1]) {
-        params.moveMode = 'BEFORE';
-        params.targetId = currentData[index + 1].raw.id;
-      } else if (index > -1 && !currentData[index + 1]) {
-        if (index > -1 && currentData[index - 1]) {
-          params.moveMode = 'AFTER';
-          params.targetId = currentData[index - 1].raw.id;
-        }
-      }
-      try {
-        await dragSort(params);
-        Message.success(t('caseManagement.featureCase.sortSuccess'));
-        loadCaseList();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
+  async function handleDragChange(params: DragSortParams) {
+    try {
+      await dragSort(params);
+      Message.success(t('caseManagement.featureCase.sortSuccess'));
+      loadCaseList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   }
 
