@@ -265,7 +265,12 @@
         document.querySelector(`#renameSpan${_tab.id}`)?.dispatchEvent(new Event('click'));
         break;
       case 'copy':
-        addResponseTab({ ..._tab, label: `${_tab.label || _tab.name}-Copy`, name: `${_tab.label || _tab.name}-Copy` });
+        addResponseTab({
+          ..._tab,
+          id: new Date().getTime(),
+          label: `copy-${t(_tab.label || _tab.name)}`,
+          name: `copy-${t(_tab.label || _tab.name)}`,
+        });
         break;
       case 'delete':
         _tab.showPopConfirm = true;

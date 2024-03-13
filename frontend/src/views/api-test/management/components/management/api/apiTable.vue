@@ -1,6 +1,6 @@
 <template>
   <div :class="['p-[0_16px_16px_16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-between">
+    <div class="mb-[16px] flex items-center justify-end">
       <div class="flex items-center gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -110,7 +110,7 @@
         </a-select>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0">
+        <MsButton type="text" class="!mr-0" @click="executeDefinition(record)">
           {{ t('apiTestManagement.execute') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -277,7 +277,7 @@
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
-    (e: 'openApiTab', record: ApiDefinitionDetail): void;
+    (e: 'openApiTab', record: ApiDefinitionDetail, isExecute?: boolean): void;
     (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
   }>();
 
@@ -757,6 +757,10 @@
 
   function copyDefinition(record: ApiDefinitionDetail) {
     emit('openCopyApiTab', record);
+  }
+
+  function executeDefinition(record: ApiDefinitionDetail) {
+    emit('openApiTab', record, true);
   }
 
   // 拖拽排序

@@ -27,6 +27,7 @@ export default {
     'menu.apiTest.debug': '接口调试',
     'menu.apiTest.debug.debug': '调试',
     'menu.apiTest.management': '接口管理',
+    'menu.apiTest.management.definition': '接口定义',
     'menu.apiTest.api': 'API列表',
     'menu.apiTest.scenario': '接口场景',
     'menu.apiTest.report': '接口报告',

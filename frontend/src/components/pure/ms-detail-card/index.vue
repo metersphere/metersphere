@@ -32,7 +32,12 @@
         </slot>
       </div>
     </div>
-    <MsButton type="text" class="more-btn" @click="toggleExpand">
+    <MsButton
+      v-if="props.simpleShowCount !== undefined && props.simpleShowCount > 0"
+      type="text"
+      class="more-btn"
+      @click="toggleExpand"
+    >
       <div v-if="isExpand" class="flex items-center gap-[4px]">
         {{ t('msDetailCard.collapse') }}
         <icon-up :size="14" />
