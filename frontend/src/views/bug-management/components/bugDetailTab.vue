@@ -75,7 +75,7 @@
           <!-- 本地文件 -->
           <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
             <MsButton
-              v-if="item.status !== 'init' && item.file.type.includes('image')"
+              v-if="item.status !== 'init' && item.status !== 'uploading' && item.file.type.includes('image')"
               type="button"
               status="primary"
               class="!mr-[4px]"
