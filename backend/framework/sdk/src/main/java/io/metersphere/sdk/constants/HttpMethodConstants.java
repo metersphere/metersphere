@@ -8,5 +8,6 @@ public enum HttpMethodConstants {
     PATCH,
     DELETE,
     OPTIONS,
-    TRACE
+    TRACE,
+    CONNECT
 }
