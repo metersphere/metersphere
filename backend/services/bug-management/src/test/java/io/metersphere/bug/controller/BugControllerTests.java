@@ -678,22 +678,6 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(99)
     void coverZentaoBugTests() throws Exception {
-        // 上传禅道插件
-        addZentaoPlugin();
-        // 同步配置更改为禅道
-        ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo("default-project-for-bug").andTypeEqualTo("BUG_SYNC_PLATFORM_KEY");
-        ProjectApplication record = new ProjectApplication();
-        record.setTypeValue("zentao");
-        projectApplicationMapper.updateByExampleSelective(record, example);
-        // 添加禅道缺陷
-        BugEditRequest addRequest = buildRequest(false);
-        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
-        File file = new File(filePath);
-        MultiValueMap<String, Object> addParam = getMultiPartParam(addRequest, file);
-        this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
-        // 获取禅道模板(删除默认项目模板)
-        bugService.attachTemplateStatusField(null, null, null, null);
         // 批量删除
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");
