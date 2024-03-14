@@ -17,7 +17,7 @@
           v-model:raw="form.description"
           v-model:filed-ids="fileIds"
           :disabled="!contentEditAble"
-          :placeholder="t('bugManagement.edit.contentPlaceholder')"
+          :placeholder="t('editor.placeholder')"
           :upload-image="handleUploadImage"
         />
         <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
@@ -41,7 +41,7 @@
               v-if="contentEditAble"
               v-model:raw="item.defaultValue"
               :disabled="!contentEditAble"
-              :placeholder="t('bugManagement.edit.contentPlaceholder')"
+              :placeholder="t('editor.placeholder')"
             />
             <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
           </div>

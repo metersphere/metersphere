@@ -239,3 +239,8 @@ export function cancelAssociation(id: string) {
 export function getChangeHistoryList(data: TableQueryParams) {
   return MSR.post({ url: bugURL.getChangeHistoryListUrl, data });
 }
+
+// 校验跳转用例权限
+export function checkCasePermission(projectId: string, caseType: string) {
+  return MSR.get({ url: `${bugURL.checkCasePermissionUrl}/${projectId}/${caseType}` });
+}

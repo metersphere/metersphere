@@ -6,7 +6,7 @@
       'commentWrapper': props.isUseBottom,
     }"
   >
-    <div v-if="props.isShowAvatar" class="mr-3 inline-block"> <MsAvatar avatar="word"></MsAvatar></div>
+    <div v-if="props.isShowAvatar" class="mr-3 inline-block"> <MsAvatar :avatar="userStore.avatar"></MsAvatar></div>
     <div class="w-full items-center">
       <a-input
         v-if="!isActive"
@@ -37,6 +37,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
 
   defineOptions({ name: 'MsCommentInput' });
 
@@ -48,9 +49,8 @@
   }>();
 
   const currentContent = defineModel<string>('defaultValue', { default: '' });
-
   const commentIds = defineModel<string[]>('noticeUserIds', { default: [] });
-
+  const userStore = useUserStore();
   const emit = defineEmits<{
     (event: 'publish', value: string): void;
     (event: 'cancel'): void;

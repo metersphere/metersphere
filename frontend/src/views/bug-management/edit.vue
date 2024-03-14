@@ -393,6 +393,7 @@
         }
         const res = await getTemplateById(param);
         await getFormRules(res.customFields);
+        isLoading.value = false;
         isPlatformDefaultTemplate.value = res.platformDefault;
         if (isPlatformDefaultTemplate.value) {
           const systemFields = res.customFields.filter((field) => field.platformSystemField);
@@ -402,16 +403,18 @@
           });
         }
         getFormRules(res.customFields.filter((field) => !field.platformSystemField));
-        isLoading.value = false;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+      } finally {
+        loading.value = false;
       }
     }
   };
 
   const getTemplateOptions = async () => {
     try {
+      loading.value = true;
       const res = await getTemplateOption(appStore.currentProjectId);
       templateOption.value = res.map((item) => {
         if (item.enableDefault && !isEdit.value) {
@@ -427,6 +430,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   };
 

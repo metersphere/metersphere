@@ -199,7 +199,7 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
             value: userStore.id || '',
           },
         ];
-        currentDefaultValue = item.defaultValue;
+        currentDefaultValue = tempValue;
       } else {
         currentDefaultValue = JSON.parse(item.defaultValue);
       }

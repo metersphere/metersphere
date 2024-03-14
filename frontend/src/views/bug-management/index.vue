@@ -211,7 +211,6 @@
   import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -220,7 +219,6 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import BatchEditModal from './components/batchEditModal.vue';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
-  import DeleteModal from './components/deleteModal.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
@@ -246,12 +244,17 @@
     downloadByteFile,
     tableParamsToRequestParams,
   } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { log } from 'console';
+
   const { t } = useI18n();
+  const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
+  const DeleteModal = defineAsyncComponent(() => import('./components/deleteModal.vue'));
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -355,7 +358,7 @@
       title: 'bugManagement.ID',
       dataIndex: 'num',
       slotName: 'num',
-      width: 80,
+      width: 200,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -366,7 +369,7 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      width: 200,
+      width: 300,
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -484,6 +487,7 @@
         showJumpMethod: true,
         noDisable: false,
         showSetting: true,
+        heightUsed: 380,
       },
       (record: TableData) => ({
         ...record,
@@ -576,8 +580,15 @@
   };
 
   const checkSyncStatus = async () => {
-    const { complete } = await getSyncStatus(appStore.currentProjectId);
-    isComplete.value = complete;
+    if (!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])) {
+      return;
+    }
+    try {
+      const { complete } = await getSyncStatus(appStore.currentProjectId);
+      isComplete.value = complete;
+    } catch (error) {
+      console.log(error);
+    }
   };
   /** 同步缺陷 */
   const { pause, resume } = useIntervalFn(() => {

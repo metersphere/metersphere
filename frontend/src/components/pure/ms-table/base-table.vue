@@ -279,6 +279,7 @@
   } from './type';
   import type { TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
   import type { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
+  import { log } from 'console';
 
   const batchLeft = ref('10px');
   const { t } = useI18n();
@@ -398,6 +399,23 @@
         tmpArr = props.columns;
       }
       currentColumns.value = arr || tmpArr;
+      // 如果是完全没有列展示除了固定列需要对操作列宽度进行限制和浮动位置限制
+      if (props.showSetting) {
+        const isNoDragColumns = currentColumns.value.filter((item) => item.showDrag).length;
+        if (!isNoDragColumns) {
+          currentColumns.value = tmpArr.map((item: any) => {
+            if (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION) {
+              return {
+                ...item,
+                fixed: '',
+              };
+            }
+            return {
+              ...item,
+            };
+          });
+        }
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('InitColumn failed', error);

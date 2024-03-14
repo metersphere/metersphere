@@ -24,6 +24,7 @@
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
         <MsButton
+          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -35,6 +36,7 @@
           {{ t('common.edit') }}
         </MsButton>
         <MsButton
+          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -46,6 +48,7 @@
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
+          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
