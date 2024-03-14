@@ -75,7 +75,7 @@
                 :param-form="paramForm"
                 :input-group="currentParamsInputGroup"
               />
-              <a-form-item :label="t('ms.paramsInput.addFunc')" class="mb-[16px]">
+              <a-form-item v-if="paramForm.type" :label="t('ms.paramsInput.addFunc')" class="mb-[16px]">
                 <a-select
                   v-model:model-value="paramForm.func"
                   :options="paramFuncOptions"
