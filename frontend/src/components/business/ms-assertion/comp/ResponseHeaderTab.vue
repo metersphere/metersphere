@@ -17,6 +17,8 @@
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { responseHeaderOption } from '@/config/apiTest';
+
   import type { ExecuteAssertionItem } from '@/models/apiTest/common';
 
   interface Param {
@@ -40,21 +42,6 @@
     expectedValue: '',
     enable: true,
   };
-
-  const responseHeaderOption = [
-    { label: 'Accept', value: 'accept' },
-    { label: 'Accept-Encoding', value: 'acceptEncoding' },
-    { label: 'Accept-Language', value: 'acceptLanguage' },
-    { label: 'Cache-Control', value: 'cacheControl' },
-    { label: 'Content-Type', value: 'contentType' },
-    { label: 'Content-Length', value: 'contentLength' },
-    { label: 'User-Agent', value: 'userAgent' },
-    { label: 'Referer', value: 'referer' },
-    { label: 'Cookie', value: 'cookie' },
-    { label: 'Authorization', value: 'authorization' },
-    { label: 'If-None-Match', value: 'ifNoneMatch' },
-    { label: 'If-Modified-Since', value: 'ifModifiedSince' },
-  ];
 
   const columns: ParamTableColumn[] = [
     {

@@ -55,6 +55,7 @@
       </div>
     </template>
     <!-- 表格列 slot -->
+    <!-- 参数名 or 请求/响应头联想输入 -->
     <template #key="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
@@ -69,7 +70,31 @@
             {{ record[columnConfig.dataIndex as string] }}
           </div>
         </template>
+        <a-auto-complete
+          v-if="columnConfig.inputType === 'autoComplete'"
+          v-model:model-value="record[columnConfig.dataIndex as string]"
+          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)"
+          class="ms-form-table-input"
+          :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
+          :filter-option="false"
+          size="mini"
+          @search="(val) => handleSearchParams(val, columnConfig)"
+          @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
+          @select="(val) => selectAutoComplete(val, record, columnConfig)"
+        >
+          <template #option="{ data: opt }">
+            <div class="w-[350px]">
+              {{ t(opt.raw.label) }}
+              <!-- <a-tooltip :content="t(opt.raw.label)" position="bl" :mouse-enter-delay="300">
+                <div class="one-line-text max-w-full">
+                  {{ t(opt.raw.label) }}
+                </div>
+              </a-tooltip> -->
+            </div>
+          </template>
+        </a-auto-complete>
         <a-input
+          v-else
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="ms-form-table-input"
@@ -79,6 +104,7 @@
         />
       </a-popover>
     </template>
+    <!-- 参数类型 -->
     <template #paramType="{ record, columnConfig, rowIndex }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
@@ -104,6 +130,7 @@
         @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
+    <!-- 提取类型 -->
     <template #extractType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractType"
@@ -113,6 +140,7 @@
         @change="() => addTableLine(rowIndex)"
       />
     </template>
+    <!-- 变量类型 -->
     <template #variableType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.variableType"
@@ -122,6 +150,7 @@
         @change="() => addTableLine(rowIndex)"
       />
     </template>
+    <!-- 提取范围 -->
     <template #extractScope="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractScope"
@@ -131,9 +160,11 @@
         @change="() => addTableLine(rowIndex)"
       />
     </template>
+    <!-- 表达式 -->
     <template #expression="{ record, rowIndex, columnConfig }">
       <slot name="expression" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
     </template>
+    <!-- 参数值 -->
     <template #value="{ record, columnConfig, rowIndex }">
       <a-popover
         v-if="columnConfig.isNormal"
@@ -185,6 +216,7 @@
         @apply="() => addTableLine(rowIndex)"
       />
     </template>
+    <!-- 长度范围 -->
     <template #lengthRange="{ record, rowIndex }">
       <div class="flex items-center justify-between">
         <a-input-number
@@ -208,6 +240,7 @@
         />
       </div>
     </template>
+    <!-- 标签 -->
     <template #tag="{ record, columnConfig, rowIndex }">
       <a-popover
         position="tl"
@@ -232,6 +265,7 @@
         />
       </a-popover>
     </template>
+    <!-- 描述 -->
     <template #description="{ record, columnConfig, rowIndex }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
@@ -241,6 +275,7 @@
         @change="handleDescChange"
       />
     </template>
+    <!-- 编码 -->
     <template #encode="{ record, rowIndex }">
       <a-switch
         v-model:model-value="record.encode"
@@ -250,12 +285,14 @@
         @change="() => addTableLine(rowIndex)"
       />
     </template>
+    <!-- 必须包含 -->
     <template #mustContain="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
         @change="handleMustContainColChange(false)"
       />
     </template>
+    <!-- 类型检查 -->
     <template #typeChecking="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
@@ -296,6 +333,7 @@
       </a-tooltip>
       <a-input v-model="record.expectedValue" size="mini" class="ms-form-table-input" />
     </template>
+    <!-- 项目选择 -->
     <template #project="{ record, rowIndex }">
       <a-select
         v-model:model-value="record.projectId"
@@ -320,6 +358,7 @@
         </a-tooltip>
       </a-select>
     </template>
+    <!-- 环境选择 -->
     <template #environment="{ record }">
       <MsSelect
         v-if="record.projectId"
@@ -340,6 +379,7 @@
       />
       <span v-else></span>
     </template>
+    <!-- 域名 -->
     <template #host="{ record }">
       <MsTagsGroup
         v-if="Array.isArray(record.domain)"
@@ -349,6 +389,7 @@
       />
       <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
+    <!-- 操作 -->
     <template #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
@@ -482,6 +523,7 @@
   const MsParamsInput = defineAsyncComponent(() => import('@/components/business/ms-params-input/index.vue'));
 
   export interface ParamTableColumn extends FormTableColumn {
+    isAutoComplete?: boolean; // 用于 key 列区分是否是请求/响应头联想输入
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
     typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
@@ -921,6 +963,21 @@
   function handleFormTableChange(data: any[]) {
     paramsData.value = [...data];
     emitChange('handleFormTableChange');
+  }
+
+  /**
+   * 搜索变量
+   * @param val 变量名
+   */
+  function handleSearchParams(val: string, item: FormTableColumn) {
+    item.autoCompleteParams = item.autoCompleteParams?.map((e) => {
+      e.isShow = (e.label || '').includes(val);
+      return e;
+    });
+  }
+
+  function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {
+    record[item.dataIndex as string] = val;
   }
 
   defineExpose({

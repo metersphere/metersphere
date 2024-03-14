@@ -88,6 +88,30 @@
           v-model:model-value="record[item.dataIndex as string]"
           @change="() => handleFormChange(record, rowIndex, item)"
         />
+        <template v-else-if="item.inputType === 'autoComplete'">
+          <a-auto-complete
+            v-model:model-value="record[item.dataIndex as string]"
+            :data="item.autoCompleteParams?.filter((e) => e.isShow === true)"
+            class="ms-form-table-input"
+            :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
+            :filter-option="false"
+            size="small"
+            @search="(val) => handleSearchParams(val, item)"
+            @change="() => handleFormChange(record, rowIndex, item)"
+            @select="(val) => selectAutoComplete(val, record, item)"
+          >
+            <template #option="{ data: opt }">
+              <div class="w-[350px]">
+                {{ opt.raw.value }}
+                <a-tooltip :content="t(opt.raw.desc)" position="bl" :mouse-enter-delay="300">
+                  <div class="one-line-text max-w-full text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                    {{ t(opt.raw.desc) }}
+                  </div>
+                </a-tooltip>
+              </div>
+            </template>
+          </a-auto-complete>
+        </template>
         <template v-else-if="item.inputType === 'text'">
           {{
             typeof item.valueFormat === 'function' ? item.valueFormat(record) : record[item.dataIndex as string] || '-'
@@ -122,7 +146,6 @@
 </template>
 
 <script setup lang="ts">
-  import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -140,12 +163,14 @@
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { ActionsItem } from '../ms-table-more-action/types';
+  import type { SelectOptionData, TableColumnData, TableData } from '@arco-design/web-vue';
   import { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
 
   export interface FormTableColumn extends MsTableColumnData {
     enable?: boolean; // 是否启用
     required?: boolean; // 是否必填
-    inputType?: 'input' | 'select' | 'tags' | 'switch' | 'text' | 'checkbox'; // 输入组件类型
+    inputType?: 'input' | 'select' | 'tags' | 'switch' | 'text' | 'checkbox' | 'autoComplete'; // 输入组件类型
+    autoCompleteParams?: SelectOptionData[]; // 自动补全参数
     valueFormat?: (record: Record<string, any>) => string; // 展示值格式化，仅在inputType为text时生效
     [key: string]: any; // 扩展属性
   }
@@ -330,6 +355,21 @@
     emitChange('deleteParam');
   }
 
+  /**
+   * 搜索变量
+   * @param val 变量名
+   */
+  function handleSearchParams(val: string, item: FormTableColumn) {
+    item.autoCompleteParams = item.autoCompleteParams?.map((e) => {
+      e.isShow = e.label?.includes(val);
+      return e;
+    });
+  }
+
+  function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {
+    record[item.dataIndex as string] = val;
+  }
+
   await initColumns();
 </script>
 
@@ -378,6 +418,16 @@
       }
       .arco-select {
         border-color: transparent !important;
+      }
+    }
+  }
+  :deep(.ms-form-table-input-trigger) {
+    width: 350px;
+    .arco-select-dropdown-list {
+      .arco-select-option {
+        @apply !h-auto;
+
+        padding: 2px 8px !important;
       }
     }
   }

@@ -24,6 +24,8 @@
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { responseHeaderOption } from '@/config/apiTest';
+
   import { EnableKeyValueParam } from '@/models/apiTest/common';
 
   import { filterKeyValParams } from '../utils';
@@ -47,6 +49,8 @@
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      inputType: 'autoComplete',
+      autoCompleteParams: responseHeaderOption,
     },
     {
       title: 'apiTestDebug.paramValue',

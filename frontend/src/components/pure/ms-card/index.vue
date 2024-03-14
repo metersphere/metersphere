@@ -10,6 +10,7 @@
         props.autoHeight ? '' : 'min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
+        !props.hideFooter && !props.simple ? 'pb-[80px]' : '',
       ]"
     >
       <a-scrollbar v-if="!props.simple" :style="{ overflow: 'auto' }">
@@ -149,9 +150,9 @@
     }
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return props.noContentPadding ? 76 + _specialHeight : 124 + _specialHeight;
+      return props.noContentPadding ? 66 + _specialHeight : 114 + _specialHeight;
     }
-    return 190 + _specialHeight;
+    return 250 + _specialHeight;
   });
 
   const getComputedContentStyle = computed(() => {

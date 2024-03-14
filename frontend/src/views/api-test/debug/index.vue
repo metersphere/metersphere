@@ -133,6 +133,7 @@
     ResponseComposition,
   } from '@/enums/apiEnum';
 
+  import { defaultBodyParams, defaultResponse } from '../components/config';
   import { parseRequestBodyFiles } from '../components/utils';
 
   const { t } = useI18n();
@@ -150,50 +151,6 @@
   }
 
   const initDefaultId = `debug-${Date.now()}`;
-  const defaultBodyParams: ExecuteBody = {
-    bodyType: RequestBodyFormat.NONE,
-    formDataBody: {
-      formValues: [],
-    },
-    wwwFormBody: {
-      formValues: [],
-    },
-    jsonBody: {
-      jsonValue: '',
-    },
-    xmlBody: { value: '' },
-    binaryBody: {
-      description: '',
-      file: undefined,
-    },
-    rawBody: { value: '' },
-  };
-  const defaultResponse: RequestTaskResult = {
-    requestResults: [
-      {
-        body: '',
-        headers: '',
-        url: '',
-        method: '',
-        responseResult: {
-          body: '',
-          contentType: '',
-          headers: '',
-          dnsLookupTime: 0,
-          downloadTime: 0,
-          latency: 0,
-          responseCode: 0,
-          responseTime: 0,
-          responseSize: 0,
-          socketInitTime: 0,
-          sslHandshakeTime: 0,
-          tcpHandshakeTime: 0,
-          transferStartTime: 0,
-        },
-      },
-    ],
-    console: '',
-  }; // 调试返回的响应内容
   const defaultDebugParams: RequestParam = {
     id: initDefaultId,
     moduleId: 'root',
