@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.metersphere.api.dto.ApiTestPluginOptionRequest;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiTestService;
@@ -43,10 +44,13 @@ public class ApiTestController {
         return apiTestService.getProtocols(organizationId);
     }
 
-    @GetMapping("/mock/{key}")
+    @PostMapping("/mock")
     @Operation(summary = "获取mock数据")
-    public String mock(@PathVariable String key) {
-        return Mock.calculate(key).toString();
+    public String mock(@RequestBody TextNode key) {
+        if (key == null || key.asText().isEmpty()) {
+            return "";
+        }
+        return Mock.calculate(key.asText()).toString();
     }
 
     @PostMapping("/custom/func/run")

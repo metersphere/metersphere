@@ -89,8 +89,8 @@ export function deleteDebug(id: string) {
 }
 
 // 测试mock
-export function testMock(key: string) {
-  return MSR.get({ url: TestMockUrl, params: key });
+export function testMock(data: string) {
+  return MSR.post({ url: TestMockUrl, data });
 }
 
 // 上传文件

@@ -9,7 +9,9 @@ import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.domain.Plugin;
@@ -20,8 +22,10 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +35,8 @@ import java.util.List;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @Author: jianxing
@@ -43,7 +49,7 @@ public class ApiTestControllerTests extends BaseTest {
 
     private static final String BASE_PATH = "/api/test/";
     protected static final String PROTOCOL_LIST = "protocol/{0}";
-    protected static final String MOCK = "mock/{0}";
+    protected static final String MOCK = "mock";
     protected static final String CUSTOM_FUNC_RUN = "custom/func/run";
     protected static final String PLUGIN_FORM_OPTION = "plugin/form/option";
     protected static final String PLUGIN_SCRIPT = "plugin/script/{0}";
@@ -58,6 +64,7 @@ public class ApiTestControllerTests extends BaseTest {
     private BasePluginTestService basePluginTestService;
     @Resource
     private BaseEnvTestService baseEnvTestService;
+
     @Override
     protected String getBasePath() {
         return BASE_PATH;
@@ -69,10 +76,22 @@ public class ApiTestControllerTests extends BaseTest {
         this.requestGetWithOk(PROTOCOL_LIST, this.DEFAULT_ORGANIZATION_ID).andReturn();
     }
 
+
+    private MvcResult responsePost(String url, Object param) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(param))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
     @Test
     public void getMock() throws Exception {
         // @@请求成功
-        this.requestGetWithOk(MOCK, "@integer").andReturn();
+        MvcResult mvcResult = responsePost(BASE_PATH + MOCK, "@integer");
+        Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
@@ -190,7 +209,7 @@ public class ApiTestControllerTests extends BaseTest {
     @Test
     public void getEnvList() throws Exception {
         // @@请求成功
-        this.requestGet(ENV_LIST,  DEFAULT_PROJECT_ID);
+        this.requestGet(ENV_LIST, DEFAULT_PROJECT_ID);
     }
 
     @Test
