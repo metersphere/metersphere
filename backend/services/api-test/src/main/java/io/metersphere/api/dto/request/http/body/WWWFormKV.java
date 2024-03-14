@@ -32,9 +32,4 @@ public class WWWFormKV extends KeyValueEnableParam {
      * 最大长度
      */
     private Integer maxLength;
-    /**
-     * 是否对参数进行编码
-     * 默认 false
-     */
-    private Boolean encode = false;
 }

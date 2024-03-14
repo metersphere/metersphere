@@ -205,6 +205,9 @@ public class ApiDebugControllerTests extends BaseTest {
         assertUploadFile(resultData.getId(), List.of(uploadFileId));
         assertLinkFile(resultData.getId(), List.of(fileMetadataId));
 
+        // 校验不同用户的重名校验
+        apiDebugService.add(request, "userA");
+
         // 再插入一条数据，便于修改时重名校验
         request.setName("test1");
         request.setUploadFileIds(null);
@@ -251,6 +254,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(List.of(uploadFileId));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
+
         // 校验请求成功数据
         assertUpdateApiDebug(request, msHttpElement, request.getId());
         assertUploadFile(addApiDebug.getId(), List.of());

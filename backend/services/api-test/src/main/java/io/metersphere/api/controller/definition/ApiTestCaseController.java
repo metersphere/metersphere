@@ -252,7 +252,7 @@ public class ApiTestCaseController {
     }
 
     @GetMapping("/run/{id}/{reportId}")
-    @Operation(summary = "用例执行，获取获取执行结果")
+    @Operation(summary = "用例执行，实时获取执行结果")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO run(@PathVariable String id, @PathVariable String reportId) {
         return apiTestCaseService.run(id, reportId, SessionUtils.getUserId());

@@ -97,7 +97,7 @@ public class ApiDebugService extends MoveNodeService {
         ApiDebug apiDebug = new ApiDebug();
         BeanUtils.copyBean(apiDebug, request);
         apiDebug.setCreateUser(createUser);
-        checkAddExist(apiDebug);
+        checkAddExist(apiDebug, createUser);
         apiDebug.setId(IDGenerator.nextStr());
         apiDebug.setCreateTime(System.currentTimeMillis());
         apiDebug.setUpdateTime(System.currentTimeMillis());
@@ -141,7 +141,7 @@ public class ApiDebugService extends MoveNodeService {
         checkResourceExist(request.getId());
         ApiDebug apiDebug = BeanUtils.copyBean(new ApiDebug(), request);
         ApiDebug originApiDebug = apiDebugMapper.selectByPrimaryKey(request.getId());
-        checkUpdateExist(apiDebug, originApiDebug);
+        checkUpdateExist(apiDebug, originApiDebug, updateUser);
         apiDebug.setUpdateUser(updateUser);
         apiDebug.setUpdateTime(System.currentTimeMillis());
         apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
@@ -179,23 +179,25 @@ public class ApiDebugService extends MoveNodeService {
         apiDebugBlobMapper.deleteByPrimaryKey(id);
     }
 
-    private void checkAddExist(ApiDebug apiDebug) {
+    private void checkAddExist(ApiDebug apiDebug, String userId) {
         ApiDebugExample example = new ApiDebugExample();
         example.createCriteria()
                 .andNameEqualTo(apiDebug.getName())
+                .andCreateUserEqualTo(userId)
                 .andModuleIdEqualTo(apiDebug.getModuleId());
         if (CollectionUtils.isNotEmpty(apiDebugMapper.selectByExample(example))) {
             throw new MSException(API_DEBUG_EXIST);
         }
     }
 
-    private void checkUpdateExist(ApiDebug apiDebug, ApiDebug originApiDebug) {
+    private void checkUpdateExist(ApiDebug apiDebug, ApiDebug originApiDebug, String userId) {
         if (StringUtils.isBlank(apiDebug.getName())) {
             return;
         }
         ApiDebugExample example = new ApiDebugExample();
         example.createCriteria()
                 .andIdNotEqualTo(apiDebug.getId())
+                .andCreateUserEqualTo(userId)
                 .andModuleIdEqualTo(apiDebug.getModuleId() == null ? originApiDebug.getModuleId() : apiDebug.getModuleId())
                 .andNameEqualTo(apiDebug.getName());
         if (CollectionUtils.isNotEmpty(apiDebugMapper.selectByExample(example))) {
@@ -238,7 +240,7 @@ public class ApiDebugService extends MoveNodeService {
         if (!StringUtils.equals(request.getModuleId(), apiDebug.getModuleId())) {
             checkModuleExist(request.getModuleId());
             apiDebug.setModuleId(request.getModuleId());
-            checkUpdateExist(apiDebug, apiDebug);
+            checkUpdateExist(apiDebug, apiDebug, userId);
             apiDebug.setUpdateUser(userId);
             apiDebug.setUpdateTime(System.currentTimeMillis());
             apiDebugMapper.updateByPrimaryKeySelective(apiDebug);

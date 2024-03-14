@@ -15,7 +15,6 @@ import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.assertion.*;
 import io.metersphere.project.api.assertion.body.*;
@@ -61,7 +60,6 @@ public class MsHTTPElementTest {
         FormDataKV formDataKV = new FormDataKV();
         formDataKV.setEnable(false);
         formDataKV.setContentType("text/plain");
-        formDataKV.setEncode(true);
         formDataKV.setMaxLength(10);
         formDataKV.setMinLength(8);
         formDataKV.setDescription("test");
