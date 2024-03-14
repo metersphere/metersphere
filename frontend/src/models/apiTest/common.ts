@@ -396,6 +396,8 @@ export interface ResponseResult {
   sslHandshakeTime: number;
   tcpHandshakeTime: number;
   transferStartTime: number;
+  vars: string;
+  assertions: any;
 }
 export interface RequestResult {
   body: string;

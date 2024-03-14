@@ -169,6 +169,7 @@ export default {
   'apiTestDebug.resourcePool': '资源池',
   'apiTestDebug.content': '内容',
   'apiTestDebug.status': '状态',
+  'apiTestDebug.reason': '原因',
   'apiTestDebug.requestName': '请求名称',
   'apiTestDebug.requestNameRequired': '请求名称不能为空',
   'apiTestDebug.requestNamePlaceholder': '请输入请求名称',

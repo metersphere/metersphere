@@ -19,7 +19,7 @@ public class CommonVariables implements Serializable {
     @Schema(description = "变量名")
     private String key;
     @Schema(description = "变量类型 CONSTANT LIST JSON")
-    private String type = VariableTypeConstants.CONSTANT.name();
+    private String paramType = VariableTypeConstants.CONSTANT.name();
     @Schema(description = "变量值")
     private String value;
     @Schema(description = "状态")
@@ -32,17 +32,17 @@ public class CommonVariables implements Serializable {
 
     @JsonIgnore
     public boolean isConstantValid() {
-        return StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(key);
+        return StringUtils.equals(this.paramType, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(key);
     }
 
     @JsonIgnore
     public boolean isListValid() {
-        return StringUtils.equals(this.type, VariableTypeConstants.LIST.name()) && StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && value.indexOf(",") != -1;
+        return StringUtils.equals(this.paramType, VariableTypeConstants.LIST.name()) && StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && value.indexOf(",") != -1;
     }
 
     @JsonIgnore
     public boolean isJsonValid() {
-        return StringUtils.equals(this.type, VariableTypeConstants.JSON.name()) && StringUtils.isNotEmpty(key);
+        return StringUtils.equals(this.paramType, VariableTypeConstants.JSON.name()) && StringUtils.isNotEmpty(key);
     }
 
 }

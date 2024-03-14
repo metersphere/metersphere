@@ -180,6 +180,7 @@ export default {
   'apiTestDebug.resourcePool': 'Resource pool',
   'apiTestDebug.content': 'Content',
   'apiTestDebug.status': 'Status',
+  'apiTestDebug.reason': 'Reason',
   'apiTestDebug.requestName': 'Request name',
   'apiTestDebug.requestNameRequired': 'Request name cannot be empty',
   'apiTestDebug.requestNamePlaceholder': 'Please enter a request name',

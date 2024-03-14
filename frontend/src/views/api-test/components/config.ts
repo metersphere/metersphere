@@ -126,6 +126,8 @@ export const defaultResponse: RequestTaskResult = {
         tcpHandshakeTime: 0,
         transferStartTime: 0,
         sslHandshakeTime: 0,
+        vars: '',
+        assertions: [],
       },
     },
   ],

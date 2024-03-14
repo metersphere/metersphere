@@ -130,7 +130,7 @@ public class GlobalParamsControllerTests extends BaseTest {
             envVariable.setValue("value" + i);
             envVariable.setDescription("desc" + i);
             envVariable.setTags(List.of("tag" + i));
-            envVariable.setType(VariableTypeConstants.CONSTANT.name());
+            envVariable.setParamType(VariableTypeConstants.CONSTANT.name());
             commonVariables.add(envVariable);
         }
         return commonVariables;

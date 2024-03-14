@@ -757,15 +757,15 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ScenarioVariable getScenarioVariable() {
         ScenarioVariable scenarioVariable = new ScenarioVariable();
         CommonVariables commonVariables1 = new CommonVariables();
-        commonVariables1.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables1.setParamType(VariableTypeConstants.CONSTANT.name());
         commonVariables1.setKey("a");
         commonVariables1.setValue("b");
         CommonVariables commonVariables2 = new CommonVariables();
-        commonVariables2.setType(VariableTypeConstants.CONSTANT.name());
+        commonVariables2.setParamType(VariableTypeConstants.CONSTANT.name());
         commonVariables2.setKey("b");
         commonVariables2.setValue("c");
         CommonVariables commonVariables3 = new CommonVariables();
-        commonVariables3.setType(VariableTypeConstants.LIST.name());
+        commonVariables3.setParamType(VariableTypeConstants.LIST.name());
         commonVariables3.setKey("list1");
         commonVariables3.setValue("1,2,3");
         scenarioVariable.setCommonVariables(List.of(commonVariables1, commonVariables2, commonVariables3));

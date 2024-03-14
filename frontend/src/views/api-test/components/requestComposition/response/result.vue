@@ -51,8 +51,8 @@
       </div>
       <MsBaseTable v-else-if="activeTab === 'ASSERTION'" v-bind="propsRes" v-on="propsEvent">
         <template #status="{ record }">
-          <MsTag :type="record.status === 1 ? 'success' : 'danger'" theme="light">
-            {{ record.status === 1 ? t('common.success') : t('common.fail') }}
+          <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
+            {{ record.pass === true ? t('common.success') : t('common.fail') }}
           </MsTag>
         </template>
       </MsBaseTable>
@@ -127,14 +127,14 @@
       label: t('apiTestDebug.console'),
       value: ResponseComposition.CONSOLE,
     },
-    // {
-    //   label: t('apiTestDebug.extract'),
-    //   value: ResponseComposition.EXTRACT,
-    // },
-    // {
-    //   label: t('apiTestDebug.assertion'),
-    //   value: ResponseComposition.ASSERTION,
-    // }, // TODO:断言暂时没加
+    {
+      label: t('apiTestDebug.extract'),
+      value: ResponseComposition.EXTRACT,
+    },
+    {
+      label: t('apiTestDebug.assertion'),
+      value: ResponseComposition.ASSERTION,
+    },
   ];
   const activeTab = defineModel<ResponseComposition>('activeTab', {
     required: true,
@@ -179,10 +179,8 @@
               props.requestResult.headers
             }\nBody:\n${props.requestResult.body.trim()}`
           : '';
-      // case ResponseComposition.EXTRACT:
-      //   return Object.keys(props.request.response.extract)
-      //     .map((e) => `${e}: ${props.request.response.extract[e]}`)
-      //     .join('\n'); // TODO:断言暂时没加
+      case ResponseComposition.EXTRACT:
+        return props.requestResult?.responseResult?.vars?.trim();
       default:
         return '';
     }
@@ -196,34 +194,32 @@
     },
     {
       title: 'apiTestDebug.status',
-      dataIndex: 'status',
+      dataIndex: 'pass',
       slotName: 'status',
       width: 80,
     },
     {
-      title: '',
-      dataIndex: 'desc',
+      title: 'apiTestDebug.reason',
+      dataIndex: 'message',
       showTooltip: true,
     },
   ];
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+  const { propsRes, propsEvent } = useTable(undefined, {
     scroll: { x: '100%' },
     columns,
   });
-  propsRes.value.data = [
-    {
-      id: new Date().getTime(),
-      content: 'Response Code equals: 200',
-      status: 1,
-      desc: '',
+
+  watch(
+    () => props.requestResult?.responseResult.assertions,
+    (val) => {
+      if (val) {
+        propsRes.value.data = props.requestResult?.responseResult.assertions || [];
+      }
     },
     {
-      id: new Date().getTime(),
-      content: '$.users[1].age REGEX: 31',
-      status: 0,
-      desc: `Value expected to match regexp '31', but it did not match: '30' match: '30'`,
-    },
-  ] as any;
+      immediate: true,
+    }
+  );
 </script>
 
 <style lang="less" scoped>
@@ -231,7 +227,7 @@
     margin-top: 8px;
     height: calc(100% - 48px);
     .response-header-pre {
-      @apply h-full overflow-auto  bg-white;
+      @apply h-full overflow-auto bg-white;
       .ms-scroll-bar();
 
       padding: 8px 12px;

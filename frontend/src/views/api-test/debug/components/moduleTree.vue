@@ -34,7 +34,7 @@
           :all-names="rootModulesName"
           parent-id="NONE"
           :add-module-api="addDebugModule"
-          @add-finish="initModules"
+          @add-finish="handleAddFinish"
         >
           <MsButton type="icon" class="!mr-0 p-[2px]">
             <MsIcon
@@ -119,7 +119,7 @@
             :parent-id="nodeData.id"
             :add-module-api="addDebugModule"
             @close="resetFocusNodeKey"
-            @add-finish="() => initModules()"
+            @add-finish="handleAddFinish"
           >
             <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
               <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
@@ -167,7 +167,15 @@
     isExpandAll?: boolean; // 是否展开所有节点
     activeNodeId?: string | number; // 当前选中节点 id
   }>();
-  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'renameFinish', 'deleteFinish']);
+  const emit = defineEmits([
+    'init',
+    'clickApiNode',
+    'newApi',
+    'import',
+    'renameFinish',
+    'deleteFinish',
+    'updateApiNode',
+  ]);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -422,6 +430,7 @@
           targetId: dropNode.type === 'MODULE' ? dragNode.id : dropNode.id,
           moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
         });
+        emit('updateApiNode', { ...dragNode, moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id });
       }
       Message.success(t('apiTestDebug.moduleMoveSuccess'));
     } catch (error) {
@@ -432,6 +441,11 @@
       await initModules();
       initModuleCount();
     }
+  }
+
+  async function handleAddFinish() {
+    await initModules();
+    initModuleCount();
   }
 
   function moreActionsClose() {
