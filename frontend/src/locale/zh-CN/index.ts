@@ -29,7 +29,7 @@ export default {
     'menu.apiTest.management': '接口管理',
     'menu.apiTest.management.definition': '接口定义',
     'menu.apiTest.api': 'API列表',
-    'menu.apiTest.scenario': '接口场景',
+    'menu.apiTest.scenario': '场景',
     'menu.apiTest.report': '接口报告',
     'menu.uiTest': 'UI测试',
     'menu.workstation': '工作台',

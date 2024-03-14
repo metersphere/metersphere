@@ -125,11 +125,11 @@
                 <property name="condition" value="request.condition.combine"/>
             </include>
         </if>
-        <if test="request.condition.keyword != null">
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
             and (
-            api_scenario.num like concat('%', #{request.keyword},'%')
-            or api_scenario.name like concat('%', #{request.keyword},'%')
-            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            api_scenario.num like concat('%', #{request.condition.keyword},'%')
+            or api_scenario.name like concat('%', #{request.condition.keyword},'%')
+            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.condition.keyword},'"]'))
             )
         </if>
         <include refid="filters">

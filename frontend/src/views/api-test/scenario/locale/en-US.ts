@@ -32,4 +32,25 @@ export default {
   'apiScenario.params.paramValue': 'Parameter value',
   'apiScenario.params.tag': 'Tag',
   'apiScenario.params.desc': 'Description',
+  'apiScenario.table.showChildrenModuleScenario': 'Show subdirectory scenarios',
+
+  'apiScenario.table.columns.name': 'Name',
+  'apiScenario.table.columns.level': 'Level',
+  'apiScenario.table.columns.status': 'status',
+  'apiScenario.table.columns.runResult': 'Run result',
+  'apiScenario.table.columns.tags': 'Tags',
+  'apiScenario.table.columns.scenarioEnv': 'Scenario environment',
+  'apiScenario.table.columns.steps': 'Steps',
+  'apiScenario.table.columns.passRate': 'Pass rate',
+  'apiScenario.table.columns.module': 'Module',
+  'apiScenario.table.columns.createUser': 'Create user',
+  'apiScenario.table.columns.createTime': 'Create time',
+  'apiScenario.table.columns.updateUser': 'Update user',
+  'apiScenario.table.columns.updateTime': 'Update time',
+
+  'apiScenario.execute': 'Execute',
+
+  // 批量操作文案
+  'api_scenario.batch_operation.success': 'Success {opt} to {name}',
+  'api_scenario.table.batchMoveConfirm': 'Ready to {opt} {count} scenarios',
 };
