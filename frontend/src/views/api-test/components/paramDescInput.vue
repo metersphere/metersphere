@@ -14,6 +14,7 @@
       :max-length="255"
       class="param-input"
       :size="props.size"
+      :placeholder="t('ms.paramsInput.commonPlaceholder')"
       @input="(val) => emit('input', val)"
       @change="(val) => emit('change', val)"
     />
