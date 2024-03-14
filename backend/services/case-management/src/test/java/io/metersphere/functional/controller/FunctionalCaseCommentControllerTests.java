@@ -373,14 +373,14 @@ public class FunctionalCaseCommentControllerTests {
         FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
         FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
         functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
-        functionalCaseCommentRequest.setNotifier("default-project-member-user-guo;default-project-member-user-guo-4;");
+        functionalCaseCommentRequest.setNotifier("default-project-member-user-guo;default-project-member-user-guo;default-project-member-user-guo-4;");
         functionalCaseCommentRequest.setContent("评论你好哇");
         functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
         functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
         functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
         FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest,SAVE_URL);
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
-        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo;default-project-member-user-guo-4;"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo;default-project-member-user-guo;default-project-member-user-guo-4;"));
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好哇"));
         Assertions.assertTrue(StringUtils.isBlank(functionalCaseComment.getReplyUser()));
 
@@ -399,6 +399,12 @@ public class FunctionalCaseCommentControllerTests {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalCaseCommentDTO> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalCaseCommentDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(list));
+        for (FunctionalCaseCommentDTO functionalCaseCommentDTO : list) {
+            if (StringUtils.equals("default-project-member-user-guo;default-project-member-user-guo;default-project-member-user-guo-4;", functionalCaseCommentDTO.getNotifier())) {
+                Assertions.assertEquals(2, functionalCaseCommentDTO.getCommentUserInfos().size());
+                break;
+            }
+        }
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(GET_URL + "xiaomeinvGTestTwo").header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
@@ -427,9 +433,8 @@ public class FunctionalCaseCommentControllerTests {
     @Order(19)
     public void deleteCommentSuccess() throws Exception {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
-        functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest").andNotifierEqualTo("default-project-member-user-guo;default-project-member-user-guo-4;");
+        functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest").andNotifierEqualTo("default-project-member-user-guo;default-project-member-user-guo;default-project-member-user-guo-4;");
         List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
-        System.out.println(JSON.toJSONString(functionalCaseComments));
         String id = functionalCaseComments.get(0).getId();
         Assertions.assertFalse(functionalCaseComments.isEmpty());
         delFunctionalCaseComment(id);
