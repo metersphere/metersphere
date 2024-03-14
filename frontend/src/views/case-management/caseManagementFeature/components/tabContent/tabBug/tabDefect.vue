@@ -2,7 +2,7 @@
   <div>
     <div class="flex items-center justify-between">
       <div v-if="showType === 'link'" class="flex">
-        <a-tooltip>
+        <a-tooltip :disabled="linkPropsRes.data.length ? true : false">
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
             <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
@@ -10,7 +10,8 @@
             }}</span>
           </template>
           <a-button
-            v-permission="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+            :disabled="linkPropsRes.data.length ? false : true"
             class="mr-3"
             type="primary"
             @click="linkDefect"
@@ -110,13 +111,20 @@
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center">
           {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
-          <span v-permission="['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD']">{{
-            t('caseManagement.featureCase.please')
-          }}</span>
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="ml-[8px]" @click="linkDefect">
+          <span
+            v-if="
+              !linkPropsRes.data.length && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])
+            "
+            >{{ t('caseManagement.featureCase.please') }}</span
+          >
+          <MsButton
+            v-if="linkPropsRes.data.length && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            class="ml-[8px]"
+            @click="linkDefect"
+          >
             {{ t('caseManagement.featureCase.linkDefect') }}
           </MsButton>
-          <span v-permission="['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD']">{{
+          <span v-if="linkPropsRes.data.length && hasAnyPermission(['PROJECT_BUG:READ+ADD'])">{{
             t('caseManagement.featureCase.or')
           }}</span>
           <MsButton v-permission="['PROJECT_BUG:READ+ADD']" class="ml-[8px]" @click="createDefect">
