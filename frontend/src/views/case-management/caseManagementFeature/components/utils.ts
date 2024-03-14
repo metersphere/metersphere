@@ -185,8 +185,8 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
       currentDefaultValue = item.defaultValue;
       // 处理多选情况
     } else if (multipleType.includes(item.type)) {
-      const tempValue = JSON.parse(item.defaultValue);
       if (item.type !== 'MULTIPLE_INPUT' && !item.type.includes('MEMBER')) {
+        const tempValue = JSON.parse(item.defaultValue);
         const optionsIds = item.options?.map((e: any) => e.value);
         currentDefaultValue = optionsIds.filter((e: any) => tempValue.includes(e));
         // 多选成员
@@ -199,7 +199,16 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
             value: userStore.id || '',
           },
         ];
-        currentDefaultValue = tempValue;
+        // 多选成员没有选择CREATE_USER
+        if (Array.isArray(item.defaultValue) && !item.defaultValue.includes('CREATE_USER')) {
+          currentDefaultValue = [];
+          // 选择了创建人
+        } else if (item.defaultValue.includes('CREATE_USER')) {
+          currentDefaultValue = [userStore.id];
+          // 已选择成员
+        } else {
+          currentDefaultValue = JSON.parse(item.defaultValue);
+        }
       } else {
         currentDefaultValue = JSON.parse(item.defaultValue);
       }

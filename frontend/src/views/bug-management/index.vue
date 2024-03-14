@@ -212,7 +212,6 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -255,6 +254,7 @@
   const { t } = useI18n();
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
   const DeleteModal = defineAsyncComponent(() => import('./components/deleteModal.vue'));
+  const MsBaseTable = defineAsyncComponent(() => import('@/components/pure/ms-table/base-table.vue'));
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
