@@ -19,29 +19,31 @@
       </MsTag>
     </div>
   </div>
-  <div v-if="props.showType === 'commonScript'" class="relative flex w-full">
-    <MsCodeEditor
-      ref="codeEditorRef"
-      v-model:model-value="innerCodeValue"
-      title=""
-      :width="expandMenu ? '100%' : '68%'"
-      height="460px"
-      theme="vs"
-      :language="innerLanguagesType"
-      :read-only="false"
-      :show-full-screen="false"
-      :show-theme-change="false"
-    >
-      <template #rightBox>
-        <MsScriptMenu
-          v-model:expand="expandMenu"
-          v-model:languagesType="innerLanguagesType"
-          @insert="insertHandler"
-          @form-api-import="formApiImport"
-          @insert-common-script="insertCommonScript"
-        />
-      </template>
-    </MsCodeEditor>
+  <div v-if="props.showType === 'commonScript'" class="flex bg-[var(--color-bg-3)]">
+    <div class="relative w-full">
+      <MsCodeEditor
+        ref="codeEditorRef"
+        v-model:model-value="innerCodeValue"
+        title=""
+        :width="expandMenu ? '100%' : '68%'"
+        height="460px"
+        theme="vs"
+        :language="innerLanguagesType"
+        :read-only="false"
+        :show-full-screen="false"
+        :show-theme-change="false"
+      >
+        <template #rightBox>
+          <MsScriptMenu
+            v-model:expand="expandMenu"
+            v-model:languagesType="innerLanguagesType"
+            @insert="insertHandler"
+            @form-api-import="formApiImport"
+            @insert-common-script="insertCommonScript"
+          />
+        </template>
+      </MsCodeEditor>
+    </div>
   </div>
   <MsCodeEditor
     v-else
