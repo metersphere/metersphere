@@ -62,7 +62,7 @@
         </a-trigger>
       </template>
       <!-- 报告结果筛选 -->
-      <template #statusFilter="{ columnConfig }">
+      <template #statusFilter="{ record, columnConfig }">
         <a-trigger
           v-model:popup-visible="statusFilterVisible"
           trigger="click"
@@ -79,7 +79,11 @@
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusListFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="props.moduleType" :status="key" />
+                    <ExecutionStatus
+                      :module-type="props.moduleType"
+                      :status="key"
+                      :script-identifier="record.scriptIdentifier"
+                    />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -192,7 +196,7 @@
       slotName: 'status',
       titleSlotName: 'statusFilter',
       showInTable: true,
-      width: 150,
+      width: 200,
       showDrag: true,
     },
     {
