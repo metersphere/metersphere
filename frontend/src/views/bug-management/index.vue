@@ -14,7 +14,7 @@
           <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
             >{{ t('bugManagement.createBug') }}
           </a-button>
-          <a-button :loading="!isComplete" type="outline" @click="handleSync"
+          <a-button v-if="currentPlatform !== 'Local'" :loading="!isComplete" type="outline" @click="handleSync"
             >{{ t('bugManagement.syncBug') }}
           </a-button>
         </div>
@@ -30,16 +30,26 @@
     >
       <!-- ID -->
       <template #num="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
+        <a-button
+          type="text"
+          class="px-0"
+          :disabled="currentPlatform !== record.platform"
+          @click="handleShowDetail(record.id, rowIndex)"
+          >{{ record.num }}</a-button
+        >
       </template>
       <template #operation="{ record }">
         <div class="flex flex-nowrap items-center">
           <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleCopy(record)">{{
+              t('common.copy')
+            }}</MsButton>
             <a-divider class="!mx-2 h-[12px]" direction="vertical" />
           </span>
           <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleEdit(record)">{{
+              t('common.edit')
+            }}</MsButton>
             <a-divider class="!mx-2 h-[12px]" direction="vertical" />
           </span>
           <MsTableMoreAction
@@ -228,6 +238,7 @@
     getCustomFieldHeader,
     getCustomOptionHeader,
     getExportConfig,
+    getPlatform,
     getSyncStatus,
     syncBugEnterprise,
     syncBugOpenSource,
@@ -249,8 +260,6 @@
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { log } from 'console';
-
   const { t } = useI18n();
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
   const DeleteModal = defineAsyncComponent(() => import('./components/deleteModal.vue'));
@@ -264,6 +273,7 @@
   const syncVisible = ref(false);
   const exportVisible = ref(false);
   const exportOptionData = ref<MsExportDrawerMap>({});
+  const currentPlatform = ref('Local');
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
@@ -358,7 +368,7 @@
       title: 'bugManagement.ID',
       dataIndex: 'num',
       slotName: 'num',
-      width: 200,
+      width: 100,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -369,7 +379,7 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      width: 300,
+      width: 250,
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -715,6 +725,12 @@
     exportOptionData.value = res;
   };
 
+  const setCurrentPlatform = async () => {
+    const res = await getPlatform(projectId.value);
+    currentPlatform.value = res;
+    console.log(currentPlatform.value);
+  };
+
   const moreActionList: ActionsItem[] = [
     {
       label: t('common.delete'),
@@ -793,6 +809,7 @@
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
+    setCurrentPlatform();
     setExportOptionData();
     initFilterOptions();
     fetchData();

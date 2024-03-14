@@ -29,6 +29,10 @@
         </div>
       </template>
 
+      <template #deleteTimeColumn="{ record }">
+        {{ dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+      </template>
+
       <template #createUserFilter="{ columnConfig }">
         <TableFilter
           v-model:visible="createUserFilterVisible"
@@ -127,6 +131,7 @@
 <script lang="ts" async setup>
   import { ref } from 'vue';
   import { Message, TableData } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { BackEndEnum, FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -217,6 +222,7 @@
       dataIndex: 'deleteTime',
       showDrag: true,
       width: 199,
+      slotName: 'deleteTimeColumn',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -226,7 +232,7 @@
     {
       title: 'bugManagement.recycle.deleteMan',
       dataIndex: 'deleteUserName',
-      width: 112,
+      width: 125,
       showDrag: true,
       slotName: 'deleteUser',
       showTooltip: true,
@@ -236,7 +242,7 @@
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
-      width: 80,
+      width: 100,
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -248,7 +254,7 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      width: 200,
+      width: 250,
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -263,15 +269,31 @@
       slotName: 'handleUser',
       showTooltip: true,
       titleSlotName: 'handleUserFilter',
-      width: 112,
+      width: 125,
       showDrag: true,
       showInTable: true,
+    },
+    {
+      title: 'bugManagement.status',
+      dataIndex: 'statusName',
+      width: 100,
+      slotName: 'status',
+      titleSlotName: 'statusFilter',
+      showDrag: true,
+      showInTable: true,
+    },
+    {
+      title: 'bugManagement.tag',
+      showDrag: true,
+      width: 200,
+      isStringTag: true,
+      dataIndex: 'tags',
     },
     {
       title: 'bugManagement.creator',
       dataIndex: 'createUser',
       slotName: 'createUser',
-      width: 112,
+      width: 125,
       showTooltip: true,
       showDrag: true,
       titleSlotName: 'createUserFilter',
@@ -295,7 +317,7 @@
     {
       title: 'bugManagement.updateUser',
       dataIndex: 'updateUser',
-      width: 112,
+      width: 125,
       showTooltip: true,
       showDrag: true,
       titleSlotName: 'updateUserFilter',
@@ -315,28 +337,6 @@
         sorter: true,
       },
       showInTable: true,
-    },
-    {
-      title: 'bugManagement.status',
-      dataIndex: 'statusName',
-      width: 84,
-      slotName: 'status',
-      titleSlotName: 'statusFilter',
-      showDrag: true,
-      showInTable: true,
-    },
-    {
-      title: 'bugManagement.handleMan',
-      dataIndex: 'handleUserName',
-      showTooltip: true,
-      showDrag: true,
-    },
-    {
-      title: 'bugManagement.tag',
-      showDrag: true,
-      width: 456,
-      isStringTag: true,
-      dataIndex: 'tags',
     },
     {
       title: 'common.operation',

@@ -1,5 +1,6 @@
 package io.metersphere.bug.controller;
 
+import io.metersphere.bug.dto.BugCaseCheckResult;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
@@ -8,6 +9,7 @@ import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.utils.Pager;
@@ -171,16 +173,24 @@ public class BugRelateCaseControllerTests extends BaseTest {
     @Order(8)
     void testBugRelateCheckPermissionError() throws Exception {
         // 非功能用例类型参数
-        this.requestGet(BUG_CASE_CHECK + "/100001100001/API", status().is5xxServerError());
+        MvcResult mvcResult = this.requestGetAndReturn(BUG_CASE_CHECK + "/100001100001/API");
+        BugCaseCheckResult resultData = getResultData(mvcResult, BugCaseCheckResult.class);
+        Assertions.assertFalse(resultData.getPass());
+        Assertions.assertEquals(resultData.getMsg(), Translator.get("bug_relate_case_type_unknown"));
     }
 
     @Test
     @Order(9)
     void testBugRelateCheckPermissionSuccess() throws Exception {
         // 默认项目ID且登录用户为admin
-        this.requestGet(BUG_CASE_CHECK + "/100001100001/FUNCTIONAL", status().isOk()).andReturn();
+        MvcResult mvcResult = this.requestGetAndReturn(BUG_CASE_CHECK + "/100001100001/FUNCTIONAL");
+        BugCaseCheckResult resultData = getResultData(mvcResult, BugCaseCheckResult.class);
+        Assertions.assertTrue(resultData.getPass());
         // 切换登录用户为PROJECT, 权限校验失败
-        this.requestGetWithNoAdmin(BUG_CASE_CHECK + "/default-project-for-bug/FUNCTIONAL", UserRoleType.PROJECT.name(), status().is5xxServerError()).andReturn();
+        MvcResult errResult = this.requestGetWithNoAdmin(BUG_CASE_CHECK + "/default-project-for-bug/FUNCTIONAL", UserRoleType.PROJECT.name()).andReturn();
+        BugCaseCheckResult errData = getResultData(errResult, BugCaseCheckResult.class);
+        Assertions.assertFalse(errData.getPass());
+        Assertions.assertEquals(errData.getMsg(), Translator.get("bug_relate_case_permission_error"));
     }
 
     @Test

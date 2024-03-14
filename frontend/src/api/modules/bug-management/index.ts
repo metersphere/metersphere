@@ -2,7 +2,6 @@ import { CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
-import { getCustomOptionHeaderUrl } from '@/api/requrls/bug-management';
 
 import { BugEditFormObject, BugListItem, BugOptionListItem } from '@/models/bug-management';
 import { AssociatedList, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
@@ -77,6 +76,11 @@ export function getExportConfig(projectId: string) {
 // 获取模板详情
 export function getTemplateDetailInfo(data: { id: string; projectId: string }) {
   return MSR.post({ url: `${bugURL.getTemplateDetailUrl}`, data });
+}
+
+// 获取当前项目所属平台
+export function getPlatform(projectId: string) {
+  return MSR.get({ url: `${bugURL.getPlatform}${projectId}` });
 }
 
 // 同步缺陷开源
