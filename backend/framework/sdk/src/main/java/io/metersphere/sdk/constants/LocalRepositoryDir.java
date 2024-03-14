@@ -41,6 +41,11 @@ public class LocalRepositoryDir {
      * system/cache
      */
     private static final String SYSTEM_CACHE_DIR = SYSTEM_ROOT_DIR + "/cache";
+
+    /**
+     * 缺陷的文件临时目录
+     */
+    private static final String BUG_TMP_DIR = ROOT_DIR + "/bug";
     /*------ end: 系统下资源目录 --------*/
 
     public static String getPluginDir() {
@@ -57,5 +62,9 @@ public class LocalRepositoryDir {
 
     public static String getFuncJarDir() {
         return ROOT_DIR + "/api/func-jar";
+    }
+
+    public static String getBugTmpDir() {
+        return BUG_TMP_DIR;
     }
 }
