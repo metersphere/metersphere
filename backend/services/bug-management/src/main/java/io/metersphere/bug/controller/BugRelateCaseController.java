@@ -2,6 +2,7 @@ package io.metersphere.bug.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.bug.dto.BugCaseCheckResult;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
@@ -90,7 +91,7 @@ public class BugRelateCaseController {
 
     @GetMapping("/check-permission/{projectId}/{caseType}")
     @Operation(description = "缺陷管理-关联用例-查看用例权限校验")
-    public void checkPermission(@PathVariable String projectId, @PathVariable String caseType) {
-        bugRelateCaseCommonService.checkPermission(projectId, SessionUtils.getUserId(), caseType);
+    public BugCaseCheckResult checkPermission(@PathVariable String projectId, @PathVariable String caseType) {
+        return bugRelateCaseCommonService.checkPermission(projectId, SessionUtils.getUserId(), caseType);
     }
 }

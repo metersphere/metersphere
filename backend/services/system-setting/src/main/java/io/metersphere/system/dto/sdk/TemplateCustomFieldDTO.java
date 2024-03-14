@@ -43,7 +43,7 @@ public class TemplateCustomFieldDTO {
     private Boolean internal;
 
     /**
-     * 平台字段相关属性    -- start
+     * 平台字段相关属性    @start
      */
     @Schema(title = "平台选项值")
     private String platformOptionJson;

@@ -311,10 +311,16 @@ public class BugService {
             record.setDeleteTime(System.currentTimeMillis());
             bugMapper.updateByPrimaryKeySelective(record);
         } else {
-            // 需同步删除平台缺陷
-            // 获取配置平台, 插入平台缺陷
-            Platform platform = projectApplicationService.getPlatform(bug.getProjectId(), true);
-            platform.deleteBug(bug.getPlatformBugId());
+            /*
+             * 和当前项目所属平台不一致, 只删除MS缺陷, 不同步删除平台缺陷
+             * 一致需同步删除平台缺陷
+             */
+            String platformName = projectApplicationService.getPlatformName(bug.getProjectId());
+            if (StringUtils.equals(platformName, bug.getPlatform())) {
+                // 需同步删除平台缺陷
+                Platform platform = projectApplicationService.getPlatform(bug.getProjectId(), true);
+                platform.deleteBug(bug.getPlatformBugId());
+            }
             // 删除缺陷后, 前置操作: 删除关联用例, 删除关联附件
             clearAssociate(id, bug.getProjectId());
             bugMapper.deleteByPrimaryKey(id);
@@ -651,7 +657,6 @@ public class BugService {
         // 状态字段
         attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey);
 
-        List<CustomFieldOption> handleUserOption = new ArrayList<>();
         // 内置字段(处理人字段)
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             // 获取插件中自定义的注入字段(处理人)
@@ -671,13 +676,12 @@ public class BugService {
                 request.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(projectId));
                 if (StringUtils.equals(injectField.getKey(), BugTemplateCustomField.HANDLE_USER.getId())) {
                     List<SelectOption> formOptions = platform.getFormOptions(request);
-                    handleUserOption = formOptions.stream().map(user -> {
+                    templateCustomFieldDTO.setOptions(formOptions.stream().map(user -> {
                         CustomFieldOption option = new CustomFieldOption();
                         option.setText(user.getText());
                         option.setValue(user.getValue());
                         return option;
-                    }).toList();
-                    templateCustomFieldDTO.setOptions(handleUserOption);
+                    }).toList());
                 } else {
                     templateCustomFieldDTO.setPlatformOptionJson(JSON.toJSONString(platform.getFormOptions(request)));
                 }
@@ -690,23 +694,15 @@ public class BugService {
             handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
             handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
             handleUserField.setType(CustomFieldType.SELECT.name());
-            List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
-            handleUserOption = localHandlerOption.stream().map(user -> {
-                CustomFieldOption option = new CustomFieldOption();
-                option.setText(user.getText());
-                option.setValue(user.getValue());
-                return option;
-            }).toList();
-            handleUserField.setOptions(handleUserOption);
+            handleUserField.setOptions(getMemberOption(projectId));
             handleUserField.setRequired(true);
             templateDTO.getCustomFields().addFirst(handleUserField);
         }
 
-        // 成员类型的自定义字段, 选项值与处理人选项保持一致
-        final List<CustomFieldOption> memberOption = handleUserOption;
+        // 成员类型的自定义字段, 选项值为项目下成员用户
         templateDTO.getCustomFields().forEach(field -> {
             if (StringUtils.equalsAny(field.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
-                field.setPlatformOptionJson(JSON.toJSONString(memberOption));
+                field.setOptions(getMemberOption(projectId));
             }
         });
 
@@ -1581,5 +1577,20 @@ public class BugService {
         bugAttachment.setCreateTime(System.currentTimeMillis());
         bugAttachment.setCreateUser(currentUser);
         return bugAttachment;
+    }
+
+    /**
+     * 获取当前项目下成员选项
+     * @param projectId 项目ID
+     * @return 选项集合
+     */
+    private List<CustomFieldOption> getMemberOption(String projectId) {
+        List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
+        return localHandlerOption.stream().map(user -> {
+            CustomFieldOption option = new CustomFieldOption();
+            option.setText(user.getText());
+            option.setValue(user.getValue());
+            return option;
+        }).toList();
     }
 }

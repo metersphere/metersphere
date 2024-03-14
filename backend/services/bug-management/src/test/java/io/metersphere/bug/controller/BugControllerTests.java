@@ -90,6 +90,7 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_SYNC_CHECK = "/bug/sync/check";
     public static final String BUG_EXPORT_COLUMNS = "/bug/export/columns/%s";
     public static final String BUG_EXPORT = "/bug/export";
+    public static final String BUG_CURRENT_PLATFORM = "/bug/current-platform/%s";
 
     @Resource
     private PluginService pluginService;
@@ -409,7 +410,7 @@ public class BugControllerTests extends BaseTest {
     void testExportColumns() throws Exception {
         this.requestGetWithOkAndReturn(String.format(BUG_EXPORT_COLUMNS, "default-project-for-bug"));
         //校验权限
-        this.requestGetPermissionTest(PermissionConstants.PROJECT_BUG_EXPORT, String.format(BUG_EXPORT_COLUMNS, DEFAULT_PROJECT_ID));
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_BUG_READ, String.format(BUG_EXPORT_COLUMNS, DEFAULT_PROJECT_ID));
     }
 
     @Test
@@ -468,6 +469,12 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(15)
+    void testCurrentPlatform() throws Exception {
+        this.requestGetWithOk(String.format(BUG_CURRENT_PLATFORM, "default-project-for-bug"));
+    }
+
+    @Test
     @Order(90)
     void testDeleteBugSuccess() throws Exception {
         // Local
@@ -508,7 +515,7 @@ public class BugControllerTests extends BaseTest {
         // 全选, 删除所有
         request.setSelectAll(true);
         request.setSelectIds(List.of("test"));
-        request.setExcludeIds(List.of("default-bug-id-jira-delete"));
+        request.setExcludeIds(List.of("default-bug-id-jira-delete", "default-bug-id-jira-sync", "default-bug-id-jira-sync-1"));
         this.requestPost(BUG_BATCH_DELETE, request, status().is5xxServerError());
     }
 
@@ -845,22 +852,6 @@ public class BugControllerTests extends BaseTest {
         FileInputStream inputStream = new FileInputStream(jiraTestFile);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(jiraTestFile.getName(), jiraTestFile.getName(), "jar", inputStream);
         request.setName("测试插件-JIRA");
-        request.setGlobal(true);
-        request.setEnable(true);
-        request.setCreateUser(ADMIN.name());
-        pluginService.add(request, mockMultipartFile);
-    }
-
-    /**
-     * 添加禅道插件，供测试使用
-     * @throws Exception 异常
-     */
-    public void addZentaoPlugin() throws Exception {
-        PluginUpdateRequest request = new PluginUpdateRequest();
-        File jiraTestFile = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/metersphere-zentao-test.jar")).getPath());
-        FileInputStream inputStream = new FileInputStream(jiraTestFile);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(jiraTestFile.getName(), jiraTestFile.getName(), "jar", inputStream);
-        request.setName("测试插件-ZENTAO");
         request.setGlobal(true);
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());

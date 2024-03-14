@@ -5,7 +5,6 @@ import io.metersphere.bug.domain.BugExample;
 import io.metersphere.bug.dto.response.BugColumnsOptionResponse;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.BugMapper;
-import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.service.ProjectApplicationService;
@@ -24,14 +23,12 @@ import java.util.List;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class BugStatusService {
-   @Resource
-   private BugMapper bugMapper;
     @Resource
-    private ExtBugMapper extBugMapper;
-   @Resource
-   private ProjectApplicationService projectApplicationService;
-   @Resource
-   private BaseStatusFlowSettingService baseStatusFlowSettingService;
+    private BugMapper bugMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+    @Resource
+    private BaseStatusFlowSettingService baseStatusFlowSettingService;
     @Resource
     private BugCommonService bugCommonService;
 
@@ -118,6 +115,11 @@ public class BugStatusService {
        }
    }
 
+    /**
+     * 获取
+     * @param projectId
+     * @return
+     */
     public BugColumnsOptionResponse getColumnsOption(String projectId) {
         return new BugColumnsOptionResponse(
                 bugCommonService.getLocalHandlerOption(projectId),

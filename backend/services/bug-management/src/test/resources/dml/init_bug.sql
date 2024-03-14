@@ -25,7 +25,9 @@ INSERT INTO bug_custom_field (bug_id, field_id, value) VALUE ('default-bug-id-ji
 INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUE
     ('test_field', '测试字段', 'BUG', 'MULTIPLE_SELECT', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug'),
     ('custom-field-1', '测试字段1', 'BUG', 'SELECT', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug'),
-    ('custom-field-2', '测试字段2', 'BUG', 'SELECT', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug');
+    ('custom-field-2', '测试字段2', 'BUG', 'SELECT', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug'),
+    ('custom-field-3', '测试字段3', 'BUG', 'MEMBER', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug'),
+    ('custom-field-4', '测试字段4', 'BUG', 'MULTIPLE_MEMBER', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug');
 
 INSERT INTO template (id, name, remark, internal, update_time, create_time, create_user, scope_type, scope_id, enable_third_part, scene) VALUES
     ('bug-template-id', 'bug-template', '', 0, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', 'default-project-for-bug', 0, 'BUG'),
@@ -33,7 +35,9 @@ INSERT INTO template (id, name, remark, internal, update_time, create_time, crea
     ('no-status-template', 'no-status-template', '', 0, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', 'no-status-project', 0, 'BUG');
 INSERT INTO template_custom_field(`id`, `field_id`, `template_id`, `required`, `system_field`, `pos`, `api_field_id`, `default_value`) VALUES
     ('100581234408685570', 'custom-field-1', 'default-bug-template-id', false, false, 0, 'customfield_10097', NULL),
-    ('100581234408685571', 'custom-field-2', 'default-bug-template-id', false, false, 0, 'customfield_10098', NULL);
+    ('100581234408685571', 'custom-field-2', 'default-bug-template-id', false, false, 0, 'customfield_10098', NULL),
+    ('100581234408685572', 'custom-field-3', 'default-bug-template-id', false, false, 0, '', NULL),
+    ('100581234408685573', 'custom-field-4', 'default-bug-template-id', false, false, 0, '', NULL);
 
 INSERT INTO bug_relation_case (id, case_id, bug_id, case_type, test_plan_id, test_plan_case_id, create_user, create_time, update_time) VALUE
     (UUID_SHORT(), UUID_SHORT(), 'default-bug-id', 'functional', null, null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);

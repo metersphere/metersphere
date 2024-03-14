@@ -11,6 +11,7 @@ import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugDetailDTO;
 import io.metersphere.bug.service.*;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -50,13 +51,21 @@ public class BugController {
     @Resource
     private BugService bugService;
     @Resource
-    private BugCommonService bugCommonService;
-    @Resource
     private BugSyncService bugSyncService;
     @Resource
     private BugStatusService bugStatusService;
     @Resource
     private ProjectTemplateService projectTemplateService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+
+    @GetMapping("/current-platform/{projectId}")
+    @Operation(summary = "缺陷管理-列表-获取当前项目所属平台")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public String getCurrentPlatform(@PathVariable String projectId) {
+        return projectApplicationService.getPlatformName(projectId);
+    }
 
     @GetMapping("/header/custom-field/{projectId}")
     @Operation(summary = "缺陷管理-列表-获取表头自定义字段集合")
@@ -149,7 +158,7 @@ public class BugController {
 
     @GetMapping("/export/columns/{projectId}")
     @Operation(summary = "缺陷管理-列表-获取导出字段配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public BugExportColumns getExportColumns(@PathVariable String projectId) {
         return bugService.getExportColumns(projectId);

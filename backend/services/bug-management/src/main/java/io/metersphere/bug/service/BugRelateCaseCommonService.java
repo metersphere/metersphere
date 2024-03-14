@@ -2,6 +2,7 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.dto.BugCaseCheckResult;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
@@ -179,17 +180,18 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param currentUser 当前用户
      * @param caseType 用例类型
      */
-    public void checkPermission(String projectId, String currentUser, String caseType) {
+    public BugCaseCheckResult checkPermission(String projectId, String currentUser, String caseType) {
         // 校验关联用例的查看权限, 目前只支持功能用例的查看权限, 后续支持除功能用例外的其他类型用例
         if (!CaseType.FUNCTIONAL_CASE.getKey().equals(caseType)) {
             // 关联的用例类型未知
-            throw new MSException(Translator.get("bug_relate_case_type_unknown"));
+            return BugCaseCheckResult.builder().pass(false).msg(Translator.get("bug_relate_case_type_unknown")).build();
         }
         boolean hasPermission = permissionCheckService.userHasProjectPermission(currentUser, projectId, PermissionConstants.FUNCTIONAL_CASE_READ);
         if (!hasPermission) {
             // 没有该用例的访问权限
-            throw new MSException(Translator.get("bug_relate_case_permission_error"));
+            return BugCaseCheckResult.builder().pass(false).msg(Translator.get("bug_relate_case_permission_error")).build();
         }
+        return BugCaseCheckResult.builder().pass(true).build();
     }
 
     /**
