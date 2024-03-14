@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.constants.TemplateRequiredCustomField;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
@@ -26,10 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -91,6 +89,13 @@ public class BaseCustomFieldService {
                 createUserOption.setValue(CREATE_USER);
                 createUserOption.setInternal(false);
                 customFieldDTO.setOptions(List.of(createUserOption));
+            }
+            if (BooleanUtils.isTrue(item.getInternal())) {
+                 // 设置哪些内置字段是模板里必选的
+                Set<String> templateRequiredCustomFieldSet = Arrays.stream(TemplateRequiredCustomField.values())
+                        .map(TemplateRequiredCustomField::getName)
+                        .collect(Collectors.toSet());
+                customFieldDTO.setTemplateRequired(templateRequiredCustomFieldSet.contains(item.getName()));
             }
             return customFieldDTO;
         }).toList();
