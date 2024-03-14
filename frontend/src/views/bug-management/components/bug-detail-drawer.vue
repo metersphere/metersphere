@@ -19,33 +19,36 @@
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
         <MsButton
+          v-permission="['PROJECT_BUG:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
-          :disabled="loading"
           :loading="editLoading"
+          :disabled="loading"
           @click="updateHandler"
         >
           <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px]" />
           {{ t('common.edit') }}
         </MsButton>
         <MsButton
+          v-permission="['PROJECT_BUG:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
-          :disabled="loading"
           :loading="shareLoading"
+          :disabled="loading"
           @click="shareHandler"
         >
           <MsIcon type="icon-icon_share1" class="mr-1 font-[16px]" />
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
+          v-permission="['PROJECT_BUG:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
-          :disabled="loading"
           :loading="followLoading"
+          :disabled="loading"
           @click="followHandler"
         >
           <MsIcon
@@ -154,7 +157,10 @@
                   content-class="tags-class"
                 >
                   <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                    <MsTagsInput v-model:model-value="tags" />
+                    <MsTagsInput
+                      v-model:model-value="tags"
+                      :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                    />
                   </a-form-item>
                 </a-form>
 
@@ -213,6 +219,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugEditCustomField, BugEditFormObject, BugTemplateRequest } from '@/models/bug-management';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
@@ -274,6 +281,7 @@
           props: {
             modelValue: valueObj[item.fieldId],
             options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
+            disabled: !hasAnyPermission(['PROJECT_BUG:READ+UPDATE']),
           },
         };
       });

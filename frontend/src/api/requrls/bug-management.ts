@@ -73,3 +73,6 @@ export const getUnrelatedModuleTreeCountUrl = '/bug/case/un-relate/module/count'
 
 // 缺陷管理-变更历史-列表
 export const getChangeHistoryListUrl = '/bug/history/page';
+
+// 缺陷用例跳转用例是否具备权限
+export const checkCasePermissionUrl = '/bug/case/check-permission';

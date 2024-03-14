@@ -398,7 +398,7 @@
               value: userStore.id || '',
             },
           ];
-          if (item.defaultValue === 'CREATE_USER') {
+          if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
           }
         }

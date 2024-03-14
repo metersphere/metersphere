@@ -48,12 +48,11 @@
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getChangeHistoryList, {
-    heightUsed: 240,
+    heightUsed: 380,
     columns,
     scroll: { x: '100%' },
     selectable: false,
     noDisable: false,
-    pageSimple: true,
     debug: true,
   });
 

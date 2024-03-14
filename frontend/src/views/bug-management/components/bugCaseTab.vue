@@ -95,12 +95,14 @@
   import {
     batchAssociation,
     cancelAssociation,
+    checkCasePermission,
     getAssociatedList,
     getModuleTree,
     getUnAssociatedList,
   } from '@/api/modules/bug-management';
   import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
@@ -276,12 +278,21 @@
     await loadList();
   }
 
-  function openDetail(id: string) {
-    window.open(
-      `${window.location.origin}#${
-        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
-      }?id=${id}`
-    );
+  async function openDetail(id: string) {
+    try {
+      const res = await checkCasePermission(currentProjectId.value, 'FUNCTIONAL');
+      if (res) {
+        window.open(
+          `${window.location.origin}#${
+            router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
+          }?id=${id}`
+        );
+      } else {
+        window.open(`${window.location.origin}#${router.resolve({ name: NO_RESOURCE_ROUTE_NAME }).fullPath}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   onMounted(async () => {

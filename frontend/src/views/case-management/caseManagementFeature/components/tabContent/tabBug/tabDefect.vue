@@ -9,7 +9,12 @@
               t('caseManagement.featureCase.createDefect')
             }}</span>
           </template>
-          <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="mr-3" type="primary" @click="linkDefect">
+          <a-button
+            v-permission="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            class="mr-3"
+            type="primary"
+            @click="linkDefect"
+          >
             {{ t('caseManagement.featureCase.linkDefect') }}
           </a-button>
         </a-tooltip>
@@ -134,12 +139,12 @@
       </template>
       <template #handleUserFilter="{ columnConfig }">
         <TableFilter
-            v-model:visible="handleUserFilterVisible"
-            v-model:status-filters="handleUserFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="handleUserFilterOptions"
-            value-key="value"
-            @search="searchData()"
+          v-model:visible="handleUserFilterVisible"
+          v-model:status-filters="handleUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="handleUserFilterOptions"
+          value-key="value"
+          @search="searchData()"
         >
           <template #item="{ item }">
             {{ item.text }}
@@ -148,12 +153,12 @@
       </template>
       <template #statusFilter="{ columnConfig }">
         <TableFilter
-            v-model:visible="statusFilterVisible"
-            v-model:status-filters="statusFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="statusFilterOptions"
-            value-key="value"
-            @search="searchData()"
+          v-model:visible="statusFilterVisible"
+          v-model:status-filters="statusFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="statusFilterOptions"
+          value-key="value"
+          @search="searchData()"
         >
           <template #item="{ item }">
             {{ item.text }}
@@ -163,12 +168,12 @@
 
       <template #severityFilter="{ columnConfig }">
         <TableFilter
-            v-model:visible="severityFilterVisible"
-            v-model:status-filters="severityFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="severityFilterOptions"
-            value-key="value"
-            @search="searchData()"
+          v-model:visible="severityFilterVisible"
+          v-model:status-filters="severityFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="severityFilterOptions"
+          value-key="value"
+          @search="searchData()"
         >
           <template #item="{ item }">
             {{ item.text }}
@@ -221,6 +226,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
