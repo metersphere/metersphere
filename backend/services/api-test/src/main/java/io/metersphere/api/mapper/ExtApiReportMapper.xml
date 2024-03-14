@@ -14,15 +14,7 @@
 
     <select id="list" resultType="io.metersphere.api.domain.ApiReport">
         select
-        api_report.id,
-        api_report.name,
-        api_report.integrated,
-        api_report.status,
-        api_report.start_time,
-        api_report.update_time,
-        api_report.create_user,
-        api_report.update_user,
-        api_report.trigger_mode
+        api_report.*
         from api_report where api_report.deleted = false
                           and api_report.test_plan_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">

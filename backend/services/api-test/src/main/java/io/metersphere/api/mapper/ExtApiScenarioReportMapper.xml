@@ -14,15 +14,7 @@
 
     <select id="list" resultType="io.metersphere.api.domain.ApiScenarioReport">
         select
-        api_scenario_report.id,
-        api_scenario_report.name,
-        api_scenario_report.integrated,
-        api_scenario_report.status,
-        api_scenario_report.start_time,
-        api_scenario_report.update_time,
-        api_scenario_report.create_user,
-        api_scenario_report.update_user,
-        api_scenario_report.trigger_mode
+        api_scenario_report.*
         from api_scenario_report where api_scenario_report.deleted = false
                           and api_scenario_report.test_plan_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">
