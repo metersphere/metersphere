@@ -39,8 +39,7 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
   },
   {
     title: t('project.processor.paramEnvironmentSetGlobalVariable'),
-    value: `vars.put(\${__metersphere_env_id}+"key","value"); 
-        vars.put("key","value")`,
+    value: `vars.put(\${__metersphere_env_id}+"key","value");\nvars.put("key","value");`,
   },
   {
     title: t('project.processor.insertPublicScript'),

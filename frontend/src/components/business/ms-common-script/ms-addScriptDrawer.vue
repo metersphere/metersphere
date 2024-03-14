@@ -259,7 +259,7 @@
       };
       await testCommonScript(params);
     } catch (error) {
-      console.log(error);
+      loading.value = false;
     }
   }
   // 提交测试请求
