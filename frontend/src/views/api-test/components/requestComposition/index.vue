@@ -1295,6 +1295,9 @@
    * 保存快捷键处理
    */
   async function handleSaveShortcut() {
+    if (isHttpProtocol && !requestVModel.value.url) {
+      return;
+    }
     try {
       if (!isHttpProtocol.value) {
         // 插件需要校验动态表单
