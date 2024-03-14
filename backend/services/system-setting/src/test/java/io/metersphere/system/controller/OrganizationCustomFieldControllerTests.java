@@ -4,6 +4,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.system.constants.TemplateRequiredCustomField;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
@@ -256,7 +257,20 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
                 Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
                         baseCustomFieldOptionService.getByFieldId(customField.getId()).stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList());
             }
+            Assertions.assertFalse(resultList.get(i).getTemplateRequired());
         }
+
+        mvcResult = this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name())
+                .andReturn();
+        // 校验数据是否正确
+        resultList = getResultDataArray(mvcResult, CustomFieldDTO.class);
+        resultList.forEach(item -> {
+            if (StringUtils.equals(item.getName(), "bug_degree")) {
+                Assertions.assertTrue(item.getTemplateRequired());
+            } else {
+                Assertions.assertFalse(item.getTemplateRequired());
+            }
+        });
 
         // @@校验组织是否存在
         assertErrorCode(this.requestGet(LIST, "1111", scene), NOT_FOUND);
