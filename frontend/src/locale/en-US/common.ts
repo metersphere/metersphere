@@ -114,6 +114,7 @@ export default {
   'common.tagsInputPlaceholder': 'Enter the content and press Enter to directly add tags',
   'common.move': 'Move',
   'common.batchMove': 'Batch move',
+  'common.batchCopy': 'Batch copy',
   'common.batchMoveSuccess': 'Batch move successful',
   'common.importSuccess': 'Import successful',
   'common.nameIsTooLang': 'The name exceeds 255 characters',

@@ -6,15 +6,9 @@
         :placeholder="t('apiScenario.tree.selectorPlaceholder')"
         allow-clear
       />
-      <a-dropdown v-if="!props.readOnly" @select="handleSelect">
-        <a-button type="primary">{{ t('apiScenario.createScenario') }}</a-button>
-        <template #content>
-          <a-doption value="newScenario">{{ t('apiScenario.createScenario') }}</a-doption>
-          <a-doption value="import">
-            {{ t('apiScenario.importScenario') }}
-          </a-doption>
-        </template>
-      </a-dropdown>
+      <a-button v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']" type="primary" value="newScenario">{{
+        t('apiScenario.createScenario')
+      }}</a-button>
     </div>
     <div class="folder" @click="setActiveFolder('all')">
       <div :class="allFolderClass">
@@ -30,7 +24,7 @@
         </a-tooltip>
         <template v-if="!props.readOnly">
           <a-dropdown @select="handleSelect">
-            <MsButton type="icon" class="!mr-0 p-[2px]">
+            <MsButton v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']" type="icon" class="!mr-0 p-[2px]">
               <MsIcon
                 type="icon-icon_create_planarity"
                 size="18"
@@ -73,7 +67,7 @@
           children: 'children',
           count: 'count',
         }"
-        :draggable="!props.readOnly"
+        :draggable="!props.readOnly && hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
         block-node
         title-tooltip-position="left"
         @select="folderNodeSelect"
@@ -98,7 +92,13 @@
             @close="resetFocusNodeKey"
             @add-finish="() => initModules()"
           >
-            <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
+            <MsButton
+              v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+              type="icon"
+              size="mini"
+              class="ms-tree-node-extra__btn !mr-0"
+              @click="setFocusNodeKey(nodeData)"
+            >
               <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
             </MsButton>
           </popConfirm>
@@ -145,7 +145,9 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
+  import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
 
   const props = withDefaults(
@@ -231,6 +233,7 @@
     {
       label: 'common.rename',
       eventTag: 'rename',
+      permission: ['PROJECT_API_SCENARIO:READ+UPDATE'],
     },
     {
       isDivider: true,
@@ -238,6 +241,7 @@
     {
       label: 'common.delete',
       eventTag: 'delete',
+      permission: ['PROJECT_API_SCENARIO:READ+DELETE'],
       danger: true,
     },
   ];
@@ -299,28 +303,6 @@
     }
   }
 
-  async function initModuleCount() {
-    try {
-      const res = await getModuleCount({
-        keyword: moduleKeyword.value,
-        projectId: appStore.currentProjectId,
-        moduleIds: [],
-      });
-      modulesCount.value = res;
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: res[node.id] || 0,
-          draggable: !props.readOnly,
-          disabled: props.readOnly ? node.id === selectedKeys.value[0] : false,
-        };
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   watch(
     () => props.isExpandAll,
     (val) => {
@@ -337,13 +319,10 @@
    */
   function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
     const offspringIds: string[] = [];
-    if (props.isShowScenario) {
-      mapTree(node.children || [], (e) => {
-        offspringIds.push(e.id);
-        return e;
-      });
-    }
-
+    mapTree(node.children || [], (e) => {
+      offspringIds.push(e.id);
+      return e;
+    });
     emit('folderNodeSelect', _selectedKeys, offspringIds);
   }
 
@@ -366,7 +345,6 @@
           await deleteModule(node.id);
           Message.success(t('apiScenario.deleteSuccess'));
           await initModules();
-          initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -437,7 +415,6 @@
     } finally {
       loading.value = false;
       await initModules();
-      initModuleCount();
     }
   }
 
@@ -448,18 +425,35 @@
     }
   }
 
-  onBeforeMount(async () => {
-    await initModules();
-    initModuleCount();
-  });
-
   async function refresh() {
     await initModules();
-    initModuleCount();
   }
 
+  async function initModuleCount(params: ApiScenarioGetModuleParams) {
+    try {
+      const res = await getModuleCount(params);
+      modulesCount.value = res;
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+          draggable: !props.readOnly,
+          disabled: props.readOnly ? node.id === selectedKeys.value[0] : false,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  onBeforeMount(async () => {
+    await initModules();
+    await initModuleCount({
+      projectId: appStore.currentProjectId,
+    });
+  });
   defineExpose({
     refresh,
+    initModuleCount,
   });
 </script>
 

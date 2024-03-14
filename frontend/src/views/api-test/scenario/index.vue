@@ -43,9 +43,12 @@
           </div>
         </template>
         <template #second>
-          <div class="p-[24px]">
-            <!--            <apiTable ref="apiTableRef" :active-module="activeFolder" :offspring-ids="offspringIds" />-->
-          </div>
+          <ScenarioTable
+            ref="apiTableRef"
+            :active-module="activeModule"
+            :offspring-ids="offspringIds"
+            @refresh-module-tree="refreshTree"
+          />
         </template>
       </MsSplitBox>
     </div>
@@ -66,10 +69,11 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
   import detail from './detail/index.vue';
-  import ApiTable from '@/views/api-test/management/components/management/api/apiTable.vue';
+  import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
 
   const { t } = useI18n();
@@ -94,10 +98,10 @@
 
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
-  const activeFolder = ref<string>('all');
   const activeModule = ref<string>('all');
+  const activeFolder = ref<string>('all');
   const offspringIds = ref<string[]>([]);
-
+  const recycleModulesCount = ref(0);
   const isShowScenario = ref(false);
 
   // 获取激活用例类型样式
@@ -105,9 +109,9 @@
     return activeFolder.value === type ? 'folder-text case-active' : 'folder-text';
   };
 
-  const scenarioModuleTreeRef = ref();
+  const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
 
-  function handleModuleInit(tree, _protocol: string, pathMap: Record<string, any>) {
+  function handleModuleInit(tree: any, _protocol: string, pathMap: Record<string, any>) {
     folderTree.value = tree;
     folderTreePathMap.value = pathMap;
   }
@@ -115,6 +119,10 @@
   function handleNodeSelect(keys: string[], _offspringIds: string[]) {
     [activeModule.value] = keys;
     offspringIds.value = _offspringIds;
+  }
+
+  function refreshTree(params: ApiScenarioGetModuleParams) {
+    scenarioModuleTreeRef.value?.initModuleCount(params);
   }
 
   function redirectRecycle() {}

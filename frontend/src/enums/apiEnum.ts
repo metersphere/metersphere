@@ -69,6 +69,13 @@ export enum RequestDefinitionStatus {
   DEBUGGING = 'DEBUGGING',
   DONE = 'DONE',
 }
+
+// 接口场景状态
+export enum ApiScenarioStatus {
+  DEPRECATED = 'DEPRECATED',
+  UNDERWAY = 'UNDERWAY',
+  COMPLETED = 'COMPLETED',
+}
 // 接口导入支持格式
 export enum RequestImportFormat {
   SWAGGER = 'Swagger3',

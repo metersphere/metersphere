@@ -7,10 +7,10 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestDefinitionStatus } from '@/enums/apiEnum';
+  import { ApiScenarioStatus, RequestDefinitionStatus } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    status: RequestDefinitionStatus;
+    status: RequestDefinitionStatus | ApiScenarioStatus;
     size?: Size;
   }>();
 
@@ -27,12 +27,22 @@
       color: 'rgb(var(--link-5))',
       text: 'apiTestManagement.processing',
     },
+    [ApiScenarioStatus.UNDERWAY]: {
+      bgColor: 'rgb(var(--link-2))',
+      color: 'rgb(var(--link-5))',
+      text: 'apiTestManagement.processing',
+    },
     [RequestDefinitionStatus.DEBUGGING]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--link-6))',
       text: 'apiTestManagement.debugging',
     },
     [RequestDefinitionStatus.DONE]: {
+      bgColor: 'rgb(var(--success-2))',
+      color: 'rgb(var(--success-6))',
+      text: 'apiTestManagement.done',
+    },
+    [ApiScenarioStatus.COMPLETED]: {
       bgColor: 'rgb(var(--success-2))',
       color: 'rgb(var(--success-6))',
       text: 'apiTestManagement.done',

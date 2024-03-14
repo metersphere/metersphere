@@ -69,11 +69,12 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/scenario/index.vue'),
       meta: {
         locale: 'menu.apiTest.scenario',
-        roles: ['*'],
         isTopMenu: true,
+        roles: ['PROJECT_API_SCENARIO:READ'],
       },
     },
 
+    // 接口场景回收站
     {
       path: 'scenarioRecycle',
       name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,

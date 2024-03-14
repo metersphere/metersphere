@@ -96,6 +96,13 @@ export const pathMap: PathMapItem[] = [
         ],
       },
       {
+        key: 'API_TEST_SCENARIO', // 接口测试-场景
+        locale: 'menu.apiTest.scenario',
+        route: RouteEnum.API_TEST_SCENARIO,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
         key: 'API_TEST_REPORT', // 接口测试-接口测试报告
         locale: 'menu.apiTest.report',
         route: RouteEnum.API_TEST_REPORT,
