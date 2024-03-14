@@ -22,4 +22,13 @@ export default {
   'apiScenario.changeHistory': '变更历史',
   'apiScenario.dependency': '依赖关系',
   'apiScenario.quote': '引用关系',
+  'apiScenario.params.convention': '常规参数',
+  'apiScenario.params.searchPlaceholder': '通过名称或标签搜索',
+  'apiScenario.params.priority':
+    '变量优先级：临时参数>场景参数 >环境参数>全局参数；注: 避免使用同名变量，同名变量时场景级 CSV 优先级最高',
+  'apiScenario.params.name': '变量名称',
+  'apiScenario.params.type': '类型',
+  'apiScenario.params.paramValue': '参数值',
+  'apiScenario.params.tag': '标签',
+  'apiScenario.params.desc': '描述',
 };
