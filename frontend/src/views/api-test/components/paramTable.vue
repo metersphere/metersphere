@@ -690,7 +690,7 @@
   /**
    * 当表格输入框变化时，给参数表格添加一行数据行
    * @param val 输入值
-   * @param key 当前列的 key
+   * @param key 当前列的 key  key存在的时候 才可以增加新的一行
    * @param isForce 是否强制添加
    */
   function addTableLine(rowIndex: number, addLineDisabled?: boolean, isInit?: boolean) {
@@ -698,7 +698,7 @@
       emitChange('addTableLine addLineDisabled', isInit);
       return;
     }
-    if (rowIndex === paramsData.value.length - 1) {
+    if (rowIndex === paramsData.value.length - 1 && paramsData.value[rowIndex].key) {
       // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
       paramsData.value.push({
