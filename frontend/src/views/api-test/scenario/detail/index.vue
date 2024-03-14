@@ -51,7 +51,7 @@
           :title="t('apiScenario.params')"
           class="px-[24px] py-[16px]"
         >
-          <params v-if="activeKey === ScenarioCreateComposition.PARAMS" />
+          <params v-if="activeKey === ScenarioCreateComposition.PARAMS" v-model:params="allParams" />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioCreateComposition.PRE_POST"
@@ -124,6 +124,7 @@
   const quote = defineAsyncComponent(() => import('../components/quote.vue'));
   const setting = defineAsyncComponent(() => import('../components/setting.vue'));
 
+  const allParams = ref<any[]>([]);
   const props = defineProps<{
     detail: RequestParam;
   }>();

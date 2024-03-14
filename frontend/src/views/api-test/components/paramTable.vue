@@ -721,7 +721,7 @@
           if (!item) {
             // 批量添加过来的数据最后一行会是 undefined
             return {
-              ...props.defaultParamItem,
+              ...cloneDeep(props.defaultParamItem),
               id: new Date().getTime() + i,
             };
           }
@@ -743,7 +743,7 @@
         paramsData.value = [
           {
             id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
-            ...props.defaultParamItem,
+            ...cloneDeep(props.defaultParamItem),
             enable: true, // 是否勾选
           },
         ] as any[];

@@ -23,4 +23,13 @@ export default {
   'apiScenario.changeHistory': 'Change history',
   'apiScenario.dependency': 'Dependencies',
   'apiScenario.quote': 'Reference',
+  'apiScenario.params.convention': 'Convention parameter',
+  'apiScenario.params.searchPlaceholder': 'Search by name or tag',
+  'apiScenario.params.priority':
+    'Variable priority: Temporary parameters>Scene parameters>Environment parameters>Global parameters; Note: Avoid using variables with the same name. When using variables with the same name, scene level CSV has the highest priority',
+  'apiScenario.params.name': 'Variable name',
+  'apiScenario.params.type': 'Type',
+  'apiScenario.params.paramValue': 'Parameter value',
+  'apiScenario.params.tag': 'Tag',
+  'apiScenario.params.desc': 'Description',
 };
