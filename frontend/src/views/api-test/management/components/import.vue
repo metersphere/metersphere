@@ -46,6 +46,7 @@
               class="w-[436px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
+              allow-clear
             />
           </a-form-item>
           <a-form-item>
