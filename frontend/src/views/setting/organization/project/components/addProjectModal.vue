@@ -76,6 +76,7 @@
             v-model:modelValue="form.resourcePoolIds"
             :module-ids="form.moduleIds"
             :organization-id="currentOrgId"
+            :is-org="true"
           />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">

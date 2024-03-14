@@ -5,11 +5,11 @@
 <script setup lang="ts">
   import { computed, ref, watchEffect } from 'vue';
 
-  import { getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
+  import { getPoolOptionsByOrg, getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
 
   const options = ref([]);
   const fieldNames = { value: 'id', label: 'name' };
-  const props = defineProps<{ organizationId?: string; modelValue: string[]; moduleIds?: string[] }>();
+  const props = defineProps<{ organizationId?: string; modelValue: string[]; moduleIds?: string[]; isOrg?: boolean }>();
   const loading = ref(false);
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
@@ -22,10 +22,10 @@
       emit('update:modelValue', v);
     },
   });
-  const loadList = async (arr: string[], id?: string) => {
+  const loadList = async (arr: string[], id?: string, isOrg?: boolean) => {
     try {
       loading.value = true;
-      options.value = await getPoolOptionsByOrgOrSystem(arr, id);
+      options.value = !isOrg ? await getPoolOptionsByOrgOrSystem(arr, id) : await getPoolOptionsByOrg(arr, id);
     } catch (error) {
       options.value = [];
       // eslint-disable-next-line no-console
@@ -35,6 +35,6 @@
     }
   };
   watchEffect(() => {
-    loadList(props.moduleIds || [], props.organizationId);
+    loadList(props.moduleIds || [], props.organizationId, props.isOrg || false);
   });
 </script>

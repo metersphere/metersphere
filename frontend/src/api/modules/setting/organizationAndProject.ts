@@ -189,9 +189,16 @@ export function getUserByProjectByOrg(organizationId: string, projectId: string,
 }
 
 // 系统或组织-获取项目下的资源池options
-export function getPoolOptionsByOrgOrSystem(modulesIds: string[], rganizationId?: string) {
+export function getPoolOptionsByOrgOrSystem(modulesIds: string[], organizationId?: string) {
   return MSR.post({
     url: orgUrl.getProjectPoolByOrgOrSystemUrl,
-    data: { rganizationId, modulesIds },
+    data: { organizationId, modulesIds },
+  });
+}
+// 组织-获取项目下的资源池options
+export function getPoolOptionsByOrg(modulesIds: string[], organizationId?: string) {
+  return MSR.post({
+    url: orgUrl.getProjectPoolByOrg,
+    data: { organizationId, modulesIds },
   });
 }
