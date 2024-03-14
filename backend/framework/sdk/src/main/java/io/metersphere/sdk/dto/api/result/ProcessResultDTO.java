@@ -29,6 +29,9 @@ public class ProcessResultDTO {
     // 请求总时长
     private long requestDuration;
 
+    // 标记执行步骤中是否有脚本报错，记录最后一次错误信息
+    private String lastScriptIdentifier;
+
     public void computerTotal() {
         this.total = this.pendingCount + this.errorCount + this.successCount;
     }

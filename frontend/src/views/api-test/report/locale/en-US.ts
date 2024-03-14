@@ -28,4 +28,8 @@ export default {
   'report.detail.fakeErrorCount': 'False alarm',
   'report.detail.pendingCount': 'Not executed',
   'report.detail.stepTotal': 'total',
+  'report.detail.script.error': 'Script error',
+  'report.detail.scenario.errorTip':
+    'There is a pre/post script running error in the execution step of the current scenario.',
+  'report.detail.api.errorTip': 'There are pre/post script running errors in the current use case execution.',
 };
