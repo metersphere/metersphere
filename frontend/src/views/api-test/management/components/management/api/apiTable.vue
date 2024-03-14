@@ -409,6 +409,7 @@
         label: 'common.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['PROJECT_API_DEFINITION:READ+DELETE'],
       },
     ],
   };

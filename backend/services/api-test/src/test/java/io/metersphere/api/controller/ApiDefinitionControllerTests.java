@@ -1539,6 +1539,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                         .getPath()));
         file = new MockMultipartFile("file", "openapi1.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
+        request.setModuleId("root");
         request.setCoverModule(true);
         request.setCoverData(true);
         paramMap.add("request", JSON.toJSONString(request));

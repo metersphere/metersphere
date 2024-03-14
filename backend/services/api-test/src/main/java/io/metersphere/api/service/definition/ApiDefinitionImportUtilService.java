@@ -152,15 +152,22 @@ public class ApiDefinitionImportUtilService {
         if (StringUtils.isNotBlank(request.getModuleId())) {
             BaseTreeNode baseTreeNode = idModuleMap.get(request.getModuleId());
             String modulePath = baseTreeNode.getPath();
-            importData.forEach(t -> {
-                t.setModulePath(modulePath + t.getModulePath());
-            });
+            //如果选择了未规划模块， 导入的数据的模块清空， 只导入数据，不处理模块信息
+            if ("root".equals(request.getModuleId())) {
+                importData.forEach(t -> {
+                    t.setModulePath(modulePath);
+                });
+            } else {
+                importData.forEach(t -> {
+                    t.setModulePath(modulePath + t.getModulePath());
+                });
+            }
         }
         //去掉apiLists中不存在的模块数据
-        apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
         apiLists.forEach(t -> {
             t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getPath() : StringUtils.EMPTY);
         });
+        apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
         ApiDetailWithData apiDealWithData = new ApiDetailWithData();
         //判断数据是否是唯一的
         checkApiDataOnly(request, importData, apiLists, apiDealWithData);
@@ -419,7 +426,7 @@ public class ApiDefinitionImportUtilService {
                         //判断模块是否一样
                         if (!StringUtils.equals(apiDefinitionDTO.getModulePath(), importDTO.getModulePath())) {
                             //不一样的模块需要更
-                            apiDefinitionDTO.setModulePath(apiDefinitionDTO.getModulePath());
+                            apiDefinitionDTO.setModulePath(importDTO.getModulePath());
                             updateModuleData.add(apiDefinitionDTO);
                             logMap.put(apiDefinitionDTO.getId(), importDTO);
                         }
