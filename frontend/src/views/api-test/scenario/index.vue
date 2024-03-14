@@ -52,7 +52,12 @@
         </template>
       </MsSplitBox>
     </div>
-    <detail v-else :detail="activeApiTab"></detail>
+    <div v-else-if="activeApiTab.is" class="pageWrap">
+      <detail :detail="activeApiTab"></detail>
+    </div>
+    <div v-else class="pageWrap">
+      <create :module-tree="folderTree"></create>
+    </div>
   </MsCard>
 </template>
 
@@ -65,10 +70,10 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
-  import detail from './detail/index.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -76,22 +81,27 @@
   import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
 
+  // 异步导入
+  const detail = defineAsyncComponent(() => import('./detail/index.vue'));
+  const create = defineAsyncComponent(() => import('./create/index.vue'));
+
   const { t } = useI18n();
 
-  const apiTabs = ref<any[]>([
+  const apiTabs = ref<TabItem[]>([
     {
       id: 'all',
       label: t('apiScenario.allScenario'),
       closable: false,
     },
   ]);
-  const activeApiTab = ref<any>(apiTabs.value[0]);
+  const activeApiTab = ref<TabItem>(apiTabs.value[0]);
 
   function newTab() {
     apiTabs.value.push({
       id: `newTab${apiTabs.value.length}`,
       label: `New Tab ${apiTabs.value.length}`,
       closable: true,
+      isNew: true,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
   }

@@ -167,15 +167,7 @@
     isExpandAll?: boolean; // 是否展开所有节点
     activeNodeId?: string | number; // 当前选中节点 id
   }>();
-  const emit = defineEmits([
-    'init',
-    'clickApiNode',
-    'newApi',
-    'import',
-    'renameFinish',
-    'deleteFinish',
-    'updateApiNode',
-  ]);
+  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'updateApiNode', 'deleteFinish']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -456,7 +448,7 @@
   }
 
   async function handleRenameFinish(newName: string, id: string) {
-    emit('renameFinish', newName, id);
+    emit('updateApiNode', { name: newName, id });
     await initModules();
     initModuleCount();
   }

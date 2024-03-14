@@ -79,13 +79,12 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ExecuteBody, ProtocolItem, RequestTaskResult } from '@/models/apiTest/common';
+  import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
-    RequestBodyFormat,
     RequestComposition,
     RequestDefinitionStatus,
     RequestMethods,

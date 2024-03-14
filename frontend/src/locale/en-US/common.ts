@@ -133,4 +133,8 @@ export default {
   'common.share': 'Share',
   'common.notRemind': `Don't remind again`,
   'common.status': 'Status',
+  'common.batchEnable': 'Batch enable',
+  'common.batchDisable': 'Batch disable',
+  'common.batchDelete': 'Batch delete',
+  'common.batchDebug': 'Batch debug',
 };

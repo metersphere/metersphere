@@ -109,7 +109,6 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
-  import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { RequestMethods, ScenarioCreateComposition, ScenarioDetailComposition } from '@/enums/apiEnum';
 
@@ -126,14 +125,14 @@
 
   const allParams = ref<any[]>([]);
   const props = defineProps<{
-    detail: RequestParam;
+    detail: Record<string, any>;
   }>();
   const emit = defineEmits(['updateFollow']);
 
   const { copy, isSupported } = useClipboard();
   const { t } = useI18n();
 
-  const previewDetail = ref<RequestParam>(cloneDeep(props.detail));
+  const previewDetail = ref<Record<string, any>>(cloneDeep(props.detail));
 
   const description = computed(() => [
     {
