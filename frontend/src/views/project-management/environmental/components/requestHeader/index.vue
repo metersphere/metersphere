@@ -20,6 +20,7 @@
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -52,6 +53,8 @@
       dataIndex: 'key',
       slotName: 'key',
       permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
+      inputType: 'autoComplete',
+      autoCompleteParams: responseHeaderOption,
     },
     {
       title: 'apiTestDebug.paramValue',
