@@ -913,11 +913,10 @@ public class BugService {
          * 1. 先处理删除, 及取消关联的附件
          * 2. 再处理新上传的, 新关联的附件
          */
-        File tempFileDir = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource(StringUtils.EMPTY)).getPath());
         // 同步删除附件集合
         List<SyncAttachmentToPlatformRequest> removeAttachments = removeAttachment(request, platformBug, currentUser, platformName);
         // 同步上传附件集合
-        List<SyncAttachmentToPlatformRequest> uploadAttachments = uploadAttachment(request, files, platformBug, currentUser, platformName, tempFileDir);
+        List<SyncAttachmentToPlatformRequest> uploadAttachments = uploadAttachment(request, files, platformBug, currentUser, platformName);
         // 附件汇总
         List<SyncAttachmentToPlatformRequest> allSyncAttachments = Stream.concat(removeAttachments.stream(), uploadAttachments.stream()).toList();
 
@@ -989,11 +988,10 @@ public class BugService {
      * @param platformBug 平台缺陷
      * @param currentUser 当前用户
      * @param platformName 平台名称
-     * @param tempFileDir 临时文件目录
      * @return 同步删除附件集合
      */
     private List<SyncAttachmentToPlatformRequest> uploadAttachment(BugEditRequest request, List<MultipartFile> files, PlatformBugUpdateDTO platformBug,
-                                                                   String currentUser, String platformName, File tempFileDir) {
+                                                                   String currentUser, String platformName) {
         List<SyncAttachmentToPlatformRequest> uploadPlatformAttachments = new ArrayList<>();
         // 复制的附件
         List<BugLocalAttachment> copyFiles = new ArrayList<>();
@@ -1014,7 +1012,7 @@ public class BugService {
                         FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(request.getProjectId(), request.getId(), localAttachment.getFileId(), localFile.getFileName()));
                         // 同步新上传的附件至平台
                         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                            File uploadTmpFile = new File(tempFileDir, Objects.requireNonNull(localFile.getFileName())).toPath().normalize().toFile();
+                            File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + localFile.getFileName());
                             FileUtils.writeByteArrayToFile(uploadTmpFile, bytes);
                             uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                         }
@@ -1046,7 +1044,7 @@ public class BugService {
                     fileService.upload(file, fileRequest);
                     // 同步新上传的附件至平台
                     if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                        File uploadTmpFile = new File(tempFileDir, Objects.requireNonNull(file.getOriginalFilename())).toPath().normalize().toFile();
+                        File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" +  file.getOriginalFilename());
                         FileUtils.writeByteArrayToFile(uploadTmpFile, file.getBytes());
                         uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                     }
@@ -1070,7 +1068,7 @@ public class BugService {
                     FileMetadata meta = fileMetadataMap.get(fileId);
                     if (meta != null) {
                         try {
-                            File uploadTmpFile = new File(tempFileDir, meta.getName() + "." + meta.getType());
+                            File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + meta.getName() + "." + meta.getType());
                             byte[] fileByte = fileMetadataService.getFileByte(meta);
                             FileUtils.writeByteArrayToFile(uploadTmpFile, fileByte);
                             uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
