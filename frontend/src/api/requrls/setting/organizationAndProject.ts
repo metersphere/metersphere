@@ -94,3 +94,5 @@ export const getUserByOrganizationOrProjectUrl = '/organization/project/user-mem
 export const getAdminByOrganizationOrProjectUrl = '/organization/project/user-admin-list/';
 // 系统或组织-获取项目资源池下拉选项
 export const getProjectPoolByOrgOrSystemUrl = '/system/project/pool-options';
+// 组织-获取项目资源池下拉选项
+export const getProjectPoolByOrg = '/organization/project/pool-options';

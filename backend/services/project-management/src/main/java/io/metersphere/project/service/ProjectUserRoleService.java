@@ -1,5 +1,6 @@
 package io.metersphere.project.service;
 
+import com.alibaba.excel.util.StringUtils;
 import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
@@ -15,7 +16,6 @@ import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserRoleService;
@@ -42,8 +42,6 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJEC
 @Transactional(rollbackFor = Exception.class)
 public class ProjectUserRoleService extends BaseUserRoleService {
 
-    @Resource
-    UserMapper userMapper;
     @Resource
     UserRoleMapper userRoleMapper;
     @Resource
@@ -125,13 +123,23 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     public void removeMember(ProjectUserRoleMemberEditRequest request) {
         String removeUserId = request.getUserIds().get(0);
         checkMemberParam(removeUserId, request.getUserRoleId());
+        //检查移除的是不是管理员
+        if (StringUtils.equals(request.getUserRoleId(),InternalUserRole.PROJECT_ADMIN.getValue())) {
+            UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+            userRoleRelationExample.createCriteria().andUserIdNotEqualTo(removeUserId)
+                    .andSourceIdEqualTo(request.getProjectId())
+                    .andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+            if (userRoleRelationMapper.countByExample(userRoleRelationExample) == 0) {
+                throw new MSException(Translator.get("keep_at_least_one_administrator"));
+            }
+        }
         // 移除项目-用户组的成员, 若成员只存在该项目下唯一用户组, 则提示不能移除
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andUserIdEqualTo(removeUserId)
                 .andRoleIdNotEqualTo(request.getUserRoleId())
                 .andSourceIdEqualTo(request.getProjectId());
         if (userRoleRelationMapper.countByExample(example) == 0) {
-            throw new MSException(Translator.get("at_least_one_user_role_require"));
+            throw new MSException(Translator.get("project_at_least_one_user_role_require"));
         }
         example.clear();
         example.createCriteria().andUserIdEqualTo(removeUserId)

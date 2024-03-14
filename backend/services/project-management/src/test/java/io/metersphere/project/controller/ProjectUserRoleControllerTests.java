@@ -12,9 +12,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserRolePermissionService;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -60,6 +63,8 @@ public class ProjectUserRoleControllerTests extends BaseTest {
     public static final String PROJECT_USER_ROLE_LIST_MEMBER = "/user/role/project/list-member";
     public static final String PROJECT_USER_ROLE_ADD_MEMBER = "/user/role/project/add-member";
     public static final String PROJECT_USER_ROLE_REMOVE_MEMBER = "/user/role/project/remove-member";
+    @Resource
+    UserRoleRelationMapper userRoleRelationMapper;
 
     @Test
     @Order(0)
@@ -414,6 +419,23 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         request.setUserIds(List.of("admin"));
         // 成员用户组只有一个, 移除失败
         this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+        //移除最后一个管理员移除失败
+        UserRoleRelation userRoleRelation = new UserRoleRelation();
+        userRoleRelation.setId(IDGenerator.nextStr());
+        userRoleRelation.setCreateUser("admin");
+        userRoleRelation.setRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelation.setUserId("admin");
+        userRoleRelation.setSourceId("default-project-2");
+        userRoleRelation.setCreateTime(System.currentTimeMillis());
+        userRoleRelation.setOrganizationId("default-project-2");
+        userRoleRelationMapper.insert(userRoleRelation);
+        request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
+        request.setUserIds(List.of("admin"));
+        // 成员用户组只有一个, 移除失败
+        this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+
     }
 
     @Test

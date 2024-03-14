@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import com.alibaba.excel.util.StringUtils;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
@@ -101,13 +102,23 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     public void removeMember(OrganizationUserRoleMemberEditRequest request) {
         String removeUserId = request.getUserIds().get(0);
         checkMemberParam(removeUserId, request.getUserRoleId());
+        //检查移除的是不是管理员
+        if (StringUtils.equals(request.getUserRoleId(),InternalUserRole.ORG_ADMIN.getValue())) {
+            UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+            userRoleRelationExample.createCriteria().andUserIdNotEqualTo(removeUserId)
+                    .andSourceIdEqualTo(request.getOrganizationId())
+                    .andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue());
+            if (userRoleRelationMapper.countByExample(userRoleRelationExample) == 0) {
+                throw new MSException(Translator.get("keep_at_least_one_administrator"));
+            }
+        }
         // 移除组织-用户组的成员, 若成员只存在该组织下唯一用户组, 则提示不能移除
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andUserIdEqualTo(removeUserId)
                 .andRoleIdNotEqualTo(request.getUserRoleId())
                 .andSourceIdEqualTo(request.getOrganizationId());
         if (userRoleRelationMapper.countByExample(example) == 0) {
-            throw new MSException(Translator.get("at_least_one_user_role_require"));
+            throw new MSException(Translator.get("org_at_least_one_user_role_require"));
         }
         example.clear();
         example.createCriteria().andUserIdEqualTo(removeUserId)

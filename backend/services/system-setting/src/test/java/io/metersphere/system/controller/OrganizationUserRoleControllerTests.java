@@ -8,13 +8,16 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -50,6 +53,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     private BaseUserRolePermissionService baseUserRolePermissionService;
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    UserRoleRelationMapper userRoleRelationMapper;
 
     public static final String ORGANIZATION_USER_ROLE_LIST = "/user/role/organization/list";
     public static final String ORGANIZATION_USER_ROLE_ADD = "/user/role/organization/add";
@@ -373,6 +378,22 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
+        request.setUserIds(List.of("admin"));
+        // 成员用户组只有一个, 移除失败
+        this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+        //移除最后一个管理员移除失败
+        UserRoleRelation userRoleRelation = new UserRoleRelation();
+        userRoleRelation.setId(IDGenerator.nextStr());
+        userRoleRelation.setCreateUser("admin");
+        userRoleRelation.setRoleId(InternalUserRole.ORG_ADMIN.getValue());
+        userRoleRelation.setUserId("admin");
+        userRoleRelation.setSourceId("default-organization-2");
+        userRoleRelation.setCreateTime(System.currentTimeMillis());
+        userRoleRelation.setOrganizationId("default-organization-2");
+        userRoleRelationMapper.insert(userRoleRelation);
+        request = new OrganizationUserRoleMemberEditRequest();
+        request.setOrganizationId("default-organization-2");
+        request.setUserRoleId(InternalUserRole.ORG_ADMIN.getValue());
         request.setUserIds(List.of("admin"));
         // 成员用户组只有一个, 移除失败
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());

@@ -1,5 +1,5 @@
 export default {
-  'project.menu.management': 'Application Management',
+  'project.menu.management': 'Application Setting',
   'project.menu.manageTip':
     'You can configure the switch of each function according to the usage scenario. After closing, the function entry will be hidden, and members cannot access this function and data; the data already generated will not be affected by this rule; when it is turned on again, it will be restored to the state before closing',
   'project.menu.name': 'Menu Name',
