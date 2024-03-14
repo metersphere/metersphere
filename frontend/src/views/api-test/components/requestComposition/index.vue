@@ -143,10 +143,10 @@
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
         :get-text-func="getTabBadge"
-        class="no-content relative mt-[8px]"
+        class="no-content relative mt-[8px] border-b"
       />
     </div>
-    <div ref="splitContainerRef" class="h-[calc(100%-97px)]">
+    <div ref="splitContainerRef" class="h-[calc(100%-87px)]">
       <MsSplitBox
         ref="horizontalSplitBoxRef"
         :size="props.isDefinition ? 0.7 : 1"
@@ -166,7 +166,7 @@
             min="10px"
             :direction="activeLayout"
             second-container-class="!overflow-y-hidden"
-            :class="!showResponse ? 'hidden-second' : ''"
+            :class="!showResponse ? 'hidden-second' : 'show-second'"
             @expand-change="handleVerticalExpandChange"
           >
             <template #first>
@@ -545,6 +545,7 @@
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
     defaultRequestParamsItem,
+    defaultResponse,
   } from '@/views/api-test/components/config';
   import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
@@ -876,22 +877,16 @@
   function handleUrlChange(val: string) {
     const params = parseQueryParams(val.trim());
     if (params.length > 0) {
-      requestVModel.value.query.splice(
-        0,
-        requestVModel.value.query.length - 2,
+      requestVModel.value.query = [
         ...params.map((e, i) => ({
           id: (new Date().getTime() + i).toString(),
-          paramType: RequestParamsType.STRING,
-          description: '',
-          required: false,
-          maxLength: undefined,
-          minLength: undefined,
-          encode: false,
-          enable: true,
+          ...defaultRequestParamsItem,
           ...e,
-        }))
-      );
+        })),
+        cloneDeep(defaultRequestParamsItem),
+      ];
       requestVModel.value.activeTab = RequestComposition.QUERY;
+      [requestVModel.value.url] = val.split('?');
     }
     handleActiveDebugChange();
   }
@@ -1151,6 +1146,7 @@
     if (isHttpProtocol.value) {
       try {
         requestVModel.value.executeLoading = true;
+        requestVModel.value.response = cloneDeep(defaultResponse);
         const res = await props.executeApi(makeRequestParams(executeType));
         if (executeType === 'localExec') {
           await props.localExecuteApi(localExecuteUrl.value, res);
@@ -1166,6 +1162,7 @@
         if (valid === true) {
           try {
             requestVModel.value.executeLoading = true;
+            requestVModel.value.response = cloneDeep(defaultResponse);
             const res = await props.executeApi(makeRequestParams(executeType));
             if (executeType === 'localExec') {
               await props.localExecuteApi(localExecuteUrl.value, res);
@@ -1516,6 +1513,11 @@
   .hidden-second {
     :deep(.arco-split-trigger) {
       @apply hidden;
+    }
+  }
+  .show-second {
+    :deep(.arco-split-trigger) {
+      @apply block;
     }
   }
 </style>

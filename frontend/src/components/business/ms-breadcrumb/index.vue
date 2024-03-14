@@ -1,5 +1,5 @@
 <template>
-  <a-breadcrumb v-if="appStore.breadcrumbList.length > 0" class="z-10 mb-[-8px] mt-[8px]">
+  <a-breadcrumb v-if="appStore.breadcrumbList.length > 0" class="z-10 mb-[-8px]">
     <a-breadcrumb-item v-for="crumb of appStore.breadcrumbList" :key="crumb.name" @click="jumpTo(crumb)">
       {{ isEdit ? t(crumb.editLocale || crumb.locale) : t(crumb.locale) }}
     </a-breadcrumb-item>

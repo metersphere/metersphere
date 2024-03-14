@@ -92,7 +92,7 @@
     ResponseComposition,
   } from '@/enums/apiEnum';
 
-  import { defaultResponseItem } from '@/views/api-test/components/config';
+  import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   // 懒加载requestComposition组件
@@ -138,51 +138,6 @@
   });
 
   const initDefaultId = `definition-${Date.now()}`;
-  const defaultBodyParams: ExecuteBody = {
-    bodyType: RequestBodyFormat.NONE,
-    formDataBody: {
-      formValues: [],
-    },
-    wwwFormBody: {
-      formValues: [],
-    },
-    jsonBody: {
-      jsonValue: '',
-    },
-    xmlBody: { value: '' },
-    binaryBody: {
-      description: '',
-      file: undefined,
-    },
-    rawBody: { value: '' },
-  };
-  // 调试返回的响应内容
-  const defaultResponse: RequestTaskResult = {
-    requestResults: [
-      {
-        body: '',
-        headers: '',
-        method: '',
-        url: '',
-        responseResult: {
-          body: '',
-          contentType: '',
-          headers: '',
-          dnsLookupTime: 0,
-          downloadTime: 0,
-          latency: 0,
-          responseCode: 0,
-          responseTime: 0,
-          responseSize: 0,
-          socketInitTime: 0,
-          tcpHandshakeTime: 0,
-          transferStartTime: 0,
-          sslHandshakeTime: 0,
-        },
-      },
-    ],
-    console: '',
-  };
   const defaultDefinitionParams: RequestParam = {
     id: initDefaultId,
     moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,

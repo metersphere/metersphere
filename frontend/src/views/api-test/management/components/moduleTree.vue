@@ -313,10 +313,10 @@
       label: 'apiTestManagement.share',
       eventTag: 'share',
     },
-    {
-      label: 'apiTestManagement.shareModule',
-      eventTag: 'shareModule',
-    },
+    // {
+    //   label: 'apiTestManagement.shareModule',
+    //   eventTag: 'shareModule',
+    // }, // TODO:第一版没有文档，不需要分享模块
     {
       isDivider: true,
     },

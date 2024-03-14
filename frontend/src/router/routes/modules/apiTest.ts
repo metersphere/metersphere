@@ -39,7 +39,7 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/management/index.vue'),
       meta: {
         locale: 'menu.apiTest.management',
-        roles: ['*'],
+        roles: ['PROJECT_API_DEFINITION:READ'],
         isTopMenu: true,
       },
     },

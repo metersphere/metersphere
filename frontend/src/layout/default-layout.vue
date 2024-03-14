@@ -41,12 +41,7 @@
           </a-drawer>
           <a-layout class="layout-content" :style="paddingStyle">
             <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-              <a-scrollbar
-                :style="{
-                  overflow: 'auto',
-                  height: 'calc(100vh - 64px)',
-                }"
-              >
+              <a-scrollbar class="flex h-[calc(100vh-56px)] flex-col gap-[8px] overflow-auto">
                 <MsBreadCrumb />
                 <a-layout-content>
                   <slot name="page">
@@ -211,7 +206,6 @@
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
       padding: 8px 16px 0 0;
-      min-height: 500px;
     }
   }
   .arco-layout-sider-light {

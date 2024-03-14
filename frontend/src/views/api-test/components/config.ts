@@ -1,11 +1,14 @@
 import {
   EnableKeyValueParam,
+  ExecuteBody,
   ExecuteRequestCommonParam,
   ExecuteRequestFormBodyFormValue,
   KeyValueParam,
+  RequestTaskResult,
   ResponseDefinition,
 } from '@/models/apiTest/common';
 import {
+  RequestBodyFormat,
   RequestCaseStatus,
   RequestContentTypeEnum,
   RequestParamsType,
@@ -79,6 +82,54 @@ export const defaultResponseItem: ResponseDefinition = {
       file: undefined,
     },
   },
+};
+
+// 请求的默认 body 参数
+export const defaultBodyParams: ExecuteBody = {
+  bodyType: RequestBodyFormat.NONE,
+  formDataBody: {
+    formValues: [],
+  },
+  wwwFormBody: {
+    formValues: [],
+  },
+  jsonBody: {
+    jsonValue: '',
+  },
+  xmlBody: { value: '' },
+  binaryBody: {
+    description: '',
+    file: undefined,
+  },
+  rawBody: { value: '' },
+};
+
+// 默认的响应内容结构
+export const defaultResponse: RequestTaskResult = {
+  requestResults: [
+    {
+      body: '',
+      headers: '',
+      method: '',
+      url: '',
+      responseResult: {
+        body: '',
+        contentType: '',
+        headers: '',
+        dnsLookupTime: 0,
+        downloadTime: 0,
+        latency: 0,
+        responseCode: 0,
+        responseTime: 0,
+        responseSize: 0,
+        socketInitTime: 0,
+        tcpHandshakeTime: 0,
+        transferStartTime: 0,
+        sslHandshakeTime: 0,
+      },
+    },
+  ],
+  console: '',
 };
 
 // 默认提取参数的 key-value 表格行的值

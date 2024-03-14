@@ -17,4 +17,10 @@
 
 <script lang="ts" setup></script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .page-content {
+    @apply h-full overflow-y-auto;
+
+    min-height: 500px;
+  }
+</style>

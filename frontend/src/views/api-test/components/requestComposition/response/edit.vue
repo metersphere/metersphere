@@ -178,6 +178,7 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
+  import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -397,7 +398,8 @@
       title: 'apiTestManagement.paramName',
       dataIndex: 'key',
       slotName: 'key',
-      inputType: 'input',
+      inputType: 'autoComplete',
+      autoCompleteParams: responseHeaderOption,
     },
     {
       title: 'apiTestManagement.paramVal',
