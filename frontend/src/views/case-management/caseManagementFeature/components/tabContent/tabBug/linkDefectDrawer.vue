@@ -131,7 +131,7 @@
       ellipsis: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
       showInTable: true,
