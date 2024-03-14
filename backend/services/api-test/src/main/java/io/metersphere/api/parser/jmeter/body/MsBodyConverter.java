@@ -51,7 +51,6 @@ public abstract class MsBodyConverter<T> {
                 value = StringUtils.EMPTY;
             }
             HTTPArgument httpArgument = new HTTPArgument(kv.getKey(), value);
-            httpArgument.setAlwaysEncoded(kv.getEncode());
             arguments.addArgument(httpArgument);
             if (kv instanceof FormDataKV formDataKV && formDataKV.getContentType() != null) {
                 httpArgument.setContentType(formDataKV.getContentType());
