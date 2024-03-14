@@ -158,7 +158,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { mapTree } from '@/utils';
+  import { characterLimit, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
@@ -291,7 +291,7 @@
   function deleteFolder(node: MsTreeNodeData) {
     openModal({
       type: 'error',
-      title: t('apiTestDebug.deleteFolderTipTitle', { name: node.name }),
+      title: t('apiTestDebug.deleteFolderTipTitle', { name: characterLimit(node.name) }),
       content: t('apiTestDebug.deleteFolderTipContent'),
       okText: t('apiTestDebug.deleteConfirm'),
       okButtonProps: {
@@ -329,7 +329,7 @@
   function deleteApiDebug(node: MsTreeNodeData) {
     openModal({
       type: 'error',
-      title: t('apiTestDebug.deleteDebugTipTitle', { name: node.name }),
+      title: t('apiTestDebug.deleteDebugTipTitle', { name: characterLimit(node.name) }),
       content: t('apiTestDebug.deleteDebugTipContent'),
       okText: t('apiTestDebug.deleteConfirm'),
       okButtonProps: {

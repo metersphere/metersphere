@@ -358,7 +358,7 @@
         <if test="request.projectId != null and request.projectId!=''">
             and atc.project_id = #{request.projectId}
         </if>
-        <if test="request.condition.keyword != null">
+        <if test="request.condition.keyword != null and request.condition.keyword !=''">
             and (
             atc.name like concat('%', #{request.condition.keyword},'%')
             or atc.num like concat('%', #{request.condition.keyword},'%')
@@ -389,7 +389,7 @@
         <if test="request.projectId != null and request.projectId!=''">
             and atc.project_id = #{request.projectId}
         </if>
-        <if test="request.keyword != null">
+        <if test="request.keyword != null and request.keyword !=''">
             and (
             atc.name like concat('%', #{request.keyword},'%')
             or atc.num like concat('%', #{request.keyword},'%')
