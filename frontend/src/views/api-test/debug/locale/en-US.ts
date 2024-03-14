@@ -69,9 +69,9 @@ export default {
   'apiTestDebug.waitTime': 'Wait time',
   'apiTestDebug.wait': 'Wait',
   'apiTestDebug.script': 'Script',
-  'apiTestDebug.preconditionScriptName': 'Pre-script name',
+  'apiTestDebug.preconditionScriptName': 'Script name',
   'apiTestDebug.preconditionAssociatedSceneResult': 'Associated scene result',
-  'apiTestDebug.preconditionScriptNamePlaceholder': 'Please enter the pre-script name',
+  'apiTestDebug.preconditionScriptNamePlaceholder': 'Please enter the script name',
   'apiTestDebug.postConditionScriptName': 'Postscript name',
   'apiTestDebug.postConditionScriptNamePlaceholder': 'Please enter the postscript name',
   'apiTestDebug.preconditionAssociateResultDesc':

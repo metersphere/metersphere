@@ -65,9 +65,9 @@ export default {
   'apiTestDebug.waitTime': '等待时间',
   'apiTestDebug.wait': '等待',
   'apiTestDebug.script': '脚本操作',
-  'apiTestDebug.preconditionScriptName': '前置脚本名称',
+  'apiTestDebug.preconditionScriptName': '脚本名称',
   'apiTestDebug.preconditionAssociatedSceneResult': '关联场景结果',
-  'apiTestDebug.preconditionScriptNamePlaceholder': '请输入前置脚本名称',
+  'apiTestDebug.preconditionScriptNamePlaceholder': '请输入脚本名称',
   'apiTestDebug.postConditionScriptName': '后置脚本名称',
   'apiTestDebug.postConditionScriptNamePlaceholder': '请输入后置脚本名称',
   'apiTestDebug.preconditionAssociateResultDesc':
