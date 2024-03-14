@@ -2,7 +2,7 @@
   <div>
     <div class="flex items-center justify-between">
       <div v-if="showType === 'link'" class="flex">
-        <a-tooltip :disabled="linkPropsRes.data.length ? true : false">
+        <a-tooltip :disabled="!!linkPropsRes.data.length">
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
             <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
@@ -11,7 +11,7 @@
           </template>
           <a-button
             v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-            :disabled="linkPropsRes.data.length ? false : true"
+            :disabled="!linkPropsRes.data.length"
             class="mr-3"
             type="primary"
             @click="linkDefect"
@@ -417,12 +417,18 @@
   }
 
   async function initFilterOptions() {
-    const res = await getCustomOptionHeader(appStore.currentProjectId);
-    handleUserFilterOptions.value = res.handleUserOption;
-    statusFilterOptions.value = res.statusOption;
+    if (hasAnyPermission(['PROJECT_BUG:READ'])) {
+      const res = await getCustomOptionHeader(appStore.currentProjectId);
+      handleUserFilterOptions.value = res.handleUserOption;
+      statusFilterOptions.value = res.statusOption;
+    }
   }
 
   async function getFetch() {
+    if (!hasAnyPermission(['FUNCTIONAL_CASE:READ', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])) {
+      Message.error(t('common.noPermission'));
+      return;
+    }
     if (showType.value === 'link') {
       setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
       await loadLinkList();
