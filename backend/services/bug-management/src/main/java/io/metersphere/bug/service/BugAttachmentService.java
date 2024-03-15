@@ -567,7 +567,7 @@ public class BugAttachmentService {
      */
     private FileLogRecord createFileLogRecord(String operator, String projectId){
         return FileLogRecord.builder()
-                .logModule(OperationLogModule.BUG_MANAGEMENT)
+                .logModule(OperationLogModule.BUG_MANAGEMENT_INDEX)
                 .operator(operator)
                 .projectId(projectId)
                 .build();

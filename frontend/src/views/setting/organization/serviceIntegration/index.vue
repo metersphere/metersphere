@@ -80,6 +80,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
   import { openWindow } from '@/utils/index';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { SkipTitle, StepListType } from '@/models/setting/serviceIntegration';
   import { SettingRouteEnum } from '@/enums/routeEnum';
@@ -87,7 +88,7 @@
   const userStore = useUserStore();
 
   const isHasSystemPermission = computed(() => {
-    return userStore.isAdmin;
+    return hasAnyPermission(['SYSTEM_PLUGIN:READ']);
   });
 
   const { t } = useI18n();

@@ -85,6 +85,9 @@ public class BugNoticeService {
     public BugNoticeDTO getNoticeById(String id) {
         // 缺陷基础信息
         BugDTO bugDTO = bugLogService.getOriginalValue(id);
+        if (bugDTO == null) {
+            return null;
+        }
         // 构建通知对象
         BugNoticeDTO notice = new BugNoticeDTO();
         BeanUtils.copyBean(notice, bugDTO);

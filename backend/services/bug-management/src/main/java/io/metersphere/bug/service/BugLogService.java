@@ -39,7 +39,7 @@ public class BugLogService {
      * @return 日志
      */
     public LogDTO addLog(BugEditRequest request, List<MultipartFile> files) {
-        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_CREATE, request.getTitle());
         dto.setHistory(true);
         dto.setPath("/bug/add");
         dto.setMethod(HttpMethodConstants.POST.name());
@@ -56,7 +56,7 @@ public class BugLogService {
      */
     public LogDTO updateLog(BugEditRequest request, List<MultipartFile> files) {
         BugDTO history = getOriginalValue(request.getId());
-        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_UPDATE, request.getTitle());
         dto.setHistory(true);
         dto.setPath("/bug/update");
         dto.setMethod(HttpMethodConstants.POST.name());
@@ -74,7 +74,7 @@ public class BugLogService {
     public LogDTO deleteLog(String id) {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
-            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT, bug.getTitle());
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
             dto.setPath("/bug/delete");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(bug));
@@ -92,7 +92,7 @@ public class BugLogService {
     public LogDTO recoverLog(String id) {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
-            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.RECOVER.name(), OperationLogModule.BUG_MANAGEMENT, bug.getTitle());
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.RECOVER.name(), OperationLogModule.BUG_MANAGEMENT_RECYCLE, bug.getTitle());
             dto.setPath("/bug/trash/recover");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(bug));

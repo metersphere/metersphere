@@ -57,6 +57,7 @@ export default {
       cannotBeNull: 'is empty',
     },
     detail: {
+      notExist: 'Bug not exist',
       title: '【{id}】{name}',
       apiCase: 'API Case',
       scenarioCase: 'Scenario Case',
