@@ -2,6 +2,7 @@ package io.metersphere.project.mapper;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.system.domain.TestResourcePool;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,4 +26,7 @@ public interface ExtProjectMapper {
     List<ProjectTestResourcePool> getResourcePool(@Param("projectId") String projectId, @Param("type") String type);
 
     List<Project> getAllProject(@Param("organizationId") String organizationId);
+    List<TestResourcePool> getResourcePoolOption(@Param("projectId") String projectId, @Param("type") String type);
+
+
 }

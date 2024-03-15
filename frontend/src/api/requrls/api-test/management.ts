@@ -83,3 +83,6 @@ export const BatchRecoverCaseUrl = '/api/case/batch/recover'; // 接口用例批
 export const DeleteRecycleCaseUrl = '/api/case/delete'; // 接口用例彻底删除
 export const BatchDeleteRecycleCaseUrl = '/api/case/batch/delete'; // 接口用例批量彻底删除
 export const AddCaseUrl = '/api/case/add'; // 添加用例
+
+export const PoolOption = '/api/test/pool-option/'; // 获取接口资源池
+export const GetPoolId = '/api/test/get-pool/'; // 获取项目应用设置的资源池id

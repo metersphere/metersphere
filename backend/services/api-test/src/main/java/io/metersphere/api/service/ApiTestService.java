@@ -9,9 +9,13 @@ import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
+import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.PluginLoadService;
@@ -22,7 +26,9 @@ import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jianxing
@@ -40,6 +46,10 @@ public class ApiTestService {
     private ExtEnvironmentMapper extEnvironmentMapper;
     @Resource
     private EnvironmentService environmentService;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -98,5 +108,16 @@ public class ApiTestService {
         newEnvironmentConfig.setAssertionConfig(null);
         newEnvironmentConfig.setDataSources(environmentConfig.getDataSources());
         return newEnvironmentConfig;
+    }
+
+    public List<TestResourcePool> getPoolOption(String projectId) {
+        //获取资源池
+        return extProjectMapper.getResourcePoolOption(projectId, "api_test");
+    }
+
+    public String getPoolId(String projectId) {
+        Map<String, Object> configMap = new HashMap<>();
+        projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+        return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
     }
 }

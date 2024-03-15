@@ -223,4 +223,16 @@ public class ApiTestControllerTests extends BaseTest {
         Assertions.assertNull(environmentConfig.getAssertionConfig());
     }
 
+    @Test
+    public void getPoolOption() throws Exception {
+        // @@请求成功
+        this.requestGet("/pool-option/" + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    public void getPoolId() throws Exception {
+        // @@请求成功
+        this.requestGet("/get-pool/" + DEFAULT_PROJECT_ID);
+    }
+
 }
