@@ -97,8 +97,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String EXECUTE = "execute/page";
     private static final String HISTORY = "operation-history/page";
     private static final String DEBUG = "debug";
-    private static final String RUN_REAL_TIME = "run/{0}/{1}";
-    private static final String RUN = "run/{0}";
+    private static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
+    private static final String RUN_GET = "run/{0}";
+    private static final String RUN_POST = "run";
     private static final String BATCH_RUN = "batch/run";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -423,6 +424,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
                 resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
 
+        // 测试执行
+        request.setEnvironmentId("envId");
+        mvcResult = this.requestPostAndReturn(RUN_POST, request);
+        resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
+        Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
+                resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
+
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, DEBUG, request);
     }
@@ -435,10 +443,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN_REAL_TIME, apiTestCase.getId(), "11111");
 
-        assertErrorCode(this.requestGet(RUN, apiTestCase.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertErrorCode(this.requestGet(RUN_GET, apiTestCase.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN, apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE, RUN_GET, apiTestCase.getId());
     }
 
     @Test

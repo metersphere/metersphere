@@ -12,8 +12,7 @@ public class ApiDebugRunRequest {
     @Schema(description = "接口ID")
     @NotNull
     private String id;
-    @Schema(description = "报告ID")
-    @NotNull
+    @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
     private String reportId;
     /**
      * 新上传的文件ID
