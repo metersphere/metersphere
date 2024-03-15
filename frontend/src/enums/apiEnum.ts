@@ -267,3 +267,14 @@ export enum ScenarioAddStepActionType {
   SCRIPT_OPERATION = 'SCRIPT_OPERATION',
   WAIT_TIME = 'WAIT_TIME',
 }
+
+// 接口场景-执行结果状态
+export enum ExecuteStatusFilters {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  RERUNNING = 'RERUNNING',
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS',
+  FAKE_ERROR = 'FAKE_ERROR',
+  STOPPED = 'STOPPED',
+}

@@ -131,3 +131,43 @@ export interface ApiScenarioBatchEditParams extends BatchOptionParams {
 export interface ApiScenarioBatchDeleteParams extends BatchApiParams {
   deleteAll: boolean;
 }
+
+// 场景-执行历史-请求参数
+export interface ExecutePageParams extends TableQueryParams {
+  id: string;
+}
+
+// 场景-执行历史-请求参数
+export interface ExecuteHistoryItem {
+  id: string;
+  num: string;
+  name: string;
+  operationUser: string;
+  createUser: string;
+  startTime: number;
+  status: string;
+  triggerMode: string;
+}
+
+// 场景-变更历史列表查询参数
+export interface ScenarioHistoryPageParams extends TableQueryParams {
+  projectId: string;
+  sourceId: string;
+  createUser: string;
+  types: string[];
+  modules: string[];
+}
+
+// 场景-变更历史列表项
+export interface ScenarioHistoryItem {
+  id: number;
+  projectId: string;
+  createTime: number;
+  createUser: string;
+  sourceId: string;
+  type: string;
+  module: string;
+  refId: number;
+  createUserName: string;
+  versionName: string;
+}

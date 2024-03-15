@@ -6,10 +6,12 @@ import {
   BatchMoveScenarioUrl,
   BatchRecycleScenarioUrl,
   DeleteModuleUrl,
+  ExecuteHistoryUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
   MoveModuleUrl,
   RecycleScenarioUrl,
+  ScenarioHistoryUrl,
   ScenarioPageUrl,
   UpdateModuleUrl,
   UpdateScenarioUrl,
@@ -23,6 +25,10 @@ import {
   ApiScenarioModuleUpdateParams,
   ApiScenarioPageParams,
   ApiScenarioUpdateDTO,
+  ExecuteHistoryItem,
+  ExecutePageParams,
+  ScenarioHistoryItem,
+  ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
 import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
 
@@ -100,4 +106,14 @@ export function batchOptionScenario(
 // 批量编辑场景
 export function batchEditScenario(params: ApiScenarioBatchEditParams) {
   return MSR.post({ url: BatchEditScenarioUrl, params });
+}
+
+// 场景执行历史接口
+export function getExecuteHistory(data: ExecutePageParams) {
+  return MSR.post<CommonList<ExecuteHistoryItem>>({ url: ExecuteHistoryUrl, data });
+}
+
+// 场景变更历史接口
+export function getScenarioHistory(data: ScenarioHistoryPageParams) {
+  return MSR.post<CommonList<ScenarioHistoryItem>>({ url: ScenarioHistoryUrl, data });
 }
