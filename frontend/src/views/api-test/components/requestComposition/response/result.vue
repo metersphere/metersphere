@@ -124,6 +124,10 @@
       label: t('apiTestDebug.realRequest'),
       value: ResponseComposition.REAL_REQUEST,
     },
+    {
+      label: t('apiTestDebug.console'),
+      value: ResponseComposition.CONSOLE,
+    },
     ...(props.isDefinition
       ? [
           {
