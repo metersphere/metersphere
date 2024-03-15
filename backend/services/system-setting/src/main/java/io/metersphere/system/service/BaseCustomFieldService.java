@@ -68,9 +68,6 @@ public class BaseCustomFieldService {
         Map<String, List<CustomFieldOption>> optionMap = customFieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
         return customFields.stream().map(item -> {
             item.setCreateUser(userNameMap.get(item.getCreateUser()));
-            if (item.getInternal()) {
-                item.setName(translateInternalField(item.getName()));
-            }
             CustomFieldDTO customFieldDTO = new CustomFieldDTO();
             BeanUtils.copyBean(customFieldDTO, item);
             //判断有没有用到
@@ -91,11 +88,13 @@ public class BaseCustomFieldService {
                 customFieldDTO.setOptions(List.of(createUserOption));
             }
             if (BooleanUtils.isTrue(item.getInternal())) {
-                 // 设置哪些内置字段是模板里必选的
+                // 设置哪些内置字段是模板里必选的
                 Set<String> templateRequiredCustomFieldSet = Arrays.stream(TemplateRequiredCustomField.values())
                         .map(TemplateRequiredCustomField::getName)
                         .collect(Collectors.toSet());
                 customFieldDTO.setTemplateRequired(templateRequiredCustomFieldSet.contains(item.getName()));
+                // 翻译内置字段名称
+                customFieldDTO.setName(translateInternalField(item.getName()));
             }
             return customFieldDTO;
         }).toList();
