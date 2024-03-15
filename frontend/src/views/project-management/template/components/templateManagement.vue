@@ -53,7 +53,9 @@
       </template>
       <template #name="{ record }">
         <div class="flex items-center">
+          <span v-if="record.enablePlatformDefault" class="one-line-text ml-2">{{ record.name }}</span>
           <span
+            v-else
             class="one-line-text ml-2 cursor-pointer text-[rgb(var(--primary-5))]"
             @click="previewDetail(record.id)"
             >{{ record.name }}</span
@@ -237,7 +239,9 @@
   const searchFiled = async () => {
     try {
       totalList.value = await getProjectTemplateList({ projectId: currentProjectId.value, scene });
-      const filterData = totalList.value.filter((item: OrdTemplateManagement) => item.name.includes(keyword.value));
+      const filterData: OrdTemplateManagement[] = totalList.value.filter((item: OrdTemplateManagement) =>
+        item.name.includes(keyword.value)
+      );
       setProps({ data: filterData });
     } catch (error) {
       console.log(error);

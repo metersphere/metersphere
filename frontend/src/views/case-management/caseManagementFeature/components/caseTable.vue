@@ -695,7 +695,6 @@
 
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
-  const scrollWidth = ref<number>(3400);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const updateUserFilters = ref<string[]>([]);
   const createUserFilters = ref<string[]>([]);

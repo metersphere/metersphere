@@ -164,7 +164,8 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
                 ),
                 title: t('editor.extensions.image.open_link'),
                 action: () => {
-                  window.open(editor.getAttributes(Image.name).src, '_blank');
+                  const newWindow = window.open('');
+                  newWindow?.document.write(`<img src="${editor.getAttributes(Image.name).src}">`);
                 },
               },
             },

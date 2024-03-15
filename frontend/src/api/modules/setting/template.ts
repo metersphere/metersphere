@@ -40,10 +40,11 @@ import {
   UpdateProjectTemplateUrl,
 } from '@/api/requrls/setting/template';
 
-import { TableQueryParams } from '@/models/common';
+import { CommonList, TableQueryParams } from '@/models/common';
 import type {
   ActionTemplateManage,
   AddOrUpdateField,
+  OrdTemplateManagement,
   OrdWorkStatus,
   SeneType,
   SetStateType,
@@ -56,7 +57,9 @@ import type {
  */
 // 获取模板列表(组织)
 export function getOrganizeTemplateList(params: TableQueryParams) {
-  return MSR.get({ url: `${GetOrganizeTemplateUrl}/${params.organizationId}/${params.scene}` });
+  return MSR.get({
+    url: `${GetOrganizeTemplateUrl}/${params.organizationId}/${params.scene}`,
+  });
 }
 // 获取模板详情(组织)
 export function getOrganizeTemplateInfo(id: string) {
@@ -180,7 +183,9 @@ export function getProjectFieldDetail(id: string) {
  */
 // 获取模板列表(项目)
 export function getProjectTemplateList(params: TableQueryParams) {
-  return MSR.get({ url: `${GetProjectTemplateUrl}/${params.projectId}/${params.scene}` });
+  return MSR.get({
+    url: `${GetProjectTemplateUrl}/${params.projectId}/${params.scene}`,
+  });
 }
 // 获取模板详情(项目)
 export function getProjectTemplateInfo(id: string) {

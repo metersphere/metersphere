@@ -151,7 +151,7 @@
           <div class="min-w-[250px] overflow-auto">
             <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
               <a-space direction="vertical" class="w-full" size="large">
-                <a-skeleton-line :rows="rowLength" :line-height="30" :line-spacing="30" />
+                <a-skeleton-line :rows="12" :line-height="30" :line-spacing="30" />
               </a-space>
             </a-skeleton>
             <a-form v-else :model="form" layout="vertical">
@@ -239,10 +239,12 @@
   import useVisit from '@/hooks/useVisit';
   import router from '@/router';
   import { useAppStore } from '@/store';
+  import useUserStore from '@/store/modules/user';
   import { downloadByteFile } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { findParents, Option } from '@/utils/recursion';
 
+  import type { CustomFieldItem } from '@/models/bug-management';
   import {
     BugEditCustomField,
     BugEditCustomFieldItem,
@@ -304,7 +306,7 @@
   const associatedDrawer = ref(false);
   const loading = ref(false);
   const acceptType = ref('none'); // 模块-上传文件类型
-
+  const userStore = useUserStore();
   const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
   const bugId = computed(() => route.query.id || '');
   const isEditOrCopy = computed(() => !!bugId.value);
@@ -364,25 +366,34 @@
   // 处理表单格式
   const getFormRules = (arr: BugEditCustomField[]) => {
     formRules.value = [];
+    const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
+
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
+        let initValue = item.defaultValue;
+        const initOptions = item.options;
+        if (memberType.includes(item.type)) {
+          if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
+            initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
+          }
+        }
         return {
           type: item.type,
           name: item.fieldId,
           label: item.fieldName,
-          value: item.defaultValue,
-          options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
+          value: initValue,
+          options: initOptions,
           required: item.required as boolean,
           platformPlaceHolder: item.platformPlaceHolder,
           props: {
-            modelValue: item.defaultValue,
-            options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
+            modelValue: initValue,
+            options: initOptions,
           },
         };
       });
     }
   };
-
+  const currentCustomFields = ref<CustomFieldItem[]>([]);
   const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
     if (v) {
       try {
@@ -392,6 +403,7 @@
           param = { ...param, ...request };
         }
         const res = await getTemplateById(param);
+        currentCustomFields.value = res.customFields || [];
         await getFormRules(res.customFields);
         isLoading.value = false;
         isPlatformDefaultTemplate.value = res.platformDefault;
@@ -674,19 +686,39 @@
       tmpObj = { status: res.status };
     }
     if (customFields && Array.isArray(customFields)) {
+      const MULTIPLE_TYPE = ['MULTIPLE_SELECT', 'MULTIPLE_INPUT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
+      const SINGRADIO_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
       customFields.forEach((item) => {
         if (item.id === 'status' && isCopy.value) {
           // 复制时, 状态赋值为空
           tmpObj[item.id] = '';
-        } else if (item.type === 'MULTIPLE_SELECT' || item.type === 'MULTIPLE_INPUT' || item.type === 'CHECKBOX') {
-          tmpObj[item.id] = JSON.parse(item.value);
-        } else if (item.type === 'INT') {
+          // 多选类型需要过滤选项
+        } else if (MULTIPLE_TYPE.includes(item.type)) {
+          const multipleOptions =
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          // 如果该值在选项中已经被删除掉
+          const optionsIds = (multipleOptions || []).map((e: any) => e.value);
+          if (item.type !== 'MULTIPLE_INPUT') {
+            const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
+            tmpObj[item.id] = currentDefaultValue;
+          } else {
+            tmpObj[item.id] = JSON.parse(item.value);
+          }
+        } else if (item.type === 'INT' || item.type === 'FLOAT') {
           tmpObj[item.id] = Number(item.value);
         } else if (item.type === 'CASCADER') {
           const arr = JSON.parse(item.value);
           if (arr && arr instanceof Array && arr.length > 0) {
             tmpObj[item.id] = arr[arr.length - 1];
           }
+          // 单选多选项
+        } else if (SINGRADIO_TYPE.includes(item.type)) {
+          const multipleOptions =
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          // 如果该值在选项中已经被删除掉
+          const optionsIds = (multipleOptions || []).map((e: any) => e.value);
+          const currentDefaultValue = optionsIds.find((e: any) => item.value === e) || '';
+          tmpObj[item.id] = currentDefaultValue;
         } else {
           tmpObj[item.id] = item.value;
         }

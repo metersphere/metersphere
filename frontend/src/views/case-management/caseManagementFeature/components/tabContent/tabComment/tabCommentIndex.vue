@@ -10,9 +10,15 @@
     </div>
   </div>
   <div>
+    <div id="magnifier"></div>
     <!-- 用例评论 -->
     <div v-show="activeComment === 'caseComment'">
-      <MsComment :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" />
+      <MsComment
+        :upload-image="handleUploadImage"
+        :comment-list="commentList"
+        @delete="handleDelete"
+        @update-or-add="handleUpdateOrAdd"
+      />
       <MsEmpty v-if="commentList.length === 0" />
     </div>
 
@@ -74,6 +80,7 @@
   import {
     addOrUpdateCommentList,
     deleteCommentList,
+    editorUploadFile,
     getCommentList,
     getReviewCommentList,
   } from '@/api/modules/case-management/featureCase';
@@ -211,6 +218,13 @@
   //   }
   // );
 
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+
   onMounted(() => {
     getAllCommentList();
   });
@@ -220,4 +234,14 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  #magnifier {
+    position: absolute;
+    display: none;
+    width: 200px;
+    height: 200px;
+    border: 1px solid red;
+    background-size: contain;
+    pointer-events: none;
+  }
+</style>

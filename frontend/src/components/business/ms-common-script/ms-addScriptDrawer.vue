@@ -171,6 +171,7 @@
 
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     innerParams.value = [...resultArr];
+    form.value.params = JSON.stringify([...resultArr]);
     if (!isInit) {
       emit('change');
     }

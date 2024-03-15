@@ -116,6 +116,7 @@ export interface ActionTemplateManage {
   customFields?: CustomField[];
   fieldType?: string;
   systemFields?: Record<string, any>[];
+  enablePlatformDefault?: boolean;
   internal?: boolean; // 是否为系统模板
   platForm?: string;
   [key: string]: any;

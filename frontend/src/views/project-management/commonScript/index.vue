@@ -157,8 +157,8 @@
     },
     {
       title: 'project.commonScript.createUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -278,7 +278,8 @@
   async function saveHandler(form: AddOrUpdateCommonScript) {
     try {
       confirmLoading.value = true;
-      const { status } = form;
+      const { status, params } = form;
+      paramsList.value = JSON.parse(params);
       const paramTableList = paramsList.value.slice(0, -1);
       const paramsObj: AddOrUpdateCommonScript = {
         ...form,

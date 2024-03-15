@@ -676,35 +676,29 @@
   .wrapper-preview {
     display: flex;
     height: 100%;
-
     .preview-left {
       width: 100%;
       border-right: 1px solid var(--color-text-n8);
     }
-
     .preview-right {
       padding-top: 8px;
       width: 428px;
       min-width: 428px;
-
       .customWrapper {
         position: relative;
         margin-bottom: 4px;
         border: 1px solid transparent;
         border-radius: 6px;
         @apply flex flex-col justify-between;
-
         .form {
           padding: 8px;
           border: 1px solid transparent;
           border-radius: 6px;
         }
-
         .form.activeStyle {
           border-color: rgb(var(--primary-5));
           background: var(--color-text-n9);
         }
-
         .action {
           position: absolute;
           top: -12px;
@@ -713,29 +707,24 @@
           background: white;
           opacity: 0;
           @apply flex items-center justify-end;
-
           .actionList {
             padding: 4px;
             border-radius: 4px;
             @apply flex items-center justify-center;
           }
-
           .required > .arco-checkbox {
             padding: 2px 4px;
             border-radius: 4px;
             box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
           }
         }
-
         &:hover {
           border: 1px solid var(--color-text-n8);
           background: var(--color-text-n9);
         }
-
         &:hover > .action {
           opacity: 1;
         }
-
         &:hover > .action > .actionList {
           color: rgb(var(--primary-5));
           box-shadow: 0 4px 10px -1px rgba(100 100 102/ 15%);
@@ -743,19 +732,16 @@
       }
     }
   }
-
   .hoverStyle {
     .customWrapper:hover > .form {
       border-color: var(--color-text-n8) !important;
     }
   }
-
   .activeStyle {
     .customWrapper:hover .form {
       border-color: rgb(var(--primary-5));
     }
   }
-
   :deep(.selfClass) {
     margin-bottom: 0;
   }
@@ -787,7 +773,6 @@
     border: 1px solid rgba(var(--primary-5));
     background-color: var(--color-text-n9);
   }
-
   :deep(.apiFieldIdClass) {
     margin-bottom: 0;
   }
