@@ -138,7 +138,7 @@ export default {
   'project.fileManagement.caseFileVersion': 'Associated file version',
   'project.fileManagement.caseTypeBug': 'Bug',
   'project.fileManagement.caseTypeFeature': 'Feature',
-  'project.fileManagement.caseTypeApiDebug': 'Api debug',
+  'project.fileManagement.caseTypeApiDebug': 'Debug',
   'project.fileManagement.caseTypeApiScene': 'Api scene',
   'project.fileManagement.caseTypeApiCase': 'Api case',
   'project.fileManagement.caseTypeApiDefine': 'Api definition',

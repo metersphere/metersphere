@@ -48,7 +48,8 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
   },
   {
     title: t('project.processor.terminationTest'),
-    value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
+    value: 'api_stop',
+    command: 'api_stop',
   },
 ];
 

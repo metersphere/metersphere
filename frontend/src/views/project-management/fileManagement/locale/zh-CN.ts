@@ -130,7 +130,7 @@ export default {
   'project.fileManagement.caseFileVersion': '关联的文件版本',
   'project.fileManagement.caseTypeBug': '缺陷',
   'project.fileManagement.caseTypeFeature': '功能用例',
-  'project.fileManagement.caseTypeApiDebug': '接口调试',
+  'project.fileManagement.caseTypeApiDebug': '调试',
   'project.fileManagement.caseTypeApiScene': '接口场景',
   'project.fileManagement.caseTypeApiCase': '接口用例',
   'project.fileManagement.caseTypeApiDefine': '接口定义',
