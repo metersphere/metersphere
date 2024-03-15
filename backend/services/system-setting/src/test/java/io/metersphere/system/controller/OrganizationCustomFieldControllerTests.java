@@ -4,7 +4,6 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.constants.TemplateRequiredCustomField;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
@@ -237,7 +236,13 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
-            CustomField resultItem = BeanUtils.copyBean(new CustomField(), resultList.get(i));
+            CustomFieldDTO customFieldDTO = resultList.get(i);
+            if (StringUtils.equals(customFieldDTO.getName(), "用例等级")) {
+                Assertions.assertTrue(customFieldDTO.getTemplateRequired());
+            } else {
+                Assertions.assertFalse(customFieldDTO.getTemplateRequired());
+            }
+            CustomField resultItem = BeanUtils.copyBean(new CustomField(), customFieldDTO);
             CustomField customField = customFields.get(i);
             customField.setCreateUser(userNameMap.get(customField.getCreateUser()));
             if (customField.getInternal()) {
@@ -248,7 +253,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(resultItem.getScene(), scene);
 
             if (StringUtils.equalsAny(resultItem.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
-                List<CustomFieldOption> options = resultList.get(i).getOptions();
+                List<CustomFieldOption> options = customFieldDTO.getOptions();
                 Assertions.assertEquals(options.size(), 1);
                 Assertions.assertEquals(options.get(0).getValue(), "CREATE_USER");
                 Assertions.assertEquals(options.get(0).getText(), "创建人");
@@ -257,20 +262,13 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
                 Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
                         baseCustomFieldOptionService.getByFieldId(customField.getId()).stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList());
             }
-            Assertions.assertFalse(resultList.get(i).getTemplateRequired());
         }
 
         mvcResult = this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name())
                 .andReturn();
         // 校验数据是否正确
         resultList = getResultDataArray(mvcResult, CustomFieldDTO.class);
-        resultList.forEach(item -> {
-            if (StringUtils.equals(item.getName(), "bug_degree")) {
-                Assertions.assertTrue(item.getTemplateRequired());
-            } else {
-                Assertions.assertFalse(item.getTemplateRequired());
-            }
-        });
+        resultList.forEach(item -> Assertions.assertFalse(item.getTemplateRequired()));
 
         // @@校验组织是否存在
         assertErrorCode(this.requestGet(LIST, "1111", scene), NOT_FOUND);

@@ -5,7 +5,7 @@ package io.metersphere.system.constants;
  * @CreateTime: 2024-03-14  16:33
  */
 public enum TemplateRequiredCustomField {
-    BUG_DEGREE("bug_degree");
+    BUG_DEGREE("functional_priority");
 
     private String name;
 
