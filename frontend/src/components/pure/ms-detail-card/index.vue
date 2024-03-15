@@ -1,6 +1,6 @@
 <template>
   <div class="ms-detail-card">
-    <div class="flex items-center justify-between">
+    <div class="ms-detail-card-title flex items-center justify-between">
       <div class="flex items-center gap-[4px]">
         <a-tooltip :content="t(props.title)">
           <div class="one-line-text flex-1 font-medium text-[var(--color-text-1)]">
