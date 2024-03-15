@@ -9,7 +9,7 @@
     </template>
   </a-empty>
   <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
-    <div class="px-[18px] pt-[8px]">
+    <div v-if="!props.isCase" class="px-[18px] pt-[8px]">
       <div class="flex flex-wrap items-center justify-between gap-[12px]">
         <div class="flex flex-1 items-center gap-[16px]">
           <a-select
@@ -68,6 +68,7 @@
           <template
             v-if="
               (!props.isDefinition || (props.isDefinition && requestVModel.mode === 'debug')) &&
+              props.permissionMap &&
               hasAnyPermission([props.permissionMap.execute])
             "
           >
@@ -95,8 +96,8 @@
             v-if="
               props.isDefinition &&
               (requestVModel.isNew
-                ? hasAnyPermission([props.permissionMap.create])
-                : hasAnyPermission([props.permissionMap.update]))
+                ? props.permissionMap && hasAnyPermission([props.permissionMap.create])
+                : props.permissionMap && hasAnyPermission([props.permissionMap.update]))
             "
           >
             <!-- 接口定义-调试模式，可保存或保存为新用例 -->
@@ -122,8 +123,8 @@
           <a-button
             v-else-if="
               requestVModel.isNew
-                ? hasAnyPermission([props.permissionMap.create])
-                : hasAnyPermission([props.permissionMap.update])
+                ? props.permissionMap && hasAnyPermission([props.permissionMap.create])
+                : props.permissionMap && hasAnyPermission([props.permissionMap.update])
             "
             type="secondary"
             :disabled="isHttpProtocol && !requestVModel.url"
@@ -138,7 +139,7 @@
         </div>
       </div>
     </div>
-    <div class="px-[16px]">
+    <div class="request-params-tab px-[16px]">
       <MsTab
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
@@ -146,15 +147,15 @@
         class="no-content relative mt-[8px] border-b"
       />
     </div>
-    <div ref="splitContainerRef" class="h-[calc(100%-87px)]">
+    <div ref="splitContainerRef" class="request-and-response h-[calc(100%-87px)]">
       <MsSplitBox
         ref="horizontalSplitBoxRef"
-        :size="props.isDefinition ? 0.7 : 1"
-        :max="props.isDefinition ? 0.9 : 1"
-        :min="props.isDefinition ? 0.7 : 1"
-        :disabled="!props.isDefinition"
-        :class="!props.isDefinition ? 'hidden-second' : ''"
-        :first-container-class="!props.isDefinition ? 'border-r-0' : ''"
+        :size="!props.isCase && props.isDefinition ? 0.7 : 1"
+        :max="props.isDefinition && !props.isCase ? 0.9 : 1"
+        :min="props.isDefinition && !props.isCase ? 0.7 : 1"
+        :disabled="props.isCase && !props.isDefinition"
+        :class="props.isCase && !props.isDefinition ? 'hidden-second' : ''"
+        :first-container-class="props.isCase && !props.isDefinition ? 'border-r-0' : ''"
         direction="horizontal"
         expand-direction="right"
       >
@@ -286,7 +287,7 @@
             </template>
           </MsSplitBox>
         </template>
-        <template v-if="props.isDefinition" #second>
+        <template v-if="!props.isCase && props.isDefinition" #second>
           <div class="p-[16px]">
             <!-- TODO:第一版没有模板 -->
             <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
@@ -308,7 +309,7 @@
               <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px]">
                 <a-tree-select
                   v-model:modelValue="requestVModel.moduleId"
-                  :data="selectTree"
+                  :data="selectTree as ModuleTreeNode[]"
                   :field-names="{ title: 'name', key: 'id', children: 'children' }"
                   :tree-props="{
                     virtualListProps: {
@@ -395,6 +396,7 @@
     </div>
   </div>
   <a-modal
+    v-if="!isCase"
     v-model:visible="saveModalVisible"
     :title="t('common.save')"
     :ok-loading="saveLoading"
@@ -433,7 +435,7 @@
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
           v-model:modelValue="saveModalForm.moduleId"
-          :data="selectTree"
+          :data="selectTree as ModuleTreeNode[]"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           :tree-props="{
             virtualListProps: {
@@ -447,6 +449,7 @@
     </a-form>
   </a-modal>
   <a-modal
+    v-if="!isCase"
     v-model:visible="saveCaseModalVisible"
     :title="t('common.save')"
     :ok-loading="saveCaseLoading"
@@ -563,7 +566,7 @@
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
-    mode?: 'definition' | 'debug';
+    mode?: 'definition' | 'debug' | 'case';
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
@@ -576,21 +579,22 @@
 
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
-    moduleTree: ModuleTreeNode[]; // 模块树
+    moduleTree?: ModuleTreeNode[]; // 模块树
+    isCase?: boolean; // 是否是用例引用的组件
     detailLoading?: boolean; // 详情加载状态
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     otherParams?: Record<string, any>; // 保存请求时的其他参数
     currentEnvConfig?: EnvConfig;
-    executeApi: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
-    localExecuteApi: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
-    createApi: (...args) => Promise<any>; // 创建接口
-    updateApi: (...args) => Promise<any>; // 更新接口
+    executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
+    localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
+    createApi?: (...args) => Promise<any>; // 创建接口
+    updateApi?: (...args) => Promise<any>; // 更新接口
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
     fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
-    permissionMap: {
+    permissionMap?: {
       execute: string;
       create: string;
       update: string;
@@ -1145,10 +1149,11 @@
   async function execute(executeType?: 'localExec' | 'serverExec') {
     if (isHttpProtocol.value) {
       try {
+        if (!props.executeApi) return;
         requestVModel.value.executeLoading = true;
         requestVModel.value.response = cloneDeep(defaultResponse);
         const res = await props.executeApi(makeRequestParams(executeType));
-        if (executeType === 'localExec') {
+        if (executeType === 'localExec' && props.localExecuteApi) {
           await props.localExecuteApi(localExecuteUrl.value, res);
         }
       } catch (error) {
@@ -1161,10 +1166,11 @@
       fApi.value?.validate(async (valid) => {
         if (valid === true) {
           try {
+            if (!props.executeApi) return;
             requestVModel.value.executeLoading = true;
             requestVModel.value.response = cloneDeep(defaultResponse);
             const res = await props.executeApi(makeRequestParams(executeType));
-            if (executeType === 'localExec') {
+            if (executeType === 'localExec' && props.localExecuteApi) {
               await props.localExecuteApi(localExecuteUrl.value, res);
             }
           } catch (error) {
@@ -1217,6 +1223,7 @@
 
   async function updateRequest() {
     try {
+      if (!props.updateApi) return;
       saveLoading.value = true;
       await props.updateApi({
         ...makeRequestParams(),
@@ -1238,6 +1245,7 @@
    */
   async function realSave(fullParams?: Record<string, any>, silence?: boolean) {
     try {
+      if (!props.createApi) return;
       if (!silence) {
         saveLoading.value = true;
       }
@@ -1485,6 +1493,10 @@
       removeCatchSaveShortcut(handleSaveShortcut);
     }
   });
+
+  defineExpose({
+    makeRequestParams,
+  });
 </script>
 
 <style lang="less" scoped>
@@ -1512,6 +1524,9 @@
   }
   :deep(.arco-tabs-tab) {
     @apply leading-none;
+  }
+  .request-params-tab :deep(.arco-tabs-nav-tab) {
+    border-bottom: 1px solid var(--color-text-n8) !important;
   }
   .hidden-second {
     :deep(.arco-split-trigger) {
