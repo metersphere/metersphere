@@ -54,6 +54,7 @@
             or fc.num like concat('%', #{request.keyword}, '%')
             )
         </if>
+        order by brc.id desc
     </select>
 
     <select id="getRelateCase" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">

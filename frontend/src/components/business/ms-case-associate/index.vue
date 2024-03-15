@@ -62,7 +62,7 @@
             v-model:selected-keys="selectedModuleKeys"
             :data="folderTree"
             :keyword="moduleKeyword"
-            :empty-text="t('caseManagement.featureCase.caseEmptyRecycle')"
+            :empty-text="t('common.noData')"
             :virtual-list-props="virtualListProps"
             :field-names="{
               title: 'name',

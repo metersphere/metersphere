@@ -11,7 +11,9 @@ import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.mapper.*;
+import io.metersphere.system.mapper.ExtUserRoleMapper;
+import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -33,15 +35,11 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_US
 public class OrganizationUserRoleService extends BaseUserRoleService {
 
     @Resource
-    UserMapper userMapper;
-    @Resource
     UserRoleMapper userRoleMapper;
     @Resource
     ExtUserRoleMapper extUserRoleMapper;
     @Resource
     UserRoleRelationMapper userRoleRelationMapper;
-    @Resource
-    ExtUserMapper extUserMapper;
 
     public List<UserRole> list(String organizationId) {
         UserRoleExample example = new UserRoleExample();
