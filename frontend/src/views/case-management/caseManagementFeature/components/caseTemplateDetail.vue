@@ -388,16 +388,8 @@
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
-        let optionsValue: OptionsFieldId[] = item.options;
+        const optionsValue: OptionsFieldId[] = item.options;
         if (memberType.includes(item.type)) {
-          optionsValue = [
-            {
-              fieldId: item.fieldId,
-              internal: item.internal,
-              text: userStore.name || '',
-              value: userStore.id || '',
-            },
-          ];
           if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
           }
