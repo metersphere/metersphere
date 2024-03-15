@@ -174,7 +174,7 @@
         </div>
         <div class="flex w-[60%] flex-col">
           <a-tooltip position="left" :content="detailInfo?.name">
-            <span class="content">{{ characterLimit(detailInfo?.name) }}</span>
+            <span class="content">{{ detailInfo?.name }}</span>
           </a-tooltip>
           <span class="content">{{ detailInfo?.remark || '-' }}</span>
         </div>
@@ -536,5 +536,6 @@
   .content {
     margin-top: 16px;
     color: var(--color-text-1);
+    word-break: break-all;
   }
 </style>

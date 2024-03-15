@@ -284,11 +284,11 @@
             {{ t('caseManagement.featureCase.batchMove', { number: batchParams.currentSelectCount }) }}
           </span>
         </div>
-        <div class="mr-2">
+        <!-- <div class="mr-2">
           <a-select class="w-[120px]" placeholder="请选择版本">
             <a-option v-for="item of versionOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
-        </div>
+        </div> -->
       </div>
     </template>
     <FeatureCaseTree

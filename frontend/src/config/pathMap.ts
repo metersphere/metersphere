@@ -124,7 +124,22 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.BUG_MANAGEMENT_INDEX,
         permission: [],
         level: MENU_LEVEL[2],
-        alias: 'BUG_SYNC_TASK',
+        children: [
+          {
+            key: 'BUG_MANAGEMENT_BUG_INDEX_CREATE', // 缺陷管理-创建缺陷
+            locale: 'bugManagement.addBug',
+            route: RouteEnum.BUG_MANAGEMENT_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'BUG_MANAGEMENT_BUG_INDEX_UPDATE', // 缺陷管理-更新缺陷
+            locale: 'bugManagement.editBug',
+            route: RouteEnum.BUG_MANAGEMENT_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
       {
         key: 'BUG_MANAGEMENT_BUG_RECYCLE', // 缺陷管理-回收站
