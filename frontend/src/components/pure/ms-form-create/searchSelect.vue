@@ -107,7 +107,15 @@
   );
 
   watchEffect(() => {
-    if (props.options) optionsList.value = props.options;
+    if (props.options) {
+      optionsList.value = props.options;
+    }
+  });
+
+  onMounted(() => {
+    if (props.inputSearch && props.optionMethod) {
+      getLinksItem();
+    }
   });
 </script>
 

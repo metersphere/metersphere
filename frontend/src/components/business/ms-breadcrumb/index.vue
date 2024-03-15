@@ -20,7 +20,7 @@
   const { t } = useI18n();
   const router = useRouter();
   const route = useRoute();
-  const isEdit = ref(false);
+  const isEdit = ref(true);
 
   /**
    * 监听路由变化，存储打开及选中的菜单
@@ -40,7 +40,7 @@
       setTimeout(() => {
         // 路由异步挂载，这里使用同步或者nextTick都取不到变化后的路由参数，所以使用定时器
         isEdit.value = editTag && route.query[editTag];
-      }, 0);
+      }, 100);
     } else {
       appStore.setBreadcrumbList([]);
     }
