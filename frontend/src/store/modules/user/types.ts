@@ -11,6 +11,19 @@ export interface UserRole {
   scopeId: string; // 项目/组织/系统 id
   type: SystemScopeType;
 }
+
+export interface UserRoleRelation {
+  id: string;
+  userId: string;
+  roleId: string;
+  sourceId: string;
+  organizationId: string;
+  createTime: number;
+  createUser: string;
+  userRolePermissions: permissionsItem[];
+  userRole: UserRole;
+}
+
 export interface permissionsItem {
   id: string;
   permissionId: string;
@@ -40,5 +53,7 @@ export interface UserState {
   lastOrganizationId?: string;
   lastProjectId?: string;
   userRolePermissions?: UserRolePermissions[];
+  userRoles?: UserRole[];
+  userRoleRelations?: UserRoleRelation[];
   loginType: string[];
 }

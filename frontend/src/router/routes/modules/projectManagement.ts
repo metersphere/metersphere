@@ -14,6 +14,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     order: 7,
     hideChildrenInMenu: true,
     roles: [
+      'PROJECT_BASE_INFO:READ',
       'SYSTEM_PARAMETER_SETTING_BASE:READ',
       'PROJECT_TEMPLATE:READ',
       'PROJECT_FILE_MANAGEMENT:READ',
