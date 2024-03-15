@@ -40,11 +40,13 @@ import {
   GetModuleCountUrl,
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
+  GetPoolId,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   ImportDefinitionUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
+  PoolOption,
   RecoverCaseUrl,
   RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
@@ -115,6 +117,7 @@ import {
   TableQueryParams,
   TransferFileParams,
 } from '@/models/common';
+import { ResourcePoolItem } from '@/models/setting/resourcePool';
 
 // 更新模块
 export function updateModule(data: ApiDefinitionUpdateModuleParams) {
@@ -459,4 +462,13 @@ export function getApiCaseChangeHistory(data: ApiCaseChangeHistoryParams) {
 // 获取接口用例-依赖关系
 export function getApiCaseDependency(data: ApiCaseDependencyParams) {
   return MSR.post({ url: GetDependencyUrl, data });
+}
+
+// 获取接口的资源池列表
+export function getPoolOption(projectId: string) {
+  return MSR.get<ResourcePoolItem[]>({ url: PoolOption + projectId });
+}
+
+export function getPoolId(projectId: string) {
+  return MSR.get<string>({ url: GetPoolId + projectId });
 }

@@ -11,6 +11,7 @@ import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.security.CheckOwner;
 import io.swagger.v3.oas.annotations.Operation;
@@ -107,4 +108,30 @@ public class ApiTestController {
     public EnvironmentConfig getEnvironmentConfig(@PathVariable String environmentId) {
         return apiTestService.getEnvironmentConfig(environmentId);
     }
+
+    @GetMapping("/pool-option/{projectId}")
+    @Operation(summary = "接口测试-获取资源池")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE,
+            PermissionConstants.PROJECT_API_DEFINITION_EXECUTE,
+            PermissionConstants.PROJECT_API_SCENARIO_EXECUTE
+    }, logical = Logical.OR)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<TestResourcePool> getPool(@PathVariable String projectId) {
+        return apiTestService.getPoolOption(projectId);
+    }
+
+    @GetMapping("/get-pool/{projectId}")
+    @Operation(summary = "接口测试-获取资源池")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE,
+            PermissionConstants.PROJECT_API_DEFINITION_EXECUTE,
+            PermissionConstants.PROJECT_API_SCENARIO_EXECUTE
+    }, logical = Logical.OR)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public String getPoolId(@PathVariable String projectId) {
+        return apiTestService.getPoolId(projectId);
+    }
+
+
 }

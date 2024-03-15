@@ -358,18 +358,19 @@
     executeCase,
     getCasePage,
     getEnvList,
+    getPoolId,
+    getPoolOption,
     updateCasePriority,
-    updateCaseStatus, updateDefinition,
+    updateCaseStatus,
   } from '@/api/modules/api-test/management';
   import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
-  import { getPoolList } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
   import { ApiCaseDetail, Environment } from '@/models/apiTest/management';
-  import { DragSortParams, TableQueryParams } from '@/models/common';
+  import { DragSortParams } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -576,6 +577,7 @@
   const environmentList = ref<Environment[]>();
 
   const resourcePoolList = ref<ResourcePoolItem[]>();
+  const defaultPoolId = ref<string>();
 
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
@@ -615,22 +617,23 @@
 
   // 初始化资源池列表
   async function initPoolList() {
-    const searchPoolParams = ref<TableQueryParams>({
-      current: 1,
-      pageSize: 10,
-      keyword: '',
-      deleted: false,
-      apiTest: true,
-      enable: false,
-    });
-    const result = await getPoolList(searchPoolParams.value);
-    resourcePoolList.value = result.list;
+    resourcePoolList.value = await getPoolOption(appStore.getCurrentProjectId);
+  }
+
+  async function getDefaultPoolId() {
+    try {
+      defaultPoolId.value = await getPoolId(appStore.getCurrentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   onBeforeMount(() => {
     loadCaseList();
     initPoolList();
     getCaseLevelFields();
+    getDefaultPoolId();
   });
 
   function handleFilterHidden(val: boolean) {
@@ -936,6 +939,7 @@
         break;
       case 'execute':
         showBatchExecute.value = true;
+        batchExecuteForm.value.poolId = defaultPoolId.value || '';
         initEnvList();
         break;
       default:
@@ -974,7 +978,6 @@
   :deep(.arco-radio-group) {
     margin-left: -5px;
   }
-
   .ms-switch {
     display: flex;
     align-items: center;

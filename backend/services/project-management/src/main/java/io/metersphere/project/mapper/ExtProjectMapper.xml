@@ -84,4 +84,14 @@
         order by
             CONVERT( name  USING GBK) ASC
     </select>
+
+    <select id="getResourcePoolOption" resultType="io.metersphere.system.domain.TestResourcePool">
+        select t.*
+        from project_test_resource_pool p left join test_resource_pool t on
+            t.id = p.test_resource_pool_id
+        where p.project_id = #{projectId}
+          and t.enable = 1
+          and t.deleted = 0
+          and t.${type} = 1
+    </select>
 </mapper>
