@@ -33,3 +33,6 @@ export const BatchEditScenarioUrl = '/api/scenario/batch-operation/edit'; // 批
 // export const GetDefinitionScheduleUrl = '/api/scenario/schedule/get'; // 接口场景-定时同步-查询
 // export const DeleteDefinitionScheduleUrl = '/api/scenario/schedule/delete'; // 接口场景-定时同步-删除
 // export const DebugDefinitionUrl = '/api/scenario/debug'; // 接口场景-调试
+
+export const ExecuteHistoryUrl = '/api/scenario/execute/page'; // 场景执行历史
+export const ScenarioHistoryUrl = '/api/scenario/operation-history/page'; // 场景变更历史

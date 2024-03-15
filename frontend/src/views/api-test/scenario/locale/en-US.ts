@@ -50,4 +50,26 @@ export default {
   // 批量操作文案
   'api_scenario.batch_operation.success': 'Success {opt} to {name}',
   'api_scenario.table.batchMoveConfirm': 'Ready to {opt} {count} scenarios',
+  // 执行历史
+  'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
+  'apiScenario.executeHistory.num': 'Number',
+  'apiScenario.executeHistory.execution.triggerMode': 'Trigger mode',
+  'apiScenario.executeHistory.execution.status': 'Execution result',
+  'apiScenario.executeHistory.execution.operator': 'Operator',
+  'apiScenario.executeHistory.execution.operatorTime': 'Operation time',
+  'apiScenario.executeHistory.execution.operation': 'Execution result',
+  'apiScenario.executeHistory.status.pending': 'Pending',
+  'apiScenario.executeHistory.status.running': 'Running',
+  'apiScenario.executeHistory.status.rerunning': 'Rerunning',
+  'apiScenario.executeHistory.status.error': 'Error',
+  'apiScenario.executeHistory.status.success': 'Success',
+  'apiScenario.executeHistory.status.fake.error': 'Fake error',
+  'apiScenario.executeHistory.status.fake.stopped': 'Stopped',
+  // 操作历史
+  'apiScenario.historyListTip':
+    'View and compare historical changes. According to the rules set by the administrator, the change history data will be automatically deleted.',
+  'apiScenario.changeOrder': 'Change serial number',
+  'apiScenario.type': 'Type',
+  'apiScenario.operationUser': 'Operator',
+  'apiScenario.updateTime': 'Update time',
 };

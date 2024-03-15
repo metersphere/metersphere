@@ -72,14 +72,17 @@
           :title="t('apiScenario.executeHistory')"
           class="px-[24px] py-[16px]"
         >
-          <executeHistory v-if="activeKey === ScenarioDetailComposition.EXECUTE_HISTORY" />
+          <executeHistory
+            v-if="activeKey === ScenarioDetailComposition.EXECUTE_HISTORY"
+            :scenario-id="previewDetail.id"
+          />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.CHANGE_HISTORY"
           :title="t('apiScenario.changeHistory')"
           class="px-[24px] py-[16px]"
         >
-          <changeHistory v-if="activeKey === ScenarioDetailComposition.CHANGE_HISTORY" />
+          <changeHistory v-if="activeKey === ScenarioDetailComposition.CHANGE_HISTORY" :source-id="previewDetail.id" />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.DEPENDENCY"
