@@ -18,6 +18,7 @@
         <MsRichText
           v-model:raw="currentContent"
           v-model:commentIds="commentIds"
+          :upload-image="props.uploadImage"
           class="w-full"
           placeholder="ms.comment.enterPlaceHolderTip"
         />
@@ -46,6 +47,7 @@
   const props = defineProps<{
     isShowAvatar: boolean; // 是否显示评论人头像
     isUseBottom: boolean; // 是否被用于底部
+    uploadImage?: (file: File) => Promise<any>;
   }>();
 
   const currentContent = defineModel<string>('defaultValue', { default: '' });

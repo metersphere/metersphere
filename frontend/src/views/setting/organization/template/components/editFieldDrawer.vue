@@ -185,9 +185,13 @@
 
   // 是否展示日期或数值
   const showDateOrNumber = computed(() => {
-    if (getFieldType(fieldForm.value.type)[0]) {
-      selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
-      if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
+    // if (getFieldType(fieldForm.value.type)[0]) {
+    //   selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
+    //   if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
+    // }
+    selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
+    if (fieldForm.value.type) {
+      return getFieldType(fieldForm.value.type);
     }
   });
 

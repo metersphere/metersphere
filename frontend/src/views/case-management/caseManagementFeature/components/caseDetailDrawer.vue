@@ -87,7 +87,7 @@
         </MsButton>
       </div>
     </template>
-    <template #default>
+    <template #default="{ loading }">
       <div
         ref="wrapperRef"
         class="wrapperRef bg-white"
@@ -158,54 +158,61 @@
           </template>
           <template #second>
             <div class="rightWrapper h-full p-[24px]">
-              <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
-                <span class="w-[calc(100%-36%)]">
-                  <a-tree-select
-                    v-model="detailInfo.moduleId"
-                    :data="caseTree"
-                    class="w-full"
-                    :allow-search="true"
-                    :field-names="{
-                      title: 'name',
-                      key: 'id',
-                      children: 'children',
-                    }"
-                    :tree-props="{
-                      virtualListProps: {
-                        height: 200,
-                      },
-                    }"
-                    @change="handleChangeModule"
-                  ></a-tree-select>
-                </span>
-              </div>
-              <!-- 自定义字段开始 -->
-              <MsFormCreate
-                v-if="formRules.length"
-                ref="formCreateRef"
-                v-model:api="fApi"
-                v-model:form-item="formItem"
-                :form-rule="formRules"
-                class="w-full"
-                :option="options"
-                @change="changeHandler"
-              />
-              <!-- 自定义字段结束 -->
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
-                <span class="value">{{ detailInfo?.createUserName }}</span>
-              </div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
-                <span class="value">{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
-              </div>
-              <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnTag') }}</span>
-                <span class="value">
-                  <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
-                </span>
+              <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
+                <a-space direction="vertical" class="w-[100%]" size="large">
+                  <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
+                </a-space>
+              </a-skeleton>
+              <div v-else>
+                <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
+                <div class="baseItem">
+                  <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
+                  <span class="w-[calc(100%-36%)]">
+                    <a-tree-select
+                      v-model="detailInfo.moduleId"
+                      :data="caseTree"
+                      class="w-full"
+                      :allow-search="true"
+                      :field-names="{
+                        title: 'name',
+                        key: 'id',
+                        children: 'children',
+                      }"
+                      :tree-props="{
+                        virtualListProps: {
+                          height: 200,
+                        },
+                      }"
+                      @change="handleChangeModule"
+                    ></a-tree-select>
+                  </span>
+                </div>
+                <!-- 自定义字段开始 -->
+                <MsFormCreate
+                  v-if="formRules.length"
+                  ref="formCreateRef"
+                  v-model:api="fApi"
+                  v-model:form-item="formItem"
+                  :form-rule="formRules"
+                  class="w-full"
+                  :option="options"
+                  @change="changeHandler"
+                />
+                <!-- 自定义字段结束 -->
+                <div class="baseItem">
+                  <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
+                  <span class="value">{{ detailInfo?.createUserName }}</span>
+                </div>
+                <div class="baseItem">
+                  <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+                  <span class="value">{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                </div>
+                <div class="baseItem">
+                  <span class="label"> {{ t('caseManagement.featureCase.tableColumnTag') }}</span>
+                  <span class="value">
+                    <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
+                  </span>
+                </div>
               </div>
             </div>
           </template>
@@ -217,6 +224,7 @@
           :is-active="isActive"
           is-show-avatar
           is-use-bottom
+          :upload-image="handleUploadImage"
           @publish="publishHandler"
           @cancel="cancelPublish"
         />
@@ -248,6 +256,7 @@
   import {
     createCommentList,
     deleteCaseRequest,
+    editorUploadFile,
     followerCaseRequest,
     getCaseDetail,
     getCaseModuleTree,
@@ -622,6 +631,13 @@
   onMounted(() => {
     settingDrawerRef.value.getTabModule();
   });
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
 </script>
 
 <style scoped lang="less">

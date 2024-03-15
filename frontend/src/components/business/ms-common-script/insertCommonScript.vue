@@ -52,6 +52,12 @@
           </a-popover>
         </div>
       </template>
+      <template #status="{ record }">
+        <MsTag v-if="record.status === 'PASSED'" type="success" theme="light">{{
+          t('project.commonScript.testsPass')
+        }}</MsTag>
+        <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
+      </template>
       <template #enable="{ record }">
         <MsTag v-if="record.enable" type="success" theme="light">{{ t('project.commonScript.testsPass') }}</MsTag>
         <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
@@ -136,8 +142,8 @@
     },
     {
       title: 'project.commonScript.enable',
-      dataIndex: 'enable',
-      slotName: 'enable',
+      dataIndex: 'status',
+      slotName: 'status',
       showInTable: true,
       width: 150,
       showDrag: true,
