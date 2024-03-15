@@ -35,7 +35,7 @@ public class BugSyncNoticeService {
         paramMap.put("total", total);
         paramMap.put("projectId", projectId);
         NoticeModel noticeModel = NoticeModel.builder().operator(currentUser)
-                .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.SYNC_COMPLETED).build();
+                .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_COMPLETED).build();
         noticeSendService.send(NoticeConstants.TaskType.BUG_SYNC_TASK, noticeModel);
     }
 }

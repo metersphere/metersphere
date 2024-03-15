@@ -371,7 +371,7 @@
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
         let initValue = item.defaultValue;
-        const initOptions = item.options;
+        const initOptions = item.options ? item.options : JSON.parse(item.platformOptionJson);
         if (memberType.includes(item.type)) {
           if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
@@ -645,6 +645,14 @@
     });
     scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
   };
+
+  const getOptionFromTemplate = (field: CustomFieldItem | undefined) => {
+    if (field) {
+      return field.options ? field.options : JSON.parse(field.platformOptionJson);
+    }
+    return [];
+  };
+
   // 获取详情
   const getDetailInfo = async () => {
     loading.value = true;
@@ -694,8 +702,9 @@
           tmpObj[item.id] = '';
           // 多选类型需要过滤选项
         } else if (MULTIPLE_TYPE.includes(item.type)) {
-          const multipleOptions =
-            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          const multipleOptions = getOptionFromTemplate(
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
+          );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           if (item.type !== 'MULTIPLE_INPUT') {
@@ -717,8 +726,9 @@
           }
           // 单选多选项
         } else if (SINGRADIO_TYPE.includes(item.type)) {
-          const multipleOptions =
-            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          const multipleOptions = getOptionFromTemplate(
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
+          );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           const currentDefaultValue = optionsIds.find((e: any) => item.value === e) || '';

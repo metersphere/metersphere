@@ -15,8 +15,8 @@ public class BugSyncExtraService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
-    private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "ISSUE:SYNC:ERROR";
+    private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "MS:BUG:SYNC";
+    private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "MS:BUG:SYNC:ERROR";
 
     /**
      * 设置手动同步缺陷唯一Key

@@ -164,7 +164,7 @@
       class="flex flex-row items-center gap-[8px] rounded-[4px] border-[1px] border-[rgb(var(--primary-5))] bg-[rgb(var(--primary-1))] px-[16px] py-[12px]"
     >
       <icon-exclamation-circle-fill class="text-[rgb(var(--primary-5))]" />
-      <div>{{ t('bugManagement.bugAutoSync', { name: '每天00:00:00' }) }}</div>
+      <div>{{ t('bugManagement.bugAutoSync') }}</div>
     </div>
     <div class="mb-[8px] mt-[16px]">{{ t('bugManagement.createTime') }}</div>
     <div class="flex flex-row gap-[8px]">
@@ -306,6 +306,7 @@
 
   // 是否同步完成
   const isComplete = ref(false);
+  const isShowCompleteMsg = ref(false);
   // 自定义字段
   const customFields = ref<BugEditCustomField[]>([]);
   // 当前选择的条数
@@ -603,12 +604,17 @@
   };
   /** 同步缺陷 */
   const { pause, resume } = useIntervalFn(() => {
+    isShowCompleteMsg.value = true;
     checkSyncStatus();
   }, 1000);
   // 初始化组件时关闭
   pause();
   watchEffect(() => {
     if (isComplete.value) {
+      if (isShowCompleteMsg.value) {
+        Message.success(t('bugManagement.syncSuccess'));
+        fetchData();
+      }
       // 同步完成时关闭轮询
       pause();
     }
@@ -622,7 +628,9 @@
       try {
         // 开源版
         await syncBugOpenSource(appStore.currentProjectId);
+        Message.warning(t('bugManagement.synchronizing'));
         isComplete.value = false;
+        isShowCompleteMsg.value = true;
         // 开始轮询
         resume();
       } catch (error) {
@@ -635,11 +643,12 @@
     try {
       await syncBugEnterprise({
         projectId: appStore.currentProjectId,
-        pre: syncObject.operator === 'lt',
+        pre: syncObject.operator === 'le',
         createTime: syncObject.time,
       });
-      Message.success(t('bugManagement.syncSuccess'));
+      Message.warning(t('bugManagement.synchronizing'));
       isComplete.value = false;
+      isShowCompleteMsg.value = true;
       // 开始轮询
       resume();
     } catch (error) {
