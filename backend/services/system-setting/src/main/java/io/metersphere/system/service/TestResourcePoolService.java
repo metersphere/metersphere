@@ -9,16 +9,16 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.pool.*;
+import io.metersphere.system.dto.pool.TestResourceDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
+import io.metersphere.system.dto.pool.TestResourceReturnDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.mapper.OrganizationMapper;
-import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
-import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,6 +48,8 @@ public class TestResourcePoolService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private ExtResourcePoolMapper extResourcePoolMapper;
 
 
     public void checkAndSaveOrgRelation(TestResourcePool testResourcePool, String id, TestResourceDTO testResourceDTO) {
@@ -136,7 +138,7 @@ public class TestResourcePoolService {
             testResourceDTO.setNodesList(new ArrayList<>());
         }
         TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
-        if (testResourcePoolValidateService!=null) {
+        if (testResourcePoolValidateService != null) {
             testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
         }
         String configuration = JSON.toJSONString(testResourceDTO);
@@ -149,17 +151,7 @@ public class TestResourcePoolService {
     }
 
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
-        TestResourcePoolExample example = new TestResourcePoolExample();
-        TestResourcePoolExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getKeyword())) {
-            criteria.andNameLike(StringUtils.wrapIfMissing(request.getKeyword(), "%"));
-        }
-        if (request.getEnable() != null) {
-            criteria.andEnableEqualTo(request.getEnable());
-        }
-        criteria.andDeletedEqualTo(false);
-        example.setOrderByClause("update_time desc");
-        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        List<TestResourcePool> testResourcePools = extResourcePoolMapper.getResourcePoolList(request);
         List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();
         testResourcePools.forEach(pool -> {
             TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(pool.getId());
@@ -266,6 +258,7 @@ public class TestResourcePoolService {
 
     /**
      * 校验该组织是否有权限使用该资源池
+     *
      * @param resourcePool
      * @param orgId
      * @return

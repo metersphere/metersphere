@@ -9,6 +9,7 @@ import {
   BatchDeleteDefinitionUrl,
   BatchDeleteRecycleCaseUrl,
   BatchEditCaseUrl,
+  BatchExecuteCaseUrl,
   BatchMoveDefinitionUrl,
   BatchRecoverApiUrl,
   BatchRecoverCaseUrl,
@@ -26,9 +27,14 @@ import {
   DeleteModuleUrl,
   DeleteRecycleApiUrl,
   DeleteRecycleCaseUrl,
+  ExecuteCaseUrl,
+  GetChangeHistoryUrl,
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
+  GetDependencyUrl,
+  GetEnvListUrl,
   GetEnvModuleUrl,
+  GetExecuteHistoryUrl,
   GetModuleCountUrl,
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
@@ -61,8 +67,9 @@ import { ExecuteRequestParams } from '@/models/apiTest/common';
 import {
   AddApiCaseParams,
   ApiCaseBatchEditParams,
-  ApiCaseBatchParams,
-  ApiCaseDetail,
+  ApiCaseBatchExecuteParams,
+  ApiCaseBatchParams, ApiCaseChangeHistoryParams, ApiCaseDependencyParams,
+  ApiCaseDetail, ApiCaseExecuteHistoryParams,
   ApiCasePageParams,
   ApiDefinitionBatchDeleteParams,
   ApiDefinitionBatchMoveParams,
@@ -83,6 +90,7 @@ import {
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
   DefinitionReferencePageParams,
+  Environment,
   EnvModule,
   ImportApiDefinitionParams,
   mockParams,
@@ -94,7 +102,7 @@ import {
   CommonList,
   DragSortParams,
   ModuleTreeNode,
-  MoveModules,
+  MoveModules, TableQueryParams,
   TransferFileParams,
 } from '@/models/common';
 
@@ -381,4 +389,34 @@ export function batchDeleteRecycleCase(data: ApiCaseBatchParams) {
 // 添加接口用例
 export function addCase(data: AddApiCaseParams) {
   return MSR.post({ url: AddCaseUrl, data });
+}
+
+// 执行接口用例
+export function executeCase(id: string) {
+  return MSR.get({ url: ExecuteCaseUrl, params: id });
+}
+
+// 批量执行接口用例
+export function batchExecuteCase(data: ApiCaseBatchExecuteParams) {
+  return MSR.post({ url: BatchExecuteCaseUrl, data });
+}
+
+// 获取接口测试-环境列表
+export function getEnvList(projectId: string) {
+  return MSR.get<Environment[]>({ url: GetEnvListUrl, params: projectId });
+}
+
+// 获取接口用例-执行历史
+export function getApiCaseExecuteHistory(data: ApiCaseExecuteHistoryParams) {
+  return MSR.post({ url: GetExecuteHistoryUrl, data });
+}
+
+// 获取接口用例-变更历史
+export function getApiCaseChangeHistory(data: ApiCaseChangeHistoryParams) {
+  return MSR.post({ url: GetChangeHistoryUrl, data });
+}
+
+// 获取接口用例-依赖关系
+export function getApiCaseDependency(data: ApiCaseDependencyParams) {
+  return MSR.post({ url: GetDependencyUrl, data });
 }
