@@ -13,6 +13,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -62,7 +63,7 @@ public class BugTrashController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchRecover(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(true);
-        bugService.batchRecover(request);
+        bugService.batchRecover(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch-delete")

@@ -68,7 +68,7 @@ public class BugRelateCaseController {
     @PostMapping("/relate")
     @Operation(summary = "缺陷管理-关联用例-关联")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
-    @CheckOwner(resourceId = "#request.sourceId", resourceType = "functional_case")
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void relate(@Validated @RequestBody AssociateOtherCaseRequest request) {
         bugRelateCaseCommonService.relateCase(request, false, SessionUtils.getUserId());
     }

@@ -1,8 +1,10 @@
 package io.metersphere.project.service;
 
 import com.alibaba.excel.util.StringUtils;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
 import io.metersphere.project.request.ProjectUserRoleRequest;
@@ -43,11 +45,13 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJEC
 public class ProjectUserRoleService extends BaseUserRoleService {
 
     @Resource
-    UserRoleMapper userRoleMapper;
+    private ProjectMapper projectMapper;
     @Resource
-    UserRoleRelationMapper userRoleRelationMapper;
+    private UserRoleMapper userRoleMapper;
     @Resource
-    ExtProjectUserRoleMapper extProjectUserRoleMapper;
+    private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
     public List<ProjectUserRoleDTO> list(ProjectUserRoleRequest request) {
         List<ProjectUserRoleDTO> roles = extProjectUserRoleMapper.list(request);
@@ -106,6 +110,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     }
 
     public void addMember(ProjectUserRoleMemberEditRequest request, String createUserId) {
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         request.getUserIds().forEach(userId -> {
             checkMemberParam(userId, request.getUserRoleId());
             UserRoleRelation relation = new UserRoleRelation();
@@ -115,7 +120,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
             relation.setSourceId(request.getProjectId());
             relation.setCreateTime(System.currentTimeMillis());
             relation.setCreateUser(createUserId);
-            relation.setOrganizationId(request.getProjectId());
+            relation.setOrganizationId(project.getOrganizationId());
             userRoleRelationMapper.insert(relation);
         });
     }
