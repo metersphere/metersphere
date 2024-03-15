@@ -1,4 +1,5 @@
 export const getPlatform = '/bug/current-platform/';
+export const checkBugExist = '/bug/check-exist/';
 export const postTableListUrl = '/bug/page';
 export const postUpdateBugUrl = '/bug/update';
 export const postBatchUpdateBugUrl = '/bug/batch-update';

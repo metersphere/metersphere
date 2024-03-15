@@ -116,6 +116,13 @@ public class BugController {
         return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
+    @GetMapping("/check-exist/{id}")
+    @Operation(summary = "缺陷管理-列表-校验缺陷是否存在")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public boolean check(@PathVariable String id) {
+        return bugService.checkExist(id);
+    }
+
     @GetMapping("/get/{id}")
     @Operation(summary = "缺陷管理-列表-查看缺陷(详情&&编辑&&复制)")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)

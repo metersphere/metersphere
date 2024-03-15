@@ -143,7 +143,10 @@ public class OperationLogModule {
     //接口管理-环境
     public static final String API_DEFINITION_ENVIRONMENT = "API_DEFINITION_ENVIRONMENT";
     // 缺陷管理
-    public static final String BUG_MANAGEMENT = "BUG_MANAGEMENT";
+    public static final String BUG_MANAGEMENT_INDEX = "BUG_MANAGEMENT_BUG_INDEX";
+    public static final String BUG_MANAGEMENT_RECYCLE = "BUG_MANAGEMENT_BUG_RECYCLE";
+    public static final String BUG_MANAGEMENT_CREATE = "BUG_MANAGEMENT_BUG_INDEX_CREATE";
+    public static final String BUG_MANAGEMENT_UPDATE = "BUG_MANAGEMENT_BUG_INDEX_UPDATE";
     //测试计划
     public static final String TEST_PLAN = "TEST_PLAN";
     public static final String TEST_PLAN_MODULE = "TEST_PLAN_MODULE";

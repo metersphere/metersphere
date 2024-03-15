@@ -8,6 +8,14 @@ import { AssociatedList, DemandItem, OperationFile } from '@/models/caseManageme
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
+ * 校验缺陷是否存在
+ *
+ */
+export function checkBugExist(id: string) {
+  return MSR.get({ url: `${bugURL.checkBugExist}${id}` });
+}
+
+/**
  * 表格的查询
  * @param data
  * @returns

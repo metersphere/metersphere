@@ -57,6 +57,7 @@ export default {
       cannotBeNull: '不能为空',
     },
     detail: {
+      notExist: '缺陷不存在',
       title: '【{id}】{name}',
       apiCase: '接口用例',
       scenarioCase: '场景用例',

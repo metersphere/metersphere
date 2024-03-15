@@ -39,7 +39,7 @@ public class BugHistoryService {
      */
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
         OperationHistoryExample example = new OperationHistoryExample();
-        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andModuleEqualTo(OperationLogModule.BUG_MANAGEMENT)
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andModuleIn(List.of(OperationLogModule.BUG_MANAGEMENT_INDEX, OperationLogModule.BUG_MANAGEMENT_RECYCLE))
                 .andSourceIdEqualTo(request.getSourceId());
         List<OperationHistory> history = operationHistoryMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(history)) {

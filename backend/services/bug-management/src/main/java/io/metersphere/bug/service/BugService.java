@@ -844,6 +844,17 @@ public class BugService {
     }
 
     /**
+     * 校验缺陷是否存在并返回
+     * @param id 缺陷ID
+     * @return 缺陷
+     */
+    public boolean checkExist(String id) {
+        BugExample bugExample = new BugExample();
+        bugExample.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        return bugMapper.countByExample(bugExample) > 0;
+    }
+
+    /**
      * 处理保存自定义字段信息
      *
      * @param request 请求参数
@@ -1322,7 +1333,7 @@ public class BugService {
      */
     private FileLogRecord createFileLogRecord(String operator, String projectId){
         return FileLogRecord.builder()
-                .logModule(OperationLogModule.BUG_MANAGEMENT)
+                .logModule(OperationLogModule.BUG_MANAGEMENT_INDEX)
                 .operator(operator)
                 .projectId(projectId)
                 .build();
@@ -1511,7 +1522,7 @@ public class BugService {
         List<Bug> bugs = bugMapper.selectByExample(example);
         List<LogDTO> logs = new ArrayList<>();
         bugs.forEach(bug -> {
-            LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), null, operationType, OperationLogModule.BUG_MANAGEMENT, bug.getTitle());
+            LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), null, operationType, OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
             log.setPath(path);
             log.setMethod(HttpMethodConstants.POST.name());
             if (batchUpdate) {

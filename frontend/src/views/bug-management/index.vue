@@ -230,6 +230,7 @@
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
+    checkBugExist,
     deleteBatchBug,
     deleteSingleBug,
     exportBug,
@@ -647,10 +648,27 @@
     }
   };
 
-  const handleShowDetail = (id: string, rowIndex: number) => {
-    detailVisible.value = true;
-    activeDetailId.value = id;
-    activeCaseIndex.value = rowIndex;
+  const checkBug = async (id: string) => {
+    const res = await checkBugExist(id);
+    return res;
+  };
+
+  const handleShowDetail = async (id: string, rowIndex: number) => {
+    const exist = await checkBug(id);
+    if (!exist) {
+      // 缺陷不存在, 不展示详情
+      Message.error(t('bugManagement.detail.notExist'));
+      const query = { ...route.query };
+      delete query.id;
+      await router.push({
+        name: RouteEnum.BUG_MANAGEMENT_INDEX,
+        query,
+      });
+    } else {
+      detailVisible.value = true;
+      activeDetailId.value = id;
+      activeCaseIndex.value = rowIndex;
+    }
   };
 
   const handleCopy = (record: BugListItem) => {
@@ -728,7 +746,6 @@
   const setCurrentPlatform = async () => {
     const res = await getPlatform(projectId.value);
     currentPlatform.value = res;
-    console.log(currentPlatform.value);
   };
 
   const moreActionList: ActionsItem[] = [

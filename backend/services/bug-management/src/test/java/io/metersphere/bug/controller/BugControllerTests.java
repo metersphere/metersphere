@@ -91,6 +91,7 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_EXPORT_COLUMNS = "/bug/export/columns/%s";
     public static final String BUG_EXPORT = "/bug/export";
     public static final String BUG_CURRENT_PLATFORM = "/bug/current-platform/%s";
+    public static final String BUG_EXIST_CHECK = "/bug/check-exist/%s";
 
     @Resource
     private PluginService pluginService;
@@ -472,6 +473,12 @@ public class BugControllerTests extends BaseTest {
     @Order(15)
     void testCurrentPlatform() throws Exception {
         this.requestGetWithOk(String.format(BUG_CURRENT_PLATFORM, "default-project-for-bug"));
+    }
+
+    @Test
+    @Order(16)
+    void testCheckBugExist() throws Exception {
+        this.requestGetWithOk(String.format(BUG_EXIST_CHECK, "default-project-for-bug-not-exist"));
     }
 
     @Test

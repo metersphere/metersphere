@@ -31,7 +31,7 @@ public class BugRelateCaseLogService {
     public LogDTO getRelateLog(String id) {
         BugRelationCase bugRelationCase = bugRelationCaseMapper.selectByPrimaryKey(id);
         BugRelateCaseDTO relateCase = extBugRelateCaseMapper.getRelateCase(bugRelationCase.getCaseId(), bugRelationCase.getCaseType());
-        LogDTO dto = new LogDTO(relateCase.getProjectId(), null, null, null, OperationLogType.DISASSOCIATE.name(), OperationLogModule.BUG_MANAGEMENT, relateCase.getRelateCaseName());
+        LogDTO dto = new LogDTO(relateCase.getProjectId(), null, null, null, OperationLogType.DISASSOCIATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, relateCase.getRelateCaseName());
         dto.setPath("/bug/un-relate");
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setModifiedValue(JSON.toJSONBytes(relateCase));
