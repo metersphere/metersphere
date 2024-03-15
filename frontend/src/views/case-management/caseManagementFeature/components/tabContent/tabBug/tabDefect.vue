@@ -49,12 +49,10 @@
     <ms-base-table v-if="showType === 'link'" ref="tableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
       <template #name="{ record }">
         <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
-        <a-popover title="" position="right">
+        <a-popover title="" position="right"  style="width: 480px">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
-            <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
-              {{ record.content }}
-            </div>
+            <div class="markdown-body" style="margin-left: 48px" v-html="record.content"> </div>
           </template>
         </a-popover>
       </template>
