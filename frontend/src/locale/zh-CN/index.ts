@@ -30,6 +30,7 @@ export default {
     'menu.apiTest.management': '定义',
     'menu.apiTest.management.definition': '定义',
     'menu.apiTest.api': 'API列表',
+    'menu.apiTest.apiScenario': '场景',
     'menu.apiTest.scenario': '场景',
     'menu.apiTest.report': '报告',
     'menu.uiTest': 'UI测试',

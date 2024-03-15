@@ -72,4 +72,9 @@ export default {
   'apiScenario.type': 'Type',
   'apiScenario.operationUser': 'Operator',
   'apiScenario.updateTime': 'Update time',
+
+  // 回收站
+  'api_scenario.recycle.recover': 'Recover',
+  'api_scenario.recycle.list': 'Recycle list',
+  'api_scenario.recycle.batchCleanOut': 'Delete',
 };

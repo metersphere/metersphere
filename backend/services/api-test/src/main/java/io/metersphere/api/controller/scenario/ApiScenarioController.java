@@ -144,7 +144,7 @@ public class ApiScenarioController {
 
     //需求补充：回收站里的相关操作都不需要发通知
     @GetMapping("/recover/{id}")
-    @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
+    @Operation(summary = "接口测试-接口场景管理-恢复场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.RESTORE, expression = "#msClass.restoreLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
