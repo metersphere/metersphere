@@ -277,6 +277,7 @@
                 :is-edit="props.isDefinition && isHttpProtocol"
                 :upload-temp-file-api="props.uploadTempFileApi"
                 :loading="requestVModel.executeLoading || loading"
+                :is-definition="props.isDefinition"
                 @change-expand="changeVerticalExpand"
                 @change-layout="handleActiveLayoutChange"
                 @change="handleActiveDebugChange"
@@ -534,7 +535,6 @@
     RequestConditionProcessor,
     RequestDefinitionStatus,
     RequestMethods,
-    RequestParamsType,
   } from '@/enums/apiEnum';
 
   import type { ResponseItem } from './response/edit.vue';
@@ -1295,7 +1295,7 @@
    * 保存快捷键处理
    */
   async function handleSaveShortcut() {
-    if (isHttpProtocol && !requestVModel.value.url) {
+    if (isHttpProtocol.value && !requestVModel.value.url) {
       return;
     }
     try {
