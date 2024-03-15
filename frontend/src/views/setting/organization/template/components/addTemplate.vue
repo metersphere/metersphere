@@ -103,10 +103,10 @@
                     @click="editField(formItem as DefinedFieldItem)"
                   />
                 </a-tooltip>
-                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                <a-divider v-if="!formItem.templateRequired" direction="vertical" class="!m-0 !mx-2" />
                 <a-tooltip :content="t('common.delete')">
                   <MsIcon
-                    v-if="!formItem.internal"
+                    v-if="!formItem.templateRequired"
                     type="icon-icon_delete-trash_outlined"
                     size="16"
                     @click="deleteSelectedField(formItem as DefinedFieldItem)"

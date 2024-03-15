@@ -75,16 +75,16 @@
             @confirm="handleOk(record)"
           >
             <MsButton
-              v-if="!record.templateRequired && hasAnyPermission(props.updatePermission)"
+              v-if="!record.internal && hasAnyPermission(props.updatePermission)"
               :disabled="record.internal"
               class="!mr-0"
               >{{ t('system.orgTemplate.edit') }}</MsButton
             ></MsPopConfirm
           >
 
-          <a-divider v-if="!record.templateRequired" class="h-[12px]" direction="vertical" />
+          <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
           <MsTableMoreAction
-            v-if="!record.templateRequired"
+            v-if="!record.internal"
             v-permission="props.deletePermission"
             :list="moreActions"
             @select="(item) => handleMoreActionSelect(item, record)"

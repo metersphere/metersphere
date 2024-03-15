@@ -2,7 +2,7 @@
   <div>
     <div class="flex items-center justify-between">
       <div v-if="showType === 'link'" class="flex">
-        <a-tooltip :disabled="!!linkPropsRes.data.length">
+        <a-tooltip v-if="!total">
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
             <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
@@ -11,7 +11,7 @@
           </template>
           <a-button
             v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-            :disabled="!linkPropsRes.data.length"
+            :disabled="total ? false : true"
             class="mr-3"
             type="primary"
             @click="linkDefect"
@@ -19,6 +19,15 @@
             {{ t('caseManagement.featureCase.linkDefect') }}
           </a-button>
         </a-tooltip>
+        <a-button
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) && total"
+          :disabled="total ? false : true"
+          class="mr-3"
+          type="primary"
+          @click="linkDefect"
+        >
+          {{ t('caseManagement.featureCase.linkDefect') }}
+        </a-button>
         <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createDefect"
           >{{ t('caseManagement.featureCase.createDefect') }}
         </a-button>
@@ -111,12 +120,9 @@
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center">
           {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
-          <span
-            v-if="
-              !linkPropsRes.data.length && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])
-            "
-            >{{ t('caseManagement.featureCase.please') }}</span
-          >
+          <span v-if="!total && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])">{{
+            t('caseManagement.featureCase.please')
+          }}</span>
           <MsButton
             v-if="linkPropsRes.data.length && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
             class="ml-[8px]"
@@ -225,7 +231,7 @@
   import LinkDefectDrawer from './linkDefectDrawer.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
-  import { getCustomOptionHeader } from '@/api/modules/bug-management';
+  import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
   import {
     associatedDrawerDebug,
     cancelAssociatedDebug,
@@ -236,8 +242,9 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugOptionItem } from '@/models/bug-management';
+  import { BugListItem, BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
+  import { CommonList } from '@/models/common';
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -512,10 +519,25 @@
   //     }
   //   }
   // );
+  const total = ref<number>(0);
+  async function initBugList() {
+    const res = await getBugList({
+      current: 1,
+      pageSize: 10,
+      sort: {},
+      filter: {},
+      keyword: '',
+      combine: {},
+      searchMode: 'AND',
+      projectId: appStore.currentProjectId,
+    });
+    total.value = res.total;
+  }
 
   onMounted(() => {
     getFetch();
     initFilterOptions();
+    initBugList();
   });
 </script>
 
