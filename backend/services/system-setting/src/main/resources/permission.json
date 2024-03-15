@@ -242,13 +242,11 @@
             "id": "SYSTEM_SERVICE_INTEGRATION:READ"
           },
           {
-            "id": "SYSTEM_SERVICE_INTEGRATION:READ+ADD"
-          },
-          {
             "id": "SYSTEM_SERVICE_INTEGRATION:READ+UPDATE"
           },
           {
-            "id": "SYSTEM_SERVICE_INTEGRATION:READ+DELETE"
+            "id": "SYSTEM_SERVICE_INTEGRATION:READ+DELETE",
+            "name": "permission.service_integration.reset"
           }
         ]
       },
