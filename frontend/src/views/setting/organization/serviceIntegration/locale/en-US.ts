@@ -15,7 +15,7 @@ export default {
   'organization.service.description':
     'Download third-party project management platform plug-ins that need to be integrated; you can also develop your own relevant project management platform plug-ins',
   'organization.service.configDescription':
-    'Downloaded or developed plug-ins need to be uploaded to plug-in management, upload, you can configure the current page',
+    'Downloaded or developed plug-ins need to be uploaded to plug-in, upload, you can configure the current page',
   'organization.service.jumpPlugin': 'Jump to plugin',
   'organization.service.testLink': 'Test link',
   'organization.service.testLinkStatusTip': 'Test connection successful!',

@@ -15,7 +15,7 @@ export default {
     updateUser: 'Updater',
     createTime: 'Create Time',
     updateTime: 'Update Time',
-    index: 'Bug Management',
+    index: 'Bug',
     addBug: 'Create Bug',
     editBug: 'Edit Bug',
     sync: 'Sync',
@@ -108,7 +108,7 @@ export default {
       caseRelated: 'Related cases',
     },
     recycle: {
-      recycleBin: 'Recycle bin',
+      recycleBin: 'Recycle Bin',
       recover: 'Recover',
       recoverSuccess: 'Recover success',
       recoverError: 'Recover failed',
