@@ -2,7 +2,9 @@
   <div>
     <div class="flex items-center justify-between">
       <a-dropdown @select="handleSelect">
-        <a-button type="primary"> {{ t('caseManagement.featureCase.linkCase') }} </a-button>
+        <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="primary">
+          {{ t('caseManagement.featureCase.linkCase') }}
+        </a-button>
         <template #content>
           <a-doption v-for="item of caseTypeOptions" :key="item.value" :value="item.value">{{
             t(item.label)
@@ -24,7 +26,9 @@
         ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
+        <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="cancelLink(record)">{{
+          t('caseManagement.featureCase.cancelLink')
+        }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center">
@@ -112,7 +116,7 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       width: 200,
       showInTable: true,
       showTooltip: true,
