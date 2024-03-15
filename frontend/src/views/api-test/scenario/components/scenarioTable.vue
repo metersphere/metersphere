@@ -97,7 +97,7 @@
           </a-option>
         </a-select>
       </template>
-      <template #action="{ record }">
+      <template #operation="{ record }">
         <MsButton
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           type="text"
@@ -280,10 +280,11 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiScenarioDetail, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     class?: string;
@@ -315,7 +316,6 @@
       text: 'P3',
     },
   ]);
-  const folderTreePathMap = inject('folderTreePathMap');
   const emit = defineEmits(['refreshModuleTree']);
   const keyword = ref('');
   const moveModalVisible = ref(false);
@@ -334,28 +334,35 @@
       },
       fixed: 'left',
       width: 126,
+      showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiScenario.table.columns.name',
       dataIndex: 'name',
-      showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
       width: 134,
+      showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiScenario.table.columns.level',
       dataIndex: 'priority',
       slotName: 'priority',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.status',
       dataIndex: 'status',
       slotName: 'status',
       width: 140,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.runResult',
@@ -363,6 +370,7 @@
       dataIndex: 'lastReportStatus',
       showTooltip: true,
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.tags',
@@ -370,6 +378,7 @@
       isTag: true,
       isStringTag: true,
       width: 456,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.scenarioEnv',
@@ -380,16 +389,19 @@
       title: 'apiScenario.table.columns.steps',
       dataIndex: 'stepTotal',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.module',
       dataIndex: 'modulePath',
       width: 176,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.createTime',
@@ -399,6 +411,7 @@
         sorter: true,
       },
       width: 189,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.updateTime',
@@ -408,22 +421,25 @@
         sorter: true,
       },
       width: 189,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUser',
       titleSlotName: 'createUser',
       width: 109,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUser',
       titleSlotName: 'updateUser',
       width: 109,
+      showDrag: true,
     },
     {
       title: 'common.operation',
-      slotName: 'action',
+      slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
       width: 180,
@@ -443,7 +459,6 @@
     },
     (item) => ({
       ...item,
-      fullPath: folderTreePathMap?.[item.moduleId],
       createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })

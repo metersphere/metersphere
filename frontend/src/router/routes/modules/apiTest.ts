@@ -1,4 +1,4 @@
-import { ApiTestRouteEnum } from '@/enums/routeEnum';
+import { ApiTestRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
@@ -78,11 +78,21 @@ const ApiTest: AppRouteRecordRaw = {
     {
       path: 'scenarioRecycle',
       name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,
-      component: () => import('@/views/api-test/scenario/index.vue'),
+      component: () => import('@/views/api-test/scenario/recycle.vue'),
       meta: {
         locale: 'menu.apiTest.scenario',
         roles: ['*'],
         isTopMenu: false,
+        breadcrumbs: [
+          {
+            name: ApiTestRouteEnum.API_TEST_SCENARIO,
+            locale: 'menu.apiTest.apiScenario',
+          },
+          {
+            name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,
+            locale: 'common.recycle',
+          },
+        ],
       },
     },
 

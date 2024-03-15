@@ -2,17 +2,24 @@ import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
   BatchCopyScenarioUrl,
+  BatchDeleteScenarioUrl,
   BatchEditScenarioUrl,
   BatchMoveScenarioUrl,
+  BatchRecoverScenarioUrl,
   BatchRecycleScenarioUrl,
   DeleteModuleUrl,
+  DeleteScenarioUrl,
   ExecuteHistoryUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
+  GetTrashModuleCountUrl,
+  GetTrashModuleTreeUrl,
   MoveModuleUrl,
+  RecoverScenarioUrl,
   RecycleScenarioUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
+  ScenarioTrashPageUrl,
   UpdateModuleUrl,
   UpdateScenarioUrl,
 } from '@/api/requrls/api-test/scenario';
@@ -30,7 +37,7 @@ import {
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
-import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
+import { AddModuleParams, BatchApiParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
 
 // 更新模块
 export function updateModule(data: ApiScenarioModuleUpdateParams) {
@@ -52,6 +59,16 @@ export function getModuleCount(data: ApiScenarioGetModuleParams) {
   return MSR.post({ url: GetModuleCountUrl, data });
 }
 
+// 获取回收站模块统计数量
+export function getTrashModuleCount(data: ApiScenarioGetModuleParams) {
+  return MSR.post({ url: GetTrashModuleCountUrl, data });
+}
+
+// 获取回收站模块树
+export function getTrashModuleTree(data: ApiScenarioGetModuleParams) {
+  return MSR.post<ModuleTreeNode[]>({ url: GetTrashModuleTreeUrl, data });
+}
+
 // 添加模块
 export function addModule(data: AddModuleParams) {
   return MSR.post({ url: AddModuleUrl, data });
@@ -65,6 +82,11 @@ export function deleteModule(id: string) {
 // 获取接口场景列表
 export function getScenarioPage(data: ApiScenarioPageParams) {
   return MSR.post<CommonList<ApiScenarioDetail>>({ url: ScenarioPageUrl, data });
+}
+
+// 获取回收站的接口场景列表
+export function getTrashScenarioPage(data: ApiScenarioPageParams) {
+  return MSR.post<CommonList<ApiScenarioDetail>>({ url: ScenarioTrashPageUrl, data });
 }
 
 // 更新接口场景
@@ -116,4 +138,38 @@ export function getExecuteHistory(data: ExecutePageParams) {
 // 场景变更历史接口
 export function getScenarioHistory(data: ScenarioHistoryPageParams) {
   return MSR.post<CommonList<ScenarioHistoryItem>>({ url: ScenarioHistoryUrl, data });
+}
+
+// 恢复场景
+export function recoverScenario(id: string) {
+  return MSR.get({ url: RecoverScenarioUrl, params: id });
+}
+
+// 批量恢复场景
+export function batchRecoverScenario(data: {
+  moduleIds: string[];
+  selectAll: boolean;
+  condition: { keyword: string };
+  excludeIds: any[];
+  selectIds: any[];
+  projectId: string;
+}) {
+  return MSR.post({ url: BatchRecoverScenarioUrl, data });
+}
+
+// 恢复场景
+export function deleteScenario(id: string) {
+  return MSR.get({ url: DeleteScenarioUrl, params: id });
+}
+
+// 批量恢复场景
+export function batchDeleteScenario(data: {
+  moduleIds: string[];
+  selectAll: boolean;
+  condition: { keyword: string };
+  excludeIds: any[];
+  selectIds: any[];
+  projectId: string;
+}) {
+  return MSR.post({ url: BatchDeleteScenarioUrl, data });
 }

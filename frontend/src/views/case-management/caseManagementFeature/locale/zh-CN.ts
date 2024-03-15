@@ -50,7 +50,7 @@ export default {
   'caseManagement.featureCase.tableColumnDeleteUser': '删除人',
   'caseManagement.featureCase.tableColumnDeleteTime': '删除时间',
   'caseManagement.featureCase.tableColumnActions': '操作',
-  'caseManagement.featureCase.beforeDeleteCase': '删除,用例将放入回收站，可在回收站内进行数据恢复',
+  'caseManagement.featureCase.beforeDeleteCase': '删除，用例将放入回收站，可在回收站内进行数据恢复',
   'caseManagement.featureCase.deleteCaseTitle': '确认删除 {name} 用例吗？',
   'caseManagement.featureCase.completedDeleteCaseTitle': '确认彻底删除 {name} 用例吗？',
   'caseManagement.featureCase.export': '导出',

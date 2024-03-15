@@ -5,6 +5,8 @@
         v-model:active-tab="activeApiTab"
         v-model:tabs="apiTabs"
         class="flex-1 overflow-hidden"
+        :show-add="false"
+        :readonly="true"
         @add="newTab"
       >
         <template #label="{ tab }">
@@ -22,27 +24,17 @@
         <template #first>
           <div class="flex h-full flex-col">
             <div class="p-[16px]">
-              <scenarioModuleTree
-                ref="scenarioModuleTreeRef"
+              <recycleTree
+                ref="recycleTreeRef"
                 :is-show-scenario="isShowScenario"
                 @folder-node-select="handleNodeSelect"
                 @init="handleModuleInit"
-              ></scenarioModuleTree>
-            </div>
-            <div class="flex-1">
-              <a-divider margin="0" />
-              <div class="case">
-                <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
-                  <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
-                  <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
-                </div>
-              </div>
+              ></recycleTree>
             </div>
           </div>
         </template>
         <template #second>
-          <ScenarioTable
+          <RecycleTable
             ref="apiTableRef"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
@@ -51,61 +43,45 @@
         </template>
       </MsSplitBox>
     </div>
-    <div v-else-if="activeApiTab.is" class="pageWrap">
-      <detail :detail="activeApiTab"></detail>
-    </div>
-    <div v-else class="pageWrap">
-      <create :module-tree="folderTree"></create>
-    </div>
+    <detail v-else :detail="activeApiTab"></detail>
   </MsCard>
 </template>
 
 <script setup lang="ts">
   /**
-   * @description 接口测试-接口场景主页
+   * @description 接口测试-接口场景回收站
    */
 
-  import { onBeforeMount, ref } from 'vue';
+  import { ref } from 'vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
-  import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import scenarioModuleTree from './components/scenarioModuleTree.vue';
-  import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
+  import detail from './detail/index.vue';
+  import RecycleTable from '@/views/api-test/scenario/recycle/recycleTable.vue';
+  import recycleTree from '@/views/api-test/scenario/recycle/recycleTree.vue';
 
-  import { getTrashModuleCount } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
-  import router from '@/router';
 
   import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
-
-  import useAppStore from '../../../store/modules/app';
-
-  // 异步导入
-  const detail = defineAsyncComponent(() => import('./detail/index.vue'));
-  const create = defineAsyncComponent(() => import('./create/index.vue'));
 
   const { t } = useI18n();
 
-  const apiTabs = ref<TabItem[]>([
+  const apiTabs = ref<any[]>([
     {
       id: 'all',
-      label: t('apiScenario.allScenario'),
+      label: t('api_scenario.recycle.list'),
       closable: false,
     },
   ]);
-  const activeApiTab = ref<TabItem>(apiTabs.value[0]);
+  const activeApiTab = ref<any>(apiTabs.value[0]);
 
   function newTab() {
     apiTabs.value.push({
       id: `newTab${apiTabs.value.length}`,
       label: `New Tab ${apiTabs.value.length}`,
       closable: true,
-      isNew: true,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
   }
@@ -117,14 +93,7 @@
   const offspringIds = ref<string[]>([]);
   const isShowScenario = ref(false);
 
-  // 获取激活用例类型样式
-  const getActiveClass = (type: string) => {
-    return activeFolder.value === type ? 'folder-text case-active' : 'folder-text';
-  };
-  const appStore = useAppStore();
-  const recycleModulesCount = ref(0);
-
-  const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
+  const recycleTreeRef = ref<InstanceType<typeof recycleTree>>();
 
   function handleModuleInit(tree: any, _protocol: string, pathMap: Record<string, any>) {
     folderTree.value = tree;
@@ -137,21 +106,8 @@
   }
 
   function refreshTree(params: ApiScenarioGetModuleParams) {
-    scenarioModuleTreeRef.value?.initModuleCount(params);
+    recycleTreeRef.value?.initModuleCount(params);
   }
-
-  function redirectRecycle() {
-    router.push({
-      name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,
-    });
-  }
-
-  onBeforeMount(async () => {
-    const res = await getTrashModuleCount({
-      projectId: appStore.currentProjectId,
-    });
-    recycleModulesCount.value = res.all;
-  });
 </script>
 
 <style scoped lang="less">

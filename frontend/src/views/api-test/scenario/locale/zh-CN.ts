@@ -119,4 +119,9 @@ export default {
   'apiScenario.type': '类型',
   'apiScenario.operationUser': '操作人',
   'apiScenario.updateTime': '更新时间',
+
+  // 回收站
+  'api_scenario.recycle.recover': '恢复',
+  'api_scenario.recycle.list': '回收站列表',
+  'api_scenario.recycle.batchCleanOut': '彻底删除',
 };

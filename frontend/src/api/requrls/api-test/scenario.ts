@@ -12,27 +12,14 @@ export const BatchMoveScenarioUrl = '/api/scenario/batch-operation/move'; // 批
 export const BatchCopyScenarioUrl = '/api/scenario/batch-operation/copy'; // 批量复制接口场景
 export const BatchEditScenarioUrl = '/api/scenario/batch-operation/edit'; // 批量编辑接口场景
 
-// export const GetEnvModuleUrl = '/api/scenario/module/env/tree'; // 获取环境的模块树
-// export const AddDefinitionUrl = '/api/scenario/add'; // 添加接口场景
-// export const GetDefinitionDetailUrl = '/api/scenario/get-detail'; // 获取接口场景详情
-// export const TransferFileUrl = '/api/scenario/transfer'; // 文件转存
-// export const TransferFileModuleOptionUrl = '/api/scenario/transfer/options'; // 文件转存目录
-// export const UploadTempFileUrl = '/api/scenario/upload/temp/file'; // 临时文件上传
-// export const DefinitionMockPageUrl = '/api/scenario/mock/page'; // mock列表
-// export const UpdateMockStatusUrl = '/api/scenario/mock/enable/'; // 更新mock状态
-// export const DeleteDefinitionUrl = '/api/scenario/delete-to-gc'; // 删除接口场景
-// export const ImportDefinitionUrl = '/api/scenario/import'; // 导入接口场景
-// export const SortDefinitionUrl = '/api/scenario/edit/pos'; // 接口场景拖拽
-// export const BatchUpdateDefinitionUrl = '/api/scenario/batch-update'; // 批量更新接口场景
-// export const BatchMoveDefinitionUrl = '/api/scenario/batch-move'; // 批量移动接口场景
-
-// export const UpdateDefinitionScheduleUrl = '/api/scenario/schedule/update'; // 接口场景-定时同步-更新
-// export const CheckDefinitionScheduleUrl = '/api/scenario/schedule/check'; // 接口场景-定时同步-检查 url 是否存在
-// export const AddDefinitionScheduleUrl = '/api/scenario/schedule/add'; // 接口场景-定时同步-添加
-// export const SwitchDefinitionScheduleUrl = '/api/scenario/schedule/switch'; // 接口场景-定时同步-开启关闭
-// export const GetDefinitionScheduleUrl = '/api/scenario/schedule/get'; // 接口场景-定时同步-查询
-// export const DeleteDefinitionScheduleUrl = '/api/scenario/schedule/delete'; // 接口场景-定时同步-删除
-// export const DebugDefinitionUrl = '/api/scenario/debug'; // 接口场景-调试
+//  回收站相关
+export const GetTrashModuleTreeUrl = '/api/scenario/module/trash/tree';
+export const GetTrashModuleCountUrl = '/api/scenario/module/trash/count';
+export const ScenarioTrashPageUrl = '/api/scenario/trash/page';
+export const DeleteScenarioUrl = '/api/scenario/delete';
+export const RecoverScenarioUrl = '/api/scenario/recover';
+export const BatchRecoverScenarioUrl = '/api/scenario/batch-operation/recover-gc';
+export const BatchDeleteScenarioUrl = '/api/scenario/batch-operation/delete';
 
 export const ExecuteHistoryUrl = '/api/scenario/execute/page'; // 场景执行历史
 export const ScenarioHistoryUrl = '/api/scenario/operation-history/page'; // 场景变更历史
