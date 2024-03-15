@@ -6,7 +6,7 @@
     "children": [
       {
         "id": "BUG",
-        "name": "permission.bug.name",
+        "name": "permission.bug",
         "permissions": [
           {
             "id": "PROJECT_BUG:READ"

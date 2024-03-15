@@ -3,7 +3,7 @@ export default {
   'project.permission.project': 'Project',
   'project.permission.basicInfo': 'Basic Info',
   'project.permission.menuManagement': 'Menu Setting',
-  'project.permission.templateManager': 'Template Manager',
+  'project.permission.templateManager': 'Template',
   'project.permission.projectVersion': 'Project Version',
   'project.permission.memberPermission': 'Member Permission',
   'project.permission.member': 'Member',

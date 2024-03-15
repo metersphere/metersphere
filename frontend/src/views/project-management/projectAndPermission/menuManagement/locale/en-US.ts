@@ -19,7 +19,7 @@ export default {
   'project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER': 'Script Review',
   'project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP':
     'The interface case contains script steps that need to be reviewed by a designated user; the reviewer can be changed',
-  'project.menu.API_URL_REPEATABLE': 'Interface Definition URL Can Be Repeated',
+  'project.menu.API_URL_REPEATABLE': 'Interface API URL Can Be Repeated',
   'project.menu.API_CLEAN_REPORT': 'Report Retention Time Range',
   'project.menu.API_SHARE_REPORT': 'Report Link Validity Period',
   'project.menu.API_RESOURCE_POOL': 'Execution Resource Pool',

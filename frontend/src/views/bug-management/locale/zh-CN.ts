@@ -1,6 +1,6 @@
 export default {
   bugManagement: {
-    index: '缺陷管理',
+    index: '缺陷',
     addBug: '创建缺陷',
     editBug: '更新缺陷',
     createBug: '创建缺陷',

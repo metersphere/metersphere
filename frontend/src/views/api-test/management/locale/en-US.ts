@@ -97,7 +97,7 @@ export default {
   'apiTestManagement.timeTaskDay': '(every day)',
   'apiTestManagement.customFrequency': 'Custom frequency',
   'apiTestManagement.case': 'Case',
-  'apiTestManagement.definition': 'Definition',
+  'apiTestManagement.definition': 'API',
   'apiTestManagement.debug': 'Debug',
   'apiTestManagement.addDependency': 'Select dependency use case',
   'apiTestManagement.clearSelected': 'Clear selected use cases',
@@ -197,5 +197,4 @@ export default {
   'case.detail.operator': 'operator',
   'case.detail.tableColumnUpdateTime': 'UpdateTime',
   'case.detail.execute.success': 'Execute success',
-
 };
