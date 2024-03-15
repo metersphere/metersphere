@@ -12,9 +12,10 @@
       ref="inputRef"
       v-model:model-value="innerValue"
       :max-length="255"
-      class="param-input"
       :size="props.size"
       :placeholder="t('ms.paramsInput.commonPlaceholder')"
+      class="ms-form-table-input"
+      :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
       @input="(val) => emit('input', val)"
       @change="(val) => emit('change', val)"
     />
