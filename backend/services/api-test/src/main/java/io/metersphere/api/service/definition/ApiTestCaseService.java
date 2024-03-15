@@ -626,6 +626,27 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API_CASE.name());
     }
 
+    /**
+     * 接口执行
+     * 传请求详情执行
+     * @param request
+     * @return
+     */
+    public TaskRequestDTO run(ApiRunRequest request, String userId) {
+        ApiTestCase apiTestCase = checkResourceExist(request.getId());
+        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
+        apiTestCase.setEnvironmentId(request.getEnvironmentId());
+        return executeRun(runRequest, apiTestCase, request.getReportId(), userId);
+    }
+
+    /**
+     * 接口执行
+     * 传ID执行
+     * @param id
+     * @param reportId
+     * @param userId
+     * @return
+     */
     public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiTestCase apiTestCase = checkResourceExist(id);
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
@@ -633,18 +654,61 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
         runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
 
+        return executeRun(runRequest, apiTestCase, reportId, userId);
+    }
+
+    /**
+     * 接口执行
+     * 保存报告
+     * @param runRequest
+     * @param apiTestCase
+     * @param reportId
+     * @param userId
+     * @return
+     */
+    public TaskRequestDTO executeRun(ApiResourceRunRequest runRequest, ApiTestCase apiTestCase, String reportId, String userId) {
         String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
-        // 初始化报告
-        initApiReport(apiTestCase, reportId, poolId, userId);
 
         TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
         taskRequest.getRunModeConfig().setPoolId(poolId);
         taskRequest.setSaveResult(true);
+
+        if (StringUtils.isEmpty(taskRequest.getReportId())) {
+            taskRequest.setRealTime(false);
+            taskRequest.setReportId(IDGenerator.nextStr());
+        } else {
+            // 如果传了报告ID，则实时获取结果
+            taskRequest.setRealTime(true);
+        }
+
+        // 初始化报告
+        initApiReport(apiTestCase, taskRequest.getReportId(), poolId, userId);
+
+        return doExecute(taskRequest, runRequest, apiTestCase.getEnvironmentId());
+    }
+
+    /**
+     * 接口调试
+     * 不存报告，实时获取结果
+     * @param request
+     * @return
+     */
+    public TaskRequestDTO debug(ApiRunRequest request) {
+        TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
+                request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.setSaveResult(false);
         taskRequest.setRealTime(true);
 
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(reportId);
+        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
+
+        return doExecute(taskRequest, runRequest, request.getEnvironmentId());
+    }
+
+    private TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String envId) {
+
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getReportId());
         // 设置环境
-        apiParamConfig.setEnvConfig(environmentService.get(apiTestCase.getEnvironmentId()));
+        apiParamConfig.setEnvConfig(environmentService.get(envId));
 
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
@@ -697,21 +761,6 @@ public class ApiTestCaseService extends MoveNodeService {
         apiReport.setUpdateUser(userId);
         apiReport.setCreateUser(userId);
         return apiReport;
-    }
-
-    public TaskRequestDTO debug(ApiRunRequest request) {
-        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
-
-        TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
-                request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
-        taskRequest.setSaveResult(true);
-        taskRequest.setRealTime(true);
-
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
-        // 设置环境
-        apiParamConfig.setEnvConfig(environmentService.get(request.getEnvironmentId()));
-
-        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 
     public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
