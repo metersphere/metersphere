@@ -39,6 +39,8 @@ const useUserStore = defineStore('user', {
     certification: undefined,
     role: '',
     userRolePermissions: [],
+    userRoles: [],
+    userRoleRelations: [],
     loginType: [],
   }),
 
@@ -56,10 +58,20 @@ const useUserStore = defineStore('user', {
       systemPermissions: string[];
     } {
       const appStore = useAppStore();
+
+      state.userRoleRelations?.forEach(ug => {
+        state.userRolePermissions?.forEach(gp => {
+          if (gp.userRole.id === ug.roleId) {
+            ug.userRolePermissions = gp.userRolePermissions;
+            ug.userRole = gp.userRole;
+          }
+        });
+      });
+
       return {
-        projectPermissions: composePermissions(state.userRolePermissions || [], 'PROJECT', appStore.currentProjectId),
-        orgPermissions: composePermissions(state.userRolePermissions || [], 'ORGANIZATION', appStore.currentOrgId),
-        systemPermissions: composePermissions(state.userRolePermissions || [], 'SYSTEM', 'global'),
+        projectPermissions: composePermissions(state.userRoleRelations || [], 'PROJECT', appStore.currentProjectId),
+        orgPermissions: composePermissions(state.userRoleRelations || [], 'ORGANIZATION', appStore.currentOrgId),
+        systemPermissions: composePermissions(state.userRoleRelations || [], 'SYSTEM', 'global'),
       };
     },
   },

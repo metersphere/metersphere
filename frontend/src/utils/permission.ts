@@ -5,7 +5,7 @@ import { firstLevelMenu } from '@/config/permission';
 import { INDEX_ROUTE } from '@/router/routes/base';
 import appRoutes from '@/router/routes/index';
 import { useAppStore, useUserStore } from '@/store';
-import { SystemScopeType, UserRole, UserRolePermissions } from '@/store/modules/user/types';
+import {SystemScopeType, UserRole, UserRoleRelation} from '@/store/modules/user/types';
 
 export function hasPermission(permission: string, typeList: string[]) {
   const userStore = useUserStore();
@@ -52,31 +52,23 @@ export function hasAllPermission(permissions: string[], typeList = ['PROJECT', '
   return permissions.every((permission) => hasPermission(permission, typeList));
 }
 
-function filterProject(role: UserRole, id: string) {
-  return role && role.type === 'PROJECT' && (role.scopeId === id || role.scopeId === 'global');
-}
-function filterOrganization(role: UserRole, id: string) {
-  return role && role.type === 'ORGANIZATION' && (role.scopeId === id || role.scopeId === 'global');
-}
-function filterSystem(role: UserRole, id: string) {
-  return role && role.type === 'SYSTEM' && role.scopeId === id;
-}
-
-export function composePermissions(userRolePermissions: UserRolePermissions[], type: SystemScopeType, id: string) {
-  let func: (role: UserRole, val: string) => boolean;
+export function composePermissions(userRoleRelations: UserRoleRelation[], type: SystemScopeType, id: string) {
+  let func: (role: UserRole) => boolean;
   switch (type) {
     case 'PROJECT':
-      func = filterProject;
+      func = role => role && role.type === 'PROJECT';
       break;
     case 'ORGANIZATION':
-      func = filterOrganization;
+      func = role => role && role.type === 'ORGANIZATION';
       break;
     default:
-      func = filterSystem;
+      func = role => role && role.type === 'SYSTEM';
       break;
   }
-  return userRolePermissions
-    .filter((ur) => func(ur.userRole, id))
+
+  return userRoleRelations
+    .filter((ur) => func(ur.userRole))
+    .filter((ur) => ur.sourceId === id)
     .flatMap((role) => role.userRolePermissions)
     .map((g) => g.permissionId);
 }
