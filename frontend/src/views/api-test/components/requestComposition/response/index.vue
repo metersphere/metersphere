@@ -130,6 +130,7 @@
         :is-http-protocol="props.isHttpProtocol"
         :is-priority-local-exec="props.isPriorityLocalExec"
         :request-url="props.requestUrl"
+        :is-definition="props.isDefinition"
         @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
       />
     </a-spin>
@@ -162,6 +163,7 @@
       loading?: boolean;
       isEdit?: boolean; // 是否可编辑
       uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+      isDefinition?: boolean;
     }>(),
     {
       activeLayout: 'vertical',
