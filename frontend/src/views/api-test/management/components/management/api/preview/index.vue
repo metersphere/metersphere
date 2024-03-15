@@ -2,6 +2,7 @@
   <div class="h-full w-full overflow-hidden">
     <div class="px-[18px] pt-[16px]">
       <MsDetailCard
+        v-if="!props.isCaseDetail"
         :title="`【${previewDetail.num}】${previewDetail.name}`"
         :description="description"
         :simple-show-count="4"
@@ -37,6 +38,19 @@
           <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
         </template>
       </MsDetailCard>
+      <MsDetailCard
+        v-if="props.isCaseDetail"
+        :title="`【${previewDetail.num}】${previewDetail.name}`"
+        :description="description"
+        :simple-show-count="2"
+      >
+        <template #type="{ value }">
+          <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
+        </template>
+        <template #priority="{ value }">
+          <caseLevel :case-level="value as CaseLevel" />
+        </template>
+      </MsDetailCard>
     </div>
     <div class="h-[calc(100%-124px)]">
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
@@ -65,6 +79,8 @@
 
   import MsDetailCard from '@/components/pure/ms-detail-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import detailTab from './detail.vue';
   import history from './history.vue';
   import quote from './quote.vue';
@@ -85,6 +101,7 @@
     detail: RequestParam;
     moduleTree: ModuleTreeNode[];
     protocols: ProtocolItem[];
+    isCaseDetail?: boolean; // 在用例详情里显示
   }>();
   const emit = defineEmits(['updateFollow']);
 
@@ -95,68 +112,86 @@
 
   watchEffect(() => {
     previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
-    const tableParam = getValidRequestTableParams(previewDetail.value); // 在编辑props.detail时，参数表格会多出一行默认数据，需要去除
-    previewDetail.value = {
-      ...previewDetail.value,
-      body: {
-        ...previewDetail.value.body,
-        formDataBody: {
-          formValues: tableParam.formDataBodyTableParams,
-        },
-        wwwFormBody: {
-          formValues: tableParam.wwwFormBodyTableParams,
-        },
-      },
-      headers: tableParam.headers,
-      rest: tableParam.rest,
-      query: tableParam.query,
-      responseDefinition: tableParam.response,
-    };
+    // TODO: 放在用例详情页面会报错 解决报错后 解开注释
+    // const tableParam = getValidRequestTableParams(previewDetail.value); // 在编辑props.detail时，参数表格会多出一行默认数据，需要去除
+    // previewDetail.value = {
+    //   ...previewDetail.value,
+    //   body: {
+    //     ...previewDetail.value.body,
+    //     formDataBody: {
+    //       formValues: tableParam.formDataBodyTableParams,
+    //     },
+    //     wwwFormBody: {
+    //       formValues: tableParam.wwwFormBodyTableParams,
+    //     },
+    //   },
+    //   headers: tableParam.headers,
+    //   rest: tableParam.rest,
+    //   query: tableParam.query,
+    //   responseDefinition: tableParam.response,
+    // };
   });
 
-  const description = computed(() => [
-    {
-      key: 'type',
-      locale: 'apiTestManagement.apiType',
-      value: previewDetail.value.method,
-    },
-    {
-      key: 'path',
-      locale: 'apiTestManagement.path',
-      value: previewDetail.value.url || previewDetail.value.path,
-    },
-    {
-      key: 'tags',
-      locale: 'common.tag',
-      value: previewDetail.value.tags,
-    },
-    {
-      key: 'description',
-      locale: 'common.desc',
-      value: previewDetail.value.description,
-      width: '100%',
-    },
-    {
-      key: 'belongModule',
-      locale: 'apiTestManagement.belongModule',
-      value: findNodeByKey<ModuleTreeNode>(props.moduleTree, previewDetail.value.moduleId, 'id')?.path,
-    },
-    {
-      key: 'creator',
-      locale: 'common.creator',
-      value: previewDetail.value.createUserName,
-    },
-    {
-      key: 'createTime',
-      locale: 'apiTestManagement.createTime',
-      value: dayjs(previewDetail.value.createTime).format('YYYY-MM-DD HH:mm:ss'),
-    },
-    {
-      key: 'updateTime',
-      locale: 'apiTestManagement.updateTime',
-      value: dayjs(previewDetail.value.updateTime).format('YYYY-MM-DD HH:mm:ss'),
-    },
-  ]);
+  const description = computed(() => {
+    const commonDescription = [
+      {
+        key: 'type',
+        locale: 'apiTestManagement.apiType',
+        value: previewDetail.value.method,
+      },
+      {
+        key: 'path',
+        locale: 'apiTestManagement.path',
+        value: previewDetail.value.url || previewDetail.value.path,
+      },
+      {
+        key: 'tags',
+        locale: 'common.tag',
+        value: previewDetail.value.tags,
+      },
+    ];
+    if (!props.isCaseDetail) {
+      return [
+        ...commonDescription,
+        ...[
+          {
+            key: 'description',
+            locale: 'common.desc',
+            value: previewDetail.value.description,
+            width: '100%',
+          },
+          {
+            key: 'belongModule',
+            locale: 'apiTestManagement.belongModule',
+            value: findNodeByKey<ModuleTreeNode>(props.moduleTree, previewDetail.value.moduleId, 'id')?.path,
+          },
+          {
+            key: 'creator',
+            locale: 'common.creator',
+            value: previewDetail.value.createUserName,
+          },
+          {
+            key: 'createTime',
+            locale: 'apiTestManagement.createTime',
+            value: dayjs(previewDetail.value.createTime).format('YYYY-MM-DD HH:mm:ss'),
+          },
+          {
+            key: 'updateTime',
+            locale: 'apiTestManagement.updateTime',
+            value: dayjs(previewDetail.value.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+          },
+        ],
+      ];
+    }
+    // 处理用例详情的
+    const caseDescription = commonDescription.slice();
+    caseDescription.splice(1, 0, {
+      key: 'priority',
+      locale: 'case.caseLevel',
+      value: previewDetail.value.priority,
+    });
+    return caseDescription;
+  });
 
   const followLoading = ref(false);
   async function toggleFollowReview() {

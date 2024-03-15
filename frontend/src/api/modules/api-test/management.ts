@@ -15,6 +15,7 @@ import {
   BatchUpdateDefinitionUrl,
   CasePageUrl,
   CheckDefinitionScheduleUrl,
+  DebugCaseUrl,
   DebugDefinitionUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
@@ -26,6 +27,7 @@ import {
   DeleteModuleUrl,
   DeleteRecycleApiUrl,
   DeleteRecycleCaseUrl,
+  GetCaseDetailUrl,
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
   GetEnvModuleUrl,
@@ -46,14 +48,18 @@ import {
   SortDefinitionUrl,
   SwitchDefinitionScheduleUrl,
   ToggleFollowDefinitionUrl,
+  TransferFileCaseUrl,
+  TransferFileModuleOptionCaseUrl,
   TransferFileModuleOptionUrl,
   TransferFileUrl,
   UpdateCasePriorityUrl,
   UpdateCaseStatusUrl,
+  UpdateCaseUrl,
   UpdateDefinitionScheduleUrl,
   UpdateDefinitionUrl,
   UpdateMockStatusUrl,
   UpdateModuleUrl,
+  UploadTempFileCaseUrl,
   UploadTempFileUrl,
 } from '@/api/requrls/api-test/management';
 
@@ -348,6 +354,36 @@ export function batchEditCase(data: ApiCaseBatchEditParams) {
 // 拖拽排序
 export function dragSort(data: DragSortParams) {
   return MSR.post({ url: SortCaseUrl, data });
+}
+
+// 更新接口用例
+export function updateCase(data: AddApiCaseParams) {
+  return MSR.post({ url: UpdateCaseUrl, data });
+}
+
+// 接口用例调试
+export function debugCase(data: ExecuteRequestParams) {
+  return MSR.post({ url: DebugCaseUrl, data });
+}
+
+// 文件转存
+export function transferFileCase(data: TransferFileParams) {
+  return MSR.post({ url: TransferFileCaseUrl, data });
+}
+
+// 文件转存目录
+export function getTransferOptionsCase(projectId: string) {
+  return MSR.get<ModuleTreeNode[]>({ url: TransferFileModuleOptionCaseUrl, params: projectId });
+}
+
+// 上传文件
+export function uploadTempFileCase(file: File) {
+  return MSR.uploadFile({ url: UploadTempFileCaseUrl }, { fileList: [file] }, 'file');
+}
+
+// 获取接口用例详情
+export function getCaseDetail(id: string) {
+  return MSR.get<ApiCaseDetail>({ url: GetCaseDetailUrl, params: id });
 }
 
 /**

@@ -169,4 +169,6 @@ export default {
   'case.batchRecoverCaseTip': '确认恢复已选中的 {count} 个用例吗？',
   'case.recycle.recoverCaseTip': '恢复case时会同步恢复被删除的api',
   'case.recycle.confirmRecovery': '确认恢复',
+  'case.createCase': '创建用例',
+  'case.saveContinueText': '保存并继续创建',
 };

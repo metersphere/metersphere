@@ -287,8 +287,8 @@ export interface ApiCasePageParams extends TableQueryParams {
   moduleIds?: string[];
   apiDefinitionId?: string;
 }
-// 用例列表
-export interface ApiCaseDetail {
+// 用例列表和用例详情
+export interface ApiCaseDetail extends ExecuteRequestParams {
   id: string;
   name: string;
   priority: string;
@@ -320,7 +320,7 @@ export interface ApiCaseDetail {
 // 批量操作参数
 export interface ApiCaseBatchParams extends BatchApiParams {
   protocol: string;
-  apiDefinitionId?: string[];
+  apiDefinitionId?: string;
   versionId?: string;
 }
 // 用例批量编辑参数

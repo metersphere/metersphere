@@ -5,6 +5,7 @@
       v-model:active-tab="activeApiTab"
       v-model:tabs="apiTabs"
       class="flex-1 overflow-hidden"
+      :show-add="currentTab === 'api'"
       @add="newTab"
     >
       <template #label="{ tab }">
@@ -36,7 +37,7 @@
     </a-select>
   </div>
   <api
-    v-if="currentTab === 'api'"
+    v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.mode === 'definition'"
     ref="apiRef"
     v-model:active-api-tab="activeApiTab"
     v-model:api-tabs="apiTabs"
@@ -46,10 +47,12 @@
     :module-tree="props.moduleTree"
   />
   <apiCase
-    v-show="currentTab === 'case'"
+    v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.mode === 'case'"
+    v-model:api-tabs="apiTabs"
     v-model:active-api-tab="activeApiTab"
     :active-module="props.activeModule"
     :protocol="props.protocol"
+    :module-tree="props.moduleTree"
   />
 </template>
 
@@ -124,6 +127,7 @@
   // 下拉框切换
   function currentTabChange(val: any) {
     apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
+    activeApiTab.value = apiTabs.value[0] as RequestParam;
   }
 
   watch(

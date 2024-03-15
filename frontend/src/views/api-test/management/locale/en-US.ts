@@ -177,4 +177,6 @@ export default {
   'case.batchRecoverCaseTip': 'Are you sure you want to recover {count} selected cases?',
   'case.recycle.recoverCaseTip': 'When restoring the case, the deleted API will be restored simultaneously.',
   'case.recycle.confirmRecovery': 'Confirm recovery',
+  'case.createCase': 'Create Case',
+  'case.saveContinueText': 'Save & continue',
 };

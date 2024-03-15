@@ -51,6 +51,12 @@
           />
         </a-tab-pane>
         <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
+          <caseTable
+            :is-api="true"
+            :active-module="props.activeModule"
+            :protocol="props.protocol"
+            :api-detail="activeApiTab"
+          />
         </a-tab-pane>
         <!-- <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane> -->
       </a-tabs>
@@ -63,6 +69,7 @@
 
   // import MsButton from '@/components/pure/ms-button/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
+  import caseTable from '../case/caseTable.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
 

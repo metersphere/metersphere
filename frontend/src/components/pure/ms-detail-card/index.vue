@@ -1,6 +1,6 @@
 <template>
   <div class="ms-detail-card">
-    <div class="flex items-center justify-between">
+    <div class="ms-detail-card-title flex items-center justify-between">
       <div class="flex items-center gap-[4px]">
         <a-tooltip :content="t(props.title)">
           <div class="one-line-text flex-1 font-medium text-[var(--color-text-1)]">
@@ -34,6 +34,7 @@
     </div>
     <MsButton
       v-if="props.simpleShowCount !== undefined && props.simpleShowCount > 0"
+      v-show="!props.noMore"
       type="text"
       class="more-btn"
       @click="toggleExpand"
@@ -69,6 +70,7 @@
     title: string;
     description: Description[];
     simpleShowCount?: number; // 简单展示的数量，超过的内容隐藏，并展示更多按钮
+    noMore?: boolean; // 不展示 收起/展示按钮
   }>();
 
   const { t } = useI18n();

@@ -55,12 +55,18 @@ export const GetTrashModuleCountUrl = '/api/definition/module/trash/count'; // �
 
 // --------------------用例
 export const CasePageUrl = '/api/case/page'; // 接口用例列表
+export const UpdateCaseUrl = '/api/case/update'; // 接口用例更新
 export const UpdateCaseStatusUrl = '/api/case/update-status'; // 接口用例更新状态
 export const UpdateCasePriorityUrl = '/api/case/update-priority'; // 接口用例更新等级
 export const DeleteCaseUrl = '/api/case/delete-to-gc'; // 删除接口用例
 export const BatchDeleteCaseUrl = '/api/case/batch/delete-to-gc'; // 批量删除接口用例
 export const BatchEditCaseUrl = '/api/case/batch/edit'; // 批量编辑接口用例
 export const SortCaseUrl = '/api/case/edit/pos'; // 接口用例拖拽
+export const DebugCaseUrl = '/api/case/debug'; // 接口用例调试
+export const TransferFileCaseUrl = '/api/case/transfer'; // 文件转存
+export const TransferFileModuleOptionCaseUrl = '/api/case/transfer/options'; // 文件转存目录
+export const UploadTempFileCaseUrl = '/api/case/upload/temp/file'; // 临时文件上传
+export const GetCaseDetailUrl = '/api/case/get-detail'; // 获取接口用例详情
 
 /**
  * 接口用例回收站

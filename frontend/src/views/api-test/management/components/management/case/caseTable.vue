@@ -1,19 +1,29 @@
 <template>
-  <div class="p-[16px_22px]">
-    <div class="mb-[16px] flex items-center gap-[8px]">
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('apiTestManagement.searchPlaceholder')"
-        allow-clear
-        class="mr-[8px] w-[240px]"
-        @search="loadCaseList"
-        @press-enter="loadCaseList"
-      />
-      <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
-        <template #icon>
-          <icon-refresh class="text-[var(--color-text-4)]" />
-        </template>
+  <div class="overflow-hidden p-[16px_22px]">
+    <div class="mb-[16px] flex items-center justify-between">
+      <a-button
+        v-show="props.isApi"
+        v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+        type="primary"
+        @click="createCase"
+      >
+        {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
+      <div class="flex gap-[8px]">
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('apiTestManagement.searchPlaceholder')"
+          allow-clear
+          class="mr-[8px] w-[240px]"
+          @search="loadCaseList"
+          @press-enter="loadCaseList"
+        />
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
+          <template #icon>
+            <icon-refresh class="text-[var(--color-text-4)]" />
+          </template>
+        </a-button>
+      </div>
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -27,13 +37,14 @@
       @drag-change="handleDragChange"
     >
       <template #num="{ record }">
-        <MsButton type="text">{{ record.num }}</MsButton>
+        <MsButton type="text" @click="openCaseTab(record)">{{ record.num }}</MsButton>
       </template>
       <template #caseLevel="{ record }">
         <a-select
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
+          size="mini"
           @change="() => handleCaseLevelChange(record)"
         >
           <template #label>
@@ -68,13 +79,14 @@
           v-model:model-value="record.status"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
+          size="mini"
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" />
+            <apiStatus :status="record.status" size="small" />
           </template>
           <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
-            <apiStatus :status="item" />
+            <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
       </template>
@@ -144,7 +156,7 @@
           {{ t('apiTestManagement.execute') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0">
+        <MsButton type="text" class="!mr-0" @click="copyCase(record)">
           {{ t('common.copy') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -223,6 +235,13 @@
       </a-button>
     </template>
   </a-modal>
+  <createAndEditCaseDrawer
+    v-if="props.isApi"
+    ref="createAndEditCaseDrawerRef"
+    :protocol="props.protocol"
+    :api-detail="apiDetail as RequestParam"
+    @load-case="loadCaseListAndResetSelector()"
+  />
 </template>
 
 <script setup lang="ts">
@@ -236,6 +255,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
   import {
@@ -258,9 +278,17 @@
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+
   const props = defineProps<{
+    isApi: boolean; // 接口定义详情的case tab下
     activeModule: string;
     protocol: string; // 查看的协议类型
+    apiDetail?: RequestParam;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'openCaseTab', record: ApiCaseDetail): void;
   }>();
 
   const appStore = useAppStore();
@@ -282,7 +310,9 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 130,
+      ellipsis: true,
+      showTooltip: true,
     },
     {
       title: 'case.caseName',
@@ -404,6 +434,7 @@
     selectable: true,
     showSelectAll: true,
     draggable: { type: 'handle', width: 32 },
+    heightUsed: 308,
   });
   const batchActions = {
     baseAction: [
@@ -446,6 +477,7 @@
   });
   function loadCaseList() {
     const params = {
+      apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
@@ -548,6 +580,7 @@
       projectId: appStore.currentProjectId,
       protocol: props.protocol,
       moduleIds: moduleIds.value,
+      apiDefinitionId: props.apiDetail?.id as string,
     };
   });
 
@@ -709,6 +742,18 @@
       default:
         break;
     }
+  }
+
+  const createAndEditCaseDrawerRef = ref<InstanceType<typeof createAndEditCaseDrawer>>();
+  function createCase() {
+    createAndEditCaseDrawerRef.value?.open();
+  }
+  function copyCase(record: ApiCaseDetail) {
+    createAndEditCaseDrawerRef.value?.open(record, true);
+  }
+
+  function openCaseTab(record: ApiCaseDetail) {
+    emit('openCaseTab', record);
   }
 </script>
 
