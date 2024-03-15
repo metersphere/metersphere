@@ -118,6 +118,9 @@ public class ApiTestService {
     public String getPoolId(String projectId) {
         Map<String, Object> configMap = new HashMap<>();
         projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+        if (configMap.isEmpty()) {
+            return null;
+        }
         return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
     }
 }

@@ -6,8 +6,11 @@ import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -64,6 +67,8 @@ public class ApiTestControllerTests extends BaseTest {
     private BasePluginTestService basePluginTestService;
     @Resource
     private BaseEnvTestService baseEnvTestService;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
     @Override
     protected String getBasePath() {
@@ -233,6 +238,12 @@ public class ApiTestControllerTests extends BaseTest {
     public void getPoolId() throws Exception {
         // @@请求成功
         this.requestGet("/get-pool/" + DEFAULT_PROJECT_ID);
+        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
+        List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(example);
+        projectTestResourcePoolMapper.deleteByExample(example);
+        this.requestGet("/get-pool/" + DEFAULT_PROJECT_ID);
+        projectTestResourcePoolMapper.batchInsert(projectTestResourcePools);
     }
 
 }

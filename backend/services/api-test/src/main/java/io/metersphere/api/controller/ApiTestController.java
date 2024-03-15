@@ -112,9 +112,9 @@ public class ApiTestController {
     @GetMapping("/pool-option/{projectId}")
     @Operation(summary = "接口测试-获取资源池")
     @RequiresPermissions(value = {
-            PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE,
-            PermissionConstants.PROJECT_API_DEFINITION_EXECUTE,
-            PermissionConstants.PROJECT_API_SCENARIO_EXECUTE
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
     }, logical = Logical.OR)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<TestResourcePool> getPool(@PathVariable String projectId) {
@@ -124,9 +124,9 @@ public class ApiTestController {
     @GetMapping("/get-pool/{projectId}")
     @Operation(summary = "接口测试-获取资源池")
     @RequiresPermissions(value = {
-            PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE,
-            PermissionConstants.PROJECT_API_DEFINITION_EXECUTE,
-            PermissionConstants.PROJECT_API_SCENARIO_EXECUTE
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
     }, logical = Logical.OR)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public String getPoolId(@PathVariable String projectId) {
