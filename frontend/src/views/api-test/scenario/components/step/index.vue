@@ -123,7 +123,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import executeStatus from '../common/executeStatus.vue';
-  import importApiDrawer from '../common/importApiDrawer.vue';
+  import importApiDrawer from '../common/importApiDrawer/index.vue';
   import stepType from '../common/stepType.vue';
 
   import { useI18n } from '@/hooks/useI18n';

@@ -124,4 +124,9 @@ export default {
   'api_scenario.recycle.recover': '恢复',
   'api_scenario.recycle.list': '回收站列表',
   'api_scenario.recycle.batchCleanOut': '彻底删除',
+  'apiScenario.quoteTreeNoData': '暂无可引用数据，可切换项目获取数据',
+  'apiScenario.quoteTreeSearchTip': '输入模块名称搜索',
+  'apiScenario.quoteTableSearchTip': '通过路径或名称搜索',
+  'apiScenario.collapseAll': '收起全部子模块',
+  'apiScenario.expandAll': '展开全部子模块',
 };

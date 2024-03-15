@@ -9,6 +9,8 @@
 </template>
 
 <script setup lang="ts">
+  import preview from '@/views/api-test/management/components/management/api/preview/index.vue';
+
   import { getProtocolList } from '@/api/modules/api-test/common';
   import useAppStore from '@/store/modules/app';
 
@@ -16,8 +18,6 @@
   import { ModuleTreeNode } from '@/models/common';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
-
-  const preview = defineAsyncComponent(() => import('../api/preview/index.vue'));
 
   const props = defineProps<{
     moduleTree: ModuleTreeNode[]; // 模块树

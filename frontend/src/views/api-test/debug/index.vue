@@ -150,6 +150,7 @@
 
   const initDefaultId = `debug-${Date.now()}`;
   const defaultDebugParams: RequestParam = {
+    type: 'api',
     id: initDefaultId,
     moduleId: 'root',
     protocol: 'HTTP',

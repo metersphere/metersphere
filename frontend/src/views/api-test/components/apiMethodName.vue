@@ -1,16 +1,19 @@
 <template>
-  <MsTag
-    v-if="props.isTag"
-    :self-style="{
-      border: `1px solid ${props.tagBackgroundColor || methodColor}`,
-      color: props.tagTextColor || methodColor,
-      backgroundColor: props.tagBackgroundColor || 'white',
-    }"
-    :size="props.tagSize"
-  >
-    {{ props.method }}
-  </MsTag>
-  <div v-else class="font-medium" :style="{ color: methodColor }">{{ props.method }}</div>
+  <div v-if="props.method">
+    <MsTag
+      v-if="props.isTag"
+      :self-style="{
+        border: `1px solid ${props.tagBackgroundColor || methodColor}`,
+        color: props.tagTextColor || methodColor,
+        backgroundColor: props.tagBackgroundColor || 'white',
+      }"
+      :size="props.tagSize"
+    >
+      {{ props.method }}
+    </MsTag>
+    <div v-else class="font-medium" :style="{ color: methodColor }">{{ props.method }}</div>
+  </div>
+  <div v-else>-</div>
 </template>
 
 <script setup lang="ts">
@@ -20,7 +23,7 @@
 
   const props = withDefaults(
     defineProps<{
-      method: RequestMethods;
+      method?: RequestMethods;
       isTag?: boolean;
       tagSize?: Size;
       tagBackgroundColor?: string;
@@ -60,8 +63,11 @@
   ];
 
   const methodColor = computed(() => {
-    const colorMap = colorMaps.find((item) => item.includes.includes(props.method));
-    return colorMap?.color || 'rgb(var(--link-7))'; // 方法映射内找不到对应的 key 说明是插件，所有的插件协议颜色都是一样的
+    if (props.method) {
+      const colorMap = colorMaps.find((item) => item.includes.includes(props.method!));
+      return colorMap?.color || 'rgb(var(--link-7))'; // 方法映射内找不到对应的 key 说明是插件，所有的插件协议颜色都是一样的
+    }
+    return 'rgb(var(--link-7))';
   });
 </script>
 

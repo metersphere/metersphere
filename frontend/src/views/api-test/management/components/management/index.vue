@@ -37,7 +37,7 @@
     </a-select>
   </div>
   <api
-    v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.mode === 'definition'"
+    v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.type === 'api'"
     ref="apiRef"
     v-model:active-api-tab="activeApiTab"
     v-model:api-tabs="apiTabs"
@@ -47,7 +47,7 @@
     :module-tree="props.moduleTree"
   />
   <apiCase
-    v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.mode === 'case'"
+    v-if="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
     v-model:api-tabs="apiTabs"
     v-model:active-api-tab="activeApiTab"
     :active-module="props.activeModule"
@@ -133,7 +133,7 @@
   watch(
     () => activeApiTab.value.id,
     () => {
-      if (typeof setActiveApi === 'function' && !activeApiTab.value.isNew) {
+      if (typeof setActiveApi === 'function' && !activeApiTab.value.isNew && activeApiTab.value.type === 'api') {
         // 打开的 tab 是接口详情的 tab 才需要同步设置模块树的激活节点
         setActiveApi(activeApiTab.value);
       }

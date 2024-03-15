@@ -11,7 +11,7 @@
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
-      <a-tabs v-model:active-key="definitionActiveKey" animation lazy-load class="ms-api-tab-nav">
+      <a-tabs v-model:active-key="activeApiTab.definitionActiveKey" animation lazy-load class="ms-api-tab-nav">
         <a-tab-pane
           v-if="!activeApiTab.isNew"
           key="preview"
@@ -19,7 +19,7 @@
           class="ms-api-tab-pane"
         >
           <preview
-            v-if="definitionActiveKey === 'preview'"
+            v-if="activeApiTab.definitionActiveKey === 'preview'"
             :detail="activeApiTab"
             :module-tree="props.moduleTree"
             :protocols="protocols"
@@ -116,7 +116,6 @@
 
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
-  const definitionActiveKey = ref('definition');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
   const appStore = useAppStore();
@@ -145,6 +144,8 @@
 
   const initDefaultId = `definition-${Date.now()}`;
   const defaultDefinitionParams: RequestParam = {
+    type: 'api',
+    definitionActiveKey: 'definition',
     id: initDefaultId,
     moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
     protocol: 'HTTP',
@@ -220,12 +221,10 @@
       label: t('apiTestManagement.newApi'),
       id,
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
+      definitionActiveKey: !defaultProps ? 'definition' : 'preview',
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
-    if (!defaultProps) {
-      definitionActiveKey.value = 'definition';
-    }
   }
 
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
@@ -257,7 +256,6 @@
       loading.value = true;
       const res = await getDefinitionDetail(typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
       const name = isCopy ? `copy-${res.name}` : res.name;
-      definitionActiveKey.value = isCopy || isExecute ? 'definition' : 'preview';
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
@@ -276,6 +274,7 @@
         id: isCopy ? new Date().getTime() : res.id,
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
+        definitionActiveKey: isCopy || isExecute ? 'definition' : 'preview',
         ...parseRequestBodyResult,
       });
       nextTick(() => {

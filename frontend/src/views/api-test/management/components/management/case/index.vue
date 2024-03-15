@@ -8,7 +8,7 @@
         @open-case-tab="openCaseTab"
       />
     </div>
-    <div v-show="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
+    <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <caseDetail :active-api-tab="activeApiTab" :module-tree="props.moduleTree" />
     </div>
   </div>
@@ -18,7 +18,6 @@
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import caseDetail from './caseDetail.vue';
   import caseTable from './caseTable.vue';
 
   import { getCaseDetail } from '@/api/modules/api-test/management';
@@ -30,6 +29,9 @@
   import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
+
+  // 非首屏渲染的大量内容的组件异步导入
+  const caseDetail = defineAsyncComponent(() => import('./caseDetail.vue'));
 
   const props = defineProps<{
     activeModule: string;
@@ -47,6 +49,7 @@
 
   const initDefaultId = `case-${Date.now()}`;
   const defaultCaseParams: RequestParam = {
+    type: 'case',
     id: initDefaultId,
     moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
     protocol: 'HTTP',
@@ -105,7 +108,7 @@
     response: cloneDeep(defaultResponse),
     responseDefinition: [cloneDeep(defaultResponseItem)],
     isNew: true,
-    mode: 'case',
+    unSaved: false,
     executeLoading: false,
     preDependency: [], // 前置依赖
     postDependency: [], // 后置依赖

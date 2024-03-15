@@ -363,8 +363,13 @@
     }
   });
 
-  async function handleFileChange() {
+  async function handleFileChange(files: MsFileItem[]) {
     if (!props.uploadTempFileApi) return;
+    if (files.length === 0) {
+      activeResponse.value.binaryBody.file = undefined;
+      emit('change');
+      return;
+    }
     try {
       if (fileList.value[0]?.local && fileList.value[0].file) {
         appStore.showLoading();
