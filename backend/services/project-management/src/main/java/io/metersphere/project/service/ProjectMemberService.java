@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @author song-cc-rock
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class ProjectMemberService {
 
     @Resource
