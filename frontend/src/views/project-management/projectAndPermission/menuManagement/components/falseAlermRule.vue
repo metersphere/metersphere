@@ -27,7 +27,7 @@
       <template #operation="{ record }">
         <template v-if="!record.enable">
           <div class="flex flex-row">
-            <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+            <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
               <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{
                 t('common.enable')
               }}</MsButton>
@@ -44,11 +44,11 @@
           </div>
         </template>
         <template v-else>
-          <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
             <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
             <a-divider direction="vertical" />
           </span>
-          <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
             <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
               t('common.disable')
             }}</MsButton>
@@ -152,18 +152,18 @@
       {
         label: 'common.enable',
         eventTag: 'batchEnable',
-        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
+        permission: ['PROJECT_APPLICATION_API:UPDATE'],
       },
       {
         label: 'common.disable',
         eventTag: 'batchDisable',
-        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
+        permission: ['PROJECT_APPLICATION_API:UPDATE'],
       },
       {
         label: 'common.delete',
         eventTag: 'batchDelete',
         danger: true,
-        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
+        permission: ['PROJECT_APPLICATION_API:UPDATE'],
       },
     ],
   };
@@ -470,7 +470,6 @@
         handleDelete(params);
     }
   }
-
 
   onMounted(() => {
     setLoadListParams({ projectId: currentProjectId.value });
