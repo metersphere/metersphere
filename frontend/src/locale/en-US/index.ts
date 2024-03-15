@@ -22,6 +22,7 @@ export default {
     'menu.workbench': 'Workbench',
     'menu.testPlan': 'Test Plan',
     'menu.bugManagement': 'Bug',
+    ' menu.bugManagement.bugRecycle': 'Recycle',
     'menu.caseManagement': 'Case Management',
     'menu.apiTest': 'API Test',
     'menu.apiTest.debug': 'API debug',

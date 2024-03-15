@@ -4,7 +4,7 @@
       <slot name="quickCreate"></slot>
     </div>
     <a-table
-      v-bind="{ ...$attrs, ...scrollObj }"
+      v-bind="$attrs"
       :row-class="getRowClass"
       :span-method="spanMethod"
       :columns="currentColumns"
@@ -390,7 +390,7 @@
     return undefined;
   });
 
-  let scrollObj: Record<string, any> = {};
+  // let scrollObj: Record<string, any> = {};
   const initColumn = async (arr?: MsTableColumn) => {
     try {
       let tmpArr: MsTableColumn = [];
@@ -401,29 +401,29 @@
       }
       currentColumns.value = arr || tmpArr;
       // 如果是完全没有列展示除了固定列需要对操作列宽度进行限制和浮动位置限制
-      if (props.showSetting) {
-        const isNoDragColumns = currentColumns.value.filter((item) => item.showDrag).length;
-        if (!isNoDragColumns) {
-          currentColumns.value = tmpArr.map((item: any) => {
-            if (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION) {
-              return {
-                ...item,
-              };
-            }
-            return {
-              ...item,
-              width: '',
-            };
-          });
-          scrollObj = {
-            scroll: {
-              x: 'auto',
-            },
-          };
-        } else {
-          scrollObj = {};
-        }
-      }
+      // if (props.showSetting) {
+      //   const isNoDragColumns = currentColumns.value.filter((item) => item.showDrag).length;
+      //   if (!isNoDragColumns) {
+      //     currentColumns.value = tmpArr.map((item: any) => {
+      //       if (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION) {
+      //         return {
+      //           ...item,
+      //         };
+      //       }
+      //       return {
+      //         ...item,
+      //         width: '',
+      //       };
+      //     });
+      //     scrollObj = {
+      //       scroll: {
+      //         x: 'auto',
+      //       },
+      //     };
+      //   } else {
+      //     scrollObj = {};
+      //   }
+      // }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('InitColumn failed', error);
