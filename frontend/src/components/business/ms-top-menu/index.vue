@@ -87,9 +87,9 @@
           const filterMenuTopRouter =
             currentParent?.children?.filter((item: any) => {
               if (permission.accessRouter(item) && item.meta?.isTopMenu) {
-                // if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
-                //   return appStore.packageType === 'enterprise';
-                // }
+                if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
+                  return appStore.packageType === 'enterprise';
+                }
                 return true;
               }
               return false;
