@@ -563,10 +563,11 @@
   );
 
   export interface RequestCustomAttr {
+    type: 'api' | 'case' | 'mock' | 'doc'; // 展示的请求 tab 类型；api包含了接口调试和接口定义
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
-    mode?: 'definition' | 'debug' | 'case';
+    mode?: 'definition' | 'debug'; // 接口定义时，展示的定义模式/调试模式（显示的 tab 不同）
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
@@ -673,6 +674,7 @@
   ];
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
+    // HTTP 协议 tabs
     if (isHttpProtocol.value) {
       if (props.isDefinition) {
         // 接口定义，定义模式隐藏前后置、断言
@@ -683,6 +685,7 @@
       // 接口调试无断言
       return httpContentTabList.filter((e) => e.value !== RequestComposition.ASSERTION);
     }
+    // 插件 tabs
     if (props.isDefinition) {
       // 接口定义，定义模式隐藏前后置、断言
       return requestVModel.value.mode === 'definition'
@@ -1203,7 +1206,7 @@
           await initProtocolList();
         }
         await initPluginScript();
-      } else {
+      } else if (protocolOptions.value.length === 0) {
         await initProtocolList();
       }
       if (props.request.isExecute && !requestVModel.value.executeLoading) {

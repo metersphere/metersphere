@@ -409,14 +409,20 @@
     }
   }
 
-  watchEffect(() => {
-    previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
-    [activeResponse.value] = previewDetail.value.responseDefinition || [];
-    if (previewDetail.value.protocol !== 'HTTP') {
-      // 初始化插件脚本
-      initPluginScript(previewDetail.value.protocol);
+  watch(
+    () => props.detail.id,
+    () => {
+      previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+      [activeResponse.value] = previewDetail.value.responseDefinition || [];
+      if (previewDetail.value.protocol !== 'HTTP') {
+        // 初始化插件脚本
+        initPluginScript(previewDetail.value.protocol);
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 
   const activeDetailKey = ref(['request', 'response']);
 

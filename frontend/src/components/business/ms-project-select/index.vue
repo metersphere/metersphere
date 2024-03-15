@@ -23,6 +23,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'update:project', val: string): void;
+    (e: 'change', val: string): void;
   }>();
 
   const appStore = useAppStore();
@@ -61,6 +62,7 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     emit('update:project', value as string);
+    emit('change', value as string);
   }
 </script>
 

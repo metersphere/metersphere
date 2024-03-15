@@ -30,7 +30,6 @@
 
 <script lang="ts" setup>
   import { provide } from 'vue';
-  import { useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -38,12 +37,8 @@
   import moduleTree from './components/moduleTree.vue';
   import management from './components/recycle/index.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
   import { ModuleTreeNode } from '@/models/common';
 
-  const { t } = useI18n();
-  const router = useRouter();
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});

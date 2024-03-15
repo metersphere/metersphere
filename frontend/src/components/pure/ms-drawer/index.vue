@@ -57,7 +57,7 @@
     >
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
-    <a-scrollbar class="h-full overflow-y-auto">
+    <a-scrollbar class="ms-drawer-body-scrollbar">
       <div class="ms-drawer-body">
         <slot>
           <MsDescription
@@ -294,6 +294,15 @@
     }
   }
   .ms-drawer {
+    .arco-drawer-body {
+      @apply overflow-hidden;
+    }
+    .ms-drawer-body-scrollbar {
+      @apply h-full w-full overflow-auto;
+
+      min-width: 680px;
+      min-height: 500px;
+    }
     .ms-drawer-body {
       @apply h-full;
     }

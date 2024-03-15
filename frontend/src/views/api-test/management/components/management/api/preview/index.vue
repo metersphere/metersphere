@@ -109,27 +109,33 @@
 
   const previewDetail = ref<RequestParam>(cloneDeep(props.detail));
 
-  watchEffect(() => {
-    previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
-    if (props.isCaseDetail) return;
-    const tableParam = getValidRequestTableParams(previewDetail.value); // 在编辑props.detail时，参数表格会多出一行默认数据，需要去除
-    previewDetail.value = {
-      ...previewDetail.value,
-      body: {
-        ...previewDetail.value.body,
-        formDataBody: {
-          formValues: tableParam.formDataBodyTableParams,
+  watch(
+    () => props.detail.id,
+    () => {
+      previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+      if (props.isCaseDetail) return;
+      const tableParam = getValidRequestTableParams(previewDetail.value); // 在编辑props.detail时，参数表格会多出一行默认数据，需要去除
+      previewDetail.value = {
+        ...previewDetail.value,
+        body: {
+          ...previewDetail.value.body,
+          formDataBody: {
+            formValues: tableParam.formDataBodyTableParams,
+          },
+          wwwFormBody: {
+            formValues: tableParam.wwwFormBodyTableParams,
+          },
         },
-        wwwFormBody: {
-          formValues: tableParam.wwwFormBodyTableParams,
-        },
-      },
-      headers: tableParam.headers,
-      rest: tableParam.rest,
-      query: tableParam.query,
-      responseDefinition: tableParam.response,
-    };
-  });
+        headers: tableParam.headers,
+        rest: tableParam.rest,
+        query: tableParam.query,
+        responseDefinition: tableParam.response,
+      };
+    },
+    {
+      immediate: true,
+    }
+  );
 
   const description = computed(() => {
     const commonDescription = [
