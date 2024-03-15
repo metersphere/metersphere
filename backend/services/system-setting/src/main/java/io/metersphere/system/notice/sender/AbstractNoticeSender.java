@@ -251,6 +251,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     realReceivers.add(receiver);
                 }
             }
+        } else {
+            realReceivers = receivers;
         }
         return realReceivers;
     }

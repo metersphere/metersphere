@@ -332,6 +332,12 @@
       }
     }
   };
+  const getOptionFromTemplate = (field: CustomFieldItem | undefined) => {
+    if (field) {
+      return field.options ? field.options : JSON.parse(field.platformOptionJson);
+    }
+    return [];
+  };
   async function loadedBug(detail: BugEditFormObject) {
     detailInfo.value = { ...detail };
     const { templateId } = detailInfo.value;
@@ -354,8 +360,9 @@
       const SINGRADIO_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
       detail.customFields.forEach((item) => {
         if (MULTIPLE_TYPE.includes(item.type)) {
-          const multipleOptions =
-            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          const multipleOptions = getOptionFromTemplate(
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
+          );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           if (item.type !== 'MULTIPLE_INPUT') {
@@ -372,8 +379,9 @@
             tmpObj[item.id] = arr[arr.length - 1];
           }
         } else if (SINGRADIO_TYPE.includes(item.type)) {
-          const multipleOptions =
-            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)?.options || [];
+          const multipleOptions = getOptionFromTemplate(
+            currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
+          );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           const currentDefaultValue = optionsIds.find((e: any) => item.value === e) || '';

@@ -15,7 +15,7 @@
     @confirm="handleConfirm"
   >
     <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
-      <a-form-item field="platformKey" :label="t('project.menu.platformLabel')">
+      <a-form-item field="PLATFORM_KEY" :label="t('project.menu.platformLabel')">
         <a-select
           v-model="form.PLATFORM_KEY"
           allow-clear
@@ -250,11 +250,13 @@
       await initPlatformOption();
       const res = await getBugSyncInfo(currentProjectId.value);
       if (res && res.platform_key) {
-        form.SYNC_ENABLE = res.sync_enable;
-        form.PLATFORM_KEY = res.platform_key;
         formCreateValue.value = JSON.parse(res.bug_platform_config);
         // 如果平台key存在调用平台change拉取插件字段
         await handlePlatformChange(res.platform_key);
+        form.SYNC_ENABLE = res.sync_enable;
+        form.PLATFORM_KEY = res.platform_key;
+        form.MECHANISM = res.mechanism;
+        form.CRON_EXPRESSION = res.cron_expression;
       }
     } catch (e) {
       // eslint-disable-next-line no-console
