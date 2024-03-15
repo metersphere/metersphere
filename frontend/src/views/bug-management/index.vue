@@ -226,7 +226,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  // import BugDetailDrawer from './components/bug-detail-drawer.vue';
+  import BugDetailDrawer from './components/bug-detail-drawer.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
@@ -264,7 +264,6 @@
   const DeleteModal = defineAsyncComponent(() => import('./components/deleteModal.vue'));
   const MsBaseTable = defineAsyncComponent(() => import('@/components/pure/ms-table/base-table.vue'));
   const BatchEditModal = defineAsyncComponent(() => import('./components/batchEditModal.vue'));
-  const BugDetailDrawer = defineAsyncComponent(() => import('./components/bug-detail-drawer.vue'));
 
   const tableStore = useTableStore();
   const appStore = useAppStore();

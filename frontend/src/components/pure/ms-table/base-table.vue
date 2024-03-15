@@ -4,7 +4,7 @@
       <slot name="quickCreate"></slot>
     </div>
     <a-table
-      v-bind="$attrs"
+      v-bind="{ ...$attrs, ...scrollObj }"
       :row-class="getRowClass"
       :span-method="spanMethod"
       :columns="currentColumns"
@@ -390,6 +390,7 @@
     return undefined;
   });
 
+  let scrollObj: Record<string, any> = {};
   const initColumn = async (arr?: MsTableColumn) => {
     try {
       let tmpArr: MsTableColumn = [];
@@ -407,13 +408,20 @@
             if (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION) {
               return {
                 ...item,
-                fixed: '',
               };
             }
             return {
               ...item,
+              width: '',
             };
           });
+          scrollObj = {
+            scroll: {
+              x: 'auto',
+            },
+          };
+        } else {
+          scrollObj = {};
         }
       }
     } catch (error) {
