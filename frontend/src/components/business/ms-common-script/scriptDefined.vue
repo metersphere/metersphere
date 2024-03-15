@@ -52,7 +52,7 @@
     width="100%"
     height="calc(100vh - 155px)"
     theme="vs"
-    :language="(innerLanguagesType as Language)"
+    language="PLAINTEXT"
     :read-only="false"
     :show-full-screen="false"
     :show-theme-change="false"

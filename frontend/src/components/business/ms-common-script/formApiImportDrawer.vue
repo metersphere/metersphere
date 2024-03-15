@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="exportScriptDrawer"
-    :title="t('project.commonScript.insertCommonScript')"
+    :title="t('project.code_segment.importApiTest')"
     :width="1200"
     unmount-on-close
     :show-continue="false"
@@ -78,7 +78,11 @@
             </div>
           </template>
         </MsAdvanceFilter>
-        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent"> </ms-base-table>
+        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
+          <template #method="{ record }">
+            <apiMethodName :method="record.method" is-tag class="flex items-center" />
+          </template>
+        </ms-base-table>
       </div>
     </div>
   </MsDrawer>
@@ -98,6 +102,7 @@
   import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import {
     getFormApiImportModule,
@@ -213,12 +218,6 @@
       width: 200,
     },
     {
-      title: 'project.commonScript.responsible',
-      slotName: 'responsible',
-      dataIndex: 'responsible',
-      width: 200,
-    },
-    {
       title: 'project.commonScript.path',
       slotName: 'path',
       dataIndex: 'path',
@@ -232,14 +231,14 @@
     },
     {
       title: 'ms.case.associate.version',
-      dataIndex: 'versionId',
-      slotName: 'versionId',
+      dataIndex: 'versionName',
+      slotName: 'versionName',
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 300,
     },

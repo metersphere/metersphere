@@ -537,6 +537,9 @@
       }
     }
   }
+  :deep(.halo-rich-text-editor .ProseMirror) {
+    word-break: break-word;
+  }
   :deep(.editor-header) {
     svg {
       color: var(--color-text-3) !important;

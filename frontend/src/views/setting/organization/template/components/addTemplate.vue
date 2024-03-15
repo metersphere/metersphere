@@ -403,16 +403,23 @@
     isContinueFlag.value = isContinue;
     formRef.value?.validate().then((res) => {
       if (!res) {
-        const allValidatePromises = Object.keys(refStepMap).map((key) => {
-          return refStepMap[key].validate();
-        });
+        // const allThirdApi = selectData.value.filter(
+        //   (item: any) =>
+        //     item.formRules[0].value || (Array.isArray(item.formRules[0].value) && item.formRules[0].value.length)
+        // );
 
-        Promise.all(allValidatePromises).then((results) => {
-          const allValid = results.every((result) => !result);
-          if (allValid) {
-            return save();
-          }
-        });
+        // const allThirdApiIds = allThirdApi.map((item) => item.fieldId);
+        // const allValidatePromises = Object.keys(refStepMap).map((key) => {
+        //   return refStepMap[key].validate();
+        // });
+
+        // Promise.all(allValidatePromises).then((results) => {
+        //   const allValid = results.every((result) => !result);
+        //   if (allValid) {
+        //     return save();
+        //   }
+        // });
+        return save();
       }
       return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
     });
