@@ -108,6 +108,16 @@
         headers.set('Content-type', 'application/json');
         return getCodeTemplate(innerLanguageType.value, { requestHeaders: headers });
       }
+      case 'api_stop': {
+        if (innerLanguageType.value === LanguageEnum.PYTHON) {
+          return `
+          import java
+          StandardJMeterEngine = java.type('org.apache.jmeter.engine.StandardJMeterEngine')
+          StandardJMeterEngine.stopThreadNow(ctx.getThread().getThreadName())
+          `;
+        }
+        return 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());';
+      }
       default:
         return '';
     }

@@ -75,7 +75,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { Language } from '@/components/pure/ms-code-editor/types';
+  import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FormApiImportDrawer from './formApiImportDrawer.vue';
   import InsertCommonScript from './insertCommonScript.vue';
@@ -161,10 +161,17 @@
     } else {
       let scriptStr = '';
       data.forEach((item) => {
-        scriptStr += `
+        if (item.type === LanguageEnum.PYTHON) {
+          scriptStr += `
+# ${item.name}
+${item.script}
+`;
+        } else {
+          scriptStr += `
 // ${item.name}
 ${item.script}
 `;
+        }
       });
       codeEditorRef.value?.insertContent(scriptStr);
       showInsertDrawer.value = false;

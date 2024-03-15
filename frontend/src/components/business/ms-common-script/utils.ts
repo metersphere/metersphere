@@ -49,7 +49,8 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
   },
   {
     title: t('project.processor.terminationTest'),
-    value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
+    value: 'api_stop',
+    command: 'api_stop',
   },
 ];
 
@@ -235,17 +236,20 @@ function _pythonCodeTemplate(obj) {
 
   const host = domain + (port ? `:${port}` : '');
 
-  return `import httplib,urllib
+  return `import http.client
+import urllib.parse
 params = ${reqBody} #例 {'username':'test'}
 headers = ${headers} #例 {'Content-Type':'application/json'} 或 {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
+# Specify the host and the HTTP endpoint you want to hit
 host = '${host}'
 path = '${requestPath}'
 method = '${requestMethod}' # POST/GET
 
-conn = httplib.${connType}(host)
-conn.request(method, path, params, headers)
+conn = http.client.${connType}(host)
+conn.request(method, path, urllib.parse.urlencode(params), headers)
 res = conn.getresponse()
-data = unicode(res.read(), 'utf-8')
+data = res.read().decode('utf-8')
+conn.close()
 log.info(data)
 `;
 }
