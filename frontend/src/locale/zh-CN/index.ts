@@ -22,6 +22,7 @@ export default {
     'menu.testPlan': '测试计划',
     'menu.bugManagement': '缺陷管理',
     'menu.bugManagement.bugDetail': '缺陷管理',
+    'menu.bugManagement.bugRecycle': '回收站',
     'menu.caseManagement': '用例管理',
     'menu.apiTest': '接口测试',
     'menu.apiTest.debug': '接口调试',

@@ -119,7 +119,7 @@ export const pathMap: PathMapItem[] = [
     level: MENU_LEVEL[2],
     children: [
       {
-        key: 'BUG_MANAGEMENT_BUG_INDEX', // 缺陷管理-缺陷首页
+        key: 'BUG_MANAGEMENT_BUG_INDEX', // 缺陷管理
         locale: 'menu.bugManagement.bugDetail',
         route: RouteEnum.BUG_MANAGEMENT_INDEX,
         permission: [],
@@ -127,15 +127,7 @@ export const pathMap: PathMapItem[] = [
         alias: 'BUG_SYNC_TASK',
       },
       {
-        key: 'BUG_MANAGEMENT_BUG_DETAIL', // 缺陷管理-缺陷详情
-        locale: 'menu.bugManagement.bugDetail',
-        route: RouteEnum.BUG_MANAGEMENT_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-        alias: 'BUG_TASK',
-      },
-      {
-        key: 'BUG_MANAGEMENT_BUG_recycle', // 缺陷管理-回收站
+        key: 'BUG_MANAGEMENT_BUG_RECYCLE', // 缺陷管理-回收站
         locale: 'menu.bugManagement.bugRecycle',
         route: RouteEnum.BUG_MANAGEMENT_RECYCLE,
         permission: [],
