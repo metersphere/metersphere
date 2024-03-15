@@ -54,7 +54,7 @@
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="caseFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="item of caseLevelList" :key="item.value" :value="item.value">
+                  <a-checkbox v-for="item of caseLevelList" :key="item.text" :value="item.text">
                     <caseLevel :case-level="item.text" />
                   </a-checkbox>
                 </a-checkbox-group>
@@ -140,7 +140,7 @@
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0">
+        <MsButton type="text" class="!mr-0" @click="onExecute(record.id)">
           {{ t('apiTestManagement.execute') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -223,6 +223,97 @@
       </a-button>
     </template>
   </a-modal>
+  <a-modal v-model:visible="showBatchExecute" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
+    <template #title>
+      {{ t('report.trigger.batch.execution') }}
+      <div class="text-[var(--color-text-4)]">
+        {{
+          t('case.batchModalSubTitle', {
+            count: batchParams.currentSelectCount || tableSelected.length,
+          })
+        }}
+      </div>
+    </template>
+
+    <a-form ref="batchExecuteFormRef" class="rounded-[4px]" :model="batchExecuteForm" layout="vertical">
+      <a-form-item field="defaultEnv" :label="t('case.execute.selectEnv')">
+        <a-radio-group v-model="batchExecuteForm.defaultEnv">
+          <a-radio value="true"
+            >{{ t('case.execute.defaultEnv') }}
+            <a-tooltip :content="t('case.execute.defaultEnvTip')" position="top">
+              <icon-question-circle
+                class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              /> </a-tooltip
+          ></a-radio>
+          <a-radio value="false">{{ t('case.execute.newEnv') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        v-if="batchExecuteForm.defaultEnv == 'false'"
+        field="environmentId"
+        :label="t('case.execute.newEnv')"
+        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        asterisk-position="end"
+        required
+      >
+        <a-select v-model="batchExecuteForm.environmentId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item field="runMode" :label="t('case.execute.model')">
+        <a-radio-group v-model="batchExecuteForm.runMode">
+          <a-radio value="SERIAL">{{ t('case.execute.serial') }}</a-radio>
+          <a-radio value="PARALLEL">{{ t('case.execute.parallel') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <div v-if="batchExecuteForm.runMode == 'SERIAL'" class="ms-switch">
+        <a-switch
+          v-model="batchExecuteForm.stopOnFailure"
+          type="line"
+          class="ms-form-table-input-switch execute-form-table-input-switch"
+          size="small"
+        />
+        <span class="ml-3 font-normal text-[var(--color-text-1)]">{{ t('case.execute.StopOnFailure') }}</span>
+      </div>
+      <a-form-item field="integratedReport" :label="t('case.execute.reportSetting')">
+        <a-radio-group v-model="batchExecuteForm.integratedReport" type="button">
+          <a-radio value="false">{{ t('case.execute.independentReporting') }}</a-radio>
+          <a-radio value="true">{{ t('case.execute.CollectionReport') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        v-if="batchExecuteForm.integratedReport == 'true'"
+        field="integratedReport"
+        :label="t('case.execute.reportName')"
+        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        :validate-trigger="['blur', 'input']"
+      >
+        <a-input
+          v-model="batchExecuteForm.integratedReportName"
+          :max-length="255"
+          :placeholder="t('formCreate.PleaseEnter')"
+        />
+      </a-form-item>
+      <a-form-item field="poolId" :label="t('case.execute.pool')">
+        <a-select v-model="batchExecuteForm.poolId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of resourcePoolList" :key="item.id" :value="item.id">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button type="secondary" :disabled="batchExecuteLoading" @click="cancelBatchExecute">
+        {{ t('common.cancel') }}
+      </a-button>
+      <a-button type="primary" :loading="batchExecuteLoading" @click="handleBatchExecuteCase">
+        {{ t('system.log.operateType.execute') }}
+      </a-button>
+    </template>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
@@ -241,20 +332,25 @@
   import {
     batchDeleteCase,
     batchEditCase,
+    batchExecuteCase,
     deleteCase,
     dragSort,
+    executeCase,
     getCasePage,
+    getEnvList,
     updateCasePriority,
-    updateCaseStatus,
+    updateCaseStatus, updateDefinition,
   } from '@/api/modules/api-test/management';
   import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
+  import { getPoolList } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiCaseDetail } from '@/models/apiTest/management';
-  import { DragSortParams } from '@/models/common';
+  import { ApiCaseDetail, Environment } from '@/models/apiTest/management';
+  import { DragSortParams, TableQueryParams } from '@/models/common';
+  import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -413,6 +509,11 @@
         permission: ['PROJECT_API_DEFINITION_CASE:READ+UPDATE'],
       },
       {
+        label: 'system.log.operateType.execute',
+        eventTag: 'execute',
+        permission: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE'],
+      },
+      {
         label: 'common.delete',
         eventTag: 'delete',
         danger: true,
@@ -441,6 +542,10 @@
   const lastReportStatusList = ['error', 'FakeError', 'success'];
   const lastReportStatusFilters = ref<string[]>([...lastReportStatusList]);
 
+  const environmentList = ref<Environment[]>();
+
+  const resourcePoolList = ref<ResourcePoolItem[]>();
+
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
@@ -468,11 +573,31 @@
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-    caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.value);
+    caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
+  }
+
+  // 初始化环境列表
+  async function initEnvList() {
+    environmentList.value = await getEnvList(appStore.currentProjectId);
+  }
+
+  // 初始化资源池列表
+  async function initPoolList() {
+    const searchPoolParams = ref<TableQueryParams>({
+      current: 1,
+      pageSize: 10,
+      keyword: '',
+      deleted: false,
+      apiTest: true,
+      enable: false,
+    });
+    const result = await getPoolList(searchPoolParams.value);
+    resourcePoolList.value = result.list;
   }
 
   onBeforeMount(() => {
     loadCaseList();
+    initPoolList();
     getCaseLevelFields();
   });
 
@@ -611,12 +736,26 @@
 
   // 用例编辑
   const showBatchEditModal = ref(false);
+  // 用例执行
+  const showBatchExecute = ref(false);
   const batchEditLoading = ref(false);
+  const batchExecuteLoading = ref(false);
   const batchFormRef = ref<FormInstance>();
   const batchForm = ref({
     attr: '',
     value: '',
     values: [],
+  });
+  const batchExecuteFormRef = ref<FormInstance>();
+  const batchExecuteForm = ref({
+    defaultEnv: 'true',
+    runMode: 'SERIAL',
+    integratedReport: 'false',
+    integratedReportName: '',
+    stopOnFailure: false,
+    poolId: '',
+    grouped: false,
+    environmentId: '',
   });
   const attrOptions = [
     {
@@ -660,6 +799,17 @@
         return [];
     }
   });
+
+  async function onExecute(id: string) {
+    try {
+      await executeCase(id);
+      Message.success(t('case.detail.execute.success'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   function cancelBatchEdit() {
     showBatchEditModal.value = false;
     batchFormRef.value?.resetFields();
@@ -695,6 +845,51 @@
     });
   }
 
+  function cancelBatchExecute() {
+    showBatchExecute.value = false;
+    batchFormRef.value?.resetFields();
+    batchForm.value = {
+      attr: '',
+      value: '',
+      values: [],
+    };
+  }
+  function handleBatchExecuteCase() {
+    batchExecuteFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          batchExecuteLoading.value = true;
+          await batchExecuteCase({
+            selectIds: batchParams.value?.selectedIds || [],
+            selectAll: !!batchParams.value?.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            ...batchConditionParams.value,
+            runModeConfig: {
+              runMode: batchExecuteForm.value.runMode,
+              integratedReport: batchExecuteForm.value.integratedReport === 'true',
+              integratedReportName: batchExecuteForm.value.integratedReportName,
+              stopOnFailure: batchExecuteForm.value.stopOnFailure,
+              poolId: batchExecuteForm.value.poolId,
+              grouped: batchExecuteForm.value.grouped,
+              environmentId: batchExecuteForm.value.environmentId,
+            },
+            apiDefinitionId: '',
+            versionId: '',
+            refId: '',
+          });
+          Message.success(t('common.updateSuccess'));
+          cancelBatchExecute();
+          loadCaseListAndResetSelector();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          batchExecuteLoading.value = false;
+        }
+      }
+    });
+  }
+
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
@@ -705,6 +900,10 @@
         break;
       case 'edit':
         showBatchEditModal.value = true;
+        break;
+      case 'execute':
+        showBatchExecute.value = true;
+        initEnvList();
         break;
       default:
         break;
@@ -726,5 +925,15 @@
         color: var(--color-text-brand);
       }
     }
+  }
+  :deep(.arco-radio-group) {
+    margin-left: -5px;
+  }
+
+  .ms-switch {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 16px;
   }
 </style>

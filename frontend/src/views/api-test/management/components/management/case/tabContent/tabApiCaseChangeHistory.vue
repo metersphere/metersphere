@@ -2,9 +2,9 @@
   <div>
     <a-alert v-if="isShowTip" class="mb-6" type="warning">
       <div class="flex items-start justify-between">
-        <span class="w-[80%]">{{ t('caseManagement.featureCase.changeHistoryTip') }}</span>
+        <span class="w-[80%]">{{ t('case.detail.changeHistoryTip') }}</span>
         <span class="cursor-pointer text-[var(--color-text-2)]" @click="noRemindHandler">{{
-          t('caseManagement.featureCase.noReminders')
+          t('case.detail.noReminders')
         }}</span>
       </div>
     </a-alert>
@@ -81,18 +81,16 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
-  import { getChangeHistoryList } from '@/api/modules/case-management/featureCase';
+  import { getApiCaseChangeHistory } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import { useAppStore } from '@/store';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
 
   const appStore = useAppStore();
-  const featureCaseStore = useFeatureCaseStore();
   const visitedKey = 'notRemindChangeHistoryTip';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
@@ -103,25 +101,25 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'caseManagement.featureCase.changeNumber',
+      title: 'case.detail.changeNumber',
       dataIndex: 'id',
       showTooltip: true,
       width: 90,
     },
     {
-      title: 'caseManagement.featureCase.changeType',
+      title: 'case.detail.changeType',
       slotName: 'type',
       dataIndex: 'type',
       width: 200,
     },
     {
-      title: 'caseManagement.featureCase.operator',
+      title: 'case.detail.operator',
       dataIndex: 'createUserName',
       slotName: 'createUserName',
       width: 150,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnUpdateTime',
+      title: 'case.detail.tableColumnUpdateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
       width: 200,
@@ -150,9 +148,13 @@
       label: 'system.log.operateType.import',
       value: 'IMPORT',
     },
+    {
+      label: 'system.log.operateType.delete',
+      value: 'DELETE',
+    },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getChangeHistoryList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getApiCaseChangeHistory, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_CHANGE_HISTORY,
     scroll: { x: '100%' },
@@ -237,11 +239,10 @@
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
-      types: ['IMPORT', 'ADD', 'UPDATE'],
-      modules: ['CASE_MANAGEMENT_CASE_CREATE', 'CASE_MANAGEMENT_CASE_UPDATE'],
+      types: ['IMPORT', 'ADD', 'UPDATE', 'DELETE'],
+      modules: ['API_TEST_MANAGEMENT_CASE'],
     });
     await loadList();
-    featureCaseStore.getCaseCounts(props.caseId);
   }
 
   // watch(

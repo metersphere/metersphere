@@ -61,6 +61,14 @@ export const DeleteCaseUrl = '/api/case/delete-to-gc'; // 删除接口用例
 export const BatchDeleteCaseUrl = '/api/case/batch/delete-to-gc'; // 批量删除接口用例
 export const BatchEditCaseUrl = '/api/case/batch/edit'; // 批量编辑接口用例
 export const SortCaseUrl = '/api/case/edit/pos'; // 接口用例拖拽
+export const GetEnvListUrl = '/api/test/env-list'; // 接口测试-环境列表
+export const BatchExecuteCaseUrl = '/api/case/batch/run'; // 批量执行接口用例
+export const ExecuteCaseUrl = '/api/case/run/'; // 单独执行接口用例
+export const GetExecuteHistoryUrl = 'api/case/execute/page'; // 获取用的执行历史
+export const GetDependencyUrl = '/api/case/get-reference'; // 获取用例的依赖关系
+export const GetChangeHistoryUrl = '/api/case/operation-history/page'; // 获取用例的依赖关系
+
+
 
 /**
  * 接口用例回收站

@@ -121,6 +121,13 @@ export interface EnvModule {
   selectedModules: SelectedModule[];
 }
 
+// 环境列表
+export interface Environment {
+  id: string;
+  name: string;
+  projectId: string;
+}
+
 // 定义列表查询参数
 export interface ApiDefinitionPageParams extends TableQueryParams {
   id: string;
@@ -338,4 +345,39 @@ export interface AddApiCaseParams extends ExecuteRequestParams {
   status: string;
   apiDefinitionId: string | number;
   tags: string[];
+}
+
+export interface ApiRunModeRequest {
+  runMode: string;
+  integratedReport: boolean;
+  integratedReportName: string;
+  stopOnFailure: boolean;
+  poolId: string;
+  grouped: boolean;
+  environmentId: string;
+}
+
+// 接口用例批量执行参数
+export interface ApiCaseBatchExecuteParams extends BatchApiParams {
+  apiDefinitionId?: string | number;
+  protocol: string;
+  versionId?: string;
+  refId?: string;
+  runModeConfig: ApiRunModeRequest;
+}
+
+export interface ApiCaseExecuteHistoryParams extends TableQueryParams {
+  id: string;
+}
+
+export interface ApiCaseChangeHistoryParams extends TableQueryParams {
+  resourceId: string;
+  projectId: string;
+  createUser?: string;
+  types: string[];
+  modules: string[];
+}
+
+export interface ApiCaseDependencyParams extends TableQueryParams {
+  resourceId: string;
 }
