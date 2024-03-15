@@ -6,10 +6,7 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.dto.ProjectTemplateDTO;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
-import io.metersphere.sdk.constants.InternalUser;
-import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -17,6 +14,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import io.metersphere.system.service.BaseTemplateService;
 import io.metersphere.system.service.PlatformPluginService;
@@ -163,7 +161,22 @@ public class ProjectTemplateService extends BaseTemplateService {
                 template = getInternalTemplate(projectId, scene);
             }
         }
-        return getTemplateDTO(template);
+        TemplateDTO templateDTO = getTemplateDTO(template);
+        List<UserExtendDTO> memberOption = projectService.getMemberOption(projectId, null);
+        List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
+            CustomFieldOption customFieldOption = new CustomFieldOption();
+            customFieldOption.setFieldId(option.getId());
+            customFieldOption.setValue(option.getId());
+            customFieldOption.setInternal(false);
+            customFieldOption.setText(option.getName());
+            return customFieldOption;
+        }).toList();
+        templateDTO.getCustomFields().forEach(item -> {
+            if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                item.setOptions(memberCustomOption);
+            }
+        });
+        return templateDTO;
     }
 
 

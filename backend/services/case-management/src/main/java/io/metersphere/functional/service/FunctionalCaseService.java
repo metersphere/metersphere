@@ -19,6 +19,7 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.service.ProjectService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.*;
@@ -37,6 +38,7 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.*;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -168,6 +170,8 @@ public class FunctionalCaseService {
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
     @Resource
     private FunctionalCaseCommentMapper functionalCaseCommentMapper;
+    @Resource
+    private ProjectService projectService;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
@@ -454,16 +458,28 @@ public class FunctionalCaseService {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
         if (CollectionUtils.isNotEmpty(templateDTO.getCustomFields())) {
             List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
+            List<UserExtendDTO> memberOption = projectService.getMemberOption(functionalCase.getProjectId(), null);
+            List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
+                CustomFieldOption customFieldOption = new CustomFieldOption();
+                customFieldOption.setFieldId(option.getId());
+                customFieldOption.setValue(option.getId());
+                customFieldOption.setInternal(false);
+                customFieldOption.setText(option.getName());
+                return customFieldOption;
+            }).toList();
             customFields.forEach(item -> {
-                FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
-                Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
-                    item.setDefaultValue(customField.getValue());
-                    if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
-                        functionalCaseDetailDTO.setFunctionalPriority(customField.getValue());
-                    }
-                }, () -> {
-                });
-
+                if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                    item.setOptions(memberCustomOption);
+                } else {
+                    FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
+                    Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
+                        item.setDefaultValue(customField.getValue());
+                        if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
+                            functionalCaseDetailDTO.setFunctionalPriority(customField.getValue());
+                        }
+                    }, () -> {
+                    });
+                }
             });
             functionalCaseDetailDTO.setCustomFields(customFields);
         }
