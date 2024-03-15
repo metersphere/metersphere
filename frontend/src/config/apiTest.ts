@@ -1,5 +1,5 @@
 import { ConditionType } from '@/models/apiTest/common';
-import { RequestBodyFormat, RequestConditionProcessor } from '@/enums/apiEnum';
+import { RequestBodyFormat, RequestConditionProcessor, ScenarioStepType } from '@/enums/apiEnum';
 
 // 条件操作类型
 export type ConditionTypeNameMap = Record<ConditionType, string>;

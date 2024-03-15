@@ -136,4 +136,9 @@ export default {
   'common.share': '分享',
   'common.notRemind': '不再提醒',
   'common.status': '状态',
+  'common.batchEnable': '批量启用',
+  'common.batchDisable': '批量禁用',
+  'common.batchDelete': '批量删除',
+  'common.batchDebug': '批量调试',
+  'common.quote': '引用',
 };

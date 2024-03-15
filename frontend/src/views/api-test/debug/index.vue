@@ -10,7 +10,7 @@
           @new-api="addDebugTab"
           @click-api-node="openApiTab"
           @import="importDrawerVisible = true"
-          @rename-finish="handleRenameFinish"
+          @update-api-node="handleApiUpdateFromModuleTree"
           @delete-finish="handleDeleteFinish"
         />
       </template>
@@ -121,11 +121,9 @@
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ExecuteBody, RequestTaskResult } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
-    RequestBodyFormat,
     RequestComposition,
     RequestContentTypeEnum,
     RequestMethods,
@@ -295,34 +293,49 @@
     });
   }
 
-  function handleRenameFinish(name: string, id: string) {
-    debugTabs.value = debugTabs.value.map((tab) => {
-      if (tab.id === id) {
-        tab.label = name;
-        tab.name = name;
+  /**
+   * 同步模块树的接口信息更新操作
+   */
+  function handleApiUpdateFromModuleTree(newInfo: { id: string; name: string; moduleId?: string; [key: string]: any }) {
+    debugTabs.value = debugTabs.value.map((item) => {
+      if (item.id === newInfo.id) {
+        item.label = newInfo.name;
+        item.name = newInfo.name;
+        if (newInfo.moduleId) {
+          item.moduleId = newInfo.moduleId;
+        }
       }
-      return tab;
+      return item;
     });
+    if (activeDebug.value.id === newInfo.id) {
+      activeDebug.value.label = newInfo.name;
+      activeDebug.value.name = newInfo.name;
+      if (newInfo.moduleId) {
+        activeDebug.value.moduleId = newInfo.moduleId;
+      }
+    }
   }
 
+  /**
+   * 同步模块树的接口信息删除操作
+   * @param id 接口 id
+   * @param isModule 是否是删除模块
+   */
   function handleDeleteFinish(node: ModuleTreeNode) {
-    let index;
-    if (node.type === 'API') {
-      // 如果是接口
-      index = debugTabs.value.findIndex((tab) => tab.id === node.id);
-    } else {
-      // 如果是文件夹
-      index = debugTabs.value.findIndex((tab) => tab.moduleId === node.id);
-    }
-    if (index > -1) {
-      debugTabs.value.splice(index, 1);
-      if (activeDebug.value.id === node.id) {
-        // 如果查看的tab被删除了，则切换到第一个tab
-        if (debugTabs.value.length > 0) {
+    if (node.type === 'MODULE') {
+      // 删除整个模块
+      debugTabs.value = debugTabs.value.filter((item) => {
+        if (activeDebug.value.id === item.id) {
+          // 删除的是当前激活的 tab, 切换到第一个 tab
           [activeDebug.value] = debugTabs.value;
-        } else {
-          addDebugTab();
         }
+        return item.moduleId !== node.id || item.id === 'all';
+      });
+    } else {
+      // 删除单个 api
+      debugTabs.value = debugTabs.value.filter((item) => item.id !== node.id);
+      if (activeDebug.value.id === node.id) {
+        [activeDebug.value] = debugTabs.value;
       }
     }
   }
