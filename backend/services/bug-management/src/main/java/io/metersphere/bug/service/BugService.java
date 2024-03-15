@@ -389,7 +389,7 @@ public class BugService {
         List<String> batchIds = getBatchIdsByRequest(request);
         batchIds.forEach(id -> delete(id, currentUser));
         // 批量日志
-        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.DELETE.name(), "/bug/batch-delete", request.getProjectId(), false, false, null);
+        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.DELETE.name(), "/bug/batch-delete", request.getProjectId(), false, false, null, currentUser);
         operationLogService.batchAdd(logs);
     }
 
@@ -397,11 +397,11 @@ public class BugService {
      * 批量恢复缺陷
      * @param request 请求参数
      */
-    public void batchRecover(BugBatchRequest request) {
+    public void batchRecover(BugBatchRequest request, String currentUser) {
         List<String> batchIds = getBatchIdsByRequest(request);
         batchIds.forEach(this::recover);
         // 批量日志
-        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.RECOVER.name(), "/bug/batch-recover", request.getProjectId(), false, false, null);
+        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.RECOVER.name(), "/bug/batch-recover", request.getProjectId(), false, false, null, currentUser);
         operationLogService.batchAdd(logs);
     }
 
@@ -426,7 +426,7 @@ public class BugService {
         List<String> batchIds = getBatchIdsByRequest(request);
         // 批量日志{修改之前}
         List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.UPDATE.name(), "/bug/batch-update",
-                request.getProjectId(), true, request.isAppend(), request.getTags());
+                request.getProjectId(), true, request.isAppend(), request.getTags(), currentUser);
         operationLogService.batchAdd(logs);
         // 目前只做标签的批量编辑
         if (request.isAppend()) {
@@ -1515,14 +1515,14 @@ public class BugService {
      * @return 日志集合
      */
     private List<LogDTO> getBatchLogByRequest(List<String> batchIds, String operationType, String path, String projectId, boolean batchUpdate,
-                                              boolean appendTag, List<String> modifiedTags) {
+                                              boolean appendTag, List<String> modifiedTags, String currentUser) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         BugExample example = new BugExample();
         example.createCriteria().andIdIn(batchIds);
         List<Bug> bugs = bugMapper.selectByExample(example);
         List<LogDTO> logs = new ArrayList<>();
         bugs.forEach(bug -> {
-            LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), null, operationType, OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
+            LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), currentUser, operationType, OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
             log.setPath(path);
             log.setMethod(HttpMethodConstants.POST.name());
             if (batchUpdate) {
