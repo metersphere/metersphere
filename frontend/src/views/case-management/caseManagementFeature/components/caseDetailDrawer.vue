@@ -118,40 +118,47 @@
                 </a-menu>
               </div>
               <keep-alive>
-                <div class="leftContent mt-4 p-[24px]">
-                  <template v-if="activeTab === 'detail'">
-                    <TabDetail
-                      ref="tabDetailRef"
-                      :form="detailInfo"
-                      :allow-edit="true"
-                      :form-rules="formItem"
-                      @update-success="updateSuccess"
-                    />
-                  </template>
-                  <template v-if="activeTab === 'requirement'">
-                    <TabDemand :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'case'">
-                    <TabCaseTable :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'bug'">
-                    <TabDefect :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'dependency'">
-                    <TabDependency :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'caseReview'">
-                    <TabCaseReview :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'testPlan'">
-                    <TabTestPlan />
-                  </template>
-                  <template v-if="activeTab === 'comments'">
-                    <TabComment ref="commentRef" :case-id="props.detailId" />
-                  </template>
-                  <template v-if="activeTab === 'changeHistory'">
-                    <TabChangeHistory :case-id="props.detailId" />
-                  </template>
+                <div class="leftContent mt-4 w-full px-[24px]">
+                  <a-scrollbar
+                    :style="{
+                      overflow: 'auto',
+                      height: 'calc(100vh - 190px)',
+                    }"
+                  >
+                    <template v-if="activeTab === 'detail'">
+                      <TabDetail
+                        ref="tabDetailRef"
+                        :form="detailInfo"
+                        :allow-edit="true"
+                        :form-rules="formItem"
+                        @update-success="updateSuccess"
+                      />
+                    </template>
+                    <template v-if="activeTab === 'requirement'">
+                      <TabDemand :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'case'">
+                      <TabCaseTable :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'bug'">
+                      <TabDefect :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'dependency'">
+                      <TabDependency :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'caseReview'">
+                      <TabCaseReview :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'testPlan'">
+                      <TabTestPlan />
+                    </template>
+                    <template v-if="activeTab === 'comments'">
+                      <TabComment ref="commentRef" :case-id="props.detailId" />
+                    </template>
+                    <template v-if="activeTab === 'changeHistory'">
+                      <TabChangeHistory :case-id="props.detailId" />
+                    </template>
+                  </a-scrollbar>
                 </div>
               </keep-alive>
             </div>

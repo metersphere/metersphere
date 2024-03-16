@@ -1,13 +1,11 @@
 <template>
   <div class="mb-4 flex items-center justify-between break-words break-all">
     <div class="font-medium">{{ t('caseManagement.featureCase.commentList') }}</div>
-    <div>
-      <a-radio-group v-model="activeComment" type="button">
-        <a-radio value="caseComment">{{ t('caseManagement.featureCase.caseComment') }}</a-radio>
-        <a-radio value="reviewComment">{{ t('caseManagement.featureCase.reviewComment') }}</a-radio>
-        <!-- <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio> -->
-      </a-radio-group>
-    </div>
+    <a-radio-group v-model="activeComment" type="button">
+      <a-radio value="caseComment">{{ t('caseManagement.featureCase.caseComment') }}</a-radio>
+      <a-radio value="reviewComment">{{ t('caseManagement.featureCase.reviewComment') }}</a-radio>
+      <!-- <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio> -->
+    </a-radio-group>
   </div>
   <div>
     <!-- 用例评论 -->

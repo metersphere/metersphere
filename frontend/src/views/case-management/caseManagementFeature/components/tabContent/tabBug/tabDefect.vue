@@ -390,7 +390,7 @@
   } = useTable(getLinkedCaseBugList, {
     columns: testPlanColumns,
     scroll: { x: '100%' },
-    heightUsed: 340,
+    heightUsed: 354,
     enableDrag: true,
   });
 
