@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-between">
       <a-dropdown @select="handleSelect">
         <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="primary">
           {{ t('caseManagement.featureCase.linkCase') }}
