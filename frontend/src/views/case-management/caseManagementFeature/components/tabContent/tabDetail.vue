@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div class="caseDetailWrapper ml-1">
+  <div class="caseDetailWrapper ml-1 !break-words break-all">
     <a-form ref="caseFormRef" class="rounded-[4px]" :model="detailForm" layout="vertical">
       <a-form-item
         class="relative"

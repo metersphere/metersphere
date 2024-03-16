@@ -264,6 +264,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   import { DragSortParams } from '@/models/common';
   import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum } from '@/enums/tableEnum';
@@ -279,7 +280,6 @@
   } from './type';
   import type { TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
   import type { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
-  import { log } from 'console';
 
   const batchLeft = ref('10px');
   const { t } = useI18n();

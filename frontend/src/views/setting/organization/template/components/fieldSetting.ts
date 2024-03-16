@@ -38,7 +38,7 @@ const { t } = useI18n();
 const templateStore = useTemplateStore();
 
 // 字段类型-日期
-const dateOptions: { label: string; value: FormItemType }[] = [
+export const dateOptions: { label: string; value: FormItemType }[] = [
   {
     label: dayjs().format('YYYY-MM-DD'),
     value: 'DATE',
@@ -50,7 +50,7 @@ const dateOptions: { label: string; value: FormItemType }[] = [
 ];
 
 // 字段类型- 数字
-const numberTypeOptions: { label: string; value: FormItemType }[] = [
+export const numberTypeOptions: { label: string; value: FormItemType }[] = [
   {
     label: '整数',
     value: 'INT',
