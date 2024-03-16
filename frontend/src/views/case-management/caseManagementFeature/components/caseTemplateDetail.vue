@@ -272,6 +272,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile, getGenerateId } from '@/utils';
+  import { scrollIntoView } from '@/utils/dom';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -762,6 +763,16 @@
       initDefaultFields();
     }
   });
+
+  // onMounted(() => {
+  //   nextTick(() => {
+  //     console.log(document.querySelector('.preview-left'));
+
+  //     scrollIntoView(document.querySelector('.preview-left'), { block: 'center' });
+  //     console.log(caseFormRef.value?.$el.querySelector('.arco-form-item-message'));
+
+  //   });
+  // });
 
   defineExpose({
     caseFormRef,

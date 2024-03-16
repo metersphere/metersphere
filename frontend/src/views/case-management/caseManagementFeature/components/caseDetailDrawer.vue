@@ -118,7 +118,7 @@
                 </a-menu>
               </div>
               <keep-alive>
-                <div class="leftContent mt-4 px-4">
+                <div class="leftContent mt-4 p-[24px]">
                   <template v-if="activeTab === 'detail'">
                     <TabDetail
                       ref="tabDetailRef"

@@ -10,7 +10,6 @@
     </div>
   </div>
   <div>
-    <div id="magnifier"></div>
     <!-- 用例评论 -->
     <div v-show="activeComment === 'caseComment'">
       <MsComment

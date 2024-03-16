@@ -282,6 +282,7 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
         {
           ...currentFormRules,
           title: item.name,
+          field: item.id,
           effect: {
             required: false,
           },

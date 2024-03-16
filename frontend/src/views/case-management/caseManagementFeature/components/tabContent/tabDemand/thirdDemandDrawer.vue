@@ -44,7 +44,6 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -107,12 +106,12 @@
     // },
   ];
 
-  const fullColumns = ref<MsTableColumn>([...columns]);
+  let fullColumns: MsTableColumn = [...columns];
   const customFields = ref<Record<string, any>[]>([]);
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEMAND_PLATFORM,
-    columns: fullColumns.value,
+    columns: fullColumns,
     rowKey: 'demandId',
     scroll: { x: '100%' },
     selectable: true,
@@ -138,7 +137,6 @@
     return filteredData;
   });
 
-  // const platformInfo = ref<Record<string, any>>({});
   function getPlatName() {
     switch (props.platformInfo.platform_key) {
       case 'zentao':
@@ -205,7 +203,7 @@
 
   const tableRef = ref();
   async function initColumn() {
-    fullColumns.value = [...columns];
+    fullColumns = [...columns];
     try {
       const res = await getThirdDemandList({
         current: 1,
@@ -224,23 +222,17 @@
         }) as any;
       }
 
-      fullColumns.value.push(...customFields.value);
+      fullColumns = [...columns, ...customFields.value];
     } catch (error) {
       console.log(error);
     }
   }
 
-  // onBeforeMount(async () => {
-  //   try {
-  //     const result = await getCaseRelatedInfo(currentProjectId.value);
-  //     if (result && result.platform_key) {
-  //       platformInfo.value = { ...result };
-  //       initColumn();
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // });
+  watchEffect(() => {
+    if (props.platformInfo.demand_platform_config) {
+      initColumn();
+    }
+  });
 
   watch(
     () => innerLinkDemandVisible.value,
@@ -248,7 +240,10 @@
       if (val) {
         resetSelector();
         if (props.platformInfo.demand_platform_config) {
-          initData();
+          nextTick(() => {
+            tableRef.value?.initColumn(fullColumns);
+            initData();
+          });
         }
       }
     }
