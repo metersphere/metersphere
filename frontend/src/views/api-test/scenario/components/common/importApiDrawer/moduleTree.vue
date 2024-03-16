@@ -54,8 +54,11 @@
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import { getModuleCount, getModuleTreeOnlyModules } from '@/api/modules/api-test/management';
+  import {
+    getModuleCount as getScenarioModuleCount,
+    getModuleTree as getScenarioModuleTree,
+  } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
@@ -64,6 +67,7 @@
     defineProps<{
       type: 'api' | 'case' | 'scenario';
       protocol: string;
+      projectId: string;
     }>(),
     {
       type: 'api',
@@ -73,7 +77,6 @@
     (e: 'select', ids: (string | number)[], node: MsTreeNodeData): void;
   }>();
 
-  const appStore = useAppStore();
   const { t } = useI18n();
 
   const moduleKeyword = ref('');
@@ -86,16 +89,21 @@
   /**
    * 初始化模块树
    */
-  async function initModules() {
+  async function initModules(type = props.type) {
     try {
       loading.value = true;
-      folderTree.value = await getModuleTreeOnlyModules({
-        // 只查看模块
+      const params = {
         keyword: moduleKeyword.value,
         protocol: props.protocol,
-        projectId: appStore.currentProjectId,
+        projectId: props.projectId,
         moduleIds: [],
-      });
+      };
+      if (type === 'api' || type === 'case') {
+        // case 的模块与 api 的一致
+        folderTree.value = await getModuleTreeOnlyModules(params);
+      } else if (type === 'scenario') {
+        folderTree.value = await getScenarioModuleTree(params);
+      }
       selectedKeys.value = [folderTree.value[0]?.id];
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -105,14 +113,20 @@
     }
   }
 
-  async function initModuleCount() {
+  async function initModuleCount(type = props.type) {
     try {
-      moduleCountMap.value = await getModuleCount({
+      const params = {
         keyword: moduleKeyword.value,
         protocol: props.protocol,
-        projectId: appStore.currentProjectId,
+        projectId: props.projectId,
         moduleIds: [],
-      });
+      };
+      if (type === 'api' || type === 'case') {
+        // case 的模块与 api 的一致
+        moduleCountMap.value = await getModuleCount(params);
+      } else if (type === 'scenario') {
+        moduleCountMap.value = await getScenarioModuleCount(params);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -128,9 +142,9 @@
     emit('select', [keys[0], ...offspringIds], node);
   }
 
-  function init() {
-    initModules();
-    initModuleCount();
+  function init(type = props.type) {
+    initModules(type);
+    initModuleCount(type);
   }
 
   defineExpose({

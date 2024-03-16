@@ -3,7 +3,7 @@
     <template #first>
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
         <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="p-[16px]">
-          <step v-if="activeKey === ScenarioCreateComposition.STEP" />
+          <step v-if="activeKey === ScenarioCreateComposition.STEP" is-new />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.PARAMS" :title="t('apiScenario.params')" class="p-[16px]">
           <params v-if="activeKey === ScenarioCreateComposition.PARAMS" v-model:params="scenario.params" />
@@ -127,6 +127,8 @@
   import { ModuleTreeNode } from '@/models/common';
   import { ApiScenarioStatus, RequestCaseStatus, ScenarioCreateComposition } from '@/enums/apiEnum';
 
+  import type { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
+
   // 组成部分异步导入
   const step = defineAsyncComponent(() => import('../components/step/index.vue'));
   const params = defineAsyncComponent(() => import('../components/params.vue'));
@@ -144,6 +146,7 @@
   const scenario = ref<any>({
     name: '',
     moduleId: 'root',
+    stepInfo: {} as ScenarioStepInfo,
     status: RequestCaseStatus.PROCESSING,
     tags: [],
     params: [],

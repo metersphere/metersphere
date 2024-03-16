@@ -199,7 +199,8 @@ export function mapTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
   customNodeFn: (node: TreeNode<T>, path: string) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children',
-  parentPath = ''
+  parentPath = '',
+  level = 0
 ): T[] {
   if (!Array.isArray(tree)) {
     tree = [tree];
@@ -210,8 +211,17 @@ export function mapTree<T>(
       const fullPath = node.path ? `${parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
       const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
 
-      if (newNode && newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
-        newNode[customChildrenKey] = mapTree(newNode[customChildrenKey], customNodeFn, customChildrenKey);
+      if (newNode) {
+        newNode.level = level;
+        if (newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
+          newNode[customChildrenKey] = mapTree(
+            newNode[customChildrenKey],
+            customNodeFn,
+            customChildrenKey,
+            fullPath,
+            level + 1
+          );
+        }
       }
 
       return newNode;

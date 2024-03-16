@@ -129,7 +129,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 120,
     },
     {
       title: 'apiTestManagement.apiName',

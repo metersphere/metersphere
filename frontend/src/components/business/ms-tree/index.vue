@@ -5,7 +5,8 @@
       v-bind="props"
       ref="treeRef"
       v-model:expanded-keys="expandedKeys"
-      v-model:selected-keys="innerSelectedKeys"
+      v-model:selected-keys="selectedKeys"
+      v-model:checked-keys="checkedKeys"
       :data="treeData"
       class="ms-tree"
       :allow-drop="handleAllowDrop"
@@ -20,6 +21,7 @@
           :content="_props[props.fieldNames.title]"
           :mouse-enter-delay="800"
           :position="props.titleTooltipPosition"
+          :disabled="props.disabledTitleTooltip"
         >
           <slot name="title" v-bind="_props"></slot>
         </a-tooltip>
@@ -32,34 +34,31 @@
           v-if="_props.hideMoreAction !== true"
           :class="[
             'ms-tree-node-extra',
-            innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '', // TODO:通过下拉菜单的显示隐藏去控制聚焦状态似乎能有更好的性能
+            focusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '', // TODO:通过下拉菜单的显示隐藏去控制聚焦状态似乎能有更好的性能
           ]"
         >
-          <div
-            class="ml-[-4px] flex h-[32px] items-center rounded-[var(--border-radius-small)] bg-[rgb(var(--primary-1))]"
+          <slot name="extra" v-bind="_props"></slot>
+          <MsTableMoreAction
+            v-if="props.nodeMoreActions"
+            :list="
+              typeof props.filterMoreActionFunc === 'function'
+                ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
+                : props.nodeMoreActions
+            "
+            trigger="click"
+            @select="handleNodeMoreSelect($event, _props)"
+            @close="moreActionsClose"
           >
-            <slot name="extra" v-bind="_props"></slot>
-            <MsTableMoreAction
-              v-if="props.nodeMoreActions"
-              :list="
-                typeof props.filterMoreActionFunc === 'function'
-                  ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
-                  : props.nodeMoreActions
-              "
-              trigger="click"
-              @select="handleNodeMoreSelect($event, _props)"
-              @close="moreActionsClose"
+            <MsButton
+              type="text"
+              :size="props.nodeMoreActionSize || 'mini'"
+              class="ms-tree-node-extra__more"
+              @click="focusNodeKey = _props[props.fieldNames.key]"
             >
-              <MsButton
-                type="text"
-                size="mini"
-                class="ms-tree-node-extra__more"
-                @click="innerFocusNodeKey = _props[props.fieldNames.key]"
-              >
-                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
-              </MsButton>
-            </MsTableMoreAction>
-          </div>
+              <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+            </MsButton>
+          </MsTableMoreAction>
+          <slot name="extraEnd" v-bind="_props"></slot>
         </div>
       </template>
     </a-tree>
@@ -75,8 +74,7 @@
 </template>
 
 <script setup lang="ts">
-  import { h, nextTick, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
-  import { useVModel } from '@vueuse/core';
+  import { nextTick, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -101,15 +99,14 @@
       defaultExpandAll?: boolean; // 是否默认展开所有节点
       selectable?: boolean | ((node: MsTreeNodeData, info: { level: number; isLeaf: boolean }) => boolean); // 是否可选中
       fieldNames?: MsTreeFieldNames; // 自定义字段名
-      focusNodeKey?: string | number; // 聚焦的节点 key
-      selectedKeys?: Array<string | number>; // 选中的节点 key
       nodeMoreActions?: ActionsItem[]; // 节点展示在省略号按钮内的更多操作
+      nodeMoreActionSize?: 'medium' | 'mini' | 'small' | 'large'; // 更多操作按钮大小
       expandAll?: boolean; // 是否展开/折叠所有节点，true 为全部展开，false 为全部折叠
       emptyText?: string; // 空数据时的文案
       checkable?: boolean; // 是否可选中
       checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
-      checkedKeys?: Array<string | number>; // 选中的节点 key
       virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
+      disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
       titleTooltipPosition?:
         | 'top'
         | 'tl'
@@ -138,6 +135,7 @@
         children: 'children',
         isLeaf: 'isLeaf',
       }),
+      disabledTitleTooltip: false,
     }
   );
 
@@ -151,11 +149,22 @@
       dropPosition: number // 放入的位置，-1 为放入节点前，1 为放入节点后，0 为放入节点内
     ): void;
     (e: 'moreActionSelect', item: ActionsItem, node: MsTreeNodeData): void;
-    (e: 'update:focusNodeKey', val: string | number): void;
-    (e: 'update:selectedKeys', val: Array<string | number>): void;
     (e: 'moreActionsClose'): void;
     (e: 'check', val: Array<string | number>): void;
   }>();
+
+  const selectedKeys = defineModel<(string | number)[]>('selectedKeys', {
+    default: [],
+  });
+  const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
+    default: [],
+  });
+  const expandedKeys = defineModel<(string | number)[]>('expandedKeys', {
+    default: [],
+  });
+  const focusNodeKey = defineModel<string | number>('focusNodeKey', {
+    default: '',
+  });
 
   const treeContainerRef: Ref = ref(null);
   const treeRef: Ref = ref(null);
@@ -166,21 +175,22 @@
   const originalTreeData = ref<MsTreeNodeData[]>([]);
 
   function init(isFirstInit = false) {
-    originalTreeData.value = mapTree<MsTreeNodeData>(props.data, (node: MsTreeNodeData) => {
-      if (!props.showLine) {
-        // 不展示连接线时才设置节点图标，因为展示连接线时非叶子节点会展示默认的折叠图标。它不会覆盖 switcherIcon，但是会被 switcherIcon 覆盖
-        node.icon = () => h('span', { class: 'hidden' });
-      }
-      if (
-        node[props.fieldNames.isLeaf || 'isLeaf'] ||
-        !node[props.fieldNames.children] ||
-        node[props.fieldNames.children]?.length === 0
-      ) {
-        // 设置子节点图标，会覆盖 icon。当展示连接线时，需要设置 switcherIcon 以覆盖组件的默认图标；不展示连接线则是 icon
-        node[props.showLine ? 'switcherIcon' : 'icon'] = () => h('span', { class: 'hidden' });
-      }
-      return node;
-    });
+    originalTreeData.value = mapTree<MsTreeNodeData>(props.data);
+    // (node: MsTreeNodeData) => {
+    //   // if (!props.showLine) {
+    //   //   // 不展示连接线时才设置节点图标，因为展示连接线时非叶子节点会展示默认的折叠图标。它不会覆盖 switcherIcon，但是会被 switcherIcon 覆盖
+    //   //   node.icon = () => h('span', { class: 'hidden' });
+    //   // }
+    //   // if (
+    //   //   node[props.fieldNames.isLeaf || 'isLeaf'] ||
+    //   //   !node[props.fieldNames.children] ||
+    //   //   node[props.fieldNames.children]?.length === 0
+    //   // ) {
+    //   //   // 设置子节点图标，会覆盖 icon。当展示连接线时，需要设置 switcherIcon 以覆盖组件的默认图标；不展示连接线则是 icon
+    //   //   node[props.showLine ? 'switcherIcon' : 'icon'] = () => h('span', { class: 'hidden' });
+    //   // }
+    //   return node;
+    // });
     nextTick(() => {
       if (isFirstInit) {
         if (props.defaultExpandAll) {
@@ -208,8 +218,6 @@
       init();
     }
   );
-
-  const expandedKeys = ref<(string | number)[]>([]);
 
   /**
    * 根据关键字过滤树节点
@@ -327,20 +335,18 @@
   /**
    * 处理树节点选中（非复选框）
    */
-  function select(selectedKeys: Array<string | number>, data: MsTreeSelectedData) {
-    emit('select', selectedKeys, data.selectedNodes[0]);
+  function select(_selectedKeys: Array<string | number>, data: MsTreeSelectedData) {
+    emit('select', _selectedKeys, data.selectedNodes[0]);
   }
 
-  function checked(checkedKeys: Array<string | number>) {
-    emit('check', checkedKeys);
+  function checked(_checkedKeys: Array<string | number>) {
+    emit('check', _checkedKeys);
   }
-
-  const innerFocusNodeKey = useVModel(props, 'focusNodeKey', emit); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示
 
   const focusEl = ref<HTMLElement | null>(); // 存储聚焦的节点元素
 
   watch(
-    () => innerFocusNodeKey.value,
+    () => focusNodeKey.value,
     (val) => {
       if (val?.toString() !== '') {
         focusEl.value = treeRef.value?.$el.querySelector(`[data-key="${val}"]`);
@@ -374,7 +380,18 @@
     }
   );
 
-  const innerSelectedKeys = useVModel(props, 'selectedKeys', emit);
+  function checkAll(val: boolean) {
+    treeRef.value?.checkAll(val);
+  }
+
+  function expandNode(key: string | number, expanded: boolean) {
+    treeRef.value?.expandNode(key, expanded);
+  }
+
+  defineExpose({
+    checkAll,
+    expandNode,
+  });
 </script>
 
 <style lang="less">
@@ -443,7 +460,12 @@
           width: 60%;
         }
         .ms-tree-node-extra {
-          @apply invisible relative w-0;
+          @apply invisible relative flex w-0 items-center;
+
+          margin-left: -4px;
+          height: 32px;
+          border-radius: var(--border-radius-small);
+          background-color: rgb(var(--primary-1));
           &:hover {
             @apply visible w-auto;
           }

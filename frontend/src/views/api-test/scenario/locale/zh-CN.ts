@@ -98,6 +98,7 @@ export default {
   'apiScenario.case': '用例',
   'apiScenario.scenario': '场景',
   'apiScenario.sumSelected': '共选择',
+  'apiScenario.scenarioConfig': '场景配置',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',
