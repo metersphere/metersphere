@@ -21,9 +21,9 @@ export default {
   message: {
     'menu.workbench': 'Workbench',
     'menu.testPlan': 'Test Plan',
-    'menu.bugManagement': 'Bug Management',
-    ' menu.bugManagement.bugRecycle': 'Recycle',
-    'menu.caseManagement': 'Case Management',
+    'menu.bugManagement': 'Bug',
+    'menu.bugManagement.bugRecycle': 'Recycle',
+    'menu.caseManagement': 'Functional',
     'menu.apiTest': 'API Test',
     'menu.apiTest.debug': 'Debug',
     'menu.apiTest.debug.debug': 'Debug',
