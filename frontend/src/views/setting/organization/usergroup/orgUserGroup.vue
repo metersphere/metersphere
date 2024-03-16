@@ -51,7 +51,9 @@
               :current="currentUserGroupItem"
               :width="bottomWidth"
               :save-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
-              :disabled="!hasAnyPermission(['ORGANIZATION_USER_ROLE:READ+UPDATE'])"
+              :disabled="
+                !hasAnyPermission(['ORGANIZATION_USER_ROLE:READ+UPDATE']) || currentUserGroupItem.scopeId === 'global'
+              "
             />
           </div>
         </div>

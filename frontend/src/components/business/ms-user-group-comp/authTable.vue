@@ -20,7 +20,7 @@
                 v-if="tableData && tableData?.length > 0"
                 :model-value="allChecked"
                 :indeterminate="allIndeterminate"
-                :disabled="systemAdminDisabled"
+                :disabled="systemAdminDisabled || disabled"
                 class="mr-[7px]"
                 @change="handleAllAuthChangeByCheckbox"
               ></a-checkbox>
@@ -35,7 +35,7 @@
                 <a-checkbox
                   v-for="item in record.permissions"
                   :key="item.id"
-                  :disabled="item.license || systemAdminDisabled"
+                  :disabled="item.license || systemAdminDisabled || disabled"
                   :value="item.id"
                   >{{ t(item.name) }}</a-checkbox
                 >
@@ -44,7 +44,7 @@
                 class="mr-[7px]"
                 :model-value="record.enable"
                 :indeterminate="record.indeterminate"
-                :disabled="systemAdminDisabled"
+                :disabled="systemAdminDisabled || disabled"
                 @change="(value) => handleRowAuthChange(value, rowIndex)"
               />
             </div>

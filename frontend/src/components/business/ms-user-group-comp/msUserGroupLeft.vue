@@ -69,7 +69,10 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                <div
+                  v-if="element.id === currentId && element.scopeId !== 'global'"
+                  class="flex flex-row items-center gap-[8px]"
+                >
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"
@@ -157,7 +160,10 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                <div
+                  v-if="element.id === currentId && element.scopeId !== 'global'"
+                  class="flex flex-row items-center gap-[8px]"
+                >
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"
@@ -245,7 +251,10 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                <div
+                  v-if="element.id === currentId && element.scopeId !== 'global'"
+                  class="flex flex-row items-center gap-[8px]"
+                >
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"

@@ -162,7 +162,7 @@
                       item.editType &&
                       editActiveKey !== `${item.dataIndex}${rowIndex}` &&
                       !record.deleted &&
-                      !record.internal
+                      record.scopeId !== 'global'
                     "
                     class="ml-2 cursor-pointer"
                     :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
@@ -264,7 +264,6 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit } from '@/utils';
 
   import { DragSortParams } from '@/models/common';
   import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum } from '@/enums/tableEnum';

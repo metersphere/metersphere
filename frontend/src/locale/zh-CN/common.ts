@@ -61,7 +61,7 @@ export default {
   'common.leave': '离开',
   'common.rename': '重命名',
   'common.noData': '暂无数据',
-  'common.internal': '内部',
+  'common.internal': '系统内置',
   'common.custom': '自定义',
   'common.preview': '预览',
   'common.fullScreen': '全屏',
