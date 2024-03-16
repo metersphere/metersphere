@@ -233,14 +233,6 @@
     }
   };
 
-  /**
-   * 设置根模块名称列表
-   * @param names 根模块名称列表
-   */
-  function setRootModules(names: string[]) {
-    rootModulesName.value = names;
-  }
-
   // 表格搜索参数
   const tableFilterParams = ref<TableQueryParams>({
     moduleIds: [],
@@ -262,6 +254,15 @@
     featureCaseStore.getCaseModulesCount(params);
     featureCaseStore.getRecycleModulesCount(params);
     tableFilterParams.value = { ...params };
+  }
+
+  /**
+   * 设置根模块名称列表
+   * @param names 根模块名称列表
+   */
+  function setRootModules(names: string[]) {
+    initModulesCount({ ...tableFilterParams.value });
+    rootModulesName.value = names;
   }
 
   // 创建用例

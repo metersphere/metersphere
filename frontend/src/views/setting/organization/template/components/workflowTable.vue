@@ -167,16 +167,18 @@
       :footer="false"
       :title="t('system.orgTemplate.stateDetail', { name: detailInfo?.name })"
     >
-      <div class="flex p-4">
-        <div class="flex w-[40%] flex-col">
+      <div class="p-4">
+        <div class="flex">
           <span class="label">{{ t('system.orgTemplate.stateName') }}</span>
-          <span class="label">{{ t('system.orgTemplate.description') }}</span>
-        </div>
-        <div class="flex w-[60%] flex-col">
-          <a-tooltip position="left" :content="detailInfo?.name">
-            <span class="content">{{ detailInfo?.name }}</span>
+          <a-tooltip :content="detailInfo?.name" mini position="lt">
+            <span class="content ellipsis">{{ detailInfo?.name }}</span>
           </a-tooltip>
-          <span class="content">{{ detailInfo?.remark || '-' }}</span>
+        </div>
+        <div class="flex">
+          <span class="label">{{ t('system.orgTemplate.description') }}</span>
+          <a-tooltip mini :content="detailInfo?.remark" position="lt">
+            <span class="content ellipsis">{{ detailInfo?.remark || '-' }}</span>
+          </a-tooltip>
         </div>
       </div>
     </MsDrawer>
@@ -531,11 +533,20 @@
   }
   .label {
     margin-top: 16px;
+    width: 120px;
+    flex-shrink: 0;
+    text-align: left;
     color: var(--color-text-3);
   }
   .content {
     margin-top: 16px;
+    flex: 1;
     color: var(--color-text-1);
-    word-break: break-all;
+    @apply inline-block;
+  }
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

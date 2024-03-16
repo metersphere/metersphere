@@ -11,6 +11,8 @@
           drag-class="dragChosenClass"
           :disabled="!props.isShowDrag"
           :force-fallback="true"
+          :animation="150"
+          handle=".dragIcon"
         >
           <div
             v-for="(element, index) in form.list"
@@ -18,7 +20,7 @@
             class="draggableElement gap-[8px] py-[6px] pr-[8px]"
             :class="[props.isShowDrag ? 'cursor-move' : '']"
           >
-            <div v-if="props.isShowDrag" class="ml-[8px] mr-[8px] pt-[8px]">
+            <div v-if="props.isShowDrag" class="dragIcon ml-[8px] mr-[8px] pt-[8px]">
               <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]"
             /></div>
             <a-form-item
