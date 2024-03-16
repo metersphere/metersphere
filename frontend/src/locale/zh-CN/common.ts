@@ -141,4 +141,5 @@ export default {
   'common.batchDelete': '批量删除',
   'common.batchDebug': '批量调试',
   'common.quote': '引用',
+  'common.execute': '执行',
 };

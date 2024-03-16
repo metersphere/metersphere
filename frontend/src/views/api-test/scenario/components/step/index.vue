@@ -3,8 +3,9 @@
     <div class="action-line">
       <div class="action-group">
         <a-checkbox
-          v-model:model-value="stepInfo.checkedAll"
-          :indeterminate="stepInfo.indeterminate"
+          v-show="stepInfo.steps.length > 0"
+          v-model:model-value="checkedAll"
+          :indeterminate="indeterminate"
           @change="handleChangeAll"
         />
         <div class="flex items-center gap-[4px]">
@@ -13,32 +14,35 @@
           {{ t('apiScenario.steps') }}
         </div>
       </div>
-      <div v-if="stepInfo.checkedAll || stepInfo.indeterminate" class="action-group">
-        <a-tooltip :content="stepInfo.isExpand ? t('apiScenario.collapseAllStep') : t('apiScenario.expandAllStep')">
+      <div class="action-group">
+        <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAllStep') : t('apiScenario.expandAllStep')">
           <a-button
+            v-show="stepInfo.steps.length > 0"
             type="outline"
             class="expand-step-btn arco-btn-outline--secondary"
             size="mini"
             @click="expandAllStep"
           >
-            <MsIcon v-if="stepInfo.isExpand" type="icon-icon_comment_collapse_text_input" />
+            <MsIcon v-if="isExpandAll" type="icon-icon_comment_collapse_text_input" />
             <MsIcon v-else type="icon-icon_comment_expand_text_input" />
           </a-button>
         </a-tooltip>
-        <a-button type="outline" size="mini" @click="batchEnable">
-          {{ t('common.batchEnable') }}
-        </a-button>
-        <a-button type="outline" size="mini" @click="batchDisable">
-          {{ t('common.batchDisable') }}
-        </a-button>
-        <a-button type="outline" size="mini" @click="batchDebug">
-          {{ t('common.batchDebug') }}
-        </a-button>
-        <a-button type="outline" size="mini" @click="batchDelete">
-          {{ t('common.batchDelete') }}
-        </a-button>
+        <template v-if="checkedAll || indeterminate">
+          <a-button type="outline" size="mini" @click="batchEnable">
+            {{ t('common.batchEnable') }}
+          </a-button>
+          <a-button type="outline" size="mini" @click="batchDisable">
+            {{ t('common.batchDisable') }}
+          </a-button>
+          <a-button type="outline" size="mini" @click="batchDebug">
+            {{ t('common.batchDebug') }}
+          </a-button>
+          <a-button type="outline" size="mini" @click="batchDelete">
+            {{ t('common.batchDelete') }}
+          </a-button>
+        </template>
       </div>
-      <template v-else>
+      <template v-if="stepInfo.executeTime">
         <div class="action-group">
           <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
           <div class="text-[var(--color-text-4)]">{{ stepInfo.executeTime }}</div>
@@ -55,126 +59,137 @@
           </div>
           <MsButton type="text" @click="checkReport">{{ t('apiScenario.checkReport') }}</MsButton>
         </div>
-        <div class="action-group ml-auto">
-          <a-input-search
-            v-model:model-value="keyword"
-            :placeholder="t('apiScenario.searchByName')"
-            allow-clear
-            class="w-[200px]"
-            @search="searchStep"
-            @press-enter="searchStep"
-          />
-          <a-button type="outline" class="arco-btn-outline--secondary !mr-0 !p-[8px]" @click="refreshStepInfo">
-            <template #icon>
-              <icon-refresh class="text-[var(--color-text-4)]" />
-            </template>
-          </a-button>
-        </div>
       </template>
+      <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('apiScenario.searchByName')"
+          allow-clear
+          class="w-[200px]"
+          @search="searchStep"
+          @press-enter="searchStep"
+        />
+        <a-button
+          v-if="!props.isNew"
+          type="outline"
+          class="arco-btn-outline--secondary !mr-0 !p-[8px]"
+          @click="refreshStepInfo"
+        >
+          <template #icon>
+            <icon-refresh class="text-[var(--color-text-4)]" />
+          </template>
+        </a-button>
+      </div>
     </div>
-    <a-dropdown
-      class="scenario-action-dropdown"
-      @select="(val) => handleActionSelect(val as ScenarioAddStepActionType)"
-    >
-      <a-button type="dashed" class="add-step-btn" long>
-        <div class="flex items-center gap-[8px]">
-          <icon-plus />
-          {{ t('apiScenario.addStep') }}
-        </div>
-      </a-button>
-      <template #content>
-        <a-dgroup :title="t('apiScenario.requestScenario')">
-          <a-doption :value="ScenarioAddStepActionType.IMPORT_SYSTEM_API">
-            {{ t('apiScenario.importSystemApi') }}
-          </a-doption>
-          <a-doption :value="ScenarioAddStepActionType.CUSTOM_API">
-            {{ t('apiScenario.customApi') }}
-          </a-doption>
-        </a-dgroup>
-        <a-dgroup :title="t('apiScenario.logicControl')">
-          <a-doption :value="ScenarioAddStepActionType.LOOP_CONTROL">
-            <div class="flex w-full items-center justify-between">
-              {{ t('apiScenario.loopControl') }}
-              <MsButton type="text" @click="openTutorial">{{ t('apiScenario.tutorial') }}</MsButton>
-            </div>
-          </a-doption>
-          <a-doption :value="ScenarioAddStepActionType.CONDITION_CONTROL">
-            {{ t('apiScenario.conditionControl') }}
-          </a-doption>
-          <a-doption :value="ScenarioAddStepActionType.ONLY_ONCE_CONTROL">
-            {{ t('apiScenario.onlyOnceControl') }}
-          </a-doption>
-        </a-dgroup>
-        <a-dgroup :title="t('apiScenario.other')">
-          <a-doption :value="ScenarioAddStepActionType.SCRIPT_OPERATION">
-            {{ t('apiScenario.scriptOperation') }}
-          </a-doption>
-          <a-doption :value="ScenarioAddStepActionType.WAIT_TIME">{{ t('apiScenario.waitTime') }}</a-doption>
-        </a-dgroup>
-      </template>
-    </a-dropdown>
-    <importApiDrawer v-model:visible="importApiDrawerVisible" />
+    <div>
+      <stepTree ref="stepTreeRef" v-model:checked-keys="checkedKeys" :steps="stepInfo.steps" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import dayjs from 'dayjs';
+  // import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import executeStatus from '../common/executeStatus.vue';
-  import importApiDrawer from '../common/importApiDrawer/index.vue';
-  import stepType from '../common/stepType.vue';
+  import stepTree, { ScenarioStepItem } from './stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
-
-  export interface ScenarioStepItem {
-    id: string | number;
-    type: ScenarioStepType;
-    name: string;
-    description: string;
-    status: ScenarioExecuteStatus;
-    children?: ScenarioStepItem[];
-  }
+  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
   export interface ScenarioStepInfo {
     id: string | number;
     steps: ScenarioStepItem[];
-    checkedAll: boolean; // 是否全选
-    indeterminate: boolean; // 是否半选
-    isExpand: boolean; // 是否全部展开
-    executeTime: string; // 执行时间
+    executeTime?: string; // 执行时间
     executeSuccessCount?: number; // 执行成功数量
     executeFailCount?: number; // 执行失败数量
   }
 
+  const props = defineProps<{
+    isNew?: boolean; // 是否新建
+  }>();
+
   const { t } = useI18n();
 
+  const checkedAll = ref(false); // 是否全选
+  const indeterminate = ref(false); // 是否半选
+  const isExpandAll = ref(false); // 是否展开全部
+  const checkedKeys = ref<string[]>([]); // 选中的key
+  const stepTreeRef = ref<InstanceType<typeof stepTree>>();
   const keyword = ref('');
   const stepInfo = ref<ScenarioStepInfo>({
     id: new Date().getTime(),
-    steps: [],
-    checkedAll: false,
-    indeterminate: false,
-    isExpand: false,
-    executeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    steps: [
+      {
+        id: 1,
+        order: 1,
+        checked: false,
+        type: ScenarioStepType.CUSTOM_API,
+        name: 'API1',
+        description: 'API1描述',
+        status: ScenarioExecuteStatus.SUCCESS,
+        children: [
+          {
+            id: 11,
+            order: 1,
+            checked: false,
+            type: ScenarioStepType.CUSTOM_API,
+            name: 'API11',
+            description: 'API11描述',
+            status: ScenarioExecuteStatus.SUCCESS,
+          },
+          {
+            id: 12,
+            order: 2,
+            checked: false,
+            type: ScenarioStepType.CUSTOM_API,
+            name: 'API12',
+            description: 'API12描述',
+            status: ScenarioExecuteStatus.SUCCESS,
+          },
+        ],
+      },
+      {
+        id: 2,
+        order: 2,
+        checked: false,
+        type: ScenarioStepType.CUSTOM_API,
+        name: 'API1',
+        description: 'API1描述',
+        status: ScenarioExecuteStatus.SUCCESS,
+      },
+    ],
+    executeTime: '',
     executeSuccessCount: 0,
     executeFailCount: 0,
   });
 
   function handleChangeAll(value: boolean | (string | number | boolean)[]) {
-    stepInfo.value.indeterminate = false;
+    indeterminate.value = false;
     if (value) {
-      stepInfo.value.checkedAll = true;
+      checkedAll.value = true;
     } else {
-      stepInfo.value.checkedAll = false;
+      checkedAll.value = false;
     }
+    stepTreeRef.value?.checkAll(checkedAll.value);
   }
 
+  watch(checkedKeys, (val) => {
+    if (val.length === 0) {
+      checkedAll.value = false;
+      indeterminate.value = false;
+    } else if (val.length === stepInfo.value.steps.length) {
+      checkedAll.value = true;
+      indeterminate.value = false;
+    } else {
+      checkedAll.value = false;
+      indeterminate.value = true;
+    }
+  });
+
   function expandAllStep() {
-    stepInfo.value.isExpand = !stepInfo.value.isExpand;
+    isExpandAll.value = !isExpandAll.value;
   }
 
   function batchEnable() {
@@ -203,40 +218,6 @@
 
   function searchStep(val: string) {
     stepInfo.value.steps = stepInfo.value.steps.filter((item) => item.name.includes(val));
-  }
-
-  const importApiDrawerVisible = ref(false);
-
-  function handleActionSelect(val: ScenarioAddStepActionType) {
-    switch (val) {
-      case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
-        importApiDrawerVisible.value = true;
-        break;
-      case ScenarioAddStepActionType.CUSTOM_API:
-        console.log('自定义API');
-        break;
-      case ScenarioAddStepActionType.LOOP_CONTROL:
-        console.log('循环控制');
-        break;
-      case ScenarioAddStepActionType.CONDITION_CONTROL:
-        console.log('条件控制');
-        break;
-      case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
-        console.log('仅执行一次');
-        break;
-      case ScenarioAddStepActionType.SCRIPT_OPERATION:
-        console.log('脚本操作');
-        break;
-      case ScenarioAddStepActionType.WAIT_TIME:
-        console.log('等待时间');
-        break;
-      default:
-        break;
-    }
-  }
-
-  function openTutorial() {
-    window.open('https://zhuanlan.zhihu.com/p/597905464?utm_id=0', '_blank');
   }
 </script>
 
@@ -275,19 +256,6 @@
           }
         }
       }
-    }
-  }
-  .add-step-btn {
-    @apply bg-white;
-
-    padding: 4px;
-    border: 1px dashed rgb(var(--primary-3));
-    color: rgb(var(--primary-5));
-    &:hover,
-    &:focus {
-      border: 1px dashed rgb(var(--primary-5));
-      color: rgb(var(--primary-5));
-      background-color: rgb(var(--primary-1));
     }
   }
 </style>

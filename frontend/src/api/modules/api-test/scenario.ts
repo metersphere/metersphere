@@ -37,7 +37,7 @@ import {
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
-import { AddModuleParams, BatchApiParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
+import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
 
 // 更新模块
 export function updateModule(data: ApiScenarioModuleUpdateParams) {

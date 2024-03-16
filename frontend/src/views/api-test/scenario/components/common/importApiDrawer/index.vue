@@ -25,7 +25,13 @@
                 @change="resetModuleAndTable"
               />
             </div>
-            <moduleTree ref="moduleTreeRef" :type="activeKey" :protocol="protocol" @select="handleModuleSelect" />
+            <moduleTree
+              ref="moduleTreeRef"
+              :type="activeKey"
+              :project-id="currentProject"
+              :protocol="protocol"
+              @select="handleModuleSelect"
+            />
           </div>
         </div>
         <div class="table-container">
@@ -143,7 +149,7 @@
   const moduleIds = ref<(string | number)[]>([]);
 
   function resetModuleAndTable() {
-    moduleTreeRef.value?.init();
+    moduleTreeRef.value?.init(activeKey.value);
     apiTableRef.value?.loadPage(['root']); // 这里传入根模块id，因为模块需要加载，且默认选中的就是默认模块
   }
 
@@ -180,6 +186,9 @@
       if (val) {
         resetModuleAndTable();
       }
+    },
+    {
+      immediate: true,
     }
   );
 
