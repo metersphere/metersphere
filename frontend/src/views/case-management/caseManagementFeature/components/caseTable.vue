@@ -1563,6 +1563,10 @@
       }
     }
   );
+
+  defineExpose({
+    emitTableParams,
+  });
   await getDefaultFields();
 </script>
 

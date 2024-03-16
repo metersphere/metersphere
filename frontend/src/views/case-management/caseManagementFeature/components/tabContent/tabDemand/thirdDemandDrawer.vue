@@ -228,11 +228,20 @@
     }
   }
 
-  watchEffect(() => {
-    if (props.platformInfo.demand_platform_config) {
-      initColumn();
+  watch(
+    () => props.platformInfo.demand_platform_config,
+    (val) => {
+      if (val) {
+        initColumn();
+      }
     }
-  });
+  );
+
+  // watchEffect(() => {
+  //   if (props.platformInfo.demand_platform_config) {
+
+  //   }
+  // });
 
   watch(
     () => innerLinkDemandVisible.value,
