@@ -223,7 +223,9 @@
 
   const platformKeyword = ref<string>('');
 
+  const tableRef = ref();
   const initData = async () => {
+    tableRef.value?.initColumn(fullColumns);
     setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value });
     loadList();
   };
@@ -233,7 +235,6 @@
     resetSelector();
   };
 
-  const tableRef = ref();
   const customFields = ref<any[]>([]);
   async function initColumn() {
     fullColumns = [...columns];
@@ -262,7 +263,6 @@
   const linkDemandDrawer = ref<boolean>(false);
   function associatedDemand() {
     linkDemandDrawer.value = true;
-    initData();
   }
 
   function getSlotName(record: any, item: MsTableColumnData) {
@@ -350,11 +350,14 @@
     (val) => {
       if (val) {
         resetSelector();
-        nextTick(() => {
-          tableRef.value?.initColumn(fullColumns);
+        nextTick(async () => {
+          await tableRef.value?.initColumn(fullColumns);
           initData();
         });
       }
+    },
+    {
+      immediate: true,
     }
   );
 

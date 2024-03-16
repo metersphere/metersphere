@@ -269,4 +269,5 @@ export default {
   'caseManagement.featureCase.ModuleOwned': 'Module owned',
   'caseManagement.featureCase.excelImportTip': 'Only xls/xlsx files are supported',
   'caseManagement.featureCase.xmindImportTip': 'Only xmind files are supported',
+  'caseManagement.featureCase.AssociatedSuccess': 'Associated with success',
 };

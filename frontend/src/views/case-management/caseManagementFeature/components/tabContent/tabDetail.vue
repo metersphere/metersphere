@@ -21,14 +21,13 @@
             }}</a-button
           ></span
         >
-        <div v-if="isEditPreposition" class="px-2">
-          <MsRichText
-            v-model:raw="detailForm.prerequisite"
-            v-model:filed-ids="prerequisiteFileIds"
-            :upload-image="handleUploadImage"
-            class="mt-2"
-          />
-        </div>
+        <MsRichText
+          v-if="isEditPreposition"
+          v-model:raw="detailForm.prerequisite"
+          v-model:filed-ids="prerequisiteFileIds"
+          :upload-image="handleUploadImage"
+          class="mt-2"
+        />
 
         <div
           v-else
@@ -63,7 +62,7 @@
         </div>
         <!-- 步骤描述 -->
         <div v-if="detailForm.caseEditType === 'STEP'" class="w-full">
-          <AddStep v-model:step-list="stepData" :is-disabled="!isEditPreposition" />
+          <AddStep v-model:step-list="stepData" :is-scroll-y="false" :is-disabled="!isEditPreposition" />
         </div>
         <!-- 文本描述 -->
         <MsRichText
