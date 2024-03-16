@@ -280,12 +280,12 @@
       confirmLoading.value = true;
       const { status, params } = form;
       paramsList.value = JSON.parse(params);
-      const paramTableList = paramsList.value.slice(0, -1);
+      // const paramTableList = paramsList.value.slice(0, -1);
       const paramsObj: AddOrUpdateCommonScript = {
         ...form,
         status: status || 'DRAFT',
         projectId: currentProjectId.value,
-        params: JSON.stringify(paramTableList),
+        params,
       };
       await addOrUpdateCommonScriptReq(paramsObj);
       showScriptDrawer.value = false;

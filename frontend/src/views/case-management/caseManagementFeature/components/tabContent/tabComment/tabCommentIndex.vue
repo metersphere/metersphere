@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-4 flex items-center justify-between">
+  <div class="mb-4 flex items-center justify-between break-words break-all">
     <div class="font-medium">{{ t('caseManagement.featureCase.commentList') }}</div>
     <div>
       <a-radio-group v-model="activeComment" type="button">
@@ -52,12 +52,19 @@
           <div class="markdown-body" style="margin-left: 48px" v-html="item.contentText"></div>
           <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-            <span v-if="item.deleted" class="ml-[16px]">
-              {{ item.reviewName }}
-            </span>
-            <span v-else class="ml-[16px] cursor-pointer text-[rgb(var(--primary-5))]" @click="review(item)">
-              {{ item.reviewName }}
-            </span>
+            <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
+              <span v-if="item.deleted" class="one-text-line ml-[16px] max-w-[300px] break-words break-all">
+                {{ characterLimit(item.reviewName) }}
+              </span>
+
+              <span
+                v-else
+                class="one-text-line ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                @click="review(item)"
+              >
+                {{ characterLimit(item.reviewName) }}
+              </span>
+            </a-tooltip>
           </div>
         </div>
         <MsEmpty v-if="reviewCommentList.length === 0" />
@@ -87,6 +94,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';

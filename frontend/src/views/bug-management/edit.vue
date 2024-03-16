@@ -699,8 +699,12 @@
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           if (item.type !== 'MULTIPLE_INPUT') {
-            const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
-            tmpObj[item.id] = currentDefaultValue;
+            if (item.value) {
+              const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
+              tmpObj[item.id] = currentDefaultValue;
+            } else {
+              tmpObj[item.id] = [];
+            }
           } else {
             tmpObj[item.id] = JSON.parse(item.value);
           }
@@ -739,7 +743,7 @@
       title: res.title,
       description: res.description,
       templateId: res.templateId,
-      tags: res.tags,
+      tags: res.tags || [],
       projectId: res.projectId,
       platformSystemFields,
     };

@@ -172,56 +172,37 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
 
 export function initFormCreate(customFields: CustomAttributes[], permission: string[]) {
   return customFields.map((item: any) => {
-    const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
+    const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX'];
     const numberType = ['INT', 'FLOAT'];
     const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
+    const multipleInputType = ['MULTIPLE_INPUT'];
+    const singleType = ['SELECT', 'RADIO'];
     let currentDefaultValue;
-    let optionsValue = item.options;
+    const optionsValue = item.options || [];
     // 处理数字类型
     if (numberType.includes(item.type)) {
-      currentDefaultValue = item.defaultValue * 1;
+      currentDefaultValue = Number(item.defaultValue);
       // 处理多选项类型为空的默认值
     } else if (multipleType.includes(item.type) && Array.isArray(item.defaultValue) && item.defaultValue.length === 0) {
       currentDefaultValue = item.defaultValue;
       // 处理多选情况
     } else if (multipleType.includes(item.type)) {
-      if (item.type !== 'MULTIPLE_INPUT' && !item.type.includes('MEMBER')) {
-        const tempValue = JSON.parse(item.defaultValue);
-        const optionsIds = item.options?.map((e: any) => e.value);
-        currentDefaultValue = optionsIds.filter((e: any) => tempValue.includes(e));
-        // 多选成员
-      } else if (memberType.includes(item.type)) {
-        optionsValue = [
-          {
-            fieldId: item.fieldId,
-            internal: item.internal,
-            text: userStore.name || '',
-            value: userStore.id || '',
-          },
-        ];
-        // 多选成员没有选择CREATE_USER
-        if (Array.isArray(item.defaultValue) && !item.defaultValue.includes('CREATE_USER')) {
-          currentDefaultValue = [];
-          // 选择了创建人
-        } else if (item.defaultValue.includes('CREATE_USER')) {
-          currentDefaultValue = [userStore.id];
-          // 已选择成员
-        } else {
-          currentDefaultValue = JSON.parse(item.defaultValue);
-        }
-      } else {
-        currentDefaultValue = JSON.parse(item.defaultValue);
-      }
+      const tempValue = JSON.parse(item.defaultValue);
+      const optionsIds = optionsValue.map((e: any) => e.value);
+      currentDefaultValue = (optionsIds || []).filter((e: any) => tempValue.includes(e));
     } else if (memberType.includes(item.type)) {
-      optionsValue = [
-        {
-          fieldId: item.fieldId,
-          internal: item.internal,
-          text: userStore.name || '',
-          value: userStore.id || '',
-        },
-      ];
-      currentDefaultValue = item.defaultValue;
+      if (Array.isArray(item.defaultValue) && !item.defaultValue.includes('CREATE_USER')) {
+        currentDefaultValue = item.type === 'MEMBER' ? '' : [];
+      } else if (item.defaultValue.includes('CREATE_USER')) {
+        currentDefaultValue = item.type === 'MEMBER' ? '' : [];
+      } else {
+        currentDefaultValue = item.type === 'MEMBER' ? item.defaultValue : JSON.parse(item.defaultValue);
+      }
+    } else if (multipleInputType.includes(item.type)) {
+      currentDefaultValue = JSON.parse(item.defaultValue);
+    } else if (singleType.includes(item.type)) {
+      const optionsIds = optionsValue.map((e: any) => e.value);
+      currentDefaultValue = (optionsIds || []).find((e: any) => item.defaultValue === e) || '';
     } else {
       currentDefaultValue = item.defaultValue;
     }
