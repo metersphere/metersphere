@@ -4,11 +4,11 @@
       {{ t('apiScenario.params.priority') }}
     </a-alert>
   </div>
-  <div class="mb-[16px]">
+  <!--  <div class="mb-[16px]">
     <a-radio-group v-model="activeRadio" type="button" size="medium">
       <a-radio value="convention">{{ t('apiScenario.params.convention') }}</a-radio>
     </a-radio-group>
-  </div>
+  </div>-->
   <div class="mb-[16px] flex items-center justify-between">
     <a-input-search
       v-model="searchValue"
