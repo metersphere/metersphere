@@ -1,8 +1,8 @@
 <template>
   <FormCreate
-    v-model:api="formApi"
+    v-model:api="innerApi"
     :rule="formRules"
-    :option="props.option"
+    :option="props.option || options"
     @mounted="handleMounted"
     @reload="handleReload"
     @change="handleChange"
@@ -32,23 +32,31 @@
     api?: Api; // 收集表单的值
   }>();
 
+  const innerApi = ref<any>();
+
   const emits = defineEmits(['update:api', 'update:rule', 'mounted', 'reload', 'change']);
 
-  const formApi = ref<Api>();
-
-  watchEffect(() => {
-    formApi.value = props.api;
+  const formApi = computed({
+    get() {
+      return props.api;
+    },
+    set(val) {
+      emits('update:api', val);
+    },
   });
+
   watch(
     () => formApi.value,
     (val) => {
       emits('update:api', val);
-    }
+    },
+    { deep: true }
   );
 
   const formRules = ref<FormRule | undefined>([]);
   watchEffect(() => {
     formRules.value = props.rule;
+    formApi.value = props.api || innerApi.value;
   });
   watch(
     () => props.rule,
@@ -62,6 +70,9 @@
     () => formRules.value,
     (val) => {
       emits('update:rule', val);
+    },
+    {
+      deep: true,
     }
   );
 
@@ -75,8 +86,26 @@
 
   function handleChange(value: any) {
     formApi.value?.validateField(value);
-    emits('change');
+    emits('update:api', formApi.value);
+    emits('change', value, formApi.value);
   }
+  const options = {
+    resetBtn: false, // 不展示默认配置的重置和提交
+    submitBtn: false,
+    on: false, // 取消绑定on事件
+    form: {
+      layout: 'vertical',
+      labelAlign: 'left',
+    },
+    // 暂时默认
+    row: {
+      gutter: 0,
+    },
+    wrap: {
+      'asterisk-position': 'end',
+      'validate-trigger': ['change'],
+    },
+  };
 </script>
 
 <style scoped></style>

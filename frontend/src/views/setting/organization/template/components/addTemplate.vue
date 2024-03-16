@@ -124,10 +124,11 @@
             >
               <!-- 表单 -->
               <MsFormCreate
-                v-model:api="formItem.api"
+                v-model:api="formItem.fApi"
                 v-model:rule="formItem.formRules"
                 :option="configOptions"
                 @click="activeHandler(index)"
+                @change="(value, formApi) => changeHandler(value, formApi)"
               />
               <a-form
                 v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
@@ -354,6 +355,10 @@
     isError.value = false;
   }
 
+  function changeHandler(value: string, api: any) {
+    api.validateField(value);
+  }
+
   // 保存回调
   async function save() {
     try {
@@ -565,6 +570,7 @@
           {
             ...currentFormRules,
             title: item.fieldName,
+            field: item.fieldId,
             effect: {
               required: item.required,
             },

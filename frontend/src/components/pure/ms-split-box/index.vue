@@ -21,7 +21,7 @@
       >
         <div
           v-if="props.direction === 'horizontal' && props.expandDirection === 'right' && !props.disabled"
-          class="absolute right-0 h-full w-[12px]"
+          class="absolute right-0 z-40 h-full w-[12px]"
         >
           <div class="expand-icon expand-icon--left" @click="() => changeExpand()">
             <MsIcon

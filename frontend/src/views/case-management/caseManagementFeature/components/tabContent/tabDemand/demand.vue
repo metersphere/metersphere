@@ -78,10 +78,10 @@
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
         <template #demandName="{ record }">
-           <span class="ml-1 text-[rgb(var(--primary-5))]">
+          <span class="ml-1 text-[rgb(var(--primary-5))]">
             {{ record.demandName }}
             <span>({{ (record.children || []).length || 0 }})</span></span
-           >
+          >
         </template>
         <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
           <span> {{ getSlotName(record, item) }} </span>
@@ -188,11 +188,11 @@
     //   ellipsis: true,
     // },
   ];
-  const fullColumns = ref<MsTableColumn>([...columns]);
+  let fullColumns: MsTableColumn = [...columns];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEMAND_PLATFORM,
-    columns: fullColumns.value,
+    columns: fullColumns,
     rowKey: 'demandId',
     scroll: { x: '100%' },
     heightUsed: 290,
@@ -221,12 +221,6 @@
     return filteredData;
   });
 
-  // 关联需求
-  const linkDemandDrawer = ref<boolean>(false);
-  function associatedDemand() {
-    linkDemandDrawer.value = true;
-  }
-
   const platformKeyword = ref<string>('');
 
   const initData = async () => {
@@ -242,7 +236,7 @@
   const tableRef = ref();
   const customFields = ref<any[]>([]);
   async function initColumn() {
-    fullColumns.value = [...columns];
+    fullColumns = [...columns];
     try {
       const res = await getThirdDemandList({
         current: 1,
@@ -258,10 +252,17 @@
           options: item.options,
         };
       }) as any;
-      fullColumns.value = [...columns, ...customFields.value];
+      fullColumns = [...columns, ...customFields.value];
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // 关联需求
+  const linkDemandDrawer = ref<boolean>(false);
+  function associatedDemand() {
+    linkDemandDrawer.value = true;
+    initData();
   }
 
   function getSlotName(record: any, item: MsTableColumnData) {
@@ -332,12 +333,27 @@
     }
   }
 
+  async function initPlatform() {
+    try {
+      const result = await getCaseRelatedInfo(currentProjectId.value);
+      if (result && result.platform_key) {
+        platformInfo.value = { ...result };
+        initColumn();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   watch(
     () => linkDemandDrawer.value,
-    async (val) => {
+    (val) => {
       if (val) {
         resetSelector();
-        initData();
+        nextTick(() => {
+          tableRef.value?.initColumn(fullColumns);
+          initData();
+        });
       }
     }
   );
@@ -373,15 +389,7 @@
   }
 
   onMounted(async () => {
-    try {
-      const result = await getCaseRelatedInfo(currentProjectId.value);
-      if (result && result.platform_key) {
-        platformInfo.value = { ...result };
-        initColumn();
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    initPlatform();
   });
 
   // watch(
