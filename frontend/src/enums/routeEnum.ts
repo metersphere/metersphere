@@ -44,7 +44,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = 'projectManagementPermissionBasicInfo',
   PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT = 'projectManagementPermissionMenuManagement',
   PROJECT_MANAGEMENT_TEMPLATE = 'projectManagementTemplate',
-  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT = 'projectManagementTemplateManagement',
+  PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT = 'projectManagementTemplateList',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL = 'projectManagementTemplateManagementCaseDetail',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL = 'projectManagementTemplateManagementApiDetail',
   PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL = 'projectManagementTemplateManagementBugDetail',

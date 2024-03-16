@@ -122,7 +122,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 項目管理模板
     {
-      path: 'template',
+      path: 'projectManagementTemplate',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
       component: () => import('@/views/project-management/template/index.vue'),
       meta: {
@@ -133,7 +133,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 模板列表-模板字段设置
     {
-      path: 'templateFiledSetting',
+      path: 'projectManagementTemplateField',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
       component: () => import('@/views/project-management/template/components/projectFieldSetting.vue'),
       meta: {
@@ -155,7 +155,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 模板列表-模板管理列表
     {
-      path: 'templateManagement',
+      path: 'projectManagementTemplateList',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
       component: () => import('@/views/project-management/template/components/templateManagement.vue'),
       meta: {
@@ -177,7 +177,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-用例模板
     {
-      path: 'templateManagementCaseDetail/:mode?',
+      path: 'projectManagementTemplateCaseDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CASE_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {
@@ -205,7 +205,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-接口模板
     {
-      path: 'templateManagementApiDetail/:mode?',
+      path: 'projectManagementTemplateApiDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {
@@ -233,7 +233,7 @@ const ProjectManagement: AppRouteRecordRaw = {
     },
     // 项目-模板-缺陷模板
     {
-      path: 'templateManagementBugDetail/:mode?',
+      path: 'projectManagementTemplateBugDetail/:mode?',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL,
       component: () => import('@/views/project-management/template/components/detail.vue'),
       meta: {

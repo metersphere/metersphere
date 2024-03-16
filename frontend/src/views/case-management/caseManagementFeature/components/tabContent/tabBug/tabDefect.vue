@@ -52,18 +52,17 @@
           @search="getFetch"
           @press-enter="getFetch"
           @clear="resetFetch"
+          @input="changeHandler"
         ></a-input-search>
       </div>
     </div>
     <ms-base-table v-if="showType === 'link'" ref="tableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
       <template #name="{ record }">
         <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
-        <a-popover title="" position="right">
+        <a-popover title="" position="right" style="width: 480px">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
-            <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
-              {{ record.content }}
-            </div>
+            <div v-dompurify-html="record.content" class="markdown-body break-words" style="margin-left: 48px"> </div>
           </template>
         </a-popover>
       </template>
@@ -532,6 +531,13 @@
       projectId: appStore.currentProjectId,
     });
     total.value = res.total;
+  }
+
+  function changeHandler() {
+    console.log(keyword.value);
+    if (keyword.value.trim().length === 0) {
+      getFetch();
+    }
   }
 
   onMounted(() => {

@@ -93,12 +93,30 @@
           />
         </a-form-item>
         <!-- 日期和数值 -->
+
         <a-form-item
-          v-if="showDateOrNumber?.length"
+          v-if="fieldForm.type === 'NUMBER'"
           field="selectFormat"
-          :label="
-            fieldForm.type === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')
-          "
+          :label="t('system.orgTemplate.numberFormat')"
+          asterisk-position="end"
+        >
+          <a-select
+            v-model="selectNumber"
+            class="w-[260px]"
+            :placeholder="t('system.orgTemplate.formatPlaceholder')"
+            allow-clear
+            :default-value="numberTypeOptions[0].value"
+            :disabled="isEdit"
+          >
+            <a-option v-for="item of numberTypeOptions" :key="item.value" :value="item.value">
+              <div class="flex items-center">{{ item.label }}</div>
+            </a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item
+          v-if="fieldForm.type === 'DATE'"
+          field="selectFormat"
+          :label="t('system.orgTemplate.dateFormat')"
           asterisk-position="end"
         >
           <a-select
@@ -107,8 +125,9 @@
             :placeholder="t('system.orgTemplate.formatPlaceholder')"
             allow-clear
             :disabled="isEdit"
+            :default-value="dateOptions[0].value"
           >
-            <a-option v-for="item of showDateOrNumber" :key="item.value" :value="item.value">
+            <a-option v-for="item of dateOptions" :key="item.value" :value="item.value">
               <div class="flex items-center">{{ item.label }}</div>
             </a-option>
           </a-select>
@@ -138,7 +157,7 @@
 
   import type { AddOrUpdateField, fieldIconAndNameModal, FieldOptions } from '@/models/setting/template';
 
-  import { fieldIconAndName, getFieldRequestApi, getFieldType } from './fieldSetting';
+  import { dateOptions, fieldIconAndName, getFieldRequestApi, getFieldType, numberTypeOptions } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -174,6 +193,7 @@
   const fieldForm = ref<AddOrUpdateField>({ ...initFieldForm });
   const isEdit = ref<boolean>(false);
   const selectFormat = ref<FormItemType>(); // 选择格式
+  const selectNumber = ref<FormItemType>(); // 数字格式
   const isMultipleSelectMember = ref<boolean | undefined>(false); // 成员多选
   const fieldType = ref<FormItemType>(); // 整体字段类型
 
@@ -181,18 +201,6 @@
   const showOptionsSelect = computed(() => {
     const showOptionsType: FormItemType[] = ['RADIO', 'CHECKBOX', 'SELECT', 'MULTIPLE_SELECT'];
     return showOptionsType.includes(fieldForm.value.type as FormItemType);
-  });
-
-  // 是否展示日期或数值
-  const showDateOrNumber = computed(() => {
-    // if (getFieldType(fieldForm.value.type)[0]) {
-    //   selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
-    //   if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
-    // }
-    selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
-    if (fieldForm.value.type) {
-      return getFieldType(fieldForm.value.type);
-    }
   });
 
   // 批量表单-1.仅选项情况
@@ -263,7 +271,7 @@
       formCopy.scene = route.query.type;
       formCopy.scopeId = scopeId.value;
 
-      // 如果选择是日期或者数值
+      // 如果选择是日期
       if (selectFormat.value) {
         formCopy.type = selectFormat.value;
       }
@@ -273,9 +281,9 @@
         formCopy.type = isMultipleSelectMember.value ? 'MULTIPLE_MEMBER' : 'MEMBER';
       }
 
-      // 如果选择是日期或者是数值
-      if (selectFormat.value) {
-        formCopy.type = selectFormat.value;
+      // 如果选择是数值
+      if (selectNumber.value) {
+        formCopy.type = selectNumber.value;
       }
 
       // 处理参数
@@ -362,10 +370,10 @@
   const getSpecialHandler = (itemType: FormItemType): FormItemType => {
     switch (itemType) {
       case 'INT':
-        selectFormat.value = itemType;
+        selectNumber.value = itemType;
         return 'NUMBER';
       case 'FLOAT':
-        selectFormat.value = itemType;
+        selectNumber.value = itemType;
         return 'NUMBER';
       case 'MULTIPLE_MEMBER':
         return 'MEMBER';

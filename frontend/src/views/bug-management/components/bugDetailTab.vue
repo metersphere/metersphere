@@ -9,7 +9,7 @@
       </div>
     </div>
     <!-- 左侧布局默认内容(非平台默认模板时默认展示) -->
-    <div v-if="!isPlatformDefaultTemplate" class="default-content">
+    <div v-if="!isPlatformDefaultTemplate" class="default-content !break-words break-all">
       <div class="header-title">{{ t('bugManagement.edit.content') }}</div>
       <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
         <MsRichText

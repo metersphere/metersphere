@@ -337,7 +337,7 @@ const Setting: AppRouteRecordRaw = {
                 query: ['type'],
               },
               {
-                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_API_DETAIL,
                 locale: 'system.orgTemplate.createApiTemplate',
                 editTag: 'id',
                 editLocale: 'system.orgTemplate.updateApiTemplate',
@@ -365,7 +365,7 @@ const Setting: AppRouteRecordRaw = {
                 query: ['type'],
               },
               {
-                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_BUG_DETAIL,
                 locale: 'system.orgTemplate.createDefectTemplate',
                 editTag: 'id',
                 editLocale: 'system.orgTemplate.updateDefectTemplate',

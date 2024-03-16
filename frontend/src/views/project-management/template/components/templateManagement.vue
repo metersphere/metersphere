@@ -421,7 +421,7 @@
     } else if (route.query.type === 'API') {
       routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL;
     } else {
-      routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_API_DETAIL;
+      routeName.value = ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_BUG_DETAIL;
     }
   });
 </script>

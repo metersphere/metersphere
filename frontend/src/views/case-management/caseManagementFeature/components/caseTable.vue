@@ -12,17 +12,18 @@
     @refresh="fetchData()"
   >
     <template #left>
-      <a-tooltip
-        :content="moduleNamePath + '(' + (props.modulesCount[props.activeFolder] || 0) + ')'"
-        position="bottom"
-        background-color="#FFFFFF"
-        :content-style="{ color: '#000000' }"
-      >
+      <a-popover title="" position="bottom">
         <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
           >{{ moduleNamePath }}
           <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
         >
-      </a-tooltip>
+        <template #content>
+          <div class="text-[14px] font-medium text-[var(--color-text-1)]">
+            {{ moduleNamePath }}
+            <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+          </div>
+        </template>
+      </a-popover>
     </template>
     <template #right>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
@@ -48,7 +49,7 @@
     </template>
     <template #name="{ record, rowIndex }">
       <a-button type="text" class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{
-        record.name
+        characterLimit(record.name)
       }}</a-button>
     </template>
     <template #updateUserName="{ record }">
@@ -1590,4 +1591,7 @@
       }
     }
   }
+  // :deep(.moduleNameClass) {
+  //   box-shadow: 0 3px 14px 2px rgba(0/ 0/0 5%), 0 8px 10px 1px rgba(0/ 0/0 6%), 0 5px 5px -3px rgba(0/ 0/0 1%);
+  // }
 </style>
