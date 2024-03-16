@@ -66,6 +66,7 @@
                 :modules-count="modulesCount"
                 @case-node-select="caseNodeSelect"
                 @init="setRootModules"
+                @drag-update="dragUpdate"
               ></FeatureCaseTree>
               <div class="b-0 absolute w-[88%]">
                 <a-divider class="!my-0 !mb-2" />
@@ -83,6 +84,7 @@
         <template #second>
           <div class="p-[24px]">
             <CaseTable
+              ref="caseTableRef"
               :active-folder="activeFolder"
               :offspring-ids="offspringIds"
               :active-folder-type="activeCaseType"
@@ -233,6 +235,14 @@
     }
   };
 
+  /**
+   * 设置根模块名称列表
+   * @param names 根模块名称列表
+   */
+  function setRootModules(names: string[]) {
+    rootModulesName.value = names;
+  }
+
   // 表格搜索参数
   const tableFilterParams = ref<TableQueryParams>({
     moduleIds: [],
@@ -254,15 +264,6 @@
     featureCaseStore.getCaseModulesCount(params);
     featureCaseStore.getRecycleModulesCount(params);
     tableFilterParams.value = { ...params };
-  }
-
-  /**
-   * 设置根模块名称列表
-   * @param names 根模块名称列表
-   */
-  function setRootModules(names: string[]) {
-    initModulesCount({ ...tableFilterParams.value });
-    rootModulesName.value = names;
   }
 
   // 创建用例
@@ -384,6 +385,12 @@
     } finally {
       importLoading.value = false;
     }
+  }
+
+  const caseTableRef = ref();
+
+  function dragUpdate() {
+    caseTableRef.value.emitTableParams();
   }
 </script>
 

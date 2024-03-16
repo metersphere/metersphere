@@ -113,7 +113,7 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init']);
+  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init', 'dragUpdate']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -273,7 +273,8 @@
       console.log(error);
     } finally {
       loading.value = false;
-      initModules();
+      // initModules();
+      emits('dragUpdate');
     }
   }
 
