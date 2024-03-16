@@ -77,6 +77,13 @@
         ></a-input-search>
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
+        <template #demandId="{ record }">
+          <a-tooltip :content="record.demandId" :mouse-enter-delay="300">
+            <div class="one-line-text max-w-[300px]">
+              {{ record.demandId }}
+            </div>
+          </a-tooltip>
+        </template>
         <template #demandName="{ record }">
           <span class="ml-1 text-[rgb(var(--primary-5))]">
             {{ record.demandName }}

@@ -106,15 +106,19 @@
       <div class="p-4">
         <div class="flex">
           <span class="label">{{ t('system.orgTemplate.fieldName') }}</span>
-          <span class="content">{{ detailInfo?.name }}</span>
+          <a-tooltip :content="detailInfo?.name" mini position="lt">
+            <span class="content ellipsis">{{ detailInfo?.name }}</span>
+          </a-tooltip>
         </div>
         <div class="flex">
           <span class="label">{{ t('system.orgTemplate.description') }}</span>
-          <span class="content">{{ detailInfo?.remark || '-' }}</span>
+          <a-tooltip mini position="lt" :content="detailInfo?.remark">
+            <span class="content ellipsis">{{ detailInfo?.remark || '-' }}</span>
+          </a-tooltip>
         </div>
         <div class="flex">
           <span class="label">{{ t('system.orgTemplate.fieldType') }}</span>
-          <span class="content">{{ detailInfo?.fieldType || '-' }}</span>
+          <span class="content ellipsis">{{ detailInfo?.fieldType || '-' }}</span>
         </div>
         <div v-if="detailInfo?.options?.length" class="flex">
           <span class="label">{{ t('system.orgTemplate.optionContent') }}</span>
@@ -419,13 +423,17 @@
   }
   .label {
     margin-top: 16px;
-    width: 30%;
+    width: 120px;
+    flex-shrink: 0;
+    text-align: left;
     color: var(--color-text-3);
   }
   .content {
     margin-top: 16px;
-    width: 70%;
+    flex: 1;
+    width: 90%;
     color: var(--color-text-1);
+    @apply inline-block;
   }
   .ellipsis {
     overflow: hidden;

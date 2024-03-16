@@ -79,6 +79,7 @@
       title: 'caseManagement.featureCase.tableColumnID',
       slotName: 'demandId',
       dataIndex: 'demandId',
+      showTooltip: true,
       width: 200,
     },
     {
