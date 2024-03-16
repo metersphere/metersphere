@@ -34,9 +34,19 @@
   const { t } = useI18n();
   const activeMenus: Ref<RouteRecordName[]> = ref([]);
 
+  function checkAuthMenu() {
+    const topMenus = appStore.getTopMenus;
+    if (appStore.packageType === 'community') {
+      appStore.setTopMenus(topMenus.filter((item) => item.name !== RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT));
+    } else {
+      appStore.setTopMenus(topMenus);
+    }
+  }
+
   watch(
     () => appStore.getCurrentTopMenu?.name,
     (val) => {
+      checkAuthMenu();
       activeMenus.value = [val || ''];
     },
     {
@@ -130,12 +140,7 @@
   watch(
     () => appStore.packageType,
     (val) => {
-      const topMenus = appStore.getTopMenus;
-      if (val === 'enterprise') {
-        appStore.setTopMenus(topMenus);
-      } else {
-        appStore.setTopMenus(topMenus.filter((item) => item.name !== RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT));
-      }
+      checkAuthMenu();
     }
   );
 </script>
