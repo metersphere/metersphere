@@ -17,7 +17,7 @@
       <div class="flex flex-row items-center gap-[4px]">
         <div class="one-line-text">{{ record.name }}</div>
         <div class="ml-1 text-[var(--color-text-4)]">{{
-          `(${record.internal ? t('common.internal') : t('common.custom')})`
+          `(${record.scopeId === 'global' ? t('common.internal') : t('common.custom')})`
         }}</div>
       </div>
     </template>
@@ -34,10 +34,10 @@
       <div class="flex flex-row flex-nowrap">
         <span v-permission="['PROJECT_GROUP:READ']" class="flex flex-row">
           <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
-          <a-divider v-if="!record.internal" direction="vertical" />
+          <a-divider v-if="record.scopeId !== 'global'" direction="vertical" />
         </span>
         <MsButton
-          v-if="!record.internal"
+          v-if="record.scopeId !== 'global'"
           v-permission="['PROJECT_GROUP:READ+UPDATE']"
           class="!mr-0"
           status="danger"
@@ -51,7 +51,7 @@
     :width="928"
     :visible="authVisible"
     unmount-on-close
-    :footer="!currentItem.internal"
+    :footer="currentItem.scopeId !== 'global'"
     :title="currentItem.name"
     :mask="false"
     @cancel="authVisible = false"
@@ -61,7 +61,7 @@
       :show-bottom="false"
       :scroll="{ x: 800, y: 'calc(100vh - 150px)' }"
       :current="currentItem"
-      :disabled="!hasAnyPermission(['PROJECT_GROUP:READ+UPDATE'])"
+      :disabled="!hasAnyPermission(['PROJECT_GROUP:READ+UPDATE']) || currentItem.scopeId === 'global'"
     />
     <template #footer>
       <div class="flex items-center justify-between">
