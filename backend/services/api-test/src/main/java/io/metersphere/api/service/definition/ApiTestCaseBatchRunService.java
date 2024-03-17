@@ -13,7 +13,10 @@ import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.service.EnvironmentService;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.CollectionReportDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -22,7 +25,6 @@ import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -191,10 +193,9 @@ public class ApiTestCaseBatchRunService {
      */
     private void initApiReportSteps(List<String> ids, Map<String, ApiTestCase> apiCaseMap, String reportId) {
         AtomicLong sort = new AtomicLong(1);
-        List<ApiReportStep> apiReportSteps = ids.stream().map(id -> {
-            ApiReportStep apiReportStep = getApiReportStep(apiCaseMap.get(id), reportId, sort.getAndIncrement());
-            return apiReportStep;
-        }).collect(Collectors.toList());
+        List<ApiReportStep> apiReportSteps = ids.stream()
+                .map(id -> getApiReportStep(apiCaseMap.get(id), reportId, sort.getAndIncrement()))
+                .collect(Collectors.toList());
         apiReportService.insertApiReportStep(apiReportSteps);
     }
 

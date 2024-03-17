@@ -10,15 +10,6 @@ import lombok.Data;
 @Data
 public class ApiScenarioStepDTO extends ApiScenarioStepCommonDTO {
 
-    @Schema(description = "步骤名称")
-    private String name;
-
-    @Schema(description = "资源编号")
-    private String resourceNum;
-
-    @Schema(description = "版本号")
-    private String versionId;
-
     @Schema(description = "场景id")
     private String scenarioId;
 

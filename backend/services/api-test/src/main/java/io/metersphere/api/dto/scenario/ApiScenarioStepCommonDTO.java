@@ -60,6 +60,19 @@ public class ApiScenarioStepCommonDTO {
     @NotBlank
     private String projectId;
 
+    @Schema(description = "步骤名称")
+    @NotBlank(message = "{api_scenario_step.name.not_blank}")
+    @Size(min = 1, max = 255, message = "{api_scenario_step.name.length_range}")
+    private String name;
+
+    @Schema(description = "资源编号")
+    @Size(min = 1, max = 50, message = "{api_scenario_step.resource_num.length_range}")
+    private String resourceNum;
+
+    @Schema(description = "版本号")
+    @Size(min = 1, max = 50, message = "{api_scenario_step.version_id.length_range}")
+    private String versionId;
+
     @Valid
     @Schema(description = "子步骤")
     private List<? extends ApiScenarioStepCommonDTO> children;

@@ -96,7 +96,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
     protected static final String STEP_GET = "step/get";
     protected static final String DEBUG = "debug";
-    protected static final String RUN = "run/{0}/{1}";
+    protected static final String RUN = "run/{0}";
+    protected static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
 
@@ -1003,10 +1004,15 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(6)
     public void run() throws Exception {
         mockPost("/api/run", "");
-        this.requestGetWithOk(RUN, addApiScenario.getId(), "11111");
+        this.requestGetWithOk(RUN, addApiScenario.getId());
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN, addApiScenario.getId(), "11111");
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN, addApiScenario.getId());
+
+        this.requestGetWithOk(RUN_REAL_TIME, addApiScenario.getId(), "reportId");
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN_REAL_TIME, addApiScenario.getId(), "reportId");
     }
 
     public Plugin addEnvTestPlugin() throws Exception {

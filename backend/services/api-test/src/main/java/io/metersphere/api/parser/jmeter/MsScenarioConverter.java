@@ -83,9 +83,12 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
      * @param envInfo
      */
     private void addArguments(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo) {
-
+        if (envInfo == null) {
+            return;
+        }
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         ScenarioVariable scenarioVariable = scenarioConfig == null ? new ScenarioVariable() : scenarioConfig.getVariable();
+        scenarioVariable = scenarioVariable == null ? new ScenarioVariable() : scenarioVariable;
         List<CommonVariables> commonVariables = scenarioVariable.getCommonVariables();
 
         List<CommonVariables> envCommonVariables = List.of();

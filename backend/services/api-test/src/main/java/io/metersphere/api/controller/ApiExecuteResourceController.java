@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
@@ -26,6 +27,8 @@ public class ApiExecuteResourceController {
     private ApiExecuteService apiExecuteService;
     @Resource
     private ApiReportService apiReportService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
 
     /**
      * 获取执行脚本
@@ -41,6 +44,7 @@ public class ApiExecuteResourceController {
         String script = stringRedisTemplate.opsForValue().get(key);
         stringRedisTemplate.delete(key);
         apiReportService.updateRunningReport(reportId);
+        apiScenarioReportService.updateRunningReport(reportId);
         return Optional.ofNullable(script).orElse(StringUtils.EMPTY);
     }
 

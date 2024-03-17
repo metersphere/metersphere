@@ -675,14 +675,15 @@ public class ApiTestCaseService extends MoveNodeService {
 
         if (StringUtils.isEmpty(taskRequest.getReportId())) {
             taskRequest.setRealTime(false);
-            taskRequest.setReportId(IDGenerator.nextStr());
+            reportId = IDGenerator.nextStr();
+            taskRequest.setReportId(reportId);
         } else {
             // 如果传了报告ID，则实时获取结果
             taskRequest.setRealTime(true);
         }
 
         // 初始化报告
-        initApiReport(apiTestCase, taskRequest.getReportId(), poolId, userId);
+        initApiReport(apiTestCase, reportId, poolId, userId);
 
         return doExecute(taskRequest, runRequest, apiTestCase.getEnvironmentId());
     }
@@ -721,15 +722,12 @@ public class ApiTestCaseService extends MoveNodeService {
      * @param userId
      * @return
      */
-    public List<ApiTestCaseRecord> initApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
-        List<ApiReport> apiReports = new ArrayList<>();
-        List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
+    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
 
         // 初始化报告
         ApiReport apiReport = getApiReport(userId);
         apiReport.setId(reportId);
         apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        apiReports.add(apiReport);
         apiReport.setName(apiTestCase.getName());
         apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         apiReport.setPoolId(poolId);
@@ -737,10 +735,9 @@ public class ApiTestCaseService extends MoveNodeService {
 
         // 创建报告和用例的关联关系
         ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
-        apiTestCaseRecords.add(apiTestCaseRecord);
 
-        apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
-        return apiTestCaseRecords;
+        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
+        return apiTestCaseRecord;
     }
 
     public ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {
