@@ -373,7 +373,7 @@ export interface ExecutePluginRequestParams {
 // 执行接口调试入参
 export interface ExecuteRequestParams {
   id?: string;
-  reportId: string;
+  reportId?: string;
   environmentId: string;
   uploadFileIds: string[];
   linkFileIds: string[];

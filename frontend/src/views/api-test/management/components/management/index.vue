@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
   import { SelectOptionData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import api from './api/index.vue';
@@ -73,7 +74,16 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
+  import {
+    RequestAuthType,
+    RequestComposition,
+    RequestDefinitionStatus,
+    RequestMethods,
+    ResponseComposition,
+  } from '@/enums/apiEnum';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
+
+  import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     activeModule: string;
@@ -112,6 +122,76 @@
     } as unknown as RequestParam,
   ]);
   const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
+
+  // api下的创建用例弹窗也用到了defaultCaseParams
+  const initDefaultId = `case-${Date.now()}`;
+  const defaultCaseParams: RequestParam = {
+    id: initDefaultId,
+    type: 'case',
+    moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
+    protocol: 'HTTP',
+    tags: [],
+    description: '',
+    priority: 'P0',
+    status: RequestDefinitionStatus.PROCESSING,
+    url: '',
+    activeTab: RequestComposition.HEADER,
+    closable: true,
+    method: RequestMethods.GET,
+    headers: [],
+    body: cloneDeep(defaultBodyParams),
+    query: [],
+    rest: [],
+    polymorphicName: '',
+    name: '',
+    path: '',
+    projectId: '',
+    uploadFileIds: [],
+    linkFileIds: [],
+    authConfig: {
+      authType: RequestAuthType.NONE,
+      basicAuth: {
+        userName: '',
+        password: '',
+      },
+      digestAuth: {
+        userName: '',
+        password: '',
+      },
+    },
+    children: [
+      {
+        polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
+        assertionConfig: {
+          enableGlobal: false,
+          assertions: [],
+        },
+        postProcessorConfig: {
+          enableGlobal: false,
+          processors: [],
+        },
+        preProcessorConfig: {
+          enableGlobal: false,
+          processors: [],
+        },
+      },
+    ],
+    otherConfig: {
+      connectTimeout: 60000,
+      responseTimeout: 60000,
+      certificateAlias: '',
+      followRedirects: true,
+      autoRedirects: false,
+    },
+    responseActiveTab: ResponseComposition.BODY,
+    response: cloneDeep(defaultResponse),
+    responseDefinition: [cloneDeep(defaultResponseItem)],
+    isNew: true,
+    unSaved: false,
+    executeLoading: false,
+    preDependency: [], // 前置依赖
+    postDependency: [], // 后置依赖
+  };
 
   // 监听模块树的激活节点变化，记录表格数据的模块 id
   watch(
@@ -236,6 +316,7 @@
 
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));
+  provide('defaultCaseParams', readonly(defaultCaseParams));
 
   defineExpose({
     newTab,

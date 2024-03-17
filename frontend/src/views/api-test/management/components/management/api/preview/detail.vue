@@ -338,6 +338,7 @@
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   const props = defineProps<{
+    isCase?: boolean; // case详情
     detail: RequestParam;
     protocols: ProtocolItem[];
   }>();
@@ -408,6 +409,12 @@
       pluginLoading.value = false;
     }
   }
+
+  watchEffect(() => {
+    if (!props.isCase) return;
+    // case编辑后需要刷新数据
+    previewDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+  });
 
   watch(
     () => props.detail.id,

@@ -183,6 +183,7 @@ export default {
   'case.recycle.recoverCaseTip': '恢复case时会同步恢复被删除的api',
   'case.recycle.confirmRecovery': '确认恢复',
   'case.createCase': '创建用例',
+  'case.updateCase': '更新用例',
   'case.saveContinueText': '保存并继续创建',
   'case.detail.changeHistoryTip': '查看、对比历史修改，根据管理员设置规则，变更历史数据将自动删除',
   'case.detail.noReminders': '不再提醒',
@@ -191,5 +192,4 @@ export default {
   'case.detail.operator': '操作人',
   'case.detail.tableColumnUpdateTime': '更新时间',
   'case.detail.execute.success': '执行成功',
-
 };
