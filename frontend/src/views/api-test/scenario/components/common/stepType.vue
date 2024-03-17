@@ -2,11 +2,11 @@
   <div
     class="rounded-[0_999px_999px_0] border border-solid px-[8px] py-[2px] text-[12px] leading-[16px]"
     :style="{
-      borderColor: status.color,
-      color: status.color,
+      borderColor: type.color,
+      color: type.color,
     }"
   >
-    {{ status.label }}
+    {{ type.label }}
   </div>
 </template>
 
@@ -16,7 +16,7 @@
   import { ScenarioStepType } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    status: ScenarioStepType;
+    type: ScenarioStepType;
   }>();
 
   const { t } = useI18n();
@@ -37,8 +37,8 @@
     [ScenarioStepType.CUSTOM_API]: { label: 'apiScenario.customApi', color: 'rgb(var(--link-4))' },
   };
 
-  const status = computed(() => {
-    const config = scenarioStepMap[props.status];
+  const type = computed(() => {
+    const config = scenarioStepMap[props.type];
     return {
       border: `1px solid ${config?.color}`,
       color: config?.color,

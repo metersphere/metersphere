@@ -154,6 +154,9 @@
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-tabs-nav) {
+    @apply border-b;
+  }
   :deep(.arco-tabs-content) {
     @apply pt-0;
   }

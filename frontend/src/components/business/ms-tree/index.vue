@@ -1,13 +1,13 @@
 <template>
   <div ref="treeContainerRef" :class="['ms-tree-container', containerStatusClass]">
     <a-tree
-      v-show="treeData.length > 0"
+      v-show="data.length > 0"
       v-bind="props"
       ref="treeRef"
       v-model:expanded-keys="expandedKeys"
       v-model:selected-keys="selectedKeys"
       v-model:checked-keys="checkedKeys"
-      :data="treeData"
+      :data="data"
       class="ms-tree"
       :allow-drop="handleAllowDrop"
       @drag-start="onDragStart"
@@ -15,6 +15,7 @@
       @drop="onDrop"
       @select="select"
       @check="checked"
+      @expand="expand"
     >
       <template v-if="$slots['title']" #title="_props">
         <a-tooltip
@@ -64,7 +65,7 @@
     </a-tree>
     <slot name="empty">
       <div
-        v-show="treeData.length === 0 && props.emptyText"
+        v-show="data.length === 0 && props.emptyText"
         class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
       >
         {{ props.emptyText }}
@@ -74,8 +75,8 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
-  import { debounce } from 'lodash-es';
+  import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -83,14 +84,12 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import useContainerShadow from '@/hooks/useContainerShadow';
-  import { mapTree } from '@/utils/index';
 
-  import type { MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
+  import type { MsTreeExpandedData, MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
   import { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
 
   const props = withDefaults(
     defineProps<{
-      data: MsTreeNodeData[];
       keyword?: string; // 搜索关键字
       searchDebounce?: number; // 搜索防抖 ms 数
       draggable?: boolean; // 是否可拖拽
@@ -107,6 +106,8 @@
       checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
       virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
       disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
+      actionOnNodeClick?: 'expand'; // 点击节点时的操作
+      nodeHighlightBackgroundColor?: string; // 节点高亮背景色
       titleTooltipPosition?:
         | 'top'
         | 'tl'
@@ -151,8 +152,12 @@
     (e: 'moreActionSelect', item: ActionsItem, node: MsTreeNodeData): void;
     (e: 'moreActionsClose'): void;
     (e: 'check', val: Array<string | number>): void;
+    (e: 'expand', node: MsTreeExpandedData): void;
   }>();
 
+  const data = defineModel<MsTreeNodeData[]>('data', {
+    required: true,
+  });
   const selectedKeys = defineModel<(string | number)[]>('selectedKeys', {
     default: [],
   });
@@ -172,25 +177,8 @@
     overHeight: 32,
     containerClassName: 'ms-tree-container',
   });
-  const originalTreeData = ref<MsTreeNodeData[]>([]);
 
   function init(isFirstInit = false) {
-    originalTreeData.value = mapTree<MsTreeNodeData>(props.data);
-    // (node: MsTreeNodeData) => {
-    //   // if (!props.showLine) {
-    //   //   // 不展示连接线时才设置节点图标，因为展示连接线时非叶子节点会展示默认的折叠图标。它不会覆盖 switcherIcon，但是会被 switcherIcon 覆盖
-    //   //   node.icon = () => h('span', { class: 'hidden' });
-    //   // }
-    //   // if (
-    //   //   node[props.fieldNames.isLeaf || 'isLeaf'] ||
-    //   //   !node[props.fieldNames.children] ||
-    //   //   node[props.fieldNames.children]?.length === 0
-    //   // ) {
-    //   //   // 设置子节点图标，会覆盖 icon。当展示连接线时，需要设置 switcherIcon 以覆盖组件的默认图标；不展示连接线则是 icon
-    //   //   node[props.showLine ? 'switcherIcon' : 'icon'] = () => h('span', { class: 'hidden' });
-    //   // }
-    //   return node;
-    // });
     nextTick(() => {
       if (isFirstInit) {
         if (props.defaultExpandAll) {
@@ -212,10 +200,18 @@
     init(true);
   });
 
+  const originTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
+
   watch(
-    () => props.data,
-    () => {
-      init();
+    () => data.value,
+    (val) => {
+      if (!props.keyword) {
+        originTreeData.value = cloneDeep(val);
+      }
+    },
+    {
+      deep: true,
+      immediate: true,
     }
   );
 
@@ -224,16 +220,17 @@
    * @param keyword 搜索关键字
    */
   function searchData(keyword: string) {
-    const search = (data: MsTreeNodeData[]) => {
+    const search = (_data: MsTreeNodeData[]) => {
       const result: MsTreeNodeData[] = [];
-      data.forEach((item) => {
+      _data.forEach((item) => {
         if (item[props.fieldNames.title].toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
-          result.push({ ...item });
+          result.push({ ...item, expanded: true });
         } else if (item[props.fieldNames.children]) {
           const filterData = search(item[props.fieldNames.children]);
           if (filterData.length) {
             result.push({
               ...item,
+              expanded: true,
               [props.fieldNames.children]: filterData,
             });
           }
@@ -243,25 +240,26 @@
       return result;
     };
 
-    return search(originalTreeData.value);
+    return search(originTreeData.value);
   }
-
-  const treeData = ref<MsTreeNodeData[]>([]);
 
   // 防抖搜索
   const updateDebouncedSearch = debounce(() => {
     if (props.keyword) {
-      treeData.value = searchData(props.keyword);
+      data.value = searchData(props.keyword);
     }
   }, props.searchDebounce);
 
-  watchEffect(() => {
-    if (!props.keyword) {
-      treeData.value = originalTreeData.value;
-    } else {
-      updateDebouncedSearch();
+  watch(
+    () => props.keyword,
+    (val) => {
+      if (!val) {
+        data.value = cloneDeep(originTreeData.value);
+      } else {
+        updateDebouncedSearch();
+      }
     }
-  });
+  );
 
   function loop(
     _data: MsTreeNodeData[],
@@ -309,13 +307,13 @@
     dropNode: MsTreeNodeData; // 放入的节点
     dropPosition: number; // 放入的位置，-1 为放入节点前，1 为放入节点后，0 为放入节点内
   }) {
-    loop(originalTreeData.value, dragNode.key, (item, index, arr) => {
+    loop(data.value, dragNode.key, (item, index, arr) => {
       arr.splice(index, 1);
     });
 
     if (dropPosition === 0) {
       // 放入节点内
-      loop(originalTreeData.value, dropNode.key, (item) => {
+      loop(data.value, dropNode.key, (item) => {
         item.children = item.children || [];
         item.children.push(dragNode);
       });
@@ -325,18 +323,18 @@
       }
     } else {
       // 放入节点前或后
-      loop(originalTreeData.value, dropNode.key, (item, index, arr) => {
+      loop(data.value, dropNode.key, (item, index, arr) => {
         arr.splice(dropPosition < 0 ? index : index + 1, 0, dragNode);
       });
     }
-    emit('drop', originalTreeData.value, dragNode, dropNode, dropPosition);
+    emit('drop', data.value, dragNode, dropNode, dropPosition);
   }
 
   /**
    * 处理树节点选中（非复选框）
    */
-  function select(_selectedKeys: Array<string | number>, data: MsTreeSelectedData) {
-    emit('select', _selectedKeys, data.selectedNodes[0]);
+  function select(_selectedKeys: Array<string | number>, _data: MsTreeSelectedData) {
+    emit('select', _selectedKeys, _data.selectedNodes[0]);
   }
 
   function checked(_checkedKeys: Array<string | number>) {
@@ -351,7 +349,7 @@
       if (val?.toString() !== '') {
         focusEl.value = treeRef.value?.$el.querySelector(`[data-key="${val}"]`);
         if (focusEl.value) {
-          focusEl.value.style.backgroundColor = 'rgb(var(--primary-1))';
+          focusEl.value.style.backgroundColor = props.nodeHighlightBackgroundColor || 'rgb(var(--primary-1))';
         }
       } else if (focusEl.value) {
         focusEl.value.style.backgroundColor = '';
@@ -379,6 +377,10 @@
       }
     }
   );
+
+  function expand(expandKeys: Array<string | number>, node: MsTreeExpandedData) {
+    emit('expand', node);
+  }
 
   function checkAll(val: boolean) {
     treeRef.value?.checkAll(val);

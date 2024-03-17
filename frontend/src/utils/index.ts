@@ -268,7 +268,11 @@ export function filterTree<T>(
  * @param customKey 默认为 key，可自定义需要匹配的属性名
  * @returns 匹配的节点/null
  */
-export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, customKey = 'key'): TreeNode<T> | T | null {
+export function findNodeByKey<T>(
+  trees: TreeNode<T>[],
+  targetKey: string | number,
+  customKey = 'key'
+): TreeNode<T> | T | null {
   for (let i = 0; i < trees.length; i++) {
     const node = trees[i];
     if (node[customKey] === targetKey) {

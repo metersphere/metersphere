@@ -443,16 +443,16 @@
       height: 14px;
     }
   }
+
   margin-right: 24px;
 }
-.arco-form-item{
+.arco-form-item {
   margin-bottom: 16px;
 }
 .arco-icon-hover.arco-radio-icon-hover::before {
   width: 16px;
   height: 16px;
 }
-
 .arco-radio-checked:not(.arco-radio-disabled) {
   .arco-radio-icon {
     @apply !bg-white;
@@ -653,6 +653,12 @@
 .arco-switch {
   margin-left: 2px; // 避免开关圆形左边被遮挡
 }
+.arco-switch-type-circle {
+  background-color: var(--color-text-brand) !important;
+}
+.arco-switch-type-circle.arco-switch-checked {
+  background-color: rgb(var(--primary-5)) !important;
+}
 .arco-switch-type-line.arco-switch-small {
   .arco-switch-handle {
     width: 14px;
@@ -661,7 +667,7 @@
 }
 .arco-switch-type-line.arco-switch-small.arco-switch-checked {
   .arco-switch-handle {
-    left: calc(100% - 14px - 0px);
+    left: calc(100% - 14px);
   }
 }
 

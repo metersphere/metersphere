@@ -61,13 +61,11 @@
         </div>
       </template>
       <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
-        <a-input-search
+        <a-input
           v-model:model-value="keyword"
           :placeholder="t('apiScenario.searchByName')"
           allow-clear
           class="w-[200px]"
-          @search="searchStep"
-          @press-enter="searchStep"
         />
         <a-button
           v-if="!props.isNew"
@@ -82,7 +80,13 @@
       </div>
     </div>
     <div>
-      <stepTree ref="stepTreeRef" v-model:checked-keys="checkedKeys" :steps="stepInfo.steps" />
+      <stepTree
+        ref="stepTreeRef"
+        v-model:steps="stepInfo.steps"
+        v-model:checked-keys="checkedKeys"
+        v-model:stepKeyword="keyword"
+        :expand-all="isExpandAll"
+      />
     </div>
   </div>
 </template>
@@ -96,7 +100,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { RequestMethods, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
   export interface ScenarioStepInfo {
     id: string | number;
@@ -125,16 +129,20 @@
         id: 1,
         order: 1,
         checked: false,
-        type: ScenarioStepType.CUSTOM_API,
+        expanded: false,
+        enabled: true,
+        type: ScenarioStepType.QUOTE_API,
         name: 'API1',
         description: 'API1描述',
-        status: ScenarioExecuteStatus.SUCCESS,
+        method: RequestMethods.GET,
         children: [
           {
             id: 11,
             order: 1,
             checked: false,
-            type: ScenarioStepType.CUSTOM_API,
+            expanded: false,
+            enabled: true,
+            type: ScenarioStepType.QUOTE_CASE,
             name: 'API11',
             description: 'API11描述',
             status: ScenarioExecuteStatus.SUCCESS,
@@ -143,7 +151,9 @@
             id: 12,
             order: 2,
             checked: false,
-            type: ScenarioStepType.CUSTOM_API,
+            expanded: false,
+            enabled: true,
+            type: ScenarioStepType.QUOTE_SCENARIO,
             name: 'API12',
             description: 'API12描述',
             status: ScenarioExecuteStatus.SUCCESS,
@@ -154,7 +164,20 @@
         id: 2,
         order: 2,
         checked: false,
-        type: ScenarioStepType.CUSTOM_API,
+        expanded: false,
+        enabled: true,
+        type: ScenarioStepType.LOOP_CONTROL,
+        name: 'API1',
+        description: 'API1描述',
+        status: ScenarioExecuteStatus.SUCCESS,
+      },
+      {
+        id: 3,
+        order: 3,
+        checked: false,
+        expanded: false,
+        enabled: true,
+        type: ScenarioStepType.ONLY_ONCE_CONTROL,
         name: 'API1',
         description: 'API1描述',
         status: ScenarioExecuteStatus.SUCCESS,
@@ -214,10 +237,6 @@
 
   function refreshStepInfo() {
     console.log('刷新步骤信息');
-  }
-
-  function searchStep(val: string) {
-    stepInfo.value.steps = stepInfo.value.steps.filter((item) => item.name.includes(val));
   }
 </script>
 
