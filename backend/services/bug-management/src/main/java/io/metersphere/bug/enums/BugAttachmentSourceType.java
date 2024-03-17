@@ -9,5 +9,5 @@ public enum BugAttachmentSourceType {
     /**
      * 缺陷内容
      */
-    CONTENT
+    RICH_TEXT
 }

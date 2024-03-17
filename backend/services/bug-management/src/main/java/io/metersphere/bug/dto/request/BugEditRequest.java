@@ -60,4 +60,7 @@ public class BugEditRequest implements Serializable {
 
     @Schema(description = "复制的附件")
     private List<BugFileDTO> copyFiles;
+
+    @Schema(description = "富文本临时文件ID")
+    private List<String> richTextTmpFileIds;
 }

@@ -47,7 +47,7 @@ export const deleteFileOrCancelAssociationUrl = '/bug/attachment/delete';
 // 获取附件列表
 export const getAttachmentListUrl = '/bug/attachment/list/';
 // 富文本编辑器上传图片
-export const editorUploadFileUrl = '/bug/attachment/upload/md/file';
+export const editorUploadFileUrl = '/attachment/upload/temp/file';
 
 // 获取回收站列表
 export const getRecycleListUrl = '/bug/trash/page';

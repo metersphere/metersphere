@@ -15,7 +15,7 @@
         <MsRichText
           v-if="contentEditAble"
           v-model:raw="form.description"
-          v-model:filed-ids="fileIds"
+          v-model:filed-ids="descriptionFileIds"
           :disabled="!contentEditAble"
           :placeholder="t('editor.placeholder')"
           :upload-image="handleUploadImage"
@@ -238,8 +238,8 @@
   const transferVisible = ref<boolean>(false);
   const previewVisible = ref<boolean>(false);
   const acceptType = ref('none'); // 模块-上传文件类型
-  // 富文本附件id
-  const fileIds = ref<string[]>([]);
+  // 描述-富文本临时附件ID
+  const descriptionFileIds = ref<string[]>([]);
   const imageUrl = ref<string>('');
   const associatedDrawer = ref(false);
   const fileListRef = ref<InstanceType<typeof MsFileList>>();
@@ -464,6 +464,7 @@
         unLinkRefIds: form.value.unLinkRefIds,
         linkFileIds: form.value.linkFileIds,
         customFields,
+        richTextTmpFileIds: descriptionFileIds.value,
       };
       if (!props.isPlatformDefaultTemplate) {
         tmpObj.description = form.value.description;
