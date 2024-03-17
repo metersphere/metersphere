@@ -9,7 +9,13 @@
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
-      <caseDetail :active-api-tab="activeApiTab" :module-tree="props.moduleTree" />
+      <caseDetail
+        :detail="activeApiTab"
+        :module-tree="props.moduleTree"
+        :protocol="props.protocol"
+        @update-follow="activeApiTab.follow = !activeApiTab.follow"
+        @load-case="(id: string) => openOrUpdateCaseTab(false, id)"
+      />
     </div>
   </div>
 </template>
@@ -24,9 +30,7 @@
 
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestAuthType, RequestComposition, RequestMethods, ResponseComposition } from '@/enums/apiEnum';
 
-  import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
@@ -47,82 +51,47 @@
     required: true,
   });
 
-  const initDefaultId = `case-${Date.now()}`;
-  const defaultCaseParams: RequestParam = {
-    type: 'case',
-    id: initDefaultId,
-    moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,
-    protocol: 'HTTP',
-    tags: [],
-    description: '',
-    url: '',
-    activeTab: RequestComposition.HEADER,
-    closable: true,
-    method: RequestMethods.GET,
-    headers: [],
-    body: cloneDeep(defaultBodyParams),
-    query: [],
-    rest: [],
-    polymorphicName: '',
-    name: '',
-    path: '',
-    projectId: '',
-    uploadFileIds: [],
-    linkFileIds: [],
-    authConfig: {
-      authType: RequestAuthType.NONE,
-      basicAuth: {
-        userName: '',
-        password: '',
-      },
-      digestAuth: {
-        userName: '',
-        password: '',
-      },
-    },
-    children: [
-      {
-        polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-        assertionConfig: {
-          enableGlobal: false,
-          assertions: [],
-        },
-        postProcessorConfig: {
-          enableGlobal: false,
-          processors: [],
-        },
-        preProcessorConfig: {
-          enableGlobal: false,
-          processors: [],
-        },
-      },
-    ],
-    otherConfig: {
-      connectTimeout: 60000,
-      responseTimeout: 60000,
-      certificateAlias: '',
-      followRedirects: true,
-      autoRedirects: false,
-    },
-    responseActiveTab: ResponseComposition.BODY,
-    response: cloneDeep(defaultResponse),
-    responseDefinition: [cloneDeep(defaultResponseItem)],
-    isNew: true,
-    unSaved: false,
-    executeLoading: false,
-    preDependency: [], // 前置依赖
-    postDependency: [], // 后置依赖
-  };
-
-  function addTab(defaultProps?: Partial<TabItem>) {
-    apiTabs.value.push({
-      ...cloneDeep(defaultCaseParams),
-      ...defaultProps,
-    });
-    activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
-  }
+  const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
 
   const loading = ref(false);
+  async function openOrUpdateCaseTab(isOpen: boolean, id: string) {
+    try {
+      loading.value = true;
+      const res = await getCaseDetail(id);
+      const parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件;
+      // if (res.protocol === 'HTTP') { // TODO: 后端没protocol字段，问一下
+      // parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      // }
+      const tabItemInfo = {
+        ...cloneDeep(defaultCaseParams as RequestParam),
+        ...({
+          ...res.request,
+          ...res,
+          // responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })), // TODO: 后端没response字段，问一下
+          url: res.path,
+          ...parseRequestBodyResult,
+        } as Partial<TabItem>),
+      };
+      if (isOpen) {
+        apiTabs.value.push(tabItemInfo);
+        activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
+      } else {
+        // 更新数据
+        const index = apiTabs.value.findIndex((item) => item.id === id);
+        apiTabs.value[index] = tabItemInfo;
+        activeApiTab.value = tabItemInfo;
+      }
+
+      nextTick(() => {
+        loading.value = false; // 等待内容渲染出来再隐藏loading
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      loading.value = false;
+    }
+  }
+
   async function openCaseTab(apiInfo: ApiCaseDetail) {
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
@@ -132,28 +101,6 @@
       activeApiTab.value = apiTabs.value[isLoadedTabIndex] as RequestParam;
       return;
     }
-    try {
-      loading.value = true;
-      const res = await getCaseDetail(typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
-      const parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件;
-      // if (res.protocol === 'HTTP') { // TODO: 后端没protocol字段，问一下
-      // parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      // }
-      addTab({
-        ...res.request,
-        ...res,
-        response: cloneDeep(defaultResponse),
-        // responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })), // TODO: 后端没response字段，问一下
-        url: res.path,
-        ...parseRequestBodyResult,
-      });
-      nextTick(() => {
-        loading.value = false; // 等待内容渲染出来再隐藏loading
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      loading.value = false;
-    }
+    await openOrUpdateCaseTab(true, typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
   }
 </script>

@@ -73,6 +73,7 @@ export const ExecuteCaseUrl = '/api/case/run/'; // 单独执行接口用例
 export const GetExecuteHistoryUrl = 'api/case/execute/page'; // 获取用的执行历史
 export const GetDependencyUrl = '/api/case/get-reference'; // 获取用例的依赖关系
 export const GetChangeHistoryUrl = '/api/case/operation-history/page'; // 获取用例的依赖关系
+export const ToggleFollowCaseUrl = '/api/case/follow'; // 接口定义-关注/取消关注
 
 /**
  * 接口用例回收站

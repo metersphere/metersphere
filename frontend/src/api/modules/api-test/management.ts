@@ -55,6 +55,7 @@ import {
   SortCaseUrl,
   SortDefinitionUrl,
   SwitchDefinitionScheduleUrl,
+  ToggleFollowCaseUrl,
   ToggleFollowDefinitionUrl,
   TransferFileCaseUrl,
   TransferFileModuleOptionCaseUrl,
@@ -399,6 +400,11 @@ export function uploadTempFileCase(file: File) {
 // 获取接口用例详情
 export function getCaseDetail(id: string) {
   return MSR.get<ApiCaseDetail>({ url: GetCaseDetailUrl, params: id });
+}
+
+// 关注/取消关注接口用例
+export function toggleFollowCase(id: string | number) {
+  return MSR.get({ url: ToggleFollowCaseUrl, params: id });
 }
 
 /**

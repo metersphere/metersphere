@@ -191,6 +191,7 @@ export default {
   'case.recycle.recoverCaseTip': 'When restoring the case, the deleted API will be restored simultaneously.',
   'case.recycle.confirmRecovery': 'Confirm recovery',
   'case.createCase': 'Create Case',
+  'case.updateCase': 'Update Case',
   'case.saveContinueText': 'Save & continue',
   'case.detail.changeHistoryTip': `View and compare historical changes. According to the administrator's setting rules, historical changes will be automatically deleted`,
   'case.detail.noReminders': 'No longer remind',

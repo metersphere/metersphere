@@ -139,7 +139,7 @@
         </div>
       </div>
     </div>
-    <div class="request-params-tab px-[16px]">
+    <div class="px-[16px]">
       <MsTab
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
@@ -1527,9 +1527,6 @@
   }
   :deep(.arco-tabs-tab) {
     @apply leading-none;
-  }
-  .request-params-tab :deep(.arco-tabs-nav-tab) {
-    border-bottom: 1px solid var(--color-text-n8) !important;
   }
   .hidden-second {
     :deep(.arco-split-trigger) {

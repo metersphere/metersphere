@@ -1,6 +1,6 @@
 <template>
   <div class="overflow-hidden p-[16px_22px]">
-    <div class="mb-[16px] flex items-center justify-between">
+    <div :class="['mb-[16px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
       <a-button
         v-show="props.isApi"
         v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
@@ -37,7 +37,9 @@
       @drag-change="handleDragChange"
     >
       <template #num="{ record }">
-        <MsButton type="text" @click="openCaseTab(record)">{{ record.num }}</MsButton>
+        <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">{{
+          record.num
+        }}</MsButton>
       </template>
       <template #caseLevel="{ record }">
         <a-select
@@ -236,11 +238,18 @@
     </template>
   </a-modal>
   <createAndEditCaseDrawer
-    v-if="props.isApi"
     ref="createAndEditCaseDrawerRef"
     :protocol="props.protocol"
-    :api-detail="apiDetail as RequestParam"
+    :api-detail="apiDetail"
     @load-case="loadCaseListAndResetSelector()"
+  />
+  <caseDetailDrawer
+    v-model:visible="caseDetailDrawerVisible"
+    :detail="caseDetail as RequestParam"
+    :protocol="props.protocol"
+    :api-detail="apiDetail as RequestParam"
+    @update-follow="caseDetail.follow = !caseDetail.follow"
+    @load-case="(id: string) => loadCase(id)"
   />
   <a-modal v-model:visible="showBatchExecute" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
     <template #title>
@@ -337,8 +346,10 @@
 
 <script setup lang="ts">
   import { FormInstance, Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -346,6 +357,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import caseDetailDrawer from './caseDetailDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
@@ -356,6 +368,7 @@
     deleteCase,
     dragSort,
     executeCase,
+    getCaseDetail,
     getCasePage,
     getEnvList,
     getPoolId,
@@ -376,6 +389,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     isApi: boolean; // 接口定义详情的case tab下
@@ -949,14 +963,51 @@
 
   const createAndEditCaseDrawerRef = ref<InstanceType<typeof createAndEditCaseDrawer>>();
   function createCase() {
-    createAndEditCaseDrawerRef.value?.open();
+    createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string);
   }
   function copyCase(record: ApiCaseDetail) {
-    createAndEditCaseDrawerRef.value?.open(record, true);
+    createAndEditCaseDrawerRef.value?.open(record.apiDefinitionId, record, true);
   }
 
   function openCaseTab(record: ApiCaseDetail) {
     emit('openCaseTab', record);
+  }
+
+  const caseDetailDrawerVisible = ref(false);
+  const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
+  const caseDetail = ref<Record<string, any>>({});
+
+  async function getCaseDetailInfo(id: string) {
+    try {
+      const res = await getCaseDetail(id);
+      const parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件;
+      // if (res.protocol === 'HTTP') { // TODO: 后端没protocol字段，问一下
+      // parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      // }
+      caseDetail.value = {
+        ...cloneDeep(defaultCaseParams as RequestParam),
+        ...({
+          ...res.request,
+          ...res,
+          // responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })), // TODO: 后端没response字段，问一下
+          url: res.path,
+          ...parseRequestBodyResult,
+        } as Partial<TabItem>),
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  async function openCaseDetailDrawer(id: string) {
+    await getCaseDetailInfo(id);
+    caseDetailDrawerVisible.value = true;
+  }
+
+  // 在api下的用例里打开用例详情抽屉，点击编辑，编辑后在此刷新数据
+  async function loadCase(id: string) {
+    getCaseDetailInfo(id);
+    loadCaseList();
   }
 </script>
 
