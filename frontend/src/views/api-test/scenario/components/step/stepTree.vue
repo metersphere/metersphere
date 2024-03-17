@@ -1,50 +1,120 @@
 <template>
   <div class="flex flex-col gap-[16px]">
-    <MsTree
-      ref="treeRef"
-      v-model:checked-keys="checkedKeys"
-      v-model:focus-node-key="focusStepKey"
-      :data="props.steps"
-      :node-more-actions="stepMoreActions"
-      :field-names="{ title: 'name', key: 'id', children: 'children' }"
-      :selectable="false"
-      disabled-title-tooltip
-      checkable
-      block-node
-      draggable
-    >
-      <template #title="step">
-        <div class="flex items-center gap-[8px]">
-          <div
-            class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
-          >
-            {{ step.order }}
-          </div>
-          <div class="step-node-first">
+    <div class="max-h-[calc(100vh-305px)]">
+      <MsTree
+        ref="treeRef"
+        v-model:checked-keys="checkedKeys"
+        v-model:focus-node-key="focusStepKey"
+        v-model:data="steps"
+        :keyword="props.stepKeyword"
+        :expand-all="props.expandAll"
+        :node-more-actions="stepMoreActions"
+        :field-names="{ title: 'name', key: 'id', children: 'children' }"
+        :selectable="false"
+        :virtual-list-props="{
+          height: '100%',
+          threshold: 200,
+          fixedSize: true,
+          buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
+        }"
+        node-highlight-background-color="var(--color-text-n9)"
+        action-on-node-click="expand"
+        disabled-title-tooltip
+        checkable
+        block-node
+        draggable
+        @expand="handleStepExpand"
+      >
+        <template #title="step">
+          <div class="flex w-full items-center gap-[8px]">
+            <!-- 步骤序号 -->
             <div
-              v-show="step.children?.length > 0"
-              class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-1)]"
-              @click.stop="toggleNodeExpand(step)"
+              class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
             >
-              <MsIcon
-                :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
-                :size="14"
-              />
-              {{ step.children?.length || 0 }}
+              {{ step.order }}
             </div>
-            <div class="text-[var(--color-text-1)]">{{ step.name }}</div>
+            <div class="step-node-content">
+              <!-- 步骤展开折叠按钮 -->
+              <div
+                v-if="step.children?.length > 0"
+                class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-1)]"
+              >
+                <MsIcon
+                  :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
+                  :size="14"
+                />
+                {{ step.children?.length || 0 }}
+              </div>
+              <div class="mr-[8px] flex items-center gap-[8px]">
+                <!-- 步骤启用/禁用 -->
+                <a-switch
+                  :default-checked="step.enabled"
+                  size="small"
+                  @click.stop="step.enabled = !step.enabled"
+                ></a-switch>
+                <!-- 步骤执行 -->
+                <MsIcon
+                  type="icon-icon_play-round_filled"
+                  :size="18"
+                  class="cursor-pointer text-[rgb(var(--link-6))]"
+                  @click.stop="executeStep(step)"
+                />
+              </div>
+              <!-- 步骤类型 -->
+              <stepType :type="step.type" />
+              <apiMethodName v-if="checkStepIsApi(step)" :method="step.method" />
+              <!-- 步骤名称 -->
+              <div v-if="checkStepIsApi(step)" class="relative flex flex-1 items-center">
+                <div
+                  v-if="step.id === showStepNameEditInputStepId"
+                  class="absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
+                  @click.stop
+                >
+                  <a-input
+                    :id="step.id"
+                    v-model:model-value="tempStepName"
+                    :placeholder="t('apiScenario.pleaseInputStepName')"
+                    :max-length="255"
+                    size="small"
+                    @press-enter="applyStepChange(step)"
+                    @blur="applyStepChange(step)"
+                  />
+                </div>
+                <a-tooltip :content="step.name">
+                  <div class="step-name-container">
+                    <div class="one-line-text mr-[4px] max-w-[250px] font-medium text-[var(--color-text-1)]">
+                      {{ step.name }}
+                    </div>
+                    <MsIcon
+                      type="icon-icon_edit_outlined"
+                      class="edit-script-name-icon"
+                      @click.stop="handleStepNameClick(step)"
+                    />
+                  </div>
+                </a-tooltip>
+              </div>
+              <!-- 步骤内容，按步骤类型展示不同组件 -->
+              <component :is="getStepContent(step)" />
+            </div>
           </div>
-        </div>
-      </template>
-      <template #extra="step">
-        <MsButton :id="step.key" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="setFocusNodeKey(step)">
-          <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
-        </MsButton>
-      </template>
-      <template #extraEnd="step">
-        <executeStatus :status="step.status" size="small" />
-      </template>
-    </MsTree>
+        </template>
+        <template #extra="step">
+          <MsButton :id="step.id" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="setFocusNodeKey(step)">
+            <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
+          </MsButton>
+        </template>
+        <template #extraEnd="step">
+          <executeStatus v-if="step.status" :status="step.status" size="small" />
+        </template>
+        <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
+          <div
+            class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-center text-[12px] leading-[16px] text-[var(--color-text-4)]"
+          >
+            {{ t('apiScenario.noMatchStep') }}
+          </div>
+        </template>
+      </MsTree>
+    </div>
     <actionDropdown
       class="scenario-action-dropdown"
       @select="(val) => handleActionSelect(val as ScenarioAddStepActionType)"
@@ -57,6 +127,8 @@
       </a-button>
     </actionDropdown>
     <importApiDrawer v-model:visible="importApiDrawerVisible" />
+    <customApiDrawer v-model:visible="customApiDrawerVisible" />
+    <scriptOperationDrawer v-model:visible="scriptOperationDrawerVisible" />
   </div>
 </template>
 
@@ -65,36 +137,58 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
-  import { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import customApiDrawer from '../common/customApiDrawer.vue';
   import executeStatus from '../common/executeStatus.vue';
   import importApiDrawer from '../common/importApiDrawer/index.vue';
+  import scriptOperationDrawer from '../common/scriptOperationDrawer.vue';
   import stepType from '../common/stepType.vue';
   import actionDropdown from './actionDropdown.vue';
+  import conditionContent from './stepNodeComposition/conditionContent.vue';
+  import customApiContent from './stepNodeComposition/customApiContent.vue';
+  import loopControlContent from './stepNodeComposition/loopContent.vue';
+  import onlyOnceControlContent from './stepNodeComposition/onlyOnceContent.vue';
+  import quoteContent from './stepNodeComposition/quoteContent.vue';
+  import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { findNodeByKey } from '@/utils';
 
-  import { ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { RequestMethods, ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+
+  import { defaultStepItemCommon } from '../config';
 
   export interface ScenarioStepItem {
     id: string | number;
     order: number;
-    checked: boolean;
+    enabled: boolean; // 是否启用
     type: ScenarioStepType;
     name: string;
     description: string;
-    status: ScenarioExecuteStatus;
+    method?: RequestMethods;
+    status?: ScenarioExecuteStatus;
+    projectId?: string;
     children?: ScenarioStepItem[];
+    // 页面渲染以及交互需要字段
+    checked: boolean; // 是否选中
+    expanded: boolean; // 是否展开
   }
 
   const props = defineProps<{
-    steps: ScenarioStepItem[];
+    stepKeyword: string;
+    expandAll?: boolean;
   }>();
 
   const { t } = useI18n();
 
+  const steps = defineModel<ScenarioStepItem[]>('steps', {
+    required: true,
+  });
   const checkedKeys = defineModel<string[]>('checkedKeys', {
     required: true,
   });
+
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string>(''); // 聚焦的key
   const stepMoreActions: ActionsItem[] = [
@@ -117,21 +211,78 @@
     },
   ];
 
+  function getStepContent(step: ScenarioStepItem) {
+    switch (step.type) {
+      case ScenarioStepType.QUOTE_API:
+      case ScenarioStepType.QUOTE_CASE:
+      case ScenarioStepType.QUOTE_SCENARIO:
+        return quoteContent;
+      case ScenarioStepType.CUSTOM_API:
+        return customApiContent;
+      case ScenarioStepType.LOOP_CONTROL:
+        return loopControlContent;
+      case ScenarioStepType.CONDITION_CONTROL:
+        return conditionContent;
+      case ScenarioStepType.ONLY_ONCE_CONTROL:
+        return onlyOnceControlContent;
+      case ScenarioStepType.WAIT_TIME:
+        return waitTimeContent;
+      default:
+        return '';
+    }
+  }
+
   function setFocusNodeKey(node: MsTreeNodeData) {
     focusStepKey.value = node.id || '';
   }
 
-  function toggleNodeExpand(node: MsTreeNodeData) {
-    if (node.id) {
-      treeRef.value?.expandNode(node.id, !node.expanded);
-    }
+  function checkStepIsApi(step: ScenarioStepItem) {
+    return [ScenarioStepType.QUOTE_API, ScenarioStepType.COPY_API, ScenarioStepType.CUSTOM_API].includes(step.type);
   }
 
   function checkAll(val: boolean) {
     treeRef.value?.checkAll(val);
   }
 
+  /**
+   * 处理步骤名称编辑
+   */
+  const showStepNameEditInputStepId = ref<string | number>('');
+  const tempStepName = ref('');
+  function handleStepNameClick(step: ScenarioStepItem) {
+    tempStepName.value = step.name;
+    showStepNameEditInputStepId.value = step.id;
+    nextTick(() => {
+      const input = treeRef.value?.$el.querySelector('.arco-input') as HTMLInputElement;
+      input?.focus();
+    });
+  }
+
+  function applyStepChange(step: ScenarioStepItem) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    if (realStep) {
+      realStep.name = tempStepName.value;
+    }
+    showStepNameEditInputStepId.value = '';
+  }
+
+  /**
+   * 处理步骤展开折叠
+   */
+  function handleStepExpand(data: MsTreeExpandedData) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.node?.id, 'id');
+    if (realStep) {
+      realStep.expanded = !realStep.expanded;
+    }
+  }
+
+  function executeStep(node: MsTreeNodeData) {
+    console.log('执行步骤', node);
+  }
+
   const importApiDrawerVisible = ref(false);
+  const customApiDrawerVisible = ref(false);
+  const scriptOperationDrawerVisible = ref(false);
 
   function handleActionSelect(val: ScenarioAddStepActionType) {
     switch (val) {
@@ -139,22 +290,50 @@
         importApiDrawerVisible.value = true;
         break;
       case ScenarioAddStepActionType.CUSTOM_API:
-        console.log('自定义API');
+        customApiDrawerVisible.value = true;
         break;
       case ScenarioAddStepActionType.LOOP_CONTROL:
-        console.log('循环控制');
+        steps.value.push({
+          ...defaultStepItemCommon,
+          id: Date.now(),
+          order: steps.value.length + 1,
+          type: ScenarioStepType.LOOP_CONTROL,
+          name: '循环控制',
+          description: '循环控制描述',
+        });
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
-        console.log('条件控制');
+        steps.value.push({
+          ...defaultStepItemCommon,
+          id: Date.now(),
+          order: steps.value.length + 1,
+          type: ScenarioStepType.CONDITION_CONTROL,
+          name: '条件控制',
+          description: '条件控制描述',
+        });
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
-        console.log('仅执行一次');
+        steps.value.push({
+          ...defaultStepItemCommon,
+          id: Date.now(),
+          order: steps.value.length + 1,
+          type: ScenarioStepType.ONLY_ONCE_CONTROL,
+          name: '仅执行一次',
+          description: '仅执行一次描述',
+        });
         break;
       case ScenarioAddStepActionType.SCRIPT_OPERATION:
-        console.log('脚本操作');
+        scriptOperationDrawerVisible.value = true;
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
-        console.log('等待时间');
+        steps.value.push({
+          ...defaultStepItemCommon,
+          id: Date.now(),
+          order: steps.value.length + 1,
+          type: ScenarioStepType.WAIT_TIME,
+          name: '等待时间',
+          description: '等待时间描述',
+        });
         break;
       default:
         break;
@@ -180,7 +359,7 @@
       background-color: rgb(var(--primary-1));
     }
   }
-  // 循环生成树的左边距样式
+  // 循环生成树的左边距样式 TODO:transform性能更高以及保留步骤完整宽度，需要加横向滚动
   .loop-levels(@index, @max) when (@index <= @max) {
     :deep(.arco-tree-node[data-level='@{index}']) {
       margin-left: @index * 32px;
@@ -189,7 +368,7 @@
   }
   .loop-levels(0, 99); // 最大层级
   :deep(.arco-tree-node) {
-    padding: 7px 8px;
+    padding: 0 8px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-medium) !important;
     &:not(:first-child) {
@@ -202,18 +381,40 @@
       }
     }
     .arco-tree-node-title {
+      @apply !cursor-pointer;
+
+      padding: 12px 4px;
       &:hover {
         background-color: var(--color-text-n9) !important;
       }
-      .step-node-first {
-        @apply flex items-center;
+      .step-node-content {
+        @apply flex w-full flex-1 items-center;
 
         gap: 8px;
+        margin-right: 6px;
+      }
+      .step-name-container {
+        @apply flex items-center;
+
+        margin-right: 16px;
+        &:hover {
+          .edit-script-name-icon {
+            @apply visible;
+          }
+        }
+        .edit-script-name-icon {
+          @apply invisible cursor-pointer;
+
+          color: rgb(var(--primary-5));
+        }
       }
       &[draggable='true']:hover {
-        .step-node-first {
+        .step-node-content {
           padding-left: 20px;
         }
+      }
+      .arco-tree-node-title-text {
+        @apply flex-1;
       }
     }
     .arco-tree-node-indent {
@@ -225,7 +426,7 @@
     .arco-tree-node-drag-icon {
       @apply ml-0;
 
-      top: 6px;
+      top: 13px;
       left: 24px;
       width: 16px;
       height: 16px;

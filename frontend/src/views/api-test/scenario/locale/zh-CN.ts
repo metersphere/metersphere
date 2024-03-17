@@ -99,6 +99,8 @@ export default {
   'apiScenario.scenario': '场景',
   'apiScenario.sumSelected': '共选择',
   'apiScenario.scenarioConfig': '场景配置',
+  'apiScenario.noMatchStep': '暂无匹配的步骤数据',
+  'apiScenario.pleaseInputStepName': '请输入步骤名称',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',

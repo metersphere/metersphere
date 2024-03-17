@@ -10,6 +10,7 @@ export interface MsTreeFieldNames extends TreeFieldNames {
 export type MsTreeNodeData = {
   hideMoreAction?: boolean; // 隐藏更多操作
   parentId?: string;
+  expanded?: boolean; // 是否展开
   [key: string]: any;
 } & TreeNodeData;
 
@@ -25,6 +26,13 @@ export interface MsTreeNodeStatus {
 export interface MsTreeSelectedData {
   selected?: boolean;
   selectedNodes: MsTreeNodeData[];
+  node?: MsTreeNodeData;
+  e?: Event;
+}
+
+export interface MsTreeExpandedData {
+  expanded?: boolean;
+  expandedNodes: MsTreeNodeData[];
   node?: MsTreeNodeData;
   e?: Event;
 }
