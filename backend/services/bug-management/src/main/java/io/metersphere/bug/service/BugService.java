@@ -198,6 +198,8 @@ public class BugService {
          *  2. 第三方平台缺陷需调用插件同步缺陷至其他平台(自定义字段需处理);
          *  3. 保存MS缺陷(基础字段, 自定义字段)
          *  4. 处理附件(第三方平台缺陷需异步调用接口同步附件至第三方)
+         *  5. 处理富文本临时文件
+         *  6. 处理缺陷-用例关联关系
          */
         String platformName = projectApplicationService.getPlatformName(request.getProjectId());
         PlatformBugUpdateDTO platformBug = null;
@@ -228,6 +230,8 @@ public class BugService {
         handleAndSaveCustomFields(request, isUpdate);
         // 处理附件
         handleAndSaveAttachments(request, files, currentUser, platformName, platformBug);
+        // 处理富文本临时文件
+        handleRichTextTmpFile(request, bug.getId(), currentUser);
         // 处理用例关联关系
         handleAndSaveCaseRelation(request, isUpdate, bug, currentUser);
 
@@ -596,6 +600,38 @@ public class BugService {
 
             // 批量更新缺陷
             updateBugs.forEach(updateBug -> {
+                if (CollectionUtils.isNotEmpty(updateBug.getRichTextImageKeys())) {
+                    // 同步第三方的富文本文件
+                    updateBug.getRichTextImageKeys().forEach(key -> {
+                        platform.getAttachmentContent(key, (in) -> {
+                            if (in == null) {
+                                return;
+                            }
+                            String fileId = IDGenerator.nextStr();
+                            byte[] bytes;
+                            try {
+                                // upload platform attachment to minio
+                                bytes = in.readAllBytes();
+                                FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, "image.png"));
+                            } catch (Exception e) {
+                                throw new MSException(e.getMessage());
+                            }
+                            // save bug attachment relation
+                            BugLocalAttachment localAttachment = new BugLocalAttachment();
+                            localAttachment.setId(IDGenerator.nextStr());
+                            localAttachment.setBugId(updateBug.getId());
+                            localAttachment.setFileId(fileId);
+                            localAttachment.setFileName("image.png");
+                            localAttachment.setSize((long) bytes.length);
+                            localAttachment.setCreateTime(System.currentTimeMillis());
+                            localAttachment.setCreateUser("admin");
+                            localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
+                            bugLocalAttachmentMapper.insert(localAttachment);
+                            // 替换富文本中的临时URL
+                            updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/attachment/download/file/" + updateBug.getProjectId() + "/" + fileId + "/true\""));
+                        });
+                    });
+                }
                 updateBug.setCreateUser(null);
                 Bug bug = new Bug();
                 BeanUtils.copyBean(bug, updateBug);
@@ -1094,6 +1130,16 @@ public class BugService {
     }
 
     /**
+     * 处理富文本临时文件
+     * @param request 请求参数
+     * @param bugId 缺陷ID
+     * @param currentUser 当前用户
+     */
+    private void handleRichTextTmpFile(BugEditRequest request, String bugId, String currentUser) {
+        bugAttachmentService.transferTmpFile(bugId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, BugAttachmentSourceType.RICH_TEXT.name());
+    }
+
+    /**
      * 处理并保存缺陷用例关联关系
      * @param request 请求参数
      * @param isUpdate 是否更新
@@ -1132,6 +1178,20 @@ public class BugService {
        // TITLE, DESCRIPTION 传到平台插件处理
        platformRequest.setTitle(request.getTitle());
        platformRequest.setDescription(request.getDescription());
+       if (CollectionUtils.isNotEmpty(request.getRichTextTmpFileIds())) {
+           request.getRichTextTmpFileIds().forEach(tmpFileId -> {
+               // 目前只支持富文本图片临时文件的下载, 并同步至第三方平台 (后续支持富文本其他类型文件)
+               FileRequest downloadRequest = buildTmpImageFileRequest(tmpFileId);
+               try {
+                   byte[] tmpBytes = fileService.download(downloadRequest);
+                   File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + tmpFileId + "/" +  downloadRequest.getFileName());
+                   FileUtils.writeByteArrayToFile(uploadTmpFile, tmpBytes);
+                   platformRequest.getRichFileMap().put(tmpFileId, uploadTmpFile);
+               } catch (Exception e) {
+                   LogUtils.info("缺陷富文本临时图片文件下载失败, 文件ID: " + tmpFileId);
+               }
+           });
+       }
        return platformRequest;
    }
 
@@ -1347,10 +1407,24 @@ public class BugService {
      * @param fileName 文件名称
      * @return 文件请求对象
      */
-    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileId, String fileName) {
+    public FileRequest buildBugFileRequest(String projectId, String resourceId, String fileId, String fileName) {
         FileRequest fileRequest = new FileRequest();
         fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId) + "/" + fileId);
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
+        fileRequest.setStorage(StorageType.MINIO.name());
+        return fileRequest;
+    }
+
+    /**
+     * 构建临时图片文件请求
+     * @param fileId 文件ID
+     * @return 文件请求对象
+     */
+    private FileRequest buildTmpImageFileRequest(String fileId) {
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
+        // 临时图片文件名称固定为image.png
+        fileRequest.setFileName("image.png");
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;
     }

@@ -36,7 +36,7 @@
           <a-form-item v-if="!isPlatformDefaultTemplate" field="description" :label="t('bugManagement.edit.content')">
             <MsRichText
               v-model:raw="form.description"
-              v-model:filed-ids="richTextFileIds"
+              v-model:filed-ids="descriptionFileIds"
               :upload-image="handleUploadImage"
             />
           </a-form-item>
@@ -314,7 +314,8 @@
   const isPlatformDefaultTemplate = ref(false);
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
-  const richTextFileIds = ref<string[]>([]);
+  // 描述-富文本临时附件ID
+  const descriptionFileIds = ref<string[]>([]);
   const visitedKey = 'doNotNextTipCreateBug';
   const { getIsVisited } = useVisit(visitedKey);
 
@@ -584,6 +585,7 @@
                 ...form.value,
                 customFields,
                 copyFiles,
+                richTextTmpFileIds: descriptionFileIds.value,
               };
               if (isCopy.value) {
                 delete tmpObj.id;

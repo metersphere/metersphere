@@ -5,6 +5,9 @@ import io.metersphere.plugin.platform.dto.reponse.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -27,4 +30,8 @@ public class PlatformBugUpdateRequest extends PlatformBugDTO {
      * 第三方平台缺陷的状态
      */
     private PlatformStatusDTO transitions;
+    /**
+     * MS平台缺陷富文本文件集合
+     */
+    private Map<String, File> richFileMap = new HashMap<>();
 }

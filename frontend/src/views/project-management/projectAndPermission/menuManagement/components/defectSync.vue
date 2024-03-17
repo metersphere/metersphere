@@ -15,7 +15,7 @@
     @confirm="handleConfirm"
   >
     <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
-      <a-form-item field="PLATFORM_KEY" :label="t('project.menu.platformLabel')">
+      <a-form-item field="platformKey" :label="t('project.menu.platformLabel')">
         <a-select
           v-model="form.PLATFORM_KEY"
           allow-clear

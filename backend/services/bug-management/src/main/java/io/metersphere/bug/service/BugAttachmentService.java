@@ -32,16 +32,16 @@ import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileCopyRequest;
+import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.MsFileUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -614,5 +614,131 @@ public class BugAttachmentService {
             return null;
         }
         return bugLocalAttachments.get(0);
+    }
+
+    /**
+     * 转存临时文件
+     * @param bugId 缺陷ID
+     * @param projectId 项目ID
+     * @param uploadFileIds 上传的文件ID集合
+     * @param userId 用户ID
+     * @param source 文件来源
+     */
+    public void transferTmpFile(String bugId, String projectId, List<String> uploadFileIds, String userId, String source) {
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(uploadFileIds)) {
+            return;
+        }
+        //过滤已上传过的
+        BugLocalAttachmentExample bugLocalAttachmentExample = new BugLocalAttachmentExample();
+        bugLocalAttachmentExample.createCriteria().andBugIdEqualTo(bugId).andFileIdIn(uploadFileIds).andSourceEqualTo(source);
+        List<BugLocalAttachment> existFiles = bugLocalAttachmentMapper.selectByExample(bugLocalAttachmentExample);
+        List<String> existFileIds = existFiles.stream().map(BugLocalAttachment::getFileId).distinct().toList();
+        List<String> fileIds = uploadFileIds.stream().filter(t -> !existFileIds.contains(t) && StringUtils.isNotBlank(t)).toList();
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return;
+        }
+        // 处理本地上传文件
+        FileRepository defaultRepository = FileCenter.getDefaultRepository();
+        String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+        // 添加文件与功能用例的关联关系
+        Map<String, String> addFileMap = new HashMap<>();
+        LogUtils.info("开始上传副文本里的附件");
+        List<BugLocalAttachment> localAttachments = fileIds.stream().map(fileId -> {
+            BugLocalAttachment localAttachment = new BugLocalAttachment();
+            String fileName = getTempFileNameByFileId(fileId);
+            localAttachment.setId(IDGenerator.nextStr());
+            localAttachment.setBugId(bugId);
+            localAttachment.setFileId(fileId);
+            localAttachment.setFileName(fileName);
+            localAttachment.setSource(source);
+            long fileSize = 0;
+            try {
+                FileCopyRequest fileCopyRequest = new FileCopyRequest();
+                fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
+                fileCopyRequest.setFileName(fileName);
+                fileSize = defaultRepository.getFileSize(fileCopyRequest);
+            } catch (Exception e) {
+                LogUtils.error("读取文件大小失败");
+            }
+            localAttachment.setSize(fileSize);
+            localAttachment.setCreateUser(userId);
+            localAttachment.setCreateTime(System.currentTimeMillis());
+            addFileMap.put(fileId, fileName);
+            return localAttachment;
+        }).toList();
+        bugLocalAttachmentMapper.batchInsert(localAttachments);
+        // 上传文件到对象存储
+        LogUtils.info("upload to minio start");
+        uploadFileResource(DefaultRepositoryDir.getBugDir(projectId, bugId), addFileMap, projectId, bugId);
+        LogUtils.info("upload to minio end");
+    }
+
+    /**
+     * 根据文件ID，查询MINIO中对应目录下的文件名称
+     */
+    public String getTempFileNameByFileId(String fileId) {
+        FileRepository defaultRepository = FileCenter.getDefaultRepository();
+        try {
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+            List<String> folderFileNames = defaultRepository.getFolderFileNames(fileRequest);
+            if (CollectionUtils.isEmpty(folderFileNames)) {
+                return null;
+            }
+            String[] pathSplit = folderFileNames.get(0).split("/");
+            return pathSplit[pathSplit.length - 1];
+
+        } catch (Exception e) {
+            LogUtils.error(e);
+            return null;
+        }
+    }
+
+    /**
+     * 上传文件到资源目录
+     * @param folder 文件夹
+     * @param addFileMap 文件ID与文件名映射
+     * @param projectId 项目ID
+     * @param bugId 缺陷ID
+     */
+    public void uploadFileResource(String folder, Map<String, String> addFileMap, String projectId, String bugId) {
+        if (MapUtils.isEmpty(addFileMap)) {
+            return;
+        }
+        FileRepository defaultRepository = FileCenter.getDefaultRepository();
+        for (String fileId : addFileMap.keySet()) {
+            String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+            try {
+                String fileName = addFileMap.get(fileId);
+                if (StringUtils.isEmpty(fileName)) {
+                    continue;
+                }
+                // 按ID建文件夹，避免文件名重复
+                FileCopyRequest fileCopyRequest = new FileCopyRequest();
+                fileCopyRequest.setCopyFolder(systemTempDir + "/" + fileId);
+                fileCopyRequest.setCopyfileName(fileName);
+                fileCopyRequest.setFileName(fileName);
+                fileCopyRequest.setFolder(folder + "/" + fileId);
+                // 将文件从临时目录复制到资源目录
+                defaultRepository.copyFile(fileCopyRequest);
+
+                String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
+                if (TempFileUtils.isImage(fileType)) {
+                    //图片文件自动生成预览图
+                    byte[] file = defaultRepository.getFile(fileCopyRequest);
+                    byte[] previewImg = TempFileUtils.compressPic(file);
+                    fileCopyRequest.setFolder(DefaultRepositoryDir.getBugPreviewDir(projectId, bugId) + "/" + fileId);
+                    fileCopyRequest.setStorage(StorageType.MINIO.toString());
+                    fileService.upload(previewImg, fileCopyRequest);
+                }
+                // 删除临时文件
+                fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
+                fileCopyRequest.setFileName(fileName);
+                defaultRepository.delete(fileCopyRequest);
+            } catch (Exception e) {
+                LogUtils.error("上传副文本文件失败：{}",e);
+                throw new MSException(Translator.get("file_upload_fail"));
+            }
+        }
     }
 }
