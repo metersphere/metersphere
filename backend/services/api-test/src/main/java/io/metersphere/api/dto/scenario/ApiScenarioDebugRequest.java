@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: jianxing
@@ -20,8 +19,7 @@ public class ApiScenarioDebugRequest extends ApiScenarioParseParam {
     @Size(max = 50, message = "{api_scenario.id.length_range}")
     private String id;
 
-    @Schema(description = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank
+    @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
     @Size(max = 50)
     private String reportId;
 

@@ -9,6 +9,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -209,5 +210,15 @@ public class ApiScenarioReportService {
         return apiReportDetails;
     }
 
-
+    /**
+     * 更新执行中的场景报告
+     * @param reportId
+     */
+    public void updateRunningReport(String reportId) {
+        ApiScenarioReport scenarioReport = new ApiScenarioReport();
+        scenarioReport.setId(reportId);
+        scenarioReport.setStatus(ApiReportStatus.RUNNING.name());
+        scenarioReport.setUpdateTime(System.currentTimeMillis());
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
+    }
 }

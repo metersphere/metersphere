@@ -160,11 +160,18 @@ public class ApiScenarioController {
         return apiScenarioService.debug(request);
     }
 
-    @GetMapping("/run/{id}/{reportId}")
+    @PostMapping("/run")
     @Operation(summary = "接口测试-接口场景管理-场景执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
-    public TaskRequestDTO run(@PathVariable String id, @PathVariable String reportId) {
-        return apiScenarioService.run(id, reportId);
+    public TaskRequestDTO run(@Validated @RequestBody ApiScenarioDebugRequest request) {
+        return apiScenarioService.run(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/run/{id}")
+    @Operation(summary = "接口测试-接口场景管理-场景执行")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
+        return apiScenarioService.run(id, reportId, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/update-status/{id}/{status}")
