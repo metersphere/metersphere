@@ -1245,6 +1245,8 @@
 
   /**
    * 保存请求
+   * @param fullParams 保存时传入的参数
+   * @param silence 是否静默保存（接口定义另存为用例时要先静默保存接口）
    */
   async function realSave(fullParams?: Record<string, any>, silence?: boolean) {
     try {
@@ -1278,6 +1280,7 @@
       requestVModel.value.label = res.name;
       requestVModel.value.url = res.path;
       requestVModel.value.path = res.path;
+      requestVModel.value.moduleId = res.moduleId;
       if (!props.isDefinition) {
         saveModalVisible.value = false;
       }

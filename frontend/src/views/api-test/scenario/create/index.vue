@@ -159,5 +159,13 @@
   }
   :deep(.arco-tabs-content) {
     @apply pt-0;
+
+    height: calc(100% - 49px);
+    .arco-tabs-content-list {
+      @apply h-full;
+      .arco-tabs-pane {
+        @apply h-full;
+      }
+    }
   }
 </style>

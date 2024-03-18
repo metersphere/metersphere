@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-[16px]">
+  <div class="flex h-full flex-col gap-[16px]">
     <div class="action-line">
       <div class="action-group">
         <a-checkbox
@@ -79,7 +79,7 @@
         </a-button>
       </div>
     </div>
-    <div>
+    <div class="h-[calc(100%-48px)]">
       <stepTree
         ref="stepTreeRef"
         v-model:steps="stepInfo.steps"
@@ -99,6 +99,7 @@
   import stepTree, { ScenarioStepItem } from './stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { RequestMethods, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
@@ -114,6 +115,7 @@
     isNew?: boolean; // 是否新建
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const checkedAll = ref(false); // 是否全选
@@ -127,6 +129,7 @@
     steps: [
       {
         id: 1,
+        num: 10086,
         order: 1,
         checked: false,
         expanded: false,
@@ -135,6 +138,9 @@
         name: 'API1',
         description: 'API1描述',
         method: RequestMethods.GET,
+        belongProjectId: appStore.currentProjectId,
+        belongProjectName: '项目名称',
+        actionDropdownVisible: false,
         children: [
           {
             id: 11,
@@ -146,6 +152,10 @@
             name: 'API11',
             description: 'API11描述',
             status: ScenarioExecuteStatus.SUCCESS,
+            num: 100861,
+            belongProjectId: '989d23d23d',
+            belongProjectName: '项目名称1',
+            actionDropdownVisible: false,
           },
           {
             id: 12,
@@ -157,6 +167,10 @@
             name: 'API12',
             description: 'API12描述',
             status: ScenarioExecuteStatus.SUCCESS,
+            num: 100862,
+            belongProjectId: '989d23d23d',
+            belongProjectName: '项目名称2',
+            actionDropdownVisible: false,
           },
         ],
       },
@@ -170,6 +184,7 @@
         name: 'API1',
         description: 'API1描述',
         status: ScenarioExecuteStatus.SUCCESS,
+        actionDropdownVisible: false,
       },
       {
         id: 3,
@@ -181,6 +196,7 @@
         name: 'API1',
         description: 'API1描述',
         status: ScenarioExecuteStatus.SUCCESS,
+        actionDropdownVisible: false,
       },
     ],
     executeTime: '',

@@ -24,13 +24,15 @@
           :position="props.titleTooltipPosition"
           :disabled="props.disabledTitleTooltip"
         >
-          <slot name="title" v-bind="_props"></slot>
+          <span :class="props.titleClass || 'ms-tree-node-title'">
+            <slot name="title" v-bind="_props"></slot>
+          </span>
         </a-tooltip>
       </template>
       <template v-if="$slots['drag-icon']" #drag-icon="_props">
         <slot name="title" v-bind="_props"></slot>
       </template>
-      <template v-if="$slots['extra']" #extra="_props">
+      <template v-if="$slots['extra'] || props.nodeMoreActions" #extra="_props">
         <div
           v-if="_props.hideMoreAction !== true"
           :class="[
@@ -91,6 +93,7 @@
   const props = withDefaults(
     defineProps<{
       keyword?: string; // 搜索关键字
+      titleClass?: string; // 标题样式类
       searchDebounce?: number; // 搜索防抖 ms 数
       draggable?: boolean; // 是否可拖拽
       blockNode?: boolean; // 是否块级节点
@@ -509,8 +512,11 @@
         .arco-tree-node-title {
           font-weight: 500 !important;
           color: rgb(var(--primary-5));
-          * {
+          .ms-tree-node-title {
             color: rgb(var(--primary-5));
+            * {
+              color: rgb(var(--primary-5));
+            }
           }
         }
       }
