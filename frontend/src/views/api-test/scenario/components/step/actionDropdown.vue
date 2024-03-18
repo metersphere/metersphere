@@ -1,5 +1,11 @@
 <template>
-  <a-dropdown class="scenario-action-dropdown" @select="(val) => emit('select', val as ScenarioAddStepActionType)">
+  <a-dropdown
+    v-model:popup-visible="visible"
+    :position="props.position || 'bottom'"
+    :popup-translate="props.popupTranslate"
+    class="scenario-action-dropdown"
+    @select="(val) => emit('select', val as ScenarioAddStepActionType)"
+  >
     <slot></slot>
     <template #content>
       <a-dgroup :title="t('apiScenario.requestScenario')">
@@ -35,18 +41,29 @@
 </template>
 
 <script setup lang="ts">
+  import { TriggerPopupTranslate } from '@arco-design/web-vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
   import { ScenarioAddStepActionType } from '@/enums/apiEnum';
 
+  import { DropdownPosition } from '@arco-design/web-vue/es/dropdown/interface';
+
+  const props = defineProps<{
+    position?: DropdownPosition;
+    popupTranslate?: TriggerPopupTranslate;
+  }>();
   const emit = defineEmits<{
     (e: 'select', val: ScenarioAddStepActionType): void;
   }>();
 
   const { t } = useI18n();
 
+  const visible = defineModel<boolean>('visible', {
+    default: false,
+  });
   function openTutorial() {
     window.open('https://zhuanlan.zhihu.com/p/597905464?utm_id=0', '_blank');
   }

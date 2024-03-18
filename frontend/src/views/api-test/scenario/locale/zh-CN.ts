@@ -101,6 +101,13 @@ export default {
   'apiScenario.scenarioConfig': '场景配置',
   'apiScenario.noMatchStep': '暂无匹配的步骤数据',
   'apiScenario.pleaseInputStepName': '请输入步骤名称',
+  'apiScenario.belongProject': '所属项目',
+  'apiScenario.detailName': '名称',
+  'apiScenario.crossProject': '跨项目',
+  'apiScenario.expandStepTip': '展开 {count} 个子步骤',
+  'apiScenario.addChildStep': '添加子步骤',
+  'apiScenario.insertBefore': '在之前插入步骤',
+  'apiScenario.insertAfter': '在之后插入步骤',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',

@@ -167,11 +167,11 @@
           </a-form>
           <div
             v-if="paramSettingType === 'mock' && paramForm.type !== ''"
-            class="mb-[16px] flex items-center gap-[16px] bg-[var(--color-text-n9)] p-[5px_8px]"
+            class="mb-[16px] flex items-baseline gap-[16px] overflow-hidden bg-[var(--color-text-n9)] p-[5px_8px]"
           >
-            <div class="text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>
-            <a-spin :loading="previewLoading" class="flex gap-[8px]">
-              <div class="text-[var(--color-text-1)]">{{ paramPreview }}</div>
+            <div class="break-all text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>
+            <a-spin :loading="previewLoading" class="flex flex-1 flex-wrap gap-[8px]">
+              <div class="param-preview">{{ paramPreview }}</div>
               <MsButton type="text" @click="getMockValue">{{ t('ms.paramsInput.previewClick') }}</MsButton>
             </a-spin>
           </div>
@@ -625,6 +625,13 @@
         overflow-y: auto;
         margin-right: -6px;
         max-height: 400px;
+        .ms-params-input-setting-trigger-content-scroll-preview {
+          @apply w-full overflow-y-auto overflow-x-hidden break-all;
+          .ms-scroll-bar();
+
+          max-height: 100px;
+          color: var(--color-text-1);
+        }
       }
     }
   }

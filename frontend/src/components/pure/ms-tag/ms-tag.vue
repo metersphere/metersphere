@@ -33,7 +33,7 @@
       type?: TagType; // tag类型
       size?: Size; // tag尺寸
       theme?: Theme; // tag主题
-      selfStyle?: any; // 自定义样式
+      selfStyle?: Record<string, any>; // 自定义样式
       width?: number; // tag宽度,不传入时绑定max-width
       maxWidth?: string;
       noMargin?: boolean; // tag之间是否有间距

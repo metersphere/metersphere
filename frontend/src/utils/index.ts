@@ -346,6 +346,68 @@ export function findNodePathByKey<T>(
   return null;
 }
 /**
+ * 在某个节点前插入新节点
+ * @param treeArr 目标树
+ * @param targetKey 目标节点唯一值
+ * @param newNode 新节点
+ * @param position 插入位置
+ * @param customKey 默认为 key，可自定义需要匹配的属性名
+ */
+export function insertNode<T>(
+  treeArr: TreeNode<T>[],
+  targetKey: string,
+  newNode: TreeNode<T>,
+  position: 'before' | 'after',
+  customKey = 'key'
+): void {
+  function insertNodeInTree(tree: TreeNode<T>[], parent?: TreeNode<T>): boolean {
+    for (let i = 0; i < tree.length; i++) {
+      const node = tree[i];
+      if (node[customKey] === targetKey) {
+        // 如果当前节点的 customKey 与目标 customKey 匹配，则在当前节点前/后插入新节点
+        const childrenArray = parent ? parent.children || [] : treeArr; // 父节点没有 children 属性，说明是树的第一层，使用 treeArr
+        const index = childrenArray.findIndex((item) => item[customKey] === node[customKey]);
+        if (position === 'before') {
+          childrenArray.splice(index, 0, newNode);
+        } else if (position === 'after') {
+          childrenArray.splice(index + 1, 0, newNode);
+        }
+        // 插入后返回 true
+        return true;
+      }
+      if (Array.isArray(node.children) && insertNodeInTree(node.children, node)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  insertNodeInTree(treeArr);
+}
+
+/**
+ * 删除树形数组中的某个节点
+ * @param treeArr 目标树
+ * @param targetKey 目标节点唯一值
+ */
+export function deleteNode<T>(treeArr: TreeNode<T>[], targetKey: string, customKey = 'key'): void {
+  function deleteNodeInTree(tree: TreeNode<T>[]): void {
+    for (let i = 0; i < tree.length; i++) {
+      const node = tree[i];
+      if (node[customKey] === targetKey) {
+        tree.splice(i, 1); // 直接删除当前节点
+        return;
+      }
+      if (Array.isArray(node.children)) {
+        deleteNodeInTree(node.children); // 递归删除子节点
+      }
+    }
+  }
+
+  deleteNodeInTree(treeArr);
+}
+
+/**
  * 找出俩数组之间的差异项并返回
  * @param targetMap 目标项
  * @param sourceMap 查找项
