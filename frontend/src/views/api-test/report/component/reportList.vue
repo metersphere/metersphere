@@ -25,9 +25,12 @@
       @batch-action="handleTableBatch"
     >
       <template #name="{ record, rowIndex }">
-        <a-button type="text" class="flex w-full" @click="showReportDetail(record.id, rowIndex)">{{
-          record.name
-        }}</a-button>
+        <div
+          type="text"
+          class="one-text-line flex w-full text-[rgb(var(--primary-5))]"
+          @click="showReportDetail(record.id, rowIndex)"
+          >{{ characterLimit(record.name) }}</div
+        >
       </template>
       <!-- 报告类型 -->
       <template #integrated="{ record }">
