@@ -104,5 +104,10 @@ public class TaskRequestDTO implements Serializable {
      */
     private Long requestCount;
 
+    /**
+     * 记录执行时的环境变量
+     */
+    private List<String> environmentVariables;
+
     // TODO 其它执行参数
 }
