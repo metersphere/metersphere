@@ -383,3 +383,15 @@ export interface ApiCaseChangeHistoryParams extends TableQueryParams {
 export interface ApiCaseDependencyParams extends TableQueryParams {
   resourceId: string;
 }
+
+// 用例-执行历史-请求参数
+export interface ApiCaseExecuteHistoryItem {
+  id: string;
+  num: string;
+  name: string;
+  operationUser: string;
+  createUser: string;
+  startTime: number;
+  status: string;
+  triggerMode: string;
+}

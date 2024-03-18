@@ -18,6 +18,7 @@ export default {
   'apiTestManagement.moveSearchTip': 'Please enter the module name to search',
   'apiTestManagement.noMatchModule': 'No matching module/api yet',
   'apiTestManagement.execute': 'Execute',
+  'apiTestManagement.executeMethod': 'Execute method',
   'apiTestManagement.recycle.batchRecover': 'Recover',
   'apiTestManagement.recycle.recoveredSuccessfully': 'recovery was successful',
   'apiTestManagement.recycle.batchCleanOut': 'Completely delete',
@@ -133,6 +134,7 @@ export default {
   'apiTestManagement.reference': 'Reference',
   'apiTestManagement.dependencies': 'Dependency',
   'apiTestManagement.changeHistory': 'Change history',
+  'apiTestManagement.executeHistory': 'Execute history',
   'apiTestManagement.requestParams': 'Request parameters',
   'apiTestManagement.responseContent': 'Response content',
   'apiTestManagement.requestHeader': 'Request header',
@@ -144,6 +146,7 @@ export default {
   'apiTestManagement.historyListTip':
     'View and compare historical changes. According to the rules set by the administrator, the change history data will be automatically deleted.',
   'apiTestManagement.changeOrder': 'Change serial number',
+  'apiTestManagement.order': 'Serial number',
   'apiTestManagement.type': 'Type',
   'apiTestManagement.recover': 'Recover',
   'apiTestManagement.quote': 'Quote',
@@ -200,4 +203,7 @@ export default {
   'case.detail.operator': 'operator',
   'case.detail.tableColumnUpdateTime': 'UpdateTime',
   'case.detail.execute.success': 'Execute success',
+  'case.detail.execute.history.list': 'Execution history list',
+  'case.detail.dependency.list': 'Reference relationship list',
+  'case.detail.resource.api': 'API',
 };
