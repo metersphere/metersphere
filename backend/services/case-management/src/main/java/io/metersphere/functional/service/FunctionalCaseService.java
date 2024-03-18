@@ -470,16 +470,15 @@ public class FunctionalCaseService {
             customFields.forEach(item -> {
                 if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                     item.setOptions(memberCustomOption);
-                } else {
-                    FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
-                    Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
-                        item.setDefaultValue(customField.getValue());
-                        if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
-                            functionalCaseDetailDTO.setFunctionalPriority(customField.getValue());
-                        }
-                    }, () -> {
-                    });
-                }
+                };
+                FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
+                Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
+                    item.setDefaultValue(customField.getValue());
+                    if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
+                        functionalCaseDetailDTO.setFunctionalPriority(customField.getValue());
+                    }
+                }, () -> {
+                });
             });
             functionalCaseDetailDTO.setCustomFields(customFields);
         }
