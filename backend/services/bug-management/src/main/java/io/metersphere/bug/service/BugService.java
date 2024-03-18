@@ -897,7 +897,9 @@ public class BugService {
      */
     public void handleAndSaveCustomFields(BugEditRequest request, boolean merge) {
         // 处理ID, 值的映射关系
-        Map<String, String> customFieldMap = request.getCustomFields().stream().collect(HashMap::new, (m, field) -> m.put(field.getId(), field.getValue()), HashMap::putAll);
+        Map<String, String> customFieldMap = request.getCustomFields().stream()
+                .filter(f -> StringUtils.isNotBlank(f.getId()))
+                .collect(HashMap::new, (m, field) -> m.put(field.getId(), field.getValue()), HashMap::putAll);
         if (MapUtils.isEmpty(customFieldMap)) {
             return;
         }
