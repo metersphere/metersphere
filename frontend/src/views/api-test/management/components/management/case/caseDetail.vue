@@ -50,12 +50,15 @@
         <detailTab :detail="caseDetail" :protocols="protocols" is-case />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
-        <quote :source-id="caseDetail.id" />
+        <tab-case-dependency :source-id="caseDetail.id" />
+      </a-tab-pane>
+      <a-tab-pane key="executeHistory" :title="t('apiTestManagement.executeHistory')" class="px-[18px] py-[16px]">
+        <tab-case-execute-history :source-id="caseDetail.id" module-type="API_REPORT" />
       </a-tab-pane>
       <!-- <a-tab-pane key="dependencies" :title="t('apiTestManagement.dependencies')" class="px-[18px] py-[16px]">
         </a-tab-pane> -->
       <a-tab-pane key="changeHistory" :title="t('apiTestManagement.changeHistory')" class="px-[18px] py-[16px]">
-        <history :source-id="caseDetail.id" />
+        <tab-case-change-history :source-id="caseDetail.id" />
       </a-tab-pane>
     </a-tabs>
   </div>
@@ -72,11 +75,12 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import detailTab from '../api/preview/detail.vue';
-  import history from '../api/preview/history.vue';
-  import quote from '../api/preview/quote.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import TabCaseChangeHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseChangeHistory.vue';
+  import TabCaseDependency from '@/views/api-test/management/components/management/case/tabContent/tabCaseDependency.vue';
+  import TabCaseExecuteHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseExecuteHistory.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { toggleFollowCase } from '@/api/modules/api-test/management';

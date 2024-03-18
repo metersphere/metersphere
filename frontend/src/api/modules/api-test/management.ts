@@ -81,6 +81,7 @@ import {
   ApiCaseChangeHistoryParams,
   ApiCaseDependencyParams,
   ApiCaseDetail,
+  ApiCaseExecuteHistoryItem,
   ApiCaseExecuteHistoryParams,
   ApiCasePageParams,
   ApiDefinitionBatchDeleteParams,
@@ -115,7 +116,6 @@ import {
   DragSortParams,
   ModuleTreeNode,
   MoveModules,
-  TableQueryParams,
   TransferFileParams,
 } from '@/models/common';
 import { ResourcePoolItem } from '@/models/setting/resourcePool';
@@ -457,7 +457,7 @@ export function getEnvList(projectId: string) {
 
 // 获取接口用例-执行历史
 export function getApiCaseExecuteHistory(data: ApiCaseExecuteHistoryParams) {
-  return MSR.post({ url: GetExecuteHistoryUrl, data });
+  return MSR.post<CommonList<ApiCaseExecuteHistoryItem>>({ url: GetExecuteHistoryUrl, data });
 }
 
 // 获取接口用例-变更历史

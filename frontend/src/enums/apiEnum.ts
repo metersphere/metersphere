@@ -278,3 +278,11 @@ export enum ExecuteStatusFilters {
   FAKE_ERROR = 'FAKE_ERROR',
   STOPPED = 'STOPPED',
 }
+
+// 变更历史类型
+export enum ChangeHistoryStatusFilters {
+  ADD = 'ADD',
+  UPDATE = 'UPDATE',
+  IMPORT = 'IMPORT',
+  DELETE = 'DELETE',
+}
