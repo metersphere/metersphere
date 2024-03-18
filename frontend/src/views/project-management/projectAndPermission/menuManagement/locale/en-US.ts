@@ -27,9 +27,9 @@ export default {
   'project.menu.API_SCRIPT_REVIEWER': 'Script Review',
   'project.menu.API_SCRIPT_REVIEWER_TIP':
     'The interface case contains script steps that need to be reviewed by a designated user; the reviewer can be changed',
-  'project.menu.API_ERROR_REPORT_RULE': 'False Report Rule',
+  'project.menu.API_ERROR_REPORT_RULE': 'Fake Error Rule',
   'project.menu.API_ERROR_REPORT_RULE_TIP':
-    'When the interface return result matches the false report rule, the interface result will be treated as a false report',
+    'When the interface return result matches the fake error rule, the interface result will be treated as a false report',
   'project.menu.API_SYNC_CASE': 'Change Sync CASE',
 
   'project.menu.CASE_PUBLIC': 'Public Case Library',
