@@ -48,9 +48,12 @@
       <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
     </template>
     <template #name="{ record, rowIndex }">
-      <a-button type="text" class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{
-        characterLimit(record.name)
-      }}</a-button>
+      <div
+        type="text"
+        class="one-line-text text-[rgb(var(--primary-5))]"
+        @click="showCaseDetail(record.id, rowIndex)"
+        >{{ characterLimit(record.name) }}</div
+      >
     </template>
     <template #updateUserName="{ record }">
       <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>

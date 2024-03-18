@@ -32,4 +32,5 @@ export default {
   'report.detail.scenario.errorTip':
     'There is a pre/post script running error in the execution step of the current scenario.',
   'report.detail.api.errorTip': 'There are pre/post script running errors in the current use case execution.',
+  'report.detail.api.resContent': 'Response content',
 };
