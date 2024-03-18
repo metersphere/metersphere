@@ -498,6 +498,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
         copyApiDebugDTO.setMethod(apiDefinition.getMethod());
         copyApiDebugDTO.setPath(apiDefinition.getPath());
+        copyApiDebugDTO.setProtocol(apiDefinition.getProtocol());
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(apiTestCase.getId()).andUserIdEqualTo("admin");

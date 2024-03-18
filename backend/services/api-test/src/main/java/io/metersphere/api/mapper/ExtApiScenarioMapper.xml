@@ -458,7 +458,8 @@
         api_scenario_report.start_time,
         api_scenario_report.create_user,
         api_scenario_report.trigger_mode,
-        api_scenario_report.test_plan_id
+        api_scenario_report.test_plan_id,
+        api_scenario_report.deleted
         from api_scenario_report
         left join api_scenario_record t1 on t1.api_scenario_report_id = api_scenario_report.id
         where

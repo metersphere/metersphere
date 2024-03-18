@@ -30,6 +30,9 @@ public class ExecuteReportDTO implements Serializable {
     @Schema(description = "执行方式")
     private String triggerMode;
 
+    @Schema(description = "是否删除")
+    private boolean deleted;
+
     private static final long serialVersionUID = 1L;
 
 }
