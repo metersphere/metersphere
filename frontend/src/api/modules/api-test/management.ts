@@ -30,6 +30,8 @@ import {
   DeleteRecycleCaseUrl,
   ExecuteCaseUrl,
   GetCaseDetailUrl,
+  GetCaseReportByIdUrl,
+  GetCaseReportDetailUrl,
   GetChangeHistoryUrl,
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
@@ -72,7 +74,7 @@ import {
   UploadTempFileUrl,
 } from '@/api/requrls/api-test/management';
 
-import { ExecuteRequestParams } from '@/models/apiTest/common';
+import { ApiCaseReportDetail, ExecuteRequestParams } from '@/models/apiTest/common';
 import {
   AddApiCaseParams,
   ApiCaseBatchEditParams,
@@ -477,4 +479,12 @@ export function getPoolOption(projectId: string) {
 
 export function getPoolId(projectId: string) {
   return MSR.get<string>({ url: GetPoolId + projectId });
+}
+
+export function getReportById(id: string) {
+  return MSR.get<Record<string, any>>({ url: GetCaseReportByIdUrl + id });
+}
+
+export function getCaseReportDetail(reportId: string, stepId: string) {
+  return MSR.get<ApiCaseReportDetail>({ url: `${GetCaseReportDetailUrl + reportId}/${stepId}` });
 }

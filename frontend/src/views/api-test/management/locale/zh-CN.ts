@@ -198,4 +198,5 @@ export default {
   'case.detail.execute.history.list': '执行历史列表',
   'case.detail.dependency.list': '引用关系列表',
   'case.detail.resource.api': '接口测试',
+  'case.detail.report.delete': '报告已清理',
 };
