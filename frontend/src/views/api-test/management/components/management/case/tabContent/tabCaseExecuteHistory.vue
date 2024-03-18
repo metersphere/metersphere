@@ -67,11 +67,23 @@
         <execute-status :status="record.status" />
       </template>
       <template #operation="{ record }">
-        <MsButton class="!mr-0" @click="showResult(record)"
-          >{{ t('apiScenario.executeHistory.execution.operation') }}
-        </MsButton>
+        <a-tooltip :disabled="record.deleted" :content="t('case.detail.report.delete')" position="top">
+          <MsButton :disabled="!record.deleted" class="!mr-0" @click="showResult(record)"
+            >{{ t('apiScenario.executeHistory.execution.operation') }}
+          </MsButton>
+        </a-tooltip>
       </template>
     </ms-base-table>
+    <a-modal v-model:visible="showResponse" class="ms-modal-form ms-modal-small" title-align="start">
+      <response
+        v-show="showResponse"
+        :is-expanded="true"
+        :is-http-protocol="props.protocol === 'HTTP'"
+        :is-priority-local-exec="false"
+        :active-tab="ResponseComposition.BODY"
+        :request-task-result="responseContent"
+      ></response>
+    </a-modal>
   </div>
 </template>
 
@@ -82,23 +94,31 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import response from '@/views/api-test/components/requestComposition/response/index.vue';
   import ExecuteStatus from '@/views/api-test/scenario/components/executeStatus.vue';
 
-  import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
+  import { getApiCaseExecuteHistory, getCaseReportDetail, getReportById } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
+  import { ApiCaseReportDetail, RequestTaskResult } from '@/models/apiTest/common';
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
-  import { ExecuteStatusFilters } from '@/enums/apiEnum';
+  import { ExecuteStatusFilters, ResponseComposition } from '@/enums/apiEnum';
   import { TriggerModeLabel } from '@/enums/reportEnum';
 
   const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
   const triggerModeFilterVisible = ref(false);
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(ExecuteStatusFilters));
+
+  const showResponse = ref(false);
+
+  const responseContent = ref<RequestTaskResult>();
+
   const props = defineProps<{
     sourceId: string | number;
     moduleType: string;
+    protocol: string;
   }>();
 
   const appStore = useAppStore();
@@ -135,7 +155,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 100,
+      width: 150,
     },
     {
       title: 'apiTestManagement.taskOperator',
@@ -194,7 +214,36 @@
       loadExecuteList();
     }
   }
-  function showResult(record: ApiCaseExecuteHistoryItem) {}
+
+  function loadedReportDetail(detail: ApiCaseReportDetail) {
+    if (detail.id) {
+      responseContent.value?.requestResults.push(detail.content);
+      showResponse.value = true;
+    }
+  }
+
+  async function loadedReport(detail: Record<string, any>) {
+    if (detail.id) {
+      if (detail.children && detail.children.length > 0) {
+        const { stepId } = detail.children[0].stepId;
+        try {
+          const caseReportDetail = getCaseReportDetail(detail.id, stepId);
+          loadedReportDetail(await caseReportDetail);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }
+
+  function showResult(record: ApiCaseExecuteHistoryItem) {
+    try {
+      const result = getReportById(record.id);
+      loadedReport(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   onBeforeMount(() => {
     loadExecuteList();

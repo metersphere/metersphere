@@ -399,6 +399,7 @@ export interface ResponseResult {
   vars: string;
   assertions: any;
 }
+
 export interface RequestResult {
   body: string;
   headers: string;
@@ -428,3 +429,18 @@ export interface ResponseDefinition {
   body: ResponseDefinitionBody;
   [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
 }
+
+// 接口用例执行历史报告对象
+export type ApiCaseReportDetail = {
+  id: string | number;
+  reportId: string | number;
+  stepId: string | number;
+  status: string;
+  fakeCode: string;
+  requestName: string;
+  requestTime: number;
+  code: string;
+  responseSize: number;
+  scriptIdentifier: string;
+  content: RequestResult;
+};

@@ -206,4 +206,5 @@ export default {
   'case.detail.execute.history.list': 'Execution history list',
   'case.detail.dependency.list': 'Reference relationship list',
   'case.detail.resource.api': 'API',
+  'case.detail.report.delete': 'Report cleared',
 };

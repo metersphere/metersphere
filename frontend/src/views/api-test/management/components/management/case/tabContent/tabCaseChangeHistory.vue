@@ -88,7 +88,7 @@
     {
       title: 'apiTestManagement.changeOrder',
       dataIndex: 'id',
-      width: 200,
+      width: 100,
     },
     {
       title: 'apiTestManagement.type',

@@ -53,7 +53,7 @@
         <tab-case-dependency :source-id="caseDetail.id" />
       </a-tab-pane>
       <a-tab-pane key="executeHistory" :title="t('apiTestManagement.executeHistory')" class="px-[18px] py-[16px]">
-        <tab-case-execute-history :source-id="caseDetail.id" module-type="API_REPORT" />
+        <tab-case-execute-history :source-id="caseDetail.id" module-type="API_REPORT" :protocol="props.protocol" />
       </a-tab-pane>
       <!-- <a-tab-pane key="dependencies" :title="t('apiTestManagement.dependencies')" class="px-[18px] py-[16px]">
         </a-tab-pane> -->
