@@ -83,6 +83,10 @@
         <!--   sonar     -->
         <sonar.organization>metersphere</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <!-- 用于解析 ${__jexl2} 和 ${__jexl3} 函数变量 -->
+        <commons-jexl.version>2.1.1</commons-jexl.version>
+        <commons-jexl3.version>3.3</commons-jexl3.version>
     </properties>
 
     <modules>
