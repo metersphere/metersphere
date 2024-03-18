@@ -4,7 +4,7 @@ import io.metersphere.bug.dto.request.BugSyncRequest;
 import io.metersphere.project.domain.Project;
 
 /**
- * 缺陷相关xpack功能接口
+ * 缺陷相关企业版功能接口
  */
 public interface XpackBugService {
 
@@ -16,7 +16,7 @@ public interface XpackBugService {
     void syncPlatformBugsBySchedule(String projectId, String scheduleUser);
 
     /**
-     * 同步当前项目第三方平台缺陷(前台调用, 全量同步)
+     * 同步当前项目第三方平台缺陷(前台调用, 支持全量及同步条件区间)
      * @param project 项目
      * @param request 同步请求参数
      * @param currentUser 当前用户

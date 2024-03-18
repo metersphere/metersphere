@@ -7,7 +7,7 @@ public enum BugAttachmentSourceType {
      */
     ATTACHMENT,
     /**
-     * 缺陷内容
+     * 富文本
      */
     RICH_TEXT
 }

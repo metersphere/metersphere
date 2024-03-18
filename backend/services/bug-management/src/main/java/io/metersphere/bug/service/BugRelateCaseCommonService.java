@@ -114,16 +114,15 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         List<BugRelationCase> planRelatedCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         Map<String, String> planRelatedMap = planRelatedCases.stream().collect(Collectors.toMap(BugRelationCase::getTestPlanCaseId, BugRelationCase::getId));
         relatedIds.forEach(relatedId -> {
-            if (planRelatedMap.containsKey(relatedId)) {
+			BugRelationCase record = new BugRelationCase();
+			if (planRelatedMap.containsKey(relatedId)) {
                 // 计划已关联
-                BugRelationCase record = new BugRelationCase();
-                record.setId(planRelatedMap.get(relatedId));
+				record.setId(planRelatedMap.get(relatedId));
                 record.setCaseId(relatedId);
                 record.setUpdateTime(System.currentTimeMillis());
                 relationCaseMapper.updateByPrimaryKeySelective(record);
             } else {
-                BugRelationCase record = new BugRelationCase();
-                record.setId(IDGenerator.nextStr());
+				record.setId(IDGenerator.nextStr());
                 record.setCaseId(relatedId);
                 record.setBugId(request.getSourceId());
                 record.setCaseType(request.getSourceType());

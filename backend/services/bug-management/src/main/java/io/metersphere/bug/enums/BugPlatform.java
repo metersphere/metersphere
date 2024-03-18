@@ -12,23 +12,7 @@ public enum BugPlatform {
     /**
      * 本地
      */
-    LOCAL("Local"),
-    /**
-     * Jira
-     */
-    JIRA("Jira"),
-    /**
-     * Tapd
-     */
-    TAPD("Tapd"),
-    /**
-     * 禅道
-     */
-    ZENDAO("Zentao"),
-    /**
-     * Azure
-     */
-    AZURE("Azure");
+    LOCAL("Local");
 
     private final String name;
 

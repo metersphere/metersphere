@@ -66,5 +66,10 @@ public interface ExtBugRelateCaseMapper {
      */
     List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 
+    /**
+     * 获取关联的Case数量
+     * @param caseId 用例ID
+     * @return 关联数量
+     */
     long countByCaseId(String caseId);
 }

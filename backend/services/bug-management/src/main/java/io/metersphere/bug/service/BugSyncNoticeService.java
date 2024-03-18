@@ -30,7 +30,7 @@ public class BugSyncNoticeService {
         Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         String subject = defaultSubjectMap.get(NoticeConstants.TemplateText.BUG_SYNC_TASK_EXECUTE_COMPLETED);
         // ${OPERATOR}同步了${total}条缺陷
-        Map paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new HashMap<>(3);
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
         paramMap.put("total", total);
         paramMap.put("projectId", projectId);
