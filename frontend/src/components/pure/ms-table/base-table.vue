@@ -420,15 +420,11 @@
             },
           };
         } else {
-          scrollObj.value = {
-            scroll: attrs.scroll,
-          };
+          scrollObj.value = {};
           currentColumns.value = arr || tmpArr;
         }
       } else {
-        scrollObj.value = {
-          scroll: attrs.scroll,
-        };
+        scrollObj.value = {};
         currentColumns.value = arr || tmpArr;
       }
     } catch (error) {
