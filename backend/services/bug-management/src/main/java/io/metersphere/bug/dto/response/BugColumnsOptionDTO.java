@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BugColumnsOptionResponse {
+public class BugColumnsOptionDTO {
     @Schema(description = "用户相关的下拉选项")
     List<SelectOption> userOption;
     @Schema(description = "处理人下拉选项")

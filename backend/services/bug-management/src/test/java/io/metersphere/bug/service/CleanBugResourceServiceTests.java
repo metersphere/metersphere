@@ -2,7 +2,6 @@ package io.metersphere.bug.service;
 
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -19,8 +18,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 public class CleanBugResourceServiceTests extends BaseTest {
 
     private final ProjectServiceInvoker serviceInvoker;
-    @Resource
-    private CleanupBugResourceService cleanupBugResourceService;
 
     @Autowired
     public CleanBugResourceServiceTests(ProjectServiceInvoker serviceInvoker) {

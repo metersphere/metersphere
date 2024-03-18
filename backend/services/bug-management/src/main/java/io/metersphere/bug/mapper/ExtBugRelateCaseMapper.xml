@@ -95,6 +95,7 @@
             brc.create_time desc
         </if>
     </select>
+
     <select id="countByCaseId" resultType="java.lang.Long">
         SELECT count(fc.id)
         FROM bug_relation_case brc

@@ -6,7 +6,7 @@ import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.*;
-import io.metersphere.bug.dto.response.BugColumnsOptionResponse;
+import io.metersphere.bug.dto.response.BugColumnsOptionDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugDetailDTO;
 import io.metersphere.bug.service.*;
@@ -79,8 +79,8 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-获取表头状态选项")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public BugColumnsOptionResponse getHeaderStatusOption(@PathVariable String projectId) {
-        return bugStatusService.getColumnsOption(projectId);
+    public BugColumnsOptionDTO getHeaderOption(@PathVariable String projectId) {
+        return bugService.getHeaderOption(projectId);
     }
 
     @PostMapping("/page")

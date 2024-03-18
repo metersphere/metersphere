@@ -2,7 +2,6 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugExample;
-import io.metersphere.bug.dto.response.BugColumnsOptionResponse;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
@@ -29,8 +28,6 @@ public class BugStatusService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private BaseStatusFlowSettingService baseStatusFlowSettingService;
-    @Resource
-    private BugCommonService bugCommonService;
 
     /**
      * 获取表头缺陷状态选项
@@ -114,17 +111,4 @@ public class BugStatusService {
            return StringUtils.EMPTY;
        }
    }
-
-    /**
-     * 获取
-     * @param projectId
-     * @return
-     */
-    public BugColumnsOptionResponse getColumnsOption(String projectId) {
-        return new BugColumnsOptionResponse(
-                bugCommonService.getLocalHandlerOption(projectId),
-                bugCommonService.getHeaderHandlerOption(projectId),
-                getHeaderStatusOption(projectId)
-        );
-    }
 }

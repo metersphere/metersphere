@@ -103,6 +103,8 @@ public class BugService {
     @Resource
     protected TemplateMapper templateMapper;
     @Resource
+    private BugCommentMapper bugCommentMapper;
+    @Resource
     private BugContentMapper bugContentMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -190,7 +192,7 @@ public class BugService {
      * @return 缺陷
      */
     public Bug addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
-        // 校验标签长度
+        // 前置校验: 标签长度
         this.checkTagLength(request.getTags());
         /*
          *  缺陷创建或者修改逻辑:
@@ -199,7 +201,7 @@ public class BugService {
          *  3. 保存MS缺陷(基础字段, 自定义字段)
          *  4. 处理附件(第三方平台缺陷需异步调用接口同步附件至第三方)
          *  5. 处理富文本临时文件
-         *  6. 处理缺陷-用例关联关系
+         *  6. 处理用例关联关系
          */
         String platformName = projectApplicationService.getPlatformName(request.getProjectId());
         PlatformBugUpdateDTO platformBug = null;
@@ -326,7 +328,7 @@ public class BugService {
                 platform.deleteBug(bug.getPlatformBugId());
             }
             // 删除缺陷后, 前置操作: 删除关联用例, 删除关联附件
-            clearAssociate(id, bug.getProjectId());
+            bugCommonService.clearAssociateResource(bug.getProjectId(), List.of(id));
             bugMapper.deleteByPrimaryKey(id);
         }
     }
@@ -499,6 +501,19 @@ public class BugService {
     }
 
     /**
+     * 获取表头列选项
+     * @param projectId 项目ID
+     * @return 表头列选项
+     */
+    public BugColumnsOptionDTO getHeaderOption(String projectId) {
+        return new BugColumnsOptionDTO(
+                bugCommonService.getLocalHandlerOption(projectId),
+                bugCommonService.getHeaderHandlerOption(projectId),
+                bugStatusService.getHeaderStatusOption(projectId)
+        );
+    }
+
+    /**
      * 同步平台缺陷(全量)
      * @param request 同步请求参数
      * @param project 项目
@@ -600,38 +615,8 @@ public class BugService {
 
             // 批量更新缺陷
             updateBugs.forEach(updateBug -> {
-                if (CollectionUtils.isNotEmpty(updateBug.getRichTextImageKeys())) {
-                    // 同步第三方的富文本文件
-                    updateBug.getRichTextImageKeys().forEach(key -> {
-                        platform.getAttachmentContent(key, (in) -> {
-                            if (in == null) {
-                                return;
-                            }
-                            String fileId = IDGenerator.nextStr();
-                            byte[] bytes;
-                            try {
-                                // upload platform attachment to minio
-                                bytes = in.readAllBytes();
-                                FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, "image.png"));
-                            } catch (Exception e) {
-                                throw new MSException(e.getMessage());
-                            }
-                            // save bug attachment relation
-                            BugLocalAttachment localAttachment = new BugLocalAttachment();
-                            localAttachment.setId(IDGenerator.nextStr());
-                            localAttachment.setBugId(updateBug.getId());
-                            localAttachment.setFileId(fileId);
-                            localAttachment.setFileName("image.png");
-                            localAttachment.setSize((long) bytes.length);
-                            localAttachment.setCreateTime(System.currentTimeMillis());
-                            localAttachment.setCreateUser("admin");
-                            localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
-                            bugLocalAttachmentMapper.insert(localAttachment);
-                            // 替换富文本中的临时URL
-                            updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/attachment/download/file/" + updateBug.getProjectId() + "/" + fileId + "/true\""));
-                        });
-                    });
-                }
+                // 处理同步的BUG中的富文本图片
+                syncRichTextToMs(updateBug, platform);
                 updateBug.setCreateUser(null);
                 Bug bug = new Bug();
                 BeanUtils.copyBean(bug, updateBug);
@@ -660,7 +645,7 @@ public class BugService {
 
             // 批量删除缺陷
             syncBugResult.getDeleteBugIds().forEach(deleteBugId -> {
-                clearAssociate(deleteBugId, project.getId());
+                bugCommonService.clearAssociateResource(project.getId(), List.of(deleteBugId));
                 bugMapper.deleteByPrimaryKey(deleteBugId);
             });
 
@@ -1265,6 +1250,44 @@ public class BugService {
         return bugs;
     }
 
+    /**
+     * 处理同步缺陷中的富文本图片
+     * @param updateBug 同步更新的缺陷
+     * @param platform 平台对象
+     */
+    private void syncRichTextToMs(PlatformBugDTO updateBug, Platform platform) {
+        if (CollectionUtils.isNotEmpty(updateBug.getRichTextImageKeys())) {
+            // 同步第三方的富文本文件
+            updateBug.getRichTextImageKeys().forEach(key -> platform.getAttachmentContent(key, (in) -> {
+                if (in == null) {
+                    return;
+                }
+                String fileId = IDGenerator.nextStr();
+                byte[] bytes;
+                try {
+                    // upload platform attachment to minio
+                    bytes = in.readAllBytes();
+                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, "image.png"));
+                } catch (Exception e) {
+                    throw new MSException(e.getMessage());
+                }
+                // save bug attachment relation
+                BugLocalAttachment localAttachment = new BugLocalAttachment();
+                localAttachment.setId(IDGenerator.nextStr());
+                localAttachment.setBugId(updateBug.getId());
+                localAttachment.setFileId(fileId);
+                localAttachment.setFileName("image.png");
+                localAttachment.setSize((long) bytes.length);
+                localAttachment.setCreateTime(System.currentTimeMillis());
+                localAttachment.setCreateUser("admin");
+                localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
+                bugLocalAttachmentMapper.insert(localAttachment);
+                // 替换富文本中的临时URL
+                updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/attachment/download/file/" + updateBug.getProjectId() + "/" + fileId + "/true\""));
+            }));
+        }
+    }
+
 
     /**
      * 自定义字段转换为平台字段
@@ -1349,42 +1372,6 @@ public class BugService {
        // 平台插件中获取的默认模板
        template.setPlatformDefault(true);
        return template;
-   }
-
-   /**
-    * 清空关联信息
-    * @param bugId 缺陷ID
-    * @param projectId 项目ID
-    */
-   public void clearAssociate(String bugId, String projectId) {
-       // 清空附件关系及本地附件
-       FileAssociationExample example = new FileAssociationExample();
-       example.createCriteria().andSourceIdEqualTo(bugId).andSourceTypeEqualTo(FileAssociationSourceUtil.SOURCE_TYPE_BUG);
-       fileAssociationMapper.deleteByExample(example);
-       BugLocalAttachmentExample attachmentExample = new BugLocalAttachmentExample();
-       attachmentExample.createCriteria().andBugIdEqualTo(bugId);
-       List<BugLocalAttachment> bugLocalAttachments = bugLocalAttachmentMapper.selectByExample(attachmentExample);
-       bugLocalAttachments.forEach(bugLocalAttachment -> {
-           FileRequest fileRequest = buildBugFileRequest(projectId, bugId, bugLocalAttachment.getFileId(), bugLocalAttachment.getFileName());
-           try {
-               fileService.deleteFile(fileRequest);
-           } catch (Exception e) {
-               throw new MSException(e);
-           }
-       });
-       bugLocalAttachmentMapper.deleteByExample(attachmentExample);
-       // 清空关联用例
-       BugRelationCaseExample relationCaseExample = new BugRelationCaseExample();
-       relationCaseExample.createCriteria().andBugIdEqualTo(bugId);
-       bugRelationCaseMapper.deleteByExample(relationCaseExample);
-       // 清除自定义字段关系
-       BugCustomFieldExample customFieldExample = new BugCustomFieldExample();
-       customFieldExample.createCriteria().andBugIdEqualTo(bugId);
-       bugCustomFieldMapper.deleteByExample(customFieldExample);
-       // 清空缺陷内容
-       BugContentExample contentExample = new BugContentExample();
-       contentExample.createCriteria().andBugIdEqualTo(bugId);
-       bugContentMapper.deleteByExample(contentExample);
    }
 
     /**
