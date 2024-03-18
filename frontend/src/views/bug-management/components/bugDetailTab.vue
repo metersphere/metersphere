@@ -1,5 +1,6 @@
 <template>
-  <div class="relative p-[16px] pb-[16px]">
+  <!-- 所属平台一致, 详情展示 -->
+  <div v-if="props.currentPlatform === props.detailInfo.platform" class="relative p-[16px] pb-[16px]">
     <div class="header">
       <div v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
         <a-button type="text" @click="contentEditAble = !contentEditAble">
@@ -8,55 +9,62 @@
         </a-button>
       </div>
     </div>
-    <!-- 左侧布局默认内容(非平台默认模板时默认展示) -->
-    <div v-if="!isPlatformDefaultTemplate" class="default-content !break-words break-all">
-      <div class="header-title">{{ t('bugManagement.edit.content') }}</div>
-      <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
-        <MsRichText
-          v-if="contentEditAble"
-          v-model:raw="form.description"
-          v-model:filed-ids="descriptionFileIds"
-          :disabled="!contentEditAble"
-          :placeholder="t('editor.placeholder')"
-          :upload-image="handleUploadImage"
-        />
-        <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
-      </div>
-      <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
-        <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-        <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
-          {{ t('common.save') }}
-        </a-button>
-      </div>
-    </div>
-    <!-- 特殊布局内容(平台默认模板时展示) -->
-    <div v-if="isPlatformDefaultTemplate" class="special-content">
-      <div v-for="(item, index) in platformSystemFields" :key="index">
-        <div v-if="item.fieldId !== 'summary'">
-          <h1 class="header-title">
-            <strong>{{ item.fieldName }}</strong>
-          </h1>
-          <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
-            <MsRichText
-              v-if="contentEditAble"
-              v-model:raw="item.defaultValue"
-              :disabled="!contentEditAble"
-              :placeholder="t('editor.placeholder')"
-            />
-            <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
-          </div>
+    <a-form ref="caseFormRef" class="rounded-[4px]" :model="form" layout="vertical">
+      <!-- 左侧布局默认内容(非平台默认模板时默认展示) -->
+      <div v-if="!isPlatformDefaultTemplate" class="default-content !break-words break-all">
+        <div class="header-title">
+          <strong>
+            {{ t('bugManagement.edit.content') }}
+          </strong>
+        </div>
+        <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+          <MsRichText
+            v-if="contentEditAble"
+            v-model:raw="form.description"
+            v-model:filed-ids="descriptionFileIds"
+            :disabled="!contentEditAble"
+            :placeholder="t('editor.placeholder')"
+            :upload-image="handleUploadImage"
+          />
+          <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
+        </div>
+        <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
+          <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+          <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
+            {{ t('common.save') }}
+          </a-button>
         </div>
       </div>
-      <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
-        <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-        <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
-          {{ t('common.save') }}
-        </a-button>
+      <!-- 特殊布局内容(平台默认模板时展示) -->
+      <div v-if="isPlatformDefaultTemplate" class="special-content">
+        <div v-for="(item, index) in platformSystemFields" :key="index">
+          <div v-if="item.fieldId !== 'summary'">
+            <h1 class="header-title">
+              <strong>{{ item.fieldName }}</strong>
+            </h1>
+            <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+              <MsRichText
+                v-if="contentEditAble"
+                v-model:raw="item.defaultValue"
+                :disabled="!contentEditAble"
+                :placeholder="t('editor.placeholder')"
+              />
+              <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
+            </div>
+          </div>
+        </div>
+        <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
+          <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+          <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
+            {{ t('common.save') }}
+          </a-button>
+        </div>
       </div>
-    </div>
-    <div class="mt-4">
-      <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
-    </div>
+      <!-- 附件布局 -->
+      <div class="mt-6">
+        <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
+      </div>
+    </a-form>
     <MsFileList
       ref="fileListRef"
       v-model:file-list="fileList"
@@ -152,6 +160,11 @@
       </template>
     </MsFileList>
   </div>
+
+  <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
+  <div v-else class="empty-panel">
+    <a-empty> {{ t('bugManagement.detail.platform_no_active') }} </a-empty>
+  </div>
   <div>
     <MsUpload
       v-model:file-list="fileList"
@@ -228,6 +241,7 @@
     allowEdit?: boolean; // 是否允许编辑
     isPlatformDefaultTemplate: boolean; // 是否是平台默认模板
     platformSystemFields: BugEditCustomField[]; // 平台系统字段
+    currentPlatform: string; // 当前平台
   }>();
 
   const emit = defineEmits<{
@@ -504,6 +518,8 @@
   }
 
   watchEffect(() => {
+    console.log(props.currentPlatform);
+    console.log(props.detailInfo.platform);
     initCurrentDetail(props.detailInfo);
   });
   defineExpose({
@@ -526,5 +542,11 @@
       right: 6px;
       color: rgb(var(--primary-7));
     }
+  }
+</style>
+
+<style scoped lang="less">
+  :deep(.arco-form-item-label) {
+    font-weight: bold !important;
   }
 </style>

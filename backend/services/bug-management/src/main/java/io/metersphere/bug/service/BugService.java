@@ -254,6 +254,7 @@ public class BugService {
         detail.setNum(bug.getNum());
         detail.setProjectId(bug.getProjectId());
         detail.setTemplateId(template.getId());
+        detail.setPlatform(bug.getPlatform());
         detail.setPlatformDefault(template.getPlatformDefault());
         detail.setStatus(bug.getStatus());
         detail.setPlatformBugId(bug.getPlatformBugId());

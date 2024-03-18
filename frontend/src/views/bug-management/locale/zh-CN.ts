@@ -81,6 +81,7 @@ export default {
       shareTip: '分享链接已复制到剪贴板',
       deleteTitle: '确认删除 {name} 吗？',
       deleteContent: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
+      platform_no_active: '该缺陷平台未对接, 无法正常预览及编辑详情相关内容',
     },
     batchUpdate: {
       attribute: '选择属性',

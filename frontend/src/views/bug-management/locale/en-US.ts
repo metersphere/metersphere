@@ -81,6 +81,7 @@ export default {
       shareTip: 'Share link has been copied to clipboard',
       deleteTitle: 'Delete {name} ？',
       deleteContent: 'Bug witch created by MeterSphere will in recycle bin and third plant bug will be deleted',
+      platform_no_active: 'The bug platform has not been integrated, can not preview and edit details normally',
     },
     batchUpdate: {
       attribute: 'Select attribute',

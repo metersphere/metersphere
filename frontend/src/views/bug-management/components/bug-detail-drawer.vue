@@ -17,6 +17,18 @@
     :mask="false"
     @loaded="loadedBug"
   >
+    <template #titleLeft>
+      <div class="flex items-center">
+        <MsTag
+          size="medium"
+          :closable="false"
+          :type="props.currentPlatform === detailInfo.platform ? 'primary' : 'default'"
+          theme="light"
+        >
+          {{ detailInfo['platform'] }}
+        </MsTag>
+      </div>
+    </template>
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
         <MsButton
@@ -25,7 +37,7 @@
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
           :loading="editLoading"
-          :disabled="loading"
+          :disabled="loading || props.currentPlatform !== detailInfo.platform"
           @click="updateHandler"
         >
           <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px]" />
@@ -66,7 +78,7 @@
               <span> {{ t('caseManagement.featureCase.more') }}</span>
             </div>
             <template #content>
-              <a-doption @click="handleCopy">
+              <a-doption :disabled="props.currentPlatform !== detailInfo.platform" @click="handleCopy">
                 <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />
                 {{ t('common.copy') }}
               </a-doption>
@@ -107,6 +119,7 @@
                     :detail-info="detailInfo"
                     :is-platform-default-template="isPlatformDefaultTemplate"
                     :platform-system-fields="platformSystemFields"
+                    :current-platform="props.currentPlatform"
                     @update-success="updateSuccess"
                   />
 
@@ -124,67 +137,74 @@
             </div>
           </template>
           <template #second>
-            <div class="rightWrapper p-[24px]">
-              <!-- 自定义字段开始 -->
-              <div class="inline-block w-full break-words">
-                <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
-                  <a-space direction="vertical" class="w-[100%]" size="large">
-                    <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
-                  </a-space>
-                </a-skeleton>
-                <div v-if="!loading" class="mb-4 font-medium">
-                  <strong>
-                    {{ t('bugManagement.detail.basicInfo') }}
-                  </strong>
-                </div>
-                <MsFormCreate
-                  v-if="!loading"
-                  ref="formCreateRef"
-                  v-model:form-item="formItem"
-                  v-model:api="fApi"
-                  :form-rule="formRules"
-                  class="w-full"
-                  :option="options"
-                  @change="handelFormCreateChange"
-                />
-                <!-- 自定义字段结束 -->
-                <div
-                  v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
-                  class="baseItem"
-                >
-                  <a-form
-                    :model="{}"
-                    :label-col-props="{
-                      span: 9,
-                    }"
-                    :wrapper-col-props="{
-                      span: 15,
-                    }"
-                    label-align="left"
-                    content-class="tags-class"
+            <a-spin :loading="rightLoading" class="w-full">
+              <!-- 所属平台一致, 详情展示 -->
+              <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper p-[24px]">
+                <!-- 自定义字段开始 -->
+                <div class="inline-block w-full break-words">
+                  <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
+                    <a-space direction="vertical" class="w-[100%]" size="large">
+                      <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
+                    </a-space>
+                  </a-skeleton>
+                  <div v-if="!loading" class="mb-4 font-medium">
+                    <strong>
+                      {{ t('bugManagement.detail.basicInfo') }}
+                    </strong>
+                  </div>
+                  <MsFormCreate
+                    v-if="!loading"
+                    ref="formCreateRef"
+                    v-model:form-item="formItem"
+                    v-model:api="fApi"
+                    :form-rule="formRules"
+                    class="w-full"
+                    :option="options"
+                    @change="handelFormCreateChange"
+                  />
+                  <!-- 自定义字段结束 -->
+                  <div
+                    v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
+                    class="baseItem"
                   >
-                    <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                      <MsTagsInput
-                        v-model:model-value="tags"
-                        :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                      />
-                    </a-form-item>
-                  </a-form>
+                    <a-form
+                      :model="{}"
+                      :label-col-props="{
+                        span: 9,
+                      }"
+                      :wrapper-col-props="{
+                        span: 15,
+                      }"
+                      label-align="left"
+                      content-class="tags-class"
+                    >
+                      <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
+                        <MsTagsInput
+                          v-model:model-value="tags"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                        />
+                      </a-form-item>
+                    </a-form>
 
-                  <!--                <span class="label"> {{ t('bugManagement.detail.tag') }}</span>-->
-                  <!--                <span style="width: 200px">-->
-                  <!--                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>-->
-                  <!--                </span>-->
+                    <!--                <span class="label"> {{ t('bugManagement.detail.tag') }}</span>-->
+                    <!--                <span style="width: 200px">-->
+                    <!--                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>-->
+                    <!--                </span>-->
+                  </div>
                 </div>
-              </div>
 
-              <!-- 内置基础信息结束 -->
-            </div>
+                <!-- 内置基础信息结束 -->
+              </div>
+              <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
+              <div v-else>
+                <a-empty> 暂无内容 </a-empty>
+              </div>
+            </a-spin>
           </template>
         </MsSplitBox>
       </div>
       <CommentInput
-        v-if="activeTab === 'comment'"
+        v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
         :content="commentContent"
         is-show-avatar
         :upload-image="handleUploadImage"
@@ -209,6 +229,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import CommentInput from '@/components/business/ms-comment/input.vue';
   import { CommentParams } from '@/components/business/ms-comment/types';
@@ -257,6 +278,7 @@
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
     pageChange: (page: number) => Promise<void>; // 分页变更函数
+    currentPlatform: string;
   }>();
   const caseCount = ref(0);
   const appStore = useAppStore();
@@ -270,6 +292,7 @@
   const showDrawerVisible = defineModel<boolean>('visible', { default: false });
   const bugDetailTabRef = ref();
   const isPlatformDefaultTemplate = ref(false);
+  const rightLoading = ref(false);
   const rowLength = ref<number>(0);
   const activeTab = ref<string>('detail');
 
@@ -415,6 +438,7 @@
   const editLoading = ref<boolean>(false);
 
   function updateSuccess() {
+    rightLoading.value = false;
     detailDrawerRef.value?.initDetail();
     emit('submit');
   }
@@ -535,6 +559,7 @@
   }
 
   const handelFormCreateChange = debounce(() => {
+    rightLoading.value = true;
     bugDetailTabRef.value?.handleSave();
   }, 300);
 
