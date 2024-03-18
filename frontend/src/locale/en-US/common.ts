@@ -96,6 +96,8 @@ export default {
   'common.number': 'Number',
   'common.boolean': 'Boolean',
   'common.array': 'Array',
+  'common.list': 'List',
+  'common.constant': 'Constant',
   'common.json': 'Object',
   'common.integer': 'Integer',
   'common.file': 'File',
