@@ -30,13 +30,7 @@
     >
       <!-- ID -->
       <template #num="{ record, rowIndex }">
-        <a-button
-          type="text"
-          class="px-0"
-          :disabled="currentPlatform !== record.platform"
-          @click="handleShowDetail(record.id, rowIndex)"
-          >{{ record.num }}</a-button
-        >
+        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
       </template>
       <template #operation="{ record }">
         <div class="flex flex-nowrap items-center">
@@ -191,6 +185,7 @@
     v-model:visible="detailVisible"
     :detail-id="activeDetailId"
     :detail-index="activeCaseIndex"
+    :current-platform="currentPlatform"
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"

@@ -5,6 +5,7 @@
     unmount-on-close
     :footer="false"
     :title="t('msTable.columnSetting.display')"
+    class="column-drawer"
     @cancel="handleCancel"
   >
     <div class="ms-table-column-selector">
@@ -88,7 +89,7 @@
       >
       <VueDraggable v-model="couldSortColumn" handle=".sort-handle" ghost-class="ghost" @change="handleSwitchChange">
         <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
-          <div class="flex w-[90%] items-center">
+          <div class="flex w-[60%] items-center">
             <MsIcon type="icon-icon_drag" class="sort-handle cursor-move text-[16px] text-[var(--color-text-4)]" />
             <span class="ml-[8px]">{{ t((element.title || element.columnTitle) as string) }}</span>
           </div>
@@ -252,5 +253,11 @@
   .non-sort {
     font-size: 12px;
     line-height: 16px;
+  }
+</style>
+
+<style>
+  .column-drawer .ms-drawer-body-scrollbar {
+    min-width: auto !important;
   }
 </style>

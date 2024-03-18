@@ -46,6 +46,9 @@ public class BugDetailDTO {
     @Schema(description = "是否平台默认模板")
     private Boolean platformDefault;
 
+    @Schema(description = "所属平台")
+    private String platform;
+
     @Schema(description = "是否关注")
     private Boolean followFlag;
 
