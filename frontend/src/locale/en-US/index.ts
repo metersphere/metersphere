@@ -55,7 +55,7 @@ export default {
     'menu.loadTest': 'Performance Test',
     'menu.projectManagement.projectPermission': 'Project Permission',
     'menu.projectManagement.log': 'Log',
-    'menu.projectManagement.taskCenter': 'The task center',
+    'menu.projectManagement.taskCenter': 'Task center',
     'menu.projectManagement.environmentManagement': 'Environment',
     'menu.settings': 'Settings',
     'menu.settings.system': 'System',

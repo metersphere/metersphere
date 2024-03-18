@@ -414,7 +414,7 @@
   const userGroupOptions = ref<LinkList>([]);
   const projectOptions = ref<LinkList>([]);
   const getLinkList = async () => {
-    if (lastOrganizationId) {
+    if (lastOrganizationId.value) {
       userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId.value);
       if (hasAnyPermission(['ORGANIZATION_PROJECT:READ'])) {
         projectOptions.value = await getProjectList(lastOrganizationId.value);
