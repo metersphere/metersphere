@@ -67,8 +67,8 @@
         <execute-status :status="record.status" />
       </template>
       <template #operation="{ record }">
-        <a-tooltip :disabled="record.deleted" :content="t('case.detail.report.delete')" position="top">
-          <MsButton :disabled="!record.deleted" class="!mr-0" @click="showResult(record)"
+        <a-tooltip :disabled="!record.deleted" :content="t('case.detail.report.delete')" position="top">
+          <MsButton :disabled="record.deleted" class="!mr-0" @click="showResult(record)"
             >{{ t('apiScenario.executeHistory.execution.operation') }}
           </MsButton>
         </a-tooltip>
@@ -190,6 +190,7 @@
       selectable: false,
       heightUsed: 374,
     },
+    // eslint-disable-next-line no-return-assign
     (item) => ({
       ...item,
       startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
