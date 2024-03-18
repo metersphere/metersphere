@@ -92,4 +92,7 @@ public class ApiTestCaseDTO {
     @Schema(description = "模块id")
     private String moduleId;
 
+    @Schema(description = "协议")
+    private String protocol;
+
 }

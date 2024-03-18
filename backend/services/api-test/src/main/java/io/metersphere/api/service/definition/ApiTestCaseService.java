@@ -216,6 +216,7 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiDefinition apiDefinition = getApiDefinition(testCase.getApiDefinitionId());
         apiTestCaseDTO.setMethod(apiDefinition.getMethod());
         apiTestCaseDTO.setPath(apiDefinition.getPath());
+        apiTestCaseDTO.setProtocol(apiDefinition.getProtocol());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
