@@ -207,7 +207,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                     headers.forEach((k, v) -> {
                         Header header = new Header();
                         header.setKey(k);
-                        header.setValue(String.valueOf(v.getExample()));
+                        header.setValue(getDefaultObjectValue(v.getExample()));
                         header.setDescription(getDefaultStringValue(v.getDescription()));
                         headerList.add(header);
                     });
@@ -423,7 +423,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         queryParam.setDescription(getDefaultStringValue(queryParameter.getDescription()));
         if (queryParameter.getSchema() != null) {
             queryParam.setParamType(queryParameter.getSchema().getType());
-            queryParam.setValue(getDefaultStringValue(String.valueOf(queryParameter.getSchema().getExample())));
+            queryParam.setValue(getDefaultObjectValue(queryParameter.getSchema().getExample()));
             queryParam.setMinLength(queryParameter.getSchema().getMinLength());
             queryParam.setMaxLength(queryParameter.getSchema().getMaxLength());
         }
@@ -436,7 +436,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         headerParams.setKey(getDefaultStringValue(cookieParameter.getName()));
         headerParams.setDescription(getDefaultStringValue(cookieParameter.getDescription()));
         if (cookieParameter.getSchema() != null) {
-            headerParams.setValue(getDefaultStringValue(String.valueOf(cookieParameter.getSchema().getExample())));
+            headerParams.setValue(getDefaultObjectValue(cookieParameter.getSchema().getExample()));
         }
         headers.add(headerParams);
     }
@@ -446,7 +446,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         headerParams.setKey(getDefaultStringValue(headerParameter.getName()));
         headerParams.setDescription(getDefaultStringValue(headerParameter.getDescription()));
         if (headerParameter.getSchema() != null) {
-            headerParams.setValue(getDefaultStringValue(String.valueOf(headerParameter.getSchema().getExample())));
+            headerParams.setValue(getDefaultObjectValue(headerParameter.getSchema().getExample()));
         }
         headers.add(headerParams);
     }
@@ -459,7 +459,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         restParam.setDescription(getDefaultStringValue(parameter.getDescription()));
         if (parameter.getSchema() != null) {
             restParam.setParamType(parameter.getSchema().getType());
-            restParam.setValue(getDefaultStringValue(String.valueOf(parameter.getSchema().getExample())));
+            restParam.setValue(getDefaultObjectValue(parameter.getSchema().getExample()));
             restParam.setMinLength(parameter.getSchema().getMinLength());
             restParam.setMaxLength(parameter.getSchema().getMaxLength());
         }
@@ -468,6 +468,10 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
 
     private String getDefaultStringValue(String val) {
         return StringUtils.isBlank(val) ? StringUtils.EMPTY : val;
+    }
+
+    private String getDefaultObjectValue(Object val) {
+        return val == null ? StringUtils.EMPTY : val.toString();
     }
 
     private Schema getModelByRef(String ref) {
@@ -494,9 +498,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
 
             if (modelByRef != null) {
                 if (modelByRef instanceof ArraySchema arraySchema) {
-                    return parseArraySchema(arraySchema.getItems());
+                    return parseArraySchema(arraySchema.getItems(), false);
                 } else if (modelByRef instanceof ObjectSchema objectSchema) {
-                    return parseObject(objectSchema);
+                    return parseObject(objectSchema, false);
                 }
             }
 
@@ -524,16 +528,16 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         } else if (value instanceof BooleanSchema booleanSchema) {
             item = parseBoolean(booleanSchema);
         } else if (value instanceof ArraySchema arraySchema) {
-            item = parseArraySchema(arraySchema.getItems());
+            item = parseArraySchema(arraySchema.getItems(), false);
         } else if (value instanceof ObjectSchema objectSchemaItem) {
-            item = parseObject(objectSchemaItem);
+            item = parseObject(objectSchemaItem, false);
         }
         jsonSchemaProperties.put(StringUtils.EMPTY, item);
         jsonSchemaItem.setProperties(jsonSchemaProperties);
         return jsonSchemaItem;
     }
 
-    private JsonSchemaItem parseObject(ObjectSchema objectSchema) {
+    private JsonSchemaItem parseObject(ObjectSchema objectSchema, boolean onlyOnce) {
         JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
         jsonSchemaItem.setType(PropertyConstant.OBJECT);
         jsonSchemaItem.setRequired(objectSchema.getRequired());
@@ -543,44 +547,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
         if (MapUtils.isNotEmpty(properties)) {
             properties.forEach((key, value) -> {
-                JsonSchemaItem item = new JsonSchemaItem();
-                if (value instanceof IntegerSchema integerSchema) {
-                    item = parseInteger(integerSchema);
-                } else if (value instanceof StringSchema stringSchema) {
-                    item = parseString(stringSchema);
-                } else if (value instanceof NumberSchema numberSchema) {
-                    item = parseNumber(numberSchema);
-                } else if (value instanceof BooleanSchema booleanSchema) {
-                    item = parseBoolean(booleanSchema);
-                } else if (value instanceof ArraySchema arraySchema) {
-                    if (isRef(arraySchema.getItems(), 0)) {
-                        JsonSchemaItem arrayItem = new JsonSchemaItem();
-                        arrayItem.setType(PropertyConstant.ARRAY);
-                        item = parseArraySchema(arraySchema.getItems());
-                        jsonSchemaProperties.put(key, item);
-                        return;
-                    }
-                    item = parseArraySchema(arraySchema.getItems());
-                } else if (value instanceof ObjectSchema objectSchemaItem) {
-                    if (isRef(objectSchemaItem, 0)) {
-                        JsonSchemaItem objectItem = new JsonSchemaItem();
-                        objectItem.setType(PropertyConstant.OBJECT);
-                        objectItem.setProperties(new LinkedHashMap<>());
-                        item = objectItem;
-                        jsonSchemaProperties.put(key, item);
-                        return;
-                    }
-                    item = parseObject(objectSchemaItem);
-                } else if (StringUtils.equals(value.getType(), PropertyConstant.NULL)) {
-                    item = parseNull();
-                } else if (value instanceof MapSchema mapSchema) {
-                    item = parseMapObject(mapSchema);
-                } else if (value instanceof Schema<?> items) {
-                    /*if (StringUtils.isNotBlank(items.get$ref()) && StringUtils.equals(items.get$ref(), ref)) {
-                        return;
-                    }*/
-                    item = parseSchema(items);
-                }
+                JsonSchemaItem item = parseProperty(value, onlyOnce);
                 jsonSchemaProperties.put(key, item);
             });
         }
@@ -588,32 +555,100 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         return jsonSchemaItem;
     }
 
+    private JsonSchemaItem parseProperty(Schema value, boolean onlyOnce) {
+        if (value instanceof IntegerSchema integerSchema) {
+            return parseInteger(integerSchema);
+        }
+        if (value instanceof StringSchema stringSchema) {
+            return parseString(stringSchema);
+        }
+        if (value instanceof NumberSchema numberSchema) {
+            return parseNumber(numberSchema);
+        }
+        if (value instanceof BooleanSchema booleanSchema) {
+            return parseBoolean(booleanSchema);
+        }
+        if (value instanceof ArraySchema arraySchema) {
+            if (onlyOnce) {
+                JsonSchemaItem arrayItem = new JsonSchemaItem();
+                arrayItem.setId(IDGenerator.nextStr());
+                arrayItem.setType(PropertyConstant.ARRAY);
+                arrayItem.setItems(new JsonSchemaItem());
+                return arrayItem;
+            }
+            return isRef(arraySchema.getItems(), 0) ? parseArraySchema(arraySchema.getItems(), true) :
+                    parseArraySchema(arraySchema.getItems(), false);
+        }
+        if (value instanceof ObjectSchema objectSchema) {
+            if (onlyOnce) {
+                JsonSchemaItem objectItem = new JsonSchemaItem();
+                objectItem.setId(IDGenerator.nextStr());
+                objectItem.setType(PropertyConstant.OBJECT);
+                objectItem.setProperties(new LinkedHashMap<>());
+                return objectItem;
+            }
+            return isRef(objectSchema, 0) ? parseObject(objectSchema, true) :
+                    parseObject(objectSchema, false);
+        }
+        if (StringUtils.equals(value.getType(), PropertyConstant.NULL)) {
+            return parseNull();
+        }
+        if (value instanceof MapSchema mapSchema) {
+            return parseMapObject(mapSchema);
+        }
+        if (value instanceof Schema<?> items) {
+            if (isRef(items, 0)) {
+                JsonSchemaItem arrayItem = new JsonSchemaItem();
+                arrayItem.setId(IDGenerator.nextStr());
+                arrayItem.setType(PropertyConstant.OBJECT);
+                return arrayItem;
+            }
+            return parseSchema(items);
+        }
+        return new JsonSchemaItem();
+    }
+
+
     //判断对象是否存在一直引用
     private boolean isRef(Schema schema, int level) {
-        if (schema == null) {
-            return false;
-        }
         if (level > 20) {
             return true;
         }
+
         if (StringUtils.isNotBlank(schema.get$ref())) {
-            return false;
+            schema = getModelByRef(schema.get$ref());
         }
+
         if (schema instanceof ArraySchema arraySchema) {
             return isRef(arraySchema.getItems(), level + 1);
         }
+
         if (schema instanceof ObjectSchema objectSchema) {
-            Map<String, Schema> properties = objectSchema.getProperties();
-            if (MapUtils.isNotEmpty(properties)) {
-                int finalLevel = level;
-                properties.forEach((key, value) -> {
-                    if (value instanceof ArraySchema arraySchemaItem) {
-                        isRef(arraySchemaItem.getItems(), finalLevel + 1);
-                    }
-                    if (value instanceof ObjectSchema objectSchemaItem) {
-                        isRef(objectSchemaItem, finalLevel + 1);
-                    }
-                });
+            if (hasRefInObjectSchema(objectSchema, level + 1)) {
+                return true;
+            }
+        }
+
+        if (schema instanceof Schema<?> items) {
+            return isRef(items, level + 1);
+        }
+
+        return false;
+    }
+
+    private boolean hasRefInObjectSchema(ObjectSchema objectSchema, int level) {
+        Map<String, Schema> properties = objectSchema.getProperties();
+        if (MapUtils.isNotEmpty(properties)) {
+            for (Schema value : properties.values()) {
+                if (value instanceof ArraySchema && isRef(((ArraySchema) value).getItems(), level + 1)) {
+                    return true;
+                }
+                if (value instanceof ObjectSchema && isRef(value, level + 1)) {
+                    return true;
+                }
+                if (value instanceof Schema<?> items && isRef(items, level + 1)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -680,7 +715,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         return jsonSchemaNull;
     }
 
-    private JsonSchemaItem parseArraySchema(Schema<?> items) {
+    private JsonSchemaItem parseArraySchema(Schema<?> items, boolean onlyOnce) {
         JsonSchemaItem jsonSchemaArray = new JsonSchemaItem();
         jsonSchemaArray.setType(PropertyConstant.ARRAY);
         jsonSchemaArray.setId(IDGenerator.nextStr());
@@ -693,21 +728,10 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         if (itemsSchema == null) {
             return jsonSchemaArray;
         }
-        if (itemsSchema instanceof IntegerSchema integerSchema) {
-            jsonSchemaArray.setItems(parseInteger(integerSchema));
-        } else if (itemsSchema instanceof StringSchema stringSchema) {
-            jsonSchemaArray.setItems(parseString(stringSchema));
-        } else if (itemsSchema instanceof NumberSchema numberSchema) {
-            jsonSchemaArray.setItems(parseNumber(numberSchema));
-        } else if (itemsSchema instanceof BooleanSchema booleanSchema) {
-            jsonSchemaArray.setItems(parseBoolean(booleanSchema));
-        } else if (itemsSchema instanceof ArraySchema arraySchema) {
-            jsonSchemaArray.setItems(parseArraySchema(arraySchema.getItems()));
-        } else if (itemsSchema instanceof ObjectSchema objectSchema) {
-            jsonSchemaArray.setItems(parseObject(objectSchema));
-        } else if (ObjectUtils.isNotEmpty(itemsSchema) && StringUtils.equals(PropertyConstant.NULL, itemsSchema.getType())) {
-            jsonSchemaArray.setItems(parseNull());
-        }
+
+        JsonSchemaItem itemsJsonSchema = parseProperty(itemsSchema, onlyOnce);
+        jsonSchemaArray.setItems(itemsJsonSchema);
+
         return jsonSchemaArray;
     }
 

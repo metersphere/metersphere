@@ -379,7 +379,7 @@
   const defaultForm: ImportApiDefinitionRequest = {
     platform: RequestImportFormat.SWAGGER,
     name: '',
-    moduleId: 'root',
+    moduleId: '',
     coverData: true,
     syncCase: true,
     coverModule: false,
