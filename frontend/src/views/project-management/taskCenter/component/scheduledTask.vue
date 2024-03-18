@@ -156,7 +156,7 @@
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
-      moduleType: props.moduleType,
+      scheduleTagType: props.moduleType,
     });
     loadList();
   }

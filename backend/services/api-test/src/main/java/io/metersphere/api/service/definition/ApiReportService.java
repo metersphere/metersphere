@@ -118,7 +118,7 @@ public class ApiReportService {
     private ApiReport checkResource(String id) {
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
         if (apiReport == null) {
-            throw new RuntimeException(Translator.get("api_case_report_not_exist"));
+            throw new MSException(Translator.get("api_case_report_not_exist"));
         }
         return apiReport;
     }
