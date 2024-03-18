@@ -394,4 +394,5 @@ export interface ApiCaseExecuteHistoryItem {
   startTime: number;
   status: string;
   triggerMode: string;
+  deleted: boolean;
 }

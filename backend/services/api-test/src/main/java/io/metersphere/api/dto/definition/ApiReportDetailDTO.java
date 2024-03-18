@@ -72,6 +72,11 @@ public class ApiReportDetailDTO {
      */
     @Schema(description = "结果内容详情")
     private RequestResult content;
+    /**
+     * 结果内容详情
+     */
+    @Schema(description = "控制台")
+    private String console;
 
 
 }

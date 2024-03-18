@@ -68,7 +68,7 @@
       </template>
       <template #operation="{ record }">
         <a-tooltip :disabled="record.deleted" :content="t('case.detail.report.delete')" position="top">
-          <MsButton :disabled="!record.deleted" class="!mr-0" @click="showResult(record)"
+          <MsButton :disabled="record.deleted" class="!mr-0" @click="showResult(record)"
             >{{ t('apiScenario.executeHistory.execution.operation') }}
           </MsButton>
         </a-tooltip>
@@ -225,9 +225,8 @@
   async function loadedReport(detail: Record<string, any>) {
     if (detail.id) {
       if (detail.children && detail.children.length > 0) {
-        const { stepId } = detail.children[0].stepId;
         try {
-          const caseReportDetail = getCaseReportDetail(detail.id, stepId);
+          const caseReportDetail = getCaseReportDetail(detail.id, detail.children[0].stepId);
           loadedReportDetail(await caseReportDetail);
         } catch (e) {
           console.error(e);
@@ -236,10 +235,10 @@
     }
   }
 
-  function showResult(record: ApiCaseExecuteHistoryItem) {
+  async function showResult(record: ApiCaseExecuteHistoryItem) {
     try {
-      const result = getReportById(record.id);
-      loadedReport(result);
+      const result = await getReportById(record.id);
+      await loadedReport(result);
     } catch (error) {
       console.error(error);
     }
@@ -258,8 +257,8 @@
   }
   .history-table-before {
     display: flex;
-    flex-direction: row;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
   }
 </style>
