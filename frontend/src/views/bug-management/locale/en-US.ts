@@ -109,7 +109,7 @@ export default {
       caseRelated: 'Related cases',
     },
     recycle: {
-      recycleBin: 'Recycle Bin',
+      recycleBin: 'Recycle',
       recover: 'Recover',
       recoverSuccess: 'Recover success',
       recoverError: 'Recover failed',

@@ -1241,7 +1241,9 @@
         };
       });
 
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    caseLevelFields.value = result.customFields.find(
+      (item: any) => item.internal && (item.fieldName === 'Case Priority' || item.fieldName === '用例等级')
+    );
     caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
