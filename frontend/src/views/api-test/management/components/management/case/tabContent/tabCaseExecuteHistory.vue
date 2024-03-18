@@ -226,9 +226,8 @@
   async function loadedReport(detail: Record<string, any>) {
     if (detail.id) {
       if (detail.children && detail.children.length > 0) {
-        const { stepId } = detail.children[0].stepId;
         try {
-          const caseReportDetail = getCaseReportDetail(detail.id, stepId);
+          const caseReportDetail = getCaseReportDetail(detail.id, detail.children[0].stepId);
           loadedReportDetail(await caseReportDetail);
         } catch (e) {
           console.error(e);
@@ -237,10 +236,10 @@
     }
   }
 
-  function showResult(record: ApiCaseExecuteHistoryItem) {
+  async function showResult(record: ApiCaseExecuteHistoryItem) {
     try {
-      const result = getReportById(record.id);
-      loadedReport(result);
+      const result = await getReportById(record.id);
+      await loadedReport(result);
     } catch (error) {
       console.error(error);
     }
@@ -262,5 +261,4 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-  }
 </style>

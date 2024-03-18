@@ -1,10 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ShareInfoType;
-import io.metersphere.api.domain.ApiReport;
-import io.metersphere.api.domain.ApiReportDetail;
-import io.metersphere.api.domain.ApiReportStep;
-import io.metersphere.api.domain.ApiTestCaseRecord;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
@@ -12,6 +9,7 @@ import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiReportDetailMapper;
+import io.metersphere.api.mapper.ApiReportLogMapper;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -27,6 +25,7 @@ import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -60,6 +59,8 @@ public class ApiReportControllerTests extends BaseTest {
     private ShareInfoMapper shareInfoMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ApiReportLogMapper apiReportLogMapper;
 
     private static final String BASIC = "/api/report/case";
     private static final String PAGE = BASIC + "/page";
@@ -250,6 +251,7 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
+        apiReport.setIntegrated(true);
         reports.add(apiReport);
         ApiTestCaseRecord record = new ApiTestCaseRecord();
         record.setApiTestCaseId("api-resource-id");
@@ -273,13 +275,80 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertNotNull(apiReportDTO);
         Assertions.assertEquals(apiReportDTO.getId(), "test-report-id");
 
+        reports = new ArrayList<>();
+        apiReport = new ApiReport();
+        apiReport.setId("test-report-id-no-step-true");
+        apiReport.setProjectId(DEFAULT_PROJECT_ID);
+        apiReport.setName("test-report-name");
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setCreateUser("admin");
+        apiReport.setUpdateUser("admin");
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReport.setPoolId("api-pool-id");
+        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setRunMode("api-run-mode");
+        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+        apiReport.setTriggerMode("api-trigger-mode");
+        apiReport.setIntegrated(true);
+        reports.add(apiReport);
+        apiReportService.insertApiReport(reports, new ArrayList<>());
+
+        mockMvc.perform(getRequestBuilder(GET + "test-report-id-no-step-true"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+
         mockMvc.perform(getRequestBuilder(GET + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mockMvc.perform(getRequestBuilder(GET + "api-report-id10"))
+        reports = new ArrayList<>();
+        apiReport = new ApiReport();
+        apiReport.setId("test-report-id-no-step");
+        apiReport.setProjectId(DEFAULT_PROJECT_ID);
+        apiReport.setName("test-report-name");
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setCreateUser("admin");
+        apiReport.setUpdateUser("admin");
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReport.setPoolId("api-pool-id");
+        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setRunMode("api-run-mode");
+        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+        apiReport.setTriggerMode("api-trigger-mode");
+        apiReport.setIntegrated(false);
+        reports.add(apiReport);
+        record = new ApiTestCaseRecord();
+        record.setApiTestCaseId("api-resource-id");
+        record.setApiReportId(apiReport.getId());
+        apiReportService.insertApiReport(reports, List.of(record));
+
+        mockMvc.perform(getRequestBuilder(GET + "test-report-id-no-step"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful());
+
+        reports = new ArrayList<>();
+        apiReport = new ApiReport();
+        apiReport.setId("test-report-id-no-step-no-record");
+        apiReport.setProjectId(DEFAULT_PROJECT_ID);
+        apiReport.setName("test-report-name");
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setCreateUser("admin");
+        apiReport.setUpdateUser("admin");
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReport.setPoolId("api-pool-id");
+        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setRunMode("api-run-mode");
+        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+        apiReport.setTriggerMode("api-trigger-mode");
+        apiReport.setIntegrated(false);
+        reports.add(apiReport);
+        apiReportService.insertApiReport(reports, new ArrayList<>());
+
+        mockMvc.perform(getRequestBuilder(GET + "test-report-id-no-step-no-record"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, GET + "api-report-id0");
@@ -302,6 +371,11 @@ public class ApiReportControllerTests extends BaseTest {
             reports.add(apiReportDetail);
         }
         apiReportDetailMapper.batchInsert(reports);
+        ApiReportLog apiReportLog = new ApiReportLog();
+        apiReportLog.setReportId("test-report-id");
+        apiReportLog.setId(IDGenerator.nextStr());
+        apiReportLog.setConsole("test-console".getBytes());
+        apiReportLogMapper.insert(apiReportLog);
 
         MvcResult mvcResult = this.requestGetWithOk(DETAIL + "test-report-id" + "/" + "test-report-step-id1")
                 .andReturn();

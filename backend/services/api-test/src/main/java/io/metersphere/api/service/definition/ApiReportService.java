@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -43,6 +44,10 @@ public class ApiReportService {
     private ApiReportDetailMapper apiReportDetailMapper;
     @Resource
     private ApiReportLogService apiReportLogService;
+    @Resource
+    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
+    @Resource
+    private ApiReportLogMapper apiReportLogMapper;
 
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -159,11 +164,25 @@ public class ApiReportService {
         ApiReport apiReport = checkResource(id);
         BeanUtils.copyBean(apiReportDTO, apiReport);
         //需要查询出所有的步骤
-        List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
-        if (CollectionUtils.isEmpty(apiReportSteps)) {
+        if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
+            List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
+            if (CollectionUtils.isEmpty(apiReportSteps)) {
+                throw new MSException(Translator.get("api_case_report_not_exist"));
+            }
+            apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
+            apiReportDTO.setChildren(apiReportSteps);
+            return apiReportDTO;
+        }
+        ApiTestCaseRecordExample example = new ApiTestCaseRecordExample();
+        example.createCriteria().andApiReportIdEqualTo(id);
+        List<ApiTestCaseRecord> apiTestCaseRecords = apiTestCaseRecordMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiTestCaseRecords)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
-        apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
+        ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
+        apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
+        List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
+        apiReportSteps.add(apiReportStepDTO);
         apiReportDTO.setChildren(apiReportSteps);
         return apiReportDTO;
     }
@@ -171,10 +190,17 @@ public class ApiReportService {
     public List<ApiReportDetailDTO> getDetail(String stepId, String reportId) {
         List<ApiReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
         List<ApiReportDetailDTO> results = new ArrayList<>();
+        //查询console
+        ApiReportLogExample example = new ApiReportLogExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(example);
         apiReportDetails.forEach(apiReportDetail -> {
             ApiReportDetailDTO apiReportDetailDTO = new ApiReportDetailDTO();
             BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
             apiReportDetailDTO.setContent(ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class));
+            if (CollectionUtils.isNotEmpty(apiReportLogs)) {
+                apiReportDetailDTO.setConsole(new String(apiReportLogs.getFirst().getConsole()));
+            }
             results.add(apiReportDetailDTO);
         });
         return results;
