@@ -54,7 +54,7 @@
           <caseTable
             :is-api="true"
             :active-module="props.activeModule"
-            :protocol="props.protocol"
+            :protocol="activeApiTab.protocol"
             :api-detail="activeApiTab"
           />
         </a-tab-pane>

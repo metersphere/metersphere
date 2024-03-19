@@ -2,6 +2,7 @@
   <div class="flex flex-1 flex-col overflow-hidden">
     <div v-show="activeApiTab.id === 'all'" class="flex-1 overflow-hidden">
       <caseTable
+        ref="caseTableRef"
         :is-api="false"
         :active-module="props.activeModule"
         :protocol="props.protocol"
@@ -12,7 +13,7 @@
       <caseDetail
         :detail="activeApiTab"
         :module-tree="props.moduleTree"
-        :protocol="props.protocol"
+        @delete-case="deleteCase"
         @update-follow="activeApiTab.follow = !activeApiTab.follow"
         @load-case="(id: string) => openOrUpdateCaseTab(false, id)"
       />
@@ -42,6 +43,9 @@
     protocol: string;
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
+  const emit = defineEmits<{
+    (e: 'deleteCase', id: string): void;
+  }>();
 
   const apiTabs = defineModel<RequestParam[]>('apiTabs', {
     required: true,
@@ -58,16 +62,15 @@
     try {
       loading.value = true;
       const res = await getCaseDetail(id);
-      const parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件;
-      // if (res.protocol === 'HTTP') { // TODO: 后端没protocol字段，问一下
-      // parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      // }
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
       const tabItemInfo = {
         ...cloneDeep(defaultCaseParams as RequestParam),
         ...({
           ...res.request,
           ...res,
-          // responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })), // TODO: 后端没response字段，问一下
           url: res.path,
           ...parseRequestBodyResult,
         } as Partial<TabItem>),
@@ -92,7 +95,7 @@
     }
   }
 
-  async function openCaseTab(apiInfo: ApiCaseDetail) {
+  async function openCaseTab(apiInfo: ApiCaseDetail | string) {
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
@@ -103,4 +106,14 @@
     }
     await openOrUpdateCaseTab(true, typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
   }
+
+  const caseTableRef = ref<InstanceType<typeof caseTable>>();
+  function deleteCase(id: string) {
+    emit('deleteCase', id);
+    caseTableRef.value?.loadCaseList();
+  }
+
+  defineExpose({
+    openCaseTab,
+  });
 </script>

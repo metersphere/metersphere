@@ -47,12 +47,14 @@
     :module-tree="props.moduleTree"
   />
   <apiCase
-    v-if="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
+    v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
+    ref="caseRef"
     v-model:api-tabs="apiTabs"
     v-model:active-api-tab="activeApiTab"
     :active-module="props.activeModule"
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
+    @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
   />
 </template>
 
@@ -67,11 +69,12 @@
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
-  import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
+  import { getEnvironment, getEnvList, getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
 
+  import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
@@ -104,6 +107,7 @@
   ];
 
   const apiRef = ref<InstanceType<typeof api>>();
+  const caseRef = ref<InstanceType<typeof apiCase>>();
 
   function newTab(apiInfo?: ModuleTreeNode | string, isCopy?: boolean, isExecute?: boolean) {
     if (apiInfo) {
@@ -111,6 +115,10 @@
     } else {
       apiRef.value?.addApiTab();
     }
+  }
+
+  function newCaseTab(id: string) {
+    caseRef.value?.openCaseTab(id);
   }
 
   const apiTabs = ref<RequestParam[]>([
@@ -310,16 +318,29 @@
     }
   }
 
+  const protocols = ref<ProtocolItem[]>([]);
+  async function initProtocolList() {
+    try {
+      protocols.value = await getProtocolList(appStore.currentOrgId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   onBeforeMount(() => {
     initEnvList();
+    initProtocolList();
   });
 
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('defaultCaseParams', readonly(defaultCaseParams));
+  provide('protocols', readonly(protocols));
 
   defineExpose({
     newTab,
+    newCaseTab,
     refreshApiTable,
     handleApiUpdateFromModuleTree,
     handleDeleteApiFromModuleTree,

@@ -301,6 +301,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   priority: string;
   num: number;
   status: string;
+  protocol: string;
   lastReportStatus: string;
   lastReportId: string;
   projectId: string;
