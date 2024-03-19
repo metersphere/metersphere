@@ -121,11 +121,13 @@ public class ApiReportService {
     }
 
     private ApiReport checkResource(String id) {
-        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
-        if (apiReport == null) {
+        ApiReportExample example = new ApiReportExample();
+        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        List<ApiReport> apiReport = apiReportMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiReport)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
-        return apiReport;
+        return apiReport.getFirst();
     }
 
     public void batchDelete(ApiReportBatchRequest request, String userId) {
