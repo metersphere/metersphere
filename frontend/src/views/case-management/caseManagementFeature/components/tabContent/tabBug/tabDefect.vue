@@ -519,6 +519,9 @@
   // );
   const total = ref<number>(0);
   async function initBugList() {
+    if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
+      return;
+    }
     const res = await getBugList({
       current: 1,
       pageSize: 10,

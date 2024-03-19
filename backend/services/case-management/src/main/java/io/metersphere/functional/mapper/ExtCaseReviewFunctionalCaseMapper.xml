@@ -111,6 +111,12 @@
                             and functional_case.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='caseLevel'">
+                            and functional_case.id in (
+                            select case_id from functional_case_custom_field where `value` in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
                         <when test="key.startsWith('custom_single')">
                             and functional_case.id in (
                             select resource_id from custom_field_test_case where concat('custom_single-',field_id) =

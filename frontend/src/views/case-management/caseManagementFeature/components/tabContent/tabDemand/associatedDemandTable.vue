@@ -6,21 +6,53 @@
       ><span class="one-text-line text-[rgb(var(--primary-5))]">({{ (record.children || []).length || 0 }})</span>
     </template>
     <template #operation="{ record }">
-      <MsButton @click="emit('cancel', record)">
+      <MsButton
+        v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+        @click="emit('cancel', record)"
+      >
         {{ t('caseManagement.featureCase.cancelAssociation') }}
       </MsButton>
-      <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">
+      <MsButton
+        v-if="record.demandPlatform === pageConfig.platformName"
+        v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+        @click="emit('update', record)"
+      >
         {{ t('common.edit') }}
       </MsButton>
     </template>
     <template v-if="(props.funParams.keyword || '').trim() === '' && props.showEmpty" #empty>
       <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-        {{ t('caseManagement.caseReview.tableNoData') }}
-        <MsButton class="ml-[8px]" @click="emit('associate')">
+        <span
+          v-if="
+            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+          "
+        >
+          {{ t('caseManagement.caseReview.tableNoData') }}
+        </span>
+        <span v-else> {{ t('caseManagement.featureCase.tableNoData') }} </span>
+        <MsButton
+          v-if="
+            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+          "
+          class="ml-[8px]"
+          @click="emit('associate')"
+        >
           {{ t('caseManagement.featureCase.associatedDemand') }}
         </MsButton>
-        {{ t('caseManagement.featureCase.or') }}
-        <MsButton class="ml-[8px]" @click="emit('create')">
+        <span
+          v-if="
+            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+          "
+        >
+          {{ t('caseManagement.featureCase.or') }}
+        </span>
+        <MsButton
+          v-if="
+            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+          "
+          class="ml-[8px]"
+          @click="emit('create')"
+        >
           {{ t('caseManagement.featureCase.addDemand') }}
         </MsButton>
       </div>
@@ -41,6 +73,7 @@
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { DemandItem } from '@/models/caseManagement/featureCase';
 

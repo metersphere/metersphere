@@ -61,4 +61,7 @@ public class ReviewFunctionalCaseDTO implements Serializable {
     @Schema(description = "只看我的评审状态")
     private String myStatus;
 
+    @Schema(description = "自定义字段集合")
+    private List<FunctionalCaseCustomFieldDTO> customFields;
+
 }

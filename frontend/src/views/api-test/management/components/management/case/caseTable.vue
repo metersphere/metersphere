@@ -952,7 +952,7 @@
             versionId: '',
             refId: '',
           });
-          Message.success(t('common.updateSuccess'));
+          Message.success(t('case.detail.execute.success'));
           cancelBatchExecute();
           loadCaseListAndResetSelector();
         } catch (error) {

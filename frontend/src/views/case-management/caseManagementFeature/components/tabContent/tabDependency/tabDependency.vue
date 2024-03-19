@@ -51,8 +51,11 @@
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="addCase">
+          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])">{{
+            t('caseManagement.caseReview.tableNoData')
+          }}</span>
+          <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
+          <MsButton v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])" class="ml-[8px]" @click="addCase">
             {{
               showType === 'preposition'
                 ? t('caseManagement.featureCase.addPresetCase')
@@ -88,6 +91,7 @@
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   const featureCaseStore = useFeatureCaseStore();
   // const activeTab = computed(() => featureCaseStore.activeTab);

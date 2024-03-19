@@ -51,7 +51,7 @@ public class FunctionalCaseCommentController {
 
     @GetMapping("/get/list/{caseId}")
     @Operation(summary = "用例管理-功能用例-用例评论-获取用例评论")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#caseId", resourceType = "functional_case")
     public List<FunctionalCaseCommentDTO> getCommentList(@PathVariable String caseId) {
        return functionalCaseCommentService.getCommentList(caseId);
