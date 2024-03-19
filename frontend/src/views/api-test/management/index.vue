@@ -149,6 +149,9 @@
     if (route.query.dId) {
       // 携带 dId 参数，自动打开接口定义详情 tab
       managementRef.value?.newTab(route.query.dId as string);
+    } else if (route.query.cId) {
+      // 携带 cId 参数，自动打开接口用例详情 tab
+      managementRef.value?.newCaseTab(route.query.cId as string);
     }
   });
 

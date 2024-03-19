@@ -234,85 +234,87 @@
         </div>
       </div>
     </a-collapse-item>
-    <a-collapse-item
-      v-if="
-        previewDetail.responseDefinition &&
-        previewDetail.responseDefinition.length > 0 &&
-        props.detail.protocol === 'HTTP'
-      "
-      key="response"
-    >
-      <template #header>
-        <div class="flex items-center gap-[4px]">
-          <div v-if="activeDetailKey.includes('response')" class="down-icon">
-            <icon-down :size="10" class="block" />
-          </div>
-          <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
-            <icon-right :size="10" class="block" />
-          </div>
-          <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
-        </div>
-      </template>
-      <MsEditableTab
-        v-model:active-tab="activeResponse"
-        :tabs="previewDetail.responseDefinition?.map((e) => ({ ...e, closable: false })) || []"
-        hide-more-action
-        readonly
-        class="my-[8px]"
+    <a-spin :loading="previewDetail.executeLoading" class="w-full">
+      <a-collapse-item
+        v-if="
+          previewDetail.responseDefinition &&
+          previewDetail.responseDefinition.length > 0 &&
+          props.detail.protocol === 'HTTP'
+        "
+        key="response"
       >
-        <template #label="{ tab }">
-          <div class="response-tab">
-            <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
-            {{ t(tab.label || tab.name) }}({{ tab.statusCode }})
+        <template #header>
+          <div class="flex items-center gap-[4px]">
+            <div v-if="activeDetailKey.includes('response')" class="down-icon">
+              <icon-down :size="10" class="block" />
+            </div>
+            <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
+              <icon-right :size="10" class="block" />
+            </div>
+            <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
           </div>
         </template>
-      </MsEditableTab>
-      <div class="detail-item !pt-0">
-        <div class="detail-item-title">
-          <div class="detail-item-title-text">
-            {{ `${t('apiTestDebug.responseBody')}-${activeResponse?.body.bodyType}` }}
-          </div>
-        </div>
-        <MsFormTable
-          v-if="activeResponse?.body.bodyType === ResponseBodyFormat.BINARY"
-          :columns="responseBodyColumns"
-          :data="responseBodyTableData"
-          :selectable="false"
-        />
-        <MsCodeEditor
-          v-else
-          :model-value="responseCode"
-          class="flex-1"
-          theme="vs"
-          height="200px"
-          :language="responseCodeLanguage"
-          :show-full-screen="false"
-          :show-theme-change="false"
-          read-only
+        <MsEditableTab
+          v-model:active-tab="activeResponse"
+          :tabs="previewDetail.responseDefinition?.map((e) => ({ ...e, closable: false })) || []"
+          hide-more-action
+          readonly
+          class="my-[8px]"
         >
-          <template #rightTitle>
-            <a-button
-              type="outline"
-              class="arco-btn-outline--secondary p-[0_8px]"
-              size="mini"
-              @click="copyScript(responseCode || '')"
-            >
-              <template #icon>
-                <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-              </template>
-            </a-button>
+          <template #label="{ tab }">
+            <div class="response-tab">
+              <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
+              {{ t(tab.label || tab.name) }}({{ tab.statusCode }})
+            </div>
           </template>
-        </MsCodeEditor>
-      </div>
-      <div v-if="activeResponse?.headers && activeResponse?.headers.length > 0" class="detail-item">
-        <div class="detail-item-title">
-          <div class="detail-item-title-text">
-            {{ t('apiTestDebug.responseHeader') }}
+        </MsEditableTab>
+        <div class="detail-item !pt-0">
+          <div class="detail-item-title">
+            <div class="detail-item-title-text">
+              {{ `${t('apiTestDebug.responseBody')}-${activeResponse?.body.bodyType}` }}
+            </div>
           </div>
+          <MsFormTable
+            v-if="activeResponse?.body.bodyType === ResponseBodyFormat.BINARY"
+            :columns="responseBodyColumns"
+            :data="responseBodyTableData"
+            :selectable="false"
+          />
+          <MsCodeEditor
+            v-else
+            :model-value="responseCode"
+            class="flex-1"
+            theme="vs"
+            height="200px"
+            :language="responseCodeLanguage"
+            :show-full-screen="false"
+            :show-theme-change="false"
+            read-only
+          >
+            <template #rightTitle>
+              <a-button
+                type="outline"
+                class="arco-btn-outline--secondary p-[0_8px]"
+                size="mini"
+                @click="copyScript(responseCode || '')"
+              >
+                <template #icon>
+                  <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
+                </template>
+              </a-button>
+            </template>
+          </MsCodeEditor>
         </div>
-        <MsFormTable :columns="responseHeaderColumns" :data="activeResponse?.headers || []" :selectable="false" />
-      </div>
-    </a-collapse-item>
+        <div v-if="activeResponse?.headers && activeResponse?.headers.length > 0" class="detail-item">
+          <div class="detail-item-title">
+            <div class="detail-item-title-text">
+              {{ t('apiTestDebug.responseHeader') }}
+            </div>
+          </div>
+          <MsFormTable :columns="responseHeaderColumns" :data="activeResponse?.headers || []" :selectable="false" />
+        </div>
+      </a-collapse-item>
+    </a-spin>
   </a-collapse>
 </template>
 

@@ -4,6 +4,7 @@
     :title="isEdit ? t('case.updateCase') : t('case.createCase')"
     :width="894"
     no-content-padding
+    unmount-on-close
     :ok-text="isEdit ? 'common.update' : 'common.create'"
     :ok-loading="drawerLoading"
     :save-continue-text="t('case.saveContinueText')"
@@ -12,9 +13,6 @@
     @continue="handleDrawerConfirm(true)"
     @cancel="handleSaveCaseCancel"
   >
-    <template #headerLeft>
-      <environmentSelect ref="environmentSelectRef" class="ml-[16px]" />
-    </template>
     <div class="flex h-full flex-col overflow-hidden">
       <div class="px-[16px] pt-[16px]">
         <MsDetailCard
@@ -36,9 +34,12 @@
                 :max-length="255"
                 show-word-limit
               />
-              <a-button type="primary">
-                {{ t('apiTestManagement.execute') }}
-              </a-button>
+              <environmentSelect ref="environmentSelectRef" />
+              <execute
+                v-model:detail="detailForm"
+                :environment-id="currentEnvConfig?.id as string"
+                :request="requestCompositionRef?.makeRequestParams"
+              />
             </div>
           </a-form-item>
           <div class="flex gap-[16px]">
@@ -74,6 +75,7 @@
           ref="requestCompositionRef"
           v-model:request="detailForm"
           :is-case="true"
+          :api-detail="apiDetailInfo as RequestParam"
           hide-response-layout-switch
           :upload-temp-file-api="uploadTempFileCase"
           :file-save-as-source-id="detailForm.id"
@@ -97,6 +99,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import environmentSelect from '../../environmentSelect.vue';
+  import execute from './execute.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -161,21 +164,32 @@
   const formRef = ref<FormInstance>();
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
-  const defaultDetail: RequestParam = {
-    apiDefinitionId: apiDefinitionId.value,
-    ...(defaultCaseParams as RequestParam),
-  };
-  const detailForm = ref(cloneDeep(defaultDetail));
+  const defaultDetail = computed<RequestParam>(() => {
+    return {
+      ...(defaultCaseParams as RequestParam),
+      apiDefinitionId: apiDefinitionId.value,
+      protocol: apiDetailInfo.value.protocol,
+    };
+  });
+  const detailForm = ref(cloneDeep(defaultDetail.value));
   const isEdit = ref(false);
 
-  function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
+  async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
     apiDefinitionId.value = apiId;
     // 从api下的用例里打开抽屉有api信息，从case下直接复制没有api信息
     if (props.apiDetail) {
-      apiDetailInfo.value = props.apiDetail;
+      apiDetailInfo.value = cloneDeep(props.apiDetail);
     } else {
-      getApiDetail();
+      await getApiDetail();
     }
+    // 创建或者复制的时候，请求参数为接口定义的请求参数
+    detailForm.value = {
+      ...cloneDeep(defaultDetail.value),
+      headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
+      body: apiDetailInfo.value.body ?? apiDetailInfo.value.request.body,
+      rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
+      query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
+    };
     // 复制
     if (isCopy) {
       detailForm.value.name = `copy_${record?.name}`;
@@ -184,6 +198,7 @@
     if (!isCopy && record?.id) {
       isEdit.value = true;
       detailForm.value = cloneDeep(record as RequestParam);
+      detailForm.value.isNew = false;
     }
     innerVisible.value = true;
   }
@@ -193,7 +208,6 @@
     isEdit.value = false;
     innerVisible.value = false;
     formRef.value?.resetFields();
-    detailForm.value = cloneDeep(defaultDetail);
   }
 
   function handleDrawerConfirm(isContinue: boolean) {
@@ -236,7 +250,7 @@
         if (!isContinue) {
           handleSaveCaseCancel();
         }
-        detailForm.value = cloneDeep(defaultDetail);
+        detailForm.value = cloneDeep(defaultDetail.value);
         drawerLoading.value = false;
       }
     });

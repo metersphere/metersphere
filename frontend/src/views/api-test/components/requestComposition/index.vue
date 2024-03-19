@@ -587,6 +587,7 @@
     request: RequestParam; // 请求参数集合
     moduleTree?: ModuleTreeNode[]; // 模块树
     isCase?: boolean; // 是否是用例引用的组件
+    apiDetail?: RequestParam; // 用例引用的时候需要接口定义的数据
     detailLoading?: boolean; // 详情加载状态
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
@@ -677,10 +678,32 @@
       label: t('apiTestDebug.setting'),
     },
   ];
+  const restNumApi = computed(
+    () =>
+      filterKeyValParams(props.apiDetail?.rest ?? props.apiDetail?.request.rest, defaultRequestParamsItem).validParams
+        .length
+  );
+  const queryNumApi = computed(
+    () =>
+      filterKeyValParams(props.apiDetail?.query ?? props.apiDetail?.request.query, defaultRequestParamsItem).validParams
+        .length
+  );
+  const bodyTabBadgeApi = computed(() =>
+    props.apiDetail?.request.body?.bodyType !== RequestBodyFormat.NONE ? '1' : ''
+  );
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
     // HTTP 协议 tabs
     if (isHttpProtocol.value) {
+      if (props.isCase) {
+        // 定义没有参数BODY/QUERY/REST的，用例对应tab不显示
+        return httpContentTabList.filter(
+          (e) =>
+            !(!restNumApi.value && e.value === RequestComposition.REST) &&
+            !(!queryNumApi.value && e.value === RequestComposition.QUERY) &&
+            !(!bodyTabBadgeApi.value?.length && e.value === RequestComposition.BODY)
+        );
+      }
       if (props.isDefinition) {
         // 接口定义，定义模式隐藏前后置、断言
         return requestVModel.value.mode === 'debug'
@@ -1213,6 +1236,14 @@
         await initPluginScript();
       } else if (protocolOptions.value.length === 0) {
         await initProtocolList();
+      }
+      if (
+        props.isCase &&
+        requestVModel.value.protocol === 'HTTP' &&
+        (restNumApi.value || queryNumApi.value || bodyTabBadgeApi.value?.length)
+      ) {
+        // 如果定义有参数BODY/QUERY/REST，用例默认tab是参数tab
+        requestVModel.value.activeTab = contentTabList.value[1].value;
       }
       if (props.request.isExecute && !requestVModel.value.executeLoading) {
         // 如果是执行操作打开接口详情，且该接口不在执行状态中，则立即执行

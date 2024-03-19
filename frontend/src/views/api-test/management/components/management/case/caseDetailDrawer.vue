@@ -7,9 +7,6 @@
     :footer="false"
     no-content-padding
   >
-    <template #headerLeft>
-      <environmentSelect ref="environmentSelectRef" class="ml-[16px]" />
-    </template>
     <template #tbutton>
       <div class="flex items-center gap-[4px]">
         <MsButton
@@ -39,7 +36,7 @@
           {{ t('common.fork') }}
         </MsButton>
         <MsButton type="icon" status="secondary">
-          <a-dropdown position="br">
+          <a-dropdown position="br" @select="handleSelect">
             <div>
               <icon-more class="mr-[8px]" />
               <span> {{ t('common.more') }}</span>
@@ -47,6 +44,7 @@
             <template #content>
               <a-doption
                 v-permission="['PROJECT_API_DEFINITION_CASE:READ+DELETE']"
+                value="delete"
                 class="error-6 text-[rgb(var(--danger-6))]"
               >
                 <MsIcon type="icon-icon_delete-trash_outlined" class="text-[rgb(var(--danger-6))]" />
@@ -57,14 +55,7 @@
         </MsButton>
       </div>
     </template>
-    <caseDetail
-      ref="caseDerailRef"
-      is-drawer
-      :detail="props.detail"
-      :protocol="props.protocol"
-      :api-detail="props.apiDetail"
-      v-bind="$attrs"
-    />
+    <caseDetail ref="caseDerailRef" is-drawer :detail="props.detail" :api-detail="props.apiDetail" v-bind="$attrs" />
   </MsDrawer>
 </template>
 
@@ -72,7 +63,6 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import environmentSelect from '../../environmentSelect.vue';
   import caseDetail from './caseDetail.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -81,7 +71,6 @@
 
   const props = defineProps<{
     detail: RequestParam;
-    protocol: string;
     apiDetail: RequestParam;
   }>();
 
@@ -91,6 +80,16 @@
     required: true,
   });
   const caseDerailRef = ref<InstanceType<typeof caseDetail>>();
+
+  function handleSelect(val: string | number | Record<string, any> | undefined) {
+    switch (val) {
+      case 'delete':
+        caseDerailRef.value?.handleDelete();
+        break;
+      default:
+        break;
+    }
+  }
 </script>
 
 <style scoped lang="less">

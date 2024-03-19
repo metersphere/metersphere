@@ -53,6 +53,7 @@ import {
   RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
   RecycleCasePageUrl,
+  RunCaseUrl,
   SaveOperationHistoryUrl,
   SortCaseUrl,
   SortDefinitionUrl,
@@ -407,6 +408,11 @@ export function getCaseDetail(id: string) {
 // 关注/取消关注接口用例
 export function toggleFollowCase(id: string | number) {
   return MSR.get({ url: ToggleFollowCaseUrl, params: id });
+}
+
+// 用例执行，传请求详情执行
+export function runCase(data: ExecuteRequestParams) {
+  return MSR.post({ url: RunCaseUrl, data });
 }
 
 /**

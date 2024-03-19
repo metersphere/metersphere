@@ -43,6 +43,7 @@
       </template>
       <template #caseLevel="{ record }">
         <a-select
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])"
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
@@ -56,6 +57,7 @@
             <caseLevel :case-level="item.text" />
           </a-option>
         </a-select>
+        <span v-else class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
       </template>
       <template #caseLevelFilter="{ columnConfig }">
         <a-trigger v-model:popup-visible="caseFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
@@ -78,6 +80,7 @@
       </template>
       <template #status="{ record }">
         <a-select
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])"
           v-model:model-value="record.status"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
@@ -91,6 +94,7 @@
             <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
+        <apiStatus v-else :status="record.status" size="small" />
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -153,12 +157,26 @@
           </a-tooltip>
         </div>
       </template>
-      <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="onExecute(record.id)">
+      <template #operation="{ record }">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="onExecute(record.id)"
+        >
           {{ t('apiTestManagement.execute') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0" @click="copyCase(record)">
+        <a-divider
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+          type="text"
+          class="!mr-0"
+          @click="copyCase(record)"
+        >
           {{ t('common.copy') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -239,17 +257,16 @@
   </a-modal>
   <createAndEditCaseDrawer
     ref="createAndEditCaseDrawerRef"
-    :protocol="props.protocol"
     :api-detail="apiDetail"
     @load-case="loadCaseListAndResetSelector()"
   />
   <caseDetailDrawer
     v-model:visible="caseDetailDrawerVisible"
     :detail="caseDetail as RequestParam"
-    :protocol="props.protocol"
     :api-detail="apiDetail as RequestParam"
     @update-follow="caseDetail.follow = !caseDetail.follow"
     @load-case="(id: string) => loadCase(id)"
+    @delete-case="deleteCaseByDetail"
   />
   <a-modal v-model:visible="showBatchExecute" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
     <template #title>
@@ -381,6 +398,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiCaseDetail, Environment } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
@@ -410,6 +428,13 @@
   const keyword = ref('');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'PROJECT_API_DEFINITION_CASE:READ+DELETE',
+      'PROJECT_API_DEFINITION_CASE:READ+ADD',
+      'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
+    ])
+  );
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -529,14 +554,13 @@
       width: 180,
     },
     {
-      title: 'common.operation',
-      slotName: 'action',
+      title: hasOperationPermission.value ? 'common.operation' : '',
+      slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 150,
+      width: hasOperationPermission.value ? 150 : 50,
     },
   ];
-  await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_CASE, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
     columns,
     scroll: { x: '100%' },
@@ -666,6 +690,7 @@
   watch(
     () => props.protocol,
     () => {
+      if (props.isApi) return;
       loadCaseListAndResetSelector();
     }
   );
@@ -980,16 +1005,15 @@
   async function getCaseDetailInfo(id: string) {
     try {
       const res = await getCaseDetail(id);
-      const parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件;
-      // if (res.protocol === 'HTTP') { // TODO: 后端没protocol字段，问一下
-      // parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      // }
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
       caseDetail.value = {
         ...cloneDeep(defaultCaseParams as RequestParam),
         ...({
           ...res.request,
           ...res,
-          // responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })), // TODO: 后端没response字段，问一下
           url: res.path,
           ...parseRequestBodyResult,
         } as Partial<TabItem>),
@@ -1004,11 +1028,22 @@
     caseDetailDrawerVisible.value = true;
   }
 
+  function deleteCaseByDetail() {
+    caseDetailDrawerVisible.value = false;
+    loadCaseList();
+  }
+
   // 在api下的用例里打开用例详情抽屉，点击编辑，编辑后在此刷新数据
-  async function loadCase(id: string) {
+  function loadCase(id: string) {
     getCaseDetailInfo(id);
     loadCaseList();
   }
+
+  defineExpose({
+    loadCaseList,
+  });
+
+  await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_CASE, columns, 'drawer');
 </script>
 
 <style lang="less" scoped>
