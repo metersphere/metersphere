@@ -10,5 +10,7 @@ import java.util.List;
 public class ApiReportDTO extends ApiReport {
     @Schema(description = "子节点")
     private List<ApiReportStepDTO> children;
+    @Schema(description = "控制台信息")
+    private String console;
 
 }

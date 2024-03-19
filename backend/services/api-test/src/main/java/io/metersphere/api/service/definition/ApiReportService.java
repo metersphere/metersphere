@@ -163,6 +163,13 @@ public class ApiReportService {
         ApiReportDTO apiReportDTO = new ApiReportDTO();
         ApiReport apiReport = checkResource(id);
         BeanUtils.copyBean(apiReportDTO, apiReport);
+        //查询console
+        ApiReportLogExample consoleExample = new ApiReportLogExample();
+        consoleExample.createCriteria().andReportIdEqualTo(id);
+        List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(consoleExample);
+        if (CollectionUtils.isNotEmpty(apiReportLogs)) {
+            apiReportDTO.setConsole(new String(apiReportLogs.getFirst().getConsole()));
+        }
         //需要查询出所有的步骤
         if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
             List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
@@ -190,17 +197,10 @@ public class ApiReportService {
     public List<ApiReportDetailDTO> getDetail(String stepId, String reportId) {
         List<ApiReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
         List<ApiReportDetailDTO> results = new ArrayList<>();
-        //查询console
-        ApiReportLogExample example = new ApiReportLogExample();
-        example.createCriteria().andReportIdEqualTo(reportId);
-        List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(example);
         apiReportDetails.forEach(apiReportDetail -> {
             ApiReportDetailDTO apiReportDetailDTO = new ApiReportDetailDTO();
             BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
             apiReportDetailDTO.setContent(ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class));
-            if (CollectionUtils.isNotEmpty(apiReportLogs)) {
-                apiReportDetailDTO.setConsole(new String(apiReportLogs.getFirst().getConsole()));
-            }
             results.add(apiReportDetailDTO);
         });
         return results;

@@ -9,6 +9,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiScenarioReportDetailMapper;
+import io.metersphere.api.mapper.ApiScenarioReportLogMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -18,11 +19,18 @@ import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolExample;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -56,6 +64,13 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private ShareInfoMapper shareInfoMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
+
     private static final String BASIC = "/api/report/scenario";
     private static final String PAGE = BASIC + "/page";
     private static final String RENAME = BASIC + "/rename/";
@@ -226,6 +241,14 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     @Order(6)
     public void testGet() throws Exception {
         // @@请求成功
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andNameEqualTo("默认资源池");
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+
         List<ApiScenarioReport> reports = new ArrayList<>();
         ApiScenarioReport scenarioReport = new ApiScenarioReport();
         scenarioReport.setId("test-scenario-report-id");
@@ -235,8 +258,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         scenarioReport.setCreateUser("admin");
         scenarioReport.setUpdateUser("admin");
         scenarioReport.setUpdateTime(System.currentTimeMillis());
-        scenarioReport.setPoolId("api-pool-id");
-        scenarioReport.setEnvironmentId("api-environment-id");
+        scenarioReport.setPoolId(testResourcePools.getFirst().getId());
+        scenarioReport.setEnvironmentId(environments.getFirst().getId());
         scenarioReport.setRunMode("api-run-mode");
         scenarioReport.setTriggerMode("api-trigger-mode");
         scenarioReport.setVersionId("api-version-id");
@@ -262,6 +285,15 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             steps.add(apiScenarioReportStep);
         }
         apiScenarioReportService.insertApiScenarioReportStep(steps);
+
+        //插入console 资源池 环境
+        ApiScenarioReportLog apiScenarioReportLog = new ApiScenarioReportLog();
+        apiScenarioReportLog.setId(IDGenerator.nextStr());
+        apiScenarioReportLog.setReportId("test-scenario-report-id");
+        apiScenarioReportLog.setConsole("console".getBytes());
+        apiScenarioReportLogMapper.insert(apiScenarioReportLog);
+
+
         MvcResult mvcResult = this.requestGetWithOk(GET + "test-scenario-report-id")
                 .andReturn();
         ApiScenarioReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiScenarioReportDTO.class);
@@ -278,7 +310,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 .andExpect(status().is5xxServerError());
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, GET + "scenario-report-id0");
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, GET + "test-scenario-report-id");
     }
 
     @Test
