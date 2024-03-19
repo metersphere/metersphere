@@ -9,7 +9,7 @@
             type="line"
             @change="loadScenarioList(false)"
           />
-          <span style="margin-left: 8px; color: #323233; font-family: 'PingFang SC'">{{
+          <span style="margin-left: 8px; font-family: 'PingFang SC'; color: #323233">{{
             t('apiScenario.table.showChildrenModuleScenario')
           }}</span>
         </span>
@@ -265,14 +265,14 @@
     },
     {
       title: 'apiScenario.table.columns.createUser',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       titleSlotName: 'createUser',
       width: 109,
       showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.updateUser',
-      dataIndex: 'updateUser',
+      dataIndex: 'updateUserName',
       titleSlotName: 'updateUser',
       width: 109,
       showDrag: true,

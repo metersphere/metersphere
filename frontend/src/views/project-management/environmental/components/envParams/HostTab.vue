@@ -82,7 +82,7 @@
       placeholder: 'project.environmental.host.ipPlaceholder',
       rules: [
         { required: true, message: t('project.environmental.host.ipIsRequire') },
-        { notRepeat: true, message: 'project.environmental.host.ipNotRepeat' },
+        { notRepeat: true, message: t('project.environmental.host.ipNotRepeat') },
       ],
     },
     {
