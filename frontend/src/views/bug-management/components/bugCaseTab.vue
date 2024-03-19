@@ -28,7 +28,7 @@
         <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center">
+        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="handleSelect">
             {{ t('caseManagement.featureCase.linkCase') }}

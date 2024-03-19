@@ -113,7 +113,6 @@ public class FunctionalTestCaseController {
     @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联缺陷")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = FunctionalCaseLogService.class)
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
-    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public void disassociateBug(@PathVariable String id) {
         functionalTestCaseService.disassociateBug(id);
     }

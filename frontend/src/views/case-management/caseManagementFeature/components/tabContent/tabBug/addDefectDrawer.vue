@@ -122,7 +122,7 @@
           id: item.fieldId,
           name: item.fieldName,
           type: item.type,
-          value: item.defaultValue || '',
+          value: (Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue) || '',
         };
       });
     } catch (error) {

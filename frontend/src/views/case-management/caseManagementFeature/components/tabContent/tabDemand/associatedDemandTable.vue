@@ -14,7 +14,7 @@
       </MsButton>
     </template>
     <template v-if="(props.funParams.keyword || '').trim() === '' && props.showEmpty" #empty>
-      <div class="flex w-full items-center justify-center">
+      <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
         {{ t('caseManagement.caseReview.tableNoData') }}
         <MsButton class="ml-[8px]" @click="emit('associate')">
           {{ t('caseManagement.featureCase.associatedDemand') }}
