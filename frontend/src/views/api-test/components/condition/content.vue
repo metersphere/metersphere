@@ -672,10 +672,11 @@ if (!result){
       dataIndex: 'variableType',
       slotName: 'variableType',
       typeOptions: [
-        {
-          label: t('apiTestDebug.globalParameter'),
-          value: RequestExtractEnvType.GLOBAL,
-        },
+          // 全局参数，暂时不上
+        // {
+        //   label: t('apiTestDebug.globalParameter'),
+        //   value: RequestExtractEnvType.GLOBAL,
+        // },
         {
           label: t('apiTestDebug.envParameter'),
           value: RequestExtractEnvType.ENVIRONMENT,

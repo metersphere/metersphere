@@ -60,9 +60,9 @@ public abstract class MsExtract {
          * 环境参数
          */
         ENVIRONMENT,
-        /**
-         * 全局参数
-         */
-        GLOBAL;
+//        /**
+//         * 全局参数 暂时不上
+//         */
+//        GLOBAL;
     }
 }

@@ -183,7 +183,7 @@ export enum RequestConditionScriptLanguage {
 // 接口请求-参数提取-环境类型
 export enum RequestExtractEnvType {
   ENVIRONMENT = 'ENVIRONMENT', // 环境参数
-  GLOBAL = 'GLOBAL', // 全局参数
+  // GLOBAL = 'GLOBAL', // 全局参数，暂时不上
   TEMPORARY = 'TEMPORARY', // 临时参数
 }
 // 接口请求-参数提取-表达式类型
