@@ -5,7 +5,7 @@ import { firstLevelMenu } from '@/config/permission';
 import { INDEX_ROUTE } from '@/router/routes/base';
 import appRoutes from '@/router/routes/index';
 import { useAppStore, useUserStore } from '@/store';
-import {SystemScopeType, UserRole, UserRoleRelation} from '@/store/modules/user/types';
+import { SystemScopeType, UserRole, UserRoleRelation } from '@/store/modules/user/types';
 
 export function hasPermission(permission: string, typeList: string[]) {
   const userStore = useUserStore();
@@ -53,16 +53,24 @@ export function hasAllPermission(permissions: string[], typeList = ['PROJECT', '
 }
 
 export function composePermissions(userRoleRelations: UserRoleRelation[], type: SystemScopeType, id: string) {
+  // 系统级别的权限
+  if (type === 'SYSTEM') {
+    return userRoleRelations
+      .filter((ur) => ur.userRole && ur.userRole.type === 'SYSTEM')
+      .flatMap((role) => role.userRolePermissions)
+      .map((g) => g.permissionId);
+  }
+  // 项目和组织级别的权限
   let func: (role: UserRole) => boolean;
   switch (type) {
     case 'PROJECT':
-      func = role => role && role.type === 'PROJECT';
+      func = (role) => role && role.type === 'PROJECT';
       break;
     case 'ORGANIZATION':
-      func = role => role && role.type === 'ORGANIZATION';
+      func = (role) => role && role.type === 'ORGANIZATION';
       break;
     default:
-      func = role => role && role.type === 'SYSTEM';
+      func = (role) => role && role.type === 'SYSTEM';
       break;
   }
 
