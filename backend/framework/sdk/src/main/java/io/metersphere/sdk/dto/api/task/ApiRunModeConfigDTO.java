@@ -2,6 +2,7 @@ package io.metersphere.sdk.dto.api.task;
 
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import lombok.Data;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
@@ -52,4 +53,9 @@ public class ApiRunModeConfigDTO implements Serializable {
     public Boolean isParallel() {
         return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
     }
+
+    public Boolean isIntegratedReport() {
+        return BooleanUtils.isTrue(integratedReport);
+    }
+
 }

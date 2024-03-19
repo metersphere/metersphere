@@ -102,7 +102,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             scenarioReport.setEnvironmentId("api-environment-id" + i);
             scenarioReport.setRunMode("api-run-mode" + i);
             scenarioReport.setTriggerMode("api-trigger-mode" + i);
-            scenarioReport.setVersionId("api-version-id" + i);
             reports.add(scenarioReport);
             ApiScenarioRecord apiScenarioRecord = new ApiScenarioRecord();
             apiScenarioRecord.setApiScenarioId("scenario-record-id" + i);
@@ -262,7 +261,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         scenarioReport.setEnvironmentId(environments.getFirst().getId());
         scenarioReport.setRunMode("api-run-mode");
         scenarioReport.setTriggerMode("api-trigger-mode");
-        scenarioReport.setVersionId("api-version-id");
         reports.add(scenarioReport);
         ApiScenarioRecord apiScenarioRecord = new ApiScenarioRecord();
         apiScenarioRecord.setApiScenarioId("test-scenario-record-id");

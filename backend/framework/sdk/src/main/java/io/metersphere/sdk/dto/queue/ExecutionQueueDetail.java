@@ -19,10 +19,4 @@ public class ExecutionQueueDetail implements Serializable {
      * 排序
      */
     private Integer sort;
-
-    /**
-     * 资源类型 / API，CASE，PLAN_CASE,PLAN_SCENARIO，API_SCENARIO
-     * {@link io.metersphere.sdk.constants.ApiExecuteResourceType}
-     */
-    private String resourceType;
 }

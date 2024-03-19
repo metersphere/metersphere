@@ -238,6 +238,9 @@ public class ApiCommonService {
         List<MsProcessor> processors = new ArrayList<>();
 
         for (MsCommonElement commonElement : commonElements) {
+            if (commonElement.getPreProcessorConfig() == null) {
+               continue;
+            }
             processors.addAll(commonElement.getPreProcessorConfig().getProcessors());
             processors.addAll(commonElement.getPostProcessorConfig().getProcessors());
         }

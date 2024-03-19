@@ -34,7 +34,7 @@ public class RegexExtractConverter extends ExtractConverter<RegexExtract> {
     }
 
     private String getTemplate(String expressionMatchingRule) {
-        // $1$提取 JSON 响应中的第一个匹配项 $0$用于提取整个 JSON 响应
+        // $1$提取 JSON 响应中的第一个匹配项 $1$用于提取整个 JSON 响应
         HashMap<String, String> ruleValueMap = new HashMap<>() {{
             put(RegexExtract.ExpressionRuleType.EXPRESSION.name(), "$0$");
             put(RegexExtract.ExpressionRuleType.GROUP.name(), "$1$");

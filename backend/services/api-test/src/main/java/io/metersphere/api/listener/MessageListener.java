@@ -4,7 +4,9 @@ import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
@@ -34,6 +36,8 @@ public class MessageListener {
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
+    @Resource
+    private ApiScenarioBatchRunService apiScenarioBatchRunService;
 
     @KafkaListener(id = MESSAGE_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TASK_TOPIC, groupId = MESSAGE_CONSUME_ID)
     public void messageConsume(ConsumerRecord<?, String> record) {
@@ -72,10 +76,18 @@ public class MessageListener {
             if (queue == null || BooleanUtils.isTrue(queue.getRunModeConfig().isParallel())) {
                 return;
             }
+            ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
+
+            if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ApiReportStatus.ERROR.name())) {
+                // 如果是失败停止，清空队列，不继续执行
+                apiExecutionQueueService.deleteQueue(queue.getQueueId());
+                return;
+            }
+
             ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
-            ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, nextDetail.getResourceType());
             switch (resourceType) {
                 case API_CASE -> apiTestCaseBatchRunService.executeNextTask(queue, nextDetail);
+                case API_SCENARIO -> apiScenarioBatchRunService.executeNextTask(queue, nextDetail);
                 default -> {
                 }
             }

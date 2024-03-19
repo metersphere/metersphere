@@ -18,7 +18,6 @@
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
     <result column="pool_id" jdbcType="VARCHAR" property="poolId" />
-    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
@@ -96,10 +95,9 @@
   <sql id="Base_Column_List">
     id, `name`, test_plan_id, create_user, delete_time, delete_user, deleted, update_user, 
     update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
-    pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
-    pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
-    request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
-    script_identifier
+    pool_id, integrated, project_id, environment_id, error_count, fake_error_count, pending_count, 
+    success_count, assertion_count, assertion_success_count, request_error_rate, request_pending_rate, 
+    request_fake_error_rate, request_pass_rate, assertion_pass_rate, script_identifier
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -137,10 +135,10 @@
       deleted, update_user, update_time, 
       start_time, end_time, request_duration, 
       `status`, trigger_mode, run_mode, 
-      pool_id, version_id, integrated, 
-      project_id, environment_id, error_count, 
-      fake_error_count, pending_count, success_count, 
-      assertion_count, assertion_success_count, request_error_rate, 
+      pool_id, integrated, project_id, 
+      environment_id, error_count, fake_error_count, 
+      pending_count, success_count, assertion_count, 
+      assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, 
       request_pass_rate, assertion_pass_rate, script_identifier
       )
@@ -149,10 +147,10 @@
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{requestDuration,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{runMode,jdbcType=VARCHAR}, 
-      #{poolId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, 
-      #{projectId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{errorCount,jdbcType=BIGINT}, 
-      #{fakeErrorCount,jdbcType=BIGINT}, #{pendingCount,jdbcType=BIGINT}, #{successCount,jdbcType=BIGINT}, 
-      #{assertionCount,jdbcType=BIGINT}, #{assertionSuccessCount,jdbcType=BIGINT}, #{requestErrorRate,jdbcType=VARCHAR}, 
+      #{poolId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
+      #{environmentId,jdbcType=VARCHAR}, #{errorCount,jdbcType=BIGINT}, #{fakeErrorCount,jdbcType=BIGINT}, 
+      #{pendingCount,jdbcType=BIGINT}, #{successCount,jdbcType=BIGINT}, #{assertionCount,jdbcType=BIGINT}, 
+      #{assertionSuccessCount,jdbcType=BIGINT}, #{requestErrorRate,jdbcType=VARCHAR}, 
       #{requestPendingRate,jdbcType=VARCHAR}, #{requestFakeErrorRate,jdbcType=VARCHAR}, 
       #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}
       )
@@ -207,9 +205,6 @@
       </if>
       <if test="poolId != null">
         pool_id,
-      </if>
-      <if test="versionId != null">
-        version_id,
       </if>
       <if test="integrated != null">
         integrated,
@@ -305,9 +300,6 @@
       </if>
       <if test="poolId != null">
         #{poolId,jdbcType=VARCHAR},
-      </if>
-      <if test="versionId != null">
-        #{versionId,jdbcType=VARCHAR},
       </if>
       <if test="integrated != null">
         #{integrated,jdbcType=BIT},
@@ -413,9 +405,6 @@
       <if test="record.poolId != null">
         pool_id = #{record.poolId,jdbcType=VARCHAR},
       </if>
-      <if test="record.versionId != null">
-        version_id = #{record.versionId,jdbcType=VARCHAR},
-      </if>
       <if test="record.integrated != null">
         integrated = #{record.integrated,jdbcType=BIT},
       </if>
@@ -484,7 +473,6 @@
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       run_mode = #{record.runMode,jdbcType=VARCHAR},
       pool_id = #{record.poolId,jdbcType=VARCHAR},
-      version_id = #{record.versionId,jdbcType=VARCHAR},
       integrated = #{record.integrated,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
@@ -552,9 +540,6 @@
       <if test="poolId != null">
         pool_id = #{poolId,jdbcType=VARCHAR},
       </if>
-      <if test="versionId != null">
-        version_id = #{versionId,jdbcType=VARCHAR},
-      </if>
       <if test="integrated != null">
         integrated = #{integrated,jdbcType=BIT},
       </if>
@@ -620,7 +605,6 @@
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       run_mode = #{runMode,jdbcType=VARCHAR},
       pool_id = #{poolId,jdbcType=VARCHAR},
-      version_id = #{versionId,jdbcType=VARCHAR},
       integrated = #{integrated,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
@@ -642,7 +626,7 @@
     insert into api_scenario_report
     (id, `name`, test_plan_id, create_user, delete_time, delete_user, deleted, update_user, 
       update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
-      pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
+      pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
       pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
       script_identifier)
@@ -653,14 +637,13 @@
         #{item.deleted,jdbcType=BIT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.requestDuration,jdbcType=BIGINT}, 
         #{item.status,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.runMode,jdbcType=VARCHAR}, 
-        #{item.poolId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.errorCount,jdbcType=BIGINT}, 
-        #{item.fakeErrorCount,jdbcType=BIGINT}, #{item.pendingCount,jdbcType=BIGINT}, #{item.successCount,jdbcType=BIGINT}, 
-        #{item.assertionCount,jdbcType=BIGINT}, #{item.assertionSuccessCount,jdbcType=BIGINT}, 
-        #{item.requestErrorRate,jdbcType=VARCHAR}, #{item.requestPendingRate,jdbcType=VARCHAR}, 
-        #{item.requestFakeErrorRate,jdbcType=VARCHAR}, #{item.requestPassRate,jdbcType=VARCHAR}, 
-        #{item.assertionPassRate,jdbcType=VARCHAR}, #{item.scriptIdentifier,jdbcType=VARCHAR}
-        )
+        #{item.poolId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.environmentId,jdbcType=VARCHAR}, #{item.errorCount,jdbcType=BIGINT}, #{item.fakeErrorCount,jdbcType=BIGINT}, 
+        #{item.pendingCount,jdbcType=BIGINT}, #{item.successCount,jdbcType=BIGINT}, #{item.assertionCount,jdbcType=BIGINT}, 
+        #{item.assertionSuccessCount,jdbcType=BIGINT}, #{item.requestErrorRate,jdbcType=VARCHAR}, 
+        #{item.requestPendingRate,jdbcType=VARCHAR}, #{item.requestFakeErrorRate,jdbcType=VARCHAR}, 
+        #{item.requestPassRate,jdbcType=VARCHAR}, #{item.assertionPassRate,jdbcType=VARCHAR}, 
+        #{item.scriptIdentifier,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -720,9 +703,6 @@
         </if>
         <if test="'pool_id'.toString() == column.value">
           #{item.poolId,jdbcType=VARCHAR}
-        </if>
-        <if test="'version_id'.toString() == column.value">
-          #{item.versionId,jdbcType=VARCHAR}
         </if>
         <if test="'integrated'.toString() == column.value">
           #{item.integrated,jdbcType=BIT}

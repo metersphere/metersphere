@@ -6,6 +6,7 @@ import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
@@ -457,7 +458,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ids.add(apiTestCase.getId());
         request.setSelectIds(ids);
         request.setProjectId(apiTestCase.getProjectId());
-        ApiTestCaseBatchRunRequest.ApiRunModeRequest apiRunModeRequest = new ApiTestCaseBatchRunRequest.ApiRunModeRequest();
+        ApiRunModeRequest apiRunModeRequest = new ApiRunModeRequest();
         apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
         apiRunModeRequest.setIntegratedReport(true);
         apiRunModeRequest.setStopOnFailure(false);

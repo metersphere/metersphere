@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseBatchRunRequest;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
@@ -61,6 +62,8 @@ public class ApiTestCaseBatchRunService {
     private ApiExecutionSetService apiExecutionSetService;
     @Resource
     private ApiReportService apiReportService;
+    @Resource
+    private ApiBatchRunBaseService apiBatchRunBaseService;
 
     /**
      * 异步批量执行
@@ -97,11 +100,11 @@ public class ApiTestCaseBatchRunService {
         List<String> ids = apiTestCaseService.doSelectIds(request, false);
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
         // 初始化集成报告
-        if (isIntegratedReport(runModeConfig)) {
+        if (runModeConfig.isIntegratedReport()) {
             initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
         }
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = initExecutionqueue(ids, runModeConfig, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, userId);
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
         executeNextTask(queue, nextDetail);
@@ -117,14 +120,15 @@ public class ApiTestCaseBatchRunService {
 
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
 
-        if (isIntegratedReport(runModeConfig)) {
+        if (runModeConfig.isIntegratedReport()) {
             // 初始化集成报告
             ApiReport apiReport = initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
-            // 集成报告才需要初始化执行队列，用于统计整体执行情况
+            // 集成报告才需要初始化执行集合，用于统计整体执行情况
             apiExecutionSetService.initSet(apiReport.getId(), ids);
         }
 
         AtomicInteger errorCount = new AtomicInteger();
+        AtomicLong sort = new AtomicLong(1);
 
         // 分批处理
         SubListUtils.dealForSubList(ids, 100, subIds -> {
@@ -141,10 +145,10 @@ public class ApiTestCaseBatchRunService {
             Map<String, ApiTestCaseBlob> apiTestCaseBlobMap = apiTestCaseBlobMapper.selectByExampleWithBLOBs(example).stream()
                     .collect(Collectors.toMap(ApiTestCaseBlob::getId, Function.identity()));
 
-            if (isIntegratedReport(runModeConfig)) {
+            if (runModeConfig.isIntegratedReport()) {
                 // 获取集成报告ID
                 integratedReportId = runModeConfig.getCollectionReport().getReportId();
-                initApiReportSteps(ids, apiCaseMap, integratedReportId);
+                initApiReportSteps(subIds, apiCaseMap, integratedReportId, sort);
             } else {
                 // 初始化非集成报告
                 List<ApiTestCaseRecord> apiTestCaseRecords = initApiReport(runModeConfig, apiTestCases, userId);
@@ -160,16 +164,16 @@ public class ApiTestCaseBatchRunService {
                     ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMap.get(id);
 
                     if (apiTestCase == null) {
-                        if (isIntegratedReport(runModeConfig)) {
+                        if (runModeConfig.isIntegratedReport()) {
                             // 用例不存在，则在执行集合中删除
                             apiExecutionSetService.removeItem(integratedReportId, id);
                         }
-                        LogUtils.info("当前执行任务的用例已删除 {}", apiTestCase.getId());
+                        LogUtils.info("当前执行任务的用例已删除 {}", id);
                         break;
                     }
 
                     // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
-                    reportId = isIntegratedReport(runModeConfig) ? UUID.randomUUID().toString() : caseReportMap.get(id);
+                    reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
                     TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
                     execute(taskRequest, apiTestCase, apiTestCaseBlob);
                 } catch (Exception e) {
@@ -191,8 +195,7 @@ public class ApiTestCaseBatchRunService {
      * @param apiCaseMap
      * @param reportId
      */
-    private void initApiReportSteps(List<String> ids, Map<String, ApiTestCase> apiCaseMap, String reportId) {
-        AtomicLong sort = new AtomicLong(1);
+    private void initApiReportSteps(List<String> ids, Map<String, ApiTestCase> apiCaseMap, String reportId, AtomicLong sort) {
         List<ApiReportStep> apiReportSteps = ids.stream()
                 .map(id -> getApiReportStep(apiCaseMap.get(id), reportId, sort.getAndIncrement()))
                 .collect(Collectors.toList());
@@ -219,15 +222,11 @@ public class ApiTestCaseBatchRunService {
 
     private ApiRunModeConfigDTO getRunModeConfig(ApiTestCaseBatchRunRequest request) {
         ApiRunModeConfigDTO runModeConfig = BeanUtils.copyBean(new ApiRunModeConfigDTO(), request.getRunModeConfig());
-        if (StringUtils.isNotBlank(request.getRunModeConfig().getIntegratedReportName()) && isIntegratedReport(runModeConfig)) {
+        if (StringUtils.isNotBlank(request.getRunModeConfig().getIntegratedReportName()) && runModeConfig.isIntegratedReport()) {
             runModeConfig.setCollectionReport(new CollectionReportDTO());
             runModeConfig.getCollectionReport().setReportName(request.getRunModeConfig().getIntegratedReportName());
         }
         return runModeConfig;
-    }
-
-    private boolean isIntegratedReport(ApiRunModeConfigDTO runModeConfig) {
-        return BooleanUtils.isTrue(runModeConfig.getIntegratedReport());
     }
 
     /**
@@ -248,7 +247,7 @@ public class ApiTestCaseBatchRunService {
             record.setApiReportId(apiReport.getId());
             record.setApiTestCaseId(id);
             return record;
-        }).collect(Collectors.toList());
+        }).toList();
         apiReportService.insertApiReport(List.of(apiReport), records);
         // 设置集成报告执行参数
         runModeConfig.getCollectionReport().setReportId(apiReport.getId());
@@ -274,7 +273,7 @@ public class ApiTestCaseBatchRunService {
         }
 
         String reportId;
-        if (isIntegratedReport(runModeConfig)) {
+        if (runModeConfig.isIntegratedReport()) {
             String integratedReportId = runModeConfig.getCollectionReport().getReportId();
             initApiReportSteps(apiTestCase, integratedReportId, queueDetail.getSort());
             reportId = UUID.randomUUID().toString();
@@ -362,36 +361,5 @@ public class ApiTestCaseBatchRunService {
      */
     public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
         return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiTestCase.getEnvironmentId() : runModeConfig.getEnvironmentId();
-    }
-
-    /**
-     * 初始化执行队列
-     *
-     * @param resourceIds
-     * @param runModeConfig
-     * @return
-     */
-    private ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String userId) {
-        ExecutionQueue queue = getExecutionQueue(runModeConfig, userId);
-        List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
-        AtomicInteger sort = new AtomicInteger(0);
-        for (String resourceId : resourceIds) {
-            ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
-            queueDetail.setResourceType(ApiExecuteResourceType.API_CASE.name());
-            queueDetail.setResourceId(resourceId);
-            queueDetail.setSort(sort.getAndIncrement());
-            queueDetails.add(queueDetail);
-        }
-        apiExecutionQueueService.insertQueue(queue, queueDetails);
-        return queue;
-    }
-
-    private ExecutionQueue getExecutionQueue(ApiRunModeConfigDTO runModeConfig, String userId) {
-        ExecutionQueue queue = new ExecutionQueue();
-        queue.setQueueId(UUID.randomUUID().toString());
-        queue.setRunModeConfig(runModeConfig);
-        queue.setCreateTime(System.currentTimeMillis());
-        queue.setUserId(userId);
-        return queue;
     }
 }

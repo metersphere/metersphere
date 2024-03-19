@@ -162,7 +162,6 @@ public class ApiReportSendNoticeTests extends BaseTest {
             scenarioReport.setEnvironmentId("api-environment-id");
             scenarioReport.setRunMode("api-run-mode" + i);
             scenarioReport.setTriggerMode("api-trigger-mode" + i);
-            scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
             ApiScenarioRecord record = new ApiScenarioRecord();
             record.setApiScenarioId("send-scenario-id" + i);

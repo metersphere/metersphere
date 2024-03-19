@@ -293,7 +293,6 @@ public class CleanupApiTests {
             scenarioReport.setEnvironmentId("api-environment-id" + i);
             scenarioReport.setRunMode("api-run-mode" + i);
             scenarioReport.setTriggerMode("api-trigger-mode" + i);
-            scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
             ApiScenarioRecord record = new ApiScenarioRecord();
             record.setApiScenarioId("clean-scenario-id" + i);
