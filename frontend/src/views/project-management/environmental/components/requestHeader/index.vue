@@ -5,7 +5,7 @@
   </div>
   <paramsTable
     v-model:params="innerParams"
-    :selectable="false"
+    :selectable="true"
     :show-setting="false"
     :columns="columns"
     :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM_HEADER"
