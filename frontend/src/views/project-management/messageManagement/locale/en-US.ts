@@ -5,7 +5,7 @@ export default {
   'project.messageManagement.robot': 'Robot',
   'project.messageManagement.botListTips': `The robot's opening and closing status is synchronized with the message setting list robot; for example, if the site message is turned on, the message list page will display the site message notification bar.`,
   'project.messageManagement.notRemind': `Don't remind again`,
-  'project.messageManagement.createBot': 'Create a bot',
+  'project.messageManagement.createBot': 'Create bot',
   'project.messageManagement.updateBot': 'Update bot',
   'project.messageManagement.createAt': 'Created at',
   'project.messageManagement.updateAt': 'Updated at',
