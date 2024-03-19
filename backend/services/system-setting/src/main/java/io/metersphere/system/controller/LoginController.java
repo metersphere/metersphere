@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
-@Tag(name="登陆")
+@Tag(name="登录")
 public class LoginController {
 
     @Resource

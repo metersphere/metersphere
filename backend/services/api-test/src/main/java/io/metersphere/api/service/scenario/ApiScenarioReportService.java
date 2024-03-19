@@ -127,11 +127,13 @@ public class ApiScenarioReportService {
     }
 
     private ApiScenarioReport checkResource(String id) {
-        ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
-        if (scenarioReport == null) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        List<ApiScenarioReport> scenarioReport = apiScenarioReportMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(scenarioReport)) {
             throw new RuntimeException(Translator.get("api_scenario_report_not_exist"));
         }
-        return scenarioReport;
+        return scenarioReport.getFirst();
     }
 
     public void batchDelete(ApiReportBatchRequest request, String userId) {
