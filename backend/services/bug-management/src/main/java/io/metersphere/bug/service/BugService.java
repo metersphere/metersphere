@@ -103,8 +103,6 @@ public class BugService {
     @Resource
     protected TemplateMapper templateMapper;
     @Resource
-    private BugCommentMapper bugCommentMapper;
-    @Resource
     private BugContentMapper bugContentMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -1257,25 +1255,25 @@ public class BugService {
      * @param platform 平台对象
      */
     private void syncRichTextToMs(PlatformBugDTO updateBug, Platform platform) {
-        if (CollectionUtils.isNotEmpty(updateBug.getRichTextImageKeys())) {
+        if (MapUtils.isNotEmpty(updateBug.getRichTextImageMap())) {
+            Map<String, String> richTextImageMap = updateBug.getRichTextImageMap();
             // 同步第三方的富文本文件
-            updateBug.getRichTextImageKeys().forEach(key -> platform.getAttachmentContent(key, (in) -> {
+            richTextImageMap.keySet().forEach(key -> platform.getAttachmentContent(key, (in) -> {
                 if (in == null) {
                     return;
                 }
                 String fileId = IDGenerator.nextStr();
-                // 第三方平台的图片下载命名为平台名称+随机数字
-                String fileName = updateBug.getPlatform() + "-" + IDGenerator.nextNum() + ".jpg";
+                String fileName = updateBug.getPlatform() + "-" + richTextImageMap.get(key);
                 byte[] bytes;
                 try {
-                    // upload platform attachment to minio
+                    // 获取第三方平台附件流
                     bytes = in.readAllBytes();
                     // 第三方平台下载的图片默认不压缩
                     FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, fileName));
                 } catch (Exception e) {
                     throw new MSException(e.getMessage());
                 }
-                // save bug attachment relation
+                // 保存缺陷附件关系
                 BugLocalAttachment localAttachment = new BugLocalAttachment();
                 localAttachment.setId(IDGenerator.nextStr());
                 localAttachment.setBugId(updateBug.getId());
@@ -1286,7 +1284,7 @@ public class BugService {
                 localAttachment.setCreateUser("admin");
                 localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
                 bugLocalAttachmentMapper.insert(localAttachment);
-                // 替换富文本中的临时URL为预览URL
+                // 替换富文本中的临时URL, 注意: 第三方的图片附件暂未存储在压缩目录, 因此不支持压缩访问
                 updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
             }));
         }

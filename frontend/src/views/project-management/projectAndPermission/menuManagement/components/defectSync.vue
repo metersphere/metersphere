@@ -120,6 +120,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { computed } from 'vue';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -134,6 +135,7 @@
   } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   import { PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
@@ -158,6 +160,7 @@
   ]);
 
   const appStore = useAppStore();
+  const licenseStore = useLicenseStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const currentOrgId = computed(() => appStore.currentOrgId);
   const platformDisabled = computed(() => platformOption.value.length === 0);
@@ -175,6 +178,9 @@
   });
 
   const okDisabled = computed(() => !form.PLATFORM_KEY);
+  const isXpack = computed(() => {
+    return licenseStore.hasLicense();
+  });
   const fApi = ref<any>({});
 
   const emit = defineEmits<{
@@ -255,7 +261,11 @@
         await handlePlatformChange(res.platform_key);
         form.SYNC_ENABLE = res.sync_enable;
         form.PLATFORM_KEY = res.platform_key;
-        form.MECHANISM = res.mechanism;
+        if (!isXpack.value) {
+          form.MECHANISM = 'increment';
+        } else {
+          form.MECHANISM = res.mechanism;
+        }
         form.CRON_EXPRESSION = res.cron_expression;
       }
     } catch (e) {
