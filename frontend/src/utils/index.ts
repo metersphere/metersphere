@@ -3,6 +3,7 @@ import JSEncrypt from 'jsencrypt';
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
+import type { CustomAttributes } from '@/models/caseManagement/featureCase';
 
 import { isObject } from './is';
 import { json } from 'stream/consumers';
@@ -685,7 +686,11 @@ export function parseQueryParams(url: string): QueryParam[] {
  */
 export function customFieldDataToTableData(customFieldData: Record<string, any>[], customFields: BugEditCustomField[]) {
   if (!customFieldData || !customFields) return {};
+
   const tableData: Record<string, any> = {};
+  const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
+  const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
+
   customFieldData.forEach((field) => {
     const customField = customFields.find((item) => item.fieldId === field.id);
     if (!customField) return;
@@ -697,9 +702,9 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
     }
     // 后端返回来的数据这个字段没值
     field.type = customField.type;
-    if (['SELECT', 'RADIO'].includes(field.type) && Array.isArray(field.options)) {
+    if (selectExcludes.includes(field.type) && Array.isArray(field.options)) {
       tableData[field.id] = field.options.find((option) => option.value === field.value)?.text;
-    } else if (['MUTIPLE_SELECT', 'CHECKBOX'].includes(field.type) && Array.isArray(field.options)) {
+    } else if (multipleExcludes.includes(field.type) && Array.isArray(field.options)) {
       // 多值的类型后端返回的是json字符串
       field.value = JSON.parse(field.value);
       tableData[field.id] = field.value
