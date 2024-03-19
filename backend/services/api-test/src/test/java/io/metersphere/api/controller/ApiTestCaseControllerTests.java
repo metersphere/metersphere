@@ -20,15 +20,21 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectVersion;
+import io.metersphere.project.dto.environment.EnvironmentConfig;
+import io.metersphere.project.dto.environment.host.Host;
+import io.metersphere.project.dto.environment.host.HostConfig;
+import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -119,6 +125,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private EnvironmentBlobMapper environmentBlobMapper;
     private static String fileMetadataId;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -426,7 +434,40 @@ public class ApiTestCaseControllerTests extends BaseTest {
                 resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
 
         // 测试执行
-        request.setEnvironmentId("envId");
+        Environment environment = new Environment();
+        environment.setId("test-host");
+        environment.setProjectId(DEFAULT_PROJECT_ID);
+        environment.setName("test-host");
+        environment.setPos(0L);
+        environment.setCreateTime(System.currentTimeMillis());
+        environment.setUpdateTime(System.currentTimeMillis());
+        environment.setCreateUser("admin");
+        environment.setUpdateUser("admin");
+        environment.setMock(false);
+        environmentMapper.insert(environment);
+        EnvironmentConfig environmentConfig = new EnvironmentConfig();
+        List<HttpConfig> httpConfigs = new ArrayList<>();
+        HttpConfig httpConfig = new HttpConfig();
+        httpConfig.setHostname("www.aa.com");
+        httpConfig.setType("NONE");
+        httpConfig.setProtocol("HTTP");
+        httpConfigs.add(httpConfig);
+        environmentConfig.setHttpConfig(httpConfigs);
+        HostConfig hostConfig = new HostConfig();
+        hostConfig.setEnable(true);
+        List<Host> hosts = new ArrayList<>();
+        Host host = new Host();
+        host.setIp("172.0.0.1");
+        host.setDomain("www.aa.com");
+        hosts.add(host);
+        hostConfig.setHosts(hosts);
+        environmentConfig.setHostConfig(hostConfig);
+        EnvironmentBlob environmentBlob = new EnvironmentBlob();
+        environmentBlob.setId(environment.getId());
+        environmentBlob.setConfig(JSON.toJSONBytes(environmentConfig));
+        environmentBlobMapper.insert(environmentBlob);
+
+        request.setEnvironmentId("test-host");
         mvcResult = this.requestPostAndReturn(RUN_POST, request);
         resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
         Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||

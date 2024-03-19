@@ -22,6 +22,7 @@ import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
@@ -32,10 +33,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.protocol.http.control.AuthManager;
-import org.apache.jmeter.protocol.http.control.Authorization;
-import org.apache.jmeter.protocol.http.control.Header;
-import org.apache.jmeter.protocol.http.control.HeaderManager;
+import org.apache.jmeter.protocol.http.control.*;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -60,6 +58,9 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     public static final String URL_ENCODE = "${__urlencode(%s)}";
     public static final String COOKIE = "Cookie";
+
+    public static final String HTTP = "http://";
+    public static final String HTTPS = "https://";
 
     @Override
     public void toHashTree(HashTree tree, MsHTTPElement msHTTPElement, ParameterConfig config) {
@@ -97,6 +98,9 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
         Optional.ofNullable(httpHeader).ifPresent(httpTree::add);
+        //处理host
+        DNSCacheManager dnsCacheManager = getEnvDns(msHTTPElement.getName(), envConfig, httpConfig);
+        Optional.ofNullable(dnsCacheManager).ifPresent(httpTree::add);
 
         HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
 
@@ -106,6 +110,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         parseChild(httpTree, msHTTPElement, config);
     }
+
 
     /**
      * 设置超时时间等配置
@@ -310,6 +315,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         return headerManager;
     }
 
+
     private void setHeaderMap(Map<String, String> headerMap, List<? extends KeyValueEnableParam> headers) {
         if (CollectionUtils.isEmpty(headers)) {
             return;
@@ -435,5 +441,43 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                     stringBuffer.append("&");
                 });
         return stringBuffer.substring(0, stringBuffer.length() - 1);
+    }
+
+    private DNSCacheManager getEnvDns(String name , EnvironmentInfoDTO envConfig, HttpConfig httpConfig) {
+        if (envConfig == null ||
+                envConfig.getConfig() == null ||
+                envConfig.getConfig().getHostConfig() == null ||
+                BooleanUtils.isFalse(envConfig.getConfig().getHostConfig().getEnable()) ||
+                httpConfig == null) {
+            return null;
+        }
+        String domain = httpConfig.getHostname().trim();
+        List<Host> hosts = new ArrayList<>();
+        envConfig.getConfig().getHostConfig().getHosts().forEach(host -> {
+            if (StringUtils.isNotBlank(host.getDomain())) {
+                String hostDomain = host.getDomain().trim().replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
+                if (StringUtils.equals(hostDomain, domain)) {
+                    host.setDomain(hostDomain); // 域名去掉协议
+                    hosts.add(host);
+                }
+            }
+        });
+        if (CollectionUtils.isNotEmpty(hosts)) {
+            return dnsCacheManager(name + "DNSCacheManager", hosts);
+        }
+        return null;
+    }
+
+    private static DNSCacheManager dnsCacheManager(String name, List<Host> hosts) {
+        DNSCacheManager dnsCacheManager = new DNSCacheManager();
+        dnsCacheManager.setEnabled(true);
+        dnsCacheManager.setName(name);
+        dnsCacheManager.setProperty(TestElement.TEST_CLASS, DNSCacheManager.class.getName());
+        dnsCacheManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DNSCachePanel"));
+        dnsCacheManager.setCustomResolver(false);
+        dnsCacheManager.setClearEachIteration(true);
+        hosts.forEach(host -> dnsCacheManager.addHost(host.getDomain(), host.getIp()));
+
+        return dnsCacheManager;
     }
 }
