@@ -1,4 +1,5 @@
 export default {
+  'apiScenario.env': '当前环境：{name}',
   'apiScenario.allScenario': '全部场景',
   'apiScenario.createScenario': '新建场景',
   'apiScenario.importScenario': '导入场景',

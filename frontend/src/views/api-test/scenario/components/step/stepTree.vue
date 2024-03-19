@@ -192,7 +192,13 @@
       </a-button>
     </actionDropdown>
     <importApiDrawer v-model:visible="importApiDrawerVisible" />
-    <customApiDrawer v-model:visible="customApiDrawerVisible" />
+    <!-- todo  执行、上传文件、转存文件等需要传入相关方法； 当前场景环境使用的是假数据； add-step暂时只是将数据传递到当前组件的customDemoStep对象中，用于再次打开的时候测试编辑功能  -->
+    <customApiDrawer
+      v-model:visible="customApiDrawerVisible"
+      :env-detail-item="{ id: 'demp-id-112233', projectId: '123456', name: 'demo环境' }"
+      :request="customDemoStep"
+      @add-step="addCustomApiStep"
+    />
     <scriptOperationDrawer v-model:visible="scriptOperationDrawerVisible" />
   </div>
 </template>
@@ -223,6 +229,7 @@
   import useAppStore from '@/store/modules/app';
   import { deleteNode, findNodeByKey, getGenerateId, insertNode, mapTree } from '@/utils';
 
+  import { CustomApiStep } from '@/models/apiTest/scenario';
   import { RequestMethods, ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
   import { defaultStepItemCommon } from '../config';
@@ -533,6 +540,13 @@
     if (step) {
       document.getElementById(step.id.toString())?.click();
     }
+  }
+
+  const customDemoStep = ref<CustomApiStep>();
+
+  function addCustomApiStep(step: CustomApiStep) {
+    // todo: 添加自定义api步骤
+    customDemoStep.value = { ...step };
   }
 
   defineExpose({
