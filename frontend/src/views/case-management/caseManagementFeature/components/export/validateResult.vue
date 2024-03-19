@@ -95,7 +95,7 @@
     <MsList
       mode="static"
       :virtual-list-props="{
-        height: 'calc(100vh - 56px)',
+        height: 'calc(100vh - 270px)',
       }"
       :data="validateResultInfo.errorMessages"
       :bordered="false"
