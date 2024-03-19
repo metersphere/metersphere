@@ -472,7 +472,11 @@
         <a-select v-model:model-value="saveCaseModalForm.priority" :options="casePriorityOptions"></a-select>
       </a-form-item>
       <a-form-item field="status" :label="t('common.status')">
-        <a-select v-model:model-value="saveCaseModalForm.status" :options="caseStatusOptions"></a-select>
+        <a-select v-model:model-value="saveCaseModalForm.status">
+          <a-option v-for="item in caseStatusOptions" :key="item.value" :value="item.value">
+            {{ t(item.label) }}
+          </a-option>
+        </a-select>
       </a-form-item>
       <a-form-item field="tags" :label="t('common.tag')">
         <MsTagsInput
@@ -493,6 +497,7 @@
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
+  import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -1375,17 +1380,19 @@
             // 未保存过的接口保存为用例，先保存接口定义，再保存为用例
             await realSave(definitionParams, true);
           }
-          const params: AddApiCaseParams = {
-            ...definitionParams,
-            ...saveCaseModalForm.value,
-            projectId: appStore.currentProjectId,
-            environmentId: props.currentEnvConfig?.id || '',
-            apiDefinitionId: requestVModel.value.id,
-          };
-          await addCase(params);
-          emit('addDone');
-          Message.success(t('common.saveSuccess'));
-          saveCaseModalVisible.value = false;
+          if (!requestVModel.value.isNew) {
+            const params: AddApiCaseParams = {
+              ...definitionParams,
+              ...saveCaseModalForm.value,
+              projectId: appStore.currentProjectId,
+              environmentId: props.currentEnvConfig?.id || '',
+              apiDefinitionId: requestVModel.value.id,
+            };
+            await addCase(params);
+            emit('addDone');
+            Message.success(t('common.saveSuccess'));
+            saveCaseModalVisible.value = false;
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
