@@ -268,6 +268,12 @@ public class ApiReportControllerTests extends BaseTest {
         }
 
         apiReportService.insertApiReportStep(steps);
+        ApiReportLog apiReportLog = new ApiReportLog();
+        apiReportLog.setReportId("test-report-id");
+        apiReportLog.setId(IDGenerator.nextStr());
+        apiReportLog.setConsole("test-console".getBytes());
+        apiReportLogMapper.insert(apiReportLog);
+
         MvcResult mvcResult = this.requestGetWithOk(GET + "test-report-id")
                 .andReturn();
         ApiReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiReportDTO.class);
@@ -371,11 +377,6 @@ public class ApiReportControllerTests extends BaseTest {
             reports.add(apiReportDetail);
         }
         apiReportDetailMapper.batchInsert(reports);
-        ApiReportLog apiReportLog = new ApiReportLog();
-        apiReportLog.setReportId("test-report-id");
-        apiReportLog.setId(IDGenerator.nextStr());
-        apiReportLog.setConsole("test-console".getBytes());
-        apiReportLogMapper.insert(apiReportLog);
 
         MvcResult mvcResult = this.requestGetWithOk(DETAIL + "test-report-id" + "/" + "test-report-step-id1")
                 .andReturn();

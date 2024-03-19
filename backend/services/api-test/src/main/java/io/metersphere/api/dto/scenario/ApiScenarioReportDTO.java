@@ -12,4 +12,11 @@ public class ApiScenarioReportDTO extends ApiScenarioReport {
     private List<ApiScenarioReportStepDTO> children;
     @Schema(description = "步骤总数")
     private Integer stepTotal;
+    @Schema(description = "控制台信息")
+    private String console;
+    @Schema(description = "资源池名称")
+    private String poolName;
+    @Schema(description = "环境名称")
+    private String environmentName;
+
 }

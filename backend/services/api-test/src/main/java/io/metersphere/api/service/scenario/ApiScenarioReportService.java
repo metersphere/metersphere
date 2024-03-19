@@ -12,9 +12,11 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,6 +49,12 @@ public class ApiScenarioReportService {
     private ApiScenarioReportLogService apiScenarioReportLogService;
     @Resource
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
+    @Resource
+    private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
@@ -174,6 +182,17 @@ public class ApiScenarioReportService {
         getStepTree(steps, scenarioReportStepMap);
         scenarioReportDTO.setStepTotal(steps.size());
         scenarioReportDTO.setChildren(steps);
+        //控制台信息 console
+        ApiScenarioReportLogExample example = new ApiScenarioReportLogExample();
+        example.createCriteria().andReportIdEqualTo(id);
+        List<ApiScenarioReportLog> apiScenarioReportLogs = apiScenarioReportLogMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(apiScenarioReportLogs)) {
+            scenarioReportDTO.setConsole(new String(apiScenarioReportLogs.getFirst().getConsole()));
+        }
+        //查询资源池名称
+        scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
+        //查询环境名称
+        scenarioReportDTO.setEnvironmentName(environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId()).getName());
         return scenarioReportDTO;
     }
 
