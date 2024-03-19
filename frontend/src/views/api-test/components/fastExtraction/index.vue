@@ -1,7 +1,8 @@
 <template>
   <MsDrawer
     v-model:visible="innerVisible"
-    :width="680"
+    :width="720"
+    :show-full-screen="true"
     :title="t('apiTestDebug.fastExtraction')"
     disabled-width-drag
     @confirm="emit('apply', expressionForm)"
@@ -234,7 +235,7 @@
         if (matchesIterator) {
           const matches = Array.from(matchesIterator);
           try {
-            if (expressionForm.value.expressionMatchingRule === 'expression') {
+            if (expressionForm.value.expressionMatchingRule === 'EXPRESSION') {
               // 匹配表达式，取第一个匹配结果，是完整匹配结果
               matchResult.value = matches.map((e) => e[0]) || [];
             } else {
