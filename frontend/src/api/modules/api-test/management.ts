@@ -492,5 +492,5 @@ export function getReportById(id: string) {
 }
 
 export function getCaseReportDetail(reportId: string, stepId: string) {
-  return MSR.get<ApiCaseReportDetail>({ url: `${GetCaseReportDetailUrl + reportId}/${stepId}` });
+  return MSR.get<ApiCaseReportDetail[]>({ url: `${GetCaseReportDetailUrl + reportId}/${stepId}` });
 }

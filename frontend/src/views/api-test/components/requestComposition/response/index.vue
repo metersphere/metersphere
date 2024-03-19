@@ -115,7 +115,10 @@
         </a-popover> -->
       </div>
     </div>
-    <a-spin :loading="props.loading" class="h-[calc(100%-35px)] w-full px-[18px] pb-[18px]">
+    <a-spin
+      :loading="props.loading"
+      :class="[isResponseModel ? 'h-[326px] w-full' : 'h-[calc(100%-35px)] w-full px-[18px] pb-[18px]']"
+    >
       <edit
         v-if="props.isEdit && activeResponseType === 'content' && innerResponseDefinition"
         v-model:response-definition="innerResponseDefinition"
@@ -164,6 +167,7 @@
       isEdit?: boolean; // 是否可编辑
       uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
       isDefinition?: boolean;
+      isResponseModel?: boolean;
     }>(),
     {
       activeLayout: 'vertical',
