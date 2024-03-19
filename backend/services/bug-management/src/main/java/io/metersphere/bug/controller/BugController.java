@@ -9,7 +9,10 @@ import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.dto.response.BugColumnsOptionDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugDetailDTO;
-import io.metersphere.bug.service.*;
+import io.metersphere.bug.service.BugLogService;
+import io.metersphere.bug.service.BugNoticeService;
+import io.metersphere.bug.service.BugService;
+import io.metersphere.bug.service.BugSyncService;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -52,8 +55,6 @@ public class BugController {
     private BugService bugService;
     @Resource
     private BugSyncService bugSyncService;
-    @Resource
-    private BugStatusService bugStatusService;
     @Resource
     private ProjectTemplateService projectTemplateService;
     @Resource

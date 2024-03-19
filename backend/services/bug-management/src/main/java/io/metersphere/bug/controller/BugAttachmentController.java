@@ -133,6 +133,7 @@ public class BugAttachmentController {
         return bugAttachmentService.upgrade(request, SessionUtils.getUserId());
     }
 
+    // 富文本相关接口
     @PostMapping("/upload/md/file")
     @Operation(summary = "缺陷管理-富文本附件-上传")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_BUG_ADD, PermissionConstants.PROJECT_BUG_UPDATE})
@@ -140,11 +141,9 @@ public class BugAttachmentController {
         return bugAttachmentService.uploadMdFile(file);
     }
 
-    @PostMapping(value = "/preview/md/compressed")
+    @GetMapping(value = "/preview/md/{projectId}/{fileId}/{compressed}")
     @Operation(summary = "缺陷管理-富文本缩略图-预览")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ResponseEntity<byte[]> previewMdImg(@Validated @RequestBody BugFileSourceRequest request) {
-        return bugAttachmentService.downloadOrPreview(request);
+    public ResponseEntity<byte[]> previewMd(@PathVariable String projectId, @PathVariable String fileId, @PathVariable("compressed") boolean compressed) {
+        return bugAttachmentService.previewMd(projectId, fileId, compressed);
     }
 }
