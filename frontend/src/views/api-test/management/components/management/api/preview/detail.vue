@@ -234,26 +234,26 @@
         </div>
       </div>
     </a-collapse-item>
-    <a-spin :loading="previewDetail.executeLoading" class="w-full">
-      <a-collapse-item
-        v-if="
-          previewDetail.responseDefinition &&
-          previewDetail.responseDefinition.length > 0 &&
-          props.detail.protocol === 'HTTP'
-        "
-        key="response"
-      >
-        <template #header>
-          <div class="flex items-center gap-[4px]">
-            <div v-if="activeDetailKey.includes('response')" class="down-icon">
-              <icon-down :size="10" class="block" />
-            </div>
-            <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
-              <icon-right :size="10" class="block" />
-            </div>
-            <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
+    <a-collapse-item
+      v-if="
+        previewDetail.responseDefinition &&
+        previewDetail.responseDefinition.length > 0 &&
+        props.detail.protocol === 'HTTP'
+      "
+      key="response"
+    >
+      <template #header>
+        <div class="flex items-center gap-[4px]">
+          <div v-if="activeDetailKey.includes('response')" class="down-icon">
+            <icon-down :size="10" class="block" />
           </div>
-        </template>
+          <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
+            <icon-right :size="10" class="block" />
+          </div>
+          <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
+        </div>
+      </template>
+      <template v-if="!props.isCase">
         <MsEditableTab
           v-model:active-tab="activeResponse"
           :tabs="previewDetail.responseDefinition?.map((e) => ({ ...e, closable: false })) || []"
@@ -313,8 +313,23 @@
           </div>
           <MsFormTable :columns="responseHeaderColumns" :data="activeResponse?.headers || []" :selectable="false" />
         </div>
-      </a-collapse-item>
-    </a-spin>
+      </template>
+      <a-spin v-else :loading="previewDetail.executeLoading" class="h-[calc(100%-45px)] w-full pb-[18px]">
+        <result
+          v-show="
+            previewDetail.protocol === 'HTTP' || previewDetail.response?.requestResults[0]?.responseResult.responseCode
+          "
+          v-model:active-tab="previewDetail.responseActiveTab"
+          :request-result="previewDetail.response?.requestResults[0]"
+          :console="previewDetail.response?.console"
+          :is-http-protocol="previewDetail.protocol === 'HTTP'"
+          :is-priority-local-exec="props.isPriorityLocalExec"
+          :request-url="previewDetail.url"
+          is-definition
+          @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
+        />
+      </a-spin>
+    </a-collapse-item>
   </a-collapse>
 </template>
 
@@ -330,6 +345,7 @@
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
+  import result from '@/views/api-test/components/requestComposition/response/result.vue';
 
   import { getPluginScript } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
@@ -343,6 +359,10 @@
     isCase?: boolean; // case详情
     detail: RequestParam;
     protocols: ProtocolItem[];
+    isPriorityLocalExec?: boolean;
+  }>();
+  const emit = defineEmits<{
+    (e: 'execute', val: 'localExec' | 'serverExec'): void;
   }>();
 
   const { t } = useI18n();

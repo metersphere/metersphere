@@ -7,10 +7,10 @@
     @select="execute"
   >
     {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-    <template v-if="hasLocalExec" #icon>
+    <template #icon>
       <icon-down />
     </template>
-    <template v-if="hasLocalExec" #content>
+    <template #content>
       <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
         {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
       </a-doption>
@@ -28,15 +28,17 @@
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import { debugCase, runCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
-  import { getLocalConfig } from '@/api/modules/user/index';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
+
+  import { LocalConfig } from '@/models/user';
 
   import { defaultResponse } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     environmentId: string;
     request?: (...args) => Record<string, any>;
+    isCaseDetail?: boolean;
   }>();
 
   const { t } = useI18n();
@@ -46,30 +48,12 @@
     required: true,
   });
 
-  const hasLocalExec = ref(false); // 是否配置了api本地执行
-  const isPriorityLocalExec = ref(false); // 是否优先本地执行
-  const localExecuteUrl = ref('');
+  const apiLocalExec = inject<Ref<LocalConfig>>('apiLocalExec');
+  const isPriorityLocalExec = ref(apiLocalExec?.value.enable || false); // 是否优先本地执行
+  const localExecuteUrl = ref(apiLocalExec?.value.userUrl || '');
   const reportId = ref('');
   const websocket = ref<WebSocket>();
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
-
-  async function initLocalConfig() {
-    if (hasLocalExec.value) {
-      return;
-    }
-    try {
-      const res = await getLocalConfig(); // TODO: 会报错
-      const apiLocalExec = res.find((e) => e.type === 'API');
-      if (apiLocalExec) {
-        hasLocalExec.value = true;
-        isPriorityLocalExec.value = apiLocalExec.enable || false;
-        localExecuteUrl.value = apiLocalExec.userUrl || '';
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
 
   /**
    * 开启websocket监听，接收执行结果
@@ -85,8 +69,7 @@
       if (data.msgType === 'EXEC_RESULT') {
         if (caseDetail.value.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          // TODO: 渲染出用例详情的响应数据
-          caseDetail.value.response = data.taskResult; // 渲染出创建用例抽屉的响应数据
+          caseDetail.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
           caseDetail.value.executeLoading = false;
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
@@ -114,28 +97,28 @@
         reportId: reportId.value,
       };
       debugSocket(executeType); // 开启websocket
-      if ((caseDetail.value.id as string).startsWith('c')) {
-        // 还没创建
-        res = await debugCase({
-          request: makeRequestParams?.request,
-          linkFileIds: makeRequestParams?.linkFileIds,
-          uploadFileIds: makeRequestParams?.uploadFileIds,
-          id: `case-${Date.now()}`,
-          projectId: appStore.currentProjectId,
-          ...params,
-        });
-      } else {
+      if (!(caseDetail.value.id as string).startsWith('c') && executeType === 'serverExec') {
+        // 已创建的服务端
         res = await runCase({
-          request: caseDetail.value.request,
+          request: props.isCaseDetail ? caseDetail.value.request : makeRequestParams?.request,
           id: caseDetail.value.id as string,
           projectId: caseDetail.value.projectId,
           linkFileIds: caseDetail.value.linkFileIds,
           uploadFileIds: caseDetail.value.uploadFileIds,
           ...params,
         });
+      } else {
+        res = await debugCase({
+          request: props.isCaseDetail ? caseDetail.value.request : makeRequestParams?.request,
+          linkFileIds: makeRequestParams?.linkFileIds,
+          uploadFileIds: makeRequestParams?.uploadFileIds,
+          id: `case-${Date.now()}`,
+          projectId: appStore.currentProjectId,
+          ...params,
+        });
       }
       if (executeType === 'localExec') {
-        await localExecuteApiDebug(localExecuteUrl.value, res); // TODO: 会报错
+        await localExecuteApiDebug(localExecuteUrl.value, res);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -149,8 +132,9 @@
     caseDetail.value.executeLoading = false;
   }
 
-  onBeforeMount(() => {
-    initLocalConfig();
+  defineExpose({
+    isPriorityLocalExec,
+    execute,
   });
 </script>
 

@@ -70,6 +70,7 @@
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getEnvironment, getEnvList, getProtocolList } from '@/api/modules/api-test/common';
+  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
@@ -77,6 +78,7 @@
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
+  import { LocalConfig } from '@/models/user';
   import {
     RequestAuthType,
     RequestComposition,
@@ -328,15 +330,28 @@
     }
   }
 
+  const apiLocalExec = ref<Record<string, any> | LocalConfig | undefined>({});
+  async function initLocalConfig() {
+    try {
+      const res = await getLocalConfig(); // TODO: 会报错
+      apiLocalExec.value = res.find((e) => e.type === 'API');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   onBeforeMount(() => {
     initEnvList();
     initProtocolList();
+    initLocalConfig();
   });
 
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('defaultCaseParams', readonly(defaultCaseParams));
   provide('protocols', readonly(protocols));
+  provide('apiLocalExec', readonly(apiLocalExec));
 
   defineExpose({
     newTab,
