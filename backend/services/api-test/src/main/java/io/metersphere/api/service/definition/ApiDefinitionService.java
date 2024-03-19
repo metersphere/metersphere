@@ -519,7 +519,8 @@ public class ApiDefinitionService extends MoveNodeService {
                 .andPathEqualTo(apiDefinition.getPath())
                 .andMethodEqualTo(apiDefinition.getMethod())
                 .andProtocolEqualTo(apiDefinition.getProtocol())
-                .andProjectIdEqualTo(apiDefinition.getProjectId());
+                .andProjectIdEqualTo(apiDefinition.getProjectId())
+                .andDeletedEqualTo(false);
         if (CollectionUtils.isNotEmpty(apiDefinitionMapper.selectByExample(example))) {
             throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
         }
@@ -539,7 +540,8 @@ public class ApiDefinitionService extends MoveNodeService {
                     .andIdNotEqualTo(originApiDefinition.getId())
                     .andProtocolEqualTo(originApiDefinition.getProtocol())
                     .andProjectIdEqualTo(originApiDefinition.getProjectId())
-                    .andRefIdNotEqualTo(originApiDefinition.getRefId());
+                    .andRefIdNotEqualTo(originApiDefinition.getRefId())
+                    .andDeletedEqualTo(false);
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
             }
