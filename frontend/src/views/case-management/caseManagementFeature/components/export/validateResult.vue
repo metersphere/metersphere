@@ -87,8 +87,10 @@
   </a-modal>
   <MsDrawer v-model:visible="showMoreFailureCase" :width="960" :footer="false" no-content-padding>
     <template #title>
-      {{ t('caseManagement.featureCase.importFailedCases')
-      }}<span class="text-[var(--color-text-4)]">({{ validateResultInfo.failCount }})</span>
+      <div class="justify-start">
+        {{ t('caseManagement.featureCase.importFailedCases')
+        }}<span class="text-[var(--color-text-4)]">({{ validateResultInfo.failCount }})</span>
+      </div>
     </template>
     <MsList
       mode="static"
