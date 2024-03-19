@@ -32,10 +32,36 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #resultTitle>
-        <div class="flex items-center text-[var(--color-text-3)]">
-          {{ t('caseManagement.caseReview.reviewResult') }}
-        </div>
+      <template #resultTitle="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="statusFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
+            <div class="font-medium">
+              {{ t(columnConfig.title as string) }}
+            </div>
+            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </a-button>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="flex items-center justify-center px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                  <a-checkbox v-for="key of Object.keys(reviewResultMap)" :key="key" :value="key">
+                    <a-tag
+                      :color="reviewResultMap[key].color"
+                      :class="[reviewResultMap[key].class, 'px-[4px]']"
+                      size="small"
+                    >
+                      {{ t(reviewResultMap[key].label) }}
+                    </a-tag>
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
       </template>
       <template #num="{ record }">
         <a-tooltip :content="record.num">
@@ -43,6 +69,23 @@
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
+      </template>
+      <template #caseLevel="{ record }">
+        <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
+      </template>
+      <template #caseLevelFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="caseFilterVisible"
+          v-model:status-filters="caseFilters"
+          :title="(columnConfig.title as string)"
+          :list="caseLevelList"
+          value-key="value"
+          @search="searchCase()"
+        >
+          <template #item="{ item }">
+            <div class="flex"> <caseLevel :case-level="item.text" /></div>
+          </template>
+        </TableFilter>
       </template>
       <template #reviewNames="{ record }">
         <a-tooltip :content="record.reviewNames.join('、')">
@@ -246,7 +289,9 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import MsSelect from '@/components/business/ms-select';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchChangeReviewer,
@@ -256,7 +301,7 @@
     getReviewDetailCasePage,
     getReviewUsers,
   } from '@/api/modules/case-management/caseReview';
-  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
+  import { editorUploadFile, getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
   import { reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -270,6 +315,13 @@
   import { BatchApiParams, ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  const caseLevelFields = ref<Record<string, any>>({});
+  const caseFilterVisible = ref(false);
+  const caseFilters = ref<string[]>([]);
+  const caseLevelList = computed(() => {
+    return caseLevelFields.value?.options || [];
+  });
 
   const props = defineProps<{
     activeFolder: string | number;
@@ -292,6 +344,9 @@
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
   const tableParams = ref<Record<string, any>>({});
+
+  const statusFilterVisible = ref(false);
+  const statusFilters = ref<string[]>(Object.keys(reviewResultMap));
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])
@@ -318,6 +373,15 @@
       },
       showTooltip: true,
       width: 200,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnLevel',
+      slotName: 'caseLevel',
+      dataIndex: 'caseLevel',
+      titleSlotName: 'caseLevelFilter',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
     },
     {
       title: 'caseManagement.caseReview.reviewer',
@@ -393,6 +457,7 @@
       moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       keyword: keyword.value,
       viewFlag: props.onlyMine,
+      filter: { status: statusFilters.value, caseLevel: caseFilters.value },
       combine: filter
         ? {
             ...filter.combine,
@@ -408,6 +473,12 @@
       total: propsRes.value.msPagination?.total,
       moduleIds: [],
     });
+  }
+
+  function handleFilterHidden(val: boolean) {
+    if (!val) {
+      searchCase();
+    }
   }
 
   onBeforeMount(() => {
@@ -546,6 +617,13 @@
       },
       hideCancel: false,
     });
+  }
+
+  // 获取用例等级数据
+  async function getCaseLevelFields() {
+    const result = await getCaseDefaultFields(appStore.currentProjectId);
+    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
   }
 
   // 批量重新评审
@@ -715,6 +793,7 @@
   }
 
   onBeforeMount(async () => {
+    getCaseLevelFields();
     const [, memberRes] = await Promise.all([
       initReviewers(),
       getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),

@@ -26,12 +26,16 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.BaseCustomFieldOptionService;
+import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -101,6 +105,14 @@ public class CaseReviewFunctionalCaseService {
     private PermissionCheckService permissionCheckService;
     @Resource
     private CaseReviewMapper caseReviewMapper;
+    @Resource
+    private FunctionalCaseCustomFieldService functionalCaseCustomFieldService;
+    @Resource
+    private BaseCustomFieldService baseCustomFieldService;
+    @Resource
+    private BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    private UserLoginService userLoginService;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -150,12 +162,14 @@ public class CaseReviewFunctionalCaseService {
                 caseStatusMap = new LinkedHashMap<>();
             }
 
+            Map<String, List<FunctionalCaseCustomFieldDTO>> collect = getCaseCustomFiledMap(caseIds);
+
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
                 item.setReviewers(Collections.singletonList(userIdMap.get(item.getCaseId())));
                 item.setReviewNames(Collections.singletonList(userNameMap.get(item.getCaseId())));
-
+                item.setCustomFields(collect.get(item.getCaseId()));
                 if (request.isViewStatusFlag()) {
                     List<CaseReviewHistory> histories = caseStatusMap.get(item.getCaseId());
                     if (CollectionUtils.isNotEmpty(histories)) {
@@ -169,6 +183,23 @@ public class CaseReviewFunctionalCaseService {
         }
         return list;
     }
+
+    public Map<String, List<FunctionalCaseCustomFieldDTO>> getCaseCustomFiledMap(List<String> ids) {
+        List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
+        customFields.forEach(customField -> {
+            if (customField.getInternal()) {
+                customField.setFieldName(baseCustomFieldService.translateInternalField(customField.getFieldName()));
+            }
+        });
+        List<String> fieldIds = customFields.stream().map(FunctionalCaseCustomFieldDTO::getFieldId).toList();
+        List<CustomFieldOption> fieldOptions = baseCustomFieldOptionService.getByFieldIds(fieldIds);
+        Map<String, List<CustomFieldOption>> customOptions = fieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+        customFields.forEach(customField -> {
+            customField.setOptions(customOptions.get(customField.getFieldId()));
+        });
+        return customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
+    }
+
 
     private String getMyStatus(List<CaseReviewHistory> histories, String viewStatusUserId) {
         List<CaseReviewHistory> list = histories.stream().filter(history -> StringUtils.equalsIgnoreCase(history.getCreateUser(), viewStatusUserId)).toList();

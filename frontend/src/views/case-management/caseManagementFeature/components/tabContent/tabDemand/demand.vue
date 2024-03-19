@@ -288,7 +288,9 @@
   }
 
   function openDemandUrl(record: DemandItem) {
-    window.open(record.demandUrl);
+    if (record.demandUrl) {
+      window.open(record.demandUrl);
+    }
   }
 
   const platformInfo = ref<Record<string, any>>({});

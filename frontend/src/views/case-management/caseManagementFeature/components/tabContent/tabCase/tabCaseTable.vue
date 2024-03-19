@@ -32,10 +32,13 @@
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
+          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])">{{
+            t('caseManagement.caseReview.tableNoData')
+          }}</span>
+          <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
 
           <a-dropdown @select="handleSelect">
-            <MsButton class="ml-[8px]">
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="ml-[8px]">
               {{ t('caseManagement.featureCase.linkCase') }}
             </MsButton>
             <template #content>
@@ -89,6 +92,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';

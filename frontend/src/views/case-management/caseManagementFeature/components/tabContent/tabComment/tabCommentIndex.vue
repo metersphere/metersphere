@@ -132,25 +132,21 @@
   }
 
   async function getAllCommentList() {
-    if (hasAnyPermission(['FUNCTIONAL_CASE:READ+COMMENT'])) {
-      switch (activeComment.value) {
-        case 'caseComment':
-          await initCommentList();
-          featureCaseStore.getCaseCounts(props.caseId);
-          break;
-        case 'reviewComment':
-          await initReviewCommentList();
-          featureCaseStore.getCaseCounts(props.caseId);
-          break;
-        case 'executiveComment':
-          await initCommentList();
-          featureCaseStore.getCaseCounts(props.caseId);
-          break;
-        default:
-          break;
-      }
-    } else {
-      Message.error(t('common.noPermission'));
+    switch (activeComment.value) {
+      case 'caseComment':
+        await initCommentList();
+        featureCaseStore.getCaseCounts(props.caseId);
+        break;
+      case 'reviewComment':
+        await initReviewCommentList();
+        featureCaseStore.getCaseCounts(props.caseId);
+        break;
+      case 'executiveComment':
+        await initCommentList();
+        featureCaseStore.getCaseCounts(props.caseId);
+        break;
+      default:
+        break;
     }
   }
 

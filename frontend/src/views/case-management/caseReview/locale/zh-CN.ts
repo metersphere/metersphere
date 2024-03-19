@@ -64,7 +64,7 @@ export default {
   'caseManagement.caseReview.belongModulePlaceholder': '请选择该评审所属模块',
   'caseManagement.caseReview.reviewerPlaceholder': '请选择评审人',
   'caseManagement.caseReview.defaultReviewer': '默认评审人',
-  'caseManagement.caseReview.defaultReviewerRequired': '默认评审人',
+  'caseManagement.caseReview.defaultReviewerRequired': '默认评审人不能为空',
   'caseManagement.caseReview.defaultReviewerTip': '新添加的用例，评审人为默认评审人',
   'caseManagement.caseReview.pickCases': '选择需要评审的用例',
   'caseManagement.caseReview.switchProject': '切换项目：',

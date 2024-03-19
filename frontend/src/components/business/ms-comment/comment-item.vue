@@ -23,6 +23,7 @@
             <span class="text-[var(--color-text-4)]">({{ element.childComments?.length }})</span>
           </div>
           <div
+            v-if="hasAnyPermission(['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'])"
             class="comment-btn hover:bg-[var(--color-bg-3)]"
             :class="{ 'bg-[var(--color-text-n8)]': status === 'reply' }"
             @click="replyClick"
@@ -63,6 +64,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CommentItem } from './types';
 
@@ -81,7 +83,10 @@
 
   // 是否拥有编辑｜删除权限
   const hasAuth = computed(() => {
-    return props.element.createUser === userStore.id;
+    return (
+      props.element.createUser === userStore.id &&
+      hasAnyPermission(['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'])
+    );
   });
 
   const status = defineModel<'normal' | 'edit' | 'reply' | 'delete'>('status', { default: 'normal' });

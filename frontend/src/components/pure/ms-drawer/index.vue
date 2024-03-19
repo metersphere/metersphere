@@ -318,7 +318,7 @@
   .ms-drawer-no-mask {
     left: auto;
     .arco-drawer {
-      box-shadow: -1px 0 4px 0 rgb(2 2 2 / 10%);
+      box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
     }
   }
   .ms-drawer-no-content-padding {
