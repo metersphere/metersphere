@@ -352,7 +352,6 @@ CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '触发方式' ,
     `run_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
     `pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池' ,
-    `version_id` VARCHAR(50)    COMMENT '版本fk' ,
     `integrated` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是集成报告' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
     `environment_id` VARCHAR(50)    COMMENT '环境' ,

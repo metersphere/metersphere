@@ -235,10 +235,10 @@ public class ApiScenarioReportService {
      * 更新执行中的场景报告
      * @param reportId
      */
-    public void updateRunningReport(String reportId) {
+    public void updateReportStatus(String reportId, String status) {
         ApiScenarioReport scenarioReport = new ApiScenarioReport();
         scenarioReport.setId(reportId);
-        scenarioReport.setStatus(ApiReportStatus.RUNNING.name());
+        scenarioReport.setStatus(status);
         scenarioReport.setUpdateTime(System.currentTimeMillis());
         apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
     }

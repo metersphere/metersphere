@@ -44,7 +44,9 @@ public class DocumentAssertionConverter extends ResponseBodyTypeAssertionConvert
     }
 
     private <T extends TestElement> List<T> parseAssertion(MsDocumentAssertionElement assertion, boolean globalEnable, T t) {
-
+        if (assertion == null) {
+            return List.of();
+        }
         List<T> list = new LinkedList<>();
         Map<String, ElementCondition> conditionMap = new java.util.HashMap<>();
         List<MsDocumentAssertionElement> dataList = new ArrayList<>();

@@ -275,7 +275,6 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             scenarioReport.setEnvironmentId("api-environment-id" + i);
             scenarioReport.setRunMode("api-run-mode" + i);
             scenarioReport.setTriggerMode("task-MANUAL");
-            scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
             ApiScenarioRecord scenarioRecord = new ApiScenarioRecord();
             scenarioRecord.setApiScenarioId("task-api-resource-id" + i);

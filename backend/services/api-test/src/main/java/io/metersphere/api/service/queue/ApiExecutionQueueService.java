@@ -53,17 +53,20 @@ public class ApiExecutionQueueService {
             Long size = size(queueId);
             if (size == null || size == 0) {
                 // 最后一个节点清理队列
-                redisTemplate.delete(queueKey);
-                redisTemplate.delete(QUEUE_PREFIX + queueId);
+                deleteQueue(queueId);
             }
             return JSON.parseObject(queueDetail, ExecutionQueueDetail.class);
         }
 
         // 整体获取完，清理队列
-        redisTemplate.delete(queueKey);
-        redisTemplate.delete(QUEUE_PREFIX + queueId);
+        deleteQueue(queueId);
 
         return null;
+    }
+
+    public void deleteQueue(String queueId) {
+        redisTemplate.delete(QUEUE_DETAIL_PREFIX + queueId);
+        redisTemplate.delete(QUEUE_PREFIX + queueId);
     }
 
     /**

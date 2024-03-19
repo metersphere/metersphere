@@ -5,7 +5,9 @@ import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchCopyMoveRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.service.ApiValidateService;
+import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -33,6 +35,8 @@ public class ApiScenarioBatchOperationController {
     private ApiValidateService apiValidateService;
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiScenarioBatchRunService apiScenarioBatchRunService;
 
     @PostMapping("/batch-operation/edit")
     @Operation(summary = "接口测试-接口场景批量操作-批量编辑")
@@ -93,4 +97,11 @@ public class ApiScenarioBatchOperationController {
         return apiScenarioService.batchCopy(request, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/copy", HttpMethodConstants.POST.name()));
     }
 
+    @PostMapping("/batch-operation/run")
+    @Operation(summary = "接口测试-接口场景批量操作-场景列表操作-批量执行")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    public void batchRun(@Validated @RequestBody ApiScenarioBatchRunRequest request) {
+        apiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
+    }
 }

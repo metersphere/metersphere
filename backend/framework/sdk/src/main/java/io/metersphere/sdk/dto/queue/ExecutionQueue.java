@@ -34,6 +34,12 @@ public class ExecutionQueue implements Serializable {
     private Long retryNumber;
 
     /**
+     * 资源类型 / API，CASE，PLAN_CASE,PLAN_SCENARIO，API_SCENARIO
+     * {@link io.metersphere.sdk.constants.ApiExecuteResourceType}
+     */
+    private String resourceType;
+
+    /**
      * 运行模式配置
      */
     private ApiRunModeConfigDTO runModeConfig;

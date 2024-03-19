@@ -53,12 +53,10 @@ public class ApiExecutionQueueServiceTest {
         ExecutionQueueDetail queueDetail1 = new ExecutionQueueDetail();
         queueDetail1.setResourceId("resourceId1");
         queueDetail1.setSort(1);
-        queueDetail1.setResourceType("API");
 
         ExecutionQueueDetail queueDetail2 = new ExecutionQueueDetail();
         queueDetail2.setResourceId("resourceId2");
         queueDetail2.setSort(2);
-        queueDetail2.setResourceType("CASE");
 
         List<ExecutionQueueDetail> queueDetails = List.of(queueDetail1, queueDetail2);
 

@@ -222,10 +222,10 @@ public class ApiReportService {
      * 更新执行中的用例报告
      * @param reportId
      */
-    public void updateRunningReport(String reportId) {
+    public void updateReportStatus(String reportId, String status) {
         ApiReport apiReport = new ApiReport();
         apiReport.setId(reportId);
-        apiReport.setStatus(ApiReportStatus.RUNNING.name());
+        apiReport.setStatus(status);
         apiReport.setUpdateTime(System.currentTimeMillis());
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
     }

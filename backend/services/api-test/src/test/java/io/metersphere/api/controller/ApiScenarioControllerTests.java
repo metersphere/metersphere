@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
@@ -100,6 +101,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
+    private static final String BATCH_RUN = "batch-operation/run";
 
     private static final Map<String, String> BATCH_OPERATION_SCENARIO_MODULE_MAP = new HashMap<>();
     private static final List<String> BATCH_OPERATION_SCENARIO_ID = new ArrayList<>();
@@ -1013,6 +1015,38 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN_REAL_TIME, addApiScenario.getId(), "reportId");
+    }
+
+    @Order(6)
+    public void batchRun() throws Exception {
+        mockPost("/api/run", "");
+
+        ApiScenarioBatchRunRequest request = new ApiScenarioBatchRunRequest();
+        List<String> ids = new ArrayList<>();
+        ids.add(addApiScenario.getId());
+        request.setSelectIds(ids);
+        request.setProjectId(addApiScenario.getProjectId());
+        ApiRunModeRequest apiRunModeRequest = new ApiRunModeRequest();
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiRunModeRequest.setIntegratedReport(true);
+        apiRunModeRequest.setStopOnFailure(false);
+        apiRunModeRequest.setIntegratedReportName("aaaa");
+        apiRunModeRequest.setPoolId("poolId");
+        request.setRunModeConfig(apiRunModeRequest);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(false);
+        apiRunModeRequest.setStopOnFailure(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.SERIAL.name());
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, BATCH_RUN, request);
     }
 
     public Plugin addEnvTestPlugin() throws Exception {
@@ -2382,7 +2416,6 @@ public class ApiScenarioControllerTests extends BaseTest {
                 apiReport.setStatus(ApiReportStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
-            apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
             ApiScenarioRecord record = new ApiScenarioRecord();
             record.setApiScenarioId(first.getId());

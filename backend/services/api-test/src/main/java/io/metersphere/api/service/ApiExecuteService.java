@@ -150,6 +150,9 @@ public class ApiExecuteService {
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
 
         if (StringUtils.equals(taskRequest.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
+            // 清空mino和kafka配置信息，避免前端获取
+            taskRequest.setMinioConfig(null);
+            taskRequest.setKafkaConfig(null);
             // 前端调试返回执行参数，由前端调用本地资源池执行
             return taskRequest;
         }
