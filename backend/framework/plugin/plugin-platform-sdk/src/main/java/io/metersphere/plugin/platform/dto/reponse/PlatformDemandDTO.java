@@ -2,6 +2,7 @@ package io.metersphere.plugin.platform.dto.reponse;
 
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,6 @@ public class PlatformDemandDTO {
         /**
          * 自定义字段
          */
-        private Map<String, Object> customFields;
+        private Map<String, Object> customFields = new HashMap<>();
     }
 }

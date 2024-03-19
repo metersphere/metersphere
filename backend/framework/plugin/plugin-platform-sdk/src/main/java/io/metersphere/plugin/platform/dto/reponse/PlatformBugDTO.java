@@ -3,6 +3,7 @@ package io.metersphere.plugin.platform.dto.reponse;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class PlatformBugDTO extends MsSyncBugDTO {
@@ -22,7 +23,9 @@ public class PlatformBugDTO extends MsSyncBugDTO {
     private List<PlatformCustomFieldItemDTO> needSyncCustomFields;
 
     /**
-     * 缺陷同步需要下载的第三方富文本图片文件Key
+     * 缺陷同步需要下载的第三方富文本图片{key: name}
+     * key: 唯一文件流获取的ID
+     * name: 文件名称
      */
-    private List<String> richTextImageKeys;
+    private Map<String, String> richTextImageMap;
 }

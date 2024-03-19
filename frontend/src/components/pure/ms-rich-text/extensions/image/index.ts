@@ -2,7 +2,6 @@ import { markRaw } from 'vue';
 
 import ImageView from './ImageView.vue';
 
-import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
 import { useI18n } from '@/hooks/useI18n';
 
 import type { ExtensionOptions, NodeBubbleMenu } from '../../types';
@@ -13,9 +12,9 @@ import {
   EditorState,
   isActive,
   mergeAttributes,
+  ToolboxItem,
   VueNodeViewRenderer,
 } from '@halo-dev/richtext-editor';
-import { ToolboxItem } from '@halo-dev/richtext-editor';
 import type { ImageOptions } from '@tiptap/extension-image';
 import TiptapImage from '@tiptap/extension-image';
 
@@ -99,6 +98,18 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
         renderHTML: (attributes) => {
           return {
             permalinkSrc: attributes.src,
+          };
+        },
+      },
+      // 第三方平台链接, 富文本双向同步时需要
+      psrc: {
+        default: undefined,
+        parseHTML: (element) => {
+          return element.getAttribute('psrc') || null;
+        },
+        renderHTML: (attributes) => {
+          return {
+            psrc: attributes.psrc,
           };
         },
       },
