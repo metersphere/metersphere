@@ -23,6 +23,7 @@
           class="mx-[8px] w-[240px]"
           @search="searchList"
           @press-enter="searchList"
+          @clear="searchList"
         ></a-input-search>
       </div>
     </div>
