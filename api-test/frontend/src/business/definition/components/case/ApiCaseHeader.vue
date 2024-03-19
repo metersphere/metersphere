@@ -2,6 +2,11 @@
   <el-header style="width: 100%; padding: 0">
     <el-card>
       <div style="display: flex">
+        <el-col :span="1">
+          <div class="ellipsis-text">
+            <el-link @click="clickResource(api)">{{ api.num }}</el-link>
+          </div>
+        </el-col>
         <el-tag
           size="small"
           style="margin-top: 5px; margin-right: 5px"
@@ -85,6 +90,10 @@ import MsEnvironmentSelect from './MsEnvironmentSelect';
 import { API_METHOD_COLOUR } from '../../model/JsonData';
 import ApiCaseItem from '@/business/definition/components/case/ApiCaseItem';
 import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
+import {getDefinitionById} from "@/api/definition";
+import { getCurrentProjectID,getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
+import {getOwnerProjectIds, getProject} from "@/api/project";
+import { getUUID } from 'metersphere-frontend/src/utils';
 
 export default {
   name: 'ApiCaseHeader',
@@ -187,6 +196,61 @@ export default {
     },
     handleXpackCaseBtnChange(showUpdateRule) {
       this.showUpdateRule = showUpdateRule;
+    },
+    clickResource(resource) {
+      console.log('resource', resource)
+      let workspaceId = getCurrentWorkspaceId();
+      let isTurnSpace = true;
+      getDefinitionById(resource.id).then((res) => {
+        if (res.data) {
+          this.getWorkspaceId(resource, res.data, isTurnSpace, workspaceId);
+        }
+      });
+    },
+    checkPermission(resource, workspaceId, isTurnSpace) {
+      getOwnerProjectIds().then((res) => {
+        const project = res.data.find((p) => p === resource.projectId);
+        if (!project) {
+          this.$warning(this.$t('commons.no_permission'));
+        } else {
+          this.gotoTurn(resource, workspaceId, isTurnSpace);
+        }
+      });
+    },
+    getWorkspaceId(resource, data, isTurnSpace, workspaceId) {
+      resource.projectId = data.projectId;
+      if (data.projectId !== getCurrentProjectID()) {
+        isTurnSpace = false;
+        getProject(data.projectId).then((response) => {
+          if (response.data) {
+            workspaceId = response.data.workspaceId;
+            isTurnSpace = true;
+            this.checkPermission(resource, workspaceId, isTurnSpace);
+          }
+        });
+      } else {
+        this.checkPermission(resource, workspaceId, isTurnSpace);
+      }
+    },
+    gotoTurn(resource, workspaceId, isTurnSpace) {
+      if (resource.protocol === 'dubbo://') {
+        resource.protocol = 'DUBBO';
+      }
+      let definitionData = this.$router.resolve({
+        name: 'ApiDefinitionWithQuery',
+        params: {
+          versionId: 'default',
+          redirectID: getUUID(),
+          dataType: 'api',
+          dataSelectRange: 'edit:' + resource.id,
+          projectId: resource.projectId,
+          type: resource.protocol,
+          workspaceId: workspaceId,
+        },
+      });
+      if (isTurnSpace) {
+        window.open(definitionData.href, '_blank');
+      }
     },
   },
 };
