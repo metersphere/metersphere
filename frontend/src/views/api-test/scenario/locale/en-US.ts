@@ -78,4 +78,7 @@ export default {
   'api_scenario.recycle.list': 'Recycle list',
   'api_scenario.recycle.batchCleanOut': 'Delete',
   'api_scenario.table.searchPlaceholder': 'Search by ID/Name/Tag',
+
+  'apiScenario.scriptOperationName': 'Script operation name',
+  'apiScenario.scriptOperationNamePlaceholder': 'Please enter the script operation name',
 };
