@@ -74,20 +74,30 @@
         </a-tooltip>
       </template>
     </ms-base-table>
-    <a-modal v-model:visible="showResponse" class="ms-modal-form ms-modal-small" title-align="start">
+    <a-modal
+      v-model:visible="showResponse"
+      class="ms-modal-form ms-modal-response ms-modal-response-body"
+      title-align="start"
+      :footer="false"
+    >
+      <template #title> {{ t('caseManagement.featureCase.tableColumnExecutionResult') }} </template>
       <response
         v-show="showResponse"
+        :hide-layout-switch="true"
         :is-expanded="true"
         :is-http-protocol="props.protocol === 'HTTP'"
         :is-priority-local-exec="false"
         :active-tab="ResponseComposition.BODY"
         :request-task-result="responseContent"
+        :is-definition="true"
+        :is-response-model="true"
       ></response>
     </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -101,10 +111,12 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiCaseReportDetail, RequestTaskResult } from '@/models/apiTest/common';
+  import { ApiCaseReportDetail, RequestResult, RequestTaskResult } from '@/models/apiTest/common';
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
   import { ExecuteStatusFilters, ResponseComposition } from '@/enums/apiEnum';
   import { TriggerModeLabel } from '@/enums/reportEnum';
+
+  import { defaultResponse } from '@/views/api-test/components/config';
 
   const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
   const triggerModeFilterVisible = ref(false);
@@ -216,10 +228,11 @@
     }
   }
 
-  function loadedReportDetail(detail: ApiCaseReportDetail) {
-    if (detail.id) {
-      responseContent.value?.requestResults.push(detail.content);
-      showResponse.value = true;
+  function loadedReportDetail(detail: ApiCaseReportDetail[]) {
+    responseContent.value = cloneDeep(defaultResponse);
+    const apiCaseReportDetailElement = detail[0];
+    if (apiCaseReportDetailElement.id) {
+      responseContent.value.requestResults[0] = apiCaseReportDetailElement.content;
     }
   }
 
@@ -227,8 +240,8 @@
     if (detail.id) {
       if (detail.children && detail.children.length > 0) {
         try {
-          const caseReportDetail = getCaseReportDetail(detail.id, detail.children[0].stepId);
-          loadedReportDetail(await caseReportDetail);
+          const caseReportDetail = await getCaseReportDetail(detail.id, detail.children[0].stepId);
+          loadedReportDetail(caseReportDetail);
         } catch (e) {
           console.error(e);
         }
@@ -238,6 +251,7 @@
 
   async function showResult(record: ApiCaseExecuteHistoryItem) {
     try {
+      showResponse.value = true;
       const result = await getReportById(record.id);
       await loadedReport(result);
     } catch (error) {
