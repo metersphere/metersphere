@@ -4,7 +4,12 @@
       <template #extra>
         <div class="flex gap-[12px]">
           <environmentSelect v-if="props.isDrawer" ref="environmentSelectRef" />
-          <execute v-model:detail="caseDetail" :environment-id="environmentId as string" />
+          <execute
+            ref="executeRef"
+            v-model:detail="caseDetail"
+            :environment-id="environmentId as string"
+            is-case-detail
+          />
           <a-dropdown position="br" :hide-on-select="false" @select="handleSelect">
             <a-button v-if="!props.isDrawer">{{ t('common.operation') }}</a-button>
             <template #content>
@@ -45,7 +50,13 @@
             <caseLevel :case-level="value as CaseLevel" />
           </template>
         </MsDetailCard>
-        <detailTab :detail="caseDetail" :protocols="protocols as ProtocolItem[]" is-case />
+        <detailTab
+          :detail="caseDetail"
+          :protocols="protocols as ProtocolItem[]"
+          :is-priority-local-exec="isPriorityLocalExec"
+          is-case
+          @execute="(val: 'localExec' | 'serverExec')=>executeRef?.execute(val)"
+        />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
         <tab-case-dependency :source-id="caseDetail.id" />
@@ -213,6 +224,9 @@
     props.isDrawer ? currentEnvConfigByDrawer.value?.id : currentEnvConfigByInject?.value?.id
   );
 
+  const executeRef = ref<InstanceType<typeof execute>>();
+  const isPriorityLocalExec = computed(() => executeRef.value?.isPriorityLocalExec ?? false);
+
   defineExpose({
     editCase,
     share,
@@ -247,5 +261,8 @@
     &:hover {
       color: rgb(var(--danger-6));
     }
+  }
+  :deep(.monaco-editor) {
+    height: 212px !important;
   }
 </style>
