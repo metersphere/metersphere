@@ -1,8 +1,8 @@
 import { ApiDefinitionCustomField } from '@/models/apiTest/management';
-import { ApiScenarioStatus, RequestDefinitionStatus, RequestImportFormat, RequestImportType } from '@/enums/apiEnum';
+import { ApiScenarioStatus, RequestComposition, RequestDefinitionStatus, RequestImportFormat } from '@/enums/apiEnum';
 
 import { BatchApiParams, TableQueryParams } from '../common';
-import { ResponseDefinition } from './common';
+import { ExecuteApiRequestFullParams, ResponseDefinition } from './common';
 
 // 场景-更新模块参数
 export interface ApiScenarioModuleUpdateParams {
@@ -171,3 +171,9 @@ export interface ScenarioHistoryItem {
   createUserName: string;
   versionName: string;
 }
+
+export type CustomApiStep = ExecuteApiRequestFullParams & {
+  protocol: string;
+  activeTab: RequestComposition;
+  useEnv: string;
+};

@@ -138,5 +138,6 @@ export default {
   'common.batchDelete': 'Batch delete',
   'common.batchDebug': 'Batch debug',
   'common.quote': 'Quote',
+  'common.notQuote': 'Not quote',
   'common.execute': '执行',
 };

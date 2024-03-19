@@ -27,6 +27,7 @@
                 :is-show-scenario="isShowScenario"
                 @folder-node-select="handleNodeSelect"
                 @init="handleModuleInit"
+                @new-scenario="newTab"
               ></scenarioModuleTree>
             </div>
             <div class="flex-1">

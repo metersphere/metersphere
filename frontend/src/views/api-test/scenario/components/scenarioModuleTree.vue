@@ -6,9 +6,17 @@
         :placeholder="t('apiScenario.tree.selectorPlaceholder')"
         allow-clear
       />
-      <a-button v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']" type="primary" value="newScenario">{{
-        t('apiScenario.createScenario')
-      }}</a-button>
+      <a-button
+        v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']"
+        type="primary"
+        value="newScenario"
+        @click="
+          () => {
+            emit('newScenario');
+          }
+        "
+        >{{ t('apiScenario.createScenario') }}</a-button
+      >
     </div>
     <div class="folder" @click="setActiveFolder('all')">
       <div :class="allFolderClass">
@@ -32,7 +40,7 @@
               />
             </MsButton>
             <template #content>
-              <a-doption value="newScenario">{{ t('apiScenario.createScenario') + '（暂未实现）' }}</a-doption>
+              <a-doption value="newScenario">{{ t('apiScenario.createScenario') }}</a-doption>
               <a-doption value="addModule">{{ t('apiScenario.createSubModule') }}</a-doption>
             </template>
           </a-dropdown>

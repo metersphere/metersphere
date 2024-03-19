@@ -1,4 +1,5 @@
 export default {
+  'apiScenario.env': 'Environment: {name}',
   'apiScenario.allScenario': 'All scenarios',
   'apiScenario.createScenario': 'Create scenario',
   'apiScenario.importScenario': 'Import scenario',
