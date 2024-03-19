@@ -125,6 +125,18 @@
             </a-popover>
           </div>
           <div class="flex items-center gap-[8px]">
+            <a-button
+              v-if="props.isFormat"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="formatCoding"
+            >
+              <template #icon>
+                <MsIcon type="icon-icon_clear" class="text-var(--color-text-4)" size="12" />
+              </template>
+              {{ t('project.commonScript.formatting') }}
+            </a-button>
             <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="undoScript">
               <template #icon>
                 <MsIcon type="icon-icon_undo_outlined" class="text-var(--color-text-4)" size="12" />
@@ -462,6 +474,7 @@
       requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略
       totalList?: ExecuteConditionProcessor[]; // 总列表
+      isFormat?: boolean;
     }>(),
     {
       showAssociatedScene: false,
@@ -540,6 +553,9 @@ if (!result){
 
   function clearScript() {
     condition.value.script = '';
+  }
+  function formatCoding() {
+    scriptDefinedRef.value?.formatCoding();
   }
 
   /**
