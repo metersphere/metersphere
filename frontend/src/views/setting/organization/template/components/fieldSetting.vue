@@ -95,7 +95,13 @@
         <span>{{ getIconType(record.type)?.label }}</span>
       </template>
     </MsBaseTable>
-    <EditFieldDrawer ref="fieldDrawerRef" v-model:visible="showDrawer" :mode="props.mode" @success="successHandler" />
+    <EditFieldDrawer
+      ref="fieldDrawerRef"
+      v-model:visible="showDrawer"
+      :data="propsRes.data"
+      :mode="props.mode"
+      @success="successHandler"
+    />
     <MsDrawer
       ref="detailDrawerRef"
       v-model:visible="showDetailVisible"

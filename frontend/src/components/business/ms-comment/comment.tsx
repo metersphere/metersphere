@@ -24,6 +24,10 @@ export default defineComponent({
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       default: (file: File) => Promise<any>,
     },
+    previewUrl: {
+      type: String as PropType<string>,
+      default: '',
+    },
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -31,7 +35,7 @@ export default defineComponent({
     delete: (value: string) => true, // 删除评论
   },
   setup(props, { emit }) {
-    const { commentList, disabled, uploadImage } = toRefs(props);
+    const { commentList, disabled, uploadImage, previewUrl } = toRefs(props);
     const currentItem = reactive<{ id: string; commentType: CommentType; commentStatus: string }>({
       id: '',
       commentType: 'ADD',
@@ -129,6 +133,7 @@ export default defineComponent({
             noticeUserIds.value = ids;
           }}
           uploadImage={uploadImage.value}
+          previewUrl={previewUrl.value}
           onCancel={() => resetCurrentItem()}
           {...item}
         />

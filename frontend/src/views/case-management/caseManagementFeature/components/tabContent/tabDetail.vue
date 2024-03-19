@@ -26,6 +26,7 @@
           v-model:raw="detailForm.prerequisite"
           v-model:filed-ids="prerequisiteFileIds"
           :upload-image="handleUploadImage"
+          :preview-url="PreviewEditorImageUrl"
           class="mt-2"
         />
 
@@ -70,6 +71,7 @@
           v-model:raw="detailForm.textDescription"
           v-model:filed-ids="textDescriptionFileIds"
           :upload-image="handleUploadImage"
+          :preview-url="PreviewEditorImageUrl"
         />
         <div
           v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
@@ -87,6 +89,7 @@
           v-model:raw="detailForm.expectedResult"
           v-model:filed-ids="expectedResultFileIds"
           :upload-image="handleUploadImage"
+          :preview-url="PreviewEditorImageUrl"
         />
         <div
           v-else
@@ -100,6 +103,7 @@
           v-model:filed-ids="descriptionFileIds"
           v-model:raw="detailForm.description"
           :upload-image="handleUploadImage"
+          :preview-url="PreviewEditorImageUrl"
         />
         <div v-else v-dompurify-html="detailForm.description || '-'" class="markdown-body !break-words break-all"></div>
       </a-form-item>
@@ -296,6 +300,7 @@
     uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { downloadByteFile, getGenerateId } from '@/utils';

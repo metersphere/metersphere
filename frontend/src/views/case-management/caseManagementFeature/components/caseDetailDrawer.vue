@@ -228,6 +228,7 @@
           v-model:content="content"
           v-model:notice-user-ids="noticeUserIds"
           v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
+          :preview-url="PreviewEditorImageUrl"
           :is-active="isActive"
           is-show-avatar
           is-use-bottom
@@ -268,6 +269,7 @@
     getCaseDetail,
     getCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';

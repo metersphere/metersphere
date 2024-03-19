@@ -1,6 +1,7 @@
 import MSR from '@/api/http';
 import * as reportUrl from '@/api/requrls/api-test/report';
 
+import type { ReportDetail, ReportStepDetail } from '@/models/apiTest/report';
 import type { TableQueryParams } from '@/models/common';
 import { ReportEnum } from '@/enums/reportEnum';
 
@@ -38,7 +39,11 @@ export function reportBathDelete(moduleType: string, data: TableQueryParams) {
 
 // 报告详情
 export function reportDetail(reportId: string) {
-  return MSR.get<Record<string, any>>({ url: `${reportUrl.ScenarioReportDetailUrl}/${reportId}` });
+  return MSR.get<ReportDetail>({ url: `${reportUrl.ScenarioReportDetailUrl}/${reportId}` });
+}
+// 报告步骤详情
+export function reportStepDetail(reportId: string, stepId: string) {
+  return MSR.get<ReportStepDetail>({ url: `${reportUrl.ScenarioReportDetailStepUrl}/${reportId}/${stepId}` });
 }
 
 export default {};

@@ -38,6 +38,7 @@
               v-model:raw="form.description"
               v-model:filed-ids="descriptionFileIds"
               :upload-image="handleUploadImage"
+              :preview-url="EditorPreviewFileUrl"
             />
           </a-form-item>
           <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型   -->
@@ -234,6 +235,7 @@
     updateFile,
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
+  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useVisit from '@/hooks/useVisit';

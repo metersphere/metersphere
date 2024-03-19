@@ -13,6 +13,7 @@ import {
   BatchMoveCaseUrl,
   CancelAssociatedDebuggerUrl,
   CancelAssociationDemandUrl,
+  cancelDisassociate,
   cancelPreAndPostCaseUrl,
   checkFileIsUpdateUrl,
   CreateCaseModuleTreeUrl,
@@ -363,6 +364,10 @@ export function associatedDrawerDebug(data: TableQueryParams) {
 // 取消关联缺陷
 export function cancelAssociatedDebug(id: string) {
   return MSR.get({ url: `${CancelAssociatedDebuggerUrl}/${id}` });
+}
+// 取消关联用例
+export function cancelAssociatedCase(data: TableQueryParams) {
+  return MSR.post({ url: `${cancelDisassociate}`, data });
 }
 
 // 获取已关联缺陷列表

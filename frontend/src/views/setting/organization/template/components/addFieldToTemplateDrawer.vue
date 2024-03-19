@@ -53,6 +53,7 @@
               ref="fieldDrawerRef"
               v-model:visible="showFieldDrawer"
               :mode="props.mode"
+              :data="totalData"
               @success="okHandler"
             />
             <div>

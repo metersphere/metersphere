@@ -21,10 +21,6 @@
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
-      <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.name }}</span
-        ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-      </template>
       <template #operation="{ record }">
         <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="cancelLink(record)">{{
           t('caseManagement.featureCase.cancelLink')
@@ -48,6 +44,9 @@
             </template>
           </a-dropdown>
         </div>
+      </template>
+      <template #sourceType="{ record }">
+        {{ caseTypeOptions.find((e) => e.value === record.sourceType)?.label }}
       </template>
     </ms-base-table>
     <MsCaseAssociate
@@ -84,6 +83,7 @@
 
   import {
     associationPublicCase,
+    cancelAssociatedCase,
     getAssociatedCasePage,
     getPublicLinkCaseList,
     getPublicLinkModuleTree,
@@ -120,22 +120,20 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'num',
+      dataIndex: 'sourceNum',
+      slotName: 'sourceNum',
       width: 200,
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
-      slotName: 'name',
-      dataIndex: 'name',
+      slotName: 'sourceName',
+      dataIndex: 'sourceName',
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.projectName',
@@ -144,28 +142,24 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'version',
-      dataIndex: 'version',
+      slotName: 'versionName',
+      dataIndex: 'versionName',
       showInTable: true,
       showTooltip: true,
       width: 300,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.changeType',
-      slotName: 'type',
-      dataIndex: 'type',
+      slotName: 'sourceType',
+      dataIndex: 'sourceType',
       showInTable: true,
       showTooltip: true,
       width: 300,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',
@@ -182,8 +176,9 @@
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEPENDENCY_PRE_CASE,
     scroll: { x: '100%' },
+    showSelectorAll: false,
     heightUsed: 340,
-    enableDrag: true,
+    enableDrag: false,
   });
 
   const innerVisible = ref(false);
@@ -197,8 +192,6 @@
 
   const currentSelectCase = ref<string>('');
 
-  const countParams = ref<TableQueryParams>({});
-
   const modulesTreeParams = ref<TableQueryParams>({});
 
   const getTableParams = ref<TableQueryParams>({});
@@ -207,8 +200,6 @@
     currentSelectCase.value = value as string;
     innerVisible.value = true;
   }
-
-  function cancelLink(record: any) {}
 
   const caseTypeOptions = ref<{ label: string; value: string }[]>([]);
 
@@ -273,6 +264,20 @@
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);
+  }
+
+  async function cancelLink(record: any) {
+    try {
+      await cancelAssociatedCase({
+        selectIds: [record.sourceId],
+        caseId: props.caseId,
+        sourceType: record.sourceType,
+      });
+      getFetch();
+      Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async function searchCase() {

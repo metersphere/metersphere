@@ -8,7 +8,14 @@
       }"
     >
       <MsEmpty v-if="commentList.length === 0" />
-      <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdate" />
+      <MsComment
+        v-else
+        :preview-url="EditorPreviewFileUrl"
+        :comment-list="commentList"
+        :upload-image="handleUploadImage"
+        @delete="handleDelete"
+        @update-or-add="handleUpdate"
+      />
     </a-scrollbar>
   </div>
 </template>
@@ -18,7 +25,13 @@
   import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
-  import { createOrUpdateComment, deleteComment, getCommentList } from '@/api/modules/bug-management/index';
+  import {
+    createOrUpdateComment,
+    deleteComment,
+    editorUploadFile,
+    getCommentList,
+  } from '@/api/modules/bug-management/index';
+  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
 
@@ -80,6 +93,13 @@
       console.error(error);
     }
   };
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
 
   onMounted(() => {
     if (props.bugId) {

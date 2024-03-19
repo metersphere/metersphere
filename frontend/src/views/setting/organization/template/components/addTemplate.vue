@@ -194,6 +194,7 @@
         ref="fieldDrawerRef"
         v-model:visible="showFieldDrawer"
         :mode="props.mode"
+        :data="(totalTemplateField as DefinedFieldItem[])"
         @success="updateFieldHandler"
       />
     </div>

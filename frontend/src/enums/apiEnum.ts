@@ -256,6 +256,13 @@ export enum ScenarioStepType {
   ONLY_ONCE_CONTROL = 'ONLY_ONCE_CONTROL',
   SCRIPT_OPERATION = 'SCRIPT_OPERATION',
   CUSTOM_API = 'CUSTOM_API',
+  API_CASE = 'API_CASE', // 接口用例
+  LOOP_CONTROLLER = 'LOOP_CONTROLLER', // 循环控制器
+  API = 'API', // 接口定义
+  CUSTOM_REQUEST = 'CUSTOM_REQUEST', // 自定义请求
+  API_SCENARIO = ' API_SCENARIO', // 场景
+  IF_CONTROLLER = 'IF_CONTROLLER', // 条件控制器
+  ONCE_ONLY_CONTROLLER = 'ONCE_ONLY_CONTROLLER', // 一次控制器
 }
 // 场景添加步骤操作类型
 export enum ScenarioAddStepActionType {

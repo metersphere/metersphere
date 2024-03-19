@@ -12,6 +12,17 @@
       <div class="scene-type"> API </div>
     </template>
     <div>
+      <div class="mb-4 flex justify-start">
+        <MsPagination
+          v-if="props.scenarioDetail.stepType === 'LOOP_CONTROLLER'"
+          v-model:page-size="pageNation.pageSize"
+          v-model:current="pageNation.current"
+          :total="pageNation.total"
+          size="mini"
+          @change="loadLoop"
+          @page-size-change="loadLoop"
+      /></div>
+
       <ms-base-table
         ref="tableRef"
         v-bind="propsRes"
@@ -22,7 +33,7 @@
       >
         <template #titleName>
           <div class="flex w-full justify-between">
-            <div class="font-medium">响应内容</div>
+            <div class="font-medium">{{ t('report.detail.api.resContent') }}</div>
             <div class="grid grid-cols-5 gap-2 text-center">
               <span>401</span>
               <span class="text-[rgb(var(--success-6))]">247ms</span>
@@ -53,8 +64,9 @@
   import { ref } from 'vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsPagination from '@/components/pure/ms-pagination/index';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsPaginationI, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import assertTable from './assertTable.vue';
   import ResContent from './resContent.vue';
@@ -62,11 +74,14 @@
   import { reportDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { ScenarioDetailItem } from '@/models/apiTest/report';
+
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     stepId: string;
     activeStepIndex: number;
+    scenarioDetail: ScenarioDetailItem;
   }>();
 
   const emit = defineEmits<{
@@ -82,9 +97,16 @@
     },
   });
   const innerFileId = ref(props.stepId);
+
   function loadedStep(detail: Record<string, any>) {
     innerFileId.value = detail.id;
   }
+
+  const pageNation = ref({
+    total: 1000,
+    pageSize: 10,
+    current: 1,
+  });
 
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
@@ -121,24 +143,7 @@
     },
   });
 
-  const listMap = [
-    {
-      title: '响应体',
-      value: 'body',
-    },
-    {
-      title: '响应头',
-      value: 'headers',
-    },
-    {
-      title: '实际请求',
-      value: 'request',
-    },
-    {
-      title: '控制台',
-      value: 'request',
-    },
-  ];
+  async function loadLoop() {}
 
   onMounted(() => {
     // 虚拟数据
@@ -260,7 +265,7 @@
   :deep(.titleClass .arco-table-th-title) {
     @apply w-full;
   }
-  :deep(.cellClassWrapper .arco-table-cell) {
+  :deep(.cellClassWrapper > .arco-table-cell) {
     padding: 0 !important;
     span {
       padding-left: 0 !important;

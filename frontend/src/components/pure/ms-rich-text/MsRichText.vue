@@ -96,11 +96,14 @@
       commentIds?: string[];
       wrapperClass?: string;
       placeholder?: string;
+      draggable?: boolean;
+      previewUrl?: string;
     }>(),
     {
       raw: '',
       uploadImage: undefined,
       placeholder: 'editor.placeholder',
+      draggable: false,
     }
   );
 
@@ -122,7 +125,8 @@
     }
     const uploadFileId = await props.uploadImage(arg.file);
     if (uploadFileId) {
-      const permanentUrl = `${PreviewEditorImageUrl}/${appStore.currentProjectId}/${uploadFileId}/${true}`;
+      // const permanentUrl = `${PreviewEditorImageUrl}/${appStore.currentProjectId}/${uploadFileId}/${true}`;
+      const permanentUrl = `${props.previewUrl}/${appStore.currentProjectId}/${uploadFileId}/${true}`;
       arg.process(permanentUrl, uploadFileId);
     }
   }
@@ -539,6 +543,9 @@
   }
   :deep(.halo-rich-text-editor .ProseMirror) {
     word-break: break-word;
+  }
+  :deep(.halo-rich-text-editor .ProseMirror + .draggable) {
+    display: none !important;
   }
   :deep(.editor-header) {
     svg {

@@ -25,6 +25,7 @@
             :disabled="!contentEditAble"
             :placeholder="t('editor.placeholder')"
             :upload-image="handleUploadImage"
+            :preview-url="EditorPreviewFileUrl"
           />
           <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
         </div>
@@ -48,6 +49,7 @@
                 v-model:raw="item.defaultValue"
                 :disabled="!contentEditAble"
                 :placeholder="t('editor.placeholder')"
+                :preview-url="EditorPreviewFileUrl"
               />
               <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
             </div>
@@ -218,6 +220,7 @@
     uploadOrAssociationFile,
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
+  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { downloadByteFile, sleep } from '@/utils';

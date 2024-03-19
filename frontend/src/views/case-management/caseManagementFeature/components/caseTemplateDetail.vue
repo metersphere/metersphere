@@ -21,6 +21,7 @@
             v-model:raw="form.prerequisite"
             v-model:filed-ids="prerequisiteFileIds"
             :upload-image="handleUploadImage"
+            :preview-url="PreviewEditorImageUrl"
           />
         </a-form-item>
         <a-form-item
@@ -56,6 +57,7 @@
             v-model:raw="form.textDescription"
             v-model:filed-ids="textDescriptionFileIds"
             :upload-image="handleUploadImage"
+            :preview-url="PreviewEditorImageUrl"
           />
         </a-form-item>
         <a-form-item
@@ -67,6 +69,7 @@
             v-model:raw="form.expectedResult"
             v-model:filed-ids="expectedResultFileIds"
             :upload-image="handleUploadImage"
+            :preview-url="PreviewEditorImageUrl"
           />
         </a-form-item>
         <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
@@ -74,6 +77,7 @@
             v-model:raw="form.description"
             v-model:filed-ids="descriptionFileIds"
             :upload-image="handleUploadImage"
+            :preview-url="PreviewEditorImageUrl"
           />
         </a-form-item>
         <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
@@ -267,6 +271,7 @@
     updateFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';

@@ -5,7 +5,8 @@
     :ok-text="t(isEdit ? 'system.orgTemplate.update' : 'system.orgTemplate.addField')"
     :ok-loading="drawerLoading"
     :width="800"
-    :show-continue="!isEdit"
+    :show-continue="!isEdit && data.length < 20"
+    :ok-disabled="data.length >= 20"
     @confirm="handleDrawerConfirm"
     @continue="saveAndContinue"
     @cancel="handleDrawerCancel"
@@ -155,7 +156,12 @@
   import { useAppStore } from '@/store';
   import { getGenerateId } from '@/utils';
 
-  import type { AddOrUpdateField, fieldIconAndNameModal, FieldOptions } from '@/models/setting/template';
+  import type {
+    AddOrUpdateField,
+    DefinedFieldItem,
+    fieldIconAndNameModal,
+    FieldOptions,
+  } from '@/models/setting/template';
 
   import { dateOptions, fieldIconAndName, getFieldRequestApi, getFieldType, numberTypeOptions } from './fieldSetting';
 
@@ -167,6 +173,7 @@
   const props = defineProps<{
     visible: boolean;
     mode: 'organization' | 'project';
+    data: DefinedFieldItem[];
   }>();
   const emit = defineEmits(['success', 'update:visible']);
 

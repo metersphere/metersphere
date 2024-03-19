@@ -147,3 +147,5 @@ export const importExcelCaseUrl = '/functional/case/import/excel';
 export const dragSortUrl = '/functional/case/edit/pos';
 // 获取变更历史
 export const getChangeHistoryListUrl = '/functional/case/operation-history';
+// 取消关联用例
+export const cancelDisassociate = '/functional/case/test/disassociate/case';

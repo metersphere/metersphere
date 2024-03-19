@@ -1,43 +1,42 @@
 <template>
   <div class="tiled-wrap">
-    <ScenarioItem :item="scenario" :show-border="false" />
-    <a-divider :margin="0" class="!mb-4"></a-divider>
-    <div class="pl-[32px] pr-4">
-      <MsList
-        v-model:data="tiledList"
-        mode="static"
-        item-key-field="stepId"
-        :item-border="false"
-        class="w-full rounded-[var(--border-radius-small)]"
-        :no-more-data="noMoreData"
-        :draggable="false"
-        :virtual-list-props="{
-          height: 'calc(100vh - 438px)',
-        }"
-      >
-        <template #item="{ item }">
-          <ScenarioItem :item="item" @click="showDetail(item)" />
-        </template>
-      </MsList>
-    </div>
-    <StepDrawer v-model:visible="showStepDrawer" :step-id="activeDetailId" :active-step-index="activeStepIndex" />
+    <ScenarioItem :list="tiledList" :show-border="true" :active-type="props.activeType" @detail="showDetail" />
+    <StepDrawer
+      v-model:visible="showStepDrawer"
+      :step-id="activeDetailId"
+      :active-step-index="activeStepIndex"
+      :scenario-detail="scenarioDetail"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
-  import MsList from '@/components/pure/ms-list/index.vue';
   import ScenarioItem from './scenarioItem.vue';
   import StepDrawer from './step/stepDrawer.vue';
 
-  import type { ScenarioItemType } from '@/models/apiTest/report';
+  import { addLevelToTree } from '@/utils';
 
-  const noMoreData = ref<boolean>(false);
+  import type { ReportDetail, ScenarioDetailItem, ScenarioItemType } from '@/models/apiTest/report';
+
+  const props = defineProps<{
+    reportDetail: ReportDetail;
+    activeType: string;
+  }>();
+
+  // TODO 虚拟数据
+  // const tiledList = ref<ScenarioItemType[]>([]);
+  // watchEffect(() => {
+  //   if (props.reportDetail && props.reportDetail.children) {
+  //     tiledList.value = props.reportDetail.children || [];
+  //   }
+  // });
   const tiledList = ref<ScenarioItemType[]>([
     {
-      stepId: '步骤id',
-      reportId: '报告id',
+      stepId: '1001',
+      reportId: '12345657687',
       name: '场景名称',
       sort: 0,
       stepType: 'QUOTE_API',
@@ -49,93 +48,96 @@
       code: '200',
       responseSize: 234543,
       scriptIdentifier: 'string',
-    },
-    {
-      stepId: '步骤id1',
-      reportId: '报告id',
-      name: '场景名称',
-      sort: 0,
-      stepType: 'LOOP_CONTROL',
-      parentId: 'string',
-      status: 'SUCCESS',
-      fakeCode: 'string',
-      requestName: 'string',
-      requestTime: 3000,
-      code: '200',
-      responseSize: 234543,
-      scriptIdentifier: 'string',
-    },
-    {
-      stepId: '步骤id1',
-      reportId: '报告id',
-      name: '场景名称',
-      sort: 0,
-      stepType: 'CONDITION_CONTROL',
-      parentId: 'string',
-      status: 'ERROR',
-      fakeCode: 'string',
-      requestName: 'string',
-      requestTime: 3000,
-      code: '200',
-      responseSize: 234543,
-      scriptIdentifier: 'string',
-    },
-    {
-      stepId: '步骤id1',
-      reportId: '报告id',
-      name: '场景名称',
-      sort: 0,
-      stepType: 'ONLY_ONCE_CONTROL',
-      parentId: 'string',
-      status: 'SUCCESS',
-      fakeCode: 'string',
-      requestName: 'string',
-      requestTime: 3000,
-      code: '200',
-      responseSize: 234543,
-      scriptIdentifier: 'string',
-    },
-    {
-      stepId: '步骤id1',
-      reportId: '报告id',
-      name: '场景名称',
-      sort: 0,
-      stepType: 'ONLY_ONCE_CONTROL',
-      parentId: 'string',
-      status: 'ERROR',
-      fakeCode: 'string',
-      requestName: 'string',
-      requestTime: 3000,
-      code: '200',
-      responseSize: 234543,
-      scriptIdentifier: 'string',
+      fold: true,
+      children: [
+        {
+          stepId: '1001102',
+          reportId: '12345657687',
+          name: '场景名称1-1',
+          sort: 0,
+          stepType: 'LOOP_CONTROLLER',
+          parentId: 'string',
+          status: 'SUCCESS',
+          fakeCode: 'string',
+          requestName: 'string',
+          requestTime: 3000,
+          code: '200',
+          responseSize: 234543,
+          scriptIdentifier: 'string',
+          fold: true,
+          children: [
+            {
+              stepId: '100103',
+              reportId: '12345657687',
+              name: '场景名称1-1-1',
+              sort: 0,
+              stepType: 'CUSTOM_API',
+              parentId: 'string',
+              status: 'SUCCESS',
+              fakeCode: 'string',
+              requestName: 'string',
+              requestTime: 3000,
+              code: '200',
+              responseSize: 234543,
+              scriptIdentifier: 'string',
+              fold: true,
+              children: [
+                {
+                  stepId: '100104',
+                  reportId: '12345657687',
+                  name: '场景名称1-1-1-1',
+                  sort: 0,
+                  stepType: 'LOOP_CONTROLLER',
+                  parentId: 'string',
+                  status: 'SUCCESS',
+                  fakeCode: 'string',
+                  requestName: 'string',
+                  requestTime: 3000,
+                  code: '200',
+                  responseSize: 234543,
+                  scriptIdentifier: 'string',
+                  fold: true,
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          stepId: '步骤id',
+          reportId: '12345657687',
+          name: '场景名称1-1-1',
+          sort: 0,
+          stepType: 'QUOTE_API',
+          parentId: 'string',
+          status: 'SUCCESS',
+          fakeCode: 'string',
+          requestName: 'string',
+          requestTime: 3000,
+          code: '200',
+          responseSize: 234543,
+          scriptIdentifier: 'string',
+          fold: true,
+          children: [],
+        },
+      ],
     },
   ]);
-
-  const scenario = ref<ScenarioItemType>({
-    stepId: '步骤id1',
-    reportId: '报告id',
-    name: '场景名称',
-    sort: 0,
-    stepType: 'ONLY_ONCE_CONTROL',
-    parentId: 'string',
-    status: 'string',
-    fakeCode: 'string',
-    requestName: 'string',
-    requestTime: 3000,
-    code: '200',
-    responseSize: 234543,
-    scriptIdentifier: 'string',
-  });
 
   const showStepDrawer = ref<boolean>(false);
   const activeDetailId = ref<string>('');
   const activeStepIndex = ref<number>(0);
+  const scenarioDetail = ref<ScenarioDetailItem>({});
   function showDetail(item: ScenarioItemType) {
     showStepDrawer.value = true;
+    scenarioDetail.value = cloneDeep(item);
     activeDetailId.value = item.stepId;
     activeStepIndex.value = item.sort;
   }
+
+  onMounted(() => {
+    tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
+  });
 </script>
 
 <style scoped lang="less">

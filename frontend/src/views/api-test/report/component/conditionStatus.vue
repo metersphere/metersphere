@@ -22,18 +22,22 @@
     [ScenarioStepType.QUOTE_SCENARIO]: { label: 'apiScenario.quoteScenario', color: 'rgb(var(--primary-7))' },
     [ScenarioStepType.COPY_SCENARIO]: { label: 'apiScenario.copyScenario', color: 'rgb(var(--primary-7))' },
     [ScenarioStepType.WAIT_TIME]: { label: 'apiScenario.waitTime', color: 'rgb(var(--warning-6))' },
-    [ScenarioStepType.LOOP_CONTROL]: { label: 'apiScenario.loopControl', color: 'rgba(167, 98, 191, 1)' },
-    [ScenarioStepType.CONDITION_CONTROL]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },
-    [ScenarioStepType.ONLY_ONCE_CONTROL]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
+    [ScenarioStepType.LOOP_CONTROLLER]: { label: 'apiScenario.loopControl', color: 'rgba(167, 98, 191, 1)' },
+    [ScenarioStepType.IF_CONTROLLER]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },
+    [ScenarioStepType.ONCE_ONLY_CONTROLLER]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
     [ScenarioStepType.SCRIPT_OPERATION]: { label: 'apiScenario.scriptOperation', color: 'rgba(20, 225, 198, 1)' },
     [ScenarioStepType.CUSTOM_API]: { label: 'apiScenario.customApi', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.API_CASE]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.CUSTOM_REQUEST]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
   };
 
   const getClass = computed(() => {
-    return {
-      color: scenarioStepMap[props.status].color,
-      border: `1px solid ${scenarioStepMap[props.status].color}`,
-    };
+    if (props.status) {
+      return {
+        color: scenarioStepMap[props.status].color,
+        border: `1px solid ${scenarioStepMap[props.status].color}`,
+      };
+    }
   });
 </script>
 
