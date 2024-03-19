@@ -36,14 +36,14 @@
         t('caseManagement.featureCase.testPlanLinkList')
       }}</div>
       <div class="mb-4">
-        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+        <!--        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
           }}</a-radio>
-          <!-- <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
+           <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.testPlan')
-          }}</a-radio> -->
-        </a-radio-group>
+          }}</a-radio>
+        </a-radio-group>-->
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('caseManagement.featureCase.searchByName')"
@@ -117,21 +117,20 @@
         }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center">
+        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
           {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
-          <span v-if="!total && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])">{{
+          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])">{{
             t('caseManagement.featureCase.please')
           }}</span>
           <MsButton
-            v-if="linkPropsRes.data.length && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            :disabled="!total"
             class="ml-[8px]"
             @click="linkDefect"
           >
             {{ t('caseManagement.featureCase.linkDefect') }}
           </MsButton>
-          <span v-if="linkPropsRes.data.length && hasAnyPermission(['PROJECT_BUG:READ+ADD'])">{{
-            t('caseManagement.featureCase.or')
-          }}</span>
+          <span v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD'])">{{ t('caseManagement.featureCase.or') }}</span>
           <MsButton v-permission="['PROJECT_BUG:READ+ADD']" class="ml-[8px]" @click="createDefect">
             {{ t('caseManagement.featureCase.createDefect') }}
           </MsButton>
@@ -197,7 +196,7 @@
         <MsButton @click="cancelLink(record.id)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center">
+        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="createDefect">
             {{ t('caseManagement.featureCase.createDefect') }}
