@@ -23,7 +23,11 @@
         <a-input v-model="form.title" :max-length="255" />
       </a-form-item>
       <a-form-item :label="t('bugManagement.edit.content')">
-        <MsRichText v-model:raw="form.description" />
+        <MsRichText
+          v-model:raw="form.description"
+          :upload-image="handleUploadImage"
+          :preview-url="EditorPreviewFileUrl"
+        />
       </a-form-item>
     </a-form>
   </MsDrawer>
@@ -36,7 +40,13 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
-  import { createOrUpdateBug, getTemplateDetailInfo, getTemplateOption } from '@/api/modules/bug-management/index';
+  import {
+    createOrUpdateBug,
+    editorUploadFile,
+    getTemplateDetailInfo,
+    getTemplateOption,
+  } from '@/api/modules/bug-management/index';
+  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -128,6 +138,13 @@
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
   }
 
   watch(

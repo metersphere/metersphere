@@ -198,6 +198,7 @@
               v-model:raw="dialogForm.reason"
               v-model:commentIds="dialogForm.commentIds"
               :upload-image="handleUploadImage"
+              :preview-url="PreviewEditorImageUrl"
               class="w-full"
             />
           </div>
@@ -303,6 +304,7 @@
   } from '@/api/modules/case-management/caseReview';
   import { editorUploadFile, getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';

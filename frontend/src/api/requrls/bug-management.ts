@@ -78,3 +78,5 @@ export const getChangeHistoryListUrl = '/bug/history/page';
 
 // 缺陷用例跳转用例是否具备权限
 export const checkCasePermissionUrl = '/bug/case/check-permission';
+// 缺陷预览富文本url
+export const EditorPreviewFileUrl = '/bug/attachment/preview/md';

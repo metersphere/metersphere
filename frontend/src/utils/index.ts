@@ -745,3 +745,49 @@ export function findNodeNames<T>(trees: TreeNode<T>[], targetIds: string[]) {
 
   return result;
 }
+
+/**
+ * 获取每三位使用逗号隔开数字格式
+ * @param number 目标值
+ */
+
+export function addCommasToNumber(number: number) {
+  if (number === 0 || number === undefined) {
+    return '0';
+  }
+  // 将数字转换为字符串
+  const numberStr = number.toString();
+
+  // 分割整数部分和小数部分
+  const parts = numberStr.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1] || ''; // 如果没有小数部分，则设为空字符串
+
+  // 对整数部分添加逗号分隔
+  const integerWithCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // 拼接整数部分和小数部分（如果有）
+  const result = decimalPart ? `${integerWithCommas}.${decimalPart}` : integerWithCommas;
+
+  return result;
+}
+
+/**
+ * 给树添加深度
+ * @param number 目标值
+ */
+export function addLevelToTree<T>(tree: TreeNode<T>[], level = 0): TreeNode<T>[] {
+  if (!tree || !Array.isArray(tree)) {
+    return [];
+  }
+
+  return tree.map((node) => {
+    const newNode = { ...node, level };
+
+    if (newNode.children && newNode.children.length > 0) {
+      newNode.children = addLevelToTree(newNode.children, level + 1);
+    }
+
+    return newNode;
+  });
+}

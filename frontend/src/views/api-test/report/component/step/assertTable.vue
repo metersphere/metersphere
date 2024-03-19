@@ -2,7 +2,7 @@
   <ms-base-table ref="tableRef" v-bind="propsRes" no-disable :indent-size="0" v-on="propsEvent">
     <template #pass="{ record }">
       <MsTag theme="light" :type="record.pass ? 'success' : 'danger'">
-        {{ record.pass ? '成功' : '失败' }}
+        {{ record.pass ? t('report.detail.api.resSuccess') : t('report.detail.api.resError') }}
       </MsTag>
     </template>
     <template #script="{ record }">
@@ -21,27 +21,31 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { AssertionItem } from '@/models/apiTest/report';
+
   const { t } = useI18n();
 
   const props = defineProps<{
-    data: any[];
+    data: AssertionItem[];
   }>();
 
   const columns: MsTableColumn = [
     {
-      title: 'report.detail.api.resContent',
+      title: 'report.detail.api.content',
       dataIndex: 'content',
       slotName: 'content',
       showTooltip: true,
+      headerCellClass: 'assertTitleClass',
+      bodyCellClass: 'assertCellClass',
     },
     {
-      title: 'report.detail.api.resContent',
+      title: 'report.detail.api.assertStatus',
       dataIndex: 'pass',
       slotName: 'pass',
       showTooltip: true,
     },
     {
-      title: 'report.detail.api.resContent',
+      title: '',
       dataIndex: 'script',
       slotName: 'script',
       showTooltip: true,
@@ -67,4 +71,14 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-table-th) {
+    background: var(--color-text-n9) !important;
+  }
+  :deep(.assertTitleClass.arco-table-th) {
+    padding-left: 36px;
+  }
+  :deep(.arco-table-td.assertCellClass) {
+    padding-left: 36px;
+  }
+</style>

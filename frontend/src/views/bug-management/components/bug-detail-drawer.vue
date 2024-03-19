@@ -210,6 +210,7 @@
         :upload-image="handleUploadImage"
         is-use-bottom
         :notice-user-ids="noticeUserIds"
+        :preview-url="EditorPreviewFileUrl"
         @publish="publishHandler"
       />
     </template>
@@ -247,6 +248,7 @@
     getBugDetail,
     getTemplateById,
   } from '@/api/modules/bug-management/index';
+  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';

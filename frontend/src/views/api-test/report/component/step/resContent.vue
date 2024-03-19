@@ -19,7 +19,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { CustomTheme, editorProps, Language, LanguageEnum, Theme } from '@/components/pure/ms-code-editor/types';
+  import { Language } from '@/components/pure/ms-code-editor/types';
 
   const props = defineProps<{
     script: string;

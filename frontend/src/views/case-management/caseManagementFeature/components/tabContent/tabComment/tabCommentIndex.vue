@@ -13,6 +13,7 @@
       <MsComment
         :upload-image="handleUploadImage"
         :comment-list="commentList"
+        :preview-url="PreviewEditorImageUrl"
         @delete="handleDelete"
         @update-or-add="handleUpdateOrAdd"
       />
@@ -88,6 +89,7 @@
     getCommentList,
     getReviewCommentList,
   } from '@/api/modules/case-management/featureCase';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';

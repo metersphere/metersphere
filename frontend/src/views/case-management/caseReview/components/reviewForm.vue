@@ -72,6 +72,7 @@
       v-model:raw="caseResultForm.reason"
       v-model:commentIds="caseResultForm.commentIds"
       :upload-image="handleUploadImage"
+      :preview-url="PreviewEditorImageUrl"
       class="w-full"
     />
   </a-modal>
@@ -86,6 +87,7 @@
 
   import { saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
+  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
