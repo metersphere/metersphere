@@ -4,7 +4,7 @@
       <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
     </a-tabs>
     <a-divider :margin="0" class="!mb-[16px]" /> -->
-    <RequestHeader v-if="activeKey === 'requestHeader'" v-model:params="headerParams" @change="canSave = true" />
+    <RequestHeader v-if="activeKey === 'requestHeader'" v-model:params="headerParams" @change="change" />
     <!-- <AllPrams
       v-else-if="activeKey === 'globalVariable'"
       v-model:params="GlobalVariable"
@@ -25,6 +25,7 @@
 
   import { updateOrAddGlobalParam } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
@@ -38,7 +39,8 @@
   const headerParams = ref<EnvConfigItem[]>([]);
   const GlobalVariable = ref<EnvConfigItem[]>([]);
   const { t } = useI18n();
-
+  const { setState } = useLeaveUnSaveTip();
+  setState(true);
   const canSave = ref(false);
 
   const loading = ref(false);
@@ -61,6 +63,10 @@
     });
   }
 
+  function change() {
+    canSave.value = true;
+    setState(false);
+  }
   const handleSave = async () => {
     try {
       loading.value = true;
@@ -80,6 +86,7 @@
         },
       };
       await updateOrAddGlobalParam(params);
+      setState(true);
       Message.success(t('common.saveSuccess'));
       canSave.value = false;
       initEnvDetail();
