@@ -1264,11 +1264,14 @@ public class BugService {
                     return;
                 }
                 String fileId = IDGenerator.nextStr();
+                // 第三方平台的图片下载命名为平台名称+随机数字
+                String fileName = updateBug.getPlatform() + "-" + IDGenerator.nextNum() + ".jpg";
                 byte[] bytes;
                 try {
                     // upload platform attachment to minio
                     bytes = in.readAllBytes();
-                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, "image.png"));
+                    // 第三方平台下载的图片默认不压缩
+                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(updateBug.getProjectId(), updateBug.getId(), fileId, fileName));
                 } catch (Exception e) {
                     throw new MSException(e.getMessage());
                 }
@@ -1277,14 +1280,14 @@ public class BugService {
                 localAttachment.setId(IDGenerator.nextStr());
                 localAttachment.setBugId(updateBug.getId());
                 localAttachment.setFileId(fileId);
-                localAttachment.setFileName("image.png");
+                localAttachment.setFileName(fileName);
                 localAttachment.setSize((long) bytes.length);
                 localAttachment.setCreateTime(System.currentTimeMillis());
                 localAttachment.setCreateUser("admin");
                 localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
                 bugLocalAttachmentMapper.insert(localAttachment);
-                // 替换富文本中的临时URL
-                updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/attachment/download/file/" + updateBug.getProjectId() + "/" + fileId + "/true\""));
+                // 替换富文本中的临时URL为预览URL
+                updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
             }));
         }
     }

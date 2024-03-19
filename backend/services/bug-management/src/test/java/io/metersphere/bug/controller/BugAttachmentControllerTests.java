@@ -49,7 +49,7 @@ public class BugAttachmentControllerTests extends BaseTest {
     public static final String BUG_ATTACHMENT_CHECK_UPDATE = "/bug/attachment/check-update";
     public static final String BUG_ATTACHMENT_UPDATE = "/bug/attachment/update";
     public static final String BUG_ATTACHMENT_UPLOAD_MD = "/bug/attachment/upload/md/file";
-    public static final String BUG_ATTACHMENT_PREVIEW_MD = "/bug/attachment/preview/md/compressed";
+    public static final String BUG_ATTACHMENT_PREVIEW_MD = "/bug/attachment/preview/md";
 
     @Test
     @Order(0)
@@ -61,12 +61,7 @@ public class BugAttachmentControllerTests extends BaseTest {
         // Mock minio save file exception
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
         this.requestUploadFile(BUG_ATTACHMENT_UPLOAD_MD, file);
-        BugFileSourceRequest request = new BugFileSourceRequest();
-        request.setBugId("default-attachment-bug-id");
-        request.setProjectId("default-project-for-attachment");
-        request.setAssociated(false);
-        request.setFileId("not-exist-file-id");
-        this.requestPostDownloadFile(BUG_ATTACHMENT_PREVIEW_MD, null, request);
+        this.requestGetDownloadFile(BUG_ATTACHMENT_PREVIEW_MD + "/default-project-for-attachment/not-exist-file-id/true", null);
     }
 
     @Test

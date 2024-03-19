@@ -34,6 +34,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/attachment/download/file/**", "anon");
         //用例评审副文本访问
         filterChainDefinitionMap.put("/review/functional/case/download/file/**", "anon");
+        //缺陷管理富文本访问
+        filterChainDefinitionMap.put("/bug/attachment/preview/md/**", "anon");
 
         filterChainDefinitionMap.put("/system/version/current", "anon");
 

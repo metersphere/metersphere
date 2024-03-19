@@ -33,6 +33,11 @@ export default mergeConfig(
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/attachment/, ''),
         },
+        '/bug/attachment': {
+          target: 'http://172.16.200.18:8081/',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/front\/bug\/attachment/, ''),
+        },
         '/plugin/image': {
           target: 'http://172.16.200.18:8081/',
           changeOrigin: true,
