@@ -79,7 +79,7 @@
       </template>
       <template #method="{ record }">
         <a-select
-          v-if="props.protocol === 'HTTP'"
+          v-if="props.protocol === 'HTTP' && hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
           v-model:model-value="record.method"
           class="param-input w-full"
           size="mini"
@@ -96,6 +96,7 @@
       </template>
       <template #status="{ record }">
         <a-select
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
           v-model:model-value="record.status"
           class="param-input w-full"
           size="mini"
@@ -108,16 +109,27 @@
             <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
+        <apiStatus v-else :status="record.status" size="small" />
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="executeDefinition(record)">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="executeDefinition(record)"
+        >
           {{ t('apiTestManagement.execute') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0" @click="copyDefinition(record)">
+        <a-divider v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']" direction="vertical" :margin="8"></a-divider>
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+ADD']"
+          type="text"
+          class="!mr-0"
+          @click="copyDefinition(record)"
+        >
           {{ t('common.copy') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
+        <a-divider v-permission="['PROJECT_API_DEFINITION:READ+ADD']" direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
     </ms-base-table>
@@ -263,6 +275,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
@@ -289,6 +302,13 @@
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const keyword = ref('');
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'PROJECT_API_DEFINITION:READ+DELETE',
+      'PROJECT_API_DEFINITION:READ+ADD',
+      'PROJECT_API_DEFINITION:READ+EXECUTE',
+    ])
+  );
   let columns: MsTableColumn = [
     {
       title: 'ID',
@@ -363,11 +383,11 @@
       width: 180,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 150,
+      width: hasOperationPermission.value ? 150 : 50,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -398,10 +418,12 @@
       {
         label: 'common.edit',
         eventTag: 'edit',
+        permission: ['PROJECT_API_DEFINITION:READ+UPDATE'],
       },
       {
         label: 'common.move',
         eventTag: 'move',
+        permission: ['PROJECT_API_DEFINITION:READ+UPDATE'],
       },
     ],
     moreAction: [
@@ -418,6 +440,7 @@
       eventTag: 'delete',
       label: t('common.delete'),
       danger: true,
+      permission: ['PROJECT_API_DEFINITION:READ+DELETE'],
     },
   ];
 

@@ -104,6 +104,14 @@
     emit('batchAction', item as BatchActionParams);
   };
 
+  const handleMoreActionLength = () => {
+    moreAction.value?.forEach((key) => {
+      if (key.permission && hasAllPermission(key.permission as string[])) {
+        moreActionLength.value += 1;
+      }
+    });
+  };
+
   const computedLastVisibleIndex = () => {
     if (!refWrapper.value) {
       return;
@@ -146,17 +154,14 @@
         const value = menuItemIndex - 1;
         baseAction.value = allAction.value.slice(0, value);
         moreAction.value = allAction.value.slice(value);
+        handleMoreActionLength();
         computedStatus.value = false;
         return;
       }
     }
     moreAction.value = props.actionConfig?.moreAction || [];
     baseAction.value = props.actionConfig?.baseAction || [];
-    moreAction.value.forEach((key) => {
-      if (key.permission && hasAllPermission(key.permission as string[])) {
-        moreActionLength.value += 1;
-      }
-    });
+    handleMoreActionLength();
   };
 
   watch(

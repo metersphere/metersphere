@@ -236,9 +236,10 @@
     </a-collapse-item>
     <a-collapse-item
       v-if="
-        previewDetail.responseDefinition &&
-        previewDetail.responseDefinition.length > 0 &&
-        props.detail.protocol === 'HTTP'
+        (previewDetail.responseDefinition &&
+          previewDetail.responseDefinition.length > 0 &&
+          props.detail.protocol === 'HTTP') ||
+        props.isCase
       "
       key="response"
     >
