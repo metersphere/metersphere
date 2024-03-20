@@ -18,5 +18,7 @@ public class ApiScenarioReportDTO extends ApiScenarioReport {
     private String poolName;
     @Schema(description = "环境名称")
     private String environmentName;
+    @Schema(description = "创建人")
+    private String creatUserName;
 
 }

@@ -9,7 +9,6 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -17,6 +16,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -55,6 +55,8 @@ public class ApiScenarioReportService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private UserMapper userMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
@@ -141,7 +143,7 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> {
+        SubListUtils.dealForSubList(ids, 500, subList -> {
             ApiScenarioReportExample example = new ApiScenarioReportExample();
             example.createCriteria().andIdIn(subList);
             ApiScenarioReport scenarioReport = new ApiScenarioReport();
@@ -195,6 +197,7 @@ public class ApiScenarioReportService {
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
         //查询环境名称
         scenarioReportDTO.setEnvironmentName(environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId()).getName());
+        scenarioReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(scenarioReport.getCreateUser()).getName());
         return scenarioReportDTO;
     }
 
@@ -202,6 +205,8 @@ public class ApiScenarioReportService {
         steps.forEach(step -> {
             List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
             if (CollectionUtils.isNotEmpty(children)) {
+                //如果是父级的报告，需要计算请求时间  请求时间是所有子级的请求时间之和 还需要计算请求的大小  还有请求的数量 以及请求成功的状态
+
                 children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
                 step.setChildren(children);
                 getStepTree(children, scenarioReportStepMap);

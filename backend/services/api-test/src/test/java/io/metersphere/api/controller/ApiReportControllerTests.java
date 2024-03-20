@@ -20,11 +20,17 @@ import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolExample;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -61,6 +67,10 @@ public class ApiReportControllerTests extends BaseTest {
     private ProjectApplicationMapper projectApplicationMapper;
     @Resource
     private ApiReportLogMapper apiReportLogMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
 
     private static final String BASIC = "/api/report/case";
     private static final String PAGE = BASIC + "/page";
@@ -237,6 +247,13 @@ public class ApiReportControllerTests extends BaseTest {
     @Order(6)
     public void testGet() throws Exception {
         // @@请求成功
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andNameEqualTo("默认资源池");
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
         List<ApiReport> reports = new ArrayList<>();
         ApiReport apiReport = new ApiReport();
         apiReport.setId("test-report-id");
@@ -246,8 +263,8 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setCreateUser("admin");
         apiReport.setUpdateUser("admin");
         apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId("api-pool-id");
-        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setPoolId(testResourcePools.getFirst().getId());
+        apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
@@ -290,8 +307,8 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setCreateUser("admin");
         apiReport.setUpdateUser("admin");
         apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId("api-pool-id");
-        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setPoolId(testResourcePools.getFirst().getId());
+        apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
@@ -316,8 +333,8 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setCreateUser("admin");
         apiReport.setUpdateUser("admin");
         apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId("api-pool-id");
-        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setPoolId(testResourcePools.getFirst().getId());
+        apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
@@ -341,8 +358,8 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setCreateUser("admin");
         apiReport.setUpdateUser("admin");
         apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId("api-pool-id");
-        apiReport.setEnvironmentId("api-environment-id");
+        apiReport.setPoolId(testResourcePools.getFirst().getId());
+        apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
         apiReport.setStatus(ApiReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
