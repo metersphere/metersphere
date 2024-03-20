@@ -13,10 +13,12 @@
   >
     <template #left>
       <a-popover title="" position="bottom">
-        <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
-          >{{ moduleNamePath }}
-          <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
-        >
+        <div class="show-table-top-title">
+          <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
+            {{ moduleNamePath }}
+          </div>
+          <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+        </div>
         <template #content>
           <div class="text-[14px] font-medium text-[var(--color-text-1)]">
             {{ moduleNamePath }}
@@ -1609,4 +1611,9 @@
   // :deep(.moduleNameClass) {
   //   box-shadow: 0 3px 14px 2px rgba(0/ 0/0 5%), 0 8px 10px 1px rgba(0/ 0/0 6%), 0 5px 5px -3px rgba(0/ 0/0 1%);
   // }
+  .show-table-top-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
 </style>

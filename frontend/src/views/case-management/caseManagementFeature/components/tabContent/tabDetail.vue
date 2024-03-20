@@ -683,7 +683,7 @@
 
   function handleChange(_fileList: MsFileItem[], fileItem?: MsFileItem) {
     // 校验本地文件是否重复
-    const isRepeat = _fileList.filter((item) => item.name === fileItem?.name).length > 1;
+    const isRepeat = _fileList.filter((item) => item.name === fileItem?.name && item.local).length > 1;
     if (isRepeat) {
       fileList.value = _fileList.reduce((prev: MsFileItem[], current: MsFileItem) => {
         const isExist = prev.find((item: any) => item.name === current.name);

@@ -27,7 +27,17 @@ async function bootstrap() {
   app.use(router);
   app.use(ArcoVue);
   app.use(ArcoVueIcon);
-  app.use(VueDOMPurifyHTML);
+  app.use(VueDOMPurifyHTML, {
+    hooks: {
+      afterSanitizeAttributes: (currentNode: Element) => {
+        if ('target' in currentNode && 'rel' in currentNode) {
+          const attribute = currentNode.getAttribute('target');
+          currentNode.setAttribute('target', attribute == null ? '_blank' : attribute);
+          currentNode.setAttribute('rel', 'noopener noreferrer nofollow');
+        }
+      },
+    },
+  });
   app.component('SvgIcon', SvgIcon);
   app.component('MsIcon', MsIcon);
 

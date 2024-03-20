@@ -237,11 +237,6 @@
     loadList();
   };
 
-  const searchHandler = () => {
-    initData();
-    resetSelector();
-  };
-
   const customFields = ref<any[]>([]);
   async function initColumn() {
     fullColumns = [...columns];
@@ -269,8 +264,16 @@
   // 关联需求
   const linkDemandDrawer = ref<boolean>(false);
   function associatedDemand() {
+    initColumn();
     linkDemandDrawer.value = true;
   }
+
+  const searchHandler = () => {
+    if (linkDemandDrawer.value) {
+      initData();
+      resetSelector();
+    }
+  };
 
   function getSlotName(record: any, item: MsTableColumnData) {
     if (item?.options) {
@@ -347,7 +350,6 @@
       const result = await getCaseRelatedInfo(currentProjectId.value);
       if (result && result.platform_key) {
         platformInfo.value = { ...result };
-        initColumn();
       }
     } catch (error) {
       console.log(error);
