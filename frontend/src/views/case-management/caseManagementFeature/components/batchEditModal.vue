@@ -77,6 +77,8 @@
   const props = defineProps<{
     visible: boolean;
     batchParams: BatchActionQueryParams;
+    activeFolder: string;
+    offspringIds: string[];
   }>();
 
   const emits = defineEmits<{
@@ -181,6 +183,7 @@
             projectId: currentProjectId.value,
             append: enable as boolean,
             tags: form.value.tags,
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             customField: form.value.selectedAttrsId === 'systemTags' ? {} : customField,
           };
           await batchEditAttrs(params);
