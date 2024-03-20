@@ -92,6 +92,8 @@ public class EnvironmentService extends MoveNodeService {
     private static final String PASSWORD = "password";
     private static final String PATH = "/project/environment/import";
     private static final String MOCK_EVN_SOCKET = "/mock-server/";
+    private static final String HTTP = "http://";
+    private static final String HTTPS = "https://";
 
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
@@ -205,7 +207,11 @@ public class EnvironmentService extends MoveNodeService {
                 String baseUrl = baseSystemConfigDTO.getUrl();
                 if (StringUtils.isNotEmpty(baseUrl)) {
                     Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    String domain = baseUrl.replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
+                    String protocol = baseUrl.substring(0, baseUrl.indexOf(domain) -3 );
+                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setId(IDGenerator.nextStr());
+                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setProtocol(protocol);
+                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
                     environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
                 }
             }
