@@ -1,12 +1,12 @@
 <template>
   <MsDrawer
     v-model:visible="showDrawer"
-    :mask="false"
+    :mask="true"
     :title="t('caseManagement.featureCase.linkDefect')"
     :ok-text="t('caseManagement.featureCase.associated')"
     :ok-disabled="propsRes.selectedKeys.size === 0"
     :width="1200"
-    :mask-closable="false"
+    :mask-closable="true"
     unmount-on-close
     :show-continue="false"
     :ok-loading="props.drawerLoading"
