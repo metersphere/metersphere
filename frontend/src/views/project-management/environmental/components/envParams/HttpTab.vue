@@ -46,7 +46,9 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap items-center">
-        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled || store.currentEnvDetailInfo.mock" @click="handleCopy(record)">{{
+          t('common.copy')
+        }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
         <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
@@ -145,9 +147,7 @@
     heightUsed: 644,
     debug: true,
   });
-  const isDisabled = computed(
-    () => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']) || store.currentEnvDetailInfo.mock
-  );
+  const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
 
   const moreActionList: ActionsItem[] = [
     {

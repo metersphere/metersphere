@@ -15,6 +15,7 @@
         class="mb-[16px]"
         asterisk-position="end"
         field="hostname"
+        :disabled="store.currentEnvDetailInfo.mock"
         :label="t('project.environmental.http.hostName')"
         :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
       >
@@ -31,7 +32,12 @@
         </a-input> -->
 
         <a-input-group class="w-full">
-          <a-select v-model="form.protocol" :style="{ width: '160px' }" default-value="http">
+          <a-select
+            v-model="form.protocol"
+            :style="{ width: '160px' }"
+            default-value="http"
+            :disabled="store.currentEnvDetailInfo.mock"
+          >
             <a-option value="http">http://</a-option>
             <a-option value="https">https://</a-option>
           </a-select>
