@@ -20,6 +20,7 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -196,7 +197,7 @@ public class ApiScenarioReportService {
         //查询资源池名称
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
         //查询环境名称
-        scenarioReportDTO.setEnvironmentName(environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId()).getName());
+        scenarioReportDTO.setEnvironmentName(StringUtils.isNotBlank(scenarioReport.getEnvironmentId()) ? environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId()).getName(): null);
         scenarioReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(scenarioReport.getCreateUser()).getName());
         return scenarioReportDTO;
     }
