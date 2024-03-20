@@ -28,7 +28,7 @@
         <div
           type="text"
           class="one-text-line flex w-full text-[rgb(var(--primary-5))]"
-          @click="showReportDetail(record.id, rowIndex)"
+          @click="showReportDetail(record.id, rowIndex, record.integrated)"
           >{{ characterLimit(record.name) }}</div
         >
       </template>
@@ -120,6 +120,16 @@
       :table-data="propsRes.data"
       :page-change="propsEvent.pageChange"
       :pagination="propsRes.msPagination!"
+      :show-type="showType"
+    />
+    <CaseReportDrawer
+      v-model:visible="showCaseDetailDrawer"
+      :report-id="activeDetailId"
+      :active-report-index="activeReportIndex"
+      :table-data="propsRes.data"
+      :page-change="propsEvent.pageChange"
+      :pagination="propsRes.msPagination!"
+      :show-type="activeCaseReportType"
     />
   </div>
 </template>
@@ -134,6 +144,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import CaseReportDrawer from './caseReportDrawer.vue';
   import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
@@ -388,8 +399,16 @@
   const activeDetailId = ref<string>('');
   const activeReportIndex = ref<number>(0);
   const showDetailDrawer = ref<boolean>(false);
-  function showReportDetail(id: string, rowIndex: number) {
-    showDetailDrawer.value = true;
+  const showCaseDetailDrawer = ref<boolean>(false);
+  const activeCaseReportType = ref('');
+  function showReportDetail(id: string, rowIndex: number, integrated: boolean) {
+    if (props.moduleType === ReportEnum.API_SCENARIO_REPORT) {
+      showDetailDrawer.value = true;
+    } else {
+      showCaseDetailDrawer.value = true;
+      activeCaseReportType.value = integrated ? 'INTEGRATED' : 'INDEPENDENT';
+    }
+
     activeDetailId.value = id;
     activeReportIndex.value = rowIndex;
   }

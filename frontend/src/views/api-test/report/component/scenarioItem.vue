@@ -1,5 +1,5 @@
 <template>
-  <template v-for="(item, index) in list" :key="item.stepId">
+  <template v-for="item in list" :key="item.stepId">
     <div
       :style="{
         'padding-left': `${16 * (item.level as number)}px`,
@@ -7,20 +7,14 @@
     >
       <div
         class="scenario-class cursor-pointer rounded-t-md px-8"
-        :class="[
-          item.level !== 0 ? 'border border-solid border-[var(--color-text-n8)]' : '',
-          ...getBorderAndRadius(item),
-        ]"
+        :class="[...getBorderAndRadius(item), ...getBorderClass(item)]"
         @click="showDetail(item)"
       >
         <div class="flex h-[46px] items-center">
           <!-- 序号 -->
-          <span class="index mr-2 text-[var(--color-text-4)]">{{ index }}</span>
+          <span class="index mr-2 text-[var(--color-text-4)]">{{ item.sort }}</span>
           <!-- 展开折叠控制器 -->
-          <div
-            v-if="item.level !== 0 && showApiType.includes(item.stepType) && props.activeType === 'tab'"
-            class="mx-2"
-          >
+          <div v-if="getShowExpand(item)" class="mx-2">
             <span
               v-if="item.fold"
               class="collapsebtn flex items-center justify-center"
@@ -33,84 +27,92 @@
             </span>
           </div>
 
-          <MsIcon type="icon-icon_split_turn-down_arrow" class="mx-[4px] text-[var(--color-text-4)]" size="16" />
+          <MsIcon
+            v-if="props.showType === 'API'"
+            type="icon-icon_split_turn-down_arrow"
+            class="mx-[4px] text-[var(--color-text-4)]"
+            size="16"
+          />
           <!-- 场景count -->
-          <span class="mr-2 text-[var(--color-text-4)]">{{ (item.children || []).length }}</span>
+          <span v-if="props.showType === 'API'" class="mr-2 text-[var(--color-text-4)]">{{
+            (item.children || []).length
+          }}</span>
           <!-- 循环控制器 -->
-          <ConditionStatus :status="item.stepType || ''" />
-          <span class="ml-2">{{ item.name || '-' }}</span>
+          <ConditionStatus v-if="props.showType === 'API'" :status="item.stepType || ''" />
+          <a-popover position="left" content-class="response-popover-content">
+            <div class="one-line-text max-w-[200px]">
+              {{ item.name || '-' }}
+            </div>
+            <template #content>
+              <div class="flex items-center gap-[8px] text-[14px]">
+                <div class="max-w-[300px]">
+                  {{ item.name || '-' }}
+                </div>
+              </div>
+            </template>
+          </a-popover>
         </div>
-        <div>
+        <div class="flex">
           <MsTag class="cursor-pointer" :type="item.status === 'SUCCESS' ? 'success' : 'danger'" theme="light">
             {{ item.status === 'SUCCESS' ? t('report.detail.api.pass') : t('report.detail.api.resError') }}
           </MsTag>
-          <span class="statusCode">
-            {{ t('report.detail.api.statusCode') }} <span class="code">{{ item.code || '-' }}</span></span
-          >
+          <span class="statusCode mx-2">
+            <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
+            <a-popover position="left" content-class="response-popover-content">
+              <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor(item.code) }">
+                {{ item.code || '-' }}
+              </div>
+              <template #content>
+                <div class="flex items-center gap-[8px] text-[14px]">
+                  <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+                  <div :style="{ color: statusCodeColor(item.code) }">
+                    {{ item.code || '-' }}
+                  </div>
+                </div>
+              </template>
+            </a-popover>
+          </span>
           <span class="resTime">
             {{ t('report.detail.api.responseTime') }}
-            <span class="resTimeCount">{{ item.requestTime || 0 }}ms</span></span
+            <span class="resTimeCount ml-2">{{ item.requestTime || 0 }}ms</span></span
           >
           <span class="resSize">
             {{ t('report.detail.api.responseSize') }}
-            <span class="resTimeCount">{{ item.responseSize || 0 }} bytes</span></span
+            <span class="resTimeCount ml-2">{{ item.responseSize || 0 }} bytes</span></span
           >
         </div>
       </div>
     </div>
-    <a-divider v-if="item.level === 0" :margin="0" class="!mb-4"></a-divider>
+    <a-divider
+      v-if="item.level === 0 && props.showType !== 'CASE'"
+      :margin="0"
+      class="!mb-4"
+      :class="props.showType === 'API' ? '!mb-4' : '!mb-0'"
+    ></a-divider>
+
     <!-- 响应内容开始 -->
     <div
-      v-if="item.level !== 0 && showApiType.includes(item.stepType) && props.activeType === 'tab' && !item.fold"
+      v-if="showResContent(item)"
       :style="{
         'padding-left': `${16 * (item.level as number)}px`,
       }"
     >
-      <div class="resContentWrapper">
-        <!-- 循环计数器 -->
-        <div v-if="item.stepType === 'LOOP_CONTROLLER'" class="mb-4 flex justify-start">
-          <MsPagination
-            v-model:page-size="pageNation.pageSize"
-            v-model:current="pageNation.current"
-            :total="pageNation.total"
-            size="mini"
-            @change="loadLoop"
-            @page-size-change="loadLoop"
-          />
-        </div>
-        <div class="resContent">
-          <div class="flex h-full w-full items-center justify-between rounded bg-[var(--color-text-n9)] px-4">
-            <div class="font-medium">{{ t('report.detail.api.resContent') }}</div>
-            <div class="grid grid-cols-5 gap-2 text-center">
-              <span>401</span>
-              <span class="text-[rgb(var(--success-6))]">247ms</span>
-              <span class="text-[rgb(var(--success-6))]">50bytes</span>
-              <span>Mock</span>
-              <span>66</span>
-            </div>
-          </div>
-        </div>
-        <!-- 响应内容tab开始 -->
-        <div>
-          <a-tabs v-model:active-key="showTab" class="no-content">
-            <a-tab-pane v-for="it of tabList" :key="it.key" :title="t(it.title)" />
-          </a-tabs>
-          <a-divider :margin="0"></a-divider>
-          <div v-if="showTab !== 'assertions'">
-            <ResContent :script="showContent || ''" language="JSON" show-charset-change
-          /></div>
-          <div v-else>
-            <assertTable :data="showContent || []" />
-          </div>
-        </div>
-        <!-- 响应内容tab结束 -->
-      </div>
+      <ResponseContent
+        :detail-item="item"
+        :show-type="props.showType"
+        :console="props.console"
+        :environment-name="props.environmentName"
+      />
     </div>
+    <!-- </div> -->
     <!-- 响应内容结束 -->
     <ScenarioItem
       v-if="'children' in item"
       :list="item.children"
       :active-type="props.activeType"
+      :show-type="props.showType"
+      :console="props.console"
+      :environment-name="props.environmentName"
       @detail="showDetail"
     />
   </template>
@@ -119,16 +121,13 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
-  import MsPagination from '@/components/pure/ms-pagination/index';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ConditionStatus from './conditionStatus.vue';
-  import assertTable from './step/assertTable.vue';
-  import ResContent from './step/resContent.vue';
+  import ResponseContent from './responseContent.vue';
 
-  import { reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ReportStepDetail, ScenarioItemType } from '@/models/apiTest/report';
+  import type { ScenarioItemType } from '@/models/apiTest/report';
 
   const { t } = useI18n();
   const props = withDefaults(
@@ -137,6 +136,9 @@
       hasBottomMargin?: boolean;
       list: ScenarioItemType[];
       activeType: string;
+      showType: 'API' | 'CASE';
+      console?: string; // 控制台
+      environmentName?: string; // 环境
     }>(),
     {
       showBorder: true,
@@ -147,94 +149,71 @@
   const emit = defineEmits(['expand', 'detail']);
   const activeItem = ref();
   function showDetail(item: ScenarioItemType) {
+    if (props.activeType === 'tab') {
+      return;
+    }
     activeItem.value = item;
     emit('detail', activeItem.value);
   }
-
-  const pageNation = ref({
-    total: 1000,
-    pageSize: 10,
-    current: 1,
-  });
-  // 加载用例列表
-  async function loadLoop() {}
-
-  // const scenarioItem = computed({
-  //   get: () => {
-  //     return props.list;
-  //   },
-  //   set: (val) => {
-  //     scenarioItem.value = val;
-  //   },
-  // });
-
   const showApiType = ref<string[]>(['API', 'API_CASE', 'CUSTOM_API', 'LOOP_CONTROLLER']);
-
-  const stepDetail = ref<ReportStepDetail>({});
-
-  async function getStepDetail(item: ScenarioItemType) {
-    try {
-      const result = await reportStepDetail(item.reportId, item.stepId);
-      stepDetail.value = result;
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   async function expandHandler(item: ScenarioItemType) {
     item.fold = !item.fold;
-    // 如果展开则获取报告步骤详情
-    if (!item.fold) {
-      getStepDetail(item);
-    }
   }
 
   function getBorderAndRadius(item: ScenarioItemType) {
-    if (props.activeType === 'tab') {
-      if (!item.fold && showApiType.value.includes(item.stepType)) {
-        return ['rounded-b-none', 'mb-0'];
+    if (props.showType === 'API') {
+      if (props.activeType === 'tab') {
+        if (!item.fold && showApiType.value.includes(item.stepType)) {
+          return ['rounded-b-none', 'mb-0'];
+        }
+        return ['mb-1', 'rounded-[4px]'];
       }
+    } else {
       return ['mb-1', 'rounded-[4px]'];
     }
     return ['mb-1', 'rounded-[4px]'];
   }
 
-  const showTab = ref('body');
-  const tabList = ref([
-    {
-      key: 'body',
-      title: 'report.detail.api.resBody',
-    },
-    {
-      key: 'headers',
-      title: 'report.detail.api.resHeader',
-    },
-    {
-      key: 'realReq',
-      title: 'report.detail.api.realReq',
-    },
-    {
-      key: 'console',
-      title: 'report.detail.api.console',
-    },
-    {
-      key: 'extract',
-      title: 'report.detail.api.extract',
-    },
-    {
-      key: 'assertions',
-      title: 'report.detail.api.assert',
-    },
-  ]);
+  function getBorderClass(item: ScenarioItemType) {
+    if (props.showType === 'API') {
+      return item.level !== 0 ? ['border', 'border-solid', 'border-[var(--color-text-n8)]'] : [''];
+    }
+    return ['border', 'border-solid', 'border-[var(--color-text-n8)]'];
+  }
 
-  const showContent = computed(() => {
-    return stepDetail.value.content?.responseResult[showTab.value];
-  });
+  function getShowExpand(item: ScenarioItemType) {
+    if (props.showType === 'API') {
+      return item.level !== 0 && showApiType.value.includes(item.stepType) && props.activeType === 'tab';
+    }
+    return props.activeType === 'tab';
+  }
+
+  function showResContent(item: ScenarioItemType) {
+    if (props.showType === 'API') {
+      return showApiType.value.includes(item.stepType) && props.activeType === 'tab' && !item.fold;
+    }
+    return props.activeType === 'tab' && !item.fold;
+  }
+
+  // 响应状态码对应颜色
+  function statusCodeColor(code: string) {
+    if (code) {
+      const resCode = Number(code);
+      if (resCode >= 200 && resCode < 300) {
+        return 'rgb(var(--success-7)';
+      }
+      if (resCode >= 300 && resCode < 400) {
+        return 'rgb(var(--warning-7)';
+      }
+      return 'rgb(var(--danger-7)';
+    }
+    return '';
+  }
 </script>
 
 <style scoped lang="less">
   .scenario-class {
-    // border-radius: 4px;
     @apply flex items-center justify-between px-2;
     .index {
       width: 16px;
@@ -250,8 +229,16 @@
     .statusCode {
       margin-right: 8px;
       color: var(--color-text-4);
+      @apply flex;
       .resTimeCount {
         color: rgb(var(--success-6));
+      }
+      .code {
+        display: inline-block;
+        max-width: 60px;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+        white-space: nowrap;
       }
     }
   }
@@ -290,5 +277,12 @@
     .arco-tabs-content {
       display: none;
     }
+  }
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 </style>

@@ -4,10 +4,10 @@
     v-model:visible="showDrawer"
     :width="1200"
     :footer="false"
-    :title="t('project.fileManagement.detail')"
+    :title="reportStepDetail.name"
     :detail-id="props.reportId"
     :detail-index="props.activeReportIndex"
-    :get-detail-func="reportDetail"
+    :get-detail-func="reportCaseDetail"
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
@@ -45,7 +45,6 @@
       <div class="report-container h-full">
         <!-- 报告参数开始 -->
         <div class="report-header flex items-center justify-between">
-          <!-- TODO 虚拟数据替换接口后边 -->
           <span>
             {{ detail.environmentName || '-' }}
             <a-divider direction="vertical" :margin="4"></a-divider>
@@ -53,7 +52,7 @@
             <a-divider direction="vertical" :margin="4"></a-divider>
             {{ detail.requestDuration || '-' }}
             <a-divider direction="vertical" :margin="4"></a-divider>
-            {{ detail.createUser || '-' }}
+            {{ detail.creatUserName || '-' }}
           </span>
           <span>
             <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
@@ -63,109 +62,70 @@
           </span>
         </div>
         <!-- 报告参数结束 -->
-        <!-- 报告步骤分析和请求分析开始 -->
+        <!-- 报告分析开始 -->
         <div class="analyze mb-1">
-          <div class="step-analyze min-w-[522px]">
-            <div class="block-title">{{ t('report.detail.api.stepAnalysis') }}</div>
-            <div class="mb-2 flex items-center">
-              <!-- 总数 -->
-              <div class="countItem">
-                <span class="mr-2 text-[var(--color-text-4)]"> {{ t('report.detail.stepTotal') }}</span>
-                {{ detail.stepTotal || 0 }}
+          <!-- 请求分析 -->
+          <div class="request-analyze min-h-[110px]">
+            <div class="block-title mb-4">{{ t('report.detail.api.requestAnalysis') }}</div>
+            <!-- 独立报告 -->
+            <IndepReportChart
+              v-if="props.showType === 'INDEPENDENT'"
+              :legend-data="legendData"
+              :options="charOptions"
+            />
+            <SetReportChart v-else :legend-data="legendData" :options="charOptions" />
+            <!-- 集合报告 -->
+            <!-- </div> -->
+          </div>
+          <!-- 耗时分析 -->
+          <div class="time-analyze">
+            <div class="time-card mb-2 mt-[16px] h-[40px] flex-1 gap-4">
+              <div class="time-card-item flex h-full">
+                <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
+                <span class="time-card-item-title">{{ t('report.detail.api.totalTime') }}</span>
+                <span class="count">{{ getTotalTime }}</span
+                ><span class="time-card-item-title">s</span>
               </div>
-              <!-- 通过 -->
-              <div class="countItem">
-                <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
-                <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.successCount') }}</div>
-                {{ detail.successCount || 0 }}
-              </div>
-              <!-- 误报 -->
-              <div class="countItem">
-                <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
-                <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.fakeErrorCount') }}</div>
-                {{ detail.fakeErrorCount || 0 }}
-              </div>
-              <!-- 失败 -->
-              <div class="countItem">
-                <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
-                <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.errorCount') }}</div>
-                {{ detail.errorCount || 0 }}
-              </div>
-              <!-- 未执行 -->
-              <div class="countItem">
-                <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
-                <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.pendingCount') }}</div>
-                {{ detail.pendingCount || 0 }}
+              <div class="time-card-item h-full">
+                <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
+                <span class="time-card-item-title"> {{ t('report.detail.api.requestTotalTime') }}</span>
+                <span class="count">{{ detail.requestDuration || '-' }}</span
+                ><span class="time-card-item-title">s</span>
               </div>
             </div>
-            <StepProgress :report-detail="detail" height="8px" radius="var(--border-radius-mini)" />
-            <div class="card">
-              <div class="timer-card mr-2">
-                <div class="text-[var(--color-text-4)]">
-                  <MsIcon type="icon-icon_time_outlined" class="text-[var(--color-text-4)]x mr-[4px]" size="16" />
-                  {{ t('report.detail.api.totalTime') }}
+
+            <div class="time-card flex-1 gap-4">
+              <!-- 执行率 -->
+              <div v-if="props.showType === 'INTEGRATED'" class="time-card-item-rote">
+                <div class="time-card-item-rote-title">
+                  <MsIcon type="icon-icon_yes_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
+                  {{ t('report.detail.api.executionRate') }}
                 </div>
-                <div>
-                  <span class="ml-4 text-[18px] font-medium">{{ getTotalTime }}</span
-                  >s
-                </div>
-              </div>
-              <div class="timer-card mr-2">
-                <div class="text-[var(--color-text-4)]">
-                  <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
-                  {{ t('report.detail.api.requestTotalTime') }}
-                </div>
-                <div>
-                  <span class="ml-4 text-[18px] font-medium">{{ detail.requestDuration || '-' }}</span
-                  >s
+                <div class="flex items-center">
+                  <span class="count"> {{ getExcuteRate(detail) }} %</span>
+                  <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
+                  <span>{{ getRequestEacuteCount }}</span>
+                  <span class="mx-1 text-[var(--color-text-4)]">/ {{ getRequestTotalCount || 0 }}</span>
                 </div>
               </div>
-              <div class="timer-card min-w-[200px]">
-                <div class="text-[var(--color-text-4)]">
+              <div class="time-card-item-rote">
+                <div class="time-card-item-rote-title">
                   <MsIcon type="icon-icon_yes_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
                   {{ t('report.detail.api.assertPass') }}
                 </div>
                 <div class="flex items-center">
-                  <span class="text-[18px] font-medium text-[var(--color-text-1)]"
-                    >{{ detail.assertionPassRate || 0 }} <span>%</span></span
+                  <span class="count"
+                    >{{ detail.assertionPassRate === 'Calculating' ? '-' : detail.assertionPassRate || '0.00' }}%</span
                   >
-                  <a-divider direction="vertical" :margin="0" class="!mx-2 h-[16px]"></a-divider>
-                  <span class="text-[var(--color-text-1)]">{{
-                    addCommasToNumber(detail.assertionSuccessCount || 0)
-                  }}</span>
-                  <span class="text-[var(--color-text-4)]"
-                    ><span class="mx-1">/</span> {{ addCommasToNumber(detail.assertionCount) || 0 }}</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="request-analyze">
-            <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
-            <div class="flex min-h-[110px] items-center">
-              <div class="relative mr-4">
-                <div class="absolute bottom-0 left-[30%] top-[35%] text-center">
-                  <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-                  <div class="text-[18px] font-medium">4</div>
-                </div>
-                <MsChart width="110px" height="110px" :options="charOptions" />
-              </div>
-              <div class="chart-legend grid flex-1 gap-y-3">
-                <!-- 图例开始 -->
-                <div v-for="item of legendData" :key="item.value" class="chart-legend-item">
-                  <div class="chart-flag">
-                    <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
-                    <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
-                  </div>
-                  <div class="count">{{ item.count || 0 }}</div>
-                  <div class="count">{{ item.rote || 0 }}%</div>
+                  <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
+                  <span>{{ addCommasToNumber(detail.assertionSuccessCount || 0) }}</span>
+                  <span class="mx-1 text-[var(--color-text-4)]">/ {{ detail.assertionCount || 0 }}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <!-- 报告步骤分析和请求分析结束 -->
+        <!-- 报告步骤分析结束 -->
         <!-- 报告明细开始 -->
         <div class="report-info">
           <div class="mb-4 flex h-[36px] items-center justify-between">
@@ -184,14 +144,14 @@
           <!-- 平铺模式 -->
           <TiledList
             v-show="activeTab === 'tiled'"
-            show-type="API"
+            show-type="CASE"
             :active-type="activeTab"
             :report-detail="detail || []"
           />
           <!-- tab展示 -->
           <TiledList
             v-show="activeTab === 'tab'"
-            show-type="API"
+            show-type="CASE"
             :active-type="activeTab"
             :report-detail="detail || []"
           />
@@ -207,20 +167,21 @@
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import StepProgress from './stepProgress.vue';
+  import IndepReportChart from './case/IndepReportChart.vue';
+  import SetReportChart from './case/setReportChart.vue';
   import TiledList from './tiledList.vue';
 
-  import { reportDetail } from '@/api/modules/api-test/report';
+  import { reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
 
   const { t } = useI18n();
+
   const props = defineProps<{
     visible: boolean;
     reportId: string;
@@ -228,7 +189,7 @@
     tableData: any[];
     pagination: MsPaginationI;
     pageChange: (page: number) => Promise<void>;
-    showType: string; // 报告类型
+    showType: string; // 报告类型 独立报告或集合报告
   }>();
 
   const emit = defineEmits<{
@@ -285,6 +246,18 @@
     console: '',
   });
 
+  /**
+   * 分享share
+   */
+  const shareLoading = ref<boolean>(false);
+  function shareHandler() {}
+
+  /**
+   * 导出
+   */
+  const exportLoading = ref<boolean>(false);
+  function exportHandler() {}
+
   const charOptions = ref({
     tooltip: {
       trigger: 'item',
@@ -319,30 +292,37 @@
             color: '#00C261',
           },
         },
-        {
-          value: 0,
-          name: t('report.detail.api.misstatement'),
-          itemStyle: {
-            color: '#FFC14E',
-          },
-        },
-        {
-          value: 0,
-          name: t('report.detail.api.error'),
-          itemStyle: {
-            color: '#ED0303',
-          },
-        },
-        {
-          value: 0,
-          name: t('report.detail.api.pending'),
-          itemStyle: {
-            color: '#D4D4D8',
-          },
-        },
       ],
     },
   });
+
+  const methods = ref([
+    {
+      label: t('report.detail.api.tiledDisplay'),
+      value: 'tiled',
+    },
+    {
+      label: t('report.detail.api.tabDisplay'),
+      value: 'tab',
+    },
+  ]);
+  const legendData = ref<LegendData[]>([]);
+  const activeTab = ref('tiled');
+  const condition = ref('');
+
+  const getRequestTotalCount = computed(() => {
+    const { errorCount, successCount, fakeErrorCount, pendingCount } = reportStepDetail.value;
+    return addCommasToNumber(errorCount + successCount + fakeErrorCount + pendingCount);
+  });
+  // 执行数量
+  const getRequestEacuteCount = computed(() => {
+    const { errorCount, successCount, fakeErrorCount } = reportStepDetail.value;
+    return addCommasToNumber(errorCount + successCount + fakeErrorCount);
+  });
+
+  function getExcuteRate(detail: ReportDetail) {
+    return 100 - Number(detail.requestPendingRate) ? (100 - Number(detail.requestPendingRate)).toFixed(2) : '0.00';
+  }
 
   const getTotalTime = computed(() => {
     const { endTime, startTime } = reportStepDetail.value;
@@ -351,8 +331,6 @@
     }
     return '-';
   });
-
-  const legendData = ref<LegendData[]>([]);
 
   function initOptionsData() {
     const tempArr = [
@@ -372,7 +350,7 @@
       },
       {
         label: 'report.detail.api.error',
-        value: 'successCount',
+        value: 'errorCount',
         color: '#ED0303',
         class: 'bg-[rgb(var(--danger-6))]',
         rateKey: 'requestErrorRate',
@@ -386,7 +364,9 @@
       },
     ];
 
-    charOptions.value.series.data = tempArr.map((item: any) => {
+    const validArr = props.showType === 'INTEGRATED' ? tempArr : tempArr.slice(0, 1);
+
+    charOptions.value.series.data = validArr.map((item: any) => {
       return {
         value: reportStepDetail.value[item.value] || 0,
         name: t(item.label),
@@ -395,12 +375,12 @@
         },
       };
     });
-    legendData.value = tempArr.map((item: any) => {
+    legendData.value = validArr.map((item: any) => {
       return {
         ...item,
         label: t(item.label),
         count: reportStepDetail.value[item.value] || 0,
-        rote: reportStepDetail.value[item.rateKey],
+        rote: reportStepDetail.value[item.rateKey] === 'Calculating' ? '-' : reportStepDetail.value[item.rateKey],
       };
     });
   }
@@ -411,35 +391,6 @@
     reportStepDetail.value = cloneDeep(detail);
     initOptionsData();
   }
-
-  /**
-   * 分享share
-   */
-  const shareLoading = ref<boolean>(false);
-  function shareHandler() {}
-
-  /**
-   * 导出
-   */
-  const exportLoading = ref<boolean>(false);
-  function exportHandler() {}
-
-  const activeTab = ref('tiled');
-  const condition = ref('');
-
-  const methods = ref([
-    {
-      label: t('report.detail.api.tiledDisplay'),
-      value: 'tiled',
-    },
-    {
-      label: t('report.detail.api.tabDisplay'),
-      value: 'tab',
-    },
-  ]);
-  onMounted(() => {
-    initOptionsData();
-  });
 </script>
 
 <style scoped lang="less">
@@ -456,36 +407,50 @@
     }
     .analyze {
       min-height: 196px;
+      max-height: 200px;
       border-radius: 4px;
-      @apply mb-2 flex justify-between;
-      .step-analyze {
-        padding: 16px;
-        border-radius: 4px;
-        @apply h-full bg-white;
-        .countItem {
-          @apply mr-6 flex items-center;
-        }
-        .card {
-          @apply mt-4 flex items-center justify-between;
-          .timer-card {
-            border-radius: 6px;
-            background-color: var(--color-text-n9);
-            @apply flex flex-1 flex-col p-4;
-          }
-        }
-      }
+      @apply mb-2 flex justify-between  bg-white;
       .request-analyze {
-        padding: 16px;
-        border-radius: 4px;
-        @apply ml-4 h-full flex-grow bg-white;
+        @apply flex flex-1 flex-col p-4;
         .chart-legend {
           .chart-legend-item {
-            @apply grid grid-cols-3;
+            @apply grid grid-cols-3 gap-2;
           }
           .chart-flag {
             @apply flex items-center;
             .count {
               color: var(--color-text-1);
+            }
+          }
+        }
+      }
+      .time-analyze {
+        @apply flex flex-1 flex-col p-4;
+        .time-card {
+          @apply flex items-center justify-between;
+          .time-card-item {
+            border-radius: 6px;
+            background: var(--color-text-n9);
+            @apply mt-4 flex flex-1 flex-grow items-center px-4;
+            .time-card-item-title {
+              color: var(--color-text-4);
+            }
+            .count {
+              font-size: 18px;
+              @apply mx-2 font-medium;
+            }
+          }
+          .time-card-item-rote {
+            border-radius: 6px;
+            background: var(--color-text-n9);
+            @apply mt-4 flex flex-1 flex-grow flex-col p-4;
+            .time-card-item-rote-title {
+              color: var(--color-text-4);
+              @apply mb-2;
+            }
+            .count {
+              font-size: 18px;
+              @apply mx-2 font-medium;
             }
           }
         }
@@ -498,6 +463,7 @@
     }
   }
   .block-title {
-    @apply mb-4 font-medium;
+    font-size: 14px;
+    @apply font-medium;
   }
 </style>
