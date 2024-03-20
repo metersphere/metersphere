@@ -37,9 +37,16 @@
               </a-avatar>
             </template>
             <template #title>
-              <div class="flex items-center">
+              <div class="m-b[2px] flex items-center">
                 <a-tooltip :content="item.file.name">
-                  <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
+                  <div class="show-file-name">
+                    <div class="one-line-text max-w-[421px] font-normal">
+                      {{ item.file.name }}
+                    </div>
+                    <span v-if="getTextWidth(item.file.name) > 421" class="font-normal text-[var(--color-text-1)]">{{
+                      item.file.name.slice(item.file.name.indexOf('.') + 1)
+                    }}</span>
+                  </div>
                 </a-tooltip>
                 <slot name="title" :item="item"></slot>
               </div>
@@ -55,11 +62,14 @@
                 v-else-if="item.status === UploadStatus.done"
                 class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
-                {{
-                  `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(item)} ${dayjs(
-                    item.createTime
-                  ).format('YYYY-MM-DD HH:mm:ss')}`
-                }}
+                <div class="one-line-text max-w-[421px]">
+                  {{
+                    `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(item)} ${dayjs(
+                      item.createTime
+                    ).format('YYYY-MM-DD HH:mm:ss')}`
+                  }}
+                </div>
+
                 <div v-if="showUploadSuccess(item)" class="flex items-center">
                   <MsIcon type="icon-icon_succeed_colorful" />
                   {{ t('ms.upload.uploadSuccess') }}
@@ -271,6 +281,14 @@
     }
   }
 
+  function getTextWidth(text) {
+    // re-use canvas object for better performance
+    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+    const context = canvas.getContext('2d');
+    const metrics = context.measureText(text);
+    return metrics.width;
+  }
+
   watch(
     () => asyncTaskStore.uploadFileTask.finishedTime,
     (val) => {
@@ -355,5 +373,11 @@
       background-color: var(--color-text-n8);
       cursor: pointer;
     }
+  }
+  .show-file-name {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 4px;
   }
 </style>

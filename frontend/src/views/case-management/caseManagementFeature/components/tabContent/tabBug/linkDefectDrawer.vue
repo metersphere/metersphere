@@ -34,7 +34,7 @@
           <a-popover title="" position="right" style="width: 480px">
             <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
             <template #content>
-              <div class="markdown-body" style="margin-left: 48px" v-html="record.content"> </div>
+              <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
             </template>
           </a-popover>
         </template>
@@ -57,6 +57,7 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
   import debounce from 'lodash-es/debounce';
 
   const { t } = useI18n();
@@ -139,14 +140,28 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDrawerDebugPage, {
-    columns,
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
-    selectable: true,
-    scroll: { x: 'auto' },
-    heightUsed: 340,
-    enableDrag: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    getDrawerDebugPage,
+    {
+      columns,
+      tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
+      selectable: true,
+      scroll: { x: 'auto' },
+      heightUsed: 340,
+      enableDrag: false,
+    },
+    (record) => {
+      return {
+        ...record,
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
 
   const keyword = ref<string>('');
 

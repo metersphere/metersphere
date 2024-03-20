@@ -228,14 +228,15 @@
     }
   }
 
-  watch(
-    () => props.platformInfo.demand_platform_config,
-    (val) => {
-      if (val) {
-        initColumn();
-      }
-    }
-  );
+  // watch(
+  //   () => props.platformInfo.demand_platform_config,
+  //   (val) => {
+  //     if (val) {
+  //       console.log(val);
+  //       initColumn();
+  //     }
+  //   }
+  // );
 
   // watchEffect(() => {
   //   if (props.platformInfo.demand_platform_config) {

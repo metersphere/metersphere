@@ -1,12 +1,12 @@
 <template>
   <MsDrawer
     v-model:visible="showDrawer"
-    :mask="false"
+    :mask="true"
     :title="t('caseManagement.featureCase.createDefect')"
     :ok-text="t('common.confirm')"
     :ok-loading="drawerLoading"
     :width="800"
-    :mask-closable="false"
+    :mask-closable="true"
     unmount-on-close
     :show-continue="true"
     @continue="handleDrawerConfirm(true)"
