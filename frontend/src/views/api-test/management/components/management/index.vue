@@ -21,20 +21,7 @@
         </a-tooltip>
       </template>
     </MsEditableTab>
-    <a-select
-      v-model:model-value="currentEnv"
-      :options="envOptions"
-      class="!w-[200px] pl-0 pr-[8px]"
-      :loading="envLoading"
-      allow-search
-      @change="initEnvironment"
-    >
-      <template #prefix>
-        <div class="flex cursor-pointer p-[8px]" @click.stop="goEnv">
-          <icon-location class="text-[var(--color-text-4)]" />
-        </div>
-      </template>
-    </a-select>
+    <environmentSelect ref="environmentSelectRef" />
   </div>
   <api
     v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.type === 'api'"
@@ -59,20 +46,19 @@
 </template>
 
 <script setup lang="ts">
-  import { SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import api from './api/index.vue';
   import apiCase from './case/index.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
-  import { getEnvironment, getEnvList, getProtocolList } from '@/api/modules/api-test/common';
+  import { getProtocolList } from '@/api/modules/api-test/common';
   import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
-  import router from '@/router';
   import useAppStore from '@/store/modules/app';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -86,7 +72,6 @@
     RequestMethods,
     ResponseComposition,
   } from '@/enums/apiEnum';
-  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
 
@@ -230,47 +215,8 @@
     }
   );
 
-  const currentEnv = ref('');
-  const currentEnvConfig = ref<EnvConfig>();
-  const envLoading = ref(false);
-  const envOptions = ref<SelectOptionData[]>([]);
-
-  async function initEnvironment() {
-    try {
-      currentEnvConfig.value = await getEnvironment(currentEnv.value);
-      currentEnvConfig.value.id = currentEnv.value;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  async function initEnvList() {
-    try {
-      envLoading.value = true;
-      const res = await getEnvList(appStore.currentProjectId);
-      envOptions.value = res.map((item) => ({
-        label: item.name,
-        value: item.id,
-      }));
-      currentEnv.value = res[0]?.id || '';
-      initEnvironment();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      envLoading.value = false;
-    }
-  }
-
   function refreshApiTable() {
     apiRef.value?.refreshTable();
-  }
-
-  function goEnv() {
-    router.push({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
-    });
   }
 
   /**
@@ -333,7 +279,7 @@
   const apiLocalExec = ref<Record<string, any> | LocalConfig | undefined>({});
   async function initLocalConfig() {
     try {
-      const res = await getLocalConfig(); // TODO: 会报错
+      const res = await getLocalConfig();
       apiLocalExec.value = res.find((e) => e.type === 'API');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -341,8 +287,10 @@
     }
   }
 
+  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
+  const currentEnvConfig = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
+
   onBeforeMount(() => {
-    initEnvList();
     initProtocolList();
     initLocalConfig();
   });

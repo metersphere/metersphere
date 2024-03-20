@@ -569,7 +569,7 @@
     selectable: true,
     showSelectAll: true,
     draggable: { type: 'handle', width: 32 },
-    heightUsed: 308,
+    heightUsed: props.isApi ? 356 : 308,
   });
   const batchActions = {
     baseAction: [
