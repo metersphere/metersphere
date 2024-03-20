@@ -70,8 +70,8 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         }
 
         ApiParamConfig apiParamConfig = (ApiParamConfig) config;
-        HttpConfig httpConfig = getHttpConfig(msHTTPElement, apiParamConfig);
-        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(msHTTPElement.getProjectId());
+        EnvironmentInfoDTO envConfig = isEnvEnable(msHTTPElement) ? apiParamConfig.getEnvConfig(msHTTPElement.getProjectId()) : null;
+        HttpConfig httpConfig = getHttpConfig(msHTTPElement, envConfig);
 
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setName(msHTTPElement.getName());
@@ -98,6 +98,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
         Optional.ofNullable(httpHeader).ifPresent(httpTree::add);
+
         //处理host
         DNSCacheManager dnsCacheManager = getEnvDns(msHTTPElement.getName(), envConfig, httpConfig);
         Optional.ofNullable(dnsCacheManager).ifPresent(httpTree::add);
@@ -109,6 +110,21 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         Optional.ofNullable(authManager).ifPresent(httpTree::add);
 
         parseChild(httpTree, msHTTPElement, config);
+    }
+
+    /**
+     * 判断是否启用环境
+     * 非自定义请求启用
+     * 自定义请求需要判断是否启用
+     * @param httpElement
+     * @return
+     */
+    private boolean isEnvEnable(MsHTTPElement httpElement) {
+        if (BooleanUtils.isTrue(httpElement.getCustomizeRequest())) {
+            return BooleanUtils.isTrue(httpElement.getCustomizeRequestEnvEnable());
+        } else {
+            return true;
+        }
     }
 
 
@@ -341,12 +357,10 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
      * 获取环境 http 配置
      *
      * @param msHTTPElement
-     * @param config
+     * @param envConfig
      * @return
      */
-    private HttpConfig getHttpConfig(MsHTTPElement msHTTPElement, ApiParamConfig config) {
-        ApiParamConfig apiParamConfig = config;
-        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig();
+    private HttpConfig getHttpConfig(MsHTTPElement msHTTPElement, EnvironmentInfoDTO envConfig) {
         if (envConfig == null) {
             return null;
         }
