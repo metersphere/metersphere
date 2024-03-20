@@ -74,10 +74,12 @@
           >
             <template #left>
               <a-popover title="" position="bottom">
-                <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]"
-                  >{{ moduleNamePath }}
-                  <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
-                >
+                <div class="show-table-top-title">
+                  <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
+                    {{ moduleNamePath }}
+                  </div>
+                  <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span>
+                </div>
                 <template #content>
                   <div class="text-[14px] font-medium text-[var(--color-text-1)]">
                     {{ moduleNamePath }}
@@ -1097,5 +1099,10 @@
   }
   .page-header {
     @apply flex items-center justify-between;
+  }
+  .show-table-top-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 </style>
