@@ -45,6 +45,7 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @change="changeHandler"
+    @module-change="initData()"
   >
     <template #num="{ record, rowIndex }">
       <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
@@ -878,10 +879,19 @@
   const caseFilters = ref<string[]>([]);
   const executeResultFilters = ref(Object.keys(executionResultMap));
 
-  function initTableParams() {
+  async function initTableParams() {
+    let moduleIds: string[] = [];
+    if (props.activeFolder && props.activeFolder !== 'all') {
+      moduleIds = [...featureCaseStore.moduleId];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_TABLE);
+      if (getAllChildren) {
+        moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
+      }
+    }
+
     return {
       keyword: keyword.value,
-      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+      moduleIds,
       projectId: currentProjectId.value,
 
       filter: {
@@ -899,10 +909,10 @@
     };
   }
   // 获取父组件模块数量
-  function emitTableParams() {
-    const moduleIds = props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds];
+  async function emitTableParams() {
+    const tableParams = await initTableParams();
     emit('init', {
-      ...initTableParams(),
+      ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
@@ -938,13 +948,8 @@
   }
   const executeResultFilterList = ref(getExecuteResultList());
 
-  function getLoadListParams() {
-    if (props.activeFolder === 'all') {
-      searchParams.value.moduleIds = [];
-    } else {
-      searchParams.value.moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
-    }
-    setLoadListParams(initTableParams());
+  async function getLoadListParams() {
+    setLoadListParams(await initTableParams());
   }
 
   // 执行结果表头检索
@@ -954,8 +959,8 @@
 
   // 初始化列表
   async function initData() {
-    getLoadListParams();
-    loadList();
+    await getLoadListParams();
+    await loadList();
     emitTableParams();
   }
 
