@@ -25,16 +25,28 @@
           @press-enter="testApi"
         ></a-input>
         <div class="config-card-footer">
-          <a-button
-            type="outline"
-            class="px-[8px]"
-            size="mini"
-            :disabled="apiConfig.userUrl.trim() === ''"
-            :loading="testApiLoading"
-            @click="testApi"
-          >
-            {{ t('ms.personal.test') }}
-          </a-button>
+          <div>
+            <a-button
+              type="outline"
+              class="px-[8px]"
+              size="mini"
+              :disabled="apiConfig.userUrl.trim() === ''"
+              :loading="testApiLoading"
+              @click="testApi"
+            >
+              {{ t('ms.personal.test') }}
+            </a-button>
+            <a-button
+              v-if="apiConfig.userUrl.trim()"
+              type="outline"
+              class="arco-btn-outline--secondary px-[8px]"
+              style="margin-left: 10px"
+              size="mini"
+              @click="clearApi"
+            >
+              {{ t('ms.transfer.clear') }}
+            </a-button>
+          </div>
           <div class="flex items-center">
             <div class="mr-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
               {{ t('ms.personal.priorityLocalExec') }}
@@ -42,7 +54,7 @@
             <a-switch
               v-model:model-value="apiConfig.enable"
               size="small"
-              :disabled="apiConfig.id === '' || testApiLoading"
+              :disabled="apiConfig.id === '' || testApiLoading || apiConfig.userUrl.trim() === ''"
               :before-change="(val) => handleApiPriorityBeforeChange(val)"
               type="line"
             />
@@ -154,6 +166,20 @@
     type: 'API',
     status: 0,
   });
+
+  function clearApi() {
+    apiConfig.value.userUrl = '';
+    if (apiConfig.value.id) {
+      // 已经存在配置
+      updateLocalConfig({
+        id: apiConfig.value.id,
+        userUrl: apiConfig.value.userUrl.trim(),
+      });
+      disableLocalConfig(apiConfig.value.id);
+      apiConfig.value.enable = false;
+      Message.success(t('common.updateSuccess'));
+    }
+  }
 
   async function testApi() {
     if (apiConfig.value.userUrl.trim() === '') {

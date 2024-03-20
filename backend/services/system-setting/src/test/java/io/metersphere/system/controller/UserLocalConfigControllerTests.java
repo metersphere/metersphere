@@ -96,10 +96,6 @@ public class UserLocalConfigControllerTests extends BaseTest {
         //不存在的
         request.setId(UUID.randomUUID().toString());
         requestPost(UPDATE, request, status().is5xxServerError());
-        //url为空
-        request.setId(userLocalConfig.getId());
-        request.setUserUrl("");
-        requestPost(UPDATE, request, status().is4xxClientError());
         //id为空
         request.setId("");
         request.setUserUrl("https://www.baidu.com");
