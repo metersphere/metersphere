@@ -27,10 +27,10 @@ import {
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
-  ApiScenarioDetail,
   ApiScenarioGetModuleParams,
   ApiScenarioModuleUpdateParams,
   ApiScenarioPageParams,
+  ApiScenarioTableItem,
   ApiScenarioUpdateDTO,
   ExecuteHistoryItem,
   ExecutePageParams,
@@ -81,12 +81,12 @@ export function deleteModule(id: string) {
 
 // 获取接口场景列表
 export function getScenarioPage(data: ApiScenarioPageParams) {
-  return MSR.post<CommonList<ApiScenarioDetail>>({ url: ScenarioPageUrl, data });
+  return MSR.post<CommonList<ApiScenarioTableItem>>({ url: ScenarioPageUrl, data });
 }
 
 // 获取回收站的接口场景列表
 export function getTrashScenarioPage(data: ApiScenarioPageParams) {
-  return MSR.post<CommonList<ApiScenarioDetail>>({ url: ScenarioTrashPageUrl, data });
+  return MSR.post<CommonList<ApiScenarioTableItem>>({ url: ScenarioTrashPageUrl, data });
 }
 
 // 更新接口场景

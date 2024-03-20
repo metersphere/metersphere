@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-[0_999px_999px_0] border border-solid px-[8px] py-[2px] text-[12px] leading-[16px]"
+    class="text-nowrap rounded-[0_999px_999px_0] border border-solid px-[8px] py-[2px] text-[12px] leading-[16px]"
     :style="{
       borderColor: type.color,
       color: type.color,

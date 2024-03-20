@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
@@ -6,7 +7,6 @@ import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
 import type { CustomAttributes } from '@/models/caseManagement/featureCase';
 
 import { isObject } from './is';
-import { json } from 'stream/consumers';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
 
@@ -194,6 +194,9 @@ export interface TreeNode<T> {
  * @param tree 树形数组或树
  * @param customNodeFn 自定义节点函数
  * @param customChildrenKey 自定义子节点的key
+ * @param parent 父节点
+ * @param parentPath 父节点路径
+ * @param level 节点层级
  * @returns 遍历后的树形数组
  */
 export function mapTree<T>(
@@ -201,33 +204,40 @@ export function mapTree<T>(
   customNodeFn: (node: TreeNode<T>, path: string) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children',
   parentPath = '',
-  level = 0
+  level = 0,
+  parent: TreeNode<T> | null = null
 ): T[] {
-  if (!Array.isArray(tree)) {
-    tree = [tree];
+  let cloneTree = cloneDeep(tree);
+  if (!Array.isArray(cloneTree)) {
+    cloneTree = [cloneTree];
   }
 
-  return tree
-    .map((node: TreeNode<T>) => {
-      const fullPath = node.path ? `${parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
-      const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
-
-      if (newNode) {
-        newNode.level = level;
-        if (newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
-          newNode[customChildrenKey] = mapTree(
-            newNode[customChildrenKey],
-            customNodeFn,
-            customChildrenKey,
-            fullPath,
-            level + 1
-          );
+  function mapFunc(
+    _tree: TreeNode<T> | TreeNode<T>[] | T | T[],
+    _parentPath = '',
+    _level = 0,
+    _parent: TreeNode<T> | null = null
+  ): T[] {
+    if (!Array.isArray(_tree)) {
+      _tree = [_tree];
+    }
+    return _tree
+      .map((node: TreeNode<T>, i: number) => {
+        const fullPath = node.path ? `${_parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
+        node.order = i + 1; // order从 1 开始
+        node.parent = _parent || undefined; // 没有父节点说明是树的第一层
+        const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
+        if (newNode) {
+          newNode.level = _level;
+          if (newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
+            newNode[customChildrenKey] = mapFunc(newNode[customChildrenKey], fullPath, _level + 1, node);
+          }
         }
-      }
-
-      return newNode;
-    })
-    .filter(Boolean);
+        return newNode;
+      })
+      .filter(Boolean);
+  }
+  return mapFunc(cloneTree, parentPath, level, parent);
 }
 
 /**
@@ -347,7 +357,7 @@ export function findNodePathByKey<T>(
   return null;
 }
 /**
- * 在某个节点前插入新节点
+ * 在某个节点前/后插入新节点
  * @param treeArr 目标树
  * @param targetKey 目标节点唯一值
  * @param newNode 新节点
@@ -356,22 +366,49 @@ export function findNodePathByKey<T>(
  */
 export function insertNode<T>(
   treeArr: TreeNode<T>[],
-  targetKey: string,
+  targetKey: string | number,
   newNode: TreeNode<T>,
-  position: 'before' | 'after',
+  position: 'before' | 'after' | 'inside',
+  customFunc?: (node: TreeNode<T>, parent?: TreeNode<T>) => void,
   customKey = 'key'
 ): void {
   function insertNodeInTree(tree: TreeNode<T>[], parent?: TreeNode<T>): boolean {
     for (let i = 0; i < tree.length; i++) {
       const node = tree[i];
       if (node[customKey] === targetKey) {
-        // 如果当前节点的 customKey 与目标 customKey 匹配，则在当前节点前/后插入新节点
+        // 如果当前节点的 customKey 与目标 customKey 匹配，则在当前节点前/后/内部插入新节点
         const childrenArray = parent ? parent.children || [] : treeArr; // 父节点没有 children 属性，说明是树的第一层，使用 treeArr
         const index = childrenArray.findIndex((item) => item[customKey] === node[customKey]);
         if (position === 'before') {
+          newNode.parent = parent || node.parent;
+          newNode.order = node.order;
           childrenArray.splice(index, 0, newNode);
+          for (let j = index + 1; j < childrenArray.length; j++) {
+            // 更新插入节点之后的节点的 order
+            if (childrenArray[j].order !== undefined) {
+              childrenArray[j].order += 1;
+            }
+          }
         } else if (position === 'after') {
+          newNode.parent = parent || node.parent;
+          newNode.order = node.order + 1;
           childrenArray.splice(index + 1, 0, newNode);
+          // 更新插入节点之后的节点的 order
+          for (let j = index + 2; j < childrenArray.length; j++) {
+            if (childrenArray[j].order !== undefined) {
+              childrenArray[j].order += 1;
+            }
+          }
+        } else if (position === 'inside') {
+          if (!node.children) {
+            node.children = [];
+          }
+          newNode.parent = node;
+          newNode.order = node.children.length + 1;
+          node.children.push(newNode);
+        }
+        if (typeof customFunc === 'function') {
+          customFunc(newNode, parent);
         }
         // 插入后返回 true
         return true;
@@ -384,6 +421,54 @@ export function insertNode<T>(
   }
 
   insertNodeInTree(treeArr);
+}
+
+/**
+ * 处理树结构之间拖拽节点
+ * @param treeArr 整颗树
+ * @param dragNode 拖动节点
+ * @param dropNode 目标节点
+ * @param dropPosition -1: before, 0: inside, 1: after
+ * @param customKey 默认为 key，可自定义需要匹配的属性名
+ */
+export function handleTreeDragDrop<T>(
+  treeArr: TreeNode<T>[],
+  dragNode: TreeNode<T>,
+  dropNode: TreeNode<T>,
+  dropPosition: number,
+  customKey = 'key'
+): boolean {
+  // 把 dragNode 从原来的位置删除
+  const parentChildren = dragNode.parent?.children || treeArr;
+  if (dragNode.parent?.[customKey] === dropNode[customKey] && dropPosition === 0) {
+    // 如果拖动的节点释放到自己的父节点上，不做任何操作
+    return false;
+  }
+  const index = parentChildren.findIndex((node: TreeNode<T>) => node[customKey] === dragNode[customKey]);
+  if (index !== -1) {
+    parentChildren.splice(index, 1);
+
+    // 更新删除节点后的节点的 order
+    for (let i = index; i < parentChildren.length; i++) {
+      parentChildren[i].order -= 1;
+    }
+  }
+
+  // 拖动节点插入到目标节点的 children 数组中
+  if (dropPosition === 0) {
+    insertNode(dropNode.parent?.children || treeArr, dropNode[customKey], dragNode, 'inside', undefined, customKey);
+  } else {
+    // 拖动节点插入到目标节点的前/后
+    insertNode(
+      dropNode.parent?.children || treeArr,
+      dropNode[customKey],
+      dragNode,
+      dropPosition === -1 ? 'before' : 'after',
+      undefined,
+      customKey
+    );
+  }
+  return true;
 }
 
 /**

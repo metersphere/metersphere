@@ -184,7 +184,10 @@
     () => visible.value,
     (val) => {
       if (val) {
-        resetModuleAndTable();
+        // 外面使用 v-if 动态渲染时，需要在下一个tick中初始化
+        nextTick(() => {
+          resetModuleAndTable();
+        });
       }
     },
     {

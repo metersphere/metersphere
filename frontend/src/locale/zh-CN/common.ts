@@ -116,6 +116,7 @@ export default {
   'common.batchEdit': '批量编辑',
   'common.tagsInputPlaceholder': '输入内容后回车可直接添加标签',
   'common.move': '移动',
+  'common.moveSuccess': '移动成功',
   'common.batchMove': '批量移动',
   'common.batchCopy': '批量复制',
   'common.batchMoveSuccess': '批量移动成功',

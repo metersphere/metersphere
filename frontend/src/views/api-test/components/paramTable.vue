@@ -459,7 +459,7 @@
     >
       <template #rightTitle>
         <div class="flex justify-between">
-          <div class="text-[var(--color-text-1)]">
+          <div class="text-[var(--color-text-4)]">
             {{ t('apiTestDebug.quickInputParamsTip') }}
           </div>
         </div>

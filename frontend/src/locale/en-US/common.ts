@@ -115,6 +115,7 @@ export default {
   'common.batchEdit': 'Batch Edit',
   'common.tagsInputPlaceholder': 'Enter the content and press Enter to directly add tags',
   'common.move': 'Move',
+  'common.moveSuccess': 'Move successful',
   'common.batchMove': 'Batch move',
   'common.batchCopy': 'Batch copy',
   'common.batchMoveSuccess': 'Batch move successful',

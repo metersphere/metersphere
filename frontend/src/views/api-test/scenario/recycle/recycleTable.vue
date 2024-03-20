@@ -109,7 +109,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiScenarioDetail } from '@/models/apiTest/scenario';
+  import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -331,7 +331,7 @@
   });
 
   // 恢复
-  async function recover(record?: ApiScenarioDetail, isBatch?: boolean) {
+  async function recover(record?: ApiScenarioTableItem, isBatch?: boolean) {
     try {
       if (isBatch) {
         recoverLoading.value = true;
@@ -360,7 +360,7 @@
   /**
    * 删除接口
    */
-  function deleteOperation(record?: ApiScenarioDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function deleteOperation(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('api_scenario.table.deleteScenarioTipTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {

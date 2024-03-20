@@ -1,5 +1,5 @@
 interface Tree {
-  id: number;
+  id: string | number;
   groupId?: number;
   children?: Tree[];
   [key: string]: any;

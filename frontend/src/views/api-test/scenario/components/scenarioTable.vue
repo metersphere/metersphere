@@ -270,7 +270,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiScenarioDetail, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
+  import { ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -563,7 +563,7 @@
   /**
    * 删除接口
    */
-  function deleteScenario(record?: ApiScenarioDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('api_scenario.table.deleteScenarioTipTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -613,7 +613,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleTableMoreActionSelect(item: ActionsItem, record: ApiScenarioDetail) {
+  function handleTableMoreActionSelect(item: ActionsItem, record: ApiScenarioTableItem) {
     switch (item.eventTag) {
       case 'delete':
         deleteScenario(record);
@@ -734,7 +734,7 @@
   const selectedBatchOptModuleName = ref(''); // 移动文件选中节点  用于页面文案显示
   const batchOptionType = ref(''); // 批量操作类型  用于页面提示语
   const batchOptionScenarioCount = ref<number>(0);
-  const activeScenario = ref<ApiScenarioDetail | null>(null); // 当前查看的接口项
+  const activeScenario = ref<ApiScenarioTableItem | null>(null); // 当前查看的接口项
   const scenarioBatchOptTreeLoading = ref(false); // 批量移动文件loading
 
   /**
@@ -834,7 +834,7 @@
     }
   }
 
-  function openScenarioTab(record: ApiScenarioDetail) {
+  function openScenarioTab(record: ApiScenarioTableItem) {
     Message.info('// todo @ba1q1');
   }
 

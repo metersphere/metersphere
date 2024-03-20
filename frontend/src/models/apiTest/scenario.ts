@@ -1,5 +1,7 @@
+import { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
+
 import { ApiDefinitionCustomField } from '@/models/apiTest/management';
-import { ApiScenarioStatus, RequestComposition, RequestDefinitionStatus, RequestImportFormat } from '@/enums/apiEnum';
+import { ApiScenarioStatus, RequestComposition, RequestDefinitionStatus } from '@/enums/apiEnum';
 
 import { BatchApiParams, TableQueryParams } from '../common';
 import { ExecuteApiRequestFullParams, ResponseDefinition } from './common';
@@ -40,7 +42,7 @@ export interface ApiScenarioUpdateDTO {
 }
 
 // 场景详情
-export interface ApiScenarioDetail {
+export interface ApiScenarioTableItem {
   id: string;
   name: string;
   method: string;
@@ -177,3 +179,25 @@ export type CustomApiStep = ExecuteApiRequestFullParams & {
   activeTab: RequestComposition;
   useEnv: string;
 };
+// 场景步骤-循环控制器类型
+export type ScenarioStepLoopType = 'num' | 'while' | 'forEach';
+// 场景步骤-循环控制器-循环类型
+export type ScenarioStepLoopWhileType = 'condition' | 'expression';
+// 场景步骤-步骤插入类型
+export type CreateStepAction = 'addChildStep' | 'insertBefore' | 'insertAfter' | undefined;
+// 场景步骤
+export interface Scenario {
+  id: string;
+  name: string;
+  moduleId: string | number;
+  stepInfo: ScenarioStepInfo;
+  status: RequestDefinitionStatus;
+  tags: string[];
+  params: Record<string, any>[];
+  // 前端渲染字段
+  label: string;
+  closable: boolean;
+  isNew: boolean;
+  unSaved: boolean;
+  executeLoading: boolean; // 执行loading
+}

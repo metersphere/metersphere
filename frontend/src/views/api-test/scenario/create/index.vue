@@ -3,7 +3,7 @@
     <template #first>
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
         <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="p-[16px]">
-          <step v-if="activeKey === ScenarioCreateComposition.STEP" is-new />
+          <step v-if="activeKey === ScenarioCreateComposition.STEP" v-model:step="scenario.stepInfo" is-new />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.PARAMS" :title="t('apiScenario.params')" class="p-[16px]">
           <params v-if="activeKey === ScenarioCreateComposition.PARAMS" v-model:params="scenario.params" />
@@ -124,10 +124,9 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { Scenario } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
-  import { ApiScenarioStatus, RequestCaseStatus, ScenarioCreateComposition } from '@/enums/apiEnum';
-
-  import type { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
+  import { ApiScenarioStatus, ScenarioCreateComposition } from '@/enums/apiEnum';
 
   // 组成部分异步导入
   const step = defineAsyncComponent(() => import('../components/step/index.vue'));
@@ -143,13 +142,8 @@
   const { t } = useI18n();
 
   const activeKey = ref<ScenarioCreateComposition>(ScenarioCreateComposition.STEP);
-  const scenario = ref<any>({
-    name: '',
-    moduleId: 'root',
-    stepInfo: {} as ScenarioStepInfo,
-    status: RequestCaseStatus.PROCESSING,
-    tags: [],
-    params: [],
+  const scenario = defineModel<Scenario>('scenario', {
+    required: true,
   });
 </script>
 

@@ -10,7 +10,7 @@
         />
         <div class="flex items-center gap-[4px]">
           {{ t('apiScenario.sum') }}
-          <div class="text-[rgb(var(--primary-5))]">{{ stepInfo.steps.length }}</div>
+          <div class="text-[rgb(var(--primary-5))]">{{ totalStepCount }}</div>
           {{ t('apiScenario.steps') }}
         </div>
       </div>
@@ -89,10 +89,29 @@
       />
     </div>
   </div>
+  <a-modal
+    v-model:visible="batchToggleVisible"
+    :title="isBatchEnable ? t('common.batchEnable') : t('common.batchDisable')"
+    :width="480"
+    :ok-text="isBatchEnable ? t('common.enable') : t('common.disable')"
+    class="ms-modal-form"
+    title-align="start"
+    body-class="!p-0"
+    @close="resetBatchToggle"
+    @before-ok="handleBeforeBatchToggle"
+  >
+    <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiScenario.range') }}</div>
+    <a-radio-group v-model:model-value="batchToggleRange">
+      <a-radio value="top">{{ t('apiScenario.topStep') }}</a-radio>
+      <a-radio value="all">{{ t('apiScenario.allStep') }}</a-radio>
+    </a-radio-group>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
   // import dayjs from 'dayjs';
+
+  import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -100,8 +119,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-
-  import { RequestMethods, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { countNodes } from '@/utils/tree';
 
   export interface ScenarioStepInfo {
     id: string | number;
@@ -118,91 +136,18 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
+  const stepInfo = defineModel<ScenarioStepInfo>('step', {
+    required: true,
+  });
+
   const checkedAll = ref(false); // 是否全选
   const indeterminate = ref(false); // 是否半选
   const isExpandAll = ref(false); // 是否展开全部
-  const checkedKeys = ref<string[]>([]); // 选中的key
+  const checkedKeys = ref<(string | number)[]>([]); // 选中的key
   const stepTreeRef = ref<InstanceType<typeof stepTree>>();
   const keyword = ref('');
-  const stepInfo = ref<ScenarioStepInfo>({
-    id: new Date().getTime(),
-    steps: [
-      {
-        id: 1,
-        num: 10086,
-        order: 1,
-        checked: false,
-        expanded: false,
-        enabled: true,
-        type: ScenarioStepType.QUOTE_API,
-        name: 'API1',
-        description: 'API1描述',
-        method: RequestMethods.GET,
-        belongProjectId: appStore.currentProjectId,
-        belongProjectName: '项目名称',
-        actionDropdownVisible: false,
-        children: [
-          {
-            id: 11,
-            order: 1,
-            checked: false,
-            expanded: false,
-            enabled: true,
-            type: ScenarioStepType.QUOTE_CASE,
-            name: 'API11',
-            description: 'API11描述',
-            status: ScenarioExecuteStatus.SUCCESS,
-            num: 100861,
-            belongProjectId: '989d23d23d',
-            belongProjectName: '项目名称1',
-            actionDropdownVisible: false,
-          },
-          {
-            id: 12,
-            order: 2,
-            checked: false,
-            expanded: false,
-            enabled: true,
-            type: ScenarioStepType.QUOTE_SCENARIO,
-            name: 'API12',
-            description: 'API12描述',
-            status: ScenarioExecuteStatus.SUCCESS,
-            num: 100862,
-            belongProjectId: '989d23d23d',
-            belongProjectName: '项目名称2',
-            actionDropdownVisible: false,
-          },
-        ],
-      },
-      {
-        id: 2,
-        order: 2,
-        checked: false,
-        expanded: false,
-        enabled: true,
-        type: ScenarioStepType.LOOP_CONTROL,
-        name: 'API1',
-        description: 'API1描述',
-        status: ScenarioExecuteStatus.SUCCESS,
-        actionDropdownVisible: false,
-      },
-      {
-        id: 3,
-        order: 3,
-        checked: false,
-        expanded: false,
-        enabled: true,
-        type: ScenarioStepType.ONLY_ONCE_CONTROL,
-        name: 'API1',
-        description: 'API1描述',
-        status: ScenarioExecuteStatus.SUCCESS,
-        actionDropdownVisible: false,
-      },
-    ],
-    executeTime: '',
-    executeSuccessCount: 0,
-    executeFailCount: 0,
-  });
+
+  const totalStepCount = computed(() => countNodes(stepInfo.value.steps));
 
   function handleChangeAll(value: boolean | (string | number | boolean)[]) {
     indeterminate.value = false;
@@ -231,12 +176,44 @@
     isExpandAll.value = !isExpandAll.value;
   }
 
+  // 批量启用/禁用
+  const isBatchEnable = ref(false);
+  const batchToggleVisible = ref(false);
+  const batchToggleRange = ref('top');
   function batchEnable() {
-    console.log('批量启用');
+    batchToggleVisible.value = true;
+    isBatchEnable.value = true;
   }
 
   function batchDisable() {
-    console.log('批量禁用');
+    batchToggleVisible.value = true;
+    isBatchEnable.value = false;
+  }
+
+  function resetBatchToggle() {
+    batchToggleVisible.value = false;
+    batchToggleRange.value = 'top';
+    isBatchEnable.value = false;
+  }
+
+  async function handleBeforeBatchToggle(done: (closed: boolean) => void) {
+    try {
+      let ids = checkedKeys.value;
+      if (batchToggleRange.value === 'top') {
+        ids = stepInfo.value.steps.map((item) => item.id);
+      }
+      console.log('ids', ids);
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
+      });
+      done(true);
+      Message.success(isBatchEnable.value ? t('common.enableSuccess') : t('common.disableSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   function batchDebug() {
