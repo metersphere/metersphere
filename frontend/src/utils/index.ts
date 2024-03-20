@@ -704,7 +704,10 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
     field.type = customField.type;
     if (selectExcludes.includes(field.type) && Array.isArray(field.options)) {
       tableData[field.id] = field.options.find((option) => option.value === field.value)?.text;
-    } else if (multipleExcludes.includes(field.type) && Array.isArray(field.options)) {
+    } else if (field.type === 'MULTIPLE_INPUT' && field.value) {
+      // 处理标签形式
+      tableData[field.id] = JSON.parse(field.value).join('，') || '-';
+    } else if (multipleExcludes.includes(field.type) && Array.isArray(field.options) && field.value) {
       // 多值的类型后端返回的是json字符串
       field.value = JSON.parse(field.value);
       tableData[field.id] = field.value
