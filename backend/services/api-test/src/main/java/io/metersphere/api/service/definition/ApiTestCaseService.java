@@ -735,6 +735,7 @@ public class ApiTestCaseService extends MoveNodeService {
         apiReport.setName(apiTestCase.getName());
         apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         apiReport.setPoolId(poolId);
+        apiReport.setEnvironmentId(apiTestCase.getEnvironmentId());
         apiReport.setProjectId(apiTestCase.getProjectId());
 
         // 创建报告和用例的关联关系
