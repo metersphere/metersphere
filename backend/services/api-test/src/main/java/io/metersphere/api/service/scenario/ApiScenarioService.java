@@ -1134,7 +1134,7 @@ public class ApiScenarioService extends MoveNodeService {
         parseConfig.setReportId(reportId);
 
         // 初始化报告
-        initApiReport(apiScenario, reportId, poolId, userId);
+        initApiReport(apiScenario, reportId, parseParam.getEnvironmentId(), poolId, userId);
 
         // 初始化报告步骤
         initScenarioReportSteps(steps, taskRequest.getReportId());
@@ -1150,7 +1150,7 @@ public class ApiScenarioService extends MoveNodeService {
      * @param userId
      * @return
      */
-    public ApiScenarioRecord initApiReport(ApiScenario apiScenario, String reportId, String poolId, String userId) {
+    public ApiScenarioRecord initApiReport(ApiScenario apiScenario, String envId, String reportId, String poolId, String userId) {
         // 初始化报告
         ApiScenarioReport scenarioReport = getScenarioReport(userId);
         scenarioReport.setId(reportId);
@@ -1158,6 +1158,8 @@ public class ApiScenarioService extends MoveNodeService {
         scenarioReport.setName(apiScenario.getName());
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(poolId);
+        scenarioReport.setEnvironmentId(apiScenario.getEnvironmentId());
+        scenarioReport.setEnvironmentId(envId);
         scenarioReport.setProjectId(apiScenario.getProjectId());
 
         // 创建报告和用例的关联关系
