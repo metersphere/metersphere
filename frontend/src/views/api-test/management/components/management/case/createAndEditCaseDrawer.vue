@@ -36,6 +36,7 @@
               />
               <environmentSelect ref="environmentSelectRef" />
               <execute
+                ref="executeRef"
                 v-model:detail="detailForm"
                 :environment-id="currentEnvConfig?.id as string"
                 :request="requestCompositionRef?.makeRequestParams"
@@ -56,10 +57,10 @@
             <a-form-item field="status" :label="t('apiTestManagement.apiStatus')">
               <a-select v-model:model-value="detailForm.status" :placeholder="t('common.pleaseSelect')">
                 <template #label>
-                  <apiStatus :status="detailForm.status" />
+                  <apiStatus :status="detailForm.status" size="small" />
                 </template>
                 <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
-                  <apiStatus :status="item" />
+                  <apiStatus :status="item" size="small" />
                 </a-option>
               </a-select>
             </a-form-item>
@@ -82,7 +83,8 @@
           :file-module-options-api="getTransferOptionsCase"
           :file-save-as-api="transferFileCase"
           :current-env-config="currentEnvConfig"
-          :is-definition="true"
+          is-definition
+          @execute="(val: 'localExec' | 'serverExec')=>executeRef?.execute(val)"
         />
       </div>
     </div>
@@ -98,10 +100,10 @@
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
-  import environmentSelect from '../../environmentSelect.vue';
-  import execute from './execute.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
+  import execute from '@/views/api-test/components/executeButton.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import {
@@ -173,6 +175,7 @@
   });
   const detailForm = ref(cloneDeep(defaultDetail.value));
   const isEdit = ref(false);
+  const executeRef = ref<InstanceType<typeof execute>>();
 
   async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
     apiDefinitionId.value = apiId;
@@ -185,10 +188,15 @@
     // 创建或者复制的时候，请求参数为接口定义的请求参数
     detailForm.value = {
       ...cloneDeep(defaultDetail.value),
-      headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
-      body: apiDetailInfo.value.body ?? apiDetailInfo.value.request.body,
-      rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
-      query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
+      ...(apiDetailInfo.value.protocol === 'HTTP'
+        ? {
+            headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
+            body: apiDetailInfo.value?.body ?? apiDetailInfo.value.request.body,
+            rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
+            query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
+          }
+        : {}),
+      url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
     };
     // 复制
     if (isCopy) {
@@ -201,6 +209,8 @@
       detailForm.value.isNew = false;
     }
     innerVisible.value = true;
+    await nextTick();
+    requestCompositionRef.value?.changeVerticalExpand(false); // 响应内容默认折叠
   }
 
   function handleSaveCaseCancel() {
@@ -250,7 +260,16 @@
         if (!isContinue) {
           handleSaveCaseCancel();
         }
-        detailForm.value = cloneDeep(defaultDetail.value);
+        // 继续创建
+        detailForm.value = {
+          ...cloneDeep(defaultDetail.value),
+          id: `case-${Date.now()}`,
+          headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
+          body: apiDetailInfo.value.body ?? apiDetailInfo.value.request.body,
+          rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
+          query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
+          url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
+        };
         drawerLoading.value = false;
       }
     });

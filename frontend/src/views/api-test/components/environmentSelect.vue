@@ -10,7 +10,7 @@
     >
       <template #prefix>
         <div class="flex cursor-pointer p-[8px]" @click.stop="goEnv">
-          <icon-location class="text-[var(--color-text-4)]" />
+          <svg-icon width="14px" height="14px" :name="'icon_env'" class="text-[var(--color-text-4)]" />
         </div>
       </template>
     </a-select>
@@ -21,13 +21,14 @@
   import { SelectOptionData } from '@arco-design/web-vue';
 
   import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
-  import router from '@/router';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
 
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
+  const { openNewPage } = useOpenNewPage();
 
   const currentEnv = ref('');
 
@@ -64,9 +65,7 @@
   }
 
   function goEnv() {
-    router.push({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
-    });
+    openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT);
   }
 
   onBeforeMount(() => {

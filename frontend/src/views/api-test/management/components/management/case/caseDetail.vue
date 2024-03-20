@@ -83,11 +83,11 @@
   import MsDetailCard from '@/components/pure/ms-detail-card/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
-  import environmentSelect from '../../environmentSelect.vue';
   import detailTab from '../api/preview/detail.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
-  import execute from './execute.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
+  import execute from '@/views/api-test/components/executeButton.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import TabCaseChangeHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseChangeHistory.vue';
   import TabCaseDependency from '@/views/api-test/management/components/management/case/tabContent/tabCaseDependency.vue';
@@ -236,16 +236,28 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-tabs-nav) {
-    border-bottom: 1px solid var(--color-text-n8);
-  }
-  :deep(.arco-tabs-nav-extra) {
-    line-height: 32px;
-  }
-  :deep(.arco-tabs-content) {
-    @apply pt-0;
-    .arco-tabs-content-item {
-      @apply px-0;
+  .arco-tabs {
+    @apply flex flex-col;
+    :deep(.arco-tabs-nav) {
+      border-bottom: 1px solid var(--color-text-n8);
+      &-extra {
+        line-height: 32px;
+      }
+    }
+    :deep(.arco-tabs-content) {
+      @apply flex-1 pt-0;
+      .arco-tabs-content-item {
+        @apply px-0;
+      }
+      .arco-tabs-content-list {
+        @apply h-full;
+      }
+      .arco-tabs-content-list .arco-tabs-content-item:nth-of-type(1) .arco-tabs-pane {
+        @apply h-full overflow-hidden;
+      }
+      .arco-collapse {
+        height: calc(100% - 85px);
+      }
     }
   }
   :deep(.ms-detail-card-desc) {
