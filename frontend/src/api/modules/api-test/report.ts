@@ -37,13 +37,22 @@ export function reportBathDelete(moduleType: string, data: TableQueryParams) {
   return MSR.post({ url: reportUrl.ApiBatchDeleteUrl, data });
 }
 
-// 报告详情
+// Api报告详情
 export function reportDetail(reportId: string) {
   return MSR.get<ReportDetail>({ url: `${reportUrl.ScenarioReportDetailUrl}/${reportId}` });
 }
 // 报告步骤详情
 export function reportStepDetail(reportId: string, stepId: string) {
   return MSR.get<ReportStepDetail>({ url: `${reportUrl.ScenarioReportDetailStepUrl}/${reportId}/${stepId}` });
+}
+// 用例报告详情
+export function reportCaseDetail(reportId: string) {
+  return MSR.get<ReportDetail>({ url: `${reportUrl.CaseReportDetailUrl}/${reportId}` });
+}
+
+// 报告步骤详情
+export function reportCaseStepDetail(reportId: string, stepId: string) {
+  return MSR.get<ReportStepDetail[]>({ url: `${reportUrl.CaseStepDetailStepUrl}/${reportId}/${stepId}` });
 }
 
 export default {};

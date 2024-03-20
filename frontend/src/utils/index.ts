@@ -862,7 +862,7 @@ export function addCommasToNumber(number: number) {
 
 /**
  * 给树添加深度
- * @param number 目标值
+ * @param tree 目标树
  */
 export function addLevelToTree<T>(tree: TreeNode<T>[], level = 0): TreeNode<T>[] {
   if (!tree || !Array.isArray(tree)) {

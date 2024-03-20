@@ -34,12 +34,33 @@
         <template #titleName>
           <div class="flex w-full justify-between">
             <div class="font-medium">{{ t('report.detail.api.resContent') }}</div>
-            <div class="grid grid-cols-5 gap-2 text-center">
-              <span>401</span>
-              <span class="text-[rgb(var(--success-6))]">247ms</span>
-              <span class="text-[rgb(var(--success-6))]">50bytes</span>
-              <span>Mock</span>
-              <span>66</span>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <a-popover position="left" content-class="response-popover-content">
+                <div
+                  class="one-line-text max-w-[200px]"
+                  :style="{ color: statusCodeColor(activeStepDetail?.content?.responseResult.responseCode || '') }"
+                >
+                  {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+                </div>
+                <template #content>
+                  <div class="flex items-center gap-[8px] text-[14px]">
+                    <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+                    <div
+                      :style="{ color: statusCodeColor(activeStepDetail.content?.responseResult.responseCode || '') }"
+                    >
+                      {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+                    </div>
+                  </div>
+                </template>
+              </a-popover>
+              <span class="text-[rgb(var(--success-6))]"
+                >{{ activeStepDetail.content?.responseResult.responseTime }}ms</span
+              >
+              <span class="text-[rgb(var(--success-6))]">
+                {{ activeStepDetail.content?.responseResult.responseSize }} bytes</span
+              >
+              <!-- <span>Mock</span> -->
+              <span>{{ props.environmentName }}</span>
             </div>
           </div>
         </template>
@@ -48,8 +69,8 @@
             {{ record.name }}
           </span>
 
-          <div v-if="record.script && !record.isAssertion" class="w-full">
-            <ResContent :script="record.script" language="JSON" :show-charset-change="record.script" />
+          <div v-if="record.showScript && !record.isAssertion" class="w-full">
+            <ResContent :script="record.script || ''" language="JSON" :show-charset-change="record.showScript" />
           </div>
           <div v-if="record.isAssertion" class="w-full">
             <assertTable :data="record.assertions" />
@@ -62,6 +83,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -71,10 +93,11 @@
   import assertTable from './assertTable.vue';
   import ResContent from './resContent.vue';
 
-  import { reportDetail } from '@/api/modules/api-test/report';
+  import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import { getGenerateId } from '@/utils';
 
-  import type { ScenarioDetailItem } from '@/models/apiTest/report';
+  import type { ReportStepDetail, ScenarioDetailItem } from '@/models/apiTest/report';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -82,6 +105,9 @@
     stepId: string;
     activeStepIndex: number;
     scenarioDetail: ScenarioDetailItem;
+    showType: 'API' | 'CASE'; // 接口场景|用例
+    console?: string; //  控制台
+    environmentName?: string; // 环境名称
   }>();
 
   const emit = defineEmits<{
@@ -129,7 +155,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(undefined, {
+  const { propsRes, propsEvent } = useTable(undefined, {
     columns,
     scroll: { x: 'auto' },
     showPagination: false,
@@ -145,102 +171,195 @@
 
   async function loadLoop() {}
 
-  onMounted(() => {
-    // 虚拟数据
-    propsRes.value.data = [
+  /**
+   *  响应状态码对应颜色
+   */
+
+  function statusCodeColor(code: string) {
+    if (code) {
+      const resCode = Number(code);
+      if (resCode >= 200 && resCode < 300) {
+        return 'rgb(var(--success-7)';
+      }
+      if (resCode >= 300 && resCode < 400) {
+        return 'rgb(var(--warning-7)';
+      }
+      return 'rgb(var(--danger-7)';
+    }
+    return '';
+  }
+
+  const stepDetailInfo = ref<ReportStepDetail[]>([]);
+
+  // 处理内容
+  function getRequestItem(item: ReportStepDetail) {
+    const headers = item.content?.responseResult.headers;
+    const body = item.content?.responseResult.body;
+    const realRequest = item.content?.body
+      ? `${t('apiTestDebug.requestUrl')}:\n${item.content?.url}\n${t('apiTestDebug.header')}:\n${
+          item.content?.headers
+        }\nBody:\n${item.content?.body.trim()}`
+      : '';
+    const assertionList = item.content?.responseResult.assertions;
+    const extractValue = item.content?.responseResult.vars?.trim();
+    return {
+      headers,
+      body,
+      realRequest,
+      assertionList,
+      extractValue,
+    };
+  }
+
+  const tempStepMap = ref<Record<string, any>>({});
+  function setTableMaps(currentStepId: string, paramsObj: Record<string, any>) {
+    const { headers, body, realRequest, assertionList, extractValue } = paramsObj;
+    tempStepMap.value[currentStepId] = [
       {
-        id: '1001',
+        id: getGenerateId(),
         name: '响应体',
         script: '',
+        showScript: false,
         isAssertion: false,
         assertions: [],
         children: [
           {
-            script: '1',
+            showScript: true,
+            script: body,
             isAssertion: false,
             assertions: [],
           },
         ],
       },
       {
-        id: '1002',
+        id: getGenerateId(),
         name: '响应头',
         script: '',
+        showScript: false,
         isAssertion: false,
         assertions: [],
         children: [
           {
-            script: '2',
+            script: headers,
+            showScript: true,
             isAssertion: false,
             assertions: [],
           },
         ],
       },
       {
-        id: '1003',
+        id: getGenerateId(),
         name: '实际请求',
         script: '',
+        showScript: false,
         isAssertion: false,
         assertions: [],
         children: [
           {
-            script: '3',
+            script: realRequest,
+            showScript: true,
             isAssertion: false,
             assertions: [],
           },
         ],
       },
       {
-        id: '1004',
+        id: getGenerateId(),
         name: '控制台',
         script: '',
         isAssertion: false,
+        showScript: false,
         assertions: [],
         children: [
           {
-            script: '4',
+            script: props.console,
+            showScript: true,
             isAssertion: false,
             assertions: [],
           },
         ],
       },
       {
-        id: '1005',
+        id: getGenerateId(),
         name: '提取',
         script: '',
         isAssertion: false,
+        showScript: false,
         assertions: [],
         children: [
           {
-            script: '1',
+            script: extractValue,
+            showScript: true,
             isAssertion: false,
             assertions: [],
           },
         ],
       },
       {
-        id: '1007',
+        id: getGenerateId(),
         name: '断言',
         script: '',
+        showScript: false,
         isAssertion: false,
         assertions: [],
         children: [
           {
-            script: '1',
+            script: '',
+            showScript: false,
             isAssertion: true,
-            assertions: [
-              {
-                name: 'string',
-                content: 'string',
-                script: 'string',
-                message: 'string',
-                pass: true,
-              },
-            ],
+            assertions: assertionList,
           },
         ],
       },
     ];
+  }
+
+  function setResValue(list: ReportStepDetail[]) {
+    for (let i = 0; i < list.length; i++) {
+      const currentStepId = list[i].id as string;
+      const paramsObj = getRequestItem(list[i]);
+      setTableMaps(currentStepId, paramsObj);
+      if (list[i].content?.subRequestResults && list[i].content?.subRequestResults.length) {
+        setResValue(list[i].content?.subRequestResults);
+      }
+    }
+  }
+
+  const reportDetailMap = {
+    API: {
+      stepDetail: reportStepDetail,
+    },
+    CASE: {
+      stepDetail: reportCaseStepDetail,
+    },
+  };
+
+  /**
+   *  获取步骤详情
+   */
+  const activeStepId = ref<string>('');
+  const activeStepDetail = ref<ReportStepDetail>({});
+  const activeIndex = ref<number>(0);
+  async function getStepDetail() {
+    try {
+      const result = await reportDetailMap[props.showType].stepDetail(
+        props.scenarioDetail.reportId as string,
+        props.scenarioDetail.stepId as string
+      );
+      stepDetailInfo.value = cloneDeep(result) as ReportStepDetail[];
+      activeStepId.value = stepDetailInfo.value[0].id as string;
+      activeStepDetail.value = stepDetailInfo.value.find((item) => item.id === activeStepId.value) || {};
+      setResValue(stepDetailInfo.value);
+      propsRes.value.data = tempStepMap.value[activeStepId.value];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  watchEffect(() => {
+    if (props.scenarioDetail.reportId && props.scenarioDetail.stepId) {
+      getStepDetail();
+    }
   });
 </script>
 
