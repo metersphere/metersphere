@@ -39,7 +39,6 @@
             v-model:model-value="requestVModel.useEnv"
             :style="{ width: '150px', float: 'right' }"
             :allow-search="false"
-            allow-clear
             :options="[
               { label: t('common.quote'), value: 'true' },
               { label: t('common.notQuote'), value: 'false' },
@@ -48,6 +47,7 @@
             value-key="value"
             label-key="label"
             :prefix="t('project.environmental.env')"
+            @change="handleUseEnvChange"
           >
           </MsSelect>
         </div>
@@ -74,10 +74,10 @@
                 class="flex items-center"
               />
               <a-tooltip v-if="!isHttpProtocol" content="requestVModel.label" :mouse-enter-delay="500">
-                <div class="one-line-text max-w-[350px]"> requestVModel.label </div>
+                <div class="one-line-text max-w-[350px]"> requestVModel.label</div>
               </a-tooltip>
               <a-tooltip :content="requestVModel.label" :mouse-enter-delay="500">
-                <div class="one-line-text max-w-[350px]"> {{ requestVModel.label }} </div>
+                <div class="one-line-text max-w-[350px]"> {{ requestVModel.label }}</div>
               </a-tooltip>
             </div>
             <a-input-group v-if="isHttpProtocol" class="flex-1">
@@ -546,6 +546,7 @@
 
   const protocolLoading = ref(false);
   const protocolOptions = ref<SelectOptionData[]>([]);
+
   async function initProtocolList() {
     try {
       protocolLoading.value = true;
@@ -591,7 +592,11 @@
   function controlPluginFormFields() {
     const allFields = fApi.value?.fields();
     let fields: string[] = [];
-    fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
+    if (requestVModel.value.useEnv === 'true') {
+      fields = pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields || [];
+    } else {
+      fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
+    }
     fApi.value?.hidden(true, allFields?.filter((e) => !fields.includes(e)) || []);
     return fields;
   }
@@ -626,6 +631,20 @@
         fApi.value?.resetFields();
       });
     }
+  }
+
+  // 切换是否使用环境变量
+  async function handleUseEnvChange() {
+    const pluginId = protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId;
+    const res = await getPluginScript(pluginId);
+    pluginScriptMap.value[requestVModel.value.protocol] = res;
+    fApi.value?.nextTick(() => {
+      controlPluginFormFields();
+    });
+    nextTick(() => {
+      // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
+      fApi.value?.resetFields();
+    });
   }
 
   const pluginError = ref(false);
@@ -722,9 +741,11 @@
 
   const verticalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const isVerticalExpanded = ref(true);
+
   function handleVerticalExpandChange(val: boolean) {
     isVerticalExpanded.value = val;
   }
+
   function changeVerticalExpand(val: boolean) {
     isVerticalExpanded.value = val;
     if (val) {
@@ -769,6 +790,7 @@
 
   const reportId = ref('');
   const websocket = ref<WebSocket>();
+
   /**
    * 开启websocket监听，接收执行结果
    */
@@ -941,6 +963,7 @@
     websocket.value?.close();
     requestVModel.value.executeLoading = false;
   }
+
   const step = ref<CustomApiStep>();
 
   function handleContinue() {
@@ -948,6 +971,7 @@
     emit('addStep', step.value);
     requestVModel.value = { ...defaultDebugParams };
   }
+
   function handleSave() {
     handleContinue();
     visible.value = false;
@@ -979,6 +1003,7 @@
 <style lang="less" scoped>
   .exec-btn {
     margin-right: 12px;
+
     :deep(.arco-btn) {
       color: white !important;
       background-color: rgb(var(--primary-5)) !important;
@@ -987,26 +1012,32 @@
       .btn-base-primary-disabled();
     }
   }
+
   .tab-pane-container {
     @apply flex-1 overflow-y-auto;
     .ms-scroll-bar();
   }
+
   :deep(.no-content) {
     .arco-tabs-content {
       display: none;
     }
   }
+
   :deep(.arco-tabs-tab:first-child) {
     margin-left: 0;
   }
+
   :deep(.arco-tabs-tab) {
     @apply leading-none;
   }
+
   .hidden-second {
     :deep(.arco-split-trigger) {
       @apply hidden;
     }
   }
+
   .show-second {
     :deep(.arco-split-trigger) {
       @apply block;
