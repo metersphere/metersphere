@@ -25,7 +25,7 @@
         checkable
         block-node
         draggable
-        @select="handleStepSelect"
+        @select="(selectedKeys, node) => handleStepSelect(selectedKeys, node as ScenarioStepItem)"
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"
         @more-action-select="handleStepMoreActionSelect"
@@ -186,17 +186,21 @@
         </div>
       </a-button>
     </createStepActions>
-    <!-- todo  执行、上传文件、转存文件等需要传入相关方法； 当前场景环境使用的是假数据； add-step暂时只是将数据传递到当前组件的customDemoStep对象中，用于再次打开的时候测试编辑功能  -->
     <customApiDrawer
       v-if="customApiDrawerVisible"
       v-model:visible="customApiDrawerVisible"
       :env-detail-item="{ id: 'demp-id-112233', projectId: '123456', name: 'demo环境' }"
-      :request="customDemoStep"
+      :request="activeStep?.request"
       @add-step="addCustomApiStep"
     />
-    <scriptOperationDrawer v-model:visible="scriptOperationDrawerVisible" />
     <importApiDrawer v-if="importApiDrawerVisible" v-model:visible="importApiDrawerVisible" />
-    <scriptOperationDrawer v-if="scriptOperationDrawerVisible" v-model:visible="scriptOperationDrawerVisible" />
+    <scriptOperationDrawer
+      v-if="scriptOperationDrawerVisible"
+      v-model:visible="scriptOperationDrawerVisible"
+      :script="activeStep?.script"
+      :name="activeStep?.name"
+      @save="addScriptStep"
+    />
     <a-modal
       v-model:visible="showQuickInput"
       :title="quickInputDataKey ? t(`apiScenario.${quickInputDataKey}`) : ''"
@@ -252,8 +256,13 @@
   import useAppStore from '@/store/modules/app';
   import { deleteNode, findNodeByKey, getGenerateId, handleTreeDragDrop, insertNode, mapTree, TreeNode } from '@/utils';
 
-  import { CustomApiStep, ScenarioStepLoopWhileType } from '@/models/apiTest/scenario';
+  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { CreateStepAction, ScenarioStepLoopWhileType } from '@/models/apiTest/scenario';
   import { RequestMethods, ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+
+  import type { RequestParam } from '../common/customApiDrawer.vue';
+  import useCreateActions from './createAction/useCreateActions';
+  import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
 
   // 非首屏渲染必要组件，异步加载
   const MsCodeEditor = defineAsyncComponent(() => import('@/components/pure/ms-code-editor/index.vue'));
@@ -275,11 +284,15 @@
     belongProjectId?: string;
     belongProjectName?: string;
     children?: ScenarioStepItem[];
+    // 自定义请求
+    request?: RequestParam;
+    // 脚本操作
+    script?: ExecuteConditionProcessor;
     // 页面渲染以及交互需要字段
     // renderId: string; // 渲染id
     checked: boolean; // 是否选中
     expanded: boolean; // 是否展开
-    actionDropdownVisible?: boolean; // 是否展示操作下拉
+    createActionsVisible?: boolean; // 是否展示创建步骤下拉
     parent?: ScenarioStepItem | ScenarioStepItem[]; // 父级节点，第一层的父级节点为undefined
     loopNum: number;
     loopType: 'num' | 'while' | 'forEach';
@@ -543,32 +556,46 @@
     }
   }
 
-  function handleStepSelect(_selectedKeys: Array<string | number>, node: MsTreeNodeData) {
+  const importApiDrawerVisible = ref(false);
+  const customApiDrawerVisible = ref(false);
+  const scriptOperationDrawerVisible = ref(false);
+  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
+  const activeCreateAction = ref<CreateStepAction>(); // 用于抽屉操作创建步骤时记录当前插入类型
+
+  function handleStepSelect(_selectedKeys: Array<string | number>, step: ScenarioStepItem) {
     const offspringIds: string[] = [];
-    mapTree(node.children || [], (e) => {
+    mapTree(step.children || [], (e) => {
       offspringIds.push(e.id);
       return e;
     });
-    selectedKeys.value = [node.id, ...offspringIds];
+    selectedKeys.value = [step.id, ...offspringIds];
+    if (step.type === ScenarioStepType.CUSTOM_API) {
+      activeStep.value = step;
+      customApiDrawerVisible.value = true;
+    } else if (step.type === ScenarioStepType.SCRIPT_OPERATION) {
+      activeStep.value = step;
+      console.log('activeStep', activeStep.value);
+      scriptOperationDrawerVisible.value = true;
+    }
   }
 
   function executeStep(node: MsTreeNodeData) {
     console.log('执行步骤', node);
   }
 
-  const importApiDrawerVisible = ref(false);
-  const customApiDrawerVisible = ref(false);
-  const scriptOperationDrawerVisible = ref(false);
-  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
-
+  /**
+   * 处理抽屉资源类型步骤创建动作
+   */
   function handleOtherCreate(
     type:
       | ScenarioAddStepActionType.IMPORT_SYSTEM_API
       | ScenarioAddStepActionType.CUSTOM_API
       | ScenarioAddStepActionType.SCRIPT_OPERATION,
-    step?: ScenarioStepItem
+    step?: ScenarioStepItem,
+    _activeCreateAction?: CreateStepAction
   ) {
     activeStep.value = step;
+    activeCreateAction.value = _activeCreateAction;
     switch (type) {
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
         importApiDrawerVisible.value = true;
@@ -581,6 +608,62 @@
         break;
       default:
         break;
+    }
+  }
+
+  const { handleCreateStep } = useCreateActions();
+  /**
+   * 添加自定义 API 步骤
+   */
+  function addCustomApiStep(request: RequestParam) {
+    if (activeStep.value) {
+      handleCreateStep(
+        {
+          type: ScenarioStepType.CUSTOM_API,
+          name: t('apiScenario.customApi'),
+          request: cloneDeep(request),
+        } as ScenarioStepItem,
+        activeStep.value,
+        activeCreateAction.value,
+        selectedKeys.value
+      );
+    } else {
+      steps.value.push({
+        ...cloneDeep(defaultStepItemCommon),
+        id: getGenerateId(),
+        order: steps.value.length + 1,
+        type: ScenarioStepType.CUSTOM_API,
+        name: t('apiScenario.customApi'),
+        request: cloneDeep(request),
+      } as ScenarioStepItem);
+    }
+  }
+
+  /**
+   * 添加脚本操作步骤
+   */
+  function addScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
+    if (activeStep.value) {
+      handleCreateStep(
+        {
+          type: ScenarioStepType.SCRIPT_OPERATION,
+          name,
+          script: cloneDeep(scriptProcessor),
+        } as ScenarioStepItem,
+        activeStep.value,
+        activeCreateAction.value,
+        selectedKeys.value
+      );
+      console.log('activeStep', activeStep.value);
+    } else {
+      steps.value.push({
+        ...cloneDeep(defaultStepItemCommon),
+        id: getGenerateId(),
+        order: steps.value.length + 1,
+        type: ScenarioStepType.SCRIPT_OPERATION,
+        name,
+        script: cloneDeep(scriptProcessor),
+      } as ScenarioStepItem);
     }
   }
 
@@ -624,13 +707,6 @@
         loading.value = false;
       });
     }
-  }
-
-  const customDemoStep = ref<CustomApiStep>();
-
-  function addCustomApiStep(step: CustomApiStep) {
-    // todo: 添加自定义api步骤
-    customDemoStep.value = { ...step };
   }
 
   const showQuickInput = ref(false);

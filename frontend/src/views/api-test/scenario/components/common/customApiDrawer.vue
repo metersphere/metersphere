@@ -25,12 +25,12 @@
           <span
             v-show="requestVModel.useEnv === 'false'"
             style="
+              float: left;
+              margin-top: 8px;
+              margin-right: 16px;
               font-size: 14px;
               font-weight: 400;
               line-height: 22px;
-              margin-right: 16px;
-              margin-top: 8px;
-              float: left;
             "
             >{{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
           </span>
@@ -237,7 +237,6 @@
               v-show="showResponse"
               v-model:active-layout="activeLayout"
               v-model:active-tab="requestVModel.responseActiveTab"
-              v-model:response-definition="requestVModel.responseDefinition"
               :is-http-protocol="isHttpProtocol"
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
@@ -314,7 +313,6 @@
     defaultRequestParamsItem,
     defaultResponse,
   } from '@/views/api-test/components/config';
-  import type { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
   import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
 
@@ -330,27 +328,25 @@
   );
 
   export interface RequestCustomAttr {
-    type: 'api' | 'case' | 'mock' | 'doc'; // 展示的请求 tab 类型；api包含了接口调试和接口定义
+    type: 'api';
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
-    mode?: 'definition' | 'debug'; // 接口定义时，展示的定义模式/调试模式（显示的 tab 不同）
+    mode?: 'debug';
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
   }
 
   export type RequestParam = ExecuteApiRequestFullParams & {
-    responseDefinition?: ResponseItem[];
     response?: RequestTaskResult;
     useEnv: string;
   } & RequestCustomAttr &
     TabItem;
 
   const props = defineProps<{
-    request?: CustomApiStep; // 请求参数集合
+    request?: RequestParam; // 请求参数集合
     detailLoading?: boolean; // 详情加载状态
-
     envDetailItem?: {
       id?: string;
       projectId: string;
@@ -369,7 +365,9 @@
     };
   }>();
 
-  const emit = defineEmits(['addStep']);
+  const emit = defineEmits<{
+    (e: 'addStep', request: RequestParam): void;
+  }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -439,7 +437,7 @@
     executeLoading: false,
   };
 
-  const requestVModel = ref<RequestParam>(defaultDebugParams);
+  const requestVModel = ref<RequestParam>(props.request || defaultDebugParams);
 
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
@@ -964,11 +962,8 @@
     requestVModel.value.executeLoading = false;
   }
 
-  const step = ref<CustomApiStep>();
-
   function handleContinue() {
-    step.value = { ...requestVModel.value };
-    emit('addStep', step.value);
+    emit('addStep', requestVModel.value);
     requestVModel.value = { ...defaultDebugParams };
   }
 
@@ -984,7 +979,6 @@
   watch(
     () => visible.value,
     async (val) => {
-      step.value = { ...defaultDebugParams };
       if (val) {
         await initProtocolList();
         if (props.request) {
@@ -1003,7 +997,6 @@
 <style lang="less" scoped>
   .exec-btn {
     margin-right: 12px;
-
     :deep(.arco-btn) {
       color: white !important;
       background-color: rgb(var(--primary-5)) !important;
@@ -1012,32 +1005,26 @@
       .btn-base-primary-disabled();
     }
   }
-
   .tab-pane-container {
     @apply flex-1 overflow-y-auto;
     .ms-scroll-bar();
   }
-
   :deep(.no-content) {
     .arco-tabs-content {
       display: none;
     }
   }
-
   :deep(.arco-tabs-tab:first-child) {
     margin-left: 0;
   }
-
   :deep(.arco-tabs-tab) {
     @apply leading-none;
   }
-
   .hidden-second {
     :deep(.arco-split-trigger) {
       @apply hidden;
     }
   }
-
   .show-second {
     :deep(.arco-split-trigger) {
       @apply block;

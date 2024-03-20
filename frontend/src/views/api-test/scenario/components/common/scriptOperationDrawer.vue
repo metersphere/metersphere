@@ -42,17 +42,23 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteConditionProcessor, ScriptProcessor } from '@/models/apiTest/common';
+  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
-  const scriptName = ref('');
-  const activeItem = ref({
+  const props = defineProps<{
+    script?: ExecuteConditionProcessor;
+    name?: string;
+  }>();
+
+  const defaultScript = {
     processorType: RequestConditionProcessor.SCRIPT,
     enableCommonScript: false,
     script: '',
     scriptLanguage: LanguageEnum.BEANSHELL,
     commonScriptInfo: {},
-  } as ExecuteConditionProcessor);
+  } as ExecuteConditionProcessor;
+  const scriptName = ref(props.name || '');
+  const activeItem = ref(props.script || defaultScript);
 
   const { t } = useI18n();
 
@@ -79,12 +85,12 @@
   }
 
   function saveAndContinue() {
-    emit('save', scriptName.value, activeItem.value as ScriptProcessor);
+    emit('save', scriptName.value, activeItem.value);
     resetField();
   }
 
   function save() {
-    emit('save', scriptName.value, activeItem.value as ScriptProcessor);
+    emit('save', scriptName.value, activeItem.value);
     resetField();
     visible.value = false;
   }

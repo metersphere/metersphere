@@ -11,15 +11,15 @@
     </MsButton>
     <template #content>
       <createStepActions
-        v-model:visible="innerStep.actionDropdownVisible"
+        v-model:visible="innerStep.createActionsVisible"
         v-model:selected-keys="selectedKeys"
         v-model:steps="steps"
         v-model:step="innerStep"
         :create-step-action="activeCreateAction"
         position="br"
         :popup-translate="[-7, -10]"
-        @other-create="(type, step) => emit('otherCreate', type, step)"
-        @close="emit('close')"
+        @other-create="(type, step) => emit('otherCreate', type, step, activeCreateAction)"
+        @close="handleActionsClose"
       >
         <span></span>
       </createStepActions>
@@ -83,7 +83,8 @@
         | ScenarioAddStepActionType.IMPORT_SYSTEM_API
         | ScenarioAddStepActionType.CUSTOM_API
         | ScenarioAddStepActionType.SCRIPT_OPERATION,
-      step?: ScenarioStepItem
+      step?: ScenarioStepItem,
+      activeCreateAction?: CreateStepAction
     );
   }>();
 
@@ -115,17 +116,22 @@
 
   const activeCreateAction = ref<CreateStepAction>();
   function handleTriggerActionClick(action: CreateStepAction) {
-    innerStep.value.actionDropdownVisible = true;
+    innerStep.value.createActionsVisible = true;
     activeCreateAction.value = action;
   }
 
   function handleActionTriggerChange(val: boolean) {
     if (!val) {
-      // 关闭操作下拉时，清空操作状态 TODO:部分操作是打开抽屉，需要特殊处理
       activeCreateAction.value = undefined;
-      innerStep.value.actionDropdownVisible = false;
+      innerStep.value.createActionsVisible = false;
       emit('close');
     }
+  }
+
+  function handleActionsClose() {
+    activeCreateAction.value = undefined;
+    innerStep.value.createActionsVisible = false;
+    document.getElementById(innerStep.value.id.toString())?.click();
   }
 </script>
 

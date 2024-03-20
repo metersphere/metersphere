@@ -48,11 +48,12 @@
   import { ScenarioStepItem } from '../stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { findNodeByKey, getGenerateId, insertNode, TreeNode } from '@/utils';
+  import { findNodeByKey, getGenerateId } from '@/utils';
 
   import { CreateStepAction } from '@/models/apiTest/scenario';
   import { ScenarioAddStepActionType, ScenarioStepType } from '@/enums/apiEnum';
 
+  import useCreateActions from './useCreateActions';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
   import { DropdownPosition } from '@arco-design/web-vue/es/dropdown/interface';
 
@@ -88,79 +89,7 @@
     default: undefined,
   });
 
-  /**
-   * 增加步骤时判断父节点是否选中，如果选中则需要把新节点也选中
-   */
-  function isParentSelected(parent?: TreeNode<ScenarioStepItem>) {
-    if (parent && selectedKeys.value.includes(parent.id)) {
-      // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-      selectedKeys.value.push(step.value.id);
-    }
-  }
-
-  /**
-   * 处理添加子步骤、插入步骤前/后操作
-   */
-  function handleCreateStep(defaultStepInfo: ScenarioStepItem) {
-    switch (props.createStepAction) {
-      case 'addChildStep':
-        const id = getGenerateId();
-        if (step.value?.children) {
-          step.value.children.push({
-            ...cloneDeep(defaultStepItemCommon),
-            ...defaultStepInfo,
-            id,
-            order: step.value.children.length + 1,
-          });
-        } else {
-          step.value.children = [
-            {
-              ...cloneDeep(defaultStepItemCommon),
-              ...defaultStepInfo,
-              id,
-              order: 1,
-            },
-          ];
-        }
-        if (selectedKeys.value.includes(step.value.id)) {
-          // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-          selectedKeys.value.push(id);
-        }
-        break;
-      case 'insertBefore':
-        insertNode<ScenarioStepItem>(
-          step.value.children || steps.value,
-          step.value.id,
-          {
-            ...cloneDeep(defaultStepItemCommon),
-            ...defaultStepInfo,
-            id: getGenerateId(),
-            order: step.value.order,
-          },
-          'before',
-          isParentSelected,
-          'id'
-        );
-        break;
-      case 'insertAfter':
-        insertNode<ScenarioStepItem>(
-          step.value.children || steps.value,
-          step.value.id,
-          {
-            ...cloneDeep(defaultStepItemCommon),
-            ...defaultStepInfo,
-            id: getGenerateId(),
-            order: step.value.order + 1,
-          },
-          'after',
-          isParentSelected,
-          'id'
-        );
-        break;
-      default:
-        break;
-    }
-  }
+  const { handleCreateStep } = useCreateActions();
 
   /**
    * 处理创建步骤操作
@@ -170,10 +99,15 @@
     switch (val) {
       case ScenarioAddStepActionType.LOOP_CONTROL:
         if (step.value) {
-          handleCreateStep({
-            type: ScenarioStepType.LOOP_CONTROL,
-            name: t('apiScenario.loopControl'),
-          } as ScenarioStepItem);
+          handleCreateStep(
+            {
+              type: ScenarioStepType.LOOP_CONTROL,
+              name: t('apiScenario.loopControl'),
+            } as ScenarioStepItem,
+            step.value,
+            props.createStepAction,
+            selectedKeys.value
+          );
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
@@ -186,10 +120,15 @@
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
         if (step.value) {
-          handleCreateStep({
-            type: ScenarioStepType.CONDITION_CONTROL,
-            name: t('apiScenario.conditionControl'),
-          } as ScenarioStepItem);
+          handleCreateStep(
+            {
+              type: ScenarioStepType.CONDITION_CONTROL,
+              name: t('apiScenario.conditionControl'),
+            } as ScenarioStepItem,
+            step.value,
+            props.createStepAction,
+            selectedKeys.value
+          );
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
@@ -202,10 +141,15 @@
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
         if (step.value) {
-          handleCreateStep({
-            type: ScenarioStepType.ONLY_ONCE_CONTROL,
-            name: t('apiScenario.onlyOnceControl'),
-          } as ScenarioStepItem);
+          handleCreateStep(
+            {
+              type: ScenarioStepType.ONLY_ONCE_CONTROL,
+              name: t('apiScenario.onlyOnceControl'),
+            } as ScenarioStepItem,
+            step.value,
+            props.createStepAction,
+            selectedKeys.value
+          );
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
@@ -218,10 +162,15 @@
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
         if (step.value) {
-          handleCreateStep({
-            type: ScenarioStepType.WAIT_TIME,
-            name: t('apiScenario.waitTime'),
-          } as ScenarioStepItem);
+          handleCreateStep(
+            {
+              type: ScenarioStepType.WAIT_TIME,
+              name: t('apiScenario.waitTime'),
+            } as ScenarioStepItem,
+            step.value,
+            props.createStepAction,
+            selectedKeys.value
+          );
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
@@ -248,7 +197,7 @@
         break;
     }
     if (step.value) {
-      document.getElementById(step.value.id.toString())?.click();
+      emit('close');
     }
   }
 
