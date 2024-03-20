@@ -252,6 +252,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -280,11 +281,10 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiScenarioDetail, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     class?: string;
@@ -361,6 +361,7 @@
       title: 'apiScenario.table.columns.status',
       dataIndex: 'status',
       slotName: 'status',
+      titleSlotName: 'statusFilter',
       width: 140,
       showDrag: true,
     },

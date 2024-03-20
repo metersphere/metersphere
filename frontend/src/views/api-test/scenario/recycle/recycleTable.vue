@@ -98,14 +98,13 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -113,11 +112,9 @@
   import {
     batchDeleteScenario,
     batchRecoverScenario,
-    batchRecycleScenario,
     deleteScenario,
     getTrashScenarioPage,
     recoverScenario,
-    recycleScenario,
   } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -139,24 +136,6 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-  const scenarioPriorityList = ref([
-    {
-      value: 'P0',
-      text: 'P0',
-    },
-    {
-      value: 'P1',
-      text: 'P1',
-    },
-    {
-      value: 'P2',
-      text: 'P2',
-    },
-    {
-      value: 'P3',
-      text: 'P3',
-    },
-  ]);
   const emit = defineEmits(['refreshModuleTree']);
   const keyword = ref('');
   const recoverLoading = ref(false);
@@ -200,6 +179,7 @@
       title: 'apiScenario.table.columns.status',
       dataIndex: 'status',
       slotName: 'status',
+      titleSlotName: 'statusFilter',
       width: 140,
       showDrag: true,
     },
