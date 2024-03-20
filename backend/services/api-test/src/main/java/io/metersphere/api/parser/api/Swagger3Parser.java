@@ -278,7 +278,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 body.setBodyType(Body.BodyType.JSON.name());
                 JsonBody jsonBody = new JsonBody();
                 jsonBody.setJsonSchema(jsonSchemaItem);
-                jsonBody.setEnableJsonSchema(true);
+                jsonBody.setEnableJsonSchema(false);
                 if (ObjectUtils.isNotEmpty(value.getExample())) {
                     jsonBody.setJsonValue(ApiDataUtils.toJSONString(value.getExample()));
                 }
