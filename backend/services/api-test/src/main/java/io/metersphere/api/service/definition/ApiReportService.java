@@ -17,6 +17,7 @@ import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -183,7 +184,7 @@ public class ApiReportService {
         //查询资源池名称
         apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
         //查询环境名称
-        apiReportDTO.setEnvironmentName(environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId()).getName());
+        apiReportDTO.setEnvironmentName(StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId()) ? environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId()).getName() : null);
         apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());
         //需要查询出所有的步骤
         if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
