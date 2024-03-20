@@ -21,14 +21,17 @@ import java.util.LinkedList;
 public abstract class AbstractMsTestElement implements MsTestElement {
     /**
      * 步骤ID（唯一）
+     * 运行时设置
      */
     private String stepId;
     /**
      * 关联的资源ID（用例ID/接口ID/场景ID)等
+     * 运行时设置
      */
     private String resourceId;
     /**
      * 当前的项目ID
+     * 运行时设置
      */
     private String projectId;
     /**
