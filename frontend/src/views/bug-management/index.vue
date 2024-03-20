@@ -34,15 +34,15 @@
       </template>
       <template #operation="{ record }">
         <div class="flex flex-nowrap items-center">
-          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleCopy(record)">{{
-              t('common.copy')
-            }}</MsButton>
-            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
-          </span>
           <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row items-center">
             <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleEdit(record)">{{
               t('common.edit')
+            }}</MsButton>
+            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
+          </span>
+          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
+            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleCopy(record)">{{
+              t('common.copy')
             }}</MsButton>
             <a-divider class="!mx-2 h-[12px]" direction="vertical" />
           </span>

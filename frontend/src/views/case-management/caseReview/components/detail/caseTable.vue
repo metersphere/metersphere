@@ -318,6 +318,8 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
+
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
@@ -429,6 +431,12 @@
       selectable: true,
       showSelectAll: true,
       draggable: { type: 'handle', width: 32 },
+    },
+    (record) => {
+      return {
+        ...record,
+        caseLevel: getCaseLevels(record.customFields),
+      };
     }
   );
   const batchActions = {
