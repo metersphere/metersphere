@@ -306,7 +306,13 @@
     ></FeatureCaseTree>
   </a-modal>
   <ExportExcelDrawer v-model:visible="showExportExcelVisible" />
-  <BatchEditModal v-model:visible="showEditModel" :batch-params="batchParams" @success="successHandler" />
+  <BatchEditModal
+    v-model:visible="showEditModel"
+    :batch-params="batchParams"
+    :active-folder="props.activeFolder"
+    :offspring-ids="props.offspringIds"
+    @success="successHandler"
+  />
   <CaseDetailDrawer
     v-model:visible="showDetailDrawer"
     :detail-id="activeDetailId"
