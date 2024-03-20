@@ -25,6 +25,7 @@
       filter-icon-align-left
       v-on="propsEvent"
       @batch-action="handleTableBatch"
+      @module-change="searchReview"
     >
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -496,11 +497,20 @@
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>(Object.keys(reviewStatusMap));
   const tableQueryParams = ref<any>();
-  function searchReview(filter?: FilterResult) {
+  async function searchReview(filter?: FilterResult) {
+    let moduleIds: string[] = [];
+    if (props.activeFolder && props.activeFolder !== 'all') {
+      moduleIds = [props.activeFolder];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_REVIEW);
+      if (getAllChildren) {
+        moduleIds = [props.activeFolder, ...props.offspringIds];
+      }
+    }
+
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+      moduleIds,
       createByMe: props.showType === 'createByMe' ? userStore.id : undefined,
       reviewByMe: props.showType === 'reviewByMe' ? userStore.id : undefined,
       filter: { status: statusFilters.value },
