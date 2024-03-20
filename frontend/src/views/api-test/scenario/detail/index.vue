@@ -44,7 +44,7 @@
           BASE_INFO
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="px-[24px] py-[16px]">
-          <step v-if="activeKey === ScenarioCreateComposition.STEP" />
+          <step v-if="activeKey === ScenarioCreateComposition.STEP" :step="previewDetail.step" />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioCreateComposition.PARAMS"

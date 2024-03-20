@@ -37,7 +37,7 @@ export default {
   'apiTestDebug.batchAddParamsTip1': '书写格式：参数名:参数值；如 nama:natural，多条记录以换行分隔',
   'apiTestDebug.batchAddParamsTip2': '默认添加为 string 类型；file 类型参数无法在此编辑',
   'apiTestDebug.batchAddParamsTip3': '批量添加里的参数名重复，默认以最后一条数据为最新数据',
-  'apiTestDebug.quickInputParamsTip': '支持Mock/JMeter/Json/Text/String等',
+  'apiTestDebug.quickInputParamsTip': '支持 Mock/JMeter/Json/Text/String 等',
   'apiTestDebug.descPlaceholder': '请输入内容',
   'apiTestDebug.noneBody': '请求没有 Body',
   'apiTestDebug.sendAsMainText': '作为正文发送',

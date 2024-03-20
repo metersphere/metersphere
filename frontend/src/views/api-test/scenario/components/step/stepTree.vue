@@ -10,6 +10,7 @@
         :keyword="props.stepKeyword"
         :expand-all="props.expandAll"
         :node-more-actions="stepMoreActions"
+        :filter-more-action-func="setStepMoreAction"
         :field-names="{ title: 'name', key: 'id', children: 'children' }"
         :virtual-list-props="{
           height: '100%',
@@ -18,7 +19,7 @@
           buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
         }"
         title-class="step-tree-node-title"
-        node-highlight-background-color="var(--color-text-n9)"
+        node-highlight-class="step-tree-node-focus"
         action-on-node-click="expand"
         disabled-title-tooltip
         checkable
@@ -28,6 +29,7 @@
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"
         @more-action-select="handleStepMoreActionSelect"
+        @drop="handleDrop"
       >
         <template #title="step">
           <div class="flex w-full items-center gap-[8px]">
@@ -41,7 +43,11 @@
               <!-- 步骤展开折叠按钮 -->
               <a-tooltip
                 v-if="step.children?.length > 0"
-                :content="t('apiScenario.expandStepTip', { count: step.children.length })"
+                :content="
+                  t(step.expanded ? 'apiScenario.collapseStepTip' : 'apiScenario.expandStepTip', {
+                    count: step.children.length,
+                  })
+                "
               >
                 <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-1)]">
                   <MsIcon
@@ -71,28 +77,33 @@
               <!-- 步骤整体内容 -->
               <div class="relative flex flex-1 items-center gap-[4px]">
                 <!-- 步骤差异内容，按步骤类型展示不同组件 -->
-                <component :is="getStepContent(step)" :data="getStepContentData(step)" />
+                <component
+                  :is="getStepContent(step)"
+                  :data="step"
+                  @quick-input="setQuickInput(step, $event)"
+                  @change="handleStepContentChange($event, step)"
+                  @click.stop
+                />
                 <!-- API、CASE、场景步骤名称 -->
                 <template v-if="checkStepIsApi(step)">
                   <apiMethodName v-if="checkStepShowMethod(step)" :method="step.method" />
                   <div
                     v-if="step.id === showStepNameEditInputStepId"
-                    class="absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
+                    class="name-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
                     @click.stop
                   >
                     <a-input
-                      :id="step.id"
                       v-model:model-value="tempStepName"
                       :placeholder="t('apiScenario.pleaseInputStepName')"
                       :max-length="255"
                       size="small"
-                      @press-enter="applyStepChange(step)"
-                      @blur="applyStepChange(step)"
+                      @press-enter="applyStepNameChange(step)"
+                      @blur="applyStepNameChange(step)"
                     />
                   </div>
                   <a-tooltip :content="step.name">
                     <div class="step-name-container">
-                      <div class="one-line-text mr-[4px] max-w-[250px] font-medium text-[var(--color-text-1)]">
+                      <div class="one-line-text mr-[4px] max-w-[150px] font-medium text-[var(--color-text-1)]">
                         {{ step.name }}
                       </div>
                       <MsIcon
@@ -103,70 +114,57 @@
                     </div>
                   </a-tooltip>
                 </template>
+                <!-- 其他步骤描述 -->
+                <template v-else>
+                  <div
+                    v-if="step.id === showStepDescEditInputStepId"
+                    class="desc-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
+                  >
+                    <a-input
+                      v-model:model-value="tempStepDesc"
+                      :default-value="step.description || t('apiScenario.pleaseInputStepDesc')"
+                      :placeholder="t('apiScenario.pleaseInputStepDesc')"
+                      :max-length="255"
+                      size="small"
+                      @press-enter="applyStepDescChange(step)"
+                      @blur="applyStepDescChange(step)"
+                      @click.stop
+                    >
+                      <template #prefix>
+                        {{ t('common.desc') }}
+                      </template>
+                    </a-input>
+                  </div>
+                  <a-tooltip :content="step.description" :disabled="!step.description">
+                    <div class="step-name-container">
+                      <div
+                        :class="`one-line-text mr-[4px] ${
+                          step.type === ScenarioStepType.ONLY_ONCE_CONTROL ? 'max-w-[750px]' : 'max-w-[150px]'
+                        } font-normal text-[var(--color-text-4)]`"
+                      >
+                        {{ step.description || t('apiScenario.pleaseInputStepDesc') }}
+                      </div>
+                      <MsIcon
+                        type="icon-icon_edit_outlined"
+                        class="edit-script-name-icon"
+                        @click.stop="handleStepDescClick(step)"
+                      />
+                    </div>
+                  </a-tooltip>
+                </template>
               </div>
             </div>
           </div>
         </template>
         <template #extra="step">
-          <a-trigger
-            trigger="click"
-            class="arco-trigger-menu absolute"
-            content-class="w-[160px]"
-            position="br"
-            @popup-visible-change="handleActionTriggerChange($event, step)"
-          >
-            <MsButton
-              :id="step.id"
-              type="icon"
-              class="ms-tree-node-extra__btn !mr-[4px]"
-              @click="setFocusNodeKey(step.id)"
-            >
-              <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
-            </MsButton>
-            <template #content>
-              <actionDropdown
-                v-model:visible="step.actionDropdownVisible"
-                position="br"
-                class="scenario-action-dropdown"
-                :popup-translate="[-7, -10]"
-                @select="(val) => handleActionSelect(val as ScenarioAddStepActionType, step)"
-              >
-                <span></span>
-              </actionDropdown>
-              <div class="arco-trigger-menu-inner">
-                <div
-                  :class="[
-                    'arco-trigger-menu-item !mx-0 !w-full',
-                    activeAction === 'addChildStep' ? 'step-tree-active-action' : '',
-                  ]"
-                  @click="handleTriggerActionClick(step, 'addChildStep')"
-                >
-                  <icon-plus size="12" />
-                  {{ t('apiScenario.addChildStep') }}
-                </div>
-                <div
-                  :class="[
-                    'arco-trigger-menu-item !mx-0 !w-full',
-                    activeAction === 'insertBefore' ? 'step-tree-active-action' : '',
-                  ]"
-                  @click="handleTriggerActionClick(step, 'insertBefore')"
-                >
-                  <icon-left size="12" />
-                  {{ t('apiScenario.insertBefore') }}
-                </div>
-                <div
-                  :class="[
-                    'arco-trigger-menu-item !mx-0 !w-full',
-                    activeAction === 'insertAfter' ? 'step-tree-active-action' : '',
-                  ]"
-                  @click="handleTriggerActionClick(step, 'insertAfter')"
-                >
-                  <icon-left size="12" />
-                  {{ t('apiScenario.insertAfter') }}
-                </div>
-              </div>
-            </template>
-          </a-trigger>
+          <stepInsertStepTrigger
+            v-model:selected-keys="selectedKeys"
+            v-model:steps="steps"
+            :step="step"
+            @click="setFocusNodeKey(step.id)"
+            @other-create="handleOtherCreate"
+            @close="setFocusNodeKey('')"
+          />
         </template>
         <template #extraEnd="step">
           <executeStatus v-if="step.status" :status="step.status" size="small" />
@@ -180,59 +178,88 @@
         </template>
       </MsTree>
     </a-spin>
-    <actionDropdown
-      class="scenario-action-dropdown"
-      @select="(val) => handleActionSelect(val as ScenarioAddStepActionType)"
-    >
+    <createStepActions v-model:selected-keys="selectedKeys" v-model:steps="steps" @other-create="handleOtherCreate">
       <a-button type="dashed" class="add-step-btn" long>
         <div class="flex items-center gap-[8px]">
           <icon-plus />
           {{ t('apiScenario.addStep') }}
         </div>
       </a-button>
-    </actionDropdown>
-    <importApiDrawer v-model:visible="importApiDrawerVisible" />
+    </createStepActions>
     <!-- todo  执行、上传文件、转存文件等需要传入相关方法； 当前场景环境使用的是假数据； add-step暂时只是将数据传递到当前组件的customDemoStep对象中，用于再次打开的时候测试编辑功能  -->
     <customApiDrawer
+      v-if="customApiDrawerVisible"
       v-model:visible="customApiDrawerVisible"
       :env-detail-item="{ id: 'demp-id-112233', projectId: '123456', name: 'demo环境' }"
       :request="customDemoStep"
       @add-step="addCustomApiStep"
     />
     <scriptOperationDrawer v-model:visible="scriptOperationDrawerVisible" />
+    <importApiDrawer v-if="importApiDrawerVisible" v-model:visible="importApiDrawerVisible" />
+    <scriptOperationDrawer v-if="scriptOperationDrawerVisible" v-model:visible="scriptOperationDrawerVisible" />
+    <a-modal
+      v-model:visible="showQuickInput"
+      :title="quickInputDataKey ? t(`apiScenario.${quickInputDataKey}`) : ''"
+      :ok-text="t('apiTestDebug.apply')"
+      :ok-button-props="{ disabled: !quickInputParamValue || quickInputParamValue.trim() === '' }"
+      class="ms-modal-form"
+      body-class="!p-0"
+      :width="680"
+      title-align="start"
+      @ok="applyQuickInput"
+      @close="clearQuickInput"
+    >
+      <MsCodeEditor
+        v-if="showQuickInput"
+        v-model:model-value="quickInputParamValue"
+        theme="MS-text"
+        height="300px"
+        :show-full-screen="false"
+      >
+        <template #rightTitle>
+          <div class="flex justify-between">
+            <div class="text-[var(--color-text-4)]">
+              {{ t('apiTestDebug.quickInputParamsTip') }}
+            </div>
+          </div>
+        </template>
+      </MsCodeEditor>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { useEventListener } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import customApiDrawer from '../common/customApiDrawer.vue';
   import executeStatus from '../common/executeStatus.vue';
-  import importApiDrawer from '../common/importApiDrawer/index.vue';
-  import scriptOperationDrawer from '../common/scriptOperationDrawer.vue';
   import stepType from '../common/stepType.vue';
-  import actionDropdown from './actionDropdown.vue';
+  import createStepActions from './createAction/createStepActions.vue';
+  import stepInsertStepTrigger from './createAction/stepInsertStepTrigger.vue';
   import conditionContent from './stepNodeComposition/conditionContent.vue';
   import customApiContent from './stepNodeComposition/customApiContent.vue';
   import loopControlContent from './stepNodeComposition/loopContent.vue';
-  import onlyOnceControlContent from './stepNodeComposition/onlyOnceContent.vue';
   import quoteContent from './stepNodeComposition/quoteContent.vue';
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { deleteNode, findNodeByKey, getGenerateId, insertNode, mapTree } from '@/utils';
+  import { deleteNode, findNodeByKey, getGenerateId, handleTreeDragDrop, insertNode, mapTree, TreeNode } from '@/utils';
 
-  import { CustomApiStep } from '@/models/apiTest/scenario';
+  import { CustomApiStep, ScenarioStepLoopWhileType } from '@/models/apiTest/scenario';
   import { RequestMethods, ScenarioAddStepActionType, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
-  import { defaultStepItemCommon } from '../config';
+  // 非首屏渲染必要组件，异步加载
+  const MsCodeEditor = defineAsyncComponent(() => import('@/components/pure/ms-code-editor/index.vue'));
+  const customApiDrawer = defineAsyncComponent(() => import('../common/customApiDrawer.vue'));
+  const importApiDrawer = defineAsyncComponent(() => import('../common/importApiDrawer/index.vue'));
+  const scriptOperationDrawer = defineAsyncComponent(() => import('../common/scriptOperationDrawer.vue'));
 
   export interface ScenarioStepItem {
     id: string | number;
@@ -253,6 +280,16 @@
     checked: boolean; // 是否选中
     expanded: boolean; // 是否展开
     actionDropdownVisible?: boolean; // 是否展示操作下拉
+    parent?: ScenarioStepItem | ScenarioStepItem[]; // 父级节点，第一层的父级节点为undefined
+    loopNum: number;
+    loopType: 'num' | 'while' | 'forEach';
+    loopSpace: number;
+    variableName: string;
+    variablePrefix: string;
+    loopWhileType: ScenarioStepLoopWhileType;
+    variableVal: string;
+    condition: string;
+    overTime: number;
   }
 
   const props = defineProps<{
@@ -266,15 +303,18 @@
   const steps = defineModel<ScenarioStepItem[]>('steps', {
     required: true,
   });
-  const checkedKeys = defineModel<string[]>('checkedKeys', {
+  const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
     required: true,
   });
 
-  const selectedKeys = ref<string[]>([]); // 没啥用，目前用来展示选中样式
+  const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string>(''); // 聚焦的key
 
+  /**
+   * 根据步骤类型获取步骤内容组件
+   */
   function getStepContent(step: ScenarioStepItem) {
     switch (step.type) {
       case ScenarioStepType.QUOTE_API:
@@ -287,41 +327,10 @@
         return loopControlContent;
       case ScenarioStepType.CONDITION_CONTROL:
         return conditionContent;
-      case ScenarioStepType.ONLY_ONCE_CONTROL:
-        return onlyOnceControlContent;
       case ScenarioStepType.WAIT_TIME:
         return waitTimeContent;
       default:
-        return '';
-    }
-  }
-
-  function getStepContentData(step: ScenarioStepItem) {
-    switch (step.type) {
-      case ScenarioStepType.QUOTE_API:
-      case ScenarioStepType.QUOTE_CASE:
-      case ScenarioStepType.QUOTE_SCENARIO:
-        return {
-          id: step.id,
-          belongProjectId: step.belongProjectId,
-          belongProjectName: step.belongProjectName,
-          num: step.num,
-          name: step.name,
-          type: step.type,
-          currentProjectId: appStore.currentProjectId,
-        };
-      case ScenarioStepType.CUSTOM_API:
-        return {};
-      case ScenarioStepType.LOOP_CONTROL:
-        return {};
-      case ScenarioStepType.CONDITION_CONTROL:
-        return {};
-      case ScenarioStepType.ONLY_ONCE_CONTROL:
-        return {};
-      case ScenarioStepType.WAIT_TIME:
-        return {};
-      default:
-        return '';
+        return () => null;
     }
   }
 
@@ -351,32 +360,20 @@
     ].includes(step.type);
   }
 
-  const activeAction = ref('');
-  function handleTriggerActionClick(step: ScenarioStepItem, action: string) {
-    step.actionDropdownVisible = true;
-    activeAction.value = action;
-  }
-
-  function handleActionTriggerChange(val: boolean, step: ScenarioStepItem) {
-    if (!val) {
-      activeAction.value = '';
-      step.actionDropdownVisible = false;
-      setFocusNodeKey('');
+  /**
+   * 增加步骤时判断父节点是否选中，如果选中则需要把新节点也选中
+   */
+  function isParentSelected(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
+    if (parent && selectedKeys.value.includes(parent.id)) {
+      // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
+      selectedKeys.value.push(step.id);
     }
   }
 
   const stepMoreActions: ActionsItem[] = [
     {
-      label: 'common.execute',
-      eventTag: 'execute',
-    },
-    {
       label: 'common.copy',
       eventTag: 'copy',
-    },
-    {
-      label: 'apiScenario.scenarioConfig',
-      eventTag: 'config',
     },
     {
       label: 'common.delete',
@@ -384,11 +381,65 @@
       danger: true,
     },
   ];
+
+  function setStepMoreAction(items: ActionsItem[], node: MsTreeNodeData) {
+    if ((node as ScenarioStepItem).type === ScenarioStepType.CUSTOM_API) {
+      // 自定义请求
+      return [
+        {
+          label: 'common.copy',
+          eventTag: 'copy',
+        },
+        {
+          label: 'apiScenario.saveAsApi',
+          eventTag: 'saveAsApi',
+        },
+        {
+          label: 'common.delete',
+          eventTag: 'delete',
+          danger: true,
+        },
+      ];
+    }
+    if ((node as ScenarioStepItem).type === ScenarioStepType.QUOTE_SCENARIO) {
+      return [
+        {
+          label: 'common.copy',
+          eventTag: 'copy',
+        },
+        {
+          label: 'apiScenario.scenarioConfig',
+          eventTag: 'config',
+        },
+        {
+          label: 'common.delete',
+          eventTag: 'delete',
+          danger: true,
+        },
+      ];
+    }
+    if ((node as ScenarioStepItem).type === ScenarioStepType.QUOTE_CASE) {
+      return [
+        {
+          label: 'common.copy',
+          eventTag: 'copy',
+        },
+        {
+          label: 'apiScenario.saveAsCase',
+          eventTag: 'saveAsCase',
+        },
+        {
+          label: 'common.delete',
+          eventTag: 'delete',
+          danger: true,
+        },
+      ];
+    }
+    return stepMoreActions;
+  }
+
   function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
-      case 'execute':
-        console.log('执行步骤', node);
-        break;
       case 'copy':
         const id = getGenerateId();
         insertNode<ScenarioStepItem>(
@@ -397,27 +448,20 @@
           {
             ...cloneDeep(
               mapTree<ScenarioStepItem>(node, (childNode) => {
-                const childId = getGenerateId();
-                if (selectedKeys.value.includes(node.id)) {
-                  // 复制一个已选中的节点，需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-                  selectedKeys.value.push(childId);
-                }
                 return {
                   ...childNode,
-                  id: childId,
+                  id: getGenerateId(), // TODO:引用类型额外需要一个复制来源 ID
                 };
               })[0]
             ),
             name: `copy-${node.name}`,
+            order: node.order + 1,
             id,
           },
           'after',
+          isParentSelected,
           'id'
         );
-        if (selectedKeys.value.includes(node.id)) {
-          // 复制一个已选中的节点，需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-          selectedKeys.value.push(id);
-        }
         break;
       case 'config':
         console.log('config', node);
@@ -443,17 +487,50 @@
     tempStepName.value = step.name;
     showStepNameEditInputStepId.value = step.id;
     nextTick(() => {
-      const input = treeRef.value?.$el.querySelector('.arco-input') as HTMLInputElement;
+      // 等待输入框渲染完成后聚焦
+      const input = treeRef.value?.$el.querySelector('.name-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
       input?.focus();
     });
   }
 
-  function applyStepChange(step: ScenarioStepItem) {
+  function applyStepNameChange(step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
     if (realStep) {
       realStep.name = tempStepName.value;
     }
     showStepNameEditInputStepId.value = '';
+  }
+
+  /**
+   * 处理步骤名称编辑
+   */
+  const showStepDescEditInputStepId = ref<string | number>('');
+  const tempStepDesc = ref('');
+  function handleStepDescClick(step: ScenarioStepItem) {
+    tempStepDesc.value = step.description;
+    showStepDescEditInputStepId.value = step.id;
+    nextTick(() => {
+      // 等待输入框渲染完成后聚焦
+      const input = treeRef.value?.$el.querySelector('.desc-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
+      input?.focus();
+    });
+  }
+
+  function applyStepDescChange(step: ScenarioStepItem) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    if (realStep) {
+      realStep.description = tempStepDesc.value;
+    }
+    showStepDescEditInputStepId.value = '';
+  }
+
+  function handleStepContentChange($event, step: ScenarioStepItem) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    if (realStep) {
+      Object.keys($event).forEach((key) => {
+        realStep[key] = $event[key];
+      });
+    }
   }
 
   /**
@@ -482,63 +559,70 @@
   const importApiDrawerVisible = ref(false);
   const customApiDrawerVisible = ref(false);
   const scriptOperationDrawerVisible = ref(false);
+  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
 
-  function handleActionSelect(val: ScenarioAddStepActionType, step?: ScenarioStepItem) {
-    switch (val) {
+  function handleOtherCreate(
+    type:
+      | ScenarioAddStepActionType.IMPORT_SYSTEM_API
+      | ScenarioAddStepActionType.CUSTOM_API
+      | ScenarioAddStepActionType.SCRIPT_OPERATION,
+    step?: ScenarioStepItem
+  ) {
+    activeStep.value = step;
+    switch (type) {
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
         importApiDrawerVisible.value = true;
         break;
       case ScenarioAddStepActionType.CUSTOM_API:
         customApiDrawerVisible.value = true;
         break;
-      case ScenarioAddStepActionType.LOOP_CONTROL:
-        steps.value.push({
-          ...defaultStepItemCommon,
-          id: Date.now(),
-          order: steps.value.length + 1,
-          type: ScenarioStepType.LOOP_CONTROL,
-          name: '循环控制',
-          description: '循环控制描述',
-        });
-        break;
-      case ScenarioAddStepActionType.CONDITION_CONTROL:
-        steps.value.push({
-          ...defaultStepItemCommon,
-          id: Date.now(),
-          order: steps.value.length + 1,
-          type: ScenarioStepType.CONDITION_CONTROL,
-          name: '条件控制',
-          description: '条件控制描述',
-        });
-        break;
-      case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
-        steps.value.push({
-          ...defaultStepItemCommon,
-          id: Date.now(),
-          order: steps.value.length + 1,
-          type: ScenarioStepType.ONLY_ONCE_CONTROL,
-          name: '仅执行一次',
-          description: '仅执行一次描述',
-        });
-        break;
       case ScenarioAddStepActionType.SCRIPT_OPERATION:
         scriptOperationDrawerVisible.value = true;
-        break;
-      case ScenarioAddStepActionType.WAIT_TIME:
-        steps.value.push({
-          ...defaultStepItemCommon,
-          id: Date.now(),
-          order: steps.value.length + 1,
-          type: ScenarioStepType.WAIT_TIME,
-          name: '等待时间',
-          description: '等待时间描述',
-        });
         break;
       default:
         break;
     }
-    if (step) {
-      document.getElementById(step.id.toString())?.click();
+  }
+
+  /**
+   * 处理文件夹树节点拖拽事件
+   * @param tree 树数据
+   * @param dragNode 拖拽节点
+   * @param dropNode 释放节点
+   * @param dropPosition 释放位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
+   */
+  function handleDrop(
+    tree: MsTreeNodeData[],
+    dragNode: MsTreeNodeData,
+    dropNode: MsTreeNodeData,
+    dropPosition: number
+  ) {
+    try {
+      loading.value = true;
+      if (dropPosition === 0) {
+        // 拖拽到节点内
+        if (selectedKeys.value.includes(dropNode.id)) {
+          // 释放位置的节点已选中，则需要把拖动的节点也需要选中（因为父级选中子级也会展示选中状态）
+          selectedKeys.value.push(dragNode.id);
+        }
+      } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.id)) {
+        // 释放位置的节点的父节点已选中，则需要把拖动的节点也需要选中（因为父级选中子级也会展示选中状态）
+        selectedKeys.value.push(dragNode.id);
+      } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.id)) {
+        // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点从选中的节点中移除
+        selectedKeys.value = selectedKeys.value.filter((e) => e !== dragNode.id);
+      }
+      const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'id');
+      if (dragResult) {
+        Message.success(t('common.moveSuccess'));
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      nextTick(() => {
+        loading.value = false;
+      });
     }
   }
 
@@ -548,6 +632,49 @@
     // todo: 添加自定义api步骤
     customDemoStep.value = { ...step };
   }
+
+  const showQuickInput = ref(false);
+  const quickInputParamValue = ref('');
+  const quickInputDataKey = ref('');
+
+  function setQuickInput(step: ScenarioStepItem, dataKey: string) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    if (realStep) {
+      activeStep.value = realStep as ScenarioStepItem;
+    }
+    quickInputDataKey.value = dataKey;
+    quickInputParamValue.value = step.variableVal;
+    showQuickInput.value = true;
+  }
+
+  function clearQuickInput() {
+    activeStep.value = undefined;
+    quickInputParamValue.value = '';
+    quickInputDataKey.value = '';
+  }
+
+  function applyQuickInput() {
+    if (activeStep.value) {
+      activeStep.value[quickInputDataKey.value] = quickInputParamValue.value;
+      showQuickInput.value = false;
+      clearQuickInput();
+    }
+  }
+
+  const dbClick = ref({
+    e: null as MouseEvent | null,
+    timeStamp: 0,
+  });
+
+  onMounted(() => {
+    useEventListener(treeRef.value?.$el, 'dblclick', (e) => {
+      dbClick.value.e = e;
+      dbClick.value.timeStamp = Date.now();
+    });
+  });
+
+  // 向子孙组件提供属性
+  provide('dbClick', readonly(dbClick));
 
   defineExpose({
     checkAll,
@@ -585,6 +712,7 @@
   .loop-levels(0, 99); // 最大层级
   :deep(.arco-tree-node) {
     padding: 0 8px;
+    min-width: 1000px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-medium) !important;
     &:not(:first-child) {
@@ -597,7 +725,7 @@
       }
     }
     .arco-tree-node-title {
-      @apply !cursor-pointer;
+      @apply !cursor-pointer bg-white;
 
       padding: 12px 4px;
       &:hover {
@@ -624,11 +752,6 @@
           color: rgb(var(--primary-5));
         }
       }
-      &[draggable='true']:hover {
-        .step-node-content {
-          padding-left: 20px;
-        }
-      }
       .arco-tree-node-title-text {
         @apply flex-1;
       }
@@ -640,19 +763,28 @@
       @apply hidden;
     }
     .arco-tree-node-drag-icon {
-      @apply ml-0;
-
-      top: 13px;
-      left: 24px;
-      width: 16px;
-      height: 16px;
-      .arco-icon {
-        font-size: 16px !important;
-      }
+      @apply hidden;
     }
     .ms-tree-node-extra {
       gap: 4px;
       background-color: var(--color-text-n9) !important;
+    }
+  }
+  :deep(.arco-tree-node-selected) {
+    .arco-tree-node-title {
+      .step-tree-node-title {
+        font-weight: 400;
+        color: var(--color-text-1);
+      }
+    }
+  }
+  :deep(.step-tree-node-focus) {
+    background-color: var(--color-text-n9) !important;
+    .arco-tree-node-title {
+      background-color: var(--color-text-n9) !important;
+    }
+    .ms-tree-node-extra {
+      @apply !visible !w-auto;
     }
   }
 </style>

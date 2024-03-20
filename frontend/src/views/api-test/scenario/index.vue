@@ -1,8 +1,8 @@
 <template>
   <MsCard no-content-padding simple>
-    <div class="p-[24px_24px_8px_24px]">
+    <div class="flex items-center justify-between p-[24px_24px_8px_24px]">
       <MsEditableTab
-        v-model:active-tab="activeApiTab"
+        v-model:active-tab="activeScenarioTab"
         v-model:tabs="apiTabs"
         class="flex-1 overflow-hidden"
         @add="newTab"
@@ -15,9 +15,14 @@
           </a-tooltip>
         </template>
       </MsEditableTab>
+      <div class="flex items-center gap-[8px]">
+        <a-button type="primary" :loading="saveLoading" @click="saveScenario">
+          {{ t('common.save') }}
+        </a-button>
+      </div>
     </div>
     <a-divider class="!my-0" />
-    <div v-if="activeApiTab.id === 'all'" class="pageWrap">
+    <div v-if="activeScenarioTab.id === 'all'" class="pageWrap">
       <MsSplitBox :size="300" :max="0.5">
         <template #first>
           <div class="flex h-full flex-col">
@@ -52,11 +57,11 @@
         </template>
       </MsSplitBox>
     </div>
-    <div v-else-if="activeApiTab.is" class="pageWrap">
-      <detail :detail="activeApiTab"></detail>
+    <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
+      <create v-model:scenario="activeScenarioTab" :module-tree="folderTree"></create>
     </div>
     <div v-else class="pageWrap">
-      <create :module-tree="folderTree"></create>
+      <detail :detail="activeScenarioTab"></detail>
     </div>
   </MsCard>
 </template>
@@ -66,25 +71,25 @@
    * @description 接口测试-接口场景主页
    */
 
-  import { onBeforeMount, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
-  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
+  import { ScenarioStepInfo } from './components/step/index.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
   import { getTrashModuleCount } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
+  import useAppStore from '@/store/modules/app';
 
-  import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
+  import { ApiScenarioGetModuleParams, Scenario } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
+  import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
-
-  import useAppStore from '../../../store/modules/app';
 
   // 异步导入
   const detail = defineAsyncComponent(() => import('./detail/index.vue'));
@@ -92,23 +97,37 @@
 
   const { t } = useI18n();
 
-  const apiTabs = ref<TabItem[]>([
+  const apiTabs = ref<Scenario[]>([
     {
       id: 'all',
       label: t('apiScenario.allScenario'),
       closable: false,
-    },
+    } as Scenario,
   ]);
-  const activeApiTab = ref<TabItem>(apiTabs.value[0]);
+  const activeScenarioTab = ref<Scenario>(apiTabs.value[0]);
 
   function newTab() {
     apiTabs.value.push({
-      id: `newTab${apiTabs.value.length}`,
-      label: `New Tab ${apiTabs.value.length}`,
+      id: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
+      label: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
       closable: true,
       isNew: true,
+      name: '',
+      moduleId: 'root',
+      stepInfo: {
+        id: new Date().getTime(),
+        steps: [],
+        executeTime: '',
+        executeSuccessCount: 0,
+        executeFailCount: 0,
+      } as ScenarioStepInfo,
+      status: RequestDefinitionStatus.PROCESSING,
+      tags: [],
+      params: [],
+      executeLoading: false,
+      unSaved: false,
     });
-    activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
+    activeScenarioTab.value = apiTabs.value[apiTabs.value.length - 1];
   }
 
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -153,6 +172,21 @@
     });
     recycleModulesCount.value = res.all;
   });
+
+  const saveLoading = ref(false);
+
+  async function saveScenario() {
+    saveLoading.value = true;
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve('');
+      }, 1000);
+    });
+    Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
+    activeScenarioTab.value.isNew = false;
+    activeScenarioTab.value.unSaved = false;
+    saveLoading.value = false;
+  }
 </script>
 
 <style scoped lang="less">

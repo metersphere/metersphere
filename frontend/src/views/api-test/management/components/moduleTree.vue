@@ -110,7 +110,9 @@
           </div>
           <div v-else :id="nodeData.id" class="inline-flex w-full">
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]"
+              >({{ modulesCount[nodeData.id] || 0 }})</div
+            >
           </div>
         </template>
         <template v-if="!props.readOnly && !props.isModal" #extra="nodeData">
@@ -450,9 +452,9 @@
     }
   }
 
-  async function handleProtocolChange() {
+  function handleProtocolChange() {
     emit('changeProtocol', moduleProtocol.value);
-    await initModules();
+    initModules();
     initModuleCount();
   }
 
@@ -467,9 +469,9 @@
     isExpandAll.value = !isExpandAll.value;
   }
 
-  async function changeApiExpand() {
+  function changeApiExpand() {
     isExpandApi.value = !isExpandApi.value;
-    await initModules();
+    initModules();
     initModuleCount();
   }
 
@@ -515,7 +517,7 @@
           }
           Message.success(t('apiTestDebug.deleteSuccess'));
           emit('deleteNode', node.id, node.type === 'MODULE');
-          await initModules();
+          initModules();
           initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -629,8 +631,8 @@
     }
   }
 
-  async function handleAddFinish() {
-    await initModules();
+  function handleAddFinish() {
+    initModules();
     initModuleCount();
   }
 
@@ -646,14 +648,14 @@
     }
   }
 
-  onBeforeMount(async () => {
+  onBeforeMount(() => {
     initProtocolList();
-    await initModules();
+    initModules();
     initModuleCount();
   });
 
-  async function refresh() {
-    await initModules();
+  function refresh() {
+    initModules();
     initModuleCount();
   }
 

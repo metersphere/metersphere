@@ -33,13 +33,7 @@
         <slot name="title" v-bind="_props"></slot>
       </template>
       <template v-if="$slots['extra'] || props.nodeMoreActions" #extra="_props">
-        <div
-          v-if="_props.hideMoreAction !== true"
-          :class="[
-            'ms-tree-node-extra',
-            focusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '', // TODO:通过下拉菜单的显示隐藏去控制聚焦状态似乎能有更好的性能
-          ]"
-        >
+        <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
           <slot name="extra" v-bind="_props"></slot>
           <MsTableMoreAction
             v-if="props.nodeMoreActions"
@@ -110,7 +104,7 @@
       virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
       disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
-      nodeHighlightBackgroundColor?: string; // 节点高亮背景色
+      nodeHighlightClass?: string; // 节点高亮背景色
       titleTooltipPosition?:
         | 'top'
         | 'tl'
@@ -352,10 +346,10 @@
       if (val?.toString() !== '') {
         focusEl.value = treeRef.value?.$el.querySelector(`[data-key="${val}"]`);
         if (focusEl.value) {
-          focusEl.value.style.backgroundColor = props.nodeHighlightBackgroundColor || 'rgb(var(--primary-1))';
+          focusEl.value.classList.add(props.nodeHighlightClass || 'ms-tree-node-focus');
         }
       } else if (focusEl.value) {
-        focusEl.value.style.backgroundColor = '';
+        focusEl.value.classList.remove(props.nodeHighlightClass || 'ms-tree-node-focus');
       }
     }
   );
@@ -465,7 +459,7 @@
           width: 60%;
         }
         .ms-tree-node-extra {
-          @apply invisible relative flex w-0 items-center;
+          @apply invisible relative sticky right-0 flex w-0 items-center;
 
           margin-left: -4px;
           height: 32px;
@@ -489,11 +483,17 @@
             margin-right: 4px;
           }
         }
-        .ms-tree-node-extra--focus {
-          @apply visible w-auto;
-        }
         .arco-tree-node-custom-icon {
           @apply hidden;
+        }
+      }
+      .ms-tree-node-focus {
+        background-color: rgb(var(--primary-1));
+        .arco-tree-node-title {
+          background-color: rgb(var(--primary-1));
+        }
+        .ms-tree-node-extra {
+          @apply visible w-auto;
         }
       }
       .arco-tree-node-selected {
@@ -518,6 +518,9 @@
               color: rgb(var(--primary-5));
             }
           }
+        }
+        .arco-tree-node-title {
+          background-color: rgb(var(--primary-1));
         }
       }
       .arco-tree-node-disabled {

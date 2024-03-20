@@ -103,7 +103,8 @@
             <!-- 接口定义-调试模式，可保存或保存为新用例 -->
             <a-dropdown
               v-if="requestVModel.mode === 'debug'"
-              :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
+              :loading="saveLoading"
+              :disabled="isHttpProtocol && !requestVModel.url"
               @select="handleSelect"
             >
               <a-button type="secondary">
@@ -1401,7 +1402,7 @@
   }
 
   // 保存为用例
-  function saveAsCase() {
+  function saveAsCase(done: (closed: boolean) => void) {
     saveCaseModalFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
@@ -1421,12 +1422,14 @@
             };
             await addCase(params);
             emit('addDone');
+            done(true);
             Message.success(t('common.saveSuccess'));
             saveCaseModalVisible.value = false;
           }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+          done(false);
         } finally {
           saveCaseLoading.value = false;
         }
