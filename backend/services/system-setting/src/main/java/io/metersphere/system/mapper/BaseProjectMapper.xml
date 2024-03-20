@@ -42,4 +42,8 @@
         from project
         order by create_time desc
     </select>
+
+    <select id="selectProjectByLimit" resultType="io.metersphere.project.domain.Project">
+        SELECT id FROM project WHERE deleted = 0 ORDER BY create_time LIMIT #{start}, #{limit}
+    </select>
 </mapper>

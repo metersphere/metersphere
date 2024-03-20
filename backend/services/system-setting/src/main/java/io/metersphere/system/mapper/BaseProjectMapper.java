@@ -29,4 +29,6 @@ public interface BaseProjectMapper {
      * @return 组织下的所有项目
      */
     List<OptionDTO> getProjectOptionsByOrgId(@Param("orgId") String orgId);
+
+    List<Project> selectProjectByLimit(@Param("start") int start, @Param("limit") int limit);
 }

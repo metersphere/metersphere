@@ -8,6 +8,7 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.BaseCleanUpReport;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,6 +34,8 @@ public class CleanUpReportJob {
 
     @Autowired
     private ApplicationContext applicationContext;
+    @Resource
+    private BaseProjectMapper baseProjectMapper;
 
     /**
      * 清理报告定时任务（所有项目共用一个）
@@ -44,13 +47,12 @@ public class CleanUpReportJob {
 
         long pages = Double.valueOf(Math.ceil(count / 100.0)).longValue();
 
-        for (int i = 1; i <= pages; i++) {
+        for (int i = 0; i < pages; i++) {
+            int start = i * 100;
             Thread.startVirtualThread(new Runnable() {
                 @Override
                 public void run() {
-                    ProjectExample example = new ProjectExample();
-                    example.createCriteria().andDeletedEqualTo(false);
-                    List<Project> projects = projectMapper.selectByExample(example);
+                    List<Project> projects = baseProjectMapper.selectProjectByLimit(start,100);
                     projects.forEach(project -> {
                         ProjectApplicationExample applicationExample = new ProjectApplicationExample();
                         //test_plan
