@@ -145,13 +145,16 @@
     heightUsed: 644,
     debug: true,
   });
-  const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
+  const isDisabled = computed(
+    () => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']) || store.currentEnvDetailInfo.mock
+  );
 
   const moreActionList: ActionsItem[] = [
     {
       label: t('common.delete'),
       danger: true,
       eventTag: 'delete',
+      disabled: store.currentEnvDetailInfo.mock,
     },
   ];
 
@@ -287,17 +290,6 @@
     return '-';
   }
   const tableRef = ref();
-  watch(
-    () => store.currentEnvDetailInfo.mock,
-    (val) => {
-      if (val) {
-        const tempColumn = columns.slice(0, columns.length - 1);
-        tableRef.value.initColumn(tempColumn);
-      } else {
-        tableRef.value.initColumn(columns);
-      }
-    }
-  );
 </script>
 
 <style lang="less" scoped>
