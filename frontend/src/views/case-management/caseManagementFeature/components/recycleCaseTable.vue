@@ -94,6 +94,7 @@
             @selected-change="handleTableSelect"
             v-on="propsEvent"
             @batch-action="handleTableBatch"
+            @module-change="initRecycleList()"
           >
             <template #num="{ record }">
               <span class="flex w-full">{{ record.num }}</span>
@@ -677,10 +678,18 @@
     };
   }
 
-  function initTableParams() {
+  async function initTableParams() {
+    let moduleIds: string[] = [];
+    if (activeFolder.value !== 'all') {
+      moduleIds = [activeFolder.value];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE);
+      if (getAllChildren) {
+        moduleIds = [activeFolder.value, ...offspringIds.value];
+      }
+    }
     return {
       keyword: keyword.value,
-      moduleIds: activeFolder.value === 'all' ? [] : [activeFolder.value, ...offspringIds.value],
+      moduleIds,
       projectId: currentProjectId.value,
       filter: {
         reviewStatus: statusFilters.value,
@@ -699,22 +708,28 @@
   }
 
   // 获取回收站模块数量
-  function initRecycleModulesCount() {
+  async function initRecycleModulesCount() {
+    const tableParams = await initTableParams();
     featureCaseStore.getRecycleModulesCount({
-      ...initTableParams(),
+      ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
   }
 
   // 获取用例参数
-  function getLoadListParams() {
+  async function getLoadListParams() {
     if (activeFolder.value === 'all') {
       searchParams.value.moduleIds = [];
     } else {
-      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE);
+      if (getAllChildren) {
+        searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+      } else {
+        searchParams.value.moduleIds = [activeFolder.value];
+      }
     }
-    setLoadListParams(initTableParams());
+    setLoadListParams(await initTableParams());
   }
 
   // 执行结果表头检索
@@ -725,7 +740,7 @@
 
   // 初始化回收站列表
   async function initRecycleList() {
-    getLoadListParams();
+    await getLoadListParams();
     await loadList();
     initRecycleModulesCount();
   }
