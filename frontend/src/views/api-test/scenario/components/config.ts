@@ -17,6 +17,7 @@ export const defaultStepItemCommon = {
   expression: '',
   waitTime: 0,
   description: '',
+  createActionsVisible: false,
 };
 
 export const conditionOptions = [
