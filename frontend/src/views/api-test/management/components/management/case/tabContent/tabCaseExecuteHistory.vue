@@ -76,7 +76,7 @@
     </ms-base-table>
     <a-modal
       v-model:visible="showResponse"
-      class="ms-modal-form ms-modal-response ms-modal-response-body"
+      class="ms-modal-response ms-modal-response-body"
       title-align="start"
       :footer="false"
     >

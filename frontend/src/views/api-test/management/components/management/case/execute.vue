@@ -49,8 +49,8 @@
   });
 
   const apiLocalExec = inject<Ref<LocalConfig>>('apiLocalExec');
-  const isPriorityLocalExec = ref(apiLocalExec?.value.enable || false); // 是否优先本地执行
-  const localExecuteUrl = ref(apiLocalExec?.value.userUrl || '');
+  const isPriorityLocalExec = ref(apiLocalExec?.value?.enable || false); // 是否优先本地执行
+  const localExecuteUrl = ref(apiLocalExec?.value?.userUrl || '');
   const reportId = ref('');
   const websocket = ref<WebSocket>();
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
