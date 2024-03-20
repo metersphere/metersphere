@@ -2,7 +2,7 @@ package io.metersphere.api.dto.request.http;
 
 import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MsHTTPElement extends AbstractMsTestElement {
+public class MsHTTPElement extends AbstractMsProtocolTestElement {
     /**
      * 完整请求地址
      * 自定义请求时，使用该字段
