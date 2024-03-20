@@ -77,4 +77,12 @@ public class MsHTTPElement extends AbstractMsTestElement {
      * 运行时参数，接口无需设置
      */
     private String moduleId;
+    /**
+     * 是否是自定义请求
+     */
+    private Boolean customizeRequest = false;
+    /**
+     * 自定义请求是否启用环境
+     */
+    private Boolean customizeRequestEnvEnable = false;
 }

@@ -557,7 +557,7 @@ CREATE TABLE IF NOT EXISTS api_test_case_blob(
 CREATE TABLE IF NOT EXISTS api_file_resource(
     `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID(接口用例等)' ,
     `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
-    `file_name` VARCHAR(50) NOT NULL   COMMENT '文件名称' ,
+    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
     `resource_type` VARCHAR(50) NOT NULL   COMMENT '资源类型(API_DEBUG,API,API_CASE,API_SCENARIO)' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
