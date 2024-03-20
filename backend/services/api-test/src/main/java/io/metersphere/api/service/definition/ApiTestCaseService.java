@@ -597,6 +597,9 @@ public class ApiTestCaseService extends MoveNodeService {
                 .collect(Collectors.toMap(ApiTestCase::getApiDefinitionId, ApiTestCase::getId));
 
         List<String> definitionIds = apiCaseDefinitionMap.keySet().stream().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(definitionIds)) {
+            return List.of();
+        }
         List<ApiResourceModuleInfo> moduleInfos = extApiDefinitionMapper.getModuleInfoByIds(definitionIds);
         // 将 resourceId 从定义ID替换成用例ID
         moduleInfos.forEach(moduleInfo ->

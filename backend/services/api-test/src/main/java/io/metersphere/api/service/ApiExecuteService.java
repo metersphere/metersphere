@@ -499,6 +499,7 @@ public class ApiExecuteService {
         apiCommonService.setEnableCommonScriptProcessorInfo(testElement);
         testElement.setResourceId(taskRequest.getResourceId());
         testElement.setStepId(taskRequest.getResourceId());
+        testElement.setProjectId(taskRequest.getProjectId());
         return execute(runRequest, taskRequest, apiParamConfig);
     }
 
