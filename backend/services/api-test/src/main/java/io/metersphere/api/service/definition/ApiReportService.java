@@ -5,12 +5,14 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,6 +50,12 @@ public class ApiReportService {
     private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
     @Resource
     private ApiReportLogMapper apiReportLogMapper;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
 
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -172,6 +180,11 @@ public class ApiReportService {
         if (CollectionUtils.isNotEmpty(apiReportLogs)) {
             apiReportDTO.setConsole(new String(apiReportLogs.getFirst().getConsole()));
         }
+        //查询资源池名称
+        apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
+        //查询环境名称
+        apiReportDTO.setEnvironmentName(environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId()).getName());
+        apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());
         //需要查询出所有的步骤
         if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
             List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
@@ -189,6 +202,7 @@ public class ApiReportService {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
         ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
+        BeanUtils.copyBean(apiReportStepDTO, apiReportDTO);
         apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
         List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
         apiReportSteps.add(apiReportStepDTO);

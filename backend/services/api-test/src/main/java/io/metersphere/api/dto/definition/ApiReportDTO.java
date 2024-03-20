@@ -12,5 +12,11 @@ public class ApiReportDTO extends ApiReport {
     private List<ApiReportStepDTO> children;
     @Schema(description = "控制台信息")
     private String console;
+    @Schema(description = "资源池名称")
+    private String poolName;
+    @Schema(description = "环境名称")
+    private String environmentName;
+    @Schema(description = "创建人")
+    private String creatUserName;
 
 }
