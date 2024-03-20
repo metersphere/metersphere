@@ -245,6 +245,7 @@
       :show-subdirectory="!!attrs.showSubdirectory"
       @init-data="handleInitColumn"
       @page-size-change="pageSizeChange"
+      @module-change="emit('moduleChange')"
     ></ColumnSelector>
   </div>
 </template>
@@ -325,6 +326,7 @@
     (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
     (e: 'filterChange', dataIndex: string, value: (string | number)[], multiple: boolean, isCustomParam: boolean): void;
+    (e: 'moduleChange'): void;
   }>();
   const attrs = useAttrs();
   // 全选按钮-总条数

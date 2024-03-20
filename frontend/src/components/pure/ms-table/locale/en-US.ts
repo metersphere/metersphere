@@ -28,7 +28,7 @@ export default {
       tooltipContentDrawer: 'Drawer: open a new page as a drawer',
       tooltipContentWindow: 'New Window: open a new page with a new page',
       pageSize: 'Number of items per page',
-      showSubdirectoryTips: 'Show Subdirectory',
+      showSubdirectoryTips: 'Show sub module resource',
       showSubdirectoryTips1: 'On: Show resources under the module and submodules.',
       showSubdirectoryTips2: 'Off: Only show resources under the module.',
     },

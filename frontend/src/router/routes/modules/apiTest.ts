@@ -76,7 +76,7 @@ const ApiTest: AppRouteRecordRaw = {
 
     // 接口场景回收站
     {
-      path: 'scenarioRecycle',
+      path: 'scenario/recycle',
       name: ApiTestRouteEnum.API_TEST_SCENARIO_RECYCLE,
       component: () => import('@/views/api-test/scenario/recycle.vue'),
       meta: {

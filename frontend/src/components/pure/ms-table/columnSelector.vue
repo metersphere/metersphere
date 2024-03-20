@@ -50,18 +50,18 @@
       <template v-if="props.showSubdirectory">
         <div class="mt-4">
           <a-switch v-model="subdirectoryVal" class="mb-1" size="small" type="line" @change="handleSubSwitch" />
-          <span class="ml-2 text-[var(--color-text-4)]">{{ t('msTable.columnSetting.showSubdirectoryTips') }}</span>
-          <a-popover position="rt">
+          <span class="ml-2 text-[var(--color-text-1)]">{{ t('msTable.columnSetting.showSubdirectoryTips') }}</span>
+          <a-tooltip position="rt">
             <icon-question-circle
               class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
               size="16"
             />
-            <template #title>
+            <template #content>
               <div class="w-[250px]"> {{ t('msTable.columnSetting.showSubdirectoryTips1') }} </div>
               <br />
               <div class="w-[250px]"> {{ t('msTable.columnSetting.showSubdirectoryTips2') }} </div>
             </template>
-          </a-popover>
+          </a-tooltip>
         </div>
       </template>
       <a-divider />
@@ -129,6 +129,7 @@
 
   const emit = defineEmits<{
     (e: 'initData'): void;
+    (e: 'moduleChange'): void;
     (e: 'pageSizeChange', value: number): void;
     (e: 'update:visible', value: boolean): void;
   }>();
@@ -170,8 +171,9 @@
     tableStore.setMode(props.tableKey, value as TableOpenDetailMode);
   };
 
-  const handleSubSwitch = () => {
-    tableStore.setSubdirectory(props.tableKey, subdirectoryVal.value);
+  const handleSubSwitch = async () => {
+    await tableStore.setSubdirectory(props.tableKey, subdirectoryVal.value);
+    emit('moduleChange');
   };
 
   const handleSwitchChange = () => {

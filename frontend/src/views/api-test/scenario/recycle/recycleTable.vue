@@ -1,19 +1,6 @@
 <template>
   <div :class="['p-[16px_16px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div>
-        <span class="flex items-center">
-          <a-switch
-            v-model:model-value="showItemFolderScenario"
-            size="small"
-            type="line"
-            @change="loadScenarioList(false)"
-          />
-          <span style="margin-left: 8px; font-family: 'PingFang SC'; color: #323233">{{
-            t('apiScenario.table.showChildrenModuleScenario')
-          }}</span>
-        </span>
-      </div>
       <div class="flex items-center gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -40,6 +27,7 @@
         v-on="propsEvent"
         @selected-change="handleTableSelect"
         @batch-action="handleTableBatch"
+        @module-change="loadScenarioList(false)"
       >
         <template #statusFilter="{ columnConfig }">
           <a-trigger
@@ -118,6 +106,7 @@
   } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
   import { ApiScenarioDetail } from '@/models/apiTest/scenario';
@@ -130,8 +119,6 @@
     offspringIds: string[];
     readOnly?: boolean; // 是否是只读模式
   }>();
-  // 场景属性
-  const showItemFolderScenario = ref(false);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -270,7 +257,7 @@
     {
       columns: props.readOnly ? columns : [],
       scroll: { x: '100%' },
-      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
+      tableKey: props.readOnly ? undefined : TableKeyEnum.API_SCENARIO,
       showSetting: !props.readOnly,
       selectable: true,
       showSelectAll: !props.readOnly,
@@ -301,27 +288,28 @@
 
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(ApiScenarioStatus));
-  const moduleIds = computed(() => {
-    if (props.activeModule === 'all') {
-      return [];
-    }
-    if (showItemFolderScenario.value) {
-      return [props.activeModule, ...props.offspringIds];
-    }
-    return [props.activeModule];
-  });
+  const tableStore = useTableStore();
 
-  function loadScenarioList(refreshTreeCount?: boolean) {
+  async function loadScenarioList(refreshTreeCount?: boolean) {
+    let moduleIds: string[] = [];
+    if (props.activeModule && props.activeModule !== 'all') {
+      moduleIds = [props.activeModule];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_SCENARIO);
+      if (getAllChildren) {
+        moduleIds = [props.activeModule, ...props.offspringIds];
+      }
+    }
+
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: moduleIds.value,
+      moduleIds,
       filter: {
         status: statusFilters.value.length === Object.keys(ApiScenarioStatus).length ? undefined : statusFilters.value,
       },
     };
     setLoadListParams(params);
-    loadList();
+    await loadList();
     if (refreshTreeCount) {
       emit('refreshModuleTree', params);
     }
