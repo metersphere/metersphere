@@ -11,7 +11,7 @@
             is-case-detail
           />
           <a-dropdown position="br" :hide-on-select="false" @select="handleSelect">
-            <a-button v-if="!props.isDrawer">{{ t('common.operation') }}</a-button>
+            <a-button v-if="!props.isDrawer" type="outline">{{ t('common.operation') }}</a-button>
             <template #content>
               <a-doption v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']" value="edit">
                 <MsIcon type="icon-icon_edit_outlined" />

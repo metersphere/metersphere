@@ -2,14 +2,14 @@
   <div class="history-container">
     <div class="history-table-before">
       <span class="text-[var(--color-text-1)]">{{ t('case.detail.execute.history.list') }}</span>
-      <a-input-search
+      <!--      <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('apiTestManagement.quoteSearchPlaceholder')"
         allow-clear
         class="mr-[8px] w-[240px]"
         @search="loadExecuteList"
         @press-enter="loadExecuteList"
-      />
+      />-->
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #triggerModeFilter="{ columnConfig }">
@@ -275,5 +275,6 @@
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+    margin-bottom: 21px;
   }
 </style>
