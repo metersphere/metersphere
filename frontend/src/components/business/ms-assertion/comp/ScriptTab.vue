@@ -6,7 +6,7 @@
         height: 'calc(100vh - 490px)',
       }"
     >
-      <conditionContent v-model:data="condition" is-build-in />
+      <conditionContent v-model:data="condition" is-build-in @change="handleChange" />
     </a-scrollbar>
   </div>
 </template>
@@ -33,15 +33,15 @@
   const emit = defineEmits<{
     (e: 'change', val: ScriptItem): void; //  数据发生变化
   }>();
-
+  function handleChange() {
+    // eslint-disable-next-line no-use-before-define
+    emit('change', { ...condition.value });
+  }
   const condition = useVModel(props, 'data', emit);
   const currentEnvConfig = ref({});
   async function initEnvironment() {
-    try {
+    if (store.currentId) {
       currentEnvConfig.value = await getEnvironment(store.currentId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
     }
   }
   /** 向孙组件提供属性 */
