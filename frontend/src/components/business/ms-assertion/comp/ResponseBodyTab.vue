@@ -99,7 +99,7 @@
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="(data) => handleChange(data, ResponseBodyAssertionType.XPATH)"
+        @change="(data:any[],isInit?: boolean) => handleChange(data, ResponseBodyAssertionType.XPATH,isInit)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record, rowIndex }">
@@ -136,7 +136,7 @@
                     :class="
                       disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
                     "
-                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
+                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.X_PATH)"
                   />
                 </a-tooltip>
               </template>
@@ -276,7 +276,7 @@
                     :class="
                       disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
                     "
-                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
+                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.REGEX)"
                   />
                 </a-tooltip>
               </template>
@@ -313,7 +313,12 @@
       <conditionContent v-model:data="condition.script" :height-used="600" is-build-in class="mt-[16px]" />
     </div> -->
   </div>
-  <fastExtraction v-model:visible="fastExtractionVisible" :config="activeRecord" @apply="handleFastExtractionApply" />
+  <fastExtraction
+    v-model:visible="fastExtractionVisible"
+    :config="activeRecord"
+    :response="props.response"
+    @apply="handleFastExtractionApply"
+  />
 </template>
 
 <script setup lang="ts">
@@ -373,6 +378,7 @@
 
   const props = defineProps<{
     data: Param;
+    response?: string;
   }>();
   const activeTab = ref(ResponseBodyAssertionType.JSON_PATH);
   const activeResponseFormat = ref('XML');
@@ -500,10 +506,8 @@
         condition.value.xpathAssertion.assertions = data;
         if (!isInit) {
           emit('change', {
-            ...defaultParamItem,
             ...condition.value,
             assertionBodyType: activeTab.value,
-            responseFormat: activeResponseFormat.value,
           });
         }
         break;
@@ -655,6 +659,25 @@
       }
       return e;
     });
+    condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e) => {
+      if (e.id === activeRecord.value.id) {
+        return {
+          ...e,
+          ...config,
+        };
+      }
+      return e;
+    });
+    condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e) => {
+      if (e.id === activeRecord.value.id) {
+        return {
+          ...e,
+          ...config,
+        };
+      }
+      return e;
+    });
+
     fastExtractionVisible.value = false;
     nextTick(() => {
       if (activeTab.value === ResponseBodyAssertionType.JSON_PATH) {

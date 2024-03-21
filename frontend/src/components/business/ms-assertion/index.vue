@@ -93,6 +93,7 @@
         <ResponseBodyTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
           v-model:data="getCurrentItemState"
+          :response="props.response"
           @change="handleChange"
         />
         <!-- 响应时间 -->
@@ -157,6 +158,7 @@
   const props = defineProps<{
     isDefinition?: boolean; // 是否是定义页面
     assertionConfig?: ExecuteAssertionConfig; // 是否开启全局
+    response?: string; // 响应内容
   }>();
 
   const emit = defineEmits<{
@@ -296,8 +298,8 @@
       case ResponseAssertionType.RESPONSE_CODE:
         assertions.value.push({
           ...tmpObj,
-          condition: '',
-          expectedValue: '',
+          condition: 'EQUALS',
+          expectedValue: '200',
         });
         break;
       case ResponseAssertionType.RESPONSE_BODY:
@@ -321,7 +323,7 @@
       case ResponseAssertionType.RESPONSE_TIME:
         assertions.value.push({
           ...tmpObj,
-          expectedValue: 0,
+          expectedValue: 100,
         });
         break;
       case ResponseAssertionType.VARIABLE:

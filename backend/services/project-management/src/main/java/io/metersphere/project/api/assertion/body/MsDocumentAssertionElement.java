@@ -93,5 +93,9 @@ public class MsDocumentAssertionElement {
             return value;
         }
     }
+    public String getJsonPath() {
+        //TODO 未实现
+        return jsonPath;
+    }
 
 }

@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.request.controller.loop;
 
+import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,8 +12,9 @@ public class MsWhileVariable {
      */
     private String variable;
     /**
-     * 操作符 == ,!=, < ,<=, >, >=, contains (=~),not contains (!~), is empty, is not empty
+     * 操作符
      */
+    @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
     private String condition;
     /**
      * 值 255
@@ -20,37 +23,26 @@ public class MsWhileVariable {
 
     public String getConditionValue() {
         String variable = "\"" + this.getVariable() + "\"";
-        String operator = this.getCondition();
-        String value = null;
-        switch (operator) {
-            case "is empty":
-                variable = "(" + variable + "==" + "\"\\" + this.getVariable() + "\"" + "|| empty(" + variable + "))";
-                operator = "";
-                break;
-            case "is not empty":
-                variable = "(" + variable + "!=" + "\"\\" + this.getVariable() + "\"" + "&& !empty(" + variable + "))";
-                operator = "";
-                break;
-            case "<":
-            case ">":
-            case "<=":
-            case ">=":
-                if (StringUtils.isNumeric(this.getValue())) {
-                    value = this.getValue();
-                } else {
-                    value = "\"" + this.getValue() + "\"";
-                }
-                break;
-            case "=~":
-            case "!~":
-                value = "\"(\\n|.)*" + this.getVariable() + "(\\n|.)*\"";
-                break;
-            default:
-                value = "\"" + this.getValue() + "\"";
-                break;
-        }
-
-        return variable + operator + value;
+        String value = this.getValue();
+        MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(this.getCondition());
+        return switch (msAssertionCondition) {
+            case EMPTY -> String.format("(%s==\"\\\"%s\\\"\"|| empty(%s))", variable, this.getVariable(), variable);
+            case NOT_EMPTY ->
+                    String.format("(%s!=\"\\\"%s\\\"\"&& !empty(%s))", variable, this.getVariable(), variable);
+            case GT -> StringUtils.isNumeric(value) ? variable + ">" + value : variable + ">\"" + value + "\"";
+            case LT -> StringUtils.isNumeric(value) ? variable + "<" + value : variable + "<\"" + value + "\"";
+            case LT_OR_EQUALS ->
+                    StringUtils.isNumeric(value) ? variable + "<=" + value : variable + "<=\"" + value + "\"";
+            case GT_OR_EQUALS ->
+                    StringUtils.isNumeric(value) ? variable + ">=" + value : variable + ">=\"" + value + "\"";
+            case CONTAINS -> String.format("\"(\\n|.)*%s(\\n|.)*\"=~", variable);
+            case NOT_CONTAINS -> String.format("\"(\\n|.)*%s(\\n|.)*\"!~", variable);
+            case EQUALS ->
+                    StringUtils.isNumeric(value) ? variable + "==" + value : variable + "==" + "\"" + value + "\"";
+            case NOT_EQUALS ->
+                    StringUtils.isNumeric(value) ? variable + "!=" + value : variable + "!=" + "\"" + value + "\"";
+            default -> "\"" + value + "\"";
+        };
     }
 }
 

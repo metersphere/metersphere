@@ -55,7 +55,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         String name = String.format("Variable '%s' expect %s %s", variableName, condition.toLowerCase().replace("_", ""), expectedValue);
         scriptProcessor.setName(name);
 
-        scriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL_JSR233.name());
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.GROOVY.name());
         JSR223Assertion jsr223Assertion = new JSR223Assertion();
         ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor);
         return jsr223Assertion;
@@ -77,7 +77,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
 
         handleMap.put(MsAssertionCondition.EQUALS.name(),
                 """
-                result = expectation.equals(variableValue);"
+                result = expectation.equals(variableValue);
                 msg = "value == " + expectation;
                 """);
 
@@ -190,8 +190,10 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
 
         String condition = variableAssertionItem.getCondition();
         String handleScript = handleMap.get(condition);
-        if (StringUtils.isNotBlank(handleScript)) {
+        if (StringUtils.isBlank(handleScript)) {
             script += handleMap.get(MsAssertionCondition.EQUALS.name());
+        } else {
+            script += handleScript;
         }
 
         script += """

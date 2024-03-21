@@ -18,4 +18,12 @@ export default {
   'advanceFilter.reset': 'Reset',
   'advanceFilter.filter': 'Filter',
   'advanceFilter.plaseInputFilterContent': 'Please input filter content',
+  'advanceFilter.operator.no_check': 'No check',
+  'advanceFilter.operator.contains': 'Contains',
+  'advanceFilter.operator.not_contains': 'Not contains',
+  'advanceFilter.operator.start_with': 'Start with',
+  'advanceFilter.operator.end_with': 'End with',
+  'advanceFilter.operator.empty': 'Empty',
+  'advanceFilter.operator.not_empty': 'Not empty',
+  'advanceFilter.operator.regexp': 'Regexp',
 };

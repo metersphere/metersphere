@@ -47,10 +47,11 @@
     {
       title: 'ms.assertion.responseHeader', // 响应头
       dataIndex: 'header',
-      slotName: 'header',
+      slotName: 'key',
       showInTable: true,
       showDrag: true,
-      options: responseHeaderOption,
+      inputType: 'autoComplete',
+      autoCompleteParams: responseHeaderOption,
     },
     {
       title: 'ms.assertion.matchCondition', // 匹配条件

@@ -7,6 +7,7 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
+import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -209,10 +210,21 @@ public class EnvironmentService extends MoveNodeService {
                     Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
                     String domain = baseUrl.replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
                     String protocol = baseUrl.substring(0, baseUrl.indexOf(domain) -3 );
-                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setId(IDGenerator.nextStr());
-                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setProtocol(protocol);
-                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
-                    environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    if (environmentInfoDTO.getConfig() != null && CollectionUtils.isNotEmpty(environmentInfoDTO.getConfig().getHttpConfig())) {
+                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setId(IDGenerator.nextStr());
+                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setProtocol(protocol);
+                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
+                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    } else {
+                        List<HttpConfig> httpConfigs = new ArrayList<>();
+                        HttpConfig httpConfig = new HttpConfig();
+                        httpConfig.setId(IDGenerator.nextStr());
+                        httpConfig.setProtocol(protocol);
+                        httpConfig.setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
+                        httpConfig.setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                        httpConfigs.add(httpConfig);
+                        environmentInfoDTO.getConfig().setHttpConfig(httpConfigs);
+                    }
                 }
             }
         }
