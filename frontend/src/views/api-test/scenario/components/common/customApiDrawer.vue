@@ -633,16 +633,17 @@
 
   // 切换是否使用环境变量
   async function handleUseEnvChange() {
-    const pluginId = protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId;
-    const res = await getPluginScript(pluginId);
-    pluginScriptMap.value[requestVModel.value.protocol] = res;
-    fApi.value?.nextTick(() => {
-      controlPluginFormFields();
-    });
-    nextTick(() => {
-      // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
-      fApi.value?.resetFields();
-    });
+    if (!isHttpProtocol.value) {
+      const pluginId = protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId;
+      const res = await getPluginScript(pluginId);
+      pluginScriptMap.value[requestVModel.value.protocol] = res;
+      fApi.value?.nextTick(() => {
+        controlPluginFormFields();
+      });
+      nextTick(() => {
+        fApi.value?.resetFields();
+      });
+    }
   }
 
   const pluginError = ref(false);
@@ -976,22 +977,32 @@
   const showAddDependencyDrawer = ref(false);
   const addDependencyMode = ref<'pre' | 'post'>('pre');
 
-  watch(
-    () => visible.value,
-    async (val) => {
-      if (val) {
-        await initProtocolList();
-        if (props.request) {
-          requestVModel.value = { ...defaultDebugParams, ...props.request };
-          handleActiveDebugProtocolChange(requestVModel.value.protocol);
-        } else {
-          requestVModel.value = { ...defaultDebugParams };
-        }
-      } else {
-        requestVModel.value = { ...defaultDebugParams };
-      }
+  // watch(
+  //   () => visible.value,
+  //   async (val) => {
+  //     if (val) {
+  //       await initProtocolList();
+  //       if (props.request) {
+  //         requestVModel.value = { ...defaultDebugParams, ...props.request };
+  //         handleActiveDebugProtocolChange(requestVModel.value.protocol);
+  //       } else {
+  //         requestVModel.value = { ...defaultDebugParams };
+  //       }
+  //     } else {
+  //       requestVModel.value = { ...defaultDebugParams };
+  //     }
+  //   }
+  // );
+
+  onBeforeMount(() => {
+    initProtocolList();
+    if (props.request) {
+      requestVModel.value = { ...defaultDebugParams, ...props.request };
+      handleActiveDebugProtocolChange(requestVModel.value.protocol);
+    } else {
+      requestVModel.value = { ...defaultDebugParams };
     }
-  );
+  });
 </script>
 
 <style lang="less" scoped>
