@@ -166,6 +166,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 content.forEach((key, value) -> {
                     setBodyData(key, value, body);
                 });
+            } else {
+                body.setBodyType(Body.BodyType.NONE.name());
+                body.setNoneBody(new NoneBody());
             }
         } else {
             body.setBodyType(Body.BodyType.NONE.name());
@@ -175,6 +178,10 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
 
     private void parseWWWFormBody(JsonSchemaItem item, Body body) {
         WWWFormBody wwwFormBody = new WWWFormBody();
+        if (item == null) {
+            body.setWwwFormBody(wwwFormBody);
+            return;
+        }
         List<String> required = item.getRequired();
         List<WWWFormKV> formDataKVS = new ArrayList<>();
         item.getProperties().forEach((key, value) -> {
@@ -738,7 +745,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private String formatPath(String url) {
         try {
             URI urlObject = new URI(url);
-            String path = StringUtils.isBlank(urlObject.getPath()) ? "/" : urlObject.getPath();
+            String path = StringUtils.isBlank(urlObject.getPath()) ? url : urlObject.getPath();
             StringBuilder pathBuffer = new StringBuilder(path);
             if (StringUtils.isNotEmpty(urlObject.getQuery())) {
                 pathBuffer.append("?").append(urlObject.getQuery());

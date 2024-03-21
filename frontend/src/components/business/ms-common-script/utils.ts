@@ -49,8 +49,7 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
   },
   {
     title: t('project.processor.terminationTest'),
-    value: 'api_stop',
-    command: 'api_stop',
+    value: 'ctx.getEngine().stopTest();',
   },
 ];
 
