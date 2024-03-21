@@ -77,6 +77,7 @@ export default {
   'caseManagement.featureCase.appendTag': 'appendTag',
   'caseManagement.featureCase.batchEdit': 'Batch editing ({number} use cases selected)',
   'caseManagement.featureCase.selectAttrs': 'select attributes',
+  'caseManagement.featureCase.selectAttrsNotNull': 'Attributes not be null',
   'caseManagement.featureCase.batchUpdate': 'Batch update to',
   'caseManagement.featureCase.batchDelete': 'Are you sure to delete the use case {number} ?',
   'caseManagement.featureCase.batchDeleteCompleted': 'Are you sure to completed delete the use case {number} ?',

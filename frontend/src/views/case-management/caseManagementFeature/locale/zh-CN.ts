@@ -77,6 +77,7 @@ export default {
   'caseManagement.featureCase.appendTag': '追加标签',
   'caseManagement.featureCase.batchEdit': '批量编辑 (已选 { number } 条用例)',
   'caseManagement.featureCase.selectAttrs': '选择属性',
+  'caseManagement.featureCase.selectAttrsNotNull': '属性不能为空',
   'caseManagement.featureCase.batchUpdate': '批量更新为',
   'caseManagement.featureCase.batchDelete': '确认删除 {number} 条用例吗？',
   'caseManagement.featureCase.batchDeleteCompleted': '确认彻底删除 {number} 条用例吗？',
