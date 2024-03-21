@@ -35,5 +35,9 @@ public enum ApiScenarioStepType {
      * 一次控制器
      */
     ONCE_ONLY_CONTROLLER,
+    /**
+     * 等待控制器
+     */
+    CONSTANT_TIMER,
 
 }
