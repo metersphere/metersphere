@@ -76,13 +76,7 @@
           </div>
         </VueDraggable>
       </a-scrollbar>
-      <section class="ms-assertion-body-right">
-        <!-- <a-scrollbar
-          :style="{
-            overflow: 'auto',
-            height: 'calc(100vh - 458px)',
-          }"
-        > -->
+      <section class="ms-assertion-body-right h-full">
         <!-- 响应头 -->
         <ResponseHeaderTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
@@ -145,7 +139,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteAssertionConfig , ExecuteConditionProcessor} from '@/models/apiTest/common';
+  import { ExecuteAssertionConfig, ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionScriptLanguage, ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import { ExecuteAssertion, MsAssertionItem } from './type';
@@ -344,7 +338,7 @@
           id,
           processorType: ResponseAssertionType.SCRIPT,
           scriptName: t('apiTestDebug.preconditionScriptName'),
-          enableCommonScript: true,
+          enableCommonScript: false,
           script: '',
           scriptId: '',
           scriptLanguage: LanguageEnum.BEANSHELL,
@@ -402,6 +396,7 @@
         getCurrentItemState.value = { ...val };
         break;
       case ResponseAssertionType.SCRIPT:
+        getCurrentItemState.value = { ...val };
         break;
 
       default:
@@ -480,7 +475,7 @@
       &-right {
         display: flex;
         flex-grow: 1;
-        padding: 16px;
+        padding: 0;
         border: 1px solid var(--color-text-n8);
         border-radius: 4px;
         background: var(--color-text-fff);

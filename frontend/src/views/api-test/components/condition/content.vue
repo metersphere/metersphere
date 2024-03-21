@@ -45,7 +45,7 @@
       </div>
       <!-- 前后置请求结束 -->
       <div class="flex items-center justify-between">
-        <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]">
+        <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]" @change="emit('change')">
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
           <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
         </a-radio-group>
@@ -672,7 +672,7 @@ if (!result){
       dataIndex: 'variableType',
       slotName: 'variableType',
       typeOptions: [
-          // 全局参数，暂时不上
+        // 全局参数，暂时不上
         // {
         //   label: t('apiTestDebug.globalParameter'),
         //   value: RequestExtractEnvType.GLOBAL,
