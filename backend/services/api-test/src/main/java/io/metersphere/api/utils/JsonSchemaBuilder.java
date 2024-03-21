@@ -60,6 +60,9 @@ public class JsonSchemaBuilder {
     private static JsonNode generateJson(JsonNode jsonSchemaNode, Map<String, String> processMap) {
         ObjectNode jsonNode = objectMapper.createObjectNode();
 
+        if (jsonSchemaNode instanceof NullNode) {
+            return NullNode.getInstance();
+        }
         String type = jsonSchemaNode.get(PropertyConstant.TYPE).asText();
         if (StringUtils.equals(type, PropertyConstant.OBJECT)) {
             JsonNode propertiesNode = jsonSchemaNode.get(PropertyConstant.PROPERTIES);
