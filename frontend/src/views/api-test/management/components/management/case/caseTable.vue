@@ -270,97 +270,14 @@
     @load-case="(id: string) => loadCase(id)"
     @delete-case="deleteCaseByDetail"
   />
-  <a-modal v-model:visible="showBatchExecute" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
-    <template #title>
-      {{ t('report.trigger.batch.execution') }}
-      <div class="text-[var(--color-text-4)]">
-        {{
-          t('case.batchModalSubTitle', {
-            count: batchParams.currentSelectCount || tableSelected.length,
-          })
-        }}
-      </div>
-    </template>
-
-    <a-form ref="batchExecuteFormRef" class="rounded-[4px]" :model="batchExecuteForm" layout="vertical">
-      <a-form-item field="defaultEnv" :label="t('case.execute.selectEnv')">
-        <a-radio-group v-model="batchExecuteForm.defaultEnv">
-          <a-radio value="true"
-            >{{ t('case.execute.defaultEnv') }}
-            <a-tooltip :content="t('case.execute.defaultEnvTip')" position="top">
-              <icon-question-circle
-                class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-                size="16"
-              /> </a-tooltip
-          ></a-radio>
-          <a-radio value="false">{{ t('case.execute.newEnv') }}</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item
-        v-if="batchExecuteForm.defaultEnv == 'false'"
-        field="environmentId"
-        :label="t('case.execute.newEnv')"
-        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
-        asterisk-position="end"
-        required
-      >
-        <a-select v-model="batchExecuteForm.environmentId" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
-            {{ t(item.name) }}
-          </a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item field="runMode" :label="t('case.execute.model')">
-        <a-radio-group v-model="batchExecuteForm.runMode">
-          <a-radio value="SERIAL">{{ t('case.execute.serial') }}</a-radio>
-          <a-radio value="PARALLEL">{{ t('case.execute.parallel') }}</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <div v-if="batchExecuteForm.runMode == 'SERIAL'" class="ms-switch">
-        <a-switch
-          v-model="batchExecuteForm.stopOnFailure"
-          type="line"
-          class="ms-form-table-input-switch execute-form-table-input-switch"
-          size="small"
-        />
-        <span class="ml-3 font-normal text-[var(--color-text-1)]">{{ t('case.execute.StopOnFailure') }}</span>
-      </div>
-      <a-form-item field="integratedReport" :label="t('case.execute.reportSetting')">
-        <a-radio-group v-model="batchExecuteForm.integratedReport" type="button">
-          <a-radio value="false">{{ t('case.execute.independentReporting') }}</a-radio>
-          <a-radio value="true">{{ t('case.execute.CollectionReport') }}</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item
-        v-if="batchExecuteForm.integratedReport == 'true'"
-        field="integratedReport"
-        :label="t('case.execute.reportName')"
-        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
-        :validate-trigger="['blur', 'input']"
-      >
-        <a-input
-          v-model="batchExecuteForm.integratedReportName"
-          :max-length="255"
-          :placeholder="t('formCreate.PleaseEnter')"
-        />
-      </a-form-item>
-      <a-form-item field="poolId" :label="t('case.execute.pool')">
-        <a-select v-model="batchExecuteForm.poolId" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of resourcePoolList" :key="item.id" :value="item.id">
-            {{ t(item.name) }}
-          </a-option>
-        </a-select>
-      </a-form-item>
-    </a-form>
-    <template #footer>
-      <a-button type="secondary" :disabled="batchExecuteLoading" @click="cancelBatchExecute">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="batchExecuteLoading" @click="handleBatchExecuteCase">
-        {{ t('system.log.operateType.execute') }}
-      </a-button>
-    </template>
-  </a-modal>
+  <batchRunModal
+    v-model:visible="showBatchExecute"
+    :batch-condition-params="batchConditionParams"
+    :batch-params="batchParams"
+    :table-selected="tableSelected"
+    :batch-run-func="batchExecuteCase"
+    @finished="loadCaseListAndResetSelector"
+  />
 </template>
 
 <script setup lang="ts">
@@ -379,6 +296,7 @@
   import caseDetailDrawer from './caseDetailDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
 
   import {
     batchDeleteCase,
@@ -389,9 +307,6 @@
     executeCase,
     getCaseDetail,
     getCasePage,
-    getEnvList,
-    getPoolId,
-    getPoolOption,
     updateCasePriority,
     updateCaseStatus,
   } from '@/api/modules/api-test/management';
@@ -402,9 +317,8 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiCaseDetail, Environment } from '@/models/apiTest/management';
+  import { ApiCaseDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
-  import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -615,11 +529,6 @@
   const lastReportStatusList = ['error', 'FakeError', 'success'];
   const lastReportStatusFilters = ref<string[]>([...lastReportStatusList]);
 
-  const environmentList = ref<Environment[]>();
-
-  const resourcePoolList = ref<ResourcePoolItem[]>();
-  const defaultPoolId = ref<string>();
-
   async function getModuleIds() {
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
@@ -661,30 +570,9 @@
     caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
   }
 
-  // 初始化环境列表
-  async function initEnvList() {
-    environmentList.value = await getEnvList(appStore.currentProjectId);
-  }
-
-  // 初始化资源池列表
-  async function initPoolList() {
-    resourcePoolList.value = await getPoolOption(appStore.getCurrentProjectId);
-  }
-
-  async function getDefaultPoolId() {
-    try {
-      defaultPoolId.value = await getPoolId(appStore.getCurrentProjectId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   onBeforeMount(() => {
     loadCaseList();
-    initPoolList();
     getCaseLevelFields();
-    getDefaultPoolId();
   });
 
   function handleFilterHidden(val: boolean) {
@@ -830,24 +718,13 @@
   // 用例执行
   const showBatchExecute = ref(false);
   const batchEditLoading = ref(false);
-  const batchExecuteLoading = ref(false);
   const batchFormRef = ref<FormInstance>();
   const batchForm = ref({
     attr: '',
     value: '',
     values: [],
   });
-  const batchExecuteFormRef = ref<FormInstance>();
-  const batchExecuteForm = ref({
-    defaultEnv: 'true',
-    runMode: 'SERIAL',
-    integratedReport: 'false',
-    integratedReportName: '',
-    stopOnFailure: false,
-    poolId: '',
-    grouped: false,
-    environmentId: '',
-  });
+
   const attrOptions = [
     {
       name: 'case.caseLevel',
@@ -937,51 +814,7 @@
     });
   }
 
-  function cancelBatchExecute() {
-    showBatchExecute.value = false;
-    batchFormRef.value?.resetFields();
-    batchForm.value = {
-      attr: '',
-      value: '',
-      values: [],
-    };
-  }
-  function handleBatchExecuteCase() {
-    batchExecuteFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          batchExecuteLoading.value = true;
-          const batchConditionParams = await genBatchConditionParams();
-          await batchExecuteCase({
-            selectIds: batchParams.value?.selectedIds || [],
-            selectAll: !!batchParams.value?.selectAll,
-            excludeIds: batchParams.value?.excludeIds || [],
-            ...batchConditionParams,
-            runModeConfig: {
-              runMode: batchExecuteForm.value.runMode,
-              integratedReport: batchExecuteForm.value.integratedReport === 'true',
-              integratedReportName: batchExecuteForm.value.integratedReportName,
-              stopOnFailure: batchExecuteForm.value.stopOnFailure,
-              poolId: batchExecuteForm.value.poolId,
-              grouped: batchExecuteForm.value.grouped,
-              environmentId: batchExecuteForm.value.environmentId,
-            },
-            apiDefinitionId: '',
-            versionId: '',
-            refId: '',
-          });
-          Message.success(t('case.detail.execute.success'));
-          cancelBatchExecute();
-          loadCaseListAndResetSelector();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          batchExecuteLoading.value = false;
-        }
-      }
-    });
-  }
+  const batchConditionParams = ref<any>();
 
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
@@ -995,9 +828,10 @@
         showBatchEditModal.value = true;
         break;
       case 'execute':
-        showBatchExecute.value = true;
-        batchExecuteForm.value.poolId = defaultPoolId.value || '';
-        initEnvList();
+        genBatchConditionParams().then((data) => {
+          batchConditionParams.value = data;
+          showBatchExecute.value = true;
+        });
         break;
       default:
         break;

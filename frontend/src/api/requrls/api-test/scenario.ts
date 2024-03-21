@@ -11,6 +11,7 @@ export const BatchRecycleScenarioUrl = '/api/scenario/batch-operation/delete-gc'
 export const BatchMoveScenarioUrl = '/api/scenario/batch-operation/move'; // 批量移动接口场景
 export const BatchCopyScenarioUrl = '/api/scenario/batch-operation/copy'; // 批量复制接口场景
 export const BatchEditScenarioUrl = '/api/scenario/batch-operation/edit'; // 批量编辑接口场景
+export const BatchRunScenarioUrl = '/api/scenario/batch-operation/run'; // 批量执行接口场景
 
 //  回收站相关
 export const GetTrashModuleTreeUrl = '/api/scenario/module/trash/tree';

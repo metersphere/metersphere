@@ -275,6 +275,14 @@
       @folder-node-select="folderNodeSelect"
     />
   </a-modal>
+  <batchRunModal
+    v-model:visible="showBatchExecute"
+    :batch-condition-params="batchConditionParams"
+    :batch-params="batchParams"
+    :table-selected="tableSelected"
+    :batch-run-func="batchRunScenario"
+    @finished="loadScenarioList"
+  />
 </template>
 
 <script setup lang="ts">
@@ -289,10 +297,10 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
@@ -300,6 +308,7 @@
     batchEditScenario,
     batchOptionScenario,
     batchRecycleScenario,
+    batchRunScenario,
     getScenarioPage,
     recycleScenario,
     updateScenario,
@@ -351,6 +360,7 @@
   const moveModalVisible = ref(false);
   const isBatchMove = ref(false); // 是否批量移动场景
   const isBatchCopy = ref(false); // 是否批量复制场景
+  const showBatchExecute = ref(false);
 
   let columns: MsTableColumn = [
     {
@@ -539,6 +549,23 @@
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(ApiScenarioStatus));
   const tableStore = useTableStore();
+
+  const activeModules = computed(() => {
+    return props.activeModule === 'all' ? [] : [props.activeModule];
+  });
+
+  const batchConditionParams = computed(() => {
+    return {
+      condition: {
+        keyword: keyword.value,
+        filter: {
+          status: statusFilters.value,
+        },
+      },
+      projectId: appStore.currentProjectId,
+      moduleIds: activeModules.value,
+    };
+  });
 
   async function loadScenarioList(refreshTreeCount?: boolean) {
     let moduleIds: string[] = [];
@@ -873,7 +900,7 @@
         moveModalVisible.value = true;
         break;
       case 'execute':
-        Message.info('// todo @ba1q1');
+        showBatchExecute.value = true;
         break;
       default:
         break;

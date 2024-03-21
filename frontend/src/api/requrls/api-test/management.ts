@@ -40,7 +40,7 @@ export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取
  * Mock
  */
 export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
-export const UpdateMockStatusUrl = '/api/definition/mock/enable/'; // 更新mock状态
+export const UpdateMockStatusUrl = '/api/definition/mock/enable'; // 更新mock状态
 export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
 
 /**

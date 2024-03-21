@@ -1,7 +1,7 @@
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 import { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
 
-import { ApiDefinitionCustomField } from '@/models/apiTest/management';
+import { ApiDefinitionCustomField, ApiRunModeRequest } from '@/models/apiTest/management';
 import { ApiScenarioStatus, RequestComposition, RequestDefinitionStatus } from '@/enums/apiEnum';
 
 import { BatchApiParams, TableQueryParams } from '../common';
@@ -104,13 +104,22 @@ export interface BatchOptionParams extends BatchApiParams {
   refId?: string;
 }
 
+// 场景批量编辑参数
+export interface ApiScenarioBatchParams extends BatchApiParams {
+  projectId?: string;
+  moduleIds?: string[];
+  apiScenarioId?: string;
+  versionId?: string;
+  refId?: string;
+}
+
 // 批量移动场景参数
-export interface ApiScenarioBatchMoveParams extends BatchOptionParams {
+export interface ApiScenarioBatchMoveParams extends ApiScenarioBatchParams {
   targetModuleId: string | number;
 }
 
 // 批量编辑场景参数
-export interface ApiScenarioBatchEditParams extends BatchOptionParams {
+export interface ApiScenarioBatchEditParams extends ApiScenarioBatchParams {
   // 修改操作的类型
   type?: string;
 
@@ -130,8 +139,14 @@ export interface ApiScenarioBatchEditParams extends BatchOptionParams {
   priority?: string;
 }
 
+// 批量编辑场景参数
+export interface ApiScenarioBatchRunParams extends ApiScenarioBatchParams {
+  // 运行模式配置
+  runModeConfig?: ApiRunModeRequest;
+}
+
 // 批量删除场景参数
-export interface ApiScenarioBatchDeleteParams extends BatchApiParams {
+export interface ApiScenarioBatchDeleteParams extends ApiScenarioBatchParams {
   deleteAll: boolean;
 }
 
