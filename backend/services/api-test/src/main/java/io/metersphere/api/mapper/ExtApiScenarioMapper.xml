@@ -214,6 +214,20 @@
             <foreach collection="${filter}.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
+                        <when test="key=='lastReportStatus' and values.size() != 7 ">
+                            <!--    取值范围在7个状态（成功、失败、误报、停止、执行中、重跑中、排队中）内选。如果全部全选，则不用拼接这条语句-->
+                            <if test="values.contains('PENDING')">
+                                and (
+                                (api_scenario.last_report_status is null or api_scenario.last_report_status = '')
+                                or api_scenario.last_report_status in
+                                <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                                )
+                            </if>
+                            <if test="!values.contains('PENDING')">
+                                and api_scenario.last_report_status in
+                                <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            </if>
+                        </when>
                         <when test="key=='status'">
                             and api_scenario.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
