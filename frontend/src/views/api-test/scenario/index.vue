@@ -156,8 +156,16 @@
     offspringIds.value = _offspringIds;
   }
 
+  async function selectRecycleCount() {
+    const res = await getTrashModuleCount({
+      projectId: appStore.currentProjectId,
+    });
+    recycleModulesCount.value = res.all;
+  }
+
   function refreshTree(params: ApiScenarioGetModuleParams) {
     scenarioModuleTreeRef.value?.initModuleCount(params);
+    selectRecycleCount();
   }
 
   function redirectRecycle() {
@@ -166,12 +174,7 @@
     });
   }
 
-  onBeforeMount(async () => {
-    const res = await getTrashModuleCount({
-      projectId: appStore.currentProjectId,
-    });
-    recycleModulesCount.value = res.all;
-  });
+  onBeforeMount(selectRecycleCount);
 
   const saveLoading = ref(false);
 

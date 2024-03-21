@@ -61,6 +61,43 @@
         <template #priority="{ record }">
           <caseLevel :case-level="record.priority as CaseLevel" />
         </template>
+        <!-- 报告结果筛选 -->
+        <template #lastReportStatusFilter="{ columnConfig }">
+          <a-trigger
+            v-model:popup-visible="lastReportStatusFilterVisible"
+            trigger="click"
+            @popup-visible-change="handleFilterHidden"
+          >
+            <a-button
+              type="text"
+              class="arco-btn-text--secondary p-[8px_4px]"
+              @click="lastReportStatusFilterVisible = true"
+            >
+              <div class="font-medium">
+                {{ t(columnConfig.title as string) }}
+              </div>
+              <icon-down :class="lastReportStatusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+            </a-button>
+            <template #content>
+              <div class="arco-table-filters-content">
+                <div class="flex items-center justify-center px-[6px] py-[2px]">
+                  <a-checkbox-group v-model:model-value="lastReportStatusListFilters" direction="vertical" size="small">
+                    <a-checkbox v-for="key of lastReportStatusFilters" :key="key" :value="key">
+                      <ExecutionStatus :module-type="ReportEnum.API_SCENARIO_REPORT" :status="key" />
+                    </a-checkbox>
+                  </a-checkbox-group>
+                </div>
+              </div>
+            </template>
+          </a-trigger>
+        </template>
+        <template #lastReportStatus="{ record }">
+          <ExecutionStatus
+            v-if="record.lastReportStatus"
+            :module-type="ReportEnum.API_SCENARIO_REPORT"
+            :status="record.lastReportStatus"
+          />
+        </template>
         <template #operation="{ record }">
           <MsButton
             v-permission="['PROJECT_API_SCENARIO:READ+DELETED']"
@@ -86,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -96,6 +134,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import {
     batchDeleteScenario,
@@ -111,6 +150,7 @@
 
   import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
+  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
@@ -120,6 +160,11 @@
     readOnly?: boolean; // 是否是只读模式
   }>();
 
+  const lastReportStatusFilterVisible = ref(false);
+  const lastReportStatusListFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]));
+  const lastReportStatusFilters = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]);
+  });
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -172,8 +217,9 @@
     },
     {
       title: 'apiScenario.table.columns.runResult',
-      titleSlotName: 'lastReportStatus',
+      titleSlotName: 'lastReportStatusFilter',
       dataIndex: 'lastReportStatus',
+      slotName: 'lastReportStatus',
       showTooltip: true,
       width: 100,
       showDrag: true,
@@ -305,6 +351,7 @@
       projectId: appStore.currentProjectId,
       moduleIds,
       filter: {
+        lastReportStatus: lastReportStatusListFilters.value,
         status: statusFilters.value.length === Object.keys(ApiScenarioStatus).length ? undefined : statusFilters.value,
       },
     };
