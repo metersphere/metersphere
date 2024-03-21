@@ -10,7 +10,8 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
  */
 public class MsNoneBodyConverter extends MsBodyConverter<NoneBody> {
     @Override
-    public void parse(HTTPSamplerProxy sampler, NoneBody body, ParameterConfig config) {
+    public String parse(HTTPSamplerProxy sampler, NoneBody body, ParameterConfig config) {
         // do nothing
+        return null;
     }
 }

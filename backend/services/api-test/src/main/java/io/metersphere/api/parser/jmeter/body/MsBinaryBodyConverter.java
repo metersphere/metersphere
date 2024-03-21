@@ -5,6 +5,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
+import org.springframework.http.MediaType;
 
 /**
  * 处理 Binary 参数
@@ -13,12 +14,13 @@ import org.apache.jmeter.protocol.http.util.HTTPFileArg;
  */
 public class MsBinaryBodyConverter extends MsBodyConverter<BinaryBody> {
     @Override
-    public void parse(HTTPSamplerProxy sampler, BinaryBody body, ParameterConfig config) {
+    public String parse(HTTPSamplerProxy sampler, BinaryBody body, ParameterConfig config) {
         ApiFile file = body.getFile();
         if (file == null) {
-            return;
+            return null;
         }
         HTTPFileArg httpFileArg = getHttpFileArg(file);
         sampler.setHTTPFiles(new HTTPFileArg[]{httpFileArg});
+        return MediaType.APPLICATION_OCTET_STREAM_VALUE;
     }
 }

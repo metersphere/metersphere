@@ -6,6 +6,7 @@ package io.metersphere.api.constants;
  */
 public class ApiConstants {
     public static final String HTTP_PROTOCOL = "HTTP";
+    public static final String CONTENT_TYPE = "Content-Type";
 
     private ApiConstants() {}
 }

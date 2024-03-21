@@ -5,7 +5,7 @@ import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.mockserver.HttpRequestParam;
 import io.metersphere.api.dto.mockserver.MockResponse;
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.MockServerUtils;
@@ -102,7 +102,7 @@ public class MockServerService {
 
     private Object getReturn(ApiDefinitionMockConfig compareMockConfig, String apiId, String projectId, HttpServletResponse response) {
         ResponseBody responseBody = null;
-        List<Header> responseHeader = null;
+        List<MsHeader> responseHeader = null;
         int responseCode = -1;
         String useApiResponseId = null;
 

@@ -1,11 +1,9 @@
 package io.metersphere.api.parser.jmeter;
 
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.ApiParamConfig;
-import io.metersphere.api.dto.request.http.MsHTTPConfig;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
-import io.metersphere.api.dto.request.http.QueryParam;
-import io.metersphere.api.dto.request.http.RestParam;
+import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.BasicAuth;
 import io.metersphere.api.dto.request.http.auth.DigestAuth;
 import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
@@ -413,7 +411,33 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                     && (converter instanceof MsWWWFormBodyConverter || converter instanceof MsFormDataBodyConverter)) {
                 return;
             }
-            converter.parse(sampler, body.getBodyDataByType(), config);
+            String contentType = converter.parse(sampler, body.getBodyDataByType(), config);
+
+            // 自定设置 contentType
+            if (StringUtils.isBlank(contentType)) {
+                return;
+            }
+            if (msHTTPElement.getHeaders() == null) {
+                msHTTPElement.setHeaders(new ArrayList<>(1));
+            }
+            List<MsHeader> headers = msHTTPElement.getHeaders();
+            // 查询请求头是否包含当前的 contentType
+            List<MsHeader> contentTypeHeaders = headers.stream()
+                    .filter(KeyValueEnableParam::getEnable)
+                    .filter(KeyValueParam::isValid)
+                    .filter(header ->
+                            StringUtils.equalsIgnoreCase(header.getKey().trim(), ApiConstants.CONTENT_TYPE)
+                            && StringUtils.contains(header.getValue(), contentType)
+                    )
+                    .toList();
+            // 不包含则添加一个
+            if (CollectionUtils.isEmpty(contentTypeHeaders)) {
+                MsHeader header = new MsHeader();
+                header.setEnable(true);
+                header.setKey(ApiConstants.CONTENT_TYPE);
+                header.setValue(contentType);
+                headers.add(header);
+            }
         }
     }
 

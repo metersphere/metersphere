@@ -51,7 +51,7 @@ public class MsHTTPElement extends AbstractMsProtocolTestElement {
      * 请求头
      */
     @Valid
-    private List<Header> headers;
+    private List<MsHeader> headers;
     /**
      * rest参数
      */

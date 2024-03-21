@@ -13,7 +13,7 @@ import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
 import io.metersphere.api.dto.mockserver.KeyValueInfo;
 import io.metersphere.api.dto.mockserver.MockMatchRule;
 import io.metersphere.api.dto.mockserver.MockResponse;
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.*;
@@ -629,7 +629,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 ResultActions action = mockMvc.perform(requestBuilder);
 
                 //判断响应
-                List<Header> headers;
+                List<MsHeader> headers;
                 int statusCode;
                 ResponseBody responseBody;
                 if (mockResponse.isUseApiResponse()) {
@@ -646,7 +646,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 //判断响应码
                 Assertions.assertEquals(mockServerResponse.getStatus(), statusCode);
                 //判断响应头
-                for (Header header : headers) {
+                for (MsHeader header : headers) {
                     if (header.getEnable()) {
                         Assertions.assertEquals(mockServerResponse.getHeader(header.getKey()), header.getValue());
                     }

@@ -11,7 +11,8 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
  */
 public class MsRawBodyConverter extends MsBodyConverter<RawBody> {
     @Override
-    public void parse(HTTPSamplerProxy sampler, RawBody body, ParameterConfig config) {
+    public String parse(HTTPSamplerProxy sampler, RawBody body, ParameterConfig config) {
         handleRowBody(sampler, body.getValue());
+        return null;
     }
 }

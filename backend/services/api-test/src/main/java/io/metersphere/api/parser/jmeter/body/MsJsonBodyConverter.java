@@ -9,6 +9,7 @@ import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.springframework.http.MediaType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
     @Override
-    public void parse(HTTPSamplerProxy sampler, JsonBody body, ParameterConfig config) {
+    public String parse(HTTPSamplerProxy sampler, JsonBody body, ParameterConfig config) {
         sampler.setPostBodyRaw(true);
         try {
             String raw;
@@ -34,6 +35,7 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
         } catch (Exception e) {
             LogUtils.error("json mock value is abnormal", e);
         }
+        return MediaType.APPLICATION_JSON_VALUE;
     }
 
 

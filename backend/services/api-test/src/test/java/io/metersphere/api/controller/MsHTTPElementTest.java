@@ -437,7 +437,7 @@ public class MsHTTPElementTest {
         msHTTPElement.setName("name");
         msHTTPElement.setEnable(true);
 
-        Header header = new Header();
+        MsHeader header = new MsHeader();
         header.setEnable(false);
         header.setValue("value");
         header.setKey("key");
@@ -478,7 +478,7 @@ public class MsHTTPElementTest {
         httpResponse.setStatusCode("200");
         httpResponse.setDefaultFlag(true);
 
-        Header header = new Header();
+        MsHeader header = new MsHeader();
         header.setEnable(false);
         header.setValue("value");
         header.setKey("key");
@@ -500,13 +500,13 @@ public class MsHTTPElementTest {
         http1Response.setStatusCode("222");
         http1Response.setDefaultFlag(true);
         http1Response.setHeaders(new ArrayList<>() {{
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setEnable(false);
                 this.setValue("valueA1");
                 this.setKey("keyA1");
                 this.setDescription("descA1");
             }});
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setEnable(true);
                 this.setValue("headerDefaultValue");
                 this.setKey("headerDefault");
@@ -526,13 +526,13 @@ public class MsHTTPElementTest {
         http2Response.setStatusCode("222");
         http2Response.setDefaultFlag(false);
         http2Response.setHeaders(new ArrayList<>() {{
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setEnable(false);
                 this.setValue("valueB1");
                 this.setKey("keyB1");
                 this.setDescription("descB1");
             }});
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setEnable(true);
                 this.setValue("valueB2");
                 this.setKey("keyB2");
