@@ -203,9 +203,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 ResponseBody body = new ResponseBody();
                 Map<String, io.swagger.v3.oas.models.headers.Header> headers = value.getHeaders();
                 if (MapUtils.isNotEmpty(headers)) {
-                    List<Header> headerList = new ArrayList<>();
+                    List<MsHeader> headerList = new ArrayList<>();
                     headers.forEach((k, v) -> {
-                        Header header = new Header();
+                        MsHeader header = new MsHeader();
                         header.setKey(k);
                         header.setValue(getDefaultObjectValue(v.getExample()));
                         header.setDescription(getDefaultStringValue(v.getDescription()));
@@ -431,8 +431,8 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     }
 
 
-    private void parseCookieParameters(CookieParameter cookieParameter, List<Header> headers) {
-        Header headerParams = new Header();
+    private void parseCookieParameters(CookieParameter cookieParameter, List<MsHeader> headers) {
+        MsHeader headerParams = new MsHeader();
         headerParams.setKey(getDefaultStringValue(cookieParameter.getName()));
         headerParams.setDescription(getDefaultStringValue(cookieParameter.getDescription()));
         if (cookieParameter.getSchema() != null) {
@@ -441,8 +441,8 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         headers.add(headerParams);
     }
 
-    private void parseHeaderParameters(HeaderParameter headerParameter, List<Header> headers) {
-        Header headerParams = new Header();
+    private void parseHeaderParameters(HeaderParameter headerParameter, List<MsHeader> headers) {
+        MsHeader headerParams = new MsHeader();
         headerParams.setKey(getDefaultStringValue(headerParameter.getName()));
         headerParams.setDescription(getDefaultStringValue(headerParameter.getDescription()));
         if (headerParameter.getSchema() != null) {

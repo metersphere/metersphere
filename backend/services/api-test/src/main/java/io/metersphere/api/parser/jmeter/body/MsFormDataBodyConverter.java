@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
 
     @Override
-    public void parse(HTTPSamplerProxy sampler, FormDataBody body, ParameterConfig config) {
+    public String parse(HTTPSamplerProxy sampler, FormDataBody body, ParameterConfig config) {
         List<FormDataKV> formValues = body.getFormValues();
         sampler.setDoMultipart(true);
         if (CollectionUtils.isEmpty(formValues)) {
-            return;
+            return null;
         }
         List<FormDataKV> validFormValues = formValues.stream()
                 .filter(FormDataKV::getEnable)
@@ -35,6 +35,7 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
         List<FormDataKV> textFormValues = validFormValues.stream().filter(kv -> !kv.isFile()).collect(Collectors.toList());
         sampler.setHTTPFiles(getHttpFileArg(fileFormValues));
         sampler.setArguments(getArguments(textFormValues));
+        return null;
     }
 
 

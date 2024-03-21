@@ -9,7 +9,7 @@ import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.mockserver.*;
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.JsonBody;
 import io.metersphere.api.dto.request.http.body.RawBody;
@@ -285,17 +285,17 @@ public class MockServerTestService {
             mockResponse.setBody(body);
         }
 
-        List<Header> headers = new ArrayList<>() {{
-            this.add(new Header() {{
+        List<MsHeader> headers = new ArrayList<>() {{
+            this.add(new MsHeader() {{
                 this.setKey("rspHeaderA");
                 this.setValue("header-1");
             }});
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setKey("rspHeaderB");
                 this.setValue("header-2");
                 this.setEnable(false);
             }});
-            this.add(new Header() {{
+            this.add(new MsHeader() {{
                 this.setKey("rspHeaderC");
                 this.setValue("header-3");
             }});

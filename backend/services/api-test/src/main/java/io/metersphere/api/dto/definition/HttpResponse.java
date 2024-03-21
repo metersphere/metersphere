@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -35,7 +35,7 @@ public class HttpResponse implements Serializable {
 
     @Schema(description = "响应请求头")
     @Valid
-    private List<Header> headers;
+    private List<MsHeader> headers;
 
     @Schema(description = "响应请求体")
     @Valid

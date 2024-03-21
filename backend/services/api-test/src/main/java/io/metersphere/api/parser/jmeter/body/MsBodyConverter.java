@@ -29,12 +29,13 @@ public abstract class MsBodyConverter<T> {
 
     /**
      * 解析对应的请求体参数
+     * 返回 Content-Type
      *
      * @param sampler
      * @param body
      * @param config
      */
-    public abstract void parse(HTTPSamplerProxy sampler, T body, ParameterConfig config);
+    public abstract String parse(HTTPSamplerProxy sampler, T body, ParameterConfig config);
 
     /**
      * 解析文本类型的 kv 参数
@@ -110,7 +111,7 @@ public abstract class MsBodyConverter<T> {
      * @param sampler
      * @param raw
      */
-    protected static void handleRowBody(HTTPSamplerProxy sampler, String raw) {
+    protected void handleRowBody(HTTPSamplerProxy sampler, String raw) {
         Arguments arguments = new Arguments();
         HTTPArgument httpArgument = new HTTPArgument();
         httpArgument.setValue(raw);

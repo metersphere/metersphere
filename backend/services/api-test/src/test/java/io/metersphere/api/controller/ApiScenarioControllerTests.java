@@ -11,7 +11,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.controller.*;
 import io.metersphere.api.dto.request.controller.loop.*;
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
@@ -510,15 +510,15 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     private void initTestData() {
-        Header header1 = new Header();
+        MsHeader header1 = new MsHeader();
         header1.setKey("a");
         header1.setValue("aaa");
 
-        Header header2 = new Header();
+        MsHeader header2 = new MsHeader();
         header2.setKey("c");
         header2.setValue("cc");
 
-        Header header3 = new Header();
+        MsHeader header3 = new MsHeader();
         header3.setKey("Cookie");
         header3.setValue("b=c");
 

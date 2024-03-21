@@ -14,7 +14,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionPageRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.request.ImportRequest;
-import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
@@ -484,11 +484,11 @@ public class ApiDefinitionImportUtilService {
     public boolean dataIsSame(MsHTTPElement dbRequest, MsHTTPElement importRequest) {
         boolean same = true;
         //判断请求头是否一样
-        List<Header> dbHeaders = dbRequest.getHeaders();
-        List<Header> importHeaders = importRequest.getHeaders();
+        List<MsHeader> dbHeaders = dbRequest.getHeaders();
+        List<MsHeader> importHeaders = importRequest.getHeaders();
         if (CollectionUtils.isNotEmpty(dbHeaders) || CollectionUtils.isNotEmpty(importHeaders)) {
-            List<String> dbHeaderKeys = dbHeaders.stream().map(Header::getKey).toList();
-            List<String> importHeaderKeys = importHeaders.stream().map(Header::getKey).toList();
+            List<String> dbHeaderKeys = dbHeaders.stream().map(MsHeader::getKey).toList();
+            List<String> importHeaderKeys = importHeaders.stream().map(MsHeader::getKey).toList();
             if (paramsIsSame(dbHeaderKeys, importHeaderKeys)) {
                 return false;
             }
