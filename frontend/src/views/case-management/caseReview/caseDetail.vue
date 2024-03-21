@@ -1,5 +1,5 @@
 <template>
-  <MsCard :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
+  <MsCard :min-width="1100" simple has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
         <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
@@ -150,9 +150,12 @@
                   {{ tabList[2].title }}
                   <div
                     v-if="caseDetail.demandCount > 0"
-                    :class="`ml-[4px] rounded-full ${
-                      showTab === tabList[2].key ? 'bg-[rgb(var(--primary-5))]' : 'bg-[var(--color-text-brand)]'
-                    } px-[4px] text-[12px] text-white`"
+                    style="min-width: 16px; text-align: center; align-content: center"
+                    :class="`ml-[4px] h-[16px] rounded-full ${
+                      showTab === tabList[2].key
+                        ? 'bg-[rgb(var(--primary-9))] text-[rgb(var(--primary-5))]'
+                        : 'bg-[var(--color-text-brand)] text-white'
+                    } px-[4px] text-[12px]`"
                   >
                     {{ caseDetail.demandCount > 99 ? '99+' : caseDetail.demandCount }}
                   </div>
@@ -657,6 +660,7 @@
     .ms-scroll-bar();
 
     padding: 16px;
+    align-content: start;
     .review-history-list {
       @apply h-full;
 
