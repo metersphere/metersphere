@@ -400,12 +400,12 @@
       titleSlotName: 'resultTitle',
       width: 110,
     },
-    {
-      title: 'caseManagement.caseReview.version',
-      dataIndex: 'versionName',
-      width: 100,
-      showTooltip: true,
-    },
+    // {
+    //   title: 'caseManagement.caseReview.version',
+    //   dataIndex: 'versionName',
+    //   width: 100,
+    //   showTooltip: true,
+    // },
     {
       title: 'caseManagement.caseReview.creator',
       dataIndex: 'createUserName',
