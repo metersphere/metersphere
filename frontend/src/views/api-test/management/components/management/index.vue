@@ -41,6 +41,7 @@
     :active-module="props.activeModule"
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
+    :offspring-ids="props.offspringIds"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
   />
 </template>

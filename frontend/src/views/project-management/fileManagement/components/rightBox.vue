@@ -48,6 +48,7 @@
         v-on="propsEvent"
         @selected-change="handleTableSelect"
         @batch-action="handleTableBatch"
+        @module-change="searchList"
       >
         <template #name="{ record, rowIndex }">
           <MsTag
@@ -838,7 +839,16 @@
     selectedModuleKeys.value = [];
   }
 
-  function setTableParams() {
+  async function getModuleIds() {
+    let moduleIds = [props.activeFolder];
+    const getAllChildren = await tableStore.getSubShow(TableKeyEnum.FILE_MANAGEMENT_FILE);
+    if (getAllChildren) {
+      moduleIds = [props.activeFolder, ...props.offspringIds];
+    }
+    return moduleIds;
+  }
+
+  async function setTableParams() {
     if (props.activeFolder === 'my') {
       combine.value.createUser = userStore.id;
     } else {
@@ -849,10 +859,11 @@
     } else {
       combine.value.storage = 'minio';
     }
-    let moduleIds: string[] = [props.activeFolder, ...props.offspringIds];
-
+    let moduleIds: string[];
     if (isMyOrAllFolder.value) {
       moduleIds = [];
+    } else {
+      moduleIds = await getModuleIds();
     }
     setLoadListParams({
       keyword: keyword.value,
@@ -869,7 +880,7 @@
   async function changeFileType() {
     await initFileTypes();
     resetSelector();
-    setTableParams();
+    await setTableParams();
     if (showType.value === 'card') {
       cardListRef.value?.reload();
     } else {
@@ -898,8 +909,8 @@
     }
   );
 
-  const searchList = debounce(() => {
-    setTableParams();
+  const searchList = debounce(async () => {
+    await setTableParams();
     if (showType.value === 'card') {
       cardListRef.value?.reload();
     } else {

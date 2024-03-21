@@ -188,7 +188,7 @@
         }
       });
       tableStore.getSubShow(props.tableKey).then((res) => {
-        subdirectoryVal.value = res || true;
+        subdirectoryVal.value = res === undefined ? true : res;
       });
       tableStore.getPageSize(props.tableKey).then((res) => {
         pageSize.value = res;
