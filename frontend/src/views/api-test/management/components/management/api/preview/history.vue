@@ -60,7 +60,7 @@
     },
     {
       title: 'apiTestManagement.updateTime',
-      dataIndex: 'updateTime',
+      dataIndex: 'createTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
