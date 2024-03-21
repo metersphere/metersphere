@@ -7,6 +7,7 @@
     <a-input-number
       v-model="condition.expectedValue"
       :step="100"
+      :min="0"
       mode="button"
       @blur="
         emit('change', {

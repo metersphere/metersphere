@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.request.controller;
 
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +17,8 @@ public class MsIfController extends AbstractMsTestElement {
      * 变量名称 ${variable} 长度255
      */
     private String variable;
-    /**
-     * 操作符 == ,!=, < ,<=, >, >=, contains (=~),not contains (!~), is empty, is not empty
-     */
+
+    @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
     private String condition;
     /**
      * 值 ${value} 长度255
@@ -25,7 +26,7 @@ public class MsIfController extends AbstractMsTestElement {
     private String value;
 
     public boolean isValid() {
-        if (StringUtils.contains(condition, "is empty")) {
+        if (StringUtils.contains(condition, MsAssertionCondition.EMPTY.name())) {
             return StringUtils.isNotBlank(variable);
         }
         return StringUtils.isNotBlank(variable) && StringUtils.isNotBlank(condition) && StringUtils.isNotBlank(value);
@@ -61,35 +62,33 @@ public class MsIfController extends AbstractMsTestElement {
                 : StringUtils.join("vars.get('", key, "')");
 
         String operator = this.condition;
-        String value;
 
-        switch (operator) {
-            case "is empty":
-                variable = variable + "==" + "\"\\" + this.variable + "\"" + "|| empty(" + variable + ")";
-                operator = "";
-                value = "";
-                break;
-            case "is not empty":
-                variable = variable + "!=" + "\"\\" + this.variable + "\"" + "&& !empty(" + variable + ")";
-                operator = "";
-                value = "";
-                break;
-            case "<":
-            case ">":
-            case "<=":
-            case ">=":
-                value = this.value;
-                break;
-            case "=~":
-            case "!~":
-                value = "\"(\\n|.)*" + this.value + "(\\n|.)*\"";
-                break;
-            default:
-                value = "\"" + this.value + "\"";
-                break;
-        }
+        MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(operator);
+        return switch (msAssertionCondition) {
+            case EMPTY ->
+                    buildExpression(variable + "==" + "\"\\" + this.variable + "\"" + "|| empty(" + variable + ")");
+            case NOT_EMPTY ->
+                    buildExpression(variable + "!=" + "\"\\" + this.variable + "\"" + "&& !empty(" + variable + ")");
+            case GT ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + ">" + value : variable + ">" + "\"" + value + "\"");
+            case LT ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + "<" + value : variable + "<" + "\"" + value + "\"");
+            case GT_OR_EQUALS ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + ">=" + value : variable + ">=" + "\"" + value + "\"");
+            case LT_OR_EQUALS ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + "<=" + value : variable + "<=" + "\"" + value + "\"");
+            case CONTAINS -> buildExpression("\"(\\n|.)*" + value + "(\\n|.)*\"=~" + variable);
+            case NOT_CONTAINS -> buildExpression("\"(\\n|.)*" + value + "(\\n|.)*\"!~" + variable);
+            case EQUALS ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + "==" + value : variable + "==" + "\"" + value + "\"");
+            case NOT_EQUALS ->
+                    buildExpression(StringUtils.isNumeric(value) ? variable + "!=" + value : variable + "!=" + "\"" + value + "\"");
+            default -> buildExpression("\"" + condition + value + "\"");
+        };
+}
 
-        return "${__jexl3(" + variable + operator + value + ")}";
+    private String buildExpression(String expression) {
+        return "${__jexl3(" + expression + ")}";
     }
 
 }

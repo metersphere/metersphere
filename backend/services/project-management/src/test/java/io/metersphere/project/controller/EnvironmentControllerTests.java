@@ -817,6 +817,20 @@ public class EnvironmentControllerTests extends BaseTest {
         response = parseObjectFromMvcResult(mvcResult, EnvironmentInfoDTO.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals("environmentId1", response.getId());
+        //插入一个为空的mock环境
+        Environment mockEnvironment = new Environment();
+        mockEnvironment.setId("mock-null");
+        mockEnvironment.setMock(true);
+        mockEnvironment.setProjectId(DEFAULT_PROJECT_ID);
+        mockEnvironment.setUpdateUser("updateUser");
+        mockEnvironment.setUpdateTime(System.currentTimeMillis());
+        mockEnvironment.setCreateUser("createUser");
+        mockEnvironment.setPos(1000L);
+        mockEnvironment.setName("mock-null");
+        mockEnvironment.setCreateTime(System.currentTimeMillis());
+        environmentMapper.insert(mockEnvironment);
+        this.responseGet(get + "mock-null");
+        environmentMapper.deleteByPrimaryKey("mock-null");
         //校验权限
         requestGetPermissionTest(PROJECT_ENVIRONMENT_READ, get + DEFAULT_PROJECT_ID);
         EnvironmentExample environmentExample = new EnvironmentExample();

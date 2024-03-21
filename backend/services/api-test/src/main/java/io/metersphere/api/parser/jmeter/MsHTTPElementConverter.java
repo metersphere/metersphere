@@ -325,7 +325,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         headerManager.setName(StringUtils.isNotEmpty(msHTTPElement.getName()) ? msHTTPElement.getName() + "_HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(HEADER_PANEL));
-        headerMap.forEach((k, v) -> headerManager.add(new Header(k, Mock.buildFunctionCallString(v))));
+        headerMap.forEach((k, v) -> headerManager.add(new org.apache.jmeter.protocol.http.control.Header(k, Mock.buildFunctionCallString(v))));
         return headerManager;
     }
 

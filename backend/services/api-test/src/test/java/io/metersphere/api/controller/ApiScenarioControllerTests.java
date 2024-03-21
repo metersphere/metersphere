@@ -922,7 +922,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     public MsIfController ifController(String name, boolean enable) {
         //条件控制器
         MsIfController msIfController = new MsIfController();
-        msIfController.setCondition("==");
+        msIfController.setCondition(MsAssertionCondition.EQUALS.name());
         msIfController.setName(StringUtils.isNotBlank(name) ? name : "条件控制器");
         msIfController.setEnable(enable);
         msIfController.setVariable("1");
@@ -972,7 +972,7 @@ public class ApiScenarioControllerTests extends BaseTest {
                 if (StringUtils.isNotBlank(condition) && StringUtils.equals(condition, "CONDITION")) {
                     MsWhileVariable msWhileVariable = new MsWhileVariable();
                     msWhileVariable.setVariable("1");
-                    msWhileVariable.setCondition("==");
+                    msWhileVariable.setCondition(MsAssertionCondition.EQUALS.name());
                     msWhileVariable.setValue("1");
                     whileController.setMsWhileVariable(msWhileVariable);
                 } else {
