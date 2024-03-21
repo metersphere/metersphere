@@ -20,7 +20,7 @@
           field="selectedAttrsId"
           :label="t('caseManagement.featureCase.selectAttrs')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('system.orgTemplate.stateNameNotNull') }]"
+          :rules="[{ required: true, message: t('caseManagement.featureCase.selectAttrsNotNull') }]"
         >
           <a-select v-model="form.selectedAttrsId" :placeholder="t('caseManagement.featureCase.PleaseSelect')">
             <a-option v-for="item of totalAttrs" :key="item.fieldId" :value="item.fieldId">{{
