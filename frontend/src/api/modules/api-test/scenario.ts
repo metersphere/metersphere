@@ -7,6 +7,7 @@ import {
   BatchMoveScenarioUrl,
   BatchRecoverScenarioUrl,
   BatchRecycleScenarioUrl,
+  BatchRunScenarioUrl,
   DeleteModuleUrl,
   DeleteScenarioUrl,
   ExecuteHistoryUrl,
@@ -27,6 +28,7 @@ import {
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
+  ApiScenarioBatchRunParams,
   ApiScenarioGetModuleParams,
   ApiScenarioModuleUpdateParams,
   ApiScenarioPageParams,
@@ -128,6 +130,11 @@ export function batchOptionScenario(
 // 批量编辑场景
 export function batchEditScenario(params: ApiScenarioBatchEditParams) {
   return MSR.post({ url: BatchEditScenarioUrl, params });
+}
+
+// 批量编辑场景
+export function batchRunScenario(params: ApiScenarioBatchRunParams) {
+  return MSR.post({ url: BatchRunScenarioUrl, params });
 }
 
 // 场景执行历史接口
