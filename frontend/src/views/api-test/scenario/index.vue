@@ -15,10 +15,12 @@
           </a-tooltip>
         </template>
       </MsEditableTab>
-      <div class="flex items-center gap-[8px]">
+      <div v-if="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
+        <environmentSelect />
         <a-button type="primary" :loading="saveLoading" @click="saveScenario">
           {{ t('common.save') }}
         </a-button>
+        <!-- <executeButton /> -->
       </div>
     </div>
     <a-divider class="!my-0" />
@@ -79,6 +81,8 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
   import { ScenarioStepInfo } from './components/step/index.vue';
+  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
+  // import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
   import { getTrashModuleCount } from '@/api/modules/api-test/scenario';
@@ -114,6 +118,7 @@
       isNew: true,
       name: '',
       moduleId: 'root',
+      priority: 'P0',
       stepInfo: {
         id: new Date().getTime(),
         steps: [],

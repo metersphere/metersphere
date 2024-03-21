@@ -10,7 +10,7 @@
           </a-button>
           <template #content>
             <MsUpload
-              v-model:file-list="innerFileList"
+              v-model:file-list="fileList"
               accept="none"
               :auto-upload="false"
               :show-file-list="false"
@@ -229,7 +229,7 @@
 
   const { t } = useI18n();
 
-  const innerFileList = defineModel<MsFileItem[]>('fileList', {
+  const fileList = defineModel<MsFileItem[]>('fileList', {
     // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性
     required: true,
   });
@@ -245,7 +245,7 @@
 
   onBeforeMount(() => {
     // 回显文件
-    const defaultFiles = innerFileList.value.filter((item) => item) || [];
+    const defaultFiles = fileList.value.filter((item) => item) || [];
     if (defaultFiles.length > 0) {
       if (props.multiple) {
         inputFiles.value = defaultFiles.map((item) => ({
@@ -266,18 +266,18 @@
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     if (props.multiple) {
-      innerFileList.value.push(fileItem);
+      fileList.value.push(fileItem);
       inputFiles.value.push({
         ...fileItem,
         value: fileItem[props.fields.id] || fileItem.uid || '',
         label: fileItem[props.fields.name] || fileItem.name || '',
       });
     } else {
-      innerFileList.value = [fileItem];
+      fileList.value = [fileItem];
       inputFileName.value = fileItem.name || '';
     }
     fileItem.local = true;
-    emit('change', innerFileList.value, fileItem);
+    emit('change', fileList.value, fileItem);
     nextTick(() => {
       // 在 emit 文件上去之后再关闭菜单
       buttonDropDownVisible.value = false;
@@ -295,7 +295,7 @@
 
   // 监视文件列表处理关联和本地文件
   watch(
-    () => innerFileList.value,
+    () => fileList.value,
     (arr) => {
       getListFunParams.value.combine.hiddenIds = arr
         .filter((item) => !item.local)
@@ -308,9 +308,9 @@
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     if (props.mode === 'button') {
-      innerFileList.value.push(...fileResultList);
+      fileList.value.push(...fileResultList);
     } else if (props.multiple) {
-      innerFileList.value.push(...fileResultList);
+      fileList.value.push(...fileResultList);
       inputFiles.value.push(
         ...fileResultList.map((item) => ({
           ...item,
@@ -321,10 +321,10 @@
     } else {
       // 单选文件
       const file = fileResultList[0];
-      innerFileList.value = [{ ...file, fileId: file.uid || '', fileName: file.name || '' }];
+      fileList.value = [{ ...file, fileId: file.uid || '', fileName: file.name || '' }];
       inputFileName.value = file.name || '';
     }
-    emit('change', innerFileList.value);
+    emit('change', fileList.value);
   }
 
   const inputFilesPopoverVisible = ref(false);
@@ -341,9 +341,7 @@
 
   function handleClose(data: TagData) {
     inputFiles.value = inputFiles.value.filter((item) => item.value !== data.value);
-    innerFileList.value = innerFileList.value.filter(
-      (item) => (item[props.fields.id] || item.uid) !== (data[props.fields.id] || data.value)
-    );
+    fileList.value = fileList.value.filter((item) => (item.uid || item[props.fields.id]) !== data.value);
     if (inputFiles.value.length === 0) {
       inputFilesPopoverVisible.value = false;
     }
@@ -353,7 +351,7 @@
   function handleFileClear() {
     inputFileName.value = '';
     inputFiles.value = [];
-    innerFileList.value = [];
+    fileList.value = [];
     emit('change', []);
   }
 
@@ -367,7 +365,7 @@
   function handleOpenSaveAs(item: TagData) {
     inputFilesPopoverVisible.value = false;
     // 这里先判定 uid 是否存在，存在则是刚上传的文件；否则是已保存过后的详情文件
-    savingFile.value = innerFileList.value.find((file) => (file.uid || file[props.fields.id]) === item.value);
+    savingFile.value = fileList.value.find((file) => (file.uid || file[props.fields.id]) === item.value);
     saveFilePopoverVisible.value = true;
   }
 

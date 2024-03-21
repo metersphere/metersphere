@@ -144,26 +144,28 @@
     }
   });
 
-  async function handleFileChange(files: MsFileItem[]) {
+  async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
     if (!props.uploadTempFileApi) return;
-    if (files.length === 0) {
+    if (files.length === 0 && file === undefined) {
       innerParams.value.binaryBody.file = undefined;
       emit('change');
       return;
     }
     try {
-      if (fileList.value[0]?.local && fileList.value[0].file) {
+      if (file?.local && file.file) {
+        // 本地上传
         appStore.showLoading();
-        const res = await props.uploadTempFileApi(fileList.value[0].file);
+        const res = await props.uploadTempFileApi(file.file);
         innerParams.value.binaryBody.file = {
-          ...fileList.value[0],
+          ...file,
           fileId: res.data,
-          fileName: fileList.value[0]?.name || '',
-          fileAlias: fileList.value[0]?.name || '',
+          fileName: file?.name || '',
+          fileAlias: file?.name || '',
           local: true,
         };
         appStore.hideLoading();
       } else {
+        // 关联文件
         innerParams.value.binaryBody.file = {
           ...fileList.value[0],
           fileId: fileList.value[0]?.uid,
