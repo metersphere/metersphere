@@ -128,5 +128,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding-bottom: 16px;
   }
 </style>
