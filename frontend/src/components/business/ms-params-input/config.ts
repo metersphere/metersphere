@@ -866,11 +866,11 @@ export const JMeterAllGroup = [
     label: 'ms.paramsInput.number',
     children: JMeterNumberGroup,
   },
-  {
-    value: 'file',
-    label: 'ms.paramsInput.file',
-    children: JMeterFileGroup,
-  },
+  // {
+  //   value: 'file',
+  //   label: 'ms.paramsInput.file',
+  //   children: JMeterFileGroup,
+  // },
   {
     value: 'info',
     label: 'ms.paramsInput.info',
@@ -890,7 +890,7 @@ export const JMeterAllVars = [
   ...JMeterTimeGroup,
   ...JMeterPropertyGroup,
   ...JMeterNumberGroup,
-  ...JMeterFileGroup,
+  // ...JMeterFileGroup,
   ...JMeterInfoGroup,
   ...JMeterStringGroup,
 ];
