@@ -357,58 +357,70 @@ export function findNodePathByKey<T>(
   return null;
 }
 /**
- * 在某个节点前/后插入新节点
+ * 在某个节点前/后插入单个新节点
  * @param treeArr 目标树
  * @param targetKey 目标节点唯一值
- * @param newNode 新节点
+ * @param newNodes 新节点树/数组
  * @param position 插入位置
  * @param customKey 默认为 key，可自定义需要匹配的属性名
  */
-export function insertNode<T>(
+export function insertNodes<T>(
   treeArr: TreeNode<T>[],
   targetKey: string | number,
-  newNode: TreeNode<T>,
+  newNodes: TreeNode<T> | TreeNode<T>[],
   position: 'before' | 'after' | 'inside',
   customFunc?: (node: TreeNode<T>, parent?: TreeNode<T>) => void,
   customKey = 'key'
 ): void {
+  function insertNewNodes(
+    array: TreeNode<T>[],
+    startIndex: number,
+    parent: TreeNode<T> | undefined,
+    startOrder: number
+  ) {
+    if (Array.isArray(newNodes)) {
+      // 插入节点数组
+      newNodes.forEach((newNode, index) => {
+        newNode.parent = parent;
+        newNode.order = startOrder + index;
+      });
+      array.splice(startIndex, 0, ...newNodes);
+    } else {
+      // 插入单个节点
+      newNodes.parent = parent;
+      newNodes.order = startOrder;
+      array.splice(startIndex, 0, newNodes);
+    }
+    // 更新插入节点之后的节点的 order
+    const newLength = Array.isArray(newNodes) ? newNodes.length : 1;
+    for (let j = startIndex + newLength; j < array.length; j++) {
+      array[j].order += newLength;
+    }
+  }
+
   function insertNodeInTree(tree: TreeNode<T>[], parent?: TreeNode<T>): boolean {
     for (let i = 0; i < tree.length; i++) {
       const node = tree[i];
       if (node[customKey] === targetKey) {
         // 如果当前节点的 customKey 与目标 customKey 匹配，则在当前节点前/后/内部插入新节点
-        const childrenArray = parent ? parent.children || [] : treeArr; // 父节点没有 children 属性，说明是树的第一层，使用 treeArr
-        const index = childrenArray.findIndex((item) => item[customKey] === node[customKey]);
+        const parentChildren = parent ? parent.children || [] : treeArr; // 父节点没有 children 属性，说明是树的第一层，使用 treeArr
+        const index = parentChildren.findIndex((item) => item[customKey] === node[customKey]);
         if (position === 'before') {
-          newNode.parent = parent || node.parent;
-          newNode.order = node.order;
-          childrenArray.splice(index, 0, newNode);
-          for (let j = index + 1; j < childrenArray.length; j++) {
-            // 更新插入节点之后的节点的 order
-            if (childrenArray[j].order !== undefined) {
-              childrenArray[j].order += 1;
-            }
-          }
+          insertNewNodes(parentChildren, index, parent || node.parent, node.order);
         } else if (position === 'after') {
-          newNode.parent = parent || node.parent;
-          newNode.order = node.order + 1;
-          childrenArray.splice(index + 1, 0, newNode);
-          // 更新插入节点之后的节点的 order
-          for (let j = index + 2; j < childrenArray.length; j++) {
-            if (childrenArray[j].order !== undefined) {
-              childrenArray[j].order += 1;
-            }
-          }
+          insertNewNodes(parentChildren, index + 1, parent || node.parent, node.order + 1);
         } else if (position === 'inside') {
           if (!node.children) {
             node.children = [];
           }
-          newNode.parent = node;
-          newNode.order = node.children.length + 1;
-          node.children.push(newNode);
+          insertNewNodes(node.children, node.children.length, node, node.children.length + 1);
         }
         if (typeof customFunc === 'function') {
-          customFunc(newNode, parent);
+          if (Array.isArray(newNodes)) {
+            newNodes.forEach((newNode) => customFunc(newNode, parent || node.parent));
+          } else {
+            customFunc(newNodes, parent || node.parent);
+          }
         }
         // 插入后返回 true
         return true;
@@ -456,10 +468,10 @@ export function handleTreeDragDrop<T>(
 
   // 拖动节点插入到目标节点的 children 数组中
   if (dropPosition === 0) {
-    insertNode(dropNode.parent?.children || treeArr, dropNode[customKey], dragNode, 'inside', undefined, customKey);
+    insertNodes(dropNode.parent?.children || treeArr, dropNode[customKey], dragNode, 'inside', undefined, customKey);
   } else {
     // 拖动节点插入到目标节点的前/后
-    insertNode(
+    insertNodes(
       dropNode.parent?.children || treeArr,
       dropNode[customKey],
       dragNode,

@@ -22,7 +22,6 @@
       no-disable
       filter-icon-align-left
       v-on="currentTable.propsEvent.value"
-      @selected-change="handleTableSelect"
     >
       <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
@@ -88,7 +87,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { MsTableColumn, MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
@@ -99,8 +98,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
+  import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
+  import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { SelectAllEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     type: 'api' | 'case' | 'scenario';
@@ -108,9 +110,12 @@
     protocol: string;
     projectId: string | number;
     moduleIds: (string | number)[]; // 模块 id 以及它的子孙模块 id集合
+    selectedApis: MsTableDataItem<ApiDefinitionDetail>[]; // 已选中的接口
+    selectedCases: MsTableDataItem<ApiCaseDetail>[]; // 已选中的用例
+    selectedScenarios: MsTableDataItem<ApiScenarioTableItem>[]; // 已选中的场景
   }>();
   const emit = defineEmits<{
-    (e: 'select', ids: (string | number)[]): void;
+    (e: 'select', data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]): void;
   }>();
 
   const { t } = useI18n();
@@ -161,11 +166,11 @@
       showTooltip: true,
       width: 200,
     },
-    {
-      title: 'apiTestManagement.version',
-      dataIndex: 'versionName',
-      width: 100,
-    },
+    // {
+    //   title: 'apiTestManagement.version',
+    //   dataIndex: 'versionName',
+    //   width: 100,
+    // },
     {
       title: 'common.tag',
       dataIndex: 'tags',
@@ -192,7 +197,10 @@
   const methodFilters = ref(Object.keys(RequestMethods));
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(RequestDefinitionStatus));
-  const tableSelected = ref<(string | number)[]>([]);
+  const tableSelectedData = ref<MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]>([]);
+  const tableSelectedKeys = computed(() => {
+    return tableSelectedData.value.map((e) => e.id);
+  });
   // 当前展示的表格数据类型
   const currentTable = computed(() => {
     switch (props.type) {
@@ -205,6 +213,40 @@
         return useScenarioTable;
     }
   });
+
+  /**
+   * 表格单行选中事件处理
+   */
+  function handleRowSelectChange(key: string) {
+    const selectedData = currentTable.value.propsRes.value.data.find((e) => e.id === key);
+    if (tableSelectedKeys.value.includes(key)) {
+      // 取消选中
+      tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== key);
+    } else if (selectedData) {
+      tableSelectedData.value.push(selectedData);
+    }
+    emit('select', tableSelectedData.value);
+  }
+
+  /**
+   * 表格全选事件处理
+   */
+  function handleSelectAllChange(v: SelectAllEnum) {
+    if (v === SelectAllEnum.CURRENT) {
+      tableSelectedData.value = currentTable.value.propsRes.value.data;
+    } else {
+      tableSelectedData.value = [];
+    }
+    emit('select', tableSelectedData.value);
+  }
+
+  // 绑定表格事件
+  useApiTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
+  useApiTable.propsEvent.value.selectAllChange = handleSelectAllChange;
+  useCaseTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
+  useCaseTable.propsEvent.value.selectAllChange = handleSelectAllChange;
+  useScenarioTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
+  useScenarioTable.propsEvent.value.selectAllChange = handleSelectAllChange;
 
   function loadPage(ids?: (string | number)[]) {
     nextTick(() => {
@@ -226,6 +268,31 @@
     });
   }
 
+  watch(
+    () => props.type,
+    (val) => {
+      switch (val) {
+        case 'api':
+          tableSelectedData.value = props.selectedApis;
+          break;
+        case 'case':
+          tableSelectedData.value = props.selectedCases;
+          break;
+        case 'scenario':
+        default:
+          tableSelectedData.value = props.selectedScenarios;
+          break;
+      }
+    }
+  );
+
+  watch(
+    () => tableSelectedKeys.value,
+    (arr) => {
+      currentTable.value.propsRes.value.selectedKeys = new Set(arr);
+    }
+  );
+
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadPage();
@@ -238,14 +305,6 @@
     methodFilters.value = Object.keys(RequestMethods);
     statusFilters.value = Object.keys(RequestDefinitionStatus);
     loadPage();
-  }
-
-  /**
-   * 处理表格选中
-   */
-  function handleTableSelect(arr: (string | number)[]) {
-    tableSelected.value = arr;
-    emit('select', arr);
   }
 
   function openApiDetail(id: string | number) {

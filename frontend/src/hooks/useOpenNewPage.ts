@@ -16,7 +16,8 @@ export default function useOpenNewPage() {
     window.open(
       `${window.location.origin}#${router.resolve({ name }).fullPath}?orgId=${appStore.currentOrgId}&projectId=${
         appStore.currentProjectId
-      }&${queryParams}`
+      }&${queryParams}`,
+      '_blank'
     );
   }
 

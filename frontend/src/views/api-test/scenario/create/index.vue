@@ -51,6 +51,16 @@
               allow-search
             />
           </a-form-item>
+          <a-form-item :label="t('apiScenario.scenarioLevel')">
+            <a-select v-model:model-value="scenario.priority" :placeholder="t('common.pleaseSelect')">
+              <template #label>
+                <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="scenario.priority" /></span>
+              </template>
+              <a-option v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                <caseLevel :case-level="item.label as CaseLevel" />
+              </a-option>
+            </a-select>
+          </a-form-item>
           <a-form-item :label="t('apiScenario.status')" class="mb-[16px]">
             <a-select
               v-model:model-value="scenario.status"
@@ -120,6 +130,8 @@
 <script setup lang="ts">
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -127,6 +139,8 @@
   import { Scenario } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { ApiScenarioStatus, ScenarioCreateComposition } from '@/enums/apiEnum';
+
+  import { casePriorityOptions } from '@/views/api-test/components/config';
 
   // 组成部分异步导入
   const step = defineAsyncComponent(() => import('../components/step/index.vue'));

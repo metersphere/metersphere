@@ -98,13 +98,14 @@
   function handleCreateActionSelect(val: ScenarioAddStepActionType) {
     switch (val) {
       case ScenarioAddStepActionType.LOOP_CONTROL:
-        if (step.value) {
+        if (step.value && props.createStepAction) {
           handleCreateStep(
             {
               type: ScenarioStepType.LOOP_CONTROL,
               name: t('apiScenario.loopControl'),
             } as ScenarioStepItem,
             step.value,
+            steps.value,
             props.createStepAction,
             selectedKeys.value
           );
@@ -119,13 +120,14 @@
         }
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
-        if (step.value) {
+        if (step.value && props.createStepAction) {
           handleCreateStep(
             {
               type: ScenarioStepType.CONDITION_CONTROL,
               name: t('apiScenario.conditionControl'),
             } as ScenarioStepItem,
             step.value,
+            steps.value,
             props.createStepAction,
             selectedKeys.value
           );
@@ -140,13 +142,14 @@
         }
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
-        if (step.value) {
+        if (step.value && props.createStepAction) {
           handleCreateStep(
             {
               type: ScenarioStepType.ONLY_ONCE_CONTROL,
               name: t('apiScenario.onlyOnceControl'),
             } as ScenarioStepItem,
             step.value,
+            steps.value,
             props.createStepAction,
             selectedKeys.value
           );
@@ -161,13 +164,14 @@
         }
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
-        if (step.value) {
+        if (step.value && props.createStepAction) {
           handleCreateStep(
             {
               type: ScenarioStepType.WAIT_TIME,
               name: t('apiScenario.waitTime'),
             } as ScenarioStepItem,
             step.value,
+            steps.value,
             props.createStepAction,
             selectedKeys.value
           );

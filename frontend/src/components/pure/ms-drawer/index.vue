@@ -300,7 +300,7 @@
     .ms-drawer-body-scrollbar {
       @apply h-full w-full overflow-auto;
 
-      min-width: 680px;
+      min-width: 650px;
       min-height: 500px;
     }
     .ms-drawer-body {

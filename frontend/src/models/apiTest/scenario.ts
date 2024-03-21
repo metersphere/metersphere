@@ -1,3 +1,4 @@
+import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 import { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
 
 import { ApiDefinitionCustomField } from '@/models/apiTest/management';
@@ -184,13 +185,14 @@ export type ScenarioStepLoopType = 'num' | 'while' | 'forEach';
 // 场景步骤-循环控制器-循环类型
 export type ScenarioStepLoopWhileType = 'condition' | 'expression';
 // 场景步骤-步骤插入类型
-export type CreateStepAction = 'addChildStep' | 'insertBefore' | 'insertAfter' | undefined;
+export type CreateStepAction = 'inside' | 'before' | 'after';
 // 场景步骤
 export interface Scenario {
   id: string;
   name: string;
   moduleId: string | number;
   stepInfo: ScenarioStepInfo;
+  priority: CaseLevel;
   status: RequestDefinitionStatus;
   tags: string[];
   params: Record<string, any>[];

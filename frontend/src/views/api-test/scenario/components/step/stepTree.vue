@@ -51,7 +51,7 @@
               >
                 <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-1)]">
                   <MsIcon
-                    :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
+                    :type="step.expanded ? 'icon-icon_split-turn-down-left' : 'icon-icon_split_turn-down_arrow'"
                     :size="14"
                   />
                   {{ step.children?.length || 0 }}
@@ -167,7 +167,7 @@
           />
         </template>
         <template #extraEnd="step">
-          <executeStatus v-if="step.status" :status="step.status" size="small" />
+          <executeStatus v-if="step.executeStatus" :status="step.executeStatus" size="small" />
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
           <div
@@ -193,7 +193,12 @@
       :request="activeStep?.request"
       @add-step="addCustomApiStep"
     />
-    <importApiDrawer v-if="importApiDrawerVisible" v-model:visible="importApiDrawerVisible" />
+    <importApiDrawer
+      v-if="importApiDrawerVisible"
+      v-model:visible="importApiDrawerVisible"
+      @copy="handleImportApiApply('copy', $event)"
+      @quote="handleImportApiApply('quote', $event)"
+    />
     <scriptOperationDrawer
       v-if="scriptOperationDrawerVisible"
       v-model:visible="scriptOperationDrawerVisible"
@@ -242,6 +247,7 @@
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
   import executeStatus from '../common/executeStatus.vue';
+  import { ImportData } from '../common/importApiDrawer/index.vue';
   import stepType from '../common/stepType.vue';
   import createStepActions from './createAction/createStepActions.vue';
   import stepInsertStepTrigger from './createAction/stepInsertStepTrigger.vue';
@@ -254,7 +260,15 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { deleteNode, findNodeByKey, getGenerateId, handleTreeDragDrop, insertNode, mapTree, TreeNode } from '@/utils';
+  import {
+    deleteNode,
+    findNodeByKey,
+    getGenerateId,
+    handleTreeDragDrop,
+    insertNodes,
+    mapTree,
+    TreeNode,
+  } from '@/utils';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { CreateStepAction, ScenarioStepLoopWhileType } from '@/models/apiTest/scenario';
@@ -278,7 +292,7 @@
     name: string;
     description: string;
     method?: RequestMethods;
-    status?: ScenarioExecuteStatus;
+    executeStatus?: ScenarioExecuteStatus;
     num?: number; // 详情或者引用的类型才有
     // 引用类型专有字段
     belongProjectId?: string;
@@ -293,7 +307,7 @@
     checked: boolean; // 是否选中
     expanded: boolean; // 是否展开
     createActionsVisible?: boolean; // 是否展示创建步骤下拉
-    parent?: ScenarioStepItem | ScenarioStepItem[]; // 父级节点，第一层的父级节点为undefined
+    parent?: ScenarioStepItem; // 父级节点，第一层的父级节点为undefined
     loopNum: number;
     loopType: 'num' | 'while' | 'forEach';
     loopSpace: number;
@@ -376,7 +390,7 @@
   /**
    * 增加步骤时判断父节点是否选中，如果选中则需要把新节点也选中
    */
-  function isParentSelected(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
+  function checkedIfNeed(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
     if (parent && selectedKeys.value.includes(parent.id)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
       selectedKeys.value.push(step.id);
@@ -455,7 +469,7 @@
     switch (item.eventTag) {
       case 'copy':
         const id = getGenerateId();
-        insertNode<ScenarioStepItem>(
+        insertNodes<ScenarioStepItem>(
           steps.value,
           node.id,
           {
@@ -472,7 +486,7 @@
             id,
           },
           'after',
-          isParentSelected,
+          checkedIfNeed,
           'id'
         );
         break;
@@ -574,7 +588,6 @@
       customApiDrawerVisible.value = true;
     } else if (step.type === ScenarioStepType.SCRIPT_OPERATION) {
       activeStep.value = step;
-      console.log('activeStep', activeStep.value);
       scriptOperationDrawerVisible.value = true;
     }
   }
@@ -611,12 +624,58 @@
     }
   }
 
-  const { handleCreateStep } = useCreateActions();
+  const { handleCreateStep, handleCreateSteps, buildInsertStepInfos } = useCreateActions();
+
+  /**
+   * 处理导入系统请求
+   * @param type 导入类型
+   * @param data 导入数据
+   */
+  function handleImportApiApply(type: 'copy' | 'quote', data: ImportData) {
+    let order = steps.value.length + 1;
+    if (activeStep.value && activeCreateAction.value) {
+      switch (activeCreateAction.value) {
+        case 'inside':
+          order = activeStep.value.children ? activeStep.value.children.length : 0;
+          break;
+        case 'before':
+          order = activeStep.value.order;
+          break;
+        case 'after':
+          order = activeStep.value.order + 1;
+          break;
+        default:
+          break;
+      }
+    }
+    const insertApiSteps = buildInsertStepInfos(
+      data.api,
+      type === 'copy' ? ScenarioStepType.COPY_API : ScenarioStepType.QUOTE_API,
+      order
+    );
+    const insertCaseSteps = buildInsertStepInfos(
+      data.case,
+      type === 'copy' ? ScenarioStepType.COPY_CASE : ScenarioStepType.QUOTE_CASE,
+      order + insertApiSteps.length
+    );
+    const insertScenarioSteps = buildInsertStepInfos(
+      data.scenario,
+      type === 'copy' ? ScenarioStepType.COPY_SCENARIO : ScenarioStepType.QUOTE_SCENARIO,
+      order + insertApiSteps.length + insertCaseSteps.length
+    );
+    const insertSteps = insertApiSteps.concat(insertCaseSteps).concat(insertScenarioSteps);
+    if (activeStep.value && activeCreateAction.value) {
+      handleCreateSteps(activeStep.value, insertSteps, steps.value, activeCreateAction.value, selectedKeys.value);
+    } else {
+      steps.value = steps.value.concat(insertSteps);
+    }
+  }
+
   /**
    * 添加自定义 API 步骤
    */
   function addCustomApiStep(request: RequestParam) {
-    if (activeStep.value) {
+    if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
         {
           type: ScenarioStepType.CUSTOM_API,
@@ -624,6 +683,7 @@
           request: cloneDeep(request),
         } as ScenarioStepItem,
         activeStep.value,
+        steps.value,
         activeCreateAction.value,
         selectedKeys.value
       );
@@ -643,7 +703,7 @@
    * 添加脚本操作步骤
    */
   function addScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
-    if (activeStep.value) {
+    if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
         {
           type: ScenarioStepType.SCRIPT_OPERATION,
@@ -651,10 +711,10 @@
           script: cloneDeep(scriptProcessor),
         } as ScenarioStepItem,
         activeStep.value,
+        steps.value,
         activeCreateAction.value,
         selectedKeys.value
       );
-      console.log('activeStep', activeStep.value);
     } else {
       steps.value.push({
         ...cloneDeep(defaultStepItemCommon),
@@ -668,7 +728,19 @@
   }
 
   /**
-   * 处理文件夹树节点拖拽事件
+   * 释放允许拖拽步骤到释放的节点内
+   * @param dropNode 释放节点
+   */
+  function isAllowDropInside(dropNode: MsTreeNodeData) {
+    return [
+      ScenarioStepType.LOOP_CONTROL,
+      ScenarioStepType.CONDITION_CONTROL,
+      ScenarioStepType.ONLY_ONCE_CONTROL,
+    ].includes(dropNode.type);
+  }
+
+  /**
+   * 处理步骤节点拖拽事件
    * @param tree 树数据
    * @param dragNode 拖拽节点
    * @param dropNode 释放节点
@@ -681,19 +753,38 @@
     dropPosition: number
   ) {
     try {
+      if (dropPosition === 0 && !isAllowDropInside(dropNode)) {
+        // Message.error(t('apiScenario.notAllowDropInside')); TODO:不允许释放提示
+        return;
+      }
       loading.value = true;
+      const offspringIds: string[] = [];
+      mapTree(dragNode.children || [], (e) => {
+        offspringIds.push(e.id);
+        return e;
+      });
+      const stepIdAndOffspringIds = [dragNode.id, ...offspringIds];
       if (dropPosition === 0) {
         // 拖拽到节点内
         if (selectedKeys.value.includes(dropNode.id)) {
-          // 释放位置的节点已选中，则需要把拖动的节点也需要选中（因为父级选中子级也会展示选中状态）
-          selectedKeys.value.push(dragNode.id);
+          // 释放位置的节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
+          selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
         }
       } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.id)) {
-        // 释放位置的节点的父节点已选中，则需要把拖动的节点也需要选中（因为父级选中子级也会展示选中状态）
-        selectedKeys.value.push(dragNode.id);
+        // 释放位置的节点的父节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
+        selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
       } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.id)) {
-        // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点从选中的节点中移除
-        selectedKeys.value = selectedKeys.value.filter((e) => e !== dragNode.id);
+        // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点及其子孙节点从选中的节点中移除
+        selectedKeys.value = selectedKeys.value.filter((e) => {
+          for (let i = 0; i < stepIdAndOffspringIds.length; i++) {
+            const id = stepIdAndOffspringIds[i];
+            if (e === id) {
+              stepIdAndOffspringIds.splice(i, 1);
+              return false;
+            }
+          }
+          return true;
+        });
       }
       const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'id');
       if (dragResult) {

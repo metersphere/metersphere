@@ -28,32 +28,32 @@
           v-if="showAddChildStep"
           :class="[
             'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'addChildStep' ? 'step-tree-active-action' : '',
+            activeCreateAction === 'inside' ? 'step-tree-active-action' : '',
           ]"
-          @click="handleTriggerActionClick('addChildStep')"
+          @click="handleTriggerActionClick('inside')"
         >
           <icon-plus size="12" />
-          {{ t('apiScenario.addChildStep') }}
+          {{ t('apiScenario.inside') }}
         </div>
         <div
           :class="[
             'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'insertBefore' ? 'step-tree-active-action' : '',
+            activeCreateAction === 'before' ? 'step-tree-active-action' : '',
           ]"
-          @click="handleTriggerActionClick('insertBefore')"
+          @click="handleTriggerActionClick('before')"
         >
           <icon-left size="12" />
-          {{ t('apiScenario.insertBefore') }}
+          {{ t('apiScenario.before') }}
         </div>
         <div
           :class="[
             'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'insertAfter' ? 'step-tree-active-action' : '',
+            activeCreateAction === 'after' ? 'step-tree-active-action' : '',
           ]"
-          @click="handleTriggerActionClick('insertAfter')"
+          @click="handleTriggerActionClick('after')"
         >
           <icon-left size="12" />
-          {{ t('apiScenario.insertAfter') }}
+          {{ t('apiScenario.after') }}
         </div>
       </div>
     </template>

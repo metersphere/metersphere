@@ -105,6 +105,7 @@
         folderTree.value = await getScenarioModuleTree(params);
       }
       selectedKeys.value = [folderTree.value[0]?.id];
+      emit('select', [folderTree.value[0]?.id], folderTree.value[0]);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

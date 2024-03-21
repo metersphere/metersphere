@@ -178,7 +178,7 @@
   function getResponsePreContent(type: keyof typeof ResponseComposition) {
     switch (type) {
       case ResponseComposition.HEADER:
-        return props.requestResult?.headers.trim();
+        return props.requestResult?.responseResult?.headers.trim();
       case ResponseComposition.REAL_REQUEST:
         return props.requestResult?.body
           ? `${t('apiTestDebug.requestUrl')}:\n${props.requestResult.url}\n${t('apiTestDebug.header')}:\n${

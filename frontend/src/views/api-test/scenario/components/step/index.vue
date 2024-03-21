@@ -163,7 +163,7 @@
     if (val.length === 0) {
       checkedAll.value = false;
       indeterminate.value = false;
-    } else if (val.length === stepInfo.value.steps.length) {
+    } else if (val.length === totalStepCount.value) {
       checkedAll.value = true;
       indeterminate.value = false;
     } else {
