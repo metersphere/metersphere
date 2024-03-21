@@ -80,4 +80,20 @@ export default {
 
   'apiScenario.scriptOperationName': 'Script operation name',
   'apiScenario.scriptOperationNamePlaceholder': 'Please enter the script operation name',
+
+  'apiScenario.setting.cookie.config': 'Cookie configuration',
+  'apiScenario.setting.environment.cookie': 'Environment Cookie',
+  'apiScenario.setting.share.cookie': 'Shared Cookie',
+  'apiScenario.setting.run.config': 'Run configuration',
+  'apiScenario.setting.step.waitTime': 'Step wait time',
+  'apiScenario.setting.waitTime': 'Wait time',
+  'apiScenario.setting.step.rule': 'Step execution failure rule',
+  'apiScenario.setting.step.rule.ignore': 'Ignore error and continue execution',
+  'apiScenario.setting.step.rule.stop': 'Stop/end execution',
+  'apiScenario.setting.cookie.config.tip':
+    'When there are both global and scene variable cookies, shared cookies will overwrite both global and scene variable cookies',
+  'apiScenario.setting.share.cookie.tip':
+    'As long as the system extracts the returned cookie information from the result of a certain step, the subsequent steps will use this cookie. If a cookie variable is added to the request, it will also be overwritten',
+  'apiScenario.setting.waitTime.tip':
+    'When running a scenario, each step of the scenario will wait for a certain time after execution before triggering the next step to start execution',
 };

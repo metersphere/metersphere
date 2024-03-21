@@ -166,4 +166,19 @@ export default {
 
   'apiScenario.scriptOperationName': '脚本操作名称',
   'apiScenario.scriptOperationNamePlaceholder': '请输入脚本操作名称',
+
+  'apiScenario.setting.cookie.config': 'Cookie 配置',
+  'apiScenario.setting.environment.cookie': '环境 Cookie',
+  'apiScenario.setting.share.cookie': '共享 Cookie',
+  'apiScenario.setting.run.config': '运行配置',
+  'apiScenario.setting.step.waitTime': '步骤等待时间',
+  'apiScenario.setting.waitTime': '等待时间',
+  'apiScenario.setting.step.rule': '步骤执行失败规则',
+  'apiScenario.setting.step.rule.ignore': '忽略错误，继续执行',
+  'apiScenario.setting.step.rule.stop': '停止/结束执行',
+  'apiScenario.setting.cookie.config.tip':
+    '同时存在全局变量cookie与场景变量cookie时，共享cookie会覆盖全局cookie与场景变量cookie',
+  'apiScenario.setting.share.cookie.tip':
+    '系统只要从某个步骤的结果内提取到返回的cookie信息，则后续步骤都会使用此 cookie ，如果请求添加了Cookie 变量也会被覆盖',
+  'apiScenario.setting.waitTime.tip': '运行场景时，场景的每一个步骤执行后都会等待相应的时间再触发下一个步骤开始执行',
 };
