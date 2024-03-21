@@ -56,6 +56,7 @@
             :active-module="props.activeModule"
             :protocol="activeApiTab.protocol"
             :api-detail="activeApiTab"
+            :offspring-ids="props.offspringIds"
           />
         </a-tab-pane>
         <!-- <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane> -->

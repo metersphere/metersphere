@@ -1,7 +1,8 @@
 <template>
   <div :class="['p-[16px_16px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center gap-[8px]">
+      <div class="flex items-center"> </div>
+      <div class="items-right flex gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('api_scenario.table.searchPlaceholder')"

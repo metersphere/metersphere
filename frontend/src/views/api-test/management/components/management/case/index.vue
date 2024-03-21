@@ -3,6 +3,7 @@
     <div v-show="activeApiTab.id === 'all'" class="flex-1 overflow-hidden">
       <caseTable
         ref="caseTableRef"
+        :offspring-ids="props.offspringIds"
         :is-api="false"
         :active-module="props.activeModule"
         :protocol="props.protocol"
@@ -41,6 +42,7 @@
   const props = defineProps<{
     activeModule: string;
     protocol: string;
+    offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
   const emit = defineEmits<{

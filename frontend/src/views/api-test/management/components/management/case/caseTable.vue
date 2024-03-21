@@ -35,6 +35,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
+      @module-change="loadCaseList"
     >
       <template #num="{ record }">
         <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">{{
@@ -414,6 +415,7 @@
     activeModule: string;
     protocol: string; // 查看的协议类型
     apiDetail?: RequestParam;
+    offspringIds: string[];
   }>();
 
   const emit = defineEmits<{
@@ -617,15 +619,25 @@
   const resourcePoolList = ref<ResourcePoolItem[]>();
   const defaultPoolId = ref<string>();
 
-  const moduleIds = computed(() => {
-    return props.activeModule === 'all' ? [] : [props.activeModule];
-  });
-  function loadCaseList() {
+  async function getModuleIds() {
+    let moduleIds: string[] = [];
+    if (props.activeModule !== 'all') {
+      moduleIds = [props.activeModule];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_CASE);
+      if (getAllChildren) {
+        moduleIds = [props.activeModule, ...props.offspringIds];
+      }
+    }
+    return moduleIds;
+  }
+
+  async function loadCaseList() {
+    const selectModules = await getModuleIds();
     const params = {
       apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: moduleIds.value,
+      moduleIds: selectModules,
       protocol: props.protocol,
       filter: {
         status: statusFilters.value,
@@ -734,7 +746,9 @@
     excludeIds: [],
     currentSelectCount: 0,
   });
-  const batchConditionParams = computed(() => {
+
+  async function genBatchConditionParams() {
+    const selectModules = await getModuleIds();
     return {
       condition: {
         keyword: keyword.value,
@@ -746,10 +760,10 @@
       },
       projectId: appStore.currentProjectId,
       protocol: props.protocol,
-      moduleIds: moduleIds.value,
+      moduleIds: selectModules,
       apiDefinitionId: props.apiDetail?.id as string,
     };
-  });
+  }
 
   function handleDeleteCase(record?: ApiCaseDetail, isBatch?: boolean) {
     const title = isBatch
@@ -771,11 +785,12 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
+            const batchConditionParams = await genBatchConditionParams();
             await batchDeleteCase({
               selectIds: tableSelected.value as string[],
               selectAll: batchParams.value.selectAll,
               excludeIds: batchParams.value?.excludeIds || [],
-              ...batchConditionParams.value,
+              ...batchConditionParams,
             });
           } else {
             await deleteCase(record?.id as string);
@@ -899,11 +914,12 @@
       if (!errors) {
         try {
           batchEditLoading.value = true;
+          const batchConditionParams = await genBatchConditionParams();
           await batchEditCase({
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            ...batchConditionParams.value,
+            ...batchConditionParams,
             type: batchForm.value.attr.charAt(0).toUpperCase() + batchForm.value.attr.slice(1), // 首字母大写
             [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
           });
@@ -934,11 +950,12 @@
       if (!errors) {
         try {
           batchExecuteLoading.value = true;
+          const batchConditionParams = await genBatchConditionParams();
           await batchExecuteCase({
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            ...batchConditionParams.value,
+            ...batchConditionParams,
             runModeConfig: {
               runMode: batchExecuteForm.value.runMode,
               integratedReport: batchExecuteForm.value.integratedReport === 'true',

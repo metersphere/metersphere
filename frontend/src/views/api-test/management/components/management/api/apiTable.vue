@@ -27,6 +27,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleTableDragSort"
+      @module-change="loadApiList"
     >
       <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
@@ -448,17 +449,26 @@
   const methodFilters = ref(Object.keys(RequestMethods));
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(RequestDefinitionStatus));
-  const moduleIds = computed(() => {
-    if (props.activeModule === 'all') {
-      return [];
+
+  const tableStore = useTableStore();
+  async function getModuleIds() {
+    let moduleIds: string[] = [];
+    if (props.activeModule !== 'all') {
+      moduleIds = [props.activeModule];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST);
+      if (getAllChildren) {
+        moduleIds = [props.activeModule, ...props.offspringIds];
+      }
     }
-    return [props.activeModule];
-  });
-  function loadApiList() {
+    return moduleIds;
+  }
+  async function loadApiList() {
+    const moduleIds = await getModuleIds();
+
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: moduleIds.value,
+      moduleIds,
       protocol: props.protocol,
       filter: {
         status:
@@ -561,7 +571,7 @@
               excludeIds: params?.excludeIds || [],
               condition: { keyword: keyword.value },
               projectId: appStore.currentProjectId,
-              moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+              moduleIds: await getModuleIds(),
               deleteAll: true,
               protocol: props.protocol,
             });
@@ -679,7 +689,7 @@
             excludeIds: batchParams.value?.excludeIds || [],
             condition: { keyword: keyword.value },
             projectId: appStore.currentProjectId,
-            moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+            moduleIds: await getModuleIds(),
             protocol: props.protocol,
             type: batchForm.value.attr,
             [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
@@ -716,7 +726,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: { keyword: keyword.value },
         projectId: appStore.currentProjectId,
-        moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+        moduleIds: await getModuleIds(),
         moduleId: selectedModuleKeys.value[0],
         protocol: props.protocol,
       });
@@ -805,7 +815,6 @@
   });
 
   if (!props.readOnly) {
-    const tableStore = useTableStore();
     await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
   } else {
     columns = columns.filter(
