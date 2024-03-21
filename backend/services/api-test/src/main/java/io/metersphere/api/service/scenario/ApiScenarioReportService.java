@@ -1,5 +1,6 @@
 package io.metersphere.api.service.scenario;
 
+import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
@@ -9,6 +10,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -203,16 +205,44 @@ public class ApiScenarioReportService {
     }
 
     private static void getStepTree(List<ApiScenarioReportStepDTO> steps, Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap) {
-        steps.forEach(step -> {
-            List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
-            if (CollectionUtils.isNotEmpty(children)) {
-                //如果是父级的报告，需要计算请求时间  请求时间是所有子级的请求时间之和 还需要计算请求的大小  还有请求的数量 以及请求成功的状态
+        if (CollectionUtils.isNotEmpty(steps)) {
+            List<String> stepTypes = Arrays.asList(ApiScenarioStepType.IF_CONTROLLER.name(),
+                    ApiScenarioStepType.LOOP_CONTROLLER.name(),
+                    ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name(),
+                    ApiScenarioStepType.CONSTANT_TIMER.name());
+            for (ApiScenarioReportStepDTO step : steps) {
+                List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
+                if (CollectionUtils.isNotEmpty(children)) {
+                    children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
+                    step.setChildren(children);
+                    getStepTree(children, scenarioReportStepMap);
+                    //如果是父级的报告，需要计算请求时间  请求时间是所有子级的请求时间之和 还需要计算请求的大小  还有请求的数量 以及请求成功的状态
+                    step.setRequestTime(step.getChildren().stream().mapToLong(child -> child.getRequestTime() != null ? child.getRequestTime() : 0).sum());
+                    step.setResponseSize(step.getChildren().stream().mapToLong(child -> child.getResponseSize() != null ? child.getResponseSize() : 0).sum());
+                    //请求的状态， 如果是 LOOP_CONTROLLER IF_CONTROLLER ONCE_ONLY_CONTROLLER  则需要判断子级的状态 但是如果下面没有子集不需要判断状态
+                    //需要把这些数据拿出来 如果没有子请求说明是最后一级的请求 不需要计算入状态
+                    //children 先过滤满足控制器的数据，然后再获取id
+                    List<String> controllerIds = children.stream().filter(child -> stepTypes.contains(child.getStepType())).map(ApiScenarioReportStepDTO::getStepId).toList();
+                    //看map中有没有这些id  如果没有 需要返回几个没有
+                    List<String> noControllerIds = controllerIds.stream().filter(controllerId -> !scenarioReportStepMap.containsKey(controllerId)).toList();
+                    //获取所有的子请求的状态
+                    List<String> requestStatus = children.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
+                    //过滤出来SUCCESS的状态
+                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(),status)).toList();
+                    //只要包含ERROR 就是ERROR
+                    if (requestStatus.contains(ApiReportStatus.ERROR.name())) {
+                        step.setStatus(ApiReportStatus.ERROR.name());
+                    } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
+                        step.setStatus(ApiReportStatus.FAKE_ERROR.name());
+                    } else if (successStatus.size() == children.size()- noControllerIds.size()) {
+                        step.setStatus(ApiReportStatus.SUCCESS.name());
+                    } else {
+                        step.setStatus(ApiReportStatus.PENDING.name());
+                    }
 
-                children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
-                step.setChildren(children);
-                getStepTree(children, scenarioReportStepMap);
+                }
             }
-        });
+        }
     }
 
     public List<ApiScenarioReportDetailDTO> getDetail(String stepId, String reportId) {
