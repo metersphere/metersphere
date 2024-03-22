@@ -889,6 +889,10 @@ public class ApiDefinitionService extends MoveNodeService {
         example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
         apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
         BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
+        Set<String> userIds = extractUserIds(List.of(apiDefinitionDTO));
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
+        apiDefinitionDTO.setCreateUserName(userMap.get(apiDefinitionDTO.getCreateUser()));
+        apiDefinitionDTO.setUpdateUserName(userMap.get(apiDefinitionDTO.getUpdateUser()));
         return apiDefinitionDTO;
     }
 
