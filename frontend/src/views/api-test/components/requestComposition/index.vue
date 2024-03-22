@@ -698,11 +698,7 @@
     if (isHttpProtocol.value) {
       if (props.isCase) {
         // 定义没有参数BODY/QUERY/REST的，用例对应tab不显示
-        return httpContentTabList.filter(
-          (e) =>
-            !(!restNumApi.value && e.value === RequestComposition.REST) &&
-            !(!queryNumApi.value && e.value === RequestComposition.QUERY)
-        );
+        return httpContentTabList;
       }
       if (props.isDefinition) {
         // 接口定义，定义模式隐藏前后置、断言
