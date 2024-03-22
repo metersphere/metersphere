@@ -21,6 +21,7 @@
       :remember-order="true"
       :field-key="tableHeaderKey"
       ref="testCaseReviewTable"
+      class="review-table"
       @order="initTableData"
       @filter="search"
       @handleRowClick="intoReview">
@@ -437,6 +438,8 @@ export default {
 };
 </script>
 
-<style scoped>
-
+<style>
+.review-table div.el-table__empty-block {
+  width: 80% !important;
+}
 </style>

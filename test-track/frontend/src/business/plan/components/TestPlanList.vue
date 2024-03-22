@@ -29,6 +29,7 @@
         ref="testPlanLitTable"
         @filter="search"
         @handleRowClick="intoPlan"
+        class="plan-table"
     >
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
@@ -1291,5 +1292,11 @@ export default {
 
 .table-card :deep(.operator-btn-group ) {
   margin-left: 10px;
+}
+</style>
+
+<style>
+.plan-table div.el-table__empty-block {
+  width: 80% !important;
 }
 </style>
