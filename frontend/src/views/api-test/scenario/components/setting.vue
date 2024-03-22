@@ -43,7 +43,7 @@
       </a-tooltip>
     </div>
 
-    <a-form-item class="flex-1">
+    <a-form-item v-if="form.waitTime" class="flex-1">
       <template #label>
         <div class="flex items-center">
           {{ t('apiScenario.setting.waitTime') }}
@@ -81,7 +81,7 @@
     envCookie: false,
     shareCookie: false,
     waitTime: false,
-    connectTimeout: 1000,
+    connectTimeout: 0,
     rule: 'ignore',
   };
   const form = ref({ ...initForm });
