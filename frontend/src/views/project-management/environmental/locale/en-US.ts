@@ -117,4 +117,10 @@ export default {
   'project.environmental.env.systemTitle': 'environment',
   'project.environmental.env.selectedTitle': 'Selected environment',
   'project.environmental.env.constantBatchAddTip': 'Only supports batch adding const type',
+  'project.environmental.env.delete': 'Whether to delete the environment `{name}`？',
+  'project.environmental.env.deleteTip':
+    'Deleting it will cause scenes that reference this environment to fail to execute properly!',
+  'project.environmental.env.deleteGroup': 'Whether to delete the environment group `{name}`？',
+  'project.environmental.env.deleteGroupTip':
+    'Deleting it will cause scenes that reference this environment group to fail to execute properly!',
 };

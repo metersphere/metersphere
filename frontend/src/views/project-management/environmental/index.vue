@@ -263,7 +263,9 @@
     groupListEnv,
     listEnv,
   } from '@/api/modules/project-management/envManagement';
+  import { deleteModule } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, {
     ALL_PARAM,
@@ -509,43 +511,78 @@
   function searchData() {
     initData(keyword.value);
   }
-
+  const { openModal } = useModal();
   // 处理删除环境
   const handleDeleteEnv = async (id: string) => {
-    try {
-      if (store.currentId === NEW_ENV_PARAM) {
-        // 删除id为newEnvParam的环境
-        envList.value = envList.value.filter((item) => item.id !== id);
-        store.setCurrentId(envList.value[0].id);
-      }
-      if (id === NEW_ENV_PARAM) {
-        envList.value = envList.value.filter((item) => item.id !== id);
-        store.setCurrentId(envList.value[0].id);
-        return;
-      }
-      await deleteEnv(id);
-      Message.success(t('common.deleteSuccess'));
-      initData(keyword.value, true);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+    if (store.currentId === NEW_ENV_PARAM) {
+      // 删除id为newEnvParam的环境
+      envList.value = envList.value.filter((item) => item.id !== id);
+      store.setCurrentId(envList.value[0].id);
     }
+    if (id === NEW_ENV_PARAM) {
+      envList.value = envList.value.filter((item) => item.id !== id);
+      store.setCurrentId(envList.value[0].id);
+      return;
+    }
+    const matchingItem = envList.value.find((item) => item.id === id);
+    const itemName = matchingItem ? matchingItem.name : null;
+    openModal({
+      type: 'error',
+      title: t('project.environmental.env.delete', { name: itemName }),
+      content: t('project.environmental.env.deleteTip'),
+      okText: t('project.fileManagement.deleteConfirm'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await deleteEnv(id);
+          Message.success(t('common.deleteSuccess'));
+          initData(keyword.value, true);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   };
 
   // 处理删除环境组
   const handleDeleteEnvGroup = async (id: string) => {
-    try {
-      if (store.currentGroupId === NEW_ENV_GROUP) {
-        // 删除id为newEnvParam的环境
-        evnGroupList.value = evnGroupList.value.filter((item) => item.id !== id);
-      } else {
-        await deleteEnvGroup(id);
-      }
-      await initGroupList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+    if (store.currentId === NEW_ENV_GROUP) {
+      evnGroupList.value = evnGroupList.value.filter((item) => item.id !== id);
+      store.setCurrentId(envList.value[0].id);
     }
+    if (id === NEW_ENV_GROUP) {
+      evnGroupList.value = evnGroupList.value.filter((item) => item.id !== id);
+      store.setCurrentId(envList.value[0].id);
+      return;
+    }
+    const matchingItem = envList.value.find((item) => item.id === id);
+    const itemName = matchingItem ? matchingItem.name : null;
+    openModal({
+      type: 'error',
+      title: t('project.environmental.env.deleteGroup', { name: itemName }),
+      content: t('project.environmental.env.deleteGroupTip'),
+      okText: t('project.fileManagement.deleteConfirm'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await deleteEnvGroup(id);
+          Message.success(t('common.deleteSuccess'));
+          await initGroupList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   };
 
   function changeShowType(value: string | number | boolean) {
