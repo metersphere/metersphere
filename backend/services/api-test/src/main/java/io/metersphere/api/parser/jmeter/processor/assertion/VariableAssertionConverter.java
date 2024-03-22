@@ -29,7 +29,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
                 .filter(this::isValid)
                 .forEach(variableAssertionItem -> {
                     if (needParse(variableAssertionItem, config)) {
-                        JSR223Assertion jsr223Assertion = parse2JSR233Assertion(variableAssertionItem);
+                        JSR223Assertion jsr223Assertion = parse2JSR233Assertion(variableAssertionItem, config);
                         jsr223Assertion.setEnabled(variableAssertionItem.getEnable());
                         if (BooleanUtils.isFalse(globalEnable)) {
                             // 如果整体禁用，则禁用
@@ -45,7 +45,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         return BooleanUtils.isTrue(variableAssertionItem.getEnable()) || config.getParseDisabledElement();
     }
 
-    private static JSR223Assertion parse2JSR233Assertion(MsVariableAssertion.VariableAssertionItem variableAssertionItem) {
+    private static JSR223Assertion parse2JSR233Assertion(MsVariableAssertion.VariableAssertionItem variableAssertionItem, ParameterConfig config) {
         ScriptProcessor scriptProcessor = new ScriptProcessor();
         scriptProcessor.setScript(parse2BeanshellJSR233Script(variableAssertionItem));
 
@@ -57,7 +57,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
 
         scriptProcessor.setScriptLanguage(ScriptLanguageType.GROOVY.name());
         JSR223Assertion jsr223Assertion = new JSR223Assertion();
-        ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor);
+        ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor, config);
         return jsr223Assertion;
     }
 

@@ -25,7 +25,7 @@ public class ScriptPostProcessorConverter extends ScriptProcessorConverter {
         } else {
             processor = new BeanShellPostProcessor();
         }
-        parse(processor, scriptProcessor);
+        parse(processor, scriptProcessor, config);
 
         // 添加公共脚本的参数
         Optional.ofNullable(getScriptArguments(scriptProcessor))

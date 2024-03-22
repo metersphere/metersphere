@@ -22,6 +22,7 @@ public class ScenarioScriptProcessorConverter extends ScriptProcessorConverter {
         if (!needParse(scriptProcessor, config) || !scriptProcessor.isValid()) {
             return;
         }
+
         EnvScenarioScriptProcessor scenarioScriptProcessor = (EnvScenarioScriptProcessor) scriptProcessor;
         Boolean associateScenarioResult = scenarioScriptProcessor.getAssociateScenarioResult();
 
@@ -32,7 +33,7 @@ public class ScenarioScriptProcessorConverter extends ScriptProcessorConverter {
             processor = new BeanShellSampler();
         }
 
-        parse(processor, scriptProcessor);
+        parse(processor, scriptProcessor, config);
 
         // 添加公共脚本的参数
         Optional.ofNullable(getScriptArguments(scriptProcessor))

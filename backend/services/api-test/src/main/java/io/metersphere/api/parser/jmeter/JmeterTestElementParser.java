@@ -45,11 +45,12 @@ public class JmeterTestElementParser implements TestElementParser {
         name = msTestElement.getName();
         final HashTree testPlanTree = hashTree.add(testPlan);
         final HashTree groupTree = testPlanTree.add(getThreadGroup());
-        // 添加 debugSampler
-        groupTree.add(getDebugSampler());
 
         // 解析 msTestElement
         JmeterElementConverterRegister.getConverter(msTestElement.getClass()).toHashTree(groupTree, msTestElement, config);
+
+        // 添加 debugSampler，放最后才能采集到变量信息
+        groupTree.add(getDebugSampler());
 
         return getJmx(hashTree);
     }

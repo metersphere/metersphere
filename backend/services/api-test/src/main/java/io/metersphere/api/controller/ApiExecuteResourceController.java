@@ -41,7 +41,7 @@ public class ApiExecuteResourceController {
     @GetMapping("script")
     public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
         String key = apiExecuteService.getScriptRedisKey(reportId, testId);
-        LogUtils.info("获取执行脚本: ", key);
+        LogUtils.info("获取执行脚本: {}", key);
         String script = stringRedisTemplate.opsForValue().get(key);
         stringRedisTemplate.delete(key);
         apiReportService.updateReportStatus(reportId, ApiReportStatus.RERUNNING.name());
