@@ -71,11 +71,11 @@
   const innerLanguageType = useVModel(props, 'languagesType', emit);
 
   const languages = [
-    { text: 'beanshellJSR223', value: LanguageEnum.BEANSHELL_JSR233 },
-    { text: 'beanshell', value: LanguageEnum.BEANSHELL },
-    { text: 'python', value: LanguageEnum.PYTHON },
-    { text: 'groovy', value: LanguageEnum.GROOVY },
-    { text: 'javascript', value: LanguageEnum.JAVASCRIPT },
+    { text: 'BeanShell-JSR223', value: LanguageEnum.BEANSHELL_JSR233 },
+    { text: 'BeanShell', value: LanguageEnum.BEANSHELL },
+    { text: 'Python3', value: LanguageEnum.PYTHON },
+    { text: 'Groovy', value: LanguageEnum.GROOVY },
+    { text: 'JavaScript', value: LanguageEnum.JAVASCRIPT },
   ];
 
   function expandedHandler() {

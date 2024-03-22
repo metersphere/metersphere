@@ -251,6 +251,7 @@
     formalParameterVars,
     JMeterAllGroup,
     JMeterAllVars,
+    JMeterVariableGroup,
     mockAllGroup,
     mockAllParams,
     mockFunctions,
@@ -258,6 +259,7 @@
   } from './config';
   import type { MockParamInputGroupItem, MockParamItem } from './types';
   import type { AutoComplete, CascaderOption, FormInstance } from '@arco-design/web-vue';
+  import { string } from 'fast-glob/out/utils';
 
   const props = defineProps<{
     value: string;
@@ -500,7 +502,30 @@
     paramFormRef.value?.clearValidate();
   }
 
-  const JMeterVarsOptions: CascaderOption[] = cloneDeep(JMeterAllGroup);
+  function genJMeterVarsOptions() {
+    // 国际化处理
+    const JMeterVarsOptions: { label: string; value: string; children: any }[] = [];
+    JMeterAllGroup.forEach((item) => {
+      const optionChildren: { label: string; value: string }[] = [];
+      if (item.children) {
+        item.children.forEach((child) => {
+          const childOpt = {
+            label: t(child.label),
+            value: child.value,
+          };
+          optionChildren.push(childOpt);
+        });
+      }
+      const option = {
+        label: t(item.label),
+        value: item.value,
+        children: optionChildren,
+      };
+      JMeterVarsOptions.push(option);
+    });
+    return JMeterVarsOptions;
+  }
+  const JMeterVarsOptions = genJMeterVarsOptions();
 
   function cancel() {
     paramFormRef.value?.resetFields();
