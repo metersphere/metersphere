@@ -910,6 +910,23 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepDetails.put(loopController.getId(), JSON.parseObject(ApiDataUtils.toJSONString(foreach)));
         steps.add(loopController);
 
+        MsConstantTimerController constantTimerController = constantTimerController("test-constant-timer", true);
+        ApiScenarioStepRequest constantTimer = BeanUtils.copyBean(new ApiScenarioStepRequest(), constantTimerController);
+        constantTimer.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        constantTimer.setProjectId(DEFAULT_PROJECT_ID);
+        constantTimer.setStepType(ApiScenarioStepType.CONSTANT_TIMER.name());
+        constantTimer.setId(IDGenerator.nextStr());
+        stepDetails.put(constantTimer.getId(), JSON.parseObject(ApiDataUtils.toJSONString(constantTimerController)));
+        steps.add(constantTimer);
+        constantTimerController = constantTimerController("test-constant-timer", false);
+        constantTimer = BeanUtils.copyBean(new ApiScenarioStepRequest(), constantTimerController);
+        constantTimer.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        constantTimer.setProjectId(DEFAULT_PROJECT_ID);
+        constantTimer.setStepType(ApiScenarioStepType.CONSTANT_TIMER.name());
+        constantTimer.setId(IDGenerator.nextStr());
+        stepDetails.put(constantTimer.getId(), JSON.parseObject(ApiDataUtils.toJSONString(constantTimerController)));
+        steps.add(constantTimer);
+
         request.setId(addApiScenario.getId());
         request.setSteps(steps);
         request.setStepDetails(new HashMap<>());
@@ -934,6 +951,15 @@ public class ApiScenarioControllerTests extends BaseTest {
         msTestElements.add(msHTTPElement);
         msIfController.setChildren(msTestElements);
         return msIfController;
+    }
+
+    public MsConstantTimerController constantTimerController(String name, boolean enable) {
+        //等待控制器
+        MsConstantTimerController constantTimerController = new MsConstantTimerController();
+        constantTimerController.setName(StringUtils.isNotBlank(name) ? name : "等待控制器");
+        constantTimerController.setEnable(enable);
+        constantTimerController.setDelay("1000");
+        return constantTimerController;
     }
 
     //一次控制器

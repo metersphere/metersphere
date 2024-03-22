@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.request.controller.MsConstantTimerController;
 import io.metersphere.api.dto.request.controller.MsIfController;
 import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.api.dto.request.controller.MsOnceOnlyController;
@@ -40,7 +41,7 @@ public class ApiDataUtils {
         namedTypes.add(new NamedType(MsIfController.class, MsIfController.class.getSimpleName()));
         namedTypes.add(new NamedType(MsLoopController.class, MsLoopController.class.getSimpleName()));
         namedTypes.add(new NamedType(MsOnceOnlyController.class, MsOnceOnlyController.class.getSimpleName()));
-
+        namedTypes.add(new NamedType(MsConstantTimerController.class, MsConstantTimerController.class.getSimpleName()));
         setObjectMapper(objectMapper);
         namedTypes.forEach(objectMapper::registerSubtypes);
     }
