@@ -27,6 +27,9 @@ public class BugPlatformService {
 	public void syncAttachmentToPlatform(List<SyncAttachmentToPlatformRequest> platformAttachments, String projectId) {
 		// 平台缺陷需同步附件
 		Platform platform = projectApplicationService.getPlatform(projectId, true);
+		if (!platform.isSupportAttachment()) {
+			return;
+		}
 		platformAttachments.forEach(attachment -> {
 			platform.syncAttachmentToPlatform(attachment);
 			try {

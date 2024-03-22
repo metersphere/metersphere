@@ -605,6 +605,7 @@ public class BugControllerTests extends BaseTest {
         summary.setType("INPUT");
         summary.setValue("这是一个系统Jira模板创建的缺陷");
         addRequest.getCustomFields().add(summary);
+        addRequest.setRichTextTmpFileIds(List.of("rich-text-file-id"));
         MultiValueMap<String, Object> addParam3 = getMultiPartParam(addRequest, null);
         this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
 
@@ -612,6 +613,7 @@ public class BugControllerTests extends BaseTest {
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
 
         // 添加没有附件的Jira缺陷
+        addRequest.setRichTextTmpFileIds(null);
         addRequest.setLinkFileIds(null);
         addRequest.setTemplateId("default-bug-template-id");
         MultiValueMap<String, Object> addParam2 = getMultiPartParam(addRequest, null);

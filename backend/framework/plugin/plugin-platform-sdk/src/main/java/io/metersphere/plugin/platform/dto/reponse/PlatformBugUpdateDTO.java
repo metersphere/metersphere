@@ -2,6 +2,8 @@ package io.metersphere.plugin.platform.dto.reponse;
 
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 public class PlatformBugUpdateDTO {
 
@@ -25,4 +27,8 @@ public class PlatformBugUpdateDTO {
      * 平台描述
      */
     private String platformDescription;
+    /**
+     * 平台自定义字段值
+     */
+    private Map<String, String> platformCustomFieldMap;
 }

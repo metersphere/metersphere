@@ -17,6 +17,7 @@ import io.metersphere.plugin.platform.dto.reponse.PlatformBugDTO;
 import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
 import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
 import io.metersphere.plugin.platform.dto.request.*;
+import io.metersphere.plugin.platform.enums.PlatformCustomFieldType;
 import io.metersphere.plugin.platform.enums.SyncAttachmentType;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.domain.*;
@@ -227,7 +228,7 @@ public class BugService {
         // 处理基础字段
         Bug bug = handleAndSaveBug(request, currentUser, platformName, platformBug);
         // 处理自定义字段
-        handleAndSaveCustomFields(request, isUpdate);
+        handleAndSaveCustomFields(request, isUpdate, platformBug);
         // 处理附件
         handleAndSaveAttachments(request, files, currentUser, platformName, platformBug);
         // 处理富文本临时文件
@@ -639,7 +640,7 @@ public class BugService {
                     return bugCustomFieldDTO;
                 }).collect(Collectors.toList());
                 customEditRequest.setCustomFields(bugCustomFieldDTOList);
-                handleAndSaveCustomFields(customEditRequest, true);
+                handleAndSaveCustomFields(customEditRequest, true, null);
             });
 
             // 批量删除缺陷
@@ -879,13 +880,18 @@ public class BugService {
      *
      * @param request 请求参数
      */
-    public void handleAndSaveCustomFields(BugEditRequest request, boolean merge) {
+    public void handleAndSaveCustomFields(BugEditRequest request, boolean merge, PlatformBugUpdateDTO platformBug) {
         // 处理ID, 值的映射关系
         Map<String, String> customFieldMap = request.getCustomFields().stream()
                 .filter(f -> StringUtils.isNotBlank(f.getId()))
                 .collect(HashMap::new, (m, field) -> m.put(field.getId(), field.getValue()), HashMap::putAll);
         if (MapUtils.isEmpty(customFieldMap)) {
             return;
+        }
+        // 拦截, 如果平台返回结果存在自定义字段值, 替换
+        if (platformBug != null && MapUtils.isNotEmpty(platformBug.getPlatformCustomFieldMap())) {
+            Map<String, String> platformCustomFieldMap = platformBug.getPlatformCustomFieldMap();
+            platformCustomFieldMap.keySet().forEach(key -> customFieldMap.put(key, platformCustomFieldMap.get(key)));
         }
         List<BugCustomField> addFields = new ArrayList<>();
         List<BugCustomField> updateFields = new ArrayList<>();
@@ -1285,7 +1291,20 @@ public class BugService {
                 localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
                 bugLocalAttachmentMapper.insert(localAttachment);
                 // 替换富文本中的临时URL, 注意: 第三方的图片附件暂未存储在压缩目录, 因此不支持压缩访问
-                updateBug.setDescription(updateBug.getDescription().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
+                if (StringUtils.contains(updateBug.getDescription(), "alt=\"" + key + "\"")) {
+                    updateBug.setDescription(updateBug.getDescription()
+                            .replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
+                    if (updateBug.getPlatformDefaultTemplate()) {
+                        // 来自富文本自定义字段
+                        PlatformCustomFieldItemDTO descriptionField = updateBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().get(0);
+                        descriptionField.setValue(updateBug.getDescription());
+                    }
+                } else {
+                    // 来自富文本自定义字段
+                    PlatformCustomFieldItemDTO richTextField = updateBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getType(), PlatformCustomFieldType.RICH_TEXT.name())
+                            && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().get(0);
+                    richTextField.setValue(richTextField.getValue().toString().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
+                }
             }));
         }
     }

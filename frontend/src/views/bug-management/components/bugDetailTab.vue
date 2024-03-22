@@ -47,8 +47,10 @@
               <MsRichText
                 v-if="contentEditAble"
                 v-model:raw="item.defaultValue"
+                v-model:filed-ids="descriptionFileIdMap[item.fieldId]"
                 :disabled="!contentEditAble"
                 :placeholder="t('editor.placeholder')"
+                :upload-image="handleUploadImage"
                 :preview-url="EditorPreviewFileUrl"
               />
               <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
@@ -257,6 +259,7 @@
   const acceptType = ref('none'); // 模块-上传文件类型
   // 描述-富文本临时附件ID
   const descriptionFileIds = ref<string[]>([]);
+  const descriptionFileIdMap = ref<Record<string, string[]>>({});
   const imageUrl = ref<string>('');
   const associatedDrawer = ref(false);
   const fileListRef = ref<InstanceType<typeof MsFileList>>();
@@ -442,6 +445,16 @@
     return data;
   }
 
+  function getDescriptionFileId() {
+    const fileIds = [] as string[];
+    Object.keys(descriptionFileIdMap.value).forEach((key) => {
+      if (descriptionFileIdMap.value[key].length > 0) {
+        fileIds.push(...descriptionFileIdMap.value[key]);
+      }
+    });
+    return fileIds;
+  }
+
   // 保存操作
   async function handleSave() {
     try {
@@ -481,7 +494,7 @@
         unLinkRefIds: form.value.unLinkRefIds,
         linkFileIds: form.value.linkFileIds,
         customFields,
-        richTextTmpFileIds: descriptionFileIds.value,
+        richTextTmpFileIds: props.isPlatformDefaultTemplate ? getDescriptionFileId() : descriptionFileIds.value,
       };
       if (!props.isPlatformDefaultTemplate) {
         tmpObj.description = form.value.description;
@@ -521,8 +534,6 @@
   }
 
   watchEffect(() => {
-    console.log(props.currentPlatform);
-    console.log(props.detailInfo.platform);
     initCurrentDetail(props.detailInfo);
   });
   defineExpose({

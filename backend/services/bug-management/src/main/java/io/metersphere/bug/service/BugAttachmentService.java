@@ -327,7 +327,7 @@ public class BugAttachmentService {
                 try {
                     // upload platform attachment to minio
                     bytes = in.readAllBytes();
-                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(projectId, bugId, fileId, fileName));
+                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(projectId, bugId, fileId, fileName, false));
                 } catch (Exception e) {
                     throw new MSException(e.getMessage());
                 }
@@ -382,7 +382,7 @@ public class BugAttachmentService {
                     deleteLocalIds.forEach(deleteLocalId -> {
                         try {
                             BugFileDTO bugFileDTO = localFileMap.get(deleteLocalId);
-                            FileCenter.getDefaultRepository().delete(buildBugFileRequest(projectId, bugId, bugFileDTO.getFileId(), bugFileDTO.getFileName()));
+                            FileCenter.getDefaultRepository().delete(buildBugFileRequest(projectId, bugId, bugFileDTO.getFileId(), bugFileDTO.getFileName(), false));
                         } catch (Exception e) {
                             throw new MSException(e.getMessage());
                         }
@@ -406,7 +406,7 @@ public class BugAttachmentService {
      * @return 文件字节流
      */
     public byte[] getLocalFileBytes(BugLocalAttachment attachment, String projectId, String bugId) {
-        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, attachment.getFileId(), attachment.getFileName());
+        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, attachment.getFileId(), attachment.getFileName(), false);
         byte[] bytes;
         try {
             bytes = fileService.download(fileRequest);
@@ -477,7 +477,7 @@ public class BugAttachmentService {
         record.setCreateUser(currentUser);
         bugLocalAttachmentMapper.insert(record);
         List<SyncAttachmentToPlatformRequest> localSyncFiles = new ArrayList<>();
-        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, record.getFileId(), file.getOriginalFilename());
+        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, record.getFileId(), file.getOriginalFilename(), false);
         try {
             fileService.upload(file, fileRequest);
             if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
@@ -534,7 +534,7 @@ public class BugAttachmentService {
         List<SyncAttachmentToPlatformRequest> syncLocalFiles = new ArrayList<>();
         BugLocalAttachment localAttachment = bugLocalAttachmentMapper.selectByPrimaryKey(refId);
         // 删除本地上传的附件, BUG_LOCAL_ATTACHMENT表
-        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, localAttachment.getFileId(), localAttachment.getFileName());
+        FileRequest fileRequest = buildBugFileRequest(projectId, bugId, localAttachment.getFileId(), localAttachment.getFileName(), false);
         try {
             // 删除MINIO附件
             fileService.deleteFile(fileRequest);
@@ -586,11 +586,16 @@ public class BugAttachmentService {
      * @param resourceId 资源ID
      * @param fileId 文件ID
      * @param fileName 文件名称
+     * @param compress 是否压缩预览目录
      * @return 文件请求对象
      */
-    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileId, String fileName) {
+    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileId, String fileName, boolean compress) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId) + "/" + fileId);
+        if (compress) {
+            fileRequest.setFolder(DefaultRepositoryDir.getBugPreviewDir(projectId, resourceId) + "/" + fileId);
+        } else {
+            fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId) + "/" + fileId);
+        }
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;
@@ -763,14 +768,7 @@ public class BugAttachmentService {
             //在正式目录获取
             BugLocalAttachment attachment = bugAttachments.get(0);
             fileName = attachment.getFileName();
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFileName(attachment.getFileName());
-            if (compressed) {
-                fileRequest.setFolder(DefaultRepositoryDir.getBugPreviewDir(projectId, attachment.getBugId()) + "/" + attachment.getFileId());
-            } else {
-                fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, attachment.getBugId()) + "/" + attachment.getFileId());
-            }
-            fileRequest.setStorage(StorageType.MINIO.name());
+            FileRequest fileRequest = buildBugFileRequest(projectId, attachment.getBugId(), attachment.getFileId(), attachment.getFileName(), compressed);
             try {
                 bytes = fileService.download(fileRequest);
             } catch (Exception e) {
