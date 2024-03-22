@@ -671,18 +671,15 @@ public class ApiDefinitionImportUtilService {
             lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
-                if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                    BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
-                    node.setPath(StringUtils.join("/", node.getName()));
-                    baseTreeNodeList.add(node);
-                    baseTreeNodeMap.put(treeNode.getId(), node);
-                } else {
-                    if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
-                        BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
-                        node.setPath(StringUtils.join(baseTreeNodeMap.get(treeNode.getParentId()).getPath(), "/", node.getName()));
-                        baseTreeNodeList.add(node);
-                    }
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    notMatchedList.add(treeNode);
+                    continue;
                 }
+                BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
+                node.genModulePath(baseTreeNodeMap.get(treeNode.getParentId()));
+                baseTreeNodeMap.put(treeNode.getId(), node);
+
+                baseTreeNodeList.add(node);
             }
             traverseList = notMatchedList;
         }
