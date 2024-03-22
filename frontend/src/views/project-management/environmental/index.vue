@@ -232,7 +232,7 @@
       systemTitle: t('project.environmental.env.systemTitle'),
       selectedTitle: t('project.environmental.env.selectedTitle'),
     }"
-    @confirm="(v) => handleEnvExport(v.map((item) => item.id))"
+    @confirm="(v) => handleEnvExport(v.map((item) => item.key))"
   />
 </template>
 
