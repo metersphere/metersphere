@@ -30,7 +30,7 @@ public class ScriptAssertionConverter extends AssertionConverter<MsScriptAsserti
             assertion = new BeanShellAssertion();
         }
         ScriptProcessor scriptProcessor = BeanUtils.copyBean(new ScriptProcessor(), msAssertion);
-        ScriptProcessorConverter.parse(assertion, scriptProcessor);
+        ScriptProcessorConverter.parse(assertion, scriptProcessor, config);
 
         // 添加公共脚本的参数
         Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))

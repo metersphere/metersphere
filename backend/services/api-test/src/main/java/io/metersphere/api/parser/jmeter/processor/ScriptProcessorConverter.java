@@ -1,13 +1,16 @@
 package io.metersphere.api.parser.jmeter.processor;
 
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import io.metersphere.plugin.api.constants.ElementProperty;
+import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +30,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
     public static final String ENV_VARIABLE_EXPRESSION = "${__metersphere_env_id}";
     public static final String MS_RUNNING_ENV_PREFIX = "MS.ENV.";
 
-    public static void parse(TestElement testElement, ScriptProcessor scriptProcessor) {
+    public static void parse(TestElement testElement, ScriptProcessor scriptProcessor, ParameterConfig config) {
         // 脚本安全校验
         ScriptFilter.verify(scriptProcessor.getScriptLanguage(), scriptProcessor.getName(), scriptProcessor.getScript());
 
@@ -35,11 +38,15 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         String name = StringUtils.isEmpty(scriptProcessor.getName()) ? scriptProcessor.getClass().getSimpleName() : scriptProcessor.getName();
         testElement.setName(name);
 
-        // todo 替换环境变量
-//        String evnId = scriptProcessor.getEnvironmentId();
-//        if (StringUtils.isNotEmpty(scriptProcessor.getScript())) {
-//            scriptProcessor.setScript(StringUtils.replace(scriptProcessor.getScript(), ENV_VARIABLE_EXPRESSION, "\"" + MS_RUNNING_ENV_PREFIX + evnId + ".\""));
-//        }
+        // 设置环境变量
+        ApiParamConfig apiParamConfig = (ApiParamConfig) config;
+        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(scriptProcessor.getProjectId());
+        if (envConfig != null) {
+            String envId = envConfig.getId();
+            if (StringUtils.isNotEmpty(scriptProcessor.getScript())) {
+                scriptProcessor.setScript(StringUtils.replace(scriptProcessor.getScript(), ENV_VARIABLE_EXPRESSION, "\"" + MS_RUNNING_ENV_PREFIX + envId + ".\""));
+            }
+        }
 
         // python 和 js cache 打开
         boolean cacheKey = StringUtils.equalsAny(scriptProcessor.getScriptLanguage(), ScriptLanguageType.PYTHON.name(), ScriptLanguageType.JAVASCRIPT.name());

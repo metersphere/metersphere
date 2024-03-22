@@ -53,7 +53,7 @@ public class MsCommentScriptElementConverter extends AbstractJmeterElementConver
         } else {
             scriptElement = new BeanShellSampler();
         }
-        ScriptProcessorConverter.parse(scriptElement, scriptProcessor);
+        ScriptProcessorConverter.parse(scriptElement, scriptProcessor, config);
         // 添加公共脚本的参数
         Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))
                 .ifPresent(hashTree::add);
