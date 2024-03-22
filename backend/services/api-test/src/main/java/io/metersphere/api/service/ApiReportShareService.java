@@ -3,6 +3,8 @@ package io.metersphere.api.service;
 import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.dto.share.ApiReportShareDTO;
+import io.metersphere.api.dto.share.ApiReportShareRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
@@ -12,6 +14,7 @@ import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.uid.IDGenerator;
@@ -99,10 +102,13 @@ public class ApiReportShareService {
         return returnDTO;
     }
 
-    public ShareInfoDTO gen(ShareInfo request, SessionUser user) {
+    public ShareInfoDTO gen(ApiReportShareRequest shareRequest, SessionUser user) {
         String lang = user.getLanguage() == null ? LocaleContextHolder.getLocale().toString() : user.getLanguage();
+        ShareInfo request = new ShareInfo();
+        BeanUtils.copyBean(request, shareRequest);
         request.setLang(lang);
         request.setCreateUser(user.getId());
+        request.setCustomData(shareRequest.getReportId().getBytes());
         request.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         ShareInfo shareInfo = createShareInfo(request);
         return conversionShareInfoToDTO(shareInfo);
@@ -116,7 +122,11 @@ public class ApiReportShareService {
         return shareInfo;
     }
 
-    public ShareInfo get(String id) {
-        return checkResource(id);
+    public ApiReportShareDTO get(String id) {
+        ShareInfo shareInfo = checkResource(id);
+        ApiReportShareDTO dto = new ApiReportShareDTO();
+        BeanUtils.copyBean(dto, shareInfo);
+        dto.setReportId(new String(shareInfo.getCustomData()));
+        return dto;
     }
 }

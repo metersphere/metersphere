@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
+import io.metersphere.api.dto.share.ApiReportShareRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiReportDetailMapper;
 import io.metersphere.api.mapper.ApiReportLogMapper;
@@ -416,8 +417,8 @@ public class ApiReportControllerTests extends BaseTest {
     @Test
     @Order(8)
     public void generateUrl() throws Exception {
-        ShareInfo shareInfo = new ShareInfo();
-        shareInfo.setCustomData("test-report-id".getBytes());
+        ApiReportShareRequest shareInfo = new ApiReportShareRequest();
+        shareInfo.setReportId("test-report-id");
         shareInfo.setProjectId(DEFAULT_PROJECT_ID);
         shareInfo.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         MvcResult mvcResult = responsePost("/api/report/share/gen", shareInfo);
@@ -455,8 +456,8 @@ public class ApiReportControllerTests extends BaseTest {
         //TODO  过期的校验   未完成  需要补充
         //项目当前设置了分享时间  并且没有过期
 
-        shareInfo = new ShareInfo();
-        shareInfo.setCustomData("test-report-id".getBytes());
+        shareInfo = new ApiReportShareRequest();
+        shareInfo.setReportId("test-report-id");
         shareInfo.setProjectId(DEFAULT_PROJECT_ID);
         shareInfo.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         mvcResult = responsePost("/api/report/share/gen", shareInfo);

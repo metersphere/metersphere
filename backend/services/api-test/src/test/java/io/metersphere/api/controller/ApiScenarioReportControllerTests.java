@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
+import io.metersphere.api.dto.share.ApiReportShareRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.api.mapper.ApiScenarioReportLogMapper;
@@ -376,8 +377,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     @Test
     @Order(8)
     public void generateUrl() throws Exception {
-        ShareInfo shareInfo = new ShareInfo();
-        shareInfo.setCustomData("test-scenario-report-id".getBytes());
+        ApiReportShareRequest shareInfo = new ApiReportShareRequest();
+        shareInfo.setReportId("test-scenario-report-id");
         shareInfo.setProjectId(DEFAULT_PROJECT_ID);
         shareInfo.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         MvcResult mvcResult = responsePost("/api/report/share/gen", shareInfo);
@@ -413,8 +414,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 .andExpect(status().is5xxServerError());
         
 
-        shareInfo = new ShareInfo();
-        shareInfo.setCustomData("test-scenario-report-id".getBytes());
+        shareInfo = new ApiReportShareRequest();
+        shareInfo.setReportId("test-scenario-report-id");
         shareInfo.setProjectId(DEFAULT_PROJECT_ID);
         shareInfo.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         mvcResult = responsePost("/api/report/share/gen", shareInfo);
