@@ -63,6 +63,9 @@
               <MsRichText
                 v-if="platformSystemFieldMap[key].type === 'RICH_TEXT'"
                 v-model:raw="form.platformSystemFields[key]"
+                v-model:filed-ids="descriptionFileIdMap[key]"
+                :upload-image="handleUploadImage"
+                :preview-url="EditorPreviewFileUrl"
               />
             </a-form-item>
           </div>
@@ -316,8 +319,10 @@
   const isPlatformDefaultTemplate = ref(false);
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
-  // 描述-富文本临时附件ID
+  // 内容/富文本临时附件ID
   const descriptionFileIds = ref<string[]>([]);
+  // 描述-环境/富文本临时附件ID
+  const descriptionFileIdMap = ref<Record<string, string[]>>({});
   const visitedKey = 'doNotNextTipCreateBug';
   const { getIsVisited } = useVisit(visitedKey);
 
@@ -532,6 +537,16 @@
     fileList.value.push(...fileResultList);
   }
 
+  function getDescriptionFileId() {
+    const fileIds = [] as string[];
+    Object.keys(descriptionFileIdMap.value).forEach((key) => {
+      if (descriptionFileIdMap.value[key].length > 0) {
+        fileIds.push(...descriptionFileIdMap.value[key]);
+      }
+    });
+    return fileIds;
+  }
+
   // 保存
   const saveHandler = async (isContinue = false) => {
     formRef.value.validate((error: any) => {
@@ -583,11 +598,12 @@
                   };
                 });
               }
+
               const tmpObj: BugEditFormObject = {
                 ...form.value,
                 customFields,
                 copyFiles,
-                richTextTmpFileIds: descriptionFileIds.value,
+                richTextTmpFileIds: isPlatformDefaultTemplate.value ? getDescriptionFileId() : descriptionFileIds.value,
               };
               if (isCopy.value) {
                 delete tmpObj.id;
