@@ -30,6 +30,10 @@ public class ApiExecuteFileInfo  implements Serializable {
      * 资源ID
      */
     private String resourceId;
+    /**
+     * 资源类型
+     */
+    private String resourceType;
 
     /**
      * git文件的版本信息
