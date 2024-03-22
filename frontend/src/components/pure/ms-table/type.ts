@@ -59,6 +59,7 @@ export type MsTableErrorStatus = boolean | 'error' | 'empty';
 export type MsTableDataItem<T> = T & {
   updateTime?: string | number | null;
   createTime?: string | number | null;
+  children?: MsTableDataItem<T>[];
 } & TableData;
 // 表格属性
 export interface MsTableProps<T> {

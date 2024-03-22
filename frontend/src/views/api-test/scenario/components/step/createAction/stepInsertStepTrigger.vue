@@ -6,7 +6,7 @@
     position="br"
     @popup-visible-change="handleActionTriggerChange"
   >
-    <MsButton :id="step.id" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
+    <MsButton :id="step.stepId" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
       <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
     </MsButton>
     <template #content>
@@ -131,7 +131,7 @@
   function handleActionsClose() {
     activeCreateAction.value = undefined;
     innerStep.value.createActionsVisible = false;
-    document.getElementById(innerStep.value.id.toString())?.click();
+    document.getElementById(innerStep.value.stepId.toString())?.click();
   }
 </script>
 

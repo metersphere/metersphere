@@ -125,6 +125,7 @@
         executeTime: '',
         executeSuccessCount: 0,
         executeFailCount: 0,
+        stepsDetailMap: {},
       } as ScenarioStepInfo,
       status: RequestDefinitionStatus.PROCESSING,
       tags: [],

@@ -20,7 +20,7 @@
         <slot name="title">
           <div class="flex flex-1 items-center justify-between">
             <div class="flex items-center">
-              <a-tooltip :content="props.title">
+              <a-tooltip :disabled="!props.title" :content="props.title">
                 <span> {{ characterLimit(props.title) }}</span>
               </a-tooltip>
 
@@ -161,7 +161,7 @@
     showFullScreen: false,
     okPermission: () => [], // 确认按钮权限
   });
-  const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
+  const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue', 'close']);
 
   const { t } = useI18n();
 
@@ -191,6 +191,7 @@
   const handleClose = () => {
     visible.value = false;
     emit('update:visible', false);
+    emit('close');
   };
 
   const resizing = ref(false); // 是否正在拖拽

@@ -112,7 +112,7 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
+            stepId: getGenerateId(),
             order: steps.value.length + 1,
             type: ScenarioStepType.LOOP_CONTROL,
             name: t('apiScenario.loopControl'),
@@ -134,7 +134,7 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
+            stepId: getGenerateId(),
             order: steps.value.length + 1,
             type: ScenarioStepType.CONDITION_CONTROL,
             name: t('apiScenario.conditionControl'),
@@ -156,7 +156,7 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
+            stepId: getGenerateId(),
             order: steps.value.length + 1,
             type: ScenarioStepType.ONLY_ONCE_CONTROL,
             name: t('apiScenario.onlyOnceControl'),
@@ -178,7 +178,7 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
+            stepId: getGenerateId(),
             order: steps.value.length + 1,
             type: ScenarioStepType.WAIT_TIME,
             name: t('apiScenario.waitTime'),
@@ -189,7 +189,7 @@
       case ScenarioAddStepActionType.CUSTOM_API:
       case ScenarioAddStepActionType.SCRIPT_OPERATION:
         if (step.value) {
-          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.id, 'id');
+          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.stepId, 'stepId');
           if (realStep) {
             emit('otherCreate', val, realStep as ScenarioStepItem);
           }

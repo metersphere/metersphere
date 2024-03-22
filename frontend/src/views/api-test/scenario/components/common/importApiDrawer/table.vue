@@ -233,9 +233,10 @@
    */
   function handleSelectAllChange(v: SelectAllEnum) {
     if (v === SelectAllEnum.CURRENT) {
-      tableSelectedData.value = currentTable.value.propsRes.value.data;
+      tableSelectedData.value.push(...currentTable.value.propsRes.value.data);
     } else {
-      tableSelectedData.value = [];
+      const dataSet = new Set(currentTable.value.propsRes.value.data.map((e) => e.id));
+      tableSelectedData.value = tableSelectedData.value.filter((e) => !dataSet.has(e.id));
     }
     emit('select', tableSelectedData.value);
   }

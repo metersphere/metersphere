@@ -2,6 +2,7 @@
   <a-select
     v-model:model-value="method"
     :placeholder="t('common.pleaseSelect')"
+    :disabled="props.disabled"
     @change="(val) => emit('change', val as string)"
   >
     <template #label="{ data }">
@@ -24,6 +25,7 @@
 
   const props = defineProps<{
     modelValue: string;
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;

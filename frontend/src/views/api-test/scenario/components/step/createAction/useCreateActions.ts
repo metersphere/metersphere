@@ -15,18 +15,18 @@ export default function useCreateActions() {
 
   /**
    * 插入步骤时判断父节点是否选中，如果选中则需要把新节点也选中
-   * @param selectedKeys 选中的步骤 id 集合
-   * @param step 需要判断的步骤
+   * @param selectedKeys 选中的步骤 stepId 集合
+   * @param steps 需要判断的步骤
    * @param parent 需要判断的父节点
    */
   function checkedIfNeed(
     selectedKeys: (string | number)[],
-    step: (ScenarioStepItem | TreeNode<ScenarioStepItem>)[],
+    steps: (ScenarioStepItem | TreeNode<ScenarioStepItem>)[],
     parent?: TreeNode<ScenarioStepItem>
   ) {
-    if (parent && selectedKeys.includes(parent.id)) {
+    if (parent && selectedKeys.includes(parent.stepId)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-      selectedKeys = selectedKeys.concat(step.map((item) => item.id));
+      selectedKeys.push(...steps.map((item) => item.stepId));
     }
   }
 
@@ -36,7 +36,7 @@ export default function useCreateActions() {
    * @param step 目标步骤
    * @param steps 顶层步骤列表
    * @param createStepAction 创建步骤操作类型
-   * @param selectedKeys 选中的步骤 id 集合
+   * @param selectedKeys 选中的步骤 stepId 集合
    */
   function handleCreateStep(
     defaultStepInfo: ScenarioStepItem,
@@ -48,7 +48,7 @@ export default function useCreateActions() {
     const newStep = {
       ...cloneDeep(defaultStepItemCommon),
       ...defaultStepInfo,
-      id: getGenerateId(),
+      stepId: getGenerateId(),
     };
     switch (createStepAction) {
       case 'inside':
@@ -64,11 +64,11 @@ export default function useCreateActions() {
     }
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.id,
+      step.stepId,
       newStep,
       createStepAction,
       (newNode, parent) => checkedIfNeed(selectedKeys, [newNode], parent),
-      'id'
+      'stepId'
     );
   }
 
@@ -81,7 +81,8 @@ export default function useCreateActions() {
   function buildInsertStepInfos(
     newSteps: Record<string, any>[],
     type: ScenarioStepType,
-    startOrder: number
+    startOrder: number,
+    stepsDetailMap: Record<string, any>
   ): ScenarioStepItem[] {
     let name: string;
     switch (type) {
@@ -125,10 +126,12 @@ export default function useCreateActions() {
         break;
     }
     return newSteps.map((item, index) => {
+      const stepId = getGenerateId();
+      stepsDetailMap[stepId] = item; // 导入系统请求的引用接口和 case 的时候需要先存储一下引用的接口/用例信息
       return {
         ...cloneDeep(defaultStepItemCommon),
         ...item,
-        id: getGenerateId(),
+        stepId,
         type,
         name,
         order: startOrder + index,
@@ -143,7 +146,7 @@ export default function useCreateActions() {
    * @param steps 顶层步骤列表
    * @param createStepAction 创建步骤操作类型
    * @param type 需要插入的步骤类型
-   * @param selectedKeys 选中的步骤 id 集合
+   * @param selectedKeys 选中的步骤 stepId 集合
    */
   function handleCreateSteps(
     step: ScenarioStepItem,
@@ -154,11 +157,11 @@ export default function useCreateActions() {
   ) {
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.id,
+      step.stepId,
       readyInsertSteps,
       createStepAction,
       undefined,
-      'id'
+      'stepId'
     );
     checkedIfNeed(selectedKeys, readyInsertSteps, step);
   }
