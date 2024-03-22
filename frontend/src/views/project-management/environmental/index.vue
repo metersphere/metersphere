@@ -560,7 +560,7 @@
       store.setCurrentId(envList.value[0].id);
       return;
     }
-    const matchingItem = envList.value.find((item) => item.id === id);
+    const matchingItem = evnGroupList.value.find((item) => item.id === id);
     const itemName = matchingItem ? matchingItem.name : null;
     openModal({
       type: 'error',
