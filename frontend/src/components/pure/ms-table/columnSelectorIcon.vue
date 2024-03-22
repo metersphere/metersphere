@@ -16,7 +16,13 @@
       <div class="flex-col">
         <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t((item.title || item.columnTitle) as string) }}</div>
-          <a-switch v-model="item.showInTable" size="small" type="line" @change="handleSwitchChange" />
+          <a-switch
+            v-if="item.slotName !== SpecialColumnEnum.OPERATION"
+            v-model="item.showInTable"
+            size="small"
+            type="line"
+            @change="handleSwitchChange"
+          />
         </div>
       </div>
       <a-divider v-if="nonSortColumn.length" orientation="center" class="non-sort"
@@ -52,6 +58,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
+
+  import { SpecialColumnEnum } from '@/enums/tableEnum';
 
   import { MsTableColumn } from './type';
 

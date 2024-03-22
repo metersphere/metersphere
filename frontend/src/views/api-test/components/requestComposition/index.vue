@@ -701,8 +701,7 @@
         return httpContentTabList.filter(
           (e) =>
             !(!restNumApi.value && e.value === RequestComposition.REST) &&
-            !(!queryNumApi.value && e.value === RequestComposition.QUERY) &&
-            !(!bodyTabBadgeApi.value?.length && e.value === RequestComposition.BODY)
+            !(!queryNumApi.value && e.value === RequestComposition.QUERY)
         );
       }
       if (props.isDefinition) {
