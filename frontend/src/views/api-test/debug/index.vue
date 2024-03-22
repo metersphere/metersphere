@@ -27,7 +27,11 @@
             >
               <template #label="{ tab }">
                 <apiMethodName :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol" class="mr-[4px]" />
-                {{ tab.label }}
+                <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
+                  <div class="one-line-text max-w-[144px]">
+                    {{ tab.name || tab.label }}
+                  </div>
+                </a-tooltip>
               </template>
             </MsEditableTab>
           </div>
