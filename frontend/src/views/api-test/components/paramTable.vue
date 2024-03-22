@@ -740,7 +740,10 @@
       emitChange('addTableLine addLineDisabled', isInit);
       return;
     }
-    if (rowIndex === paramsData.value.length - 1 && paramsData.value[rowIndex].key) {
+    if (
+      rowIndex === paramsData.value.length - 1 &&
+      (paramsData.value[rowIndex].key || paramsData.value[rowIndex].projectId)
+    ) {
       // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
       paramsData.value.push({
