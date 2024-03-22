@@ -32,6 +32,7 @@ public class JmeterElementConverterRegister {
         register(MsIfControllerConverter.class);
         register(MsLoopControllerConverter.class);
         register(MsOnceOnlyControllerConverter.class);
+        register(MsConstantTimerControllerConverter.class);
     }
 
     /**
