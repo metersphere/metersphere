@@ -8,6 +8,7 @@
           allow-clear
           class="mr-[8px] w-[240px]"
           @search="loadScenarioList(true)"
+          @clear="loadScenarioList(true)"
           @press-enter="loadScenarioList"
         />
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadScenarioList(true)">

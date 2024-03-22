@@ -8,6 +8,7 @@
           :placeholder="t('api_scenario.table.searchPlaceholder')"
           allow-clear
           class="mr-[8px] w-[240px]"
+          @clear="loadScenarioList(true)"
           @search="loadScenarioList(true)"
           @press-enter="loadScenarioList"
         />
