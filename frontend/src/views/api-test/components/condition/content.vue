@@ -112,7 +112,7 @@
                     v-model:model-value="scriptEx"
                     class="flex-1"
                     theme="vs"
-                    :language="LanguageEnum.BEANSHELL"
+                    :language="LanguageEnum.BEANSHELL_JSR233"
                     width="500px"
                     height="388px"
                     :show-full-screen="false"
@@ -215,7 +215,7 @@
             v-model:model-value="condition.commonScriptInfo.script"
             theme="vs"
             height="100%"
-            :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL"
+            :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
             :show-full-screen="false"
             :show-theme-change="false"
             read-only

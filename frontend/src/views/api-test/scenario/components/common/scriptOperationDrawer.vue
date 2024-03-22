@@ -54,7 +54,7 @@
     processorType: RequestConditionProcessor.SCRIPT,
     enableCommonScript: false,
     script: '',
-    scriptLanguage: LanguageEnum.BEANSHELL,
+    scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
     commonScriptInfo: {},
   } as ExecuteConditionProcessor;
   const scriptName = ref(props.name || '');
@@ -74,7 +74,7 @@
       processorType: RequestConditionProcessor.SCRIPT,
       enableCommonScript: false,
       script: '',
-      scriptLanguage: LanguageEnum.BEANSHELL,
+      scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
       commonScriptInfo: {},
     } as ExecuteConditionProcessor;
   }
