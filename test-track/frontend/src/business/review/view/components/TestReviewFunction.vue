@@ -70,6 +70,7 @@ import {openMinderConfirm, saveMinderConfirm} from "@/business/common/minder/min
 import {getTestReviewCaseNodesByCaseFilter} from "@/api/testCase";
 import VersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {useStore} from "@/store";
+import {buildNodePath} from "metersphere-frontend/src/model/NodeTree";
 
 export default {
   name: "TestReviewFunction",
@@ -138,8 +139,16 @@ export default {
         getTestReviewCaseNodesByCaseFilter(this.reviewId, condition)
           .then((response) => {
             this.treeNodes = response.data;
+            this.setModuleOptions();
           });
       }
+    },
+    setModuleOptions() {
+      let moduleOptions = [];
+      this.treeNodes.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      useStore().testCaseReviewCaseModuleOptions = moduleOptions;
     },
     refreshTreeByCaseFilter() {
       this.getNodeTreeByReviewId(this.condition);
