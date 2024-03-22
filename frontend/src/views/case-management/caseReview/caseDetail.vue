@@ -537,6 +537,7 @@
       // 自动下一个，更改激活的 id会刷新详情
       const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
       if (index < caseList.value.length - 1) {
+        await loadCaseList();
         activeCaseId.value = caseList.value[index + 1].caseId;
       } else if (pageNation.value.current * pageNation.value.pageSize < pageNation.value.total) {
         // 当前页不是最后一页，则加载下一页并激活第一个用例
