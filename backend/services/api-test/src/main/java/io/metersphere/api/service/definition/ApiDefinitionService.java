@@ -257,10 +257,6 @@ public class ApiDefinitionService extends MoveNodeService {
         checkResponseNameCode(request.getResponse());
         if (originApiDefinition.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition, originApiDefinition);
-            //http协议的接口，如果修改了path和method，需要同步把case的path和method修改
-            if (!originApiDefinition.getPath().equals(apiDefinition.getPath()) || !originApiDefinition.getMethod().equals(apiDefinition.getMethod())) {
-                apiTestCaseService.updateByApiDefinitionId(List.of(request.getId()), apiDefinition);
-            }
         }
         apiDefinition.setUpdateUser(userId);
         apiDefinition.setUpdateTime(System.currentTimeMillis());
@@ -880,6 +876,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
     public ApiDefinitionDTO getApiDefinitionInfo(String id, String userId, ApiDefinition apiDefinition) {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         // 2. 使用Optional避免空指针异常
         handleBlob(id, apiDefinitionDTO);
         // 3. 查询自定义字段
@@ -888,7 +885,6 @@ public class ApiDefinitionService extends MoveNodeService {
         ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
         example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
         apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
-        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         Set<String> userIds = extractUserIds(List.of(apiDefinitionDTO));
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         apiDefinitionDTO.setCreateUserName(userMap.get(apiDefinitionDTO.getCreateUser()));
@@ -900,8 +896,11 @@ public class ApiDefinitionService extends MoveNodeService {
         Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
         apiDefinitionBlobOptional.ifPresent(blob -> {
             AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
+
             apiCommonService.setLinkFileInfo(id, msTestElement);
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
+            apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinitionDTO);
+
             apiDefinitionDTO.setRequest(msTestElement);
             // blob.getResponse() 为 null 时不进行转换
             if (blob.getResponse() != null) {
@@ -1117,8 +1116,8 @@ public class ApiDefinitionService extends MoveNodeService {
         }
     }
 
-    public List<ApiResourceModuleInfo> getModuleInfoByIds(List<String> apiIds) {
-        return extApiDefinitionMapper.getModuleInfoByIds(apiIds);
+    public List<ApiDefinitionExecuteInfo> getModuleInfoByIds(List<String> apiIds) {
+        return extApiDefinitionMapper.getApiDefinitionExecuteInfo(apiIds);
     }
 
     public void checkModuleExist(String moduleId) {
@@ -1171,7 +1170,7 @@ public class ApiDefinitionService extends MoveNodeService {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API.name());
     }
 
-    public TaskRequestDTO debug(ApiRunRequest request) {
+    public TaskRequestDTO debug(ApiDefinitionRunRequest request) {
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
         EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
@@ -1182,8 +1181,13 @@ public class ApiDefinitionService extends MoveNodeService {
         taskRequest.setResourceType(ApiResourceType.API.name());
         taskRequest.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
 
+        AbstractMsTestElement msTestElement = runRequest.getTestElement();
+
+        // 设置 method 等信息
+        apiCommonService.setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinition(), request));
         // 设置环境
         apiParamConfig.setEnvConfig(environmentInfoDTO);
+
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 

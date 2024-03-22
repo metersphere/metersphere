@@ -281,7 +281,7 @@ public class ApiDefinitionController {
     @PostMapping("/debug")
     @Operation(summary = "接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXECUTE)
-    public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
+    public TaskRequestDTO debug(@Validated @RequestBody ApiDefinitionRunRequest request) {
         return apiDefinitionService.debug(request);
     }
 

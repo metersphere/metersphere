@@ -1110,6 +1110,7 @@ public class ApiScenarioService extends MoveNodeService {
                                      ApiScenarioParseParam parseParam,
                                      String reportId, String userId) {
 
+        // 解析生成场景树，并保存临时变量
         ApiScenarioParseTmpParam tmpParam = parse(msScenario, steps, parseParam);
 
         ApiResourceRunRequest runRequest = getApiResourceRunRequest(msScenario, tmpParam);
@@ -1283,7 +1284,7 @@ public class ApiScenarioService extends MoveNodeService {
         parseStep2MsElement(msScenario, steps, tmpParam);
 
         // 设置 HttpElement 的模块信息
-        setHttpElementModuleId(tmpParam.getStepTypeHttpElementMap());
+        setApiDefinitionExecuteInfo(tmpParam.getStepTypeHttpElementMap());
 
         // 设置使用脚本前后置的公共脚本信息
         apiCommonService.setEnableCommonScriptProcessorInfo(tmpParam.getCommonElements());
@@ -1304,23 +1305,9 @@ public class ApiScenarioService extends MoveNodeService {
      *
      * @param stepTypeHttpElementMap
      */
-    private void setHttpElementModuleId(Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
-        setHttpElementModuleId(stepTypeHttpElementMap.get(ApiScenarioStepType.API.name()), apiDefinitionService::getModuleInfoByIds);
-        setHttpElementModuleId(stepTypeHttpElementMap.get(ApiScenarioStepType.API_CASE.name()), apiTestCaseService::getModuleInfoByIds);
-    }
-
-    private void setHttpElementModuleId(List<MsHTTPElement> httpElements, Function<List<String>, List<ApiResourceModuleInfo>> getModuleInfoFunc) {
-        if (CollectionUtils.isNotEmpty(httpElements)) {
-            List<String> apiIds = httpElements.stream().map(MsHTTPElement::getResourceId).collect(Collectors.toList());
-            // 获取接口模块信息
-            Map<String, String> resourceModuleMap = getModuleInfoFunc.apply(apiIds)
-                    .stream()
-                    .collect(Collectors.toMap(ApiResourceModuleInfo::getResourceId, ApiResourceModuleInfo::getModuleId));
-            httpElements.forEach(httpElement -> {
-                // httpElement 设置模块信息
-                httpElement.setModuleId(resourceModuleMap.get(httpElement.getResourceId()));
-            });
-        }
+    private void setApiDefinitionExecuteInfo(Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
+        apiCommonService.setApiDefinitionExecuteInfo(stepTypeHttpElementMap.get(ApiScenarioStepType.API.name()), apiDefinitionService::getModuleInfoByIds);
+        apiCommonService.setApiDefinitionExecuteInfo(stepTypeHttpElementMap.get(ApiScenarioStepType.API_CASE.name()), apiTestCaseService::getModuleInfoByIds);
     }
 
     /**
@@ -1615,7 +1602,7 @@ public class ApiScenarioService extends MoveNodeService {
      */
     private boolean hasStepDetail(String stepType) {
         return !StringUtils.equals(stepType, ApiScenarioStepRefType.REF.name())
-                || StringUtils.equals(stepType, ApiScenarioStepType.API.name());
+                || isApi(stepType);
     }
 
     private Map<String, String> getResourceDetailMap(Map<String, List<String>> refResourceMap) {
@@ -1772,7 +1759,15 @@ public class ApiScenarioService extends MoveNodeService {
      * 引用的接口定义允许修改参数值，需要特殊处理
      */
     private boolean isRefApi(String stepType, String refType) {
-        return StringUtils.equals(stepType, ApiScenarioStepType.API.name()) && StringUtils.equals(refType, ApiScenarioStepRefType.REF.name());
+        return isApi(stepType) && StringUtils.equals(refType, ApiScenarioStepRefType.REF.name());
+    }
+
+    private boolean isApi(String stepType) {
+        return StringUtils.equals(stepType, ApiScenarioStepType.API.name());
+    }
+
+    private boolean isApiCase(String stepType) {
+        return StringUtils.equals(stepType, ApiScenarioStepType.API_CASE.name());
     }
 
     /**
@@ -1865,6 +1860,14 @@ public class ApiScenarioService extends MoveNodeService {
             // 设置关联的文件的最新信息
             if (isRef(step.getRefType())) {
                 apiCommonService.setLinkFileInfo(step.getResourceId(), msTestElement);
+                if (isApi(step.getStepType())) {
+                    ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(step.getResourceId());
+                    apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
+                } else if (isApiCase(step.getStepType())) {
+                    ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(step.getResourceId());
+                    ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
+                    apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
+                }
             } else {
                 apiCommonService.setLinkFileInfo(step.getScenarioId(), msTestElement);
             }

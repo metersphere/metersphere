@@ -1,5 +1,7 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
@@ -21,6 +23,7 @@ import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -265,5 +268,59 @@ public class ApiCommonService {
             }
         }
         return null;
+    }
+
+    /**
+     * 设置 MsHTTPElement 中的 method 等信息
+     * @param httpElements
+     * @param getDefinitionInfoFunc
+     */
+    public void setApiDefinitionExecuteInfo(List<MsHTTPElement> httpElements, Function<List<String>, List<ApiDefinitionExecuteInfo>> getDefinitionInfoFunc) {
+        if (CollectionUtils.isNotEmpty(httpElements)) {
+            List<String> resourceIds = httpElements.stream().map(MsHTTPElement::getResourceId).collect(Collectors.toList());
+            // 获取接口模块信息
+            Map<String, ApiDefinitionExecuteInfo> resourceModuleMap = getApiDefinitionExecuteInfoMap(getDefinitionInfoFunc, resourceIds);
+            httpElements.forEach(httpElement -> {
+                ApiDefinitionExecuteInfo definitionExecuteInfo = resourceModuleMap.get(httpElement.getResourceId());
+                // httpElement 设置模块,请求方法等信息
+                setApiDefinitionExecuteInfo(httpElement, definitionExecuteInfo);
+            });
+        }
+    }
+
+
+    /**
+     * 获取资源 ID 和接口定义信息 的 Map
+     * @param getDefinitionInfoFunc
+     * @param resourceIds
+     * @return
+     */
+    public Map<String, ApiDefinitionExecuteInfo> getApiDefinitionExecuteInfoMap(Function<List<String>, List<ApiDefinitionExecuteInfo>> getDefinitionInfoFunc, List<String> resourceIds) {
+        Map<String, ApiDefinitionExecuteInfo> resourceModuleMap = getDefinitionInfoFunc.apply(resourceIds)
+                .stream()
+                .collect(Collectors.toMap(ApiDefinitionExecuteInfo::getResourceId, Function.identity()));
+        return resourceModuleMap;
+    }
+
+    /**
+     * 设置 MsHTTPElement 中的 method 等信息
+     * @param msTestElement
+     * @param definitionExecuteInfo
+     */
+    public void setApiDefinitionExecuteInfo(AbstractMsTestElement msTestElement, ApiDefinitionExecuteInfo definitionExecuteInfo) {
+        if (msTestElement instanceof MsHTTPElement httpElement && definitionExecuteInfo != null) {
+            httpElement.setModuleId(definitionExecuteInfo.getModuleId());
+            httpElement.setMethod(definitionExecuteInfo.getMethod());
+            httpElement.setPath(definitionExecuteInfo.getPath());
+        }
+    }
+
+    /**
+     * 给 httpElement 设置接口定义参数
+     * @param apiDefinition
+     * @param msTestElement
+     */
+    public void setApiDefinitionExecuteInfo(AbstractMsTestElement msTestElement, ApiDefinition apiDefinition) {
+        setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
     }
 }

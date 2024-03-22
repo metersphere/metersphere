@@ -414,6 +414,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         if (apiDefinitionBlob != null) {
             AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
             apiCommonService.setLinkFileInfo(apiDefinition.getId(), msTestElement);
+            MsHTTPElement msHTTPElement = (MsHTTPElement) msTestElement;
+            msHTTPElement.setMethod(apiDefinition.getMethod());
+            msHTTPElement.setPath(apiDefinition.getPath());
+            msHTTPElement.setModuleId(apiDefinition.getModuleId());
             copyApiDefinitionDTO.setRequest(msTestElement);
             List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class);
             for (HttpResponse httpResponse : httpResponses) {
@@ -421,6 +425,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
             }
             copyApiDefinitionDTO.setResponse(httpResponses);
         }
+
+        MsHTTPElement msHTTPElement = (MsHTTPElement) apiDefinitionDTO.getRequest();
+        Assertions.assertEquals(msHTTPElement.getMethod(), apiDefinition.getMethod());
+        Assertions.assertEquals(msHTTPElement.getPath(), apiDefinition.getPath());
+        Assertions.assertEquals(msHTTPElement.getModuleId(), apiDefinition.getModuleId());
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
         assertErrorCode(this.requestGet(GET + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
@@ -568,19 +577,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
         updateRequest.setPath("/api/test/path/method/case");
         this.requestPostWithOk(UPDATE, updateRequest);
-        //校验用例是否被修改
-        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
-        apiTestCaseExample.createCriteria().andApiDefinitionIdEqualTo(apiPathAndMethod.getId());
-        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(apiTestCaseExample);
-        List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).toList();
-        ApiTestCaseBlobExample apiTestCaseBlobExample = new ApiTestCaseBlobExample();
-        apiTestCaseBlobExample.createCriteria().andIdIn(caseIds);
-        List<ApiTestCaseBlob> apiTestCaseBlobs = apiTestCaseBlobMapper.selectByExampleWithBLOBs(apiTestCaseBlobExample);
-        apiTestCaseBlobs.forEach(apiTestCaseBlob -> {
-            MsHTTPElement caseElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), MsHTTPElement.class);
-            Assertions.assertEquals(updateRequest.getPath(), caseElement.getPath());
-            Assertions.assertEquals(updateRequest.getMethod(), caseElement.getMethod());
-        });
+
         // @@校验权限
         request.setId(apiDefinition.getId());
         request.setName("permission-st-6");
@@ -591,7 +588,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void debug() throws Exception {
-        ApiRunRequest request = new ApiRunRequest();
+        ApiDefinitionRunRequest request = new ApiDefinitionRunRequest();
         request.setId(apiDefinition.getId());
         MsHTTPElement msHTTPElement = new MsHTTPElement();
         msHTTPElement.setPath("/test");
@@ -599,6 +596,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
         request.setReportId(IDGenerator.nextStr());
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setPath("/test");
+        request.setMethod("GET");
         MvcResult mvcResult = this.requestPostAndReturn(DEBUG, request);
         ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
         Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||

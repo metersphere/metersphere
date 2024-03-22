@@ -7,7 +7,6 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
@@ -224,6 +223,7 @@ public class ApiTestCaseService extends MoveNodeService {
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class);
         apiCommonService.setLinkFileInfo(id, msTestElement);
         apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
+        apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
         apiTestCaseDTO.setRequest(msTestElement);
         return apiTestCaseDTO;
     }
@@ -518,37 +518,6 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiFileResourceService.uploadTempFile(file);
     }
 
-    public void updateByApiDefinitionId(List<String> ids, ApiDefinition apiDefinition) {
-        String method = apiDefinition.getMethod();
-        String path = apiDefinition.getPath();
-        if (StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path)) {
-            ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
-            apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
-            List<ApiTestCase> caseLists = apiTestCaseMapper.selectByExample(apiTestCaseExample);
-            List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).toList();
-            if (CollectionUtils.isEmpty(caseIds)) {
-                return;
-            }
-            ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
-            blobExample.createCriteria().andIdIn(caseIds);
-            List<ApiTestCaseBlob> bloBs = apiTestCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
-
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ApiTestCaseBlobMapper batchMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
-            bloBs.forEach(apiTestCase -> {
-                MsHTTPElement msHttpElement = ApiDataUtils.parseObject(new String(apiTestCase.getRequest()), MsHTTPElement.class);
-                msHttpElement.setMethod(method);
-                msHttpElement.setPath(path);
-                apiTestCase.setRequest(ApiDataUtils.toJSONString(msHttpElement).getBytes());
-                batchMapper.updateByPrimaryKeySelective(apiTestCase);
-            });
-            sqlSession.flushStatements();
-            if (sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
-        }
-    }
-
     public List<ApiTestCaseBlob> getBlobByIds(List<String> apiCaseIds) {
         if (CollectionUtils.isEmpty(apiCaseIds)) {
             return Collections.emptyList();
@@ -590,7 +559,7 @@ public class ApiTestCaseService extends MoveNodeService {
         apiTestCaseMapper.updateByPrimaryKeySelective(update);
     }
 
-    public List<ApiResourceModuleInfo> getModuleInfoByIds(List<String> ids) {
+    public List<ApiDefinitionExecuteInfo> getModuleInfoByIds(List<String> ids) {
         // 获取接口定义ID和用例ID的映射
         Map<String, String> apiCaseDefinitionMap = extApiTestCaseMapper.getApiCaseDefinitionInfo(ids)
                 .stream()
@@ -600,11 +569,11 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(definitionIds)) {
             return List.of();
         }
-        List<ApiResourceModuleInfo> moduleInfos = extApiDefinitionMapper.getModuleInfoByIds(definitionIds);
+        List<ApiDefinitionExecuteInfo> definitionExecuteInfos = extApiDefinitionMapper.getApiDefinitionExecuteInfo(definitionIds);
         // 将 resourceId 从定义ID替换成用例ID
-        moduleInfos.forEach(moduleInfo ->
-                moduleInfo.setResourceId(apiCaseDefinitionMap.get(moduleInfo.getResourceId())));
-        return moduleInfos;
+        definitionExecuteInfos.forEach(info ->
+                info.setResourceId(apiCaseDefinitionMap.get(info.getResourceId())));
+        return definitionExecuteInfos;
     }
 
     public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
@@ -636,7 +605,7 @@ public class ApiTestCaseService extends MoveNodeService {
      * @param request
      * @return
      */
-    public TaskRequestDTO run(ApiRunRequest request, String userId) {
+    public TaskRequestDTO run(ApiCaseRunRequest request, String userId) {
         ApiTestCase apiTestCase = checkResourceExist(request.getId());
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
         apiTestCase.setEnvironmentId(request.getEnvironmentId());
@@ -689,7 +658,7 @@ public class ApiTestCaseService extends MoveNodeService {
         // 初始化报告
         initApiReport(apiTestCase, reportId, poolId, userId);
 
-        return doExecute(taskRequest, runRequest, apiTestCase.getEnvironmentId());
+        return doExecute(taskRequest, runRequest, apiTestCase.getApiDefinitionId(), apiTestCase.getEnvironmentId());
     }
 
     /**
@@ -698,7 +667,7 @@ public class ApiTestCaseService extends MoveNodeService {
      * @param request
      * @return
      */
-    public TaskRequestDTO debug(ApiRunRequest request) {
+    public TaskRequestDTO debug(ApiCaseRunRequest request) {
         TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
                 request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         taskRequest.setSaveResult(false);
@@ -706,14 +675,19 @@ public class ApiTestCaseService extends MoveNodeService {
 
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
 
-        return doExecute(taskRequest, runRequest, request.getEnvironmentId());
+        return doExecute(taskRequest, runRequest, request.getApiDefinitionId(), request.getEnvironmentId());
     }
 
-    private TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String envId) {
+    private TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String apiDefinitionId, String envId) {
 
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getReportId());
+
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionId);
+
         // 设置环境
         apiParamConfig.setEnvConfig(environmentService.get(envId));
+        // 设置 method 等信息
+        apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), apiDefinition);
 
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }

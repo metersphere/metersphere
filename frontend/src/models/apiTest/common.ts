@@ -380,6 +380,7 @@ export interface ExecuteRequestParams {
   request: ExecuteApiRequestFullParams | ExecutePluginRequestParams;
   projectId: string;
   frontendDebug?: boolean; // 是否本地调试，该模式下接口会返回执行参数，用来调用本地执行服务
+  apiDefinitionId?: string | number; // 接口用例执行和调试时需要传
 }
 // 响应结果
 export interface ResponseResult {

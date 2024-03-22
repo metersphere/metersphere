@@ -547,10 +547,11 @@
         </if>
         order by `pos` desc limit 1;
     </select>
-    <select id="getModuleInfoByIds" resultType="io.metersphere.api.dto.ApiResourceModuleInfo">
-        select id as resource_id, module_id
+    <select id="getApiDefinitionExecuteInfo" resultType="io.metersphere.api.dto.ApiDefinitionExecuteInfo">
+        select id as resource_id, module_id, path, method
         from api_definition
-        where id in
+        where protocol = 'HTTP'
+            and id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
