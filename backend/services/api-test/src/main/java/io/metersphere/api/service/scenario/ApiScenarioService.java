@@ -1134,7 +1134,7 @@ public class ApiScenarioService extends MoveNodeService {
         parseConfig.setReportId(reportId);
 
         // 初始化报告
-        initApiReport(apiScenario, reportId, parseParam.getEnvironmentId(), poolId, userId);
+        initApiReport(apiScenario, parseParam.getEnvironmentId(), reportId, poolId, userId);
 
         // 初始化报告步骤
         initScenarioReportSteps(steps, taskRequest.getReportId());

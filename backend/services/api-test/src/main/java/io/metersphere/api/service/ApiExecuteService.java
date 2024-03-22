@@ -353,6 +353,7 @@ public class ApiExecuteService {
                     ApiExecuteFileInfo apiExecuteFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getFileName(), file.getProjectId());
                     // 本地上传的文件需要 resourceId 查询对应的目录
                     apiExecuteFileInfo.setResourceId(file.getResourceId());
+                    apiExecuteFileInfo.setResourceType(file.getResourceType());
                     return apiExecuteFileInfo;
                 })
                 .collect(Collectors.toList());
