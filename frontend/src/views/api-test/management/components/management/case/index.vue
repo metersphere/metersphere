@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-show="activeApiTab.id === 'all'" class="flex-1 overflow-hidden">
+    <div v-if="activeApiTab.id === 'all'" class="flex-1 overflow-hidden">
       <caseTable
         ref="caseTableRef"
         :offspring-ids="props.offspringIds"
@@ -8,11 +8,13 @@
         :active-module="props.activeModule"
         :protocol="props.protocol"
         @open-case-tab="openCaseTab"
+        @open-case-tab-and-execute="openCaseTabAndExecute"
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <caseDetail
         :detail="activeApiTab"
+        :execute-case="caseExecute"
         :module-tree="props.moduleTree"
         @delete-case="deleteCase"
         @update-follow="activeApiTab.follow = !activeApiTab.follow"
@@ -58,6 +60,8 @@
   });
 
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
+
+  const caseExecute = ref(false);
 
   const loading = ref(false);
   async function openOrUpdateCaseTab(isOpen: boolean, id: string) {
@@ -109,6 +113,11 @@
     await openOrUpdateCaseTab(true, typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
   }
 
+  async function openCaseTabAndExecute(apiInfo: ApiCaseDetail | string) {
+    caseExecute.value = true;
+    await openCaseTab(apiInfo);
+  }
+
   const caseTableRef = ref<InstanceType<typeof caseTable>>();
   function deleteCase(id: string) {
     emit('deleteCase', id);
@@ -117,5 +126,6 @@
 
   defineExpose({
     openCaseTab,
+    openCaseTabAndExecute,
   });
 </script>
