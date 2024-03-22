@@ -245,7 +245,7 @@ public class ApiScenarioReportService {
         }
     }
 
-    public List<ApiScenarioReportDetailDTO> getDetail(String stepId, String reportId) {
+    public List<ApiScenarioReportDetailDTO> getDetail(String reportId, String stepId) {
         List<ApiScenarioReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
         List<ApiScenarioReportDetailDTO> results = new ArrayList<>();
         apiReportDetails.forEach(apiReportDetail -> {

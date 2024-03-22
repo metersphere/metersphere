@@ -94,9 +94,9 @@ public class ApiScenarioReportController {
     @Operation(summary = "接口测试-接口报告-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
-    public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String stepId,
-                                                      @PathVariable String reportId) {
-        return apiScenarioReportService.getDetail(stepId, reportId);
+    public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String reportId,
+                                                      @PathVariable String stepId) {
+        return apiScenarioReportService.getDetail(reportId, stepId);
     }
 
     @GetMapping("/get/detail/{shareId}/{reportId}/{stepId}")
@@ -105,7 +105,7 @@ public class ApiScenarioReportController {
                                                                 @PathVariable String stepId) {
         ShareInfo shareInfo = apiReportShareService.checkResource(shareId);
         apiReportShareService.validateExpired(shareInfo);
-        return apiScenarioReportService.getDetail(stepId, reportId);
+        return apiScenarioReportService.getDetail(reportId, stepId);
     }
 
 }
