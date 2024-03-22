@@ -87,7 +87,7 @@
         </a-select>
         <a-tooltip :content="innerData.variableVal" :disabled="!innerData.variableVal">
           <a-input
-            :id="innerData.id"
+            :id="innerData.stepId"
             v-model:model-value="innerData.variableVal"
             size="mini"
             class="w-[110px] px-[8px]"
@@ -99,7 +99,7 @@
       </template>
       <a-tooltip v-else :content="innerData.expression" :disabled="!innerData.expression">
         <a-input
-          :id="innerData.id"
+          :id="innerData.stepId"
           v-model:model-value="innerData.expression"
           size="mini"
           class="w-[200px] px-[8px]"
@@ -159,7 +159,7 @@
   import { conditionOptions } from '@/views/api-test/scenario/components/config';
 
   export interface LoopContentProps {
-    id: string | number;
+    stepId: string | number;
     num: number;
     name: string;
     type: ScenarioStepType;
@@ -227,7 +227,7 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.id)) {
+      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.stepId)) {
         emit('quickInput', innerData.value.loopWhileType === 'condition' ? 'variableVal' : 'expression');
       }
     }

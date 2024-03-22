@@ -417,9 +417,9 @@ export function insertNodes<T>(
         }
         if (typeof customFunc === 'function') {
           if (Array.isArray(newNodes)) {
-            newNodes.forEach((newNode) => customFunc(newNode, parent || node.parent));
+            newNodes.forEach((newNode) => customFunc(newNode, position === 'inside' ? node : parent));
           } else {
-            customFunc(newNodes, parent || node.parent);
+            customFunc(newNodes, position === 'inside' ? node : parent);
           }
         }
         // 插入后返回 true

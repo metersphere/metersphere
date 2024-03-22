@@ -1,56 +1,42 @@
 <template>
   <MsDrawer
     v-model:visible="visible"
-    :title="t('apiScenario.customApi')"
     :width="960"
     no-content-padding
-    disabled-width-drag
     :show-continue="true"
+    :footer="!!requestVModel.isNew"
     @confirm="handleSave"
     @continue="handleContinue"
+    @close="handleClose"
   >
-    <a-empty
-      v-if="pluginError && !isHttpProtocol"
-      :description="t('apiTestDebug.noPlugin')"
-      class="h-[200px] items-center justify-center"
-    >
-      <template #image>
-        <MsIcon type="icon-icon_plugin_outlined" size="48" />
-      </template>
-    </a-empty>
     <template #title>
-      <div style="width: 100%">
-        <div style="float: left"> {{ t('apiScenario.customApi') }}</div>
-        <div style="float: right">
-          <span
-            v-show="requestVModel.useEnv === 'false'"
-            style="
-              float: left;
-              margin-top: 8px;
-              margin-right: 16px;
-              font-size: 14px;
-              font-weight: 400;
-              line-height: 22px;
-            "
-            >{{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
-          </span>
-
-          <MsSelect
-            v-model:model-value="requestVModel.useEnv"
-            :style="{ width: '150px', float: 'right' }"
-            :allow-search="false"
-            :options="[
-              { label: t('common.quote'), value: 'true' },
-              { label: t('common.notQuote'), value: 'false' },
-            ]"
-            :multiple="false"
-            value-key="value"
-            label-key="label"
-            :prefix="t('project.environmental.env')"
-            @change="handleUseEnvChange"
-          >
-          </MsSelect>
+      <div class="flex items-center gap-[8px]">
+        <stepType
+          v-if="props.requestType"
+          v-show="props.requestType !== ScenarioStepType.CUSTOM_API"
+          :type="props.requestType"
+        />
+        {{ title }}
+      </div>
+      <div v-if="requestVModel.isNew" class="ml-auto flex items-center gap-[16px]">
+        <div v-show="requestVModel.useEnv === 'false'" class="text-[14px] font-normal text-[var(--color-text-4)]">
+          {{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
         </div>
+        <MsSelect
+          v-model:model-value="requestVModel.useEnv"
+          :allow-search="false"
+          :options="[
+            { label: t('common.quote'), value: 'true' },
+            { label: t('common.notQuote'), value: 'false' },
+          ]"
+          :multiple="false"
+          value-key="value"
+          label-key="label"
+          :prefix="t('project.environmental.env')"
+          class="w-[150px]"
+          @change="handleUseEnvChange"
+        >
+        </MsSelect>
       </div>
     </template>
     <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
@@ -62,6 +48,7 @@
               v-model:model-value="requestVModel.protocol"
               :options="protocolOptions"
               :loading="protocolLoading"
+              :disabled="props.requestType === ScenarioStepType.QUOTE_API"
               class="w-[90px]"
               @change="(val) => handleActiveDebugProtocolChange(val as string)"
             />
@@ -73,10 +60,7 @@
                 is-tag
                 class="flex items-center"
               />
-              <a-tooltip v-if="!isHttpProtocol" content="requestVModel.label" :mouse-enter-delay="500">
-                <div class="one-line-text max-w-[350px]"> requestVModel.label</div>
-              </a-tooltip>
-              <a-tooltip :content="requestVModel.label" :mouse-enter-delay="500">
+              <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.label" :mouse-enter-delay="500">
                 <div class="one-line-text max-w-[350px]"> {{ requestVModel.label }}</div>
               </a-tooltip>
             </div>
@@ -84,6 +68,7 @@
               <apiMethodSelect
                 v-model:model-value="requestVModel.method"
                 class="w-[140px]"
+                :disabled="props.requestType === ScenarioStepType.QUOTE_API"
                 @change="handleActiveDebugChange"
               />
               <a-input
@@ -93,6 +78,7 @@
                 allow-clear
                 class="hover:z-10"
                 :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
+                :disabled="props.requestType === ScenarioStepType.QUOTE_API"
                 @input="() => (isUrlError = false)"
                 @change="handleUrlChange"
               />
@@ -100,25 +86,41 @@
           </div>
           <div>
             <a-dropdown-button
-              v-if="!requestVModel.executeLoading"
+              v-if="hasLocalExec"
               :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
               class="exec-btn"
               @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
               @select="execute"
             >
               {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-              <template v-if="hasLocalExec" #icon>
+              <template #icon>
                 <icon-down />
               </template>
-              <template v-if="hasLocalExec" #content>
+              <template #content>
                 <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
                   {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
                 </a-doption>
               </template>
             </a-dropdown-button>
+            <a-button v-else-if="!requestVModel.executeLoading" type="primary" @click="() => execute('serverExec')">
+              {{ t('apiTestDebug.serverExec') }}
+            </a-button>
             <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
           </div>
         </div>
+        <a-input
+          v-if="
+            props.requestType &&
+            [ScenarioStepType.QUOTE_API, ScenarioStepType.COPY_API].includes(props.requestType) &&
+            isHttpProtocol
+          "
+          v-model:model-value="requestVModel.name"
+          :max-length="255"
+          :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+          disabled
+          allow-clear
+          class="mt-[8px]"
+        />
       </div>
       <div class="px-[16px]">
         <MsTab
@@ -234,6 +236,7 @@
           </template>
           <template #second>
             <response
+              v-if="visible"
               v-show="showResponse"
               v-model:active-layout="activeLayout"
               v-model:active-tab="requestVModel.responseActiveTab"
@@ -255,7 +258,16 @@
         </MsSplitBox>
       </div>
     </div>
-    <addDependencyDrawer v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" />
+    <a-empty
+      v-if="pluginError && !isHttpProtocol"
+      :description="t('apiTestDebug.noPlugin')"
+      class="h-[200px] items-center justify-center"
+    >
+      <template #image>
+        <MsIcon type="icon-icon_plugin_outlined" size="48" />
+      </template>
+    </a-empty>
+    <!-- <addDependencyDrawer v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" /> -->
   </MsDrawer>
 </template>
 
@@ -271,6 +283,7 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import stepType from './stepType.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import auth from '@/views/api-test/components/requestComposition/auth.vue';
@@ -280,8 +293,8 @@
   import setting from '@/views/api-test/components/requestComposition/setting.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
+  import { getDefinitionDetail } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
-  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { getGenerateId, parseQueryParams } from '@/utils';
@@ -294,7 +307,6 @@
     PluginConfig,
     RequestTaskResult,
   } from '@/models/apiTest/common';
-  import { CustomApiStep } from '@/models/apiTest/scenario';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
     RequestAuthType,
@@ -303,6 +315,7 @@
     RequestConditionProcessor,
     RequestMethods,
     ResponseComposition,
+    ScenarioStepType,
   } from '@/enums/apiEnum';
 
   import {
@@ -316,23 +329,20 @@
   import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
 
-  const visible = defineModel<boolean>('visible', { required: true });
-
   // 懒加载Http协议组件
   const httpHeader = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/header.vue'));
   const httpBody = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/body.vue'));
   const httpQuery = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/query.vue'));
   const httpRest = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/rest.vue'));
-  const addDependencyDrawer = defineAsyncComponent(
-    () => import('@/views/api-test/management/components/addDependencyDrawer.vue')
-  );
+  // const addDependencyDrawer = defineAsyncComponent(
+  //   () => import('@/views/api-test/management/components/addDependencyDrawer.vue')
+  // );
 
   export interface RequestCustomAttr {
     type: 'api';
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
-    mode?: 'debug';
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
@@ -341,11 +351,14 @@
   export type RequestParam = ExecuteApiRequestFullParams & {
     response?: RequestTaskResult;
     useEnv: string;
+    request?: ExecuteApiRequestFullParams; // 请求参数集合
   } & RequestCustomAttr &
     TabItem;
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
+    requestType?: ScenarioStepType;
+    stepName: string;
     detailLoading?: boolean; // 详情加载状态
     envDetailItem?: {
       id?: string;
@@ -367,11 +380,13 @@
 
   const emit = defineEmits<{
     (e: 'addStep', request: RequestParam): void;
+    (e: 'applyStep', request: RequestParam): void;
   }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
 
+  const visible = defineModel<boolean>('visible', { required: true });
   const loading = defineModel<boolean>('detailLoading', { default: false });
 
   const defaultDebugParams: RequestParam = {
@@ -438,7 +453,12 @@
   };
 
   const requestVModel = ref<RequestParam>(props.request || defaultDebugParams);
-
+  const title = computed(() => {
+    if (props.requestType && [ScenarioStepType.COPY_API, ScenarioStepType.QUOTE_API].includes(props.requestType)) {
+      return props.stepName;
+    }
+    return t('apiScenario.customApi');
+  });
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
@@ -506,9 +526,7 @@
   const contentTabList = computed(() => {
     // HTTP 协议 tabs
     if (isHttpProtocol.value) {
-      return requestVModel.value.mode === 'debug'
-        ? httpContentTabList
-        : httpContentTabList.filter((e) => !commonContentTabKey.includes(e.value));
+      return httpContentTabList;
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -568,7 +586,7 @@
   const localExecuteUrl = ref('');
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
-  const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换tab导致动态表单数据丢失
+  const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换传入的 API 数据导致动态表单数据丢失
   const pluginLoading = ref(false);
   const fApi = ref<Api>();
   const currentPluginOptions = computed<Record<string, any>>(
@@ -577,10 +595,19 @@
   const currentPluginScript = computed<Record<string, any>[]>(
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
   );
+  const isCopyApiNeedInit = computed(
+    () => props.requestType === ScenarioStepType.COPY_API && props.request?.request === null
+  );
+  const isEditableApi = computed(
+    () => props.requestType === ScenarioStepType.COPY_API || props.requestType === ScenarioStepType.CUSTOM_API
+  );
 
   // 处理插件表单输入框变化
   const handlePluginFormChange = debounce(() => {
-    temporaryPluginFormMap[requestVModel.value.id] = fApi.value?.formData();
+    if (isEditableApi.value) {
+      // 复制或者新建的时候需要缓存表单数据，引用的不能更改
+      temporaryPluginFormMap[requestVModel.value.id] = fApi.value?.formData();
+    }
     handleActiveDebugChange();
   }, 300);
 
@@ -604,11 +631,11 @@
    */
   function setPluginFormData() {
     const tempForm = temporaryPluginFormMap[requestVModel.value.id];
-    if (tempForm || !requestVModel.value.isNew || requestVModel.value.isCopy) {
+    if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
-      const formData = tempForm || requestVModel.value;
+      const formData = isEditableApi.value ? tempForm || requestVModel.value : requestVModel.value;
       if (fApi.value) {
-        fApi.value.nextTick(() => {
+        fApi.value.nextRefresh(() => {
           const form = {};
           controlPluginFormFields().forEach((key) => {
             form[key] = formData[key];
@@ -621,12 +648,8 @@
         });
       }
     } else {
-      fApi.value?.nextTick(() => {
-        controlPluginFormFields();
-      });
       nextTick(() => {
-        // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
-        fApi.value?.resetFields();
+        controlPluginFormFields();
       });
     }
   }
@@ -719,6 +742,17 @@
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const splitContainerRef = ref<HTMLElement>();
   const secondBoxHeight = ref(0);
+
+  watch(
+    () => showResponse.value,
+    (val) => {
+      if (val) {
+        splitBoxSize.value = 0.6;
+      } else {
+        splitBoxSize.value = 1;
+      }
+    }
+  );
 
   watch(
     () => splitBoxSize.value,
@@ -927,6 +961,7 @@
           await props.localExecuteApi(localExecuteUrl.value, res);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       } finally {
         requestVModel.value.executeLoading = false;
@@ -964,8 +999,8 @@
   }
 
   function handleContinue() {
+    requestVModel.value.isNew = false; // 添加完就不是新建了
     emit('addStep', requestVModel.value);
-    requestVModel.value = { ...defaultDebugParams };
   }
 
   function handleSave() {
@@ -973,36 +1008,73 @@
     visible.value = false;
   }
 
-  const isUrlError = ref(false);
-  const showAddDependencyDrawer = ref(false);
-  const addDependencyMode = ref<'pre' | 'post'>('pre');
-
-  // watch(
-  //   () => visible.value,
-  //   async (val) => {
-  //     if (val) {
-  //       await initProtocolList();
-  //       if (props.request) {
-  //         requestVModel.value = { ...defaultDebugParams, ...props.request };
-  //         handleActiveDebugProtocolChange(requestVModel.value.protocol);
-  //       } else {
-  //         requestVModel.value = { ...defaultDebugParams };
-  //       }
-  //     } else {
-  //       requestVModel.value = { ...defaultDebugParams };
-  //     }
-  //   }
-  // );
-
-  onBeforeMount(() => {
-    initProtocolList();
-    if (props.request) {
-      requestVModel.value = { ...defaultDebugParams, ...props.request };
-      handleActiveDebugProtocolChange(requestVModel.value.protocol);
-    } else {
-      requestVModel.value = { ...defaultDebugParams };
+  function handleClose() {
+    // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep
+    if (!requestVModel.value.isNew) {
+      emit('applyStep', requestVModel.value);
     }
-  });
+  }
+
+  const isUrlError = ref(false);
+  // const showAddDependencyDrawer = ref(false);
+  // const addDependencyMode = ref<'pre' | 'post'>('pre');
+
+  async function initQuoteApiDetail() {
+    try {
+      loading.value = true;
+      const res = await getDefinitionDetail(requestVModel.value.id);
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
+      requestVModel.value = {
+        responseActiveTab: ResponseComposition.BODY,
+        executeLoading: false,
+        activeTab: res.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
+        unSaved: false,
+        isNew: false,
+        label: res.name,
+        ...res.request,
+        ...res,
+        response: cloneDeep(defaultResponse),
+        responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })),
+        url: res.path,
+        name: res.name, // request里面还有个name但是是null
+        id: res.id,
+        ...parseRequestBodyResult,
+      };
+      nextTick(() => {
+        // 等待内容渲染出来再隐藏loading
+        loading.value = false;
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      loading.value = false;
+    }
+  }
+
+  watch(
+    () => visible.value,
+    async (val) => {
+      if (val) {
+        if (props.request) {
+          requestVModel.value = { ...defaultDebugParams, ...props.request };
+          if (
+            props.requestType === ScenarioStepType.QUOTE_API ||
+            isCopyApiNeedInit.value
+            // 引用接口时，需要初始化引用接口的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
+          ) {
+            initQuoteApiDetail();
+          }
+        }
+        await initProtocolList();
+        if (props.request) {
+          handleActiveDebugProtocolChange(requestVModel.value.protocol);
+        }
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

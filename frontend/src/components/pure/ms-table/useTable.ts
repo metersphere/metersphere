@@ -296,8 +296,17 @@ export default function useTableProps<T>(
 
   // 重置选择器
   const resetSelector = (isNone = true) => {
-    propsRes.value.selectedKeys.clear();
-    propsRes.value.excludeKeys.clear();
+    if (propsRes.value.selectorStatus === SelectAllEnum.ALL) {
+      // 当前是跨页全部选中状态，则取消当前页的选中项
+      propsRes.value.data.forEach((item) => {
+        propsRes.value.selectedKeys.delete(item.id);
+        propsRes.value.excludeKeys.add(item.id);
+      });
+    } else {
+      // 当前是当前页选中状态，则清空选中项
+      propsRes.value.selectedKeys.clear();
+      propsRes.value.excludeKeys.clear();
+    }
     if (isNone) {
       propsRes.value.selectorStatus = SelectAllEnum.NONE;
     }
@@ -311,26 +320,18 @@ export default function useTableProps<T>(
         // 如果是全选状态，返回总数减去排除的数量
         return msPagination.total - excludeKeys.size;
       }
-      // if (selectorStatus === SelectAllEnum.NONE) {
-      // 如果是全不选状态，返回选中的数量
       return selectedKeys.size;
-      // }
-      // if (selectorStatus === SelectAllEnum.CURRENT) {
-      //   // 如果是当前页状态，返回当前页减去排除的数量
-      //   return msPagination.pageSize - excludeKeys.size;
-      // }
     }
   };
-  const collectIds = (data, rowKey: string, selectedKeys: Set<string>) => {
-    data.forEach((item: any) => {
-      if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
-        selectedKeys.add(item[rowKey]);
+  const collectIds = (data: MsTableDataItem<T>[], rowKey: string) => {
+    data.forEach((item: MsTableDataItem<T>) => {
+      if (item[rowKey] && !propsRes.value.selectedKeys.has(item[rowKey])) {
+        propsRes.value.selectedKeys.add(item[rowKey]);
       }
       if (item.children) {
-        collectIds(item.children, rowKey, selectedKeys);
+        collectIds(item.children, rowKey);
       }
     });
-    return selectedKeys;
   };
 
   // 获取表格请求参数
@@ -398,19 +399,19 @@ export default function useTableProps<T>(
     },
     // 重置筛选
     clearSelector: () => {
+      propsRes.value.selectorStatus = SelectAllEnum.NONE; // 重置选择器状态
       resetSelector();
     },
 
     // 表格SelectAll change
     selectAllChange: (v: SelectAllEnum) => {
       propsRes.value.selectorStatus = v;
-      const { data, rowKey, selectedKeys } = propsRes.value;
+      const { data, rowKey } = propsRes.value;
       if (v === SelectAllEnum.NONE) {
         // 清空选中项
         resetSelector();
       } else {
-        resetSelector(false);
-        propsRes.value.selectedKeys = collectIds(data, rowKey, selectedKeys);
+        collectIds(data as MsTableDataItem<T>[], rowKey);
       }
     },
 

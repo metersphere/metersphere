@@ -24,7 +24,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   export interface WaitTimeContentProps {
-    id: string | number;
+    stepId: string | number;
     waitTime: number;
   }
 

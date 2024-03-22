@@ -834,6 +834,7 @@
       const formData = tempForm || requestVModel.value;
       if (fApi.value) {
         fApi.value.nextTick(() => {
+          // 这里使用nextTick是因为插件表单使用v-if动态渲染，所以每次切换到插件表单时都会重新渲染插件表单并触发
           const form = {};
           controlPluginFormFields().forEach((key) => {
             form[key] = formData[key];
@@ -933,6 +934,17 @@
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const splitContainerRef = ref<HTMLElement>();
   const secondBoxHeight = ref(0);
+
+  watch(
+    () => showResponse.value,
+    (val) => {
+      if (val) {
+        splitBoxSize.value = 0.6;
+      } else {
+        splitBoxSize.value = 1;
+      }
+    }
+  );
 
   watch(
     () => splitBoxSize.value,

@@ -47,6 +47,7 @@
   const props = defineProps<{
     data: {
       id: string | number;
+      stepId: string | number;
       belongProjectId: string;
       belongProjectName: string;
       num: number;

@@ -179,7 +179,7 @@ export function updateDefinition(data: ApiDefinitionUpdateParams) {
 }
 
 // 获取接口定义详情
-export function getDefinitionDetail(id: string) {
+export function getDefinitionDetail(id: string | number) {
   return MSR.get<ApiDefinitionDetail>({ url: GetDefinitionDetailUrl, params: id });
 }
 

@@ -86,6 +86,7 @@
         v-model:checked-keys="checkedKeys"
         v-model:stepKeyword="keyword"
         :expand-all="isExpandAll"
+        :steps-detail-map="stepInfo.stepsDetailMap"
       />
     </div>
   </div>
@@ -127,6 +128,7 @@
     executeTime?: string; // 执行时间
     executeSuccessCount?: number; // 执行成功数量
     executeFailCount?: number; // 执行失败数量
+    stepsDetailMap: Record<string, any>; // 步骤详情存储
   }
 
   const props = defineProps<{
@@ -200,7 +202,7 @@
     try {
       let ids = checkedKeys.value;
       if (batchToggleRange.value === 'top') {
-        ids = stepInfo.value.steps.map((item) => item.id);
+        ids = stepInfo.value.steps.map((item) => item.stepId);
       }
       console.log('ids', ids);
       await new Promise((resolve) => {

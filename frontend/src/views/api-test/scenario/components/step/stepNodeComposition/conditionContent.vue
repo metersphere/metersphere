@@ -23,7 +23,7 @@
     </a-select>
     <a-tooltip :content="innerData.variableVal" :disabled="!innerData.variableVal">
       <a-input
-        :id="innerData.id"
+        :id="innerData.stepId"
         v-model:model-value="innerData.variableVal"
         size="mini"
         class="w-[110px] px-[8px]"
@@ -41,7 +41,7 @@
   import { conditionOptions } from '@/views/api-test/scenario/components/config';
 
   export interface ConditionContentProps {
-    id: string;
+    stepId: string;
     variableName: string;
     condition: string;
     variableVal: string;
@@ -75,7 +75,7 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.id)) {
+      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.stepId)) {
         emit('quickInput', 'variableVal');
       }
     }

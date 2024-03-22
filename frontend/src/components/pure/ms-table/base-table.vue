@@ -29,8 +29,9 @@
           <template #title>
             <SelectALL
               v-if="attrs.selectorType === 'checkbox'"
-              :total="selectTotal"
-              :current="selectCurrent"
+              :total="attrs.showPagination ? (attrs.msPagination as MsPaginationI).total : (attrs.data as MsTableDataItem<TableData>[]).length"
+              :selected-keys="props.selectedKeys"
+              :current-data="attrs.data as Record<string,any>[]"
               :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
               @change="handleSelectAllChange"
@@ -208,17 +209,17 @@
       class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
-      <span v-if="!props.actionConfig && selectCurrent > 0" class="title text-[var(--color-text-2)]"
-        >{{ t('msTable.batch.selected', { count: selectCurrent }) }}
-        <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">{{
-          t('msTable.batch.clear')
-        }}</a-button></span
-      >
+      <span v-if="!props.actionConfig && selectedCount > 0" class="title text-[var(--color-text-2)]">
+        {{ t('msTable.batch.selected', { count: selectedCount }) }}
+        <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">
+          {{ t('msTable.batch.clear') }}
+        </a-button>
+      </span>
       <div class="flex flex-grow">
         <batch-action
           v-if="showBatchAction"
           class="flex-1"
-          :select-row-count="selectCurrent"
+          :select-row-count="selectedCount"
           :action-config="props.actionConfig"
           @batch-action="handleBatchAction"
           @clear="emit('clearSelector')"
@@ -227,7 +228,6 @@
       <div class="min-w-[500px]">
         <ms-pagination
           v-if="!!attrs.showPagination"
-          v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
           size="small"
           v-bind="(attrs.msPagination as MsPaginationI)"
           hide-on-single-page
@@ -329,31 +329,6 @@
     (e: 'moduleChange'): void;
   }>();
   const attrs = useAttrs();
-  // 全选按钮-总条数
-  const selectTotal = computed(() => {
-    const { selectorStatus } = props;
-    if (!attrs.showPagination) {
-      // 不展示分页时直接返回total
-      return (attrs.data as MsTableDataItem<TableData>[]).length;
-    }
-    if (selectorStatus === SelectAllEnum.CURRENT) {
-      const { pageSize, total } = attrs.msPagination as MsPaginationI;
-      if (pageSize > total) {
-        return total;
-      }
-      return pageSize;
-    }
-    return (attrs.msPagination as MsPaginationI)?.total || appStore.pageSize;
-  });
-
-  // 全选按钮-当前的条数
-  const selectCurrent = computed(() => {
-    const { selectorStatus, excludeKeys, selectedKeys } = props;
-    if (selectorStatus === SelectAllEnum.ALL) {
-      return selectTotal.value - excludeKeys.size;
-    }
-    return selectedKeys.size;
-  });
 
   // 编辑按钮的Active状态
   const editActiveKey = ref<string>('');
@@ -483,8 +458,15 @@
     emit('pageSizeChange', v);
   };
 
+  const selectedCount = computed(() => {
+    if (props.selectorStatus === SelectAllEnum.ALL && attrs.msPagination) {
+      return (attrs.msPagination as MsPaginationI).total - props.excludeKeys.size;
+    }
+    return props.selectedKeys.size;
+  });
+
   const showBatchAction = computed(() => {
-    return selectCurrent.value > 0 && attrs.selectable;
+    return selectedCount.value > 0 && attrs.selectable;
   });
 
   const handleBatchAction = (value: BatchActionParams) => {
@@ -493,7 +475,7 @@
       selectedIds: Array.from(selectedKeys),
       excludeIds: Array.from(excludeKeys),
       selectAll: selectorStatus === SelectAllEnum.ALL,
-      currentSelectCount: selectCurrent.value,
+      currentSelectCount: selectedCount.value,
       params: {
         ...(attrs.msPagination as MsPaginationI),
       },
