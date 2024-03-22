@@ -339,7 +339,7 @@
           ...tmpObj,
           id,
           processorType: ResponseAssertionType.SCRIPT,
-          scriptName: t('apiTestDebug.preconditionScriptName'),
+          name: t('apiTestDebug.preconditionScriptName'),
           enableCommonScript: false,
           script: '',
           scriptId: '',

@@ -137,7 +137,7 @@
         data.value.push({
           id,
           processorType: type,
-          scriptName: t('apiTestDebug.preconditionScriptName'),
+          name: t('apiTestDebug.preconditionScriptName'),
           enableCommonScript: false,
           associateScenarioResult: false,
           ignoreProtocols: [],

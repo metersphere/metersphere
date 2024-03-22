@@ -73,7 +73,7 @@
         <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] top-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
             ref="scriptNameInputRef"
-            v-model:model-value="condition.scriptName"
+            v-model:model-value="condition.name"
             :placeholder="t('apiTestDebug.preconditionScriptNamePlaceholder')"
             :max-length="255"
             size="small"
@@ -83,10 +83,10 @@
         </div>
         <div class="flex items-center justify-between px-[12px] pt-[12px]">
           <div class="flex items-center">
-            <a-tooltip :content="condition.scriptName">
+            <a-tooltip :content="condition.name">
               <div class="script-name-container">
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
-                  {{ condition.scriptName }}
+                  {{ condition.name }}
                 </div>
                 <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
               </div>
