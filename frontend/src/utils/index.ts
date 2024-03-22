@@ -806,10 +806,14 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
       tableData[field.id] = JSON.parse(field.value).join('，') || '-';
     } else if (multipleExcludes.includes(field.type) && Array.isArray(field.options) && field.value) {
       // 多值的类型后端返回的是json字符串
-      field.value = JSON.parse(field.value);
-      tableData[field.id] = field.value
-        .map((val: string) => field.options.find((option: { value: string }) => option.value === val)?.text)
-        .join(',');
+      try {
+        field.value = JSON.parse(field.value);
+        tableData[field.id] = field.value
+          .map((val: string) => field.options.find((option: { value: string }) => option.value === val)?.text)
+          .join(',');
+      } catch (e) {
+        console.log('自定义字段值不是数组');
+      }
     } else {
       tableData[field.id] = field.value;
     }

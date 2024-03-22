@@ -267,4 +267,7 @@ export default {
   'caseManagement.featureCase.excelImportTip': '仅支持xls/xlsx格式的文件',
   'caseManagement.featureCase.xmindImportTip': '仅支持xmind格式的文件',
   'caseManagement.featureCase.AssociatedSuccess': '关联成功',
+  'caseManagement.featureCase.deleteFile': '确认删除文件 {name} 吗',
+  'caseManagement.featureCase.deleteFileTip': '删除后，文件无法恢复，请谨慎操作!',
+  'caseManagement.featureCase.nameNotNull': '用例名称不能为空!',
 };

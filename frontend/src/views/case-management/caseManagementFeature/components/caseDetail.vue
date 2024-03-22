@@ -99,6 +99,7 @@
         if (isContinue) {
           Message.success(t('caseManagement.featureCase.addSuccess'));
           caseModuleDetailRef.value.resetForm();
+
           return;
         }
         createSuccessId.value = res.data.id;
