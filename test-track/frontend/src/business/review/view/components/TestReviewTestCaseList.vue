@@ -49,15 +49,6 @@
         sortable
         :label="$t('commons.id')"/>
       <span v-for="item in fields" :key="item.key">
-
-<!--        <ms-table-column
-          v-if="item.id == 'num'"
-          prop="customNum"
-          sortable="custom"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.id')"
-          min-width="120px"/>-->
-
         <ms-table-column
           prop="name"
           :field="item"
@@ -130,7 +121,11 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.module')"
-          min-width="120px"/>
+          min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="projectName"
@@ -222,7 +217,7 @@ import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import BatchEdit from "@/business/case/components/BatchEdit";
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
-import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {TEST_CASE_CONFIGS, TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
 import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom";
@@ -232,22 +227,36 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
-import {TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
 import {useStore} from "@/store";
 import {getProjectConfig} from "@/api/project";
 import {parseTag} from "metersphere-frontend/src/utils"
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {getProjectApplicationConfig} from "@/api/project-application";
-import {getTagToolTips, initTestCaseConditionComponents, parseColumnTag} from "@/business/case/test-case";
+import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
 import {
-  _handleSelectAll, buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField, getSelectDataCounts,
-  getTableHeaderWithCustomFields, initCondition, toggleAllSelection } from "metersphere-frontend/src/utils/tableUtils";
-import {batchDeleteTestReviewCase, batchEditTestReviewCaseReviewer, batchEditTestReviewCaseStatus, deleteTestReviewCase, getTesReviewById} from "@/api/test-review";
+    _handleSelectAll,
+    buildBatchParam,
+    deepClone,
+    getCustomTableWidth,
+    getLastTableSortField,
+    getSelectDataCounts,
+    getTableHeaderWithCustomFields,
+    initCondition,
+    toggleAllSelection
+} from "metersphere-frontend/src/utils/tableUtils";
+import {
+    batchDeleteTestReviewCase,
+    batchEditTestReviewCaseReviewer,
+    batchEditTestReviewCaseStatus,
+    deleteTestReviewCase,
+    getTesReviewById
+} from "@/api/test-review";
 import {getTestTemplate} from "@/api/custom-field-template";
+import {mapState} from "pinia";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -387,6 +396,18 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    ...mapState(useStore, {
+        moduleOptions: 'testCaseReviewCaseModuleOptions'
+    }),
+    nodePathMap() {
+        let map = new Map();
+        if (this.moduleOptions) {
+            this.moduleOptions.forEach((item) => {
+                map.set(item.id, item.path);
+            });
+        }
+        return map;
     },
   },
   created() {
