@@ -108,6 +108,7 @@
         environmentId: props.environmentId as string,
         frontendDebug: executeType === 'localExec',
         reportId: reportId.value,
+        apiDefinitionId: caseDetail.value.apiDefinitionId,
       };
       debugSocket(executeType); // 开启websocket
       if (!(caseDetail.value.id as string).startsWith('c') && executeType === 'serverExec') {

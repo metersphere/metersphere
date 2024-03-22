@@ -344,7 +344,6 @@ export interface AddApiCaseParams extends ExecuteRequestParams {
   name: string;
   priority: string;
   status: string;
-  apiDefinitionId?: string | number;
   tags: string[];
   deleteFileIds?: string[];
   unLinkFileIds?: string[];

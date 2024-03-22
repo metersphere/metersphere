@@ -420,7 +420,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void debug() throws Exception {
-        ApiRunRequest request = new ApiRunRequest();
+        ApiCaseRunRequest request = new ApiCaseRunRequest();
         request.setId(apiTestCase.getId());
         MsHTTPElement msHTTPElement = new MsHTTPElement();
         msHTTPElement.setPath("/test");
@@ -428,6 +428,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
         request.setReportId(IDGenerator.nextStr());
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setApiDefinitionId(apiTestCase.getApiDefinitionId());
         MvcResult mvcResult = this.requestPostAndReturn(DEBUG, request);
         ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
         Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
@@ -548,8 +549,18 @@ public class ApiTestCaseControllerTests extends BaseTest {
         copyApiDebugDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
         apiCommonService.setLinkFileInfo(apiTestCase.getId(), msTestElement);
+        MsHTTPElement msHTTPElement = (MsHTTPElement) msTestElement;
+        msHTTPElement.setMethod(apiDefinition.getMethod());
+        msHTTPElement.setPath(apiDefinition.getPath());
+        msHTTPElement.setModuleId(apiDefinition.getModuleId());
         copyApiDebugDTO.setRequest(msTestElement);
+
+        msHTTPElement = (MsHTTPElement) apiDebugDTO.getRequest();
+        Assertions.assertEquals(msHTTPElement.getMethod(), apiDefinition.getMethod());
+        Assertions.assertEquals(msHTTPElement.getPath(), apiDefinition.getPath());
+        Assertions.assertEquals(msHTTPElement.getModuleId(), apiDefinition.getModuleId());
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
+
         this.requestGetWithOk(GET + anotherApiTestCase.getId())
                 .andReturn();
 

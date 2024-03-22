@@ -1,13 +1,16 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRunRequest;
+import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
@@ -63,6 +66,10 @@ public class ApiTestCaseBatchRunService {
     private ApiReportService apiReportService;
     @Resource
     private ApiBatchRunBaseService apiBatchRunBaseService;
+    @Resource
+    private ApiCommonService apiCommonService;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
 
     /**
      * 异步批量执行
@@ -132,6 +139,8 @@ public class ApiTestCaseBatchRunService {
         // 分批处理
         SubListUtils.dealForSubList(ids, 100, subIds -> {
             List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getApiCaseExecuteInfoByIds(subIds);
+            // 获取用例和定义信息的map，key 为用例ID，value 为接口定义信息
+            Map<String, ApiDefinitionExecuteInfo> definitionExecuteInfoMap = apiCommonService.getApiDefinitionExecuteInfoMap(apiTestCaseService::getModuleInfoByIds, subIds);
 
             Map<String, String> caseReportMap = null;
             String integratedReportId = null;
@@ -174,7 +183,7 @@ public class ApiTestCaseBatchRunService {
                     // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
                     reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
                     TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
-                    execute(taskRequest, apiTestCase, apiTestCaseBlob);
+                    execute(taskRequest, apiTestCase, apiTestCaseBlob, definitionExecuteInfoMap.get(apiTestCase.getId()));
                 } catch (Exception e) {
                     LogUtils.error("执行用例失败 {}-{}", reportId, id);
                     LogUtils.error(e);
@@ -270,6 +279,7 @@ public class ApiTestCaseBatchRunService {
             LogUtils.info("当前执行任务的用例已删除 {}", resourceId);
             return;
         }
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
 
         String reportId;
         if (runModeConfig.isIntegratedReport()) {
@@ -281,7 +291,7 @@ public class ApiTestCaseBatchRunService {
         }
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
         taskRequest.setQueueId(queue.getQueueId());
-        execute(taskRequest, apiTestCase, apiTestCaseBlob);
+        execute(taskRequest, apiTestCase, apiTestCaseBlob, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
     }
 
     /**
@@ -290,12 +300,16 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCase
      * @param apiTestCaseBlob
      */
-    public void execute(TaskRequestDTO taskRequest, ApiTestCase apiTestCase, ApiTestCaseBlob apiTestCaseBlob) {
+    public void execute(TaskRequestDTO taskRequest, ApiTestCase apiTestCase, ApiTestCaseBlob apiTestCaseBlob, ApiDefinitionExecuteInfo definitionExecuteInfo) {
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getReportId());
-        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(taskRequest.getRunModeConfig(), apiTestCase)));
-
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
         runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+
+        // 设置环境信息
+        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(taskRequest.getRunModeConfig(), apiTestCase)));
+        // 设置 method 等信息
+        apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), definitionExecuteInfo);
+
         apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 

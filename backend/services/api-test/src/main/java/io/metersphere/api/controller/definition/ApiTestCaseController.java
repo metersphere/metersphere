@@ -254,7 +254,7 @@ public class ApiTestCaseController {
     @PostMapping("/debug")
     @Operation(summary = "用例调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
-    public TaskRequestDTO debug(@Validated @RequestBody ApiRunRequest request) {
+    public TaskRequestDTO debug(@Validated @RequestBody ApiCaseRunRequest request) {
         return apiTestCaseService.debug(request);
     }
 
@@ -270,7 +270,7 @@ public class ApiTestCaseController {
     @PostMapping("/run")
     @Operation(summary = "用例执行，传请求详情执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
-    public TaskRequestDTO run(@Validated @RequestBody ApiRunRequest request) {
+    public TaskRequestDTO run(@Validated @RequestBody ApiCaseRunRequest request) {
         return apiTestCaseService.run(request, SessionUtils.getUserId());
     }
 
