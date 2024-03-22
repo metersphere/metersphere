@@ -241,7 +241,7 @@ export function getThirdDemandList(data: TableQueryParams) {
 
 // 上传文件并关联用例
 export function uploadOrAssociationFile(data: Record<string, any>) {
-  return MSR.uploadFile({ url: UploadOrAssociationFileUrl }, { request: data.request, fileList: data.file });
+  return MSR.uploadFile({ url: UploadOrAssociationFileUrl }, { request: data.request, fileList: [data.file] });
 }
 // 转存文件
 export function transferFileRequest(data: OperationFile) {

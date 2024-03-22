@@ -646,7 +646,7 @@
       line-height: 32px;
       @apply flex;
       .label {
-        width: 38%;
+        width: 84px;
         color: var(--color-text-3);
       }
     }

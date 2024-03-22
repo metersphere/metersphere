@@ -672,7 +672,7 @@
       @apply flex;
       .label {
         flex-shrink: 0;
-        width: 38%;
+        width: 84px;
         color: var(--color-text-3);
       }
       .value {
@@ -682,8 +682,26 @@
     :deep(.arco-form-item-layout-horizontal) {
       margin-bottom: 16px !important;
     }
+    :deep(.arco-form-item-label-col) {
+      padding-right: 0;
+    }
+    :deep(.arco-col-9) {
+      flex: 0 0 84px;
+      width: 84px;
+    }
+    :deep(.arco-col-15) {
+      flex: 0 0 calc(100% - 84px);
+      width: calc(100% - 84px);
+    }
+    :deep(.arco-form-item-label::after) {
+      color: red !important;
+    }
     :deep(.arco-form-item-label-col > .arco-form-item-label) {
       color: var(--color-text-3) !important;
+      width: 84px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     :deep(.arco-select-view-single) {
       border-color: transparent !important;

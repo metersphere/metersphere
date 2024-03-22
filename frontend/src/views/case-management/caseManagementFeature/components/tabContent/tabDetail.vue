@@ -160,7 +160,6 @@
         ref="fileListRef"
         v-model:file-list="fileList"
         :show-tab="false"
-        mode="static"
         :request-params="{
           caseId: detailForm.id,
           projectId: currentProjectId,
@@ -168,6 +167,7 @@
         :upload-func="uploadOrAssociationFile"
         :handle-delete="deleteFileHandler"
         :show-delete="props.allowEdit"
+        @finish="uploadFileOver"
       >
         <template #actions="{ item }">
           <div v-if="props.allowEdit">
@@ -287,6 +287,7 @@
   import AddStep from '../addStep.vue';
   import TransferModal from './transferModal.vue';
 
+  import { deleteRecycleCase } from '@/api/modules/api-test/management';
   import {
     checkFileIsUpdateRequest,
     deleteFileOrCancelAssociation,
@@ -302,8 +303,9 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { downloadByteFile, getGenerateId } from '@/utils';
+  import { downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
@@ -314,6 +316,7 @@
   const caseFormRef = ref<FormInstance>();
 
   const appStore = useAppStore();
+  const { openModal } = useModal();
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const { t } = useI18n();
@@ -533,21 +536,36 @@
 
   // 删除本地文件
   async function deleteFileHandler(item: MsFileItem) {
-    try {
-      const params = {
-        id: item.uid,
-        local: item.local,
-        caseId: detailForm.value.id,
-        projectId: currentProjectId.value,
-      };
-      await deleteFileOrCancelAssociation(params);
-      Message.success(
-        item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
-      );
-      emit('updateSuccess');
-    } catch (error) {
-      console.log(error);
-    }
+    openModal({
+      type: 'error',
+      title: t('caseManagement.featureCase.deleteFile', { name: item?.name }),
+      content: t('caseManagement.featureCase.deleteFileTip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          const params = {
+            id: item.uid,
+            local: item.local,
+            caseId: detailForm.value.id,
+            projectId: currentProjectId.value,
+          };
+          await deleteFileOrCancelAssociation(params);
+          Message.success(
+            item.local
+              ? t('caseManagement.featureCase.deleteSuccess')
+              : t('caseManagement.featureCase.cancelLinkSuccess')
+          );
+          emit('updateSuccess');
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   }
   const transferVisible = ref<boolean>(false);
 
@@ -627,6 +645,12 @@
     }
   }
 
+  async function restartUpload() {
+    await sleep(300);
+    console.log('ooo');
+    fileListRef.value?.startUpload();
+  }
+
   watch(
     () => props.form,
     (val) => {
@@ -681,6 +705,10 @@
     return data;
   }
 
+  async function uploadFileOver() {
+    emit('updateSuccess');
+  }
+
   function handleChange(_fileList: MsFileItem[], fileItem?: MsFileItem) {
     // 校验本地文件是否重复
     const isRepeat = _fileList.filter((item) => item.name === fileItem?.name && item.local).length > 1;
@@ -700,7 +728,7 @@
           local: true, // 是否本地文件
         };
       });
-      startUpload();
+      restartUpload();
     }
   }
 

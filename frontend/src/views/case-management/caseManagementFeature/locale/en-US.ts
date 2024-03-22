@@ -271,4 +271,8 @@ export default {
   'caseManagement.featureCase.excelImportTip': 'Only xls/xlsx files are supported',
   'caseManagement.featureCase.xmindImportTip': 'Only xmind files are supported',
   'caseManagement.featureCase.AssociatedSuccess': 'Associated with success',
+  'caseManagement.featureCase.deleteFile': 'Are you sure you want to delete file {name} ',
+  'caseManagement.featureCase.deleteFileTip':
+    'After deletion, the file cannot be restored. Please operate with caution!',
+  'caseManagement.featureCase.nameNotNull': 'The name can not be null!',
 };
