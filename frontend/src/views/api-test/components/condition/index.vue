@@ -145,13 +145,13 @@
           enable: true,
           script: '',
           scriptId: '',
-          scriptLanguage: LanguageEnum.BEANSHELL,
+          scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
           commonScriptInfo: {
             id: '',
             name: '',
             script: '',
             params: [],
-            scriptLanguage: LanguageEnum.BEANSHELL,
+            scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
           },
         });
 

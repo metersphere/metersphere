@@ -224,7 +224,7 @@
     projectId: '',
     params: '',
     script: '',
-    type: LanguageEnum.BEANSHELL,
+    type: LanguageEnum.BEANSHELL_JSR233,
     result: '',
   };
 
