@@ -39,6 +39,7 @@
     environmentId: string;
     request?: (...args) => Record<string, any>;
     isCaseDetail?: boolean;
+    executeCase?: boolean;
   }>();
 
   const { t } = useI18n();
@@ -131,6 +132,16 @@
     websocket.value?.close();
     caseDetail.value.executeLoading = false;
   }
+
+  watch(
+    () => props.executeCase,
+    (val) => {
+      if (val === true) {
+        execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+      }
+    },
+    { immediate: true }
+  );
 
   defineExpose({
     isPriorityLocalExec,

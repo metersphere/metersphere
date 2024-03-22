@@ -163,7 +163,7 @@
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
           type="text"
           class="!mr-0"
-          @click="onExecute(record.id)"
+          @click="isApi ? openCaseDetailDrawerAndExecute(record.id) : openCaseTabAndExecute(record)"
         >
           {{ t('apiTestManagement.execute') }}
         </MsButton>
@@ -265,6 +265,7 @@
     v-model:visible="caseDetailDrawerVisible"
     :detail="caseDetail as RequestParam"
     :api-detail="apiDetail as RequestParam"
+    :execute-case="caseExecute"
     @update-follow="caseDetail.follow = !caseDetail.follow"
     @load-case="(id: string) => loadCase(id)"
     @delete-case="deleteCaseByDetail"
@@ -418,9 +419,9 @@
     offspringIds: string[];
   }>();
 
-  const emit = defineEmits<{
-    (e: 'openCaseTab', record: ApiCaseDetail): void;
-  }>();
+  const caseExecute = ref(false);
+
+  const emit = defineEmits(['openCaseTab', 'openCaseTabAndExecute']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -1016,6 +1017,7 @@
   }
 
   const caseDetailDrawerVisible = ref(false);
+
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
   const caseDetail = ref<Record<string, any>>({});
 
@@ -1043,6 +1045,16 @@
   async function openCaseDetailDrawer(id: string) {
     await getCaseDetailInfo(id);
     caseDetailDrawerVisible.value = true;
+  }
+
+  async function openCaseDetailDrawerAndExecute(id: string) {
+    await getCaseDetailInfo(id);
+    caseExecute.value = true;
+    caseDetailDrawerVisible.value = true;
+  }
+
+  function openCaseTabAndExecute(record: ApiCaseDetail) {
+    emit('openCaseTabAndExecute', record);
   }
 
   function deleteCaseByDetail() {

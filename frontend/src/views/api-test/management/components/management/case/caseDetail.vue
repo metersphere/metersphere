@@ -7,6 +7,7 @@
           <execute
             ref="executeRef"
             v-model:detail="caseDetail"
+            :execute-case="props.executeCase"
             :environment-id="environmentId as string"
             is-case-detail
           />
@@ -102,6 +103,7 @@
 
   const props = defineProps<{
     isDrawer?: boolean; // 抽屉
+    executeCase?: boolean;
     detail: RequestParam;
   }>();
   const emit = defineEmits<{

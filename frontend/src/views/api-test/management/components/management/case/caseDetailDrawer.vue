@@ -55,7 +55,14 @@
         </MsButton>
       </div>
     </template>
-    <caseDetail ref="caseDerailRef" is-drawer :detail="props.detail" :api-detail="props.apiDetail" v-bind="$attrs" />
+    <caseDetail
+      ref="caseDerailRef"
+      is-drawer
+      :execute-case="props.executeCase"
+      :detail="props.detail"
+      :api-detail="props.apiDetail"
+      v-bind="$attrs"
+    />
   </MsDrawer>
 </template>
 
@@ -71,7 +78,8 @@
 
   const props = defineProps<{
     detail: RequestParam;
-    apiDetail: RequestParam;
+    apiDetail?: RequestParam;
+    executeCase?: boolean;
   }>();
 
   const { t } = useI18n();
