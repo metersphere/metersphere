@@ -384,6 +384,11 @@
       width: 180,
     },
     {
+      title: 'common.creator',
+      dataIndex: 'createUserName',
+      width: 180,
+    },
+    {
       title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',

@@ -42,6 +42,7 @@ import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
@@ -71,6 +72,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -160,6 +162,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiScenarioStepMapper apiScenarioStepMapper;
+    @Resource
+    private UserLoginService userLoginService;
     private static String fileMetadataId;
     private static String uploadFileId;
 
@@ -396,7 +400,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId()).andUserIdEqualTo("admin");
         List<ApiDefinitionFollower> followers = apiDefinitionFollowerMapper.selectByExample(example);
         copyApiDefinitionDTO.setFollow(CollectionUtils.isNotEmpty(followers));
-
+        Set<String> userIds = List.of(apiDefinitionDTO).stream()
+                .flatMap(apiDefinition -> Stream.of(apiDefinition.getUpdateUser(), apiDefinition.getDeleteUser(), apiDefinition.getCreateUser()))
+                .collect(Collectors.toSet());
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
+        copyApiDefinitionDTO.setCreateUserName(userMap.get(apiDefinitionDTO.getCreateUser()));
+        copyApiDefinitionDTO.setUpdateUserName(userMap.get(apiDefinitionDTO.getUpdateUser()));
         List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(Collections.singletonList(apiDefinition.getId()), apiDefinition.getProjectId());
         if (!customFields.isEmpty()) {
             Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
