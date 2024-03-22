@@ -123,4 +123,8 @@ export default {
   'project.environmental.env.systemTitle': '环境',
   'project.environmental.env.selectedTitle': '已选环境',
   'project.environmental.env.constantBatchAddTip': '只支持常量类型批量添加',
+  'project.environmental.env.delete': '是否删除环境 `{name}`？',
+  'project.environmental.env.deleteTip': '删除后会导致引用此环境的场景无法正常执行',
+  'project.environmental.env.deleteGroup': '是否删除环境组 `{name}`？',
+  'project.environmental.env.deleteGroupTip': '删除后会导致引用此环境组的场景无法正常执行',
 };
