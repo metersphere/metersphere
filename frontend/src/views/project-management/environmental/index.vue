@@ -395,7 +395,8 @@
       if (importAuthType.value === EnvAuthTypeEnum.GLOBAL && store.currentId === ALL_PARAM) {
         globalEnvRef.value.initEnvDetail();
       } else if (importAuthType.value === EnvAuthTypeEnum.ENVIRONMENT && store.currentId !== ALL_PARAM) {
-        globalEnvRef.value.initEnvDetail();
+        // eslint-disable-next-line no-use-before-define
+        initData();
       }
     }
   };

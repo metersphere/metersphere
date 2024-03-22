@@ -113,10 +113,8 @@
         emit('submit', true);
       } else if (props.type === EnvAuthTypeEnum.ENVIRONMENT) {
         await importEnv(params);
-        emit('submit', true);
       }
       fileList.value = [];
-
       Message.success(t('common.importSuccess'));
       handleCancel(true);
     } catch (error) {

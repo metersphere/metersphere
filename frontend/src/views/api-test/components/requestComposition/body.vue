@@ -227,13 +227,17 @@
         align: 'center',
         width: 200,
       },
-      {
-        title: 'apiTestDebug.encode',
-        dataIndex: 'encode',
-        slotName: 'encode',
-        titleSlotName: 'encodeTitle',
-        width: 80,
-      },
+      ...(innerParams.value.bodyType !== RequestBodyFormat.FORM_DATA
+        ? [
+            {
+              title: 'apiTestDebug.encode',
+              dataIndex: 'encode',
+              slotName: 'encode',
+              titleSlotName: 'encodeTitle',
+              width: 80,
+            },
+          ]
+        : []),
       {
         title: 'apiTestDebug.desc',
         dataIndex: 'description',
