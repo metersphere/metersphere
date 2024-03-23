@@ -39,5 +39,8 @@ public enum ApiScenarioStepType {
      * 等待控制器
      */
     CONSTANT_TIMER,
-
+    /**
+     * 脚本操作
+     */
+    SCRIPT,
 }

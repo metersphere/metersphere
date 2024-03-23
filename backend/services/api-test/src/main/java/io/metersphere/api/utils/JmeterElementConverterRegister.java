@@ -27,7 +27,7 @@ public class JmeterElementConverterRegister {
         // 注册默认的转换器 todo 注册插件的转换器
         register(MsHTTPElementConverter.class);
         register(MsCommonElementConverter.class);
-        register(MsCommentScriptElementConverter.class);
+        register(MsScriptElementConverter.class);
         register(MsScenarioConverter.class);
         register(MsIfControllerConverter.class);
         register(MsLoopControllerConverter.class);

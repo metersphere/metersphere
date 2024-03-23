@@ -50,8 +50,8 @@ public class ApiScenarioAddRequest {
     @Schema(description = "标签")
     private List<String> tags;
 
-    @Schema(description = "是否为环境组", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Boolean grouped;
+    @Schema(description = "是否为环境组")
+    private Boolean grouped = false;
 
     @Schema(description = "环境或者环境组ID")
     @Size(max = 50, message = "{api_scenario.environment_id.length_range}")

@@ -6,7 +6,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.ApiDebugRunRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
-import io.metersphere.api.dto.request.controller.MsCommentScriptElement;
+import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -14,6 +14,7 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
@@ -251,11 +252,18 @@ public class ApiExecuteService {
         String testId = runRequest.getProjectId();
 
         // 生成执行脚本
-        MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
-        msCommentScriptElement.setScriptLanguage(runRequest.getType());
+        MsScriptElement msScriptElement = new MsScriptElement();
+        msScriptElement.setEnableCommonScript(true);
+        msScriptElement.setName(runRequest.getReportId());
+        CommonScriptInfo commonScriptInfo = new CommonScriptInfo();
+        commonScriptInfo.setParams(runRequest.getParams());
+        commonScriptInfo.setScript(runRequest.getScript());
+        commonScriptInfo.setScriptLanguage(runRequest.getType());
+        commonScriptInfo.setName(runRequest.getReportId());
+        msScriptElement.setCommonScriptInfo(commonScriptInfo);
 
         ApiResourceRunRequest apiRunRequest = new ApiResourceRunRequest();
-        apiRunRequest.setTestElement(msCommentScriptElement);
+        apiRunRequest.setTestElement(msScriptElement);
 
         // 设置执行参数
         TaskRequestDTO taskRequest = getTaskRequest(reportId, testId, runRequest.getProjectId());
