@@ -124,7 +124,7 @@ export interface ApiScenarioBatchEditParams extends ApiScenarioBatchParams {
   type?: string;
 
   // 修改标签相关
-  appendTag?: boolean;
+  append?: boolean;
   tags?: string[];
 
   // 修改环境相关

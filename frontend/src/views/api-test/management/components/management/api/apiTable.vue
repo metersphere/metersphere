@@ -199,12 +199,31 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="batchUpdateLoading" @click="batchUpdate">
-        {{ t('common.update') }}
-      </a-button>
+      <div class="flex" :class="[batchForm.attr === 'tags' ? 'justify-between' : 'justify-end']">
+        <div
+          v-if="batchForm.attr === 'tags'"
+          class="flex flex-row items-center justify-center"
+          style="padding-top: 10px"
+        >
+          <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
+          <a-tooltip :content="t('caseManagement.featureCase.enableTags')">
+            <span class="flex items-center">
+              <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
+              <span class="mt-[2px]">
+                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+              </span>
+            </span>
+          </a-tooltip>
+        </div>
+        <div class="flex justify-end">
+          <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button class="ml-3" type="primary" :loading="batchUpdateLoading" @click="batchUpdate">
+            {{ t('common.update') }}
+          </a-button>
+        </div>
+      </div>
     </template>
   </a-modal>
   <a-modal
@@ -626,6 +645,7 @@
     attr: '',
     value: '',
     values: [],
+    append: false,
   });
   const fullAttrs = [
     {
@@ -680,6 +700,7 @@
       attr: '',
       value: '',
       values: [],
+      append: false,
     };
   }
 
@@ -697,6 +718,7 @@
             moduleIds: await getModuleIds(),
             protocol: props.protocol,
             type: batchForm.value.attr,
+            append: batchForm.value.append,
             [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
           });
           Message.success(t('common.updateSuccess'));

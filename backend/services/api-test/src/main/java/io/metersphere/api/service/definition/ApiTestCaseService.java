@@ -473,7 +473,7 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
-        if (request.isAppendTag()) {
+        if (request.isAppend()) {
             Map<String, ApiTestCase> caseMap = extApiTestCaseMapper.getTagsByIds(ids, false)
                     .stream()
                     .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
