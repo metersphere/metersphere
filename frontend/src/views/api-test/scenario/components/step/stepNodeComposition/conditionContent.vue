@@ -1,12 +1,12 @@
 <template>
   <div class="flex items-center gap-[4px]" draggable="false">
-    <a-tooltip :content="innerData.variableName" :disabled="!innerData.variableName">
+    <a-tooltip :content="innerData.variable" :disabled="!innerData.variable">
       <a-input
-        v-model:model-value="innerData.variableName"
+        v-model:model-value="innerData.variable"
         size="mini"
         class="w-[100px] px-[8px]"
         :max-length="255"
-        :placeholder="t('apiScenario.variableName', { suffix: '${var}' })"
+        :placeholder="t('apiScenario.variable', { suffix: '${var}' })"
         @change="handleInputChange"
       >
       </a-input>
@@ -21,13 +21,13 @@
         {{ t(opt.label) }}
       </a-option>
     </a-select>
-    <a-tooltip :content="innerData.variableVal" :disabled="!innerData.variableVal">
+    <a-tooltip :content="innerData.value" :disabled="!innerData.value">
       <a-input
-        :id="innerData.stepId"
-        v-model:model-value="innerData.variableVal"
+        :id="innerData.id"
+        v-model:model-value="innerData.value"
         size="mini"
         class="w-[110px] px-[8px]"
-        :placeholder="t('apiScenario.variableVal')"
+        :placeholder="t('apiScenario.value')"
         @change="handleInputChange"
       >
       </a-input>
@@ -38,21 +38,16 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ConditionStepDetail } from '@/models/apiTest/scenario';
+
   import { conditionOptions } from '@/views/api-test/scenario/components/config';
 
-  export interface ConditionContentProps {
-    stepId: string;
-    variableName: string;
-    condition: string;
-    variableVal: string;
-  }
-
   const props = defineProps<{
-    data: ConditionContentProps;
+    data: ConditionStepDetail;
   }>();
   const emit = defineEmits<{
-    (e: 'change', innerData: ConditionContentProps): void;
-    (e: 'quickInput', dataKey: keyof ConditionContentProps): void;
+    (e: 'change', innerData: ConditionStepDetail): void;
+    (e: 'quickInput', dataKey: keyof ConditionStepDetail): void;
   }>();
 
   const { t } = useI18n();
@@ -75,8 +70,8 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.stepId)) {
-        emit('quickInput', 'variableVal');
+      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.id)) {
+        emit('quickInput', 'value');
       }
     }
   );

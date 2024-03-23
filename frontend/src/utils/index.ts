@@ -224,7 +224,7 @@ export function mapTree<T>(
     return _tree
       .map((node: TreeNode<T>, i: number) => {
         const fullPath = node.path ? `${_parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
-        node.order = i + 1; // order从 1 开始
+        node.sort = i + 1; // order从 1 开始
         node.parent = _parent || undefined; // 没有父节点说明是树的第一层
         const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
         if (newNode) {
@@ -382,19 +382,19 @@ export function insertNodes<T>(
       // 插入节点数组
       newNodes.forEach((newNode, index) => {
         newNode.parent = parent;
-        newNode.order = startOrder + index;
+        newNode.sort = startOrder + index;
       });
       array.splice(startIndex, 0, ...newNodes);
     } else {
       // 插入单个节点
       newNodes.parent = parent;
-      newNodes.order = startOrder;
+      newNodes.sort = startOrder;
       array.splice(startIndex, 0, newNodes);
     }
-    // 更新插入节点之后的节点的 order
+    // 更新插入节点之后的节点的 sort
     const newLength = Array.isArray(newNodes) ? newNodes.length : 1;
     for (let j = startIndex + newLength; j < array.length; j++) {
-      array[j].order += newLength;
+      array[j].sort += newLength;
     }
   }
 
@@ -406,9 +406,9 @@ export function insertNodes<T>(
         const parentChildren = parent ? parent.children || [] : treeArr; // 父节点没有 children 属性，说明是树的第一层，使用 treeArr
         const index = parentChildren.findIndex((item) => item[customKey] === node[customKey]);
         if (position === 'before') {
-          insertNewNodes(parentChildren, index, parent || node.parent, node.order);
+          insertNewNodes(parentChildren, index, parent || node.parent, node.sort);
         } else if (position === 'after') {
-          insertNewNodes(parentChildren, index + 1, parent || node.parent, node.order + 1);
+          insertNewNodes(parentChildren, index + 1, parent || node.parent, node.sort + 1);
         } else if (position === 'inside') {
           if (!node.children) {
             node.children = [];
@@ -460,9 +460,9 @@ export function handleTreeDragDrop<T>(
   if (index !== -1) {
     parentChildren.splice(index, 1);
 
-    // 更新删除节点后的节点的 order
+    // 更新删除节点后的节点的 sort
     for (let i = index; i < parentChildren.length; i++) {
-      parentChildren[i].order -= 1;
+      parentChildren[i].sort -= 1;
     }
   }
 

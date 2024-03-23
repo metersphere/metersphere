@@ -14,22 +14,22 @@
   import postcondition from '@/views/api-test/components/requestComposition/postcondition.vue';
   import precondition from '@/views/api-test/components/requestComposition/precondition.vue';
 
+  import { ExecuteConditionConfig } from '@/models/apiTest/common';
+
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
-  const preProcessorConfig = ref({
-    enableGlobal: false,
-    processors: [],
+  const preProcessorConfig = defineModel<ExecuteConditionConfig>('preProcessorConfig', {
+    required: true,
   });
-  const postProcessorConfig = ref({
-    enableGlobal: false,
-    processors: [],
+  const postProcessorConfig = defineModel<ExecuteConditionConfig>('postProcessorConfig', {
+    required: true,
   });
 </script>
 
 <style lang="less" scoped>
   .condition {
-    flex-shrink: 0;
+    overflow: overlay;
     width: 100%;
     height: 700px;
-    overflow: overlay;
+    flex-shrink: 0;
   }
 </style>

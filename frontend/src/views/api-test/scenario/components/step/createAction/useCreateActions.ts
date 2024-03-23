@@ -1,12 +1,10 @@
 import { cloneDeep } from 'lodash-es';
 
-import { ScenarioStepItem } from '../stepTree.vue';
-
 import { useI18n } from '@/hooks/useI18n';
 import { getGenerateId, insertNodes, TreeNode } from '@/utils';
 
-import { CreateStepAction } from '@/models/apiTest/scenario';
-import { ScenarioStepType } from '@/enums/apiEnum';
+import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
+import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
 import { defaultStepItemCommon } from '../../config';
 
@@ -15,7 +13,7 @@ export default function useCreateActions() {
 
   /**
    * 插入步骤时判断父节点是否选中，如果选中则需要把新节点也选中
-   * @param selectedKeys 选中的步骤 stepId 集合
+   * @param selectedKeys 选中的步骤 id 集合
    * @param steps 需要判断的步骤
    * @param parent 需要判断的父节点
    */
@@ -24,9 +22,9 @@ export default function useCreateActions() {
     steps: (ScenarioStepItem | TreeNode<ScenarioStepItem>)[],
     parent?: TreeNode<ScenarioStepItem>
   ) {
-    if (parent && selectedKeys.includes(parent.stepId)) {
+    if (parent && selectedKeys.includes(parent.id)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-      selectedKeys.push(...steps.map((item) => item.stepId));
+      selectedKeys.push(...steps.map((item) => item.id));
     }
   }
 
@@ -36,10 +34,10 @@ export default function useCreateActions() {
    * @param step 目标步骤
    * @param steps 顶层步骤列表
    * @param createStepAction 创建步骤操作类型
-   * @param selectedKeys 选中的步骤 stepId 集合
+   * @param selectedKeys 选中的步骤 id 集合
    */
   function handleCreateStep(
-    defaultStepInfo: ScenarioStepItem,
+    defaultStepInfo: Record<string, any>,
     step: ScenarioStepItem,
     steps: ScenarioStepItem[],
     createStepAction: CreateStepAction,
@@ -47,94 +45,71 @@ export default function useCreateActions() {
   ) {
     const newStep = {
       ...cloneDeep(defaultStepItemCommon),
+      id: getGenerateId(),
       ...defaultStepInfo,
-      stepId: getGenerateId(),
     };
-    switch (createStepAction) {
-      case 'inside':
-        newStep.order = step.children ? step.children.length : 0;
-        break;
-      case 'before':
-        newStep.order = step.order;
-        break;
-      case 'after':
-      default:
-        newStep.order = step.order + 1;
-        break;
-    }
+    console.log('newStep', newStep);
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.stepId,
+      step.id,
       newStep,
       createStepAction,
       (newNode, parent) => checkedIfNeed(selectedKeys, [newNode], parent),
-      'stepId'
+      'id'
     );
   }
 
   /**
    * 组装插入操作的步骤信息
    * @param newSteps 新步骤信息集合
-   * @param type 需要插入的步骤类型
+   * @param stepType 需要插入的步骤类型
    * @param startOrder 步骤最开始的排序序号
    */
   function buildInsertStepInfos(
     newSteps: Record<string, any>[],
-    type: ScenarioStepType,
+    stepType: ScenarioStepType,
+    refType: ScenarioStepRefType,
     startOrder: number,
-    stepsDetailMap: Record<string, any>
+    stepDetails: Record<string, any>,
+    projectId: string
   ): ScenarioStepItem[] {
     let name: string;
-    switch (type) {
-      case ScenarioStepType.LOOP_CONTROL:
+    switch (stepType) {
+      case ScenarioStepType.LOOP_CONTROLLER:
         name = t('apiScenario.loopControl');
         break;
-      case ScenarioStepType.CONDITION_CONTROL:
+      case ScenarioStepType.IF_CONTROLLER:
         name = t('apiScenario.conditionControl');
         break;
-      case ScenarioStepType.ONLY_ONCE_CONTROL:
+      case ScenarioStepType.ONCE_ONLY_CONTROLLER:
         name = t('apiScenario.onlyOnceControl');
         break;
-      case ScenarioStepType.WAIT_TIME:
+      case ScenarioStepType.CONSTANT_TIMER:
         name = t('apiScenario.waitTime');
         break;
-      case ScenarioStepType.QUOTE_API:
-        name = t('apiScenario.quoteApi');
-        break;
-      case ScenarioStepType.COPY_API:
-        name = t('apiScenario.copyApi');
-        break;
-      case ScenarioStepType.QUOTE_CASE:
-        name = t('apiScenario.quoteCase');
-        break;
-      case ScenarioStepType.COPY_CASE:
-        name = t('apiScenario.copyCase');
-        break;
-      case ScenarioStepType.QUOTE_SCENARIO:
-        name = t('apiScenario.quoteScenario');
-        break;
-      case ScenarioStepType.COPY_SCENARIO:
-        name = t('apiScenario.copyScenario');
-        break;
-      case ScenarioStepType.CUSTOM_API:
+      case ScenarioStepType.CUSTOM_REQUEST:
         name = t('apiScenario.customApi');
         break;
-      case ScenarioStepType.SCRIPT_OPERATION:
+      case ScenarioStepType.SCRIPT:
         name = t('apiScenario.scriptOperation');
         break;
       default:
         break;
     }
     return newSteps.map((item, index) => {
-      const stepId = getGenerateId();
-      stepsDetailMap[stepId] = item; // 导入系统请求的引用接口和 case 的时候需要先存储一下引用的接口/用例信息
+      const id = getGenerateId();
+      stepDetails[id] = item; // 导入系统请求的引用接口和 case 的时候需要先存储一下引用的接口/用例信息
       return {
         ...cloneDeep(defaultStepItemCommon),
         ...item,
-        stepId,
-        type,
-        name,
-        order: startOrder + index,
+        id,
+        stepType,
+        refType,
+        resourceId: item.id,
+        resourceName: item.name,
+        name: name || item.name,
+        sort: startOrder + index,
+        projectId,
       };
     });
   }
@@ -145,8 +120,7 @@ export default function useCreateActions() {
    * @param readyInsertSteps 待插入的步骤信息数组（需要先buildInsertStepInfos得到构建后的步骤信息）
    * @param steps 顶层步骤列表
    * @param createStepAction 创建步骤操作类型
-   * @param type 需要插入的步骤类型
-   * @param selectedKeys 选中的步骤 stepId 集合
+   * @param selectedKeys 选中的步骤 id 集合
    */
   function handleCreateSteps(
     step: ScenarioStepItem,
@@ -157,11 +131,11 @@ export default function useCreateActions() {
   ) {
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.stepId,
+      step.id,
       readyInsertSteps,
       createStepAction,
       undefined,
-      'stepId'
+      'id'
     );
     checkedIfNeed(selectedKeys, readyInsertSteps, step);
   }

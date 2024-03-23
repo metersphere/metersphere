@@ -43,7 +43,7 @@
         </template>
       </MsSplitBox>
     </div>
-    <detail v-else :detail="activeApiTab"></detail>
+    <detail v-else v-model:scenario="activeApiTab"></detail>
   </MsCard>
 </template>
 

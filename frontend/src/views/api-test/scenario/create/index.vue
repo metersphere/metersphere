@@ -3,19 +3,32 @@
     <template #first>
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
         <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="p-[16px]">
-          <step v-if="activeKey === ScenarioCreateComposition.STEP" v-model:step="scenario.stepInfo" is-new />
+          <step v-if="activeKey === ScenarioCreateComposition.STEP" v-model:scenario="scenario" is-new />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.PARAMS" :title="t('apiScenario.params')" class="p-[16px]">
-          <params v-if="activeKey === ScenarioCreateComposition.PARAMS" v-model:params="scenario.params" />
+          <params
+            v-if="activeKey === ScenarioCreateComposition.PARAMS"
+            v-model:params="scenario.scenarioConfig.variable.commonVariables"
+          />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.PRE_POST" :title="t('apiScenario.prePost')" class="p-[16px]">
-          <prePost v-if="activeKey === ScenarioCreateComposition.PRE_POST" />
+          <prePost
+            v-if="activeKey === ScenarioCreateComposition.PRE_POST"
+            v-model:post-processor-config="scenario.scenarioConfig.postProcessorConfig"
+            v-model:pre-processor-config="scenario.scenarioConfig.preProcessorConfig"
+          />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.ASSERTION" :title="t('apiScenario.assertion')" class="p-[16px]">
-          <assertion v-if="activeKey === ScenarioCreateComposition.ASSERTION" />
+          <assertion
+            v-if="activeKey === ScenarioCreateComposition.ASSERTION"
+            v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
+          />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.SETTING" :title="t('common.setting')" class="p-[16px]">
-          <setting v-if="activeKey === ScenarioCreateComposition.SETTING" />
+          <setting
+            v-if="activeKey === ScenarioCreateComposition.SETTING"
+            v-model:other-config="scenario.scenarioConfig.otherConfig"
+          />
         </a-tab-pane>
       </a-tabs>
     </template>

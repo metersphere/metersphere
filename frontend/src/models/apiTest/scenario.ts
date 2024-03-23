@@ -1,11 +1,28 @@
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
-import { ScenarioStepInfo } from '@/views/api-test/scenario/components/step/index.vue';
 
 import { ApiDefinitionCustomField, ApiRunModeRequest } from '@/models/apiTest/management';
-import { ApiScenarioStatus, RequestComposition, RequestDefinitionStatus } from '@/enums/apiEnum';
+import {
+  ApiScenarioStatus,
+  RequestAssertionCondition,
+  RequestComposition,
+  RequestDefinitionStatus,
+  RequestMethods,
+  ScenarioExecuteStatus,
+  ScenarioFailureStrategy,
+  ScenarioStepLoopTypeEnum,
+  ScenarioStepPolymorphicName,
+  ScenarioStepRefType,
+  ScenarioStepType,
+  WhileConditionType,
+} from '@/enums/apiEnum';
 
 import { BatchApiParams, TableQueryParams } from '../common';
-import { ExecuteApiRequestFullParams, ResponseDefinition } from './common';
+import {
+  ExecuteApiRequestFullParams,
+  ExecuteAssertionItem,
+  ExecuteConditionConfig,
+  ResponseDefinition,
+} from './common';
 
 // 场景-更新模块参数
 export interface ApiScenarioModuleUpdateParams {
@@ -27,11 +44,11 @@ export interface ApiScenarioGetModuleParams {
 
 // 场景修改参数
 export interface ApiScenarioUpdateDTO {
-  id: string;
+  id: string | number;
   name?: string;
   priority?: string;
   status?: ApiScenarioStatus;
-  moduleId?: string;
+  moduleId?: string | number;
   description?: string;
   tags?: string[];
   grouped?: boolean;
@@ -196,25 +213,171 @@ export type CustomApiStep = ExecuteApiRequestFullParams & {
   useEnv: string;
 };
 // 场景步骤-循环控制器类型
-export type ScenarioStepLoopType = 'num' | 'while' | 'forEach';
-// 场景步骤-循环控制器-循环类型
-export type ScenarioStepLoopWhileType = 'condition' | 'expression';
+export type ScenarioStepLoopType = ScenarioStepLoopTypeEnum;
 // 场景步骤-步骤插入类型
 export type CreateStepAction = 'inside' | 'before' | 'after';
-// 场景步骤
-export interface Scenario {
+export interface OtherConfig {
+  enableGlobalCookie: boolean;
+  enableCookieShare: boolean;
+  stepWaitTime: number;
+  enableStepWait: boolean;
+  failureStrategy: ScenarioFailureStrategy;
+}
+export interface AssertionConfig {
+  assertions: ExecuteAssertionItem[];
+}
+export interface CsvVariable {
   id: string;
+  fileId: string;
+  scenarioId: string;
+  name: string;
+  fileName: string;
+  scope: string;
+  enable: boolean;
+  association: boolean;
+  encoding: string;
+  random: boolean;
+  variableNames: string;
+  ignoreFirstLine: boolean;
+  delimiter: string;
+  allowQuotedData: boolean;
+  recycleOnEof: boolean;
+  stopThreadOnEof: boolean;
+}
+export interface CommonVariable {
+  id: string | number;
+  key: string;
+  paramType: string;
+  value: string;
+  enable: boolean;
+  description: string;
+  tags: string[];
+}
+export interface Variable {
+  commonVariables: CommonVariable[];
+  csvVariables: CsvVariable[];
+}
+export interface ScenarioConfig {
+  variable: Variable;
+  preProcessorConfig: ExecuteConditionConfig;
+  postProcessorConfig: ExecuteConditionConfig;
+  assertionConfig: AssertionConfig;
+  otherConfig: OtherConfig;
+}
+export interface ForEachController {
+  loopTime: number; // 循环间隔时间
+  value: string; // 变量值
+  variable: string; // 变量名
+}
+export interface CountController {
+  loops: number; // 循环次数
+}
+export interface WhileScript {
+  scriptValue: string; // 脚本值
+}
+export interface WhileVariable {
+  condition: RequestAssertionCondition; // 条件操作符
+  value: string; // 变量值
+  variable: string; // 变量名
+}
+export interface WhileController {
+  conditionType: WhileConditionType; // 条件类型
+  timeout: number; // 超时时间
+  msWhileScript: WhileScript; // 脚本
+  msWhileVariable: WhileVariable; // 变量
+}
+export type ExtendedScenarioStepPolymorphicName = ScenarioStepPolymorphicName | string;
+// 场景步骤详情公共部分
+export interface StepDetailsCommon {
+  id: string | number;
+  copyFromStepId?: string; // 如果步骤是复制的，这个字段是复制的步骤id
+  name: string;
+  enable: boolean;
+  polymorphicName: ExtendedScenarioStepPolymorphicName; // 多态名称，用于后台区分使用的是哪个组件
+}
+// 自定义请求
+export interface CustomApiStepDetail extends StepDetailsCommon {
+  customizeRequest: boolean; // 是否自定义请求
+  customizeRequestEnvEnable: boolean; // 是否启用环境
+}
+// 条件控制器
+export interface ConditionStepDetail extends StepDetailsCommon {
+  value: string; // 变量值
+  variable: string; // 变量名
+  condition: RequestAssertionCondition; // 条件操作符
+}
+// 循环控制器
+export interface LoopStepDetail extends StepDetailsCommon {
+  loopType: ScenarioStepLoopType;
+  forEachController: ForEachController;
+  msCountController: CountController;
+  whileController: WhileController;
+}
+export type ScenarioStepDetail = Partial<CustomApiStepDetail & ConditionStepDetail & LoopStepDetail>;
+export interface ScenarioStepItem {
+  id: string | number;
+  sort: number;
+  name: string;
+  executeStatus?: ScenarioExecuteStatus;
+  enable: boolean; // 是否启用
+  resourceId?: string; // 详情或者引用的类型才有
+  resourceNum?: string; // 详情或者引用的类型才有
+  stepType: ScenarioStepType;
+  refType: ScenarioStepRefType;
+  config?: ScenarioStepDetail; // 对应场景里stepDetails里的详情信息，只有逻辑控制器需要
+  csvFileIds?: string[];
+  projectId?: string;
+  versionId?: string;
+  children?: ScenarioStepItem[];
+  // 页面渲染以及交互需要字段
+  checked?: boolean; // 是否选中
+  expanded?: boolean; // 是否展开
+  createActionsVisible?: boolean; // 是否展示创建步骤下拉
+  parent?: ScenarioStepItem; // 父级节点，第一层的父级节点为undefined
+  resourceName?: string; // 引用复制接口、用例、场景时的源资源名称
+  method?: RequestMethods;
+}
+// 场景
+export interface Scenario {
+  id?: string | number;
+  num?: number;
   name: string;
   moduleId: string | number;
-  stepInfo: ScenarioStepInfo;
   priority: CaseLevel;
-  status: RequestDefinitionStatus;
+  status: ApiScenarioStatus;
   tags: string[];
-  params: Record<string, any>[];
+  projectId: string;
+  description: string;
+  grouped?: boolean;
+  environmentId?: string;
+  scenarioConfig: ScenarioConfig;
+  steps: ScenarioStepItem[];
+  stepDetails: Record<string, ScenarioStepDetail>;
+  follow?: boolean;
+  uploadFileIds: string[];
+  linkFileIds: string[];
   // 前端渲染字段
   label: string;
   closable: boolean;
   isNew: boolean;
   unSaved: boolean;
   executeLoading: boolean; // 执行loading
+  executeTime?: string | number; // 执行时间
+  executeSuccessCount?: number; // 执行成功数量
+  executeFailCount?: number; // 执行失败数量
+}
+export interface ScenarioDetail extends Scenario {
+  stepTotal: number;
+  requestPassRate: string;
+  lastReportStatus?: string;
+  lastReportId?: string;
+  deleted: boolean;
+  versionId: string;
+  refId: string;
+  latest: boolean;
+  modulePath: string;
+  createUser: string;
+  createTime: number;
+  updateTime: number;
+  updateUser: string;
 }

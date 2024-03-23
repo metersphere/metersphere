@@ -129,7 +129,7 @@
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           type="text"
           class="!mr-0"
-          @click="Message.info('// todo @ba1q1')"
+          @click="openScenarioTab(record)"
         >
           {{ t('apiScenario.execute') }}
         </MsButton>
@@ -138,7 +138,7 @@
           v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
           type="text"
           class="!mr-0"
-          @click="Message.info('// todo @ba1q1')"
+          @click="openScenarioTab(record, true)"
         >
           {{ t('common.copy') }}
         </MsButton>
@@ -317,6 +317,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -349,6 +350,11 @@
     offspringIds: string[];
     readOnly?: boolean; // 是否是只读模式
   }>();
+  const emit = defineEmits<{
+    (e: 'openScenario', record: ApiScenarioTableItem, isCopy?: boolean): void;
+    (e: 'refreshModuleTree', params: any): void;
+  }>();
+
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusListFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]));
   const lastReportStatusFilters = computed(() => {
@@ -375,7 +381,6 @@
       text: 'P3',
     },
   ]);
-  const emit = defineEmits(['refreshModuleTree']);
   const keyword = ref('');
   const moveModalVisible = ref(false);
   const isBatchMove = ref(false); // 是否批量移动场景
@@ -869,6 +874,7 @@
       loadScenarioList(true);
       resetSelector();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       scenarioBatchOptTreeLoading.value = false;
@@ -933,8 +939,8 @@
     }
   }
 
-  function openScenarioTab(record: ApiScenarioTableItem) {
-    Message.info('// todo @ba1q1');
+  function openScenarioTab(record: ApiScenarioTableItem, isCopy = false) {
+    emit('openScenario', record, isCopy);
   }
 
   defineExpose({
