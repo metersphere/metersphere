@@ -2,30 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtScheduleMapper">
     <select id="taskCenterSchedulelist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO">
+    SELECT  task.* from (
         SELECT
         schedule.id,
         schedule.name as taskname,
         schedule.project_id,
+        'API_SCENARIO' as resource_type,
+        api_scenario.num as resource_num,
+        api_scenario.name as resource_name,
+        api_scenario.id as resource_id,
         schedule.value,
         schedule.enable,
-        schedule.resource_id,
-        schedule.resource_type,
         schedule.create_user AS createUserName,
         schedule.create_time
         FROM
         schedule
+        inner join api_scenario on schedule.resource_id = api_scenario.id
+
+        union all
+        SELECT
+        schedule.id,
+        schedule.name as taskname,
+        schedule.project_id,
+        'API_IMPORT' as resource_type,
+        ads.num as resource_num,
+        ads.name as resource_name,
+        ads.id as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserName,
+        schedule.create_time
+        FROM
+        schedule
+        inner join api_definition_swagger ads on schedule.resource_id = ads.id
+
+    ) task
         where
-        schedule.resource_type in
+        task.resource_type in
         <foreach collection="resourceTypes" item="resourceType" separator="," open="(" close=")">
             #{resourceType}
         </foreach>
-        and schedule.project_id IN
+        and task.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            schedule.name like concat('%', #{request.keyword},'%')
+            task.resource_name like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="taskCenterScheduleFilters">
@@ -39,7 +62,7 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='resourceType'">
-                            and schedule.resource_type in
+                            and task.resource_type in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
