@@ -314,7 +314,7 @@ export type ExecuteAssertionItem = ResponseAssertionCommon &
   ResponseVariableAssertion;
 // 执行请求-断言配置
 export interface ExecuteAssertionConfig {
-  enableGlobal: boolean; // 是否启用全局断言
+  enableGlobal?: boolean; // 是否启用全局断言，部分地方没有
   assertions: ExecuteAssertionItem[];
 }
 // 执行请求-共用配置子项

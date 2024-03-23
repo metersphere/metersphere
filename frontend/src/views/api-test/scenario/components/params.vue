@@ -42,21 +42,22 @@
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { CommonVariable } from '@/models/apiTest/scenario';
+
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     activeKey?: string;
-    params: any[];
+    params: CommonVariable[];
   }>();
   const emit = defineEmits<{
-    (e: 'update:params', value: any[]): void;
+    (e: 'update:params', value: CommonVariable[]): void;
     (e: 'change'): void; //  数据发生变化
   }>();
   const innerParams = useVModel(props, 'params', emit);
   const isShowTip = ref<boolean>(true);
   const { t } = useI18n();
-  const activeRadio = ref('convention');
   const searchValue = ref('');
   const firstSearch = ref(true);
   const backupParams = ref(props.params);

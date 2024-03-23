@@ -146,8 +146,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteAssertionConfig, ExecuteConditionProcessor } from '@/models/apiTest/common';
-  import { RequestConditionScriptLanguage, ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
+  import { ExecuteAssertionConfig } from '@/models/apiTest/common';
+  import { ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import { ExecuteAssertion, MsAssertionItem } from './type';
 
@@ -175,7 +175,6 @@
 
   const innerConfig = useVModel(props, 'assertionConfig', emit);
 
-  const activeIds = ref('');
   // Item点击的key
   const activeKey = ref<string>('');
   // 展示的value

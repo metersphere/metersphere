@@ -171,7 +171,7 @@
       readOnly: false,
     }
   );
-  const emit = defineEmits(['init', 'newScenario', 'import', 'folderNodeSelect', 'clickScenario', 'changeProtocol']);
+  const emit = defineEmits(['init', 'newScenario', 'import', 'folderNodeSelect', 'changeProtocol']);
 
   const appStore = useAppStore();
   const { t } = useI18n();

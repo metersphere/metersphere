@@ -857,6 +857,7 @@
       nextTick(() => {
         // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
         fApi.value?.resetFields();
+        isInitPluginForm.value = true;
       });
     }
   }
@@ -1136,7 +1137,9 @@
     }
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
-    debugSocket(executeType); // 开启websocket
+    if (isExecute) {
+      debugSocket(executeType); // 开启websocket
+    }
     let requestName = '';
     let requestModuleId = '';
     let apiDefinitionParams: Record<string, any> = {};

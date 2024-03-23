@@ -231,6 +231,11 @@ export enum ScenarioCreateComposition {
 // 接口场景详情组成部分
 export enum ScenarioDetailComposition {
   BASE_INFO = 'BASE_INFO',
+  STEP = 'STEP',
+  PARAMS = 'PARAMS',
+  PRE_POST = 'PRE_POST',
+  ASSERTION = 'ASSERTION',
+  SETTING = 'SETTING',
   EXECUTE_HISTORY = 'EXECUTE_HISTORY',
   CHANGE_HISTORY = 'CHANGE_HISTORY',
   DEPENDENCY = 'DEPENDENCY',
@@ -244,18 +249,6 @@ export enum ScenarioExecuteStatus {
 }
 // 场景步骤类型
 export enum ScenarioStepType {
-  QUOTE_API = 'QUOTE_API',
-  COPY_API = 'COPY_API',
-  QUOTE_CASE = 'QUOTE_CASE',
-  COPY_CASE = 'COPY_CASE',
-  QUOTE_SCENARIO = 'QUOTE_SCENARIO',
-  COPY_SCENARIO = 'COPY_SCENARIO',
-  WAIT_TIME = 'WAIT_TIME',
-  LOOP_CONTROL = 'LOOP_CONTROL',
-  CONDITION_CONTROL = 'CONDITION_CONTROL',
-  ONLY_ONCE_CONTROL = 'ONLY_ONCE_CONTROL',
-  SCRIPT_OPERATION = 'SCRIPT_OPERATION',
-  CUSTOM_API = 'CUSTOM_API',
   API_CASE = 'API_CASE', // 接口用例
   LOOP_CONTROLLER = 'LOOP_CONTROLLER', // 循环控制器
   API = 'API', // 接口定义
@@ -263,6 +256,14 @@ export enum ScenarioStepType {
   API_SCENARIO = ' API_SCENARIO', // 场景
   IF_CONTROLLER = 'IF_CONTROLLER', // 条件控制器
   ONCE_ONLY_CONTROLLER = 'ONCE_ONLY_CONTROLLER', // 一次控制器
+  CONSTANT_TIMER = 'CONSTANT_TIMER', // 等待控制器
+  SCRIPT = 'SCRIPT', // 脚本
+}
+export enum ScenarioStepRefType {
+  COPY = 'COPY', // 复制
+  DIRECT = 'DIRECT', // 在场景中直接创建的步骤 例如 自定义请求，逻辑控制器
+  PARTIAL_REF = 'PARTIAL_REF', // 部分引用
+  REF = 'REF', // 完全引用
 }
 // 场景添加步骤操作类型
 export enum ScenarioAddStepActionType {
@@ -292,4 +293,26 @@ export enum ChangeHistoryStatusFilters {
   UPDATE = 'UPDATE',
   IMPORT = 'IMPORT',
   DELETE = 'DELETE',
+}
+// 场景步骤-循环控制器类型
+export enum ScenarioStepLoopTypeEnum {
+  WHILE = 'WHILE',
+  LOOP_COUNT = 'LOOP_COUNT',
+  FOREACH = 'FOREACH',
+}
+// 场景步骤-循环控制器-while循环类型
+export enum WhileConditionType {
+  CONDITION = 'CONDITION',
+  SCRIPT = 'SCRIPT',
+}
+export enum ScenarioStepPolymorphicName {
+  COMMON_SCRIPT = 'MsCommentScriptElement',
+  IF_CONTROLLER = 'MsIfController',
+  LOOP_CONTROLLER = 'MsLoopController',
+  ONLY_ONCE = 'MsOnceOnlyController',
+  TIME_CONTROLLER = 'MsConstantTimerController',
+}
+export enum ScenarioFailureStrategy {
+  CONTINUE = 'CONTINUE',
+  STOP = 'STOP',
 }
