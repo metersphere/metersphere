@@ -427,7 +427,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertNotNull(shareInfoDTO.getShareUrl());
         Assertions.assertNotNull(shareInfoDTO.getId());
         String shareId = shareInfoDTO.getId();
-        MvcResult mvcResult1 = this.requestGetWithOk(GET + shareId + "/" + "test-report-id")
+        MvcResult mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-report-id")
                 .andReturn();
         ApiReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -440,7 +440,7 @@ public class ApiReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mvcResult = this.requestGetWithOk(DETAIL + shareId + "/" + "test-report-id" + "/" + "test-report-step-id1")
+        mvcResult = this.requestGetWithOk(BASIC+ "/share/detail/" + shareId + "/" + "test-report-id" + "/" + "test-report-step-id1")
                 .andReturn();
         List<ApiReportDetailDTO> data = ApiDataUtils.parseArray(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiReportDetailDTO.class);
         Assertions.assertNotNull(data);
@@ -449,7 +449,7 @@ public class ApiReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(GET + shareId + "/" + "test-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
@@ -478,7 +478,7 @@ public class ApiReportControllerTests extends BaseTest {
             projectApplicationMapper.insert(projectApplication);
         }
 
-        mvcResult1 = this.requestGetWithOk(GET + shareId + "/" + "test-report-id")
+        mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-report-id")
                 .andReturn();
         apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -489,7 +489,7 @@ public class ApiReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(GET + shareId + "/" + "test-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
     }

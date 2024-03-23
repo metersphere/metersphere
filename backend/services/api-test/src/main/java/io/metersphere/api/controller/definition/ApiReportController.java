@@ -82,7 +82,7 @@ public class ApiReportController {
         return apiReportService.get(id);
     }
 
-    @GetMapping("/get/{shareId}/{reportId}")
+    @GetMapping("/share/{shareId}/{reportId}")
     @Operation(summary = "接口测试-接口报告-分享报告获取")
     public ApiReportDTO get(@PathVariable String shareId, @PathVariable String reportId) {
         ShareInfo shareInfo = apiReportShareService.checkResource(shareId);
@@ -99,7 +99,7 @@ public class ApiReportController {
         return apiReportService.getDetail(stepId, reportId);
     }
 
-    @GetMapping("/get/detail/{shareId}/{reportId}/{stepId}")
+    @GetMapping("/share/detail/{shareId}/{reportId}/{stepId}")
     public List<ApiReportDetailDTO> selectReportContent(@PathVariable String shareId,
                                                         @PathVariable String reportId,
                                                         @PathVariable String stepId) {

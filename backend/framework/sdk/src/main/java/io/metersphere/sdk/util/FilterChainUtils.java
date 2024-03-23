@@ -79,6 +79,11 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/templates/user_import_en.xlsx", "anon");
         filterChainDefinitionMap.put("/templates/user_import_cn.xlsx", "anon");
 
+        //分享报告接口
+        filterChainDefinitionMap.put("/api/report/case/share/**", "anon");
+        filterChainDefinitionMap.put("/api/report/scenario/share/**", "anon");
+        filterChainDefinitionMap.put("/api/report/share/get/**", "anon");
+
         return filterChainDefinitionMap;
     }
 
