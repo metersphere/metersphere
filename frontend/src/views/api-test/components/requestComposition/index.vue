@@ -468,7 +468,11 @@
         :rules="[{ required: true, message: t('case.caseNameRequired') }]"
         asterisk-position="end"
       >
-        <a-input v-model:model-value="saveCaseModalForm.name" :placeholder="t('case.caseNamePlaceholder')" />
+        <a-input
+          v-model:model-value="saveCaseModalForm.name"
+          :placeholder="t('case.caseNamePlaceholder')"
+          :max-length="255"
+        />
       </a-form-item>
       <a-form-item field="priority" :label="t('case.caseLevel')">
         <a-select v-model:model-value="saveCaseModalForm.priority" :options="casePriorityOptions"></a-select>
