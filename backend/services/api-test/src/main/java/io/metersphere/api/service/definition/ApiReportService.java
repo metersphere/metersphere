@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -205,6 +206,7 @@ public class ApiReportService {
         ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
         BeanUtils.copyBean(apiReportStepDTO, apiReportDTO);
         apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
+        apiReportStepDTO.setStepType(ApiExecuteResourceType.API_CASE.name());
         List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
         apiReportSteps.add(apiReportStepDTO);
         apiReportDTO.setChildren(apiReportSteps);
