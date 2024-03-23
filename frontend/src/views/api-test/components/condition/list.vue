@@ -5,6 +5,7 @@
     v-model:data="data"
     mode="static"
     item-key-field="id"
+    :disabled="props.disabled"
     :item-border="false"
     class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
     item-class="mb-[4px] bg-white !p-[4px_8px]"
@@ -47,7 +48,13 @@
       </div>
     </template>
     <template #itemRight="{ item }">
-      <a-switch v-model:model-value="item.enable" size="small" type="line" @change="() => emit('change')" />
+      <a-switch
+        v-model:model-value="item.enable"
+        :disabled="props.disabled"
+        size="small"
+        type="line"
+        @change="() => emit('change')"
+      />
     </template>
   </MsList>
 </template>
@@ -68,6 +75,7 @@
     list: ExecuteConditionProcessor[];
     activeId?: string | number;
     showAssociatedScene?: boolean;
+    disabled?: boolean;
     showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
   }>();
   const emit = defineEmits<{

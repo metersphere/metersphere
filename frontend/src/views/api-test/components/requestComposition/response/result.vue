@@ -246,4 +246,7 @@
   :deep(.arco-tabs-tab) {
     @apply leading-none;
   }
+  .no-content :deep(.arco-tabs-content) {
+    display: none;
+  }
 </style>

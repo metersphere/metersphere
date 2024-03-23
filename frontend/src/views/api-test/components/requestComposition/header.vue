@@ -1,6 +1,7 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <batchAddKeyVal
+      :disabled="props.disabled"
       :params="innerParams"
       :default-param-item="defaultHeaderParamsItem"
       no-param-type
@@ -9,6 +10,7 @@
   </div>
   <paramTable
     v-model:params="innerParams"
+    :disabled="props.disabled"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="scroll"
@@ -35,6 +37,7 @@
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:selectedKeys', value: string[]): void;

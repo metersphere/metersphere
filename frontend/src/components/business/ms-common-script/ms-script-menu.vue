@@ -13,6 +13,7 @@
 
       <a-select
         v-model="innerLanguageType"
+        :disabled="props.disabled"
         class="max-w-[50%]"
         :placeholder="t('project.commonScript.pleaseSelected')"
         @change="changeHandler"
@@ -54,6 +55,7 @@
 
   const props = defineProps<{
     expand: boolean;
+    disabled?: boolean;
     languagesType: Language;
   }>();
 
@@ -119,6 +121,7 @@
   }
 
   function handleClick(obj: CommonScriptMenu) {
+    if (props.disabled) return;
     let code = '';
     if (obj.command) {
       code = _handleCommand(obj.command);

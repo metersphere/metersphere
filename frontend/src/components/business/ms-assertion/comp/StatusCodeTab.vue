@@ -4,6 +4,7 @@
       <div class="mb-[8px]">{{ t('ms.assertion.statusCode') }}</div>
       <a-select
         v-model="condition.condition"
+        :disabled="props.disabled"
         class="w-[157px]"
         @change="
           emit('change', {
@@ -19,6 +20,7 @@
     <a-input
       v-if="showInput"
       v-model="condition.expectedValue"
+      :disabled="props.disabled"
       hide-button
       class="w-[157px]"
       @change="
@@ -49,6 +51,7 @@
 
   const props = defineProps<{
     data: Param;
+    disabled?: boolean;
   }>();
 
   const emit = defineEmits<{

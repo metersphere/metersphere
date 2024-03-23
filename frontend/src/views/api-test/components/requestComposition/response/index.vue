@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full min-w-[300px] flex-col">
+  <div class="response flex h-full min-w-[300px] flex-col">
     <div :class="['response-head', props.isExpanded ? '' : 'border-t']">
       <div class="flex items-center justify-between">
         <template v-if="props.activeLayout === 'vertical'">

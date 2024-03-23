@@ -1,6 +1,6 @@
 <template>
-  <a-dropdown v-model:popup-visible="dropdownVisible" position="tl" trigger="click">
-    <a-button size="mini" type="outline">
+  <a-dropdown v-model:popup-visible="dropdownVisible" :disabled="props.disabled" position="tl" trigger="click">
+    <a-button :disabled="props.disabled" size="mini" type="outline">
       <template #icon> <icon-upload class="text-[14px] !text-[rgb(var(--primary-5))]" /> </template>
     </a-button>
     <template #content>
@@ -39,6 +39,10 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  const props = defineProps<{
+    disabled?: boolean;
+  }>();
 
   const emit = defineEmits<{
     (e: 'upload', file: File): void;

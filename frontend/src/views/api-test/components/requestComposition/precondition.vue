@@ -1,12 +1,18 @@
 <template>
   <condition
     v-model:list="innerConfig.processors"
+    :disabled="props.disabled"
     :condition-types="conditionTypes"
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
   >
     <template v-if="props.isDefinition" #titleRight>
-      <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line"></a-switch>
+      <a-switch
+        v-model:model-value="innerConfig.enableGlobal"
+        :disabled="props.disabled"
+        size="small"
+        type="line"
+      ></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPrecondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPreconditionTip')" position="left">
         <icon-question-circle
@@ -31,6 +37,7 @@
   const props = defineProps<{
     config: ExecuteConditionConfig;
     isDefinition?: boolean; // 是否是定义页面
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:config', params: ExecuteConditionConfig): void;

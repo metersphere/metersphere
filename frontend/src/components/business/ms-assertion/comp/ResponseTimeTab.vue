@@ -6,6 +6,7 @@
     </div>
     <a-input-number
       v-model="condition.expectedValue"
+      :disabled="props.disabled"
       :step="100"
       :min="0"
       mode="button"
@@ -29,6 +30,7 @@
 
   const props = defineProps<{
     data: ExecuteAssertion;
+    disabled?: boolean;
   }>();
 
   const emit = defineEmits<{

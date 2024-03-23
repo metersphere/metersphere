@@ -1,8 +1,8 @@
 <template>
   <div class="ms-assertion">
     <div class="mb-[8px] flex items-center justify-between">
-      <a-dropdown trigger="hover" @select="handleSelect">
-        <a-button class="w-[84px]" type="outline">
+      <a-dropdown trigger="hover" :disabled="props.disabled" @select="handleSelect">
+        <a-button class="w-[84px]" type="outline" :disabled="props.disabled">
           <div class="flex flex-row items-center gap-[8px]">
             <icon-plus />
             <span>{{ t('ms.assertion.button') }}</span>
@@ -15,7 +15,7 @@
         </template>
       </a-dropdown>
       <div v-if="props.isDefinition && innerConfig" class="flex items-center">
-        <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line" />
+        <a-switch v-model:model-value="innerConfig.enableGlobal" :disabled="props.disabled" size="small" type="line" />
         <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('ms.assertion.openGlobal') }}</div>
         <a-tooltip :content="t('ms.assertion.openGlobalTip')" position="left">
           <icon-question-circle
@@ -71,7 +71,7 @@
                 </MsTableMoreAction>
               </div>
 
-              <a-switch v-model:model-value="item.enable" type="line" size="small" />
+              <a-switch v-model:model-value="item.enable" :disabled="props.disabled" type="line" size="small" />
             </div>
           </div>
         </VueDraggable>
@@ -81,18 +81,21 @@
         <ResponseHeaderTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 状态码 -->
         <StatusCodeTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 响应体 -->
         <ResponseBodyTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           :response="props.response"
           @change="handleChange"
         />
@@ -100,18 +103,21 @@
         <ResponseTimeTab
           v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 变量 -->
         <VariableTab
           v-if="valueKey === ResponseAssertionType.VARIABLE"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 脚本 -->
         <ScriptTab
           v-if="valueKey === ResponseAssertionType.SCRIPT"
           v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- </a-scrollbar> -->
@@ -159,6 +165,7 @@
     isDefinition?: boolean; // 是否是定义页面
     assertionConfig?: ExecuteAssertionConfig; // 是否开启全局
     response?: string; // 响应内容
+    disabled?: boolean;
   }>();
 
   const emit = defineEmits<{

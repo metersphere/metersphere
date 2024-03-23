@@ -1,5 +1,5 @@
 <template>
-  <a-button type="outline" size="mini" @click="showBatchAddParamDrawer = true">
+  <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
     {{ t('apiTestDebug.batchAdd') }}
   </a-button>
   <MsDrawer
@@ -54,6 +54,7 @@
       defaultParamItem?: Record<string, any>; // 默认参数项
       noParamType?: boolean; // 是否有参数类型
       addTypeText?: string; // 添加类型文案
+      disabled?: boolean;
     }>(),
     {
       noParamType: false,

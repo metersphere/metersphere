@@ -88,7 +88,12 @@
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
                   {{ condition.name }}
                 </div>
-                <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
+                <MsIcon
+                  v-show="!props.disabled"
+                  type="icon-icon_edit_outlined"
+                  class="edit-script-name-icon"
+                  @click="showEditScriptNameInput"
+                />
               </div>
             </a-tooltip>
             <a-popover class="h-auto" position="right">
@@ -127,6 +132,7 @@
           <div class="flex items-center gap-[8px]">
             <a-button
               v-if="props.isFormat"
+              :disabled="props.disabled"
               type="outline"
               class="arco-btn-outline--secondary p-[0_8px]"
               size="mini"
@@ -137,13 +143,25 @@
               </template>
               {{ t('project.commonScript.formatting') }}
             </a-button>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="undoScript">
+            <a-button
+              :disabled="props.disabled"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="undoScript"
+            >
               <template #icon>
                 <MsIcon type="icon-icon_undo_outlined" class="text-var(--color-text-4)" size="12" />
               </template>
               {{ t('common.revoke') }}
             </a-button>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="clearScript">
+            <a-button
+              :disabled="props.disabled"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="clearScript"
+            >
               <template #icon>
                 <MsIcon type="icon-icon_clear" class="text-var(--color-text-4)" size="12" />
               </template>
@@ -151,6 +169,7 @@
             </a-button>
             <a-button
               v-if="!props.isBuildIn && !props.showPrePostRequest"
+              :disabled="props.disabled"
               type="outline"
               class="arco-btn-outline--secondary p-[0_8px]"
               size="mini"
@@ -160,6 +179,7 @@
             </a-button>
             <a-button
               v-if="!props.isBuildIn"
+              :disabled="props.disabled"
               type="outline"
               class="arco-btn-outline--secondary p-[0_8px]"
               size="mini"
@@ -175,6 +195,7 @@
             ref="scriptDefinedRef"
             v-model:code="condition.script"
             v-model:language="condition.scriptLanguage"
+            :disabled="props.disabled"
             show-type="commonScript"
             :show-header="false"
           />
@@ -248,6 +269,7 @@
       <div class="mb-[16px] h-[300px]">
         <MsCodeEditor
           v-model:model-value="condition.script"
+          :read-only="props.disabled"
           theme="vs"
           height="276px"
           :language="LanguageEnum.SQL"
@@ -310,6 +332,7 @@
       </div>
       <a-input-number
         v-model:model-value="condition.delay"
+        :disabled="props.disabled"
         mode="button"
         :step="100"
         :min="0"
@@ -467,6 +490,7 @@
   const props = withDefaults(
     defineProps<{
       data: ExecuteConditionProcessor;
+      disabled?: boolean;
       response?: string; // 响应内容
       heightUsed?: number;
       isBuildIn?: boolean; // 是否是内置的条件

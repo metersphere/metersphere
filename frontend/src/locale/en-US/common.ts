@@ -142,5 +142,6 @@ export default {
   'common.batchDebug': 'Batch debug',
   'common.quote': 'Quote',
   'common.notQuote': 'Not quote',
-  'common.execute': '执行',
+  'common.execute': 'execute',
+  'common.replace': 'replace',
 };

@@ -1,6 +1,6 @@
 <template>
   <a-dropdown-button
-    v-if="!caseDetail.executeLoading"
+    v-if="!caseDetail?.executeLoading && !props.executeLoading"
     v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
     class="exec-btn"
     @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
@@ -36,17 +36,24 @@
   import { defaultResponse } from '@/views/api-test/components/config';
 
   const props = defineProps<{
-    environmentId: string;
+    environmentId?: string;
     request?: (...args) => Record<string, any>;
     isCaseDetail?: boolean;
     executeCase?: boolean;
+    executeLoading?: boolean;
+    isEmit?: boolean;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'execute', executeType?: 'localExec' | 'serverExec'): void;
+    (e: 'stopDebug'): void;
   }>();
 
   const { t } = useI18n();
   const appStore = useAppStore();
 
   const caseDetail = defineModel<RequestParam>('detail', {
-    required: true,
+    required: false,
   });
 
   const apiLocalExec = inject<Ref<LocalConfig>>('apiLocalExec');
@@ -66,6 +73,7 @@
       executeType === 'localExec' ? localExecuteUrl.value : ''
     );
     websocket.value.addEventListener('message', (event) => {
+      if (!caseDetail.value || props.isEmit) return;
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
         if (caseDetail.value.reportId === data.reportId) {
@@ -85,6 +93,10 @@
   }
 
   async function execute(executeType?: 'localExec' | 'serverExec') {
+    if (!caseDetail.value || props.isEmit) {
+      emit('execute', executeType);
+      return;
+    }
     try {
       caseDetail.value.executeLoading = true;
       caseDetail.value.response = cloneDeep(defaultResponse);
@@ -129,6 +141,10 @@
   }
 
   function stopDebug() {
+    if (!caseDetail.value || props.isEmit) {
+      emit('stopDebug');
+      return;
+    }
     websocket.value?.close();
     caseDetail.value.executeLoading = false;
   }
@@ -146,6 +162,7 @@
   defineExpose({
     isPriorityLocalExec,
     execute,
+    localExecuteUrl,
   });
 </script>
 

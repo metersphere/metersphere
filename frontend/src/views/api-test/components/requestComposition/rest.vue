@@ -11,6 +11,7 @@
     </div>
     <batchAddKeyVal
       :params="innerParams"
+      :disabled="props.disabled"
       :default-param-item="defaultRequestParamsItem"
       @apply="handleBatchParamApply"
     />
@@ -18,6 +19,7 @@
   <paramTable
     :params="innerParams"
     :columns="columns"
+    :disabled="props.disabled"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
     :default-param-item="defaultRequestParamsItem"
@@ -43,6 +45,7 @@
     params: ExecuteRequestCommonParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;

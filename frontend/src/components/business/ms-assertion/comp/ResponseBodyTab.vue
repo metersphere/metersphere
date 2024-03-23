@@ -12,6 +12,7 @@
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.jsonPathAssertion.assertions"
+        :disabled="props.disabled"
         :selectable="false"
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
@@ -37,6 +38,7 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
+              :disabled="props.disabled"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -48,10 +50,13 @@
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
                   <MsIcon
+                    :disabled="props.disabled"
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
+                      disabledExpressionSuffix || props.disabled
+                        ? 'ms-params-input-suffix-icon--disabled'
+                        : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
                   />
@@ -95,6 +100,7 @@
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.xpathAssertion.assertions"
+        :disabled="props.disabled"
         :selectable="false"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
@@ -118,6 +124,7 @@
             </template>
             <a-input
               v-model:model-value="record.expression"
+              :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
               @input="() => handleExpressionChange(rowIndex)"
@@ -132,9 +139,12 @@
                   </template>
                   <MsIcon
                     type="icon-icon_flashlamp"
+                    :disabled="props.disabled"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
+                      disabledExpressionSuffix || props.disabled
+                        ? 'ms-params-input-suffix-icon--disabled'
+                        : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.X_PATH)"
                   />
@@ -178,13 +188,14 @@
         <a-radio value="XML">XML</a-radio>
       </a-radio-group>
       <div class="mt-[16px]">
-        <a-checkbox v-model:model-value="condition.document.followApi">
+        <a-checkbox v-model:model-value="condition.document.followApi" :disabled="props.disabled">
           <span class="text-[var(--color-text-1)]">{{ t('ms.assertion.followApi') }}</span>
         </a-checkbox>
       </div>
       <div class="mt-[16px]">
         <paramsTable
           v-model:params="condition.document.jsonAssertion"
+          :disabled="props.disabled"
           :selectable="false"
           :columns="documentColumns"
           :scroll="{
@@ -202,6 +213,7 @@
               v-if="showDeleteSingle && (record.rowSpan > 1 || record.groupId)"
               class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
               size="20"
+              :disabled="props.disabled"
               @click="deleteSingleParam(record)"
             />
           </template>
@@ -236,6 +248,7 @@
         ref="extractParamsTableRef"
         v-model:params="condition.regexAssertion.assertions"
         :selectable="false"
+        :disabled="props.disabled"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
@@ -258,6 +271,7 @@
             </template>
             <a-input
               v-model:model-value="record.expression"
+              :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
               @input="() => handleExpressionChange(rowIndex)"
@@ -273,8 +287,11 @@
                   <MsIcon
                     type="icon-icon_flashlamp"
                     :size="15"
+                    :disabled="props.disabled"
                     :class="
-                      disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
+                      disabledExpressionSuffix || props.disabled
+                        ? 'ms-params-input-suffix-icon--disabled'
+                        : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.REGEX)"
                   />
@@ -379,6 +396,7 @@
   const props = defineProps<{
     data: Param;
     response?: string;
+    disabled?: boolean;
   }>();
   const activeTab = ref(ResponseBodyAssertionType.JSON_PATH);
   const activeResponseFormat = ref('XML');
@@ -765,6 +783,7 @@
   function deleteListItem(id: string | number) {}
 
   function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
+    if (props.disabled) return;
     activeRecord.value = { ...record, extractType: type };
     fastExtractionVisible.value = true;
   }

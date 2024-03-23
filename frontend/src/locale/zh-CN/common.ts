@@ -144,4 +144,5 @@ export default {
   'common.quote': '引用',
   'common.notQuote': '不引用',
   'common.execute': '执行',
+  'common.replace': '替换',
 };

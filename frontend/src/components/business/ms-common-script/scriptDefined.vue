@@ -29,7 +29,7 @@
         height="460px"
         theme="vs"
         :language="innerLanguagesType"
-        :read-only="false"
+        :read-only="props.disabled"
         :show-full-screen="false"
         :show-theme-change="false"
       >
@@ -37,6 +37,7 @@
           <MsScriptMenu
             v-model:expand="expandMenu"
             v-model:languagesType="innerLanguagesType"
+            :disabled="props.disabled"
             @insert="insertHandler"
             @form-api-import="formApiImport"
             @insert-common-script="insertCommonScript"
@@ -91,6 +92,7 @@
   const props = withDefaults(
     defineProps<{
       showType: 'commonScript' | 'executionResult'; // 执行类型
+      disabled?: boolean;
       language: Language;
       code: string;
       enableRadioSelected?: boolean;

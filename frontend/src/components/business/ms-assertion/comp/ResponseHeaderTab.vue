@@ -6,6 +6,7 @@
       :columns="columns"
       :scroll="{ minWidth: '700px' }"
       :default-param-item="defaultParamItem"
+      :disabled="props.disabled"
       @change="handleParamTableChange"
     />
   </div>
@@ -28,6 +29,7 @@
 
   const props = defineProps<{
     data: Param;
+    disabled?: boolean;
   }>();
 
   const emit = defineEmits<{

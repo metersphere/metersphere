@@ -1,7 +1,7 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <a-dropdown @select="(val) => addCondition(val as ConditionType)">
-      <a-button type="outline">
+      <a-button type="outline" :disabled="props.disabled">
         <template #icon>
           <icon-plus :size="14" />
         </template>
@@ -21,6 +21,7 @@
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
         v-model:list="data"
+        :disabled="props.disabled"
         :active-id="activeItem.id"
         :show-associated-scene="props.showAssociatedScene"
         :show-pre-post-request="props.showPrePostRequest"
@@ -30,6 +31,7 @@
     </div>
     <conditionContent
       v-model:data="activeItem"
+      :disabled="props.disabled"
       :total-list="data"
       :response="props.response"
       :height-used="props.heightUsed"
@@ -56,6 +58,7 @@
 
   const props = withDefaults(
     defineProps<{
+      disabled?: boolean;
       list: ExecuteConditionProcessor[];
       conditionTypes: Array<ConditionType>;
       addText: string;

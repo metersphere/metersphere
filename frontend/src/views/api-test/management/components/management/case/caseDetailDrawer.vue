@@ -8,18 +8,18 @@
     no-content-padding
   >
     <template #tbutton>
-      <div class="flex items-center gap-[4px]">
+      <div class="right-operation-button-icon flex items-center gap-[4px]">
         <MsButton
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
           type="icon"
           status="secondary"
           @click="caseDerailRef?.editCase()"
         >
-          <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
+          <MsIcon type="icon-icon_edit_outlined" />
           {{ t('common.edit') }}
         </MsButton>
         <MsButton type="icon" status="secondary" @click="caseDerailRef?.share()">
-          <MsIcon type="icon-icon_share1" class="mr-[8px]" />
+          <MsIcon type="icon-icon_share1" />
           {{ t('common.share') }}
         </MsButton>
         <MsButton
@@ -30,7 +30,6 @@
         >
           <MsIcon
             :type="props.detail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-            class="mr-[8px]"
             :class="[props.detail.follow ? 'text-[rgb(var(--warning-6))]' : '']"
           />
           {{ t('common.fork') }}
@@ -38,7 +37,7 @@
         <MsButton type="icon" status="secondary">
           <a-dropdown position="br" @select="handleSelect">
             <div>
-              <icon-more class="mr-[8px]" />
+              <icon-more />
               <span> {{ t('common.more') }}</span>
             </div>
             <template #content>
