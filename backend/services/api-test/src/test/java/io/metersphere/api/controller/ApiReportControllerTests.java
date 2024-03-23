@@ -298,6 +298,14 @@ public class ApiReportControllerTests extends BaseTest {
 
         Assertions.assertNotNull(apiReportDTO);
         Assertions.assertEquals(apiReportDTO.getId(), "test-report-id");
+        ApiReport apiReport1 = apiReportMapper.selectByPrimaryKey("test-report-id");
+        apiReport1.setEnvironmentId(null);
+        apiReport1.setPoolId(null);
+        apiReportMapper.updateByPrimaryKeySelective(apiReport1);
+        this.requestGetWithOk(GET + "test-report-id");
+        apiReport1.setEnvironmentId("env_id");
+        apiReportMapper.updateByPrimaryKeySelective(apiReport1);
+        this.requestGetWithOk(GET + "test-report-id");
 
         reports = new ArrayList<>();
         apiReport = new ApiReport();
