@@ -144,6 +144,9 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
+    resultArr.forEach((item) => {
+      item.paramType = 'CONSTANT';
+    });
     if (resultArr.length < innerParams.value.length) {
       innerParams.value.splice(0, innerParams.value.length - 1, ...resultArr);
     } else {
