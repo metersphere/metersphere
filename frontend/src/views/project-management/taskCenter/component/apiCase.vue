@@ -63,9 +63,9 @@
           @click="stop(record)"
           >{{ t('project.taskCenter.stop') }}</MsButton
         >
-        <a-divider v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
+        <!--        <a-divider v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton class="!mr-0" @click="execution(record)">{{ t('project.taskCenter.execution') }}</MsButton>
-        <a-divider direction="vertical" />
+        <a-divider direction="vertical" />-->
         <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
       </template>
     </ms-base-table>
@@ -248,10 +248,10 @@
         label: 'project.taskCenter.batchStop',
         eventTag: 'batchStop',
       },
-      {
-        label: 'project.taskCenter.batchExecution',
-        eventTag: 'batchExecution',
-      },
+      // {
+      // label: 'project.taskCenter.batchExecution',
+      // eventTag: 'batchExecution',
+      // },
     ],
   };
   const batchParams = ref<BatchApiParams>({
