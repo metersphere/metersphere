@@ -2,10 +2,8 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
-import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,39 +121,11 @@ public class TaskCenterService {
 
 
             list.forEach(item -> {
-                String resourceId = item.getResourceId();
-                if (ScheduleTagType.TEST_RESOURCE.toString().equals(scheduleTagType)) {
-                    processTaskCenterScheduleData(list, resourceId, item);
-                }
                 item.setCreateUserName(userMap.getOrDefault(item.getCreateUserName(), StringUtils.EMPTY));
                 item.setProjectName(projectMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setNextTime(getNextTriggerTime(item.getValue()));
             });
-        }
-    }
-
-    private void processTaskCenterScheduleData (List<TaskCenterScheduleDTO> list, String resourceId, TaskCenterScheduleDTO taskCenterScheduleDTO) {
-        // 业务数据
-        // 根据 resourceType 分组，并获取每个类型对应的 resourceId 数组
-        Map<String, List<String>> resultMap = list.stream()
-                .collect(Collectors.groupingBy(TaskCenterScheduleDTO::getResourceType,
-                        Collectors.mapping(TaskCenterScheduleDTO::getResourceId, Collectors.toList())));
-        Map<String, ApiScenario> apiScenarioMap = new HashMap<>();
-        resultMap.forEach((type, resourceIds) ->{
-            if (type.equals(ScheduleResourceType.API_SCENARIO.toString())) {
-                List<ApiScenario> apiScenarios = extScheduleMapper.getApiScenarioListByIds(resourceIds);
-                apiScenarioMap.putAll(apiScenarios.stream().collect(Collectors.toMap(ApiScenario::getId, Function.identity())));
-            }
-        });
-
-        // TODO ui test load test ...
-        if (apiScenarioMap.containsKey(resourceId)) {
-            ApiScenario apiScenario = apiScenarioMap.get(resourceId);
-            taskCenterScheduleDTO.setResourceName(apiScenario.getName());
-            taskCenterScheduleDTO.setResourceNum(apiScenario.getNum());
-        } else {
-            taskCenterScheduleDTO.setResourceName(StringUtils.EMPTY);
         }
     }
 
