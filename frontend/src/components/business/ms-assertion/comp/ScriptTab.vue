@@ -6,7 +6,7 @@
         height: 'calc(100vh - 490px)',
       }"
     >
-      <conditionContent v-model:data="condition" is-build-in @change="handleChange" />
+      <conditionContent v-model:data="condition" :disabled="disabled" is-build-in @change="handleChange" />
     </a-scrollbar>
   </div>
 </template>
@@ -26,6 +26,7 @@
 
   interface ScriptTabProps {
     data: any;
+    disabled?: boolean;
   }
 
   const props = defineProps<ScriptTabProps>();

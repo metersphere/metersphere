@@ -32,7 +32,7 @@
             <slot name="tbutton"></slot>
           </div>
         </slot>
-        <div>
+        <div class="right-operation-button-icon">
           <MsButton
             v-if="props.showFullScreen"
             type="icon"
@@ -268,16 +268,16 @@
         @apply w-full;
 
         line-height: 24px;
-        .ms-drawer-fullscreen-btn {
+        .right-operation-button-icon .ms-button-icon {
           border-radius: var(--border-radius-small);
           color: var(--color-text-1);
-          .ms-drawer-fullscreen-btn-icon {
+          .arco-icon {
             margin-right: 8px;
             color: var(--color-text-1);
           }
           &:hover {
             color: rgb(var(--primary-5));
-            .ms-drawer-fullscreen-btn-icon {
+            .arco-icon {
               color: rgb(var(--primary-5));
             }
           }

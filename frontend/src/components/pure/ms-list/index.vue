@@ -23,9 +23,11 @@
             <slot name="title" :item="item" :index="index"></slot>
           </div>
           <div class="flex items-center gap-[4px]">
-            <icon-drag-dot-vertical v-if="props.draggable" class="ms-list-drag-icon" />
+            <icon-drag-dot-vertical v-if="props.draggable && !props.disabled" class="ms-list-drag-icon" />
             <div
-              v-if="$slots['itemAction'] || (props.itemMoreActions && props.itemMoreActions.length > 0)"
+              v-if="
+                $slots['itemAction'] || (props.itemMoreActions && props.itemMoreActions.length > 0 && !props.disabled)
+              "
               class="ms-list-item-actions"
             >
               <slot name="itemAction" :item="item" :index="index"></slot>
@@ -98,6 +100,7 @@
       itemClass?: string;
       activeItemClass?: string;
       draggable?: boolean;
+      disabled?: boolean;
       virtualListProps?: VirtualListProps;
     }>(),
     {

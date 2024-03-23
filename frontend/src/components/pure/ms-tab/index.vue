@@ -1,5 +1,5 @@
 <template>
-  <a-tabs v-model:active-key="innerActiveKey" :class="props.class">
+  <a-tabs v-model:active-key="innerActiveKey" :class="[props.class, props.noContent ? 'no-content' : '']">
     <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="item.label">
       <template #title>
         <a-badge
@@ -27,6 +27,7 @@
       contentTabList: { label: string; value: string }[];
       class?: string;
       getTextFunc?: (value: any) => string;
+      noContent?: boolean;
     }>(),
     {
       getTextFunc: (value: any) => value,
@@ -53,6 +54,11 @@
     .arco-badge-text,
     .arco-badge-number {
       background-color: rgb(var(--primary-5));
+    }
+  }
+  .no-content {
+    :deep(.arco-tabs-content) {
+      display: none;
     }
   }
 </style>

@@ -195,6 +195,11 @@
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
     />
+    <customCaseDrawer
+      v-model:visible="customCaseDrawerVisible"
+      :active-step="activeStep"
+      :request="currentStepDetail"
+    />
     <importApiDrawer
       v-if="importApiDrawerVisible"
       v-model:visible="importApiDrawerVisible"
@@ -283,6 +288,7 @@
   // 非首屏渲染必要组件，异步加载
   const MsCodeEditor = defineAsyncComponent(() => import('@/components/pure/ms-code-editor/index.vue'));
   const customApiDrawer = defineAsyncComponent(() => import('../common/customApiDrawer.vue'));
+  const customCaseDrawer = defineAsyncComponent(() => import('../common/customCaseDrawer.vue'));
   const importApiDrawer = defineAsyncComponent(() => import('../common/importApiDrawer/index.vue'));
   const scriptOperationDrawer = defineAsyncComponent(() => import('../common/scriptOperationDrawer.vue'));
 
@@ -577,6 +583,7 @@
   }
 
   const importApiDrawerVisible = ref(false);
+  const customCaseDrawerVisible = ref(false);
   const customApiDrawerVisible = ref(false);
   const scriptOperationDrawerVisible = ref(false);
   const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
@@ -604,6 +611,9 @@
     if ([ScenarioStepType.CUSTOM_API, ScenarioStepType.QUOTE_API, ScenarioStepType.COPY_API].includes(step.type)) {
       activeStep.value = step;
       customApiDrawerVisible.value = true;
+    } else if ([ScenarioStepType.QUOTE_CASE, ScenarioStepType.COPY_CASE].includes(step.type)) {
+      activeStep.value = step;
+      customCaseDrawerVisible.value = true;
     } else if (step.type === ScenarioStepType.SCRIPT_OPERATION) {
       activeStep.value = step;
       scriptOperationDrawerVisible.value = true;

@@ -11,6 +11,7 @@
           </template>
           <a-input-number
             v-model:model-value="settingForm.connectTimeout"
+            :disabled="props.disabled"
             mode="button"
             :step="100"
             :min="0"
@@ -26,6 +27,7 @@
           </template>
           <a-input-number
             v-model:model-value="settingForm.responseTimeout"
+            :disabled="props.disabled"
             mode="button"
             :step="100"
             :min="0"
@@ -44,6 +46,7 @@
       <a-form-item :label="t('apiTestDebug.redirect')">
         <a-checkbox
           v-model:model-value="settingForm.followRedirects"
+          :disabled="props.disabled"
           @change="(val) => handleFollowRedirectsChange(val as boolean)"
         >
           {{ t('apiTestDebug.follow') }}
@@ -51,6 +54,7 @@
         <a-checkbox
           v-model:model-value="settingForm.autoRedirects"
           class="ml-[24px]"
+          :disabled="props.disabled"
           @change="val => handleAutoRedirectsChange(val as boolean)"
         >
           {{ t('apiTestDebug.auto') }}
@@ -69,6 +73,7 @@
 
   const props = defineProps<{
     params: ExecuteOtherConfig;
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', val: ExecuteOtherConfig): void;

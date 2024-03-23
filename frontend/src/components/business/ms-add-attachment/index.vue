@@ -3,8 +3,13 @@
     <!-- TODO:跟下面统一样式 -->
     <div class="flex flex-col">
       <div class="mb-1">
-        <a-dropdown v-model:popup-visible="buttonDropDownVisible" position="tr" trigger="click">
-          <a-button type="outline">
+        <a-dropdown
+          v-model:popup-visible="buttonDropDownVisible"
+          :disabled="props.disabled"
+          position="tr"
+          trigger="click"
+        >
+          <a-button :disabled="props.disabled" type="outline">
             <template #icon> <icon-plus class="text-[14px]" /> </template>
             {{ t('system.orgTemplate.addAttachment') }}
           </a-button>
@@ -65,6 +70,7 @@
       >
         <MsTagsInput
           v-model:model-value="inputFiles"
+          :disabled="props.disabled"
           :input-class="props.inputClass"
           placeholder=" "
           :max-tag-count="1"
@@ -151,9 +157,10 @@
       </a-popover>
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
-      <dropdownMenu @link-file="associatedFile" @change="handleChange" />
+      <dropdownMenu :disabled="props.disabled" @link-file="associatedFile" @change="handleChange" />
       <a-input
         v-model:model-value="inputFileName"
+        :disabled="props.disabled"
         :class="props.inputClass"
         :size="props.inputSize"
         allow-clear
@@ -198,6 +205,7 @@
 
   const props = withDefaults(
     defineProps<{
+      disabled?: boolean;
       mode?: 'button' | 'input';
       multiple?: boolean;
       inputClass?: string;

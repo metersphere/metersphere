@@ -12,6 +12,7 @@
       ref="inputRef"
       v-model:model-value="innerValue"
       :max-length="255"
+      :disabled="props.disabled"
       :size="props.size"
       :placeholder="t('ms.paramsInput.commonPlaceholder')"
       class="ms-form-table-input"
@@ -29,6 +30,7 @@
 
   const props = defineProps<{
     desc: string;
+    disabled?: boolean;
     size?: 'small' | 'large' | 'medium' | 'mini';
   }>();
   const emit = defineEmits<{

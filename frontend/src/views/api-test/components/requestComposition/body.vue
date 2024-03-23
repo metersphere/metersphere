@@ -12,6 +12,7 @@
     </a-radio-group>
     <batchAddKeyVal
       v-if="showParamTable"
+      :disabled="props.disabled"
       :params="currentTableParams"
       :default-param-item="defaultBodyParamsItem"
       @apply="handleBatchParamApply"
@@ -25,6 +26,7 @@
   </div>
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.FORM_DATA"
+    :disabled="props.disabled"
     :params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
@@ -40,6 +42,7 @@
   />
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.WWW_FORM"
+    :disabled="props.disabled"
     :params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
@@ -53,11 +56,13 @@
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
       <a-input
         v-model:model-value="innerParams.binaryBody.description"
+        :disabled="props.disabled"
         :placeholder="t('common.desc')"
         :max-length="255"
       />
       <MsAddAttachment
         v-model:file-list="fileList"
+        :disabled="props.disabled"
         mode="input"
         :multiple="false"
         :fields="{
@@ -85,6 +90,7 @@
   <div v-else class="flex h-[calc(100%-34px)]">
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
+      :read-only="props.disabled"
       class="flex-1"
       theme="vs"
       height="100%"
@@ -121,6 +127,7 @@
   const props = defineProps<{
     params: ExecuteBody;
     layout: 'horizontal' | 'vertical';
+    disabled?: boolean;
     secondBoxHeight: number;
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
