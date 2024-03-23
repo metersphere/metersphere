@@ -327,6 +327,15 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertNotNull(apiReportDTO);
         Assertions.assertEquals(apiReportDTO.getId(), "test-scenario-report-id");
 
+        ApiScenarioReport scenarioReport1 = apiScenarioReportMapper.selectByPrimaryKey("test-scenario-report-id");
+        scenarioReport1.setEnvironmentId(null);
+        scenarioReport1.setPoolId(null);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport1);
+        this.requestGetWithOk(GET + "test-scenario-report-id");
+        scenarioReport1.setEnvironmentId("env_id");
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport1);
+        this.requestGetWithOk(GET + "test-scenario-report-id");
+
         mockMvc.perform(getRequestBuilder(GET + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());

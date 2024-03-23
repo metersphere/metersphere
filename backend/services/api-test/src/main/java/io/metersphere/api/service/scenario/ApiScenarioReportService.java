@@ -11,6 +11,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -199,7 +200,12 @@ public class ApiScenarioReportService {
         //查询资源池名称
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
         //查询环境名称
-        scenarioReportDTO.setEnvironmentName(StringUtils.isNotBlank(scenarioReport.getEnvironmentId()) ? environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId()).getName(): null);
+        if (StringUtils.isNotBlank(scenarioReport.getEnvironmentId())) {
+            Environment environment = environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId());
+            if (environment != null) {
+                scenarioReportDTO.setEnvironmentName(environment.getName());
+            }
+        }
         scenarioReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(scenarioReport.getCreateUser()).getName());
         return scenarioReportDTO;
     }

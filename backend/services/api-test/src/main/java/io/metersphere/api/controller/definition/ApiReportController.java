@@ -94,9 +94,9 @@ public class ApiReportController {
     @Operation(summary = "接口测试-接口报告-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_report")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE}, logical = Logical.OR)
-    public List<ApiReportDetailDTO> getDetail(@PathVariable String stepId,
-                                              @PathVariable String reportId) {
-        return apiReportService.getDetail(stepId, reportId);
+    public List<ApiReportDetailDTO> getDetail(@PathVariable String reportId,
+                                              @PathVariable String stepId) {
+        return apiReportService.getDetail(reportId, stepId);
     }
 
     @GetMapping("/share/detail/{shareId}/{reportId}/{stepId}")
@@ -105,7 +105,7 @@ public class ApiReportController {
                                                         @PathVariable String stepId) {
         ShareInfo shareInfo = apiReportShareService.checkResource(shareId);
         apiReportShareService.validateExpired(shareInfo);
-        return apiReportService.getDetail(stepId, reportId);
+        return apiReportService.getDetail(reportId, stepId);
     }
 
 }

@@ -6,6 +6,7 @@ import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -185,7 +186,12 @@ public class ApiReportService {
         //查询资源池名称
         apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
         //查询环境名称
-        apiReportDTO.setEnvironmentName(StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId()) ? environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId()).getName() : null);
+        if (StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId())) {
+            Environment environment = environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId());
+            if (environment != null) {
+                apiReportDTO.setEnvironmentName(environment.getName());
+            }
+        }
         apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());
         //需要查询出所有的步骤
         if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
@@ -206,6 +212,8 @@ public class ApiReportService {
         ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
         BeanUtils.copyBean(apiReportStepDTO, apiReportDTO);
         apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
+        apiReportStepDTO.setReportId(id);
+        apiReportStepDTO.setSort(1L);
         apiReportStepDTO.setStepType(ApiExecuteResourceType.API_CASE.name());
         List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
         apiReportSteps.add(apiReportStepDTO);
@@ -213,7 +221,7 @@ public class ApiReportService {
         return apiReportDTO;
     }
 
-    public List<ApiReportDetailDTO> getDetail(String stepId, String reportId) {
+    public List<ApiReportDetailDTO> getDetail(String reportId, String stepId) {
         List<ApiReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
         List<ApiReportDetailDTO> results = new ArrayList<>();
         apiReportDetails.forEach(apiReportDetail -> {
