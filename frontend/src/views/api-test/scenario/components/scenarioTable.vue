@@ -173,7 +173,7 @@
         </a-select>
       </a-form-item>
       <a-form-item
-        v-if="batchForm.attr === 'TAGS'"
+        v-if="batchForm.attr === 'Tags'"
         field="values"
         :label="t('api_scenario.table.batchUpdate')"
         :validate-trigger="['blur', 'input']"
@@ -221,12 +221,31 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="batchUpdateLoading" @click="batchUpdate">
-        {{ t('common.update') }}
-      </a-button>
+      <div class="flex" :class="[batchForm.attr === 'Tags' ? 'justify-between' : 'justify-end']">
+        <div
+          v-if="batchForm.attr === 'Tags'"
+          class="flex flex-row items-center justify-center"
+          style="padding-top: 10px"
+        >
+          <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
+          <a-tooltip :content="t('caseManagement.featureCase.enableTags')">
+            <span class="flex items-center">
+              <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
+              <span class="mt-[2px]">
+                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+              </span>
+            </span>
+          </a-tooltip>
+        </div>
+        <div class="flex justify-end">
+          <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button class="ml-3" type="primary" :loading="batchUpdateLoading" @click="batchUpdate">
+            {{ t('common.update') }}
+          </a-button>
+        </div>
+      </div>
     </template>
   </a-modal>
   <!--  </MsDialog>-->
@@ -711,6 +730,7 @@
     attr: '',
     value: '',
     values: [],
+    append: false,
   });
   const fullAttrs = [
     {
@@ -722,7 +742,7 @@
       value: 'Status',
     },
     {
-      name: '标签（待定）',
+      name: '标签',
       value: 'Tags',
     },
     {
@@ -760,6 +780,7 @@
       attr: '',
       value: '',
       values: [],
+      append: false,
     };
   }
 
@@ -781,12 +802,16 @@
             type: batchForm.value?.attr,
             priority: '',
             status: '',
+            tags: [],
+            append: batchForm.value.append,
           };
 
           if (batchForm.value.attr === 'Priority') {
             batchEditParam.priority = batchForm.value.value;
           } else if (batchForm.value.attr === 'Status') {
             batchEditParam.status = batchForm.value.value;
+          } else if (batchForm.value.attr === 'Tags') {
+            batchEditParam.tags = batchForm.value.values;
           }
 
           await batchEditScenario(batchEditParam);

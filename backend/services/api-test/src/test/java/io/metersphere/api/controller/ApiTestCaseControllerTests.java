@@ -895,7 +895,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiCaseBatchEditRequest request = new ApiCaseBatchEditRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType("Tags");
-        request.setAppendTag(true);
+        request.setAppend(true);
         request.setSelectAll(true);
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
@@ -909,7 +909,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         });
         //覆盖标签
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
-        request.setAppendTag(false);
+        request.setAppend(false);
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         apiTestCaseMapper.selectByExample(example).forEach(apiTestCase -> {
             Assertions.assertEquals(apiTestCase.getTags(), List.of("tag1"));

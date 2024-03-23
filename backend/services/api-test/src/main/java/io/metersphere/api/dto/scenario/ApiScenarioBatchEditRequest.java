@@ -26,7 +26,7 @@ public class ApiScenarioBatchEditRequest extends ApiScenarioBatchRequest impleme
     @NotBlank
     private String type;
     @Schema(description = "默认覆盖原标签")
-    private boolean appendTag = false;
+    private boolean append = false;
     @Schema(description = "环境id")
     @Size(max = 50, message = "{api_test_case.environment_id.length_range}")
     private String envId;

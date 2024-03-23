@@ -338,6 +338,7 @@ export interface ApiCaseBatchEditParams extends ApiCaseBatchParams {
   status?: string;
   environmentId?: string;
   type: string;
+  append?: boolean;
 }
 // 添加用例参数
 export interface AddApiCaseParams extends ExecuteRequestParams {

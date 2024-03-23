@@ -1397,7 +1397,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         ApiScenarioBatchEditRequest request = new ApiScenarioBatchEditRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType("Tags");
-        request.setAppendTag(true);
+        request.setAppend(true);
         request.setSelectAll(true);
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         requestPostAndReturn(BATCH_EDIT, request);
@@ -1411,7 +1411,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         });
         //覆盖标签
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
-        request.setAppendTag(false);
+        request.setAppend(false);
         requestPostAndReturn(BATCH_EDIT, request);
         apiScenarioMapper.selectByExample(example).forEach(scenario -> {
             Assertions.assertEquals(scenario.getTags(), List.of("tag1"));
