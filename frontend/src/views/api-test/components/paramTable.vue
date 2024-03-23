@@ -271,7 +271,7 @@
         <MsTagsInput
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabled"
-          :max-tag-count="1"
+          :max-tag-count="2"
           input-class="ms-form-table-input"
           size="mini"
           @change="() => addTableLine(rowIndex)"
