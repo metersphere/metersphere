@@ -6,6 +6,7 @@ export enum ApiTestRouteEnum {
   API_TEST_SCENARIO = 'apiTestScenario',
   API_TEST_SCENARIO_RECYCLE = 'apiTestScenarioRecycle',
   API_TEST_REPORT = 'apiTestReport',
+  API_TEST_REPORT_SHARE = 'apiTestReportShare',
 }
 
 export enum BugManagementRouteEnum {
@@ -99,6 +100,12 @@ export enum SettingRouteEnum {
   SETTING_ORGANIZATION_TASK_CENTER = 'settingOrganizationTaskCenter',
 }
 
+export enum ShareEnum {
+  SHARE = 'share',
+  SHARE_REPORT_SCENARIO = 'shareReportScenario',
+  SHARE_REPORT_CASE = 'shareReportCase',
+}
+
 export const RouteEnum = {
   ...ApiTestRouteEnum,
   ...SettingRouteEnum,
@@ -109,4 +116,5 @@ export const RouteEnum = {
   ...TestPlanRouteEnum,
   ...UITestRouteEnum,
   ...WorkbenchRouteEnum,
+  ...ShareEnum,
 };

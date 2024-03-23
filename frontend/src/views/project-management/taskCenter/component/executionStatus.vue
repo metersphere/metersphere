@@ -54,9 +54,9 @@
         color: '!text-[rgb(var(--link-6))]',
       },
       PENDING: {
-        icon: 'icon-icon_wait',
+        icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
     },
     [TaskCenterEnum.API_SCENARIO]: {
@@ -88,9 +88,9 @@
         color: '!text-[rgb(var(--link-6))]',
       },
       PENDING: {
-        icon: 'icon-icon_wait',
+        icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
     },
     [TaskCenterEnum.LOAD_TEST]: {
@@ -124,9 +124,9 @@
     },
     [TaskCenterEnum.UI_TEST]: {
       PENDING: {
-        icon: 'icon-icon_wait',
+        icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
       RUNNING: {
         icon: 'icon-icon_testing',
@@ -154,9 +154,9 @@
     },
     [TaskCenterEnum.TEST_PLAN]: {
       RUNNING: {
-        icon: 'icon-icon_testing',
+        icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',

@@ -1,29 +1,31 @@
 <template>
   <div
-    class="tiled-wrap"
+    class="tiled-wrap p-4"
     :class="{
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
     }"
   >
-    <a-scrollbar
+    <!-- <a-scrollbar
       :style="{
         overflow: 'auto',
         height: 'calc(100vh - 424px)',
         width: '100%',
       }"
-    >
-      <ScenarioItem
-        v-if="tiledList.length > 0"
-        :show-type="props.showType"
-        :list="tiledList"
-        :show-border="true"
-        :active-type="props.activeType"
-        :console="props.reportDetail.console"
-        :environment-name="props.reportDetail.environmentName"
-        @detail="showDetail"
-      />
-      <MsEmpty v-else />
-    </a-scrollbar>
+    > -->
+    <!-- 步骤树 -->
+    <stepTree
+      ref="stepTreeRef"
+      v-model:steps="tiledList"
+      :show-type="props.showType"
+      :active-type="props.activeType"
+      :expand-all="isExpandAll"
+      :console="props.reportDetail.console"
+      :environment-name="props.reportDetail.environmentName"
+      :report-id="props.reportDetail.id"
+      @detail="showDetail"
+    />
+    <!-- </a-scrollbar> -->
+    <!-- 步骤抽屉 -->
     <StepDrawer
       v-model:visible="showStepDrawer"
       :step-id="activeDetailId"
@@ -32,6 +34,7 @@
       :show-type="props.showType"
       :console="props.reportDetail.console"
       :environment-name="props.reportDetail.environmentName"
+      :report-id="props.reportDetail.id"
     />
   </div>
 </template>
@@ -40,37 +43,33 @@
   import { ref } from 'vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsEmpty from '@/components/pure/ms-empty/index.vue';
-  import ScenarioItem from './scenarioItem.vue';
   import StepDrawer from './step/stepDrawer.vue';
+  import StepTree from './step/stepTree.vue';
 
   import { addLevelToTree } from '@/utils';
 
-  import type { ReportDetail, ScenarioDetailItem, ScenarioItemType } from '@/models/apiTest/report';
+  import type { ReportDetail, ScenarioItemType } from '@/models/apiTest/report';
 
   import { addFoldField } from '../utils';
 
   const props = defineProps<{
     reportDetail: ReportDetail;
-    activeType: string; // 平铺模式|tab模式
+    activeType: 'tiled' | 'tab'; // 平铺模式|tab模式
     showType: 'API' | 'CASE'; // 接口场景|用例
   }>();
 
   const tiledList = ref<ScenarioItemType[]>([]);
-  watchEffect(() => {
-    if (props.reportDetail && props.reportDetail.children) {
-      tiledList.value = props.reportDetail.children || [];
-      tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
-      tiledList.value.forEach((item) => {
-        addFoldField(item);
-      });
-    }
-  });
+
+  const isExpandAll = ref(false); // 是否展开全部
 
   const showStepDrawer = ref<boolean>(false);
   const activeDetailId = ref<string>('');
   const activeStepIndex = ref<number>(0);
-  const scenarioDetail = ref<ScenarioDetailItem>({});
+  const scenarioDetail = ref<ScenarioItemType>();
+
+  /**
+   * 步骤详情
+   */
   function showDetail(item: ScenarioItemType) {
     showStepDrawer.value = true;
     scenarioDetail.value = cloneDeep(item);
@@ -80,6 +79,16 @@
 
   onMounted(() => {
     tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
+  });
+
+  watchEffect(() => {
+    if (props.reportDetail && props.reportDetail.children) {
+      tiledList.value = props.reportDetail.children || [];
+      tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
+      tiledList.value.forEach((item) => {
+        addFoldField(item);
+      });
+    }
   });
 </script>
 

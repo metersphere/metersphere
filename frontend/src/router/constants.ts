@@ -3,6 +3,31 @@ export const WHITE_LIST = [
   { name: 'notFound', path: '/notFound', children: [] },
   { name: 'invite', path: '/invite', children: [] },
   { name: 'index', path: '/index', children: [] },
+  {
+    name: 'share',
+    path: '/share',
+    children: [
+      {
+        name: 'shareReportScenario',
+        path: '/shareReportScenario',
+      },
+      {
+        name: 'shareReportCase',
+        path: '/shareReportCase',
+        children: [],
+      },
+    ],
+  },
+  {
+    name: 'shareReportScenario',
+    path: '/shareReportScenario',
+    children: [],
+  },
+  {
+    name: 'shareReportCase',
+    path: '/shareReportCase',
+    children: [],
+  },
 ];
 
 // 左侧菜单底部对齐的菜单数组，数组项为一级路由的name

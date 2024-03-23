@@ -58,10 +58,12 @@ export default {
   'report.detail.api.resSuccess': 'Success',
   'report.detail.api.resError': 'Error',
   'report.detail.api.apiCase': 'Api Case',
+  'report.detail.api': 'Api',
   'report.detail.api.resBody': 'response body',
   'report.detail.api.resHeader': 'headers',
   'report.detail.api.realReq': 'real request',
   'report.detail.api.console': 'console',
   'report.detail.api.extract': 'extract',
   'report.detail.api.assert': 'assertion',
+  'report.detail.api.subRequest': 'Sub-request',
 };

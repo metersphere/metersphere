@@ -26,9 +26,9 @@
     [ScenarioStepType.IF_CONTROLLER]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },
     [ScenarioStepType.ONCE_ONLY_CONTROLLER]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
     [ScenarioStepType.SCRIPT_OPERATION]: { label: 'apiScenario.scriptOperation', color: 'rgba(20, 225, 198, 1)' },
-    [ScenarioStepType.CUSTOM_API]: { label: 'apiScenario.customApi', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.API_CASE]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.CUSTOM_REQUEST]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.API]: { label: 'report.detail.api', color: 'rgb(var(--link-4))' },
   };
 
   const getClass = computed(() => {

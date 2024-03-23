@@ -4,58 +4,18 @@
       <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
     </a-tabs>
     <div class="response-container">
-      <MsCodeEditor
-        v-if="activeTab === ResponseComposition.BODY"
-        ref="responseEditorRef"
-        :model-value="props.requestResult?.responseResult.body"
-        :language="responseLanguage"
-        theme="vs"
-        height="100%"
-        :languages="[LanguageEnum.JSON, LanguageEnum.HTML, LanguageEnum.XML, LanguageEnum.PLAINTEXT]"
-        :show-full-screen="false"
-        :show-theme-change="false"
-        show-language-change
-        show-charset-change
-        read-only
-      >
-        <template #rightTitle>
-          <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
-            <template #icon>
-              <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-            </template>
-          </a-button>
-        </template>
-      </MsCodeEditor>
-      <MsCodeEditor
-        v-else-if="activeTab === ResponseComposition.CONSOLE"
-        :model-value="props.console?.trim()"
-        :language="LanguageEnum.PLAINTEXT"
-        theme="MS-text"
-        height="100%"
-        :show-full-screen="false"
-        :show-theme-change="false"
-        :show-language-change="false"
-        :show-charset-change="false"
-        read-only
-      >
-      </MsCodeEditor>
-      <div
+      <ResBody v-if="activeTab === ResponseComposition.BODY" :request-result="props.requestResult" @copy="copyScript" />
+      <ResConsole v-else-if="activeTab === ResponseComposition.CONSOLE" :console="props.console?.trim()" />
+      <ResValueScript
         v-else-if="
           activeTab === ResponseComposition.HEADER ||
           activeTab === ResponseComposition.REAL_REQUEST ||
           activeTab === ResponseComposition.EXTRACT
         "
-        class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
-      >
-        <pre class="response-header-pre">{{ getResponsePreContent(activeTab) }}</pre>
-      </div>
-      <MsBaseTable v-else-if="activeTab === 'ASSERTION'" v-bind="propsRes" v-on="propsEvent">
-        <template #status="{ record }">
-          <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
-            {{ record.pass === true ? t('common.success') : t('common.fail') }}
-          </MsTag>
-        </template>
-      </MsBaseTable>
+        :active-tab="activeTab"
+        :request-result="props.requestResult"
+      />
+      <ResAssertion v-else-if="activeTab === 'ASSERTION'" :request-result="props.requestResult" />
     </div>
   </div>
   <a-empty
@@ -85,13 +45,10 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import ResAssertion from './result/assertionTable.vue';
+  import ResBody from './result/body.vue';
+  import ResConsole from './result/console.vue';
+  import ResValueScript from './result/resValueScript.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -147,23 +104,6 @@
     default: ResponseComposition.BODY,
   });
 
-  // 响应体语言类型
-  const responseLanguage = computed(() => {
-    if (props.requestResult) {
-      const { contentType } = props.requestResult.responseResult;
-      if (contentType.includes('json')) {
-        return LanguageEnum.JSON;
-      }
-      if (contentType.includes('html')) {
-        return LanguageEnum.HTML;
-      }
-      if (contentType.includes('xml')) {
-        return LanguageEnum.XML;
-      }
-    }
-    return LanguageEnum.PLAINTEXT;
-  });
-
   const { copy, isSupported } = useClipboard();
 
   async function copyScript() {
@@ -174,58 +114,6 @@
       Message.warning(t('apiTestDebug.copyNotSupport'));
     }
   }
-
-  function getResponsePreContent(type: keyof typeof ResponseComposition) {
-    switch (type) {
-      case ResponseComposition.HEADER:
-        return props.requestResult?.responseResult?.headers.trim();
-      case ResponseComposition.REAL_REQUEST:
-        return props.requestResult?.body
-          ? `${t('apiTestDebug.requestUrl')}:\n${props.requestResult.url}\n${t('apiTestDebug.header')}:\n${
-              props.requestResult.headers
-            }\nBody:\n${props.requestResult.body.trim()}`
-          : '';
-      case ResponseComposition.EXTRACT:
-        return props.requestResult?.responseResult?.vars?.trim();
-      default:
-        return '';
-    }
-  }
-
-  const columns: MsTableColumn = [
-    {
-      title: 'apiTestDebug.content',
-      dataIndex: 'content',
-      showTooltip: true,
-    },
-    {
-      title: 'apiTestDebug.status',
-      dataIndex: 'pass',
-      slotName: 'status',
-      width: 80,
-    },
-    {
-      title: 'apiTestDebug.reason',
-      dataIndex: 'message',
-      showTooltip: true,
-    },
-  ];
-  const { propsRes, propsEvent } = useTable(undefined, {
-    scroll: { x: '100%' },
-    columns,
-  });
-
-  watch(
-    () => props.requestResult?.responseResult.assertions,
-    (val) => {
-      if (val) {
-        propsRes.value.data = props.requestResult?.responseResult.assertions || [];
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 </script>
 
 <style lang="less" scoped>

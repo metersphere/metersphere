@@ -31,7 +31,7 @@ export default {
   'project.taskCenter.falseAlarm': '误报',
   'project.taskCenter.inExecution': '执行中',
   'project.taskCenter.rerun': '重跑中',
-  'project.taskCenter.queuing': '排队中',
+  'project.taskCenter.queuing': '未执行',
   'project.taskCenter.starting': '启动中',
   'project.taskCenter.complete': '完成',
   'project.taskCenter.scheduledTask': '定时任务',

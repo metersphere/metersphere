@@ -31,7 +31,7 @@ export default {
   'project.taskCenter.falseAlarm': 'False alarm',
   'project.taskCenter.inExecution': 'In execution',
   'project.taskCenter.rerun': 'Rerun',
-  'project.taskCenter.queuing': 'Be queuing',
+  'project.taskCenter.queuing': 'pending',
   'project.taskCenter.starting': 'Be starting',
   'project.taskCenter.complete': 'complete',
   'project.taskCenter.scheduledTask': 'Scheduled task',
