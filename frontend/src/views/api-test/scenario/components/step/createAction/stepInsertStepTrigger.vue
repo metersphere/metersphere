@@ -6,7 +6,7 @@
     position="br"
     @popup-visible-change="handleActionTriggerChange"
   >
-    <MsButton :id="step.stepId" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
+    <MsButton :id="step.id" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
       <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
     </MsButton>
     <template #content>
@@ -63,13 +63,12 @@
 <script setup lang="ts">
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { ScenarioStepItem } from '../stepTree.vue';
   import createStepActions from './createStepActions.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { CreateStepAction } from '@/models/apiTest/scenario';
-  import { ScenarioAddStepActionType, ScenarioStepType } from '@/enums/apiEnum';
+  import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   const props = defineProps<{
     step: ScenarioStepItem;
@@ -106,12 +105,15 @@
   );
 
   const showAddChildStep = computed(() => {
-    return [
-      ScenarioStepType.LOOP_CONTROL,
-      ScenarioStepType.CONDITION_CONTROL,
-      ScenarioStepType.ONLY_ONCE_CONTROL,
-      ScenarioStepType.COPY_SCENARIO,
-    ].includes(innerStep.value.type);
+    return (
+      [
+        ScenarioStepType.LOOP_CONTROLLER,
+        ScenarioStepType.IF_CONTROLLER,
+        ScenarioStepType.ONCE_ONLY_CONTROLLER,
+      ].includes(innerStep.value.stepType) ||
+      (innerStep.value.stepType === ScenarioStepType.API_SCENARIO &&
+        innerStep.value.refType === ScenarioStepRefType.COPY)
+    );
   });
 
   const activeCreateAction = ref<CreateStepAction>();
@@ -131,7 +133,7 @@
   function handleActionsClose() {
     activeCreateAction.value = undefined;
     innerStep.value.createActionsVisible = false;
-    document.getElementById(innerStep.value.stepId.toString())?.click();
+    document.getElementById(innerStep.value.id.toString())?.click();
   }
 </script>
 

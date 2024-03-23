@@ -3,7 +3,7 @@
     <div class="action-line">
       <div class="action-group">
         <a-checkbox
-          v-show="stepInfo.steps.length > 0"
+          v-show="scenario.steps.length > 0"
           v-model:model-value="checkedAll"
           :indeterminate="indeterminate"
           @change="handleChangeAll"
@@ -17,7 +17,7 @@
       <div class="action-group">
         <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAllStep') : t('apiScenario.expandAllStep')">
           <a-button
-            v-show="stepInfo.steps.length > 0"
+            v-show="scenario.steps.length > 0"
             type="outline"
             class="expand-step-btn arco-btn-outline--secondary"
             size="mini"
@@ -42,20 +42,20 @@
           </a-button>
         </template>
       </div>
-      <template v-if="stepInfo.executeTime">
+      <template v-if="scenario.executeTime">
         <div class="action-group">
           <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
-          <div class="text-[var(--color-text-4)]">{{ stepInfo.executeTime }}</div>
+          <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
         </div>
         <div class="action-group">
           <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
           <div class="flex items-center gap-[4px]">
             <div class="text-[var(--color-text-1)]">{{ t('common.success') }}</div>
-            <div class="text-[rgb(var(--success-6))]">{{ stepInfo.executeSuccessCount }}</div>
+            <div class="text-[rgb(var(--success-6))]">{{ scenario.executeSuccessCount }}</div>
           </div>
           <div class="flex items-center gap-[4px]">
             <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
-            <div class="text-[rgb(var(--success-6))]">{{ stepInfo.executeFailCount }}</div>
+            <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
           </div>
           <MsButton type="text" @click="checkReport">{{ t('apiScenario.checkReport') }}</MsButton>
         </div>
@@ -82,11 +82,11 @@
     <div class="h-[calc(100%-48px)]">
       <stepTree
         ref="stepTreeRef"
-        v-model:steps="stepInfo.steps"
+        v-model:steps="scenario.steps"
         v-model:checked-keys="checkedKeys"
         v-model:stepKeyword="keyword"
         :expand-all="isExpandAll"
-        :steps-detail-map="stepInfo.stepsDetailMap"
+        :step-details="scenario.stepDetails"
       />
     </div>
   </div>
@@ -116,29 +116,20 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import stepTree, { ScenarioStepItem } from './stepTree.vue';
+  import stepTree from './stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { countNodes } from '@/utils/tree';
 
-  export interface ScenarioStepInfo {
-    id: string | number;
-    steps: ScenarioStepItem[];
-    executeTime?: string; // 执行时间
-    executeSuccessCount?: number; // 执行成功数量
-    executeFailCount?: number; // 执行失败数量
-    stepsDetailMap: Record<string, any>; // 步骤详情存储
-  }
+  import { Scenario } from '@/models/apiTest/scenario';
 
   const props = defineProps<{
     isNew?: boolean; // 是否新建
   }>();
 
-  const appStore = useAppStore();
   const { t } = useI18n();
 
-  const stepInfo = defineModel<ScenarioStepInfo>('step', {
+  const scenario = defineModel<Scenario>('scenario', {
     required: true,
   });
 
@@ -149,7 +140,7 @@
   const stepTreeRef = ref<InstanceType<typeof stepTree>>();
   const keyword = ref('');
 
-  const totalStepCount = computed(() => countNodes(stepInfo.value.steps));
+  const totalStepCount = computed(() => countNodes(scenario.value.steps));
 
   function handleChangeAll(value: boolean | (string | number | boolean)[]) {
     indeterminate.value = false;
@@ -202,7 +193,7 @@
     try {
       let ids = checkedKeys.value;
       if (batchToggleRange.value === 'top') {
-        ids = stepInfo.value.steps.map((item) => item.stepId);
+        ids = scenario.value.steps.map((item) => item.id);
       }
       console.log('ids', ids);
       await new Promise((resolve) => {

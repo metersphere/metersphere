@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-alert v-if="isShowTip" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
+    <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
       {{ t('apiScenario.historyListTip') }}
       <template #close-element>
         <span class="text-[14px]">{{ t('common.notRemind') }}</span>
@@ -11,7 +11,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import dayjs from 'dayjs';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -26,11 +25,10 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const isShowTip = ref<boolean>(true);
   const visitedKey = 'scenarioHistoryTip';
   const { addVisited, getIsVisited } = useVisit(visitedKey);
   const props = defineProps<{
-    sourceId: string | number;
+    sourceId?: string | number;
   }>();
   const columns: MsTableColumn = [
     {

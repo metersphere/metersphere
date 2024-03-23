@@ -45,13 +45,13 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import { ScenarioStepItem } from '../stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { findNodeByKey, getGenerateId } from '@/utils';
 
-  import { CreateStepAction } from '@/models/apiTest/scenario';
-  import { ScenarioAddStepActionType, ScenarioStepType } from '@/enums/apiEnum';
+  import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   import useCreateActions from './useCreateActions';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
@@ -74,6 +74,7 @@
     );
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', {
@@ -101,9 +102,10 @@
         if (step.value && props.createStepAction) {
           handleCreateStep(
             {
-              type: ScenarioStepType.LOOP_CONTROL,
+              stepType: ScenarioStepType.LOOP_CONTROLLER,
               name: t('apiScenario.loopControl'),
-            } as ScenarioStepItem,
+              projectId: appStore.currentProjectId,
+            },
             step.value,
             steps.value,
             props.createStepAction,
@@ -112,10 +114,12 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            stepId: getGenerateId(),
-            order: steps.value.length + 1,
-            type: ScenarioStepType.LOOP_CONTROL,
+            id: getGenerateId(),
+            sort: steps.value.length + 1,
+            stepType: ScenarioStepType.LOOP_CONTROLLER,
+            refType: ScenarioStepRefType.DIRECT,
             name: t('apiScenario.loopControl'),
+            projectId: appStore.currentProjectId,
           });
         }
         break;
@@ -123,9 +127,10 @@
         if (step.value && props.createStepAction) {
           handleCreateStep(
             {
-              type: ScenarioStepType.CONDITION_CONTROL,
+              stepType: ScenarioStepType.IF_CONTROLLER,
               name: t('apiScenario.conditionControl'),
-            } as ScenarioStepItem,
+              projectId: appStore.currentProjectId,
+            },
             step.value,
             steps.value,
             props.createStepAction,
@@ -134,10 +139,12 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            stepId: getGenerateId(),
-            order: steps.value.length + 1,
-            type: ScenarioStepType.CONDITION_CONTROL,
+            id: getGenerateId(),
+            sort: steps.value.length + 1,
+            stepType: ScenarioStepType.IF_CONTROLLER,
+            refType: ScenarioStepRefType.DIRECT,
             name: t('apiScenario.conditionControl'),
+            projectId: appStore.currentProjectId,
           });
         }
         break;
@@ -145,9 +152,10 @@
         if (step.value && props.createStepAction) {
           handleCreateStep(
             {
-              type: ScenarioStepType.ONLY_ONCE_CONTROL,
+              stepType: ScenarioStepType.ONCE_ONLY_CONTROLLER,
               name: t('apiScenario.onlyOnceControl'),
-            } as ScenarioStepItem,
+              projectId: appStore.currentProjectId,
+            },
             step.value,
             steps.value,
             props.createStepAction,
@@ -156,10 +164,12 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            stepId: getGenerateId(),
-            order: steps.value.length + 1,
-            type: ScenarioStepType.ONLY_ONCE_CONTROL,
+            id: getGenerateId(),
+            sort: steps.value.length + 1,
+            stepType: ScenarioStepType.ONCE_ONLY_CONTROLLER,
+            refType: ScenarioStepRefType.DIRECT,
             name: t('apiScenario.onlyOnceControl'),
+            projectId: appStore.currentProjectId,
           });
         }
         break;
@@ -167,9 +177,10 @@
         if (step.value && props.createStepAction) {
           handleCreateStep(
             {
-              type: ScenarioStepType.WAIT_TIME,
+              stepType: ScenarioStepType.CONSTANT_TIMER,
               name: t('apiScenario.waitTime'),
-            } as ScenarioStepItem,
+              projectId: appStore.currentProjectId,
+            },
             step.value,
             steps.value,
             props.createStepAction,
@@ -178,10 +189,12 @@
         } else {
           steps.value.push({
             ...cloneDeep(defaultStepItemCommon),
-            stepId: getGenerateId(),
-            order: steps.value.length + 1,
-            type: ScenarioStepType.WAIT_TIME,
+            id: getGenerateId(),
+            sort: steps.value.length + 1,
+            stepType: ScenarioStepType.CONSTANT_TIMER,
+            refType: ScenarioStepRefType.DIRECT,
             name: t('apiScenario.waitTime'),
+            projectId: appStore.currentProjectId,
           });
         }
         break;
@@ -189,7 +202,7 @@
       case ScenarioAddStepActionType.CUSTOM_API:
       case ScenarioAddStepActionType.SCRIPT_OPERATION:
         if (step.value) {
-          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.stepId, 'stepId');
+          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.id, 'id');
           if (realStep) {
             emit('otherCreate', val, realStep as ScenarioStepItem);
           }

@@ -5,7 +5,7 @@
         v-model:active-tab="activeScenarioTab"
         v-model:tabs="apiTabs"
         class="flex-1 overflow-hidden"
-        @add="newTab"
+        @add="() => newTab()"
       >
         <template #label="{ tab }">
           <a-tooltip :content="tab.label" :mouse-enter-delay="500">
@@ -34,7 +34,7 @@
                 :is-show-scenario="isShowScenario"
                 @folder-node-select="handleNodeSelect"
                 @init="handleModuleInit"
-                @new-scenario="newTab"
+                @new-scenario="() => newTab()"
               ></scenarioModuleTree>
             </div>
             <div class="flex-1">
@@ -55,6 +55,7 @@
             :active-module="activeModule"
             :offspring-ids="offspringIds"
             @refresh-module-tree="refreshTree"
+            @open-scenario="openScenarioTab"
           />
         </template>
       </MsSplitBox>
@@ -63,7 +64,7 @@
       <create v-model:scenario="activeScenarioTab" :module-tree="folderTree"></create>
     </div>
     <div v-else class="pageWrap">
-      <detail :detail="activeScenarioTab"></detail>
+      <detail v-model:scenario="activeScenarioTab"></detail>
     </div>
   </MsCard>
 </template>
@@ -74,66 +75,69 @@
    */
 
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
-  import { ScenarioStepInfo } from './components/step/index.vue';
   import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   // import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
-  import { getTrashModuleCount } from '@/api/modules/api-test/scenario';
+  import { addScenario, getScenarioDetail, getTrashModuleCount, updateScenario } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId, mapTree, TreeNode } from '@/utils';
 
-  import { ApiScenarioGetModuleParams, Scenario } from '@/models/apiTest/scenario';
+  import {
+    ApiScenarioGetModuleParams,
+    ApiScenarioTableItem,
+    Scenario,
+    ScenarioStepItem,
+  } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestDefinitionStatus } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
+
+  import { defaultScenario } from './components/config';
 
   // 异步导入
   const detail = defineAsyncComponent(() => import('./detail/index.vue'));
   const create = defineAsyncComponent(() => import('./create/index.vue'));
 
+  export type ScenarioParams = Scenario & TabItem;
+
   const { t } = useI18n();
 
-  const apiTabs = ref<Scenario[]>([
+  const apiTabs = ref<ScenarioParams[]>([
     {
       id: 'all',
       label: t('apiScenario.allScenario'),
       closable: false,
-    } as Scenario,
+    } as ScenarioParams,
   ]);
-  const activeScenarioTab = ref<Scenario>(apiTabs.value[0]);
+  const activeScenarioTab = ref<ScenarioParams>(apiTabs.value[0] as ScenarioParams);
 
-  function newTab() {
-    apiTabs.value.push({
-      id: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
-      label: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
-      closable: true,
-      isNew: true,
-      name: '',
-      moduleId: 'root',
-      priority: 'P0',
-      stepInfo: {
-        id: new Date().getTime(),
-        steps: [],
-        executeTime: '',
-        executeSuccessCount: 0,
-        executeFailCount: 0,
-        stepsDetailMap: {},
-      } as ScenarioStepInfo,
-      status: RequestDefinitionStatus.PROCESSING,
-      tags: [],
-      params: [],
-      executeLoading: false,
-      unSaved: false,
-    });
-    activeScenarioTab.value = apiTabs.value[apiTabs.value.length - 1];
+  function newTab(defaultScenarioInfo?: Scenario, isCopy = false) {
+    if (defaultScenarioInfo) {
+      apiTabs.value.push({
+        ...defaultScenarioInfo,
+        id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
+        label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+      });
+    } else {
+      apiTabs.value.push({
+        ...cloneDeep(defaultScenario),
+        id: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
+        label: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
+        moduleId: 'root',
+        priority: 'P0',
+      });
+    }
+    activeScenarioTab.value = apiTabs.value[apiTabs.value.length - 1] as ScenarioParams;
   }
 
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -185,16 +189,49 @@
   const saveLoading = ref(false);
 
   async function saveScenario() {
-    saveLoading.value = true;
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve('');
-      }, 1000);
-    });
-    Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
-    activeScenarioTab.value.isNew = false;
-    activeScenarioTab.value.unSaved = false;
-    saveLoading.value = false;
+    try {
+      saveLoading.value = true;
+      if (activeScenarioTab.value.isNew) {
+        const res = await addScenario({
+          ...activeScenarioTab.value,
+          projectId: appStore.currentProjectId,
+        });
+        const scenarioDetail = await getScenarioDetail(res.id);
+        activeScenarioTab.value = scenarioDetail as ScenarioParams;
+      } else {
+        await updateScenario({
+          ...activeScenarioTab.value,
+        });
+      }
+      Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
+      activeScenarioTab.value.unSaved = false;
+      saveLoading.value = false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      saveLoading.value = false;
+    }
+  }
+
+  async function openScenarioTab(record: ApiScenarioTableItem, isCopy?: boolean) {
+    try {
+      appStore.showLoading();
+      const res = await getScenarioDetail(record.id);
+      res.stepDetails = {};
+      // mapTree<ScenarioStepItem>(res.steps, (node: TreeNode<ScenarioStepItem>) => {
+      //   res.stepDetails[node.id] = node.config;
+      //   return node;
+      // });
+      newTab(res, isCopy);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      nextTick(() => {
+        appStore.hideLoading();
+      });
+    }
   }
 </script>
 

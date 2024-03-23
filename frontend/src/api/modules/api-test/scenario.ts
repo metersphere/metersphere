@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
+  AddScenarioUrl,
   BatchCopyScenarioUrl,
   BatchDeleteScenarioUrl,
   BatchEditScenarioUrl,
@@ -13,6 +14,7 @@ import {
   ExecuteHistoryUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
+  GetScenarioUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   MoveModuleUrl,
@@ -36,6 +38,8 @@ import {
   ApiScenarioUpdateDTO,
   ExecuteHistoryItem,
   ExecutePageParams,
+  Scenario,
+  ScenarioDetail,
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
@@ -179,4 +183,14 @@ export function batchDeleteScenario(data: {
   projectId: string;
 }) {
   return MSR.post({ url: BatchDeleteScenarioUrl, data });
+}
+
+// 添加场景
+export function addScenario(params: Scenario) {
+  return MSR.post({ url: AddScenarioUrl, params });
+}
+
+// 获取场景详情
+export function getScenarioDetail(id: string) {
+  return MSR.get<ScenarioDetail>({ url: GetScenarioUrl, params: id });
 }

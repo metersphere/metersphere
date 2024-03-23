@@ -11,10 +11,10 @@
   >
     <template #title>
       <div class="flex items-center gap-[8px]">
-        <stepType
-          v-if="props.requestType"
-          v-show="props.requestType !== ScenarioStepType.CUSTOM_API"
-          :type="props.requestType"
+        <stepTypeVue
+          v-if="props.step"
+          v-show="props.step.stepType !== ScenarioStepType.CUSTOM_REQUEST"
+          :step="props.step"
         />
         {{ title }}
       </div>
@@ -22,23 +22,24 @@
         <div v-show="requestVModel.useEnv === 'false'" class="text-[14px] font-normal text-[var(--color-text-4)]">
           {{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
         </div>
-        <MsSelect
-          v-model:model-value="requestVModel.useEnv"
-          :allow-search="false"
-          :options="[
-            { label: t('common.quote'), value: 'true' },
-            { label: t('common.notQuote'), value: 'false' },
-          ]"
-          :multiple="false"
-          value-key="value"
-          label-key="label"
-          :prefix="t('project.environmental.env')"
-          class="w-[150px]"
-          @change="handleUseEnvChange"
-        >
-        </MsSelect>
+        <a-select v-model:model-value="requestVModel.useEnv" class="w-[150px]" @change="handleUseEnvChange">
+          <template #prefix>
+            <div> {{ t('project.environmental.env') }} </div>
+          </template>
+          <a-option :value="true">{{ t('common.quote') }}</a-option>
+          <a-option :value="false">{{ t('common.notQuote') }}</a-option>
+        </a-select>
       </div>
     </template>
+    <a-empty
+      v-if="pluginError && !isHttpProtocol"
+      :description="t('apiTestDebug.noPlugin')"
+      class="h-[200px] items-center justify-center"
+    >
+      <template #image>
+        <MsIcon type="icon-icon_plugin_outlined" size="48" />
+      </template>
+    </a-empty>
     <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
       <div class="px-[18px] pt-[8px]">
         <div class="flex flex-wrap items-center justify-between gap-[12px]">
@@ -48,7 +49,7 @@
               v-model:model-value="requestVModel.protocol"
               :options="protocolOptions"
               :loading="protocolLoading"
-              :disabled="props.requestType === ScenarioStepType.QUOTE_API"
+              :disabled="_stepType.isQuoteApi"
               class="w-[90px]"
               @change="(val) => handleActiveDebugProtocolChange(val as string)"
             />
@@ -60,15 +61,15 @@
                 is-tag
                 class="flex items-center"
               />
-              <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.label" :mouse-enter-delay="500">
-                <div class="one-line-text max-w-[350px]"> {{ requestVModel.label }}</div>
+              <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.name" :mouse-enter-delay="500">
+                <div class="one-line-text max-w-[350px]"> {{ requestVModel.name }}</div>
               </a-tooltip>
             </div>
             <a-input-group v-if="isHttpProtocol" class="flex-1">
               <apiMethodSelect
                 v-model:model-value="requestVModel.method"
                 class="w-[140px]"
-                :disabled="props.requestType === ScenarioStepType.QUOTE_API"
+                :disabled="_stepType.isQuoteApi"
                 @change="handleActiveDebugChange"
               />
               <a-input
@@ -78,7 +79,7 @@
                 allow-clear
                 class="hover:z-10"
                 :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
-                :disabled="props.requestType === ScenarioStepType.QUOTE_API"
+                :disabled="_stepType.isQuoteApi"
                 @input="() => (isUrlError = false)"
                 @change="handleUrlChange"
               />
@@ -109,11 +110,7 @@
           </div>
         </div>
         <a-input
-          v-if="
-            props.requestType &&
-            [ScenarioStepType.QUOTE_API, ScenarioStepType.COPY_API].includes(props.requestType) &&
-            isHttpProtocol
-          "
+          v-if="props.step?.stepType && (_stepType.isCopyApi || _stepType.isQuoteApi) && isHttpProtocol"
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :placeholder="t('apiTestManagement.apiNamePlaceholder')"
@@ -130,7 +127,7 @@
           class="no-content relative mt-[8px] border-b"
         />
       </div>
-      <div ref="splitContainerRef" class="request-and-response h-[calc(100%-87px)]">
+      <div ref="splitContainerRef" class="h-[calc(100%-87px)]">
         <MsSplitBox
           ref="verticalSplitBoxRef"
           v-model:size="splitBoxSize"
@@ -150,7 +147,7 @@
               >
                 <div class="tab-pane-container">
                   <a-spin
-                    v-if="requestVModel.activeTab === RequestComposition.PLUGIN"
+                    v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
                     :loading="pluginLoading"
                     class="min-h-[100px] w-full"
                   >
@@ -267,15 +264,6 @@
         </MsSplitBox>
       </div>
     </div>
-    <a-empty
-      v-if="pluginError && !isHttpProtocol"
-      :description="t('apiTestDebug.noPlugin')"
-      class="h-[200px] items-center justify-center"
-    >
-      <template #image>
-        <MsIcon type="icon-icon_plugin_outlined" size="48" />
-      </template>
-    </a-empty>
     <!-- <addDependencyDrawer v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" /> -->
   </MsDrawer>
 </template>
@@ -291,8 +279,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
-  import MsSelect from '@/components/business/ms-select';
-  import stepType from './stepType.vue';
+  import stepTypeVue from './stepType/stepType.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import auth from '@/views/api-test/components/requestComposition/auth.vue';
@@ -316,6 +303,7 @@
     PluginConfig,
     RequestTaskResult,
   } from '@/models/apiTest/common';
+  import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
     RequestAuthType,
@@ -327,6 +315,7 @@
     ScenarioStepType,
   } from '@/enums/apiEnum';
 
+  import getStepType from './stepType/utils';
   import {
     defaultBodyParams,
     defaultBodyParamsItem,
@@ -366,8 +355,7 @@
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
-    requestType?: ScenarioStepType;
-    stepName: string;
+    step?: ScenarioStepItem;
     detailLoading?: boolean; // 详情加载状态
     envDetailItem?: {
       id?: string;
@@ -402,12 +390,9 @@
     type: 'api',
     id: '',
     useEnv: 'false',
-    moduleId: 'root',
     protocol: 'HTTP',
     url: '',
     activeTab: RequestComposition.HEADER,
-    label: t('apiTestDebug.newApi'),
-    closable: true,
     method: RequestMethods.GET,
     unSaved: false,
     headers: [],
@@ -415,9 +400,7 @@
     query: [],
     rest: [],
     polymorphicName: '',
-    name: '',
     path: '',
-    projectId: '',
     uploadFileIds: [],
     linkFileIds: [],
     authConfig: {
@@ -455,16 +438,25 @@
       followRedirects: true,
       autoRedirects: false,
     },
-    responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
+    responseActiveTab: ResponseComposition.BODY,
     isNew: true,
     executeLoading: false,
   };
 
-  const requestVModel = ref<RequestParam>(props.request || defaultDebugParams);
+  const requestVModel = ref<RequestParam>(defaultDebugParams);
+  const _stepType = computed(() => {
+    if (props.step) {
+      return getStepType(props.step);
+    }
+    return {
+      isCopyApi: false,
+      isQuoteApi: false,
+    };
+  });
   const title = computed(() => {
-    if (props.requestType && [ScenarioStepType.COPY_API, ScenarioStepType.QUOTE_API].includes(props.requestType)) {
-      return props.stepName;
+    if (_stepType.value.isCopyApi || _stepType.value.isQuoteApi) {
+      return props.step?.name;
     }
     return t('apiScenario.customApi');
   });
@@ -604,11 +596,9 @@
   const currentPluginScript = computed<Record<string, any>[]>(
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
   );
-  const isCopyApiNeedInit = computed(
-    () => props.requestType === ScenarioStepType.COPY_API && props.request?.request === null
-  );
+  const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request?.request === null);
   const isEditableApi = computed(
-    () => props.requestType === ScenarioStepType.COPY_API || props.requestType === ScenarioStepType.CUSTOM_API
+    () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
   );
 
   // 处理插件表单输入框变化
@@ -649,7 +639,7 @@
           controlPluginFormFields().forEach((key) => {
             form[key] = formData[key];
           });
-          fApi.value?.setValue(form);
+          fApi.value?.setValue(cloneDeep(form));
           setTimeout(() => {
             // 初始化时赋值会触发表单数据变更，300ms 是为了与 handlePluginFormChange的防抖时间保持一致
             isInitPluginForm.value = true;
@@ -657,8 +647,10 @@
         });
       }
     } else {
-      nextTick(() => {
+      fApi.value?.nextTick(() => {
         controlPluginFormFields();
+        fApi.value?.resetFields();
+        isInitPluginForm.value = true;
       });
     }
   }
@@ -802,11 +794,13 @@
   watch(
     () => showResponse.value,
     (val) => {
-      if (val) {
-        changeVerticalExpand(true);
-      } else {
-        changeVerticalExpand(false);
-      }
+      nextTick(() => {
+        if (val) {
+          changeVerticalExpand(true);
+        } else {
+          changeVerticalExpand(false);
+        }
+      });
     }
   );
 
@@ -869,13 +863,13 @@
    */
   function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const isExecute = executeType === 'localExec' || executeType === 'serverExec';
-    const { formDataBody, wwwFormBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
       (e) => e.value === requestVModel.value.protocol
     )?.polymorphicName; // 协议多态名称
     let parseRequestBodyResult;
     let requestParams;
     if (isHttpProtocol.value) {
+      const { formDataBody, wwwFormBody } = requestVModel.value.body;
       const realFormDataBodyValues = filterKeyValParams(
         formDataBody.formValues,
         defaultBodyParamsItem,
@@ -903,7 +897,6 @@
           },
         },
         headers: filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem, isExecute).validParams,
-        method: requestVModel.value.method,
         otherConfig: requestVModel.value.otherConfig,
         path: requestVModel.value.url || requestVModel.value.path,
         query: filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem, isExecute).validParams,
@@ -917,40 +910,26 @@
         polymorphicName,
       };
     }
-    reportId.value = getGenerateId();
-    requestVModel.value.reportId = reportId.value; // 存储报告ID
-    debugSocket(executeType); // 开启websocket
-    let requestName = '';
-    let requestModuleId = '';
-    const apiDefinitionParams: Record<string, any> = {};
-    requestName = requestVModel.value.name;
-    requestModuleId = requestVModel.value.moduleId;
+    if (isExecute) {
+      debugSocket(executeType); // 开启websocket
+    }
     return {
-      id: requestVModel.value.id.toString(),
-      reportId: reportId.value,
-      environmentId: props.envDetailItem?.id || '',
-      name: requestName,
-      moduleId: requestModuleId,
-      ...apiDefinitionParams,
+      ...requestParams,
+      id: requestVModel.value.id,
+      activeTab: requestVModel.value.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
+      responseActiveTab: ResponseComposition.BODY,
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-      path: isHttpProtocol.value ? requestVModel.value.url || requestVModel.value.path : undefined,
-      request: {
-        ...requestParams,
-        name: requestName,
-        children: [
-          {
-            polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-            assertionConfig: requestVModel.value.children[0].assertionConfig,
-            postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
-            preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
-          },
-        ],
-      },
+      name: requestVModel.value.name,
+      children: [
+        {
+          polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
+          assertionConfig: requestVModel.value.children[0].assertionConfig,
+          postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
+          preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
+        },
+      ],
       ...parseRequestBodyResult,
-      projectId: appStore.currentProjectId,
-      frontendDebug: executeType === 'localExec',
-      isNew: requestVModel.value.isNew,
     };
   }
 
@@ -959,7 +938,6 @@
    * @param val 执行类型
    */
   async function execute(executeType?: 'localExec' | 'serverExec') {
-    // todo 执行，待测试
     if (isHttpProtocol.value) {
       try {
         if (!props.executeApi) return;
@@ -1008,8 +986,7 @@
   }
 
   function handleContinue() {
-    requestVModel.value.isNew = false; // 添加完就不是新建了
-    emit('addStep', requestVModel.value);
+    emit('addStep', cloneDeep(makeRequestParams()));
   }
 
   function handleSave() {
@@ -1020,7 +997,7 @@
   function handleClose() {
     // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep
     if (!requestVModel.value.isNew) {
-      emit('applyStep', { ...requestVModel.value, ...makeRequestParams() });
+      emit('applyStep', cloneDeep(makeRequestParams()));
     }
   }
 
@@ -1037,7 +1014,6 @@
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
       requestVModel.value = {
-        responseActiveTab: ResponseComposition.BODY,
         executeLoading: false,
         activeTab: res.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
         unSaved: false,
@@ -1046,7 +1022,6 @@
         ...res.request,
         ...res,
         response: cloneDeep(defaultResponse),
-        responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })),
         url: res.path,
         name: res.name, // request里面还有个name但是是null
         id: res.id,
@@ -1068,9 +1043,10 @@
     async (val) => {
       if (val) {
         if (props.request) {
-          requestVModel.value = { ...defaultDebugParams, ...props.request };
+          console.log('props.request', props.request);
+          requestVModel.value = cloneDeep(props.request);
           if (
-            props.requestType === ScenarioStepType.QUOTE_API ||
+            _stepType.value.isQuoteApi ||
             isCopyApiNeedInit.value
             // 引用接口时，需要初始化引用接口的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
           ) {
@@ -1106,12 +1082,20 @@
           //     });
           //   }
           // }
+        } else {
+          requestVModel.value = cloneDeep({
+            ...defaultDebugParams,
+            id: getGenerateId(),
+          });
         }
         await initProtocolList();
         if (props.request) {
           handleActiveDebugProtocolChange(requestVModel.value.protocol);
         }
       }
+    },
+    {
+      immediate: true,
     }
   );
 </script>

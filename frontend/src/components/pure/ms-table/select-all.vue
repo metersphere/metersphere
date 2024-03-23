@@ -52,7 +52,7 @@
 
   const checked = computed({
     get: () => {
-      return props.selectedKeys.size === props.total;
+      return props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
     },
     set: (value) => {
       return value;

@@ -9,12 +9,12 @@
         @change="handleInputChange"
       />
       <a-tooltip
-        v-if="innerData.loopType === 'num'"
-        :content="innerData.loopNum.toString()"
-        :disabled="!innerData.loopNum"
+        v-if="innerData.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT"
+        :content="innerData.msCountController.loops.toString()"
+        :disabled="!innerData.msCountController.loops"
       >
         <a-input-number
-          v-model:model-value="innerData.loopNum"
+          v-model:model-value="innerData.msCountController.loops"
           class="w-[80px] px-[8px]"
           size="mini"
           :step="1"
@@ -30,53 +30,56 @@
         </a-input-number>
       </a-tooltip>
     </a-input-group>
-    <template v-if="innerData.loopType === 'forEach'">
-      <a-tooltip :content="innerData.variableName" :disabled="!innerData.variableName">
+    <template v-if="innerData.loopType === ScenarioStepLoopTypeEnum.FOREACH">
+      <a-tooltip :content="innerData.forEachController.variable" :disabled="!innerData.forEachController.variable">
         <a-input
-          v-model:model-value="innerData.variableName"
+          v-model:model-value="innerData.forEachController.variable"
           size="mini"
           class="w-[110px] px-[8px]"
           :max-length="255"
-          :placeholder="t('apiScenario.variableName')"
+          :placeholder="t('apiScenario.variable')"
           @change="handleInputChange"
         >
         </a-input>
       </a-tooltip>
       <div class="font-medium">in</div>
-      <a-tooltip :content="innerData.variablePrefix" :disabled="!innerData.variablePrefix">
+      <a-tooltip :content="innerData.forEachController.value" :disabled="!innerData.forEachController.value">
         <a-input
-          v-model:model-value="innerData.variablePrefix"
+          v-model:model-value="innerData.forEachController.value"
           size="mini"
           class="w-[110px] px-[8px]"
-          :placeholder="t('apiScenario.variablePrefix')"
+          :placeholder="t('apiScenario.valuePrefix')"
           :max-length="255"
           @change="handleInputChange"
         >
         </a-input>
       </a-tooltip>
     </template>
-    <template v-else-if="innerData.loopType === 'while'">
+    <template v-else-if="innerData.loopType === ScenarioStepLoopTypeEnum.WHILE">
       <a-select
-        v-model:model-value="innerData.loopWhileType"
+        v-model:model-value="innerData.whileController.conditionType"
         :options="whileOptions"
         size="mini"
         class="w-[75px] px-[8px]"
         @change="handleInputChange"
       />
-      <template v-if="innerData.loopWhileType === 'condition'">
-        <a-tooltip :content="innerData.variableName" :disabled="!innerData.variableName">
+      <template v-if="innerData.whileController.conditionType === WhileConditionType.CONDITION">
+        <a-tooltip
+          :content="innerData.whileController.msWhileVariable.variable"
+          :disabled="!innerData.whileController.msWhileVariable.variable"
+        >
           <a-input
-            v-model:model-value="innerData.variableName"
+            v-model:model-value="innerData.whileController.msWhileVariable.variable"
             size="mini"
             class="w-[100px] px-[8px]"
             :max-length="255"
-            :placeholder="t('apiScenario.variableName', { suffix: '${var}' })"
+            :placeholder="t('apiScenario.variable', { suffix: '${var}' })"
             @change="handleInputChange"
           >
           </a-input>
         </a-tooltip>
         <a-select
-          v-model:model-value="innerData.condition"
+          v-model:model-value="innerData.whileController.msWhileVariable.condition"
           size="mini"
           class="w-[90px] px-[8px]"
           @change="handleInputChange"
@@ -85,22 +88,29 @@
             {{ t(opt.label) }}
           </a-option>
         </a-select>
-        <a-tooltip :content="innerData.variableVal" :disabled="!innerData.variableVal">
+        <a-tooltip
+          :content="innerData.whileController.msWhileVariable.value"
+          :disabled="!innerData.whileController.msWhileVariable.value"
+        >
           <a-input
-            :id="innerData.stepId"
-            v-model:model-value="innerData.variableVal"
+            :id="stepId"
+            v-model:model-value="innerData.whileController.msWhileVariable.value"
             size="mini"
             class="w-[110px] px-[8px]"
-            :placeholder="t('apiScenario.variableVal')"
+            :placeholder="t('apiScenario.value')"
             @change="handleInputChange"
           >
           </a-input>
         </a-tooltip>
       </template>
-      <a-tooltip v-else :content="innerData.expression" :disabled="!innerData.expression">
+      <a-tooltip
+        v-else
+        :content="innerData.whileController.msWhileScript.scriptValue"
+        :disabled="!innerData.whileController.msWhileScript.scriptValue"
+      >
         <a-input
-          :id="innerData.stepId"
-          v-model:model-value="innerData.expression"
+          :id="stepId"
+          v-model:model-value="innerData.whileController.msWhileScript.scriptValue"
           size="mini"
           class="w-[200px] px-[8px]"
           :placeholder="t('apiScenario.expression')"
@@ -108,9 +118,9 @@
         >
         </a-input>
       </a-tooltip>
-      <a-tooltip :content="innerData.overTime.toString()" :disabled="!innerData.overTime">
+      <a-tooltip :content="innerData.whileController.timeout.toString()" :disabled="!innerData.whileController.timeout">
         <a-input-number
-          v-model:model-value="innerData.overTime"
+          v-model:model-value="innerData.whileController.timeout"
           class="w-[100px] px-[8px]"
           size="mini"
           :step="1"
@@ -121,18 +131,18 @@
           @blur="handleInputChange"
         >
           <template #prefix>
-            <div class="text-[12px] text-[var(--color-text-4)]">{{ t('apiScenario.overTime') }}:</div>
+            <div class="text-[12px] text-[var(--color-text-4)]">{{ t('apiScenario.timeout') }}:</div>
           </template>
         </a-input-number>
       </a-tooltip>
     </template>
     <a-tooltip
-      v-if="innerData.loopType !== 'while'"
-      :content="innerData.loopSpace.toString()"
-      :disabled="!innerData.loopSpace"
+      v-if="innerData.loopType !== ScenarioStepLoopTypeEnum.WHILE"
+      :content="innerData.forEachController.loopTime.toString()"
+      :disabled="!innerData.forEachController.loopTime"
     >
       <a-input-number
-        v-model:model-value="innerData.loopSpace"
+        v-model:model-value="innerData.forEachController.loopTime"
         size="mini"
         :step="1"
         :min="0"
@@ -153,34 +163,18 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ScenarioStepLoopType, ScenarioStepLoopWhileType } from '@/models/apiTest/scenario';
-  import { ScenarioStepType } from '@/enums/apiEnum';
+  import { LoopStepDetail } from '@/models/apiTest/scenario';
+  import { ScenarioStepLoopTypeEnum, WhileConditionType } from '@/enums/apiEnum';
 
   import { conditionOptions } from '@/views/api-test/scenario/components/config';
 
-  export interface LoopContentProps {
-    stepId: string | number;
-    num: number;
-    name: string;
-    type: ScenarioStepType;
-    loopNum: number;
-    loopType: ScenarioStepLoopType;
-    loopSpace: number;
-    variableName: string;
-    variablePrefix: string;
-    loopWhileType: ScenarioStepLoopWhileType;
-    variableVal: string;
-    condition: string;
-    overTime: number;
-    expression: string;
-  }
-
   const props = defineProps<{
-    data: LoopContentProps;
+    data: LoopStepDetail;
+    stepId: string | number;
   }>();
   const emit = defineEmits<{
-    (e: 'change', innerData: LoopContentProps): void;
-    (e: 'quickInput', dataKey: keyof LoopContentProps): void;
+    (e: 'change', innerData: LoopStepDetail): void;
+    (e: 'quickInput', dataKey: string): void;
   }>();
 
   const { t } = useI18n();
@@ -188,25 +182,25 @@
   const innerData = ref(props.data);
   const loopOptions = [
     {
-      value: 'num',
+      value: ScenarioStepLoopTypeEnum.LOOP_COUNT,
       label: t('apiScenario.num'),
     },
     {
-      value: 'while',
+      value: ScenarioStepLoopTypeEnum.WHILE,
       label: 'while',
     },
     {
-      value: 'forEach',
+      value: ScenarioStepLoopTypeEnum.FOREACH,
       label: 'forEach',
     },
   ];
   const whileOptions = [
     {
-      value: 'condition',
+      value: WhileConditionType.CONDITION,
       label: t('apiScenario.condition'),
     },
     {
-      value: 'expression',
+      value: WhileConditionType.SCRIPT,
       label: t('apiScenario.expression'),
     },
   ];
@@ -227,8 +221,13 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.stepId)) {
-        emit('quickInput', innerData.value.loopWhileType === 'condition' ? 'variableVal' : 'expression');
+      if ((dbClick?.value.e?.target as Element).parentNode?.id === props.stepId) {
+        emit(
+          'quickInput',
+          innerData.value.whileController.conditionType === WhileConditionType.CONDITION
+            ? 'whileController.msWhileVariable.value'
+            : 'whileController.msWhileScript.scriptValue'
+        );
       }
     }
   );

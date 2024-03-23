@@ -96,7 +96,6 @@
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
 
   import { ExecuteHistoryItem } from '@/models/apiTest/scenario';
   import { ExecuteStatusFilters } from '@/enums/apiEnum';
@@ -108,11 +107,10 @@
   const statusFilters = ref(Object.keys(ExecuteStatusFilters));
   const tableQueryParams = ref<any>();
 
-  const appStore = useAppStore();
   const keyword = ref('');
   const { t } = useI18n();
   const props = defineProps<{
-    scenarioId: string; // 详情 id
+    scenarioId?: string | number; // 详情 id
     readOnly?: boolean;
   }>();
   const columns: MsTableColumn = [
@@ -174,7 +172,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     getExecuteHistory,
     {
       columns,
