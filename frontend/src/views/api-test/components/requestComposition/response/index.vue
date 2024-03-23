@@ -16,7 +16,7 @@
             v-else
             type="icon"
             status="secondary"
-            class="!mr-0 !rounded-full"
+            class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
             size="small"
             @click="emit('changeExpand', true)"
           >

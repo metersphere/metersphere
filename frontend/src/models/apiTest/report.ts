@@ -1,3 +1,5 @@
+import { RequestResult } from '@/models/apiTest/common';
+
 export interface LegendData {
   label: string;
   value: string;
@@ -36,6 +38,8 @@ export interface ResponseResult {
   assertions: AssertionItem[];
 }
 
+export type resultType = RequestResult & ResponseResult;
+
 export interface StepContent {
   resourceId: string;
   projectId: string;
@@ -54,7 +58,7 @@ export interface StepContent {
   method: string;
   assertionTotal: number;
   passAssertionsTotal: number;
-  subRequestResults: any;
+  subRequestResults: ResponseResult[];
   responseResult: ResponseResult;
   isSuccessful: boolean;
   fakeErrorCode: string;
@@ -62,6 +66,7 @@ export interface StepContent {
   [key: string]: any;
 }
 
+export type StepContentType = StepContent & RequestResult;
 // 步骤详情
 export interface ReportStepDetailItem {
   id: string;
@@ -74,7 +79,7 @@ export interface ReportStepDetailItem {
   code: string;
   responseSize: number;
   scriptIdentifier: string;
-  content: StepContent;
+  content: StepContentType;
   [key: string]: any;
 }
 
@@ -96,6 +101,7 @@ export interface ScenarioItemType {
   responseSize: number; // 响应内容大小
   scriptIdentifier: string; // 脚本标识
   fold: boolean; // 是否展示折叠
+  expanded: boolean; // 是否展开折叠树节点
   children: ScenarioItemType[];
   level?: number;
   stepDetail: ReportStepDetailItem;
@@ -145,3 +151,9 @@ export interface ReportDetail {
 }
 
 export type ReportDetailPartial = Partial<ScenarioItemType>;
+
+// 获取分享id
+export interface GetShareId {
+  reportId: string;
+  projectId: string;
+}

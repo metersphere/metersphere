@@ -1,0 +1,43 @@
+<template>
+  <div class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
+    <pre class="response-header-pre">{{ getResponsePreContent(props.activeTab) }}</pre>
+  </div>
+</template>
+
+<script setup lang="ts">
+  /**
+   * @description (共用) 请求头 || 提取 || 真实请求
+   */
+  import { ref } from 'vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { RequestResult } from '@/models/apiTest/common';
+  import { ResponseComposition } from '@/enums/apiEnum';
+
+  const { t } = useI18n();
+
+  const props = defineProps<{
+    requestResult?: RequestResult;
+    activeTab: keyof typeof ResponseComposition;
+  }>();
+
+  function getResponsePreContent(type: keyof typeof ResponseComposition) {
+    switch (type) {
+      case ResponseComposition.HEADER:
+        return props.requestResult?.responseResult?.headers.trim();
+      case ResponseComposition.REAL_REQUEST:
+        return props.requestResult?.body
+          ? `${t('apiTestDebug.requestUrl')}:\n${props.requestResult.url}\n${t('apiTestDebug.header')}:\n${
+              props.requestResult.headers
+            }\nBody:\n${props.requestResult.body.trim()}`
+          : '';
+      case ResponseComposition.EXTRACT:
+        return props.requestResult?.responseResult?.vars?.trim();
+      default:
+        return '';
+    }
+  }
+</script>
+
+<style scoped></style>

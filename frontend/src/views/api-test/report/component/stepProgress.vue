@@ -64,6 +64,11 @@
   }>();
   const { t } = useI18n();
 
+  const getCountTotal = computed(() => {
+    const { successCount, errorCount, fakeErrorCount, pendingCount } = props.reportDetail;
+    return successCount + errorCount + fakeErrorCount + pendingCount;
+  });
+
   const colorData = computed(() => {
     if (
       props.reportDetail.status === 'ERROR' ||
@@ -81,19 +86,19 @@
     }
     return [
       {
-        percentage: (props.reportDetail.successCount / props.reportDetail.stepTotal) * 100,
+        percentage: (props.reportDetail.successCount / getCountTotal.value) * 100,
         color: 'rgb(var(--success-6))',
       },
       {
-        percentage: (props.reportDetail.errorCount / props.reportDetail.stepTotal) * 100,
+        percentage: (props.reportDetail.errorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--danger-6))',
       },
       {
-        percentage: (props.reportDetail.fakeErrorCount / props.reportDetail.stepTotal) * 100,
+        percentage: (props.reportDetail.fakeErrorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--warning-6))',
       },
       {
-        percentage: (props.reportDetail.pendingCount / props.reportDetail.stepTotal) * 100,
+        percentage: (props.reportDetail.pendingCount / getCountTotal.value) * 100,
         color: 'var(--color-text-input-border)',
       },
     ];

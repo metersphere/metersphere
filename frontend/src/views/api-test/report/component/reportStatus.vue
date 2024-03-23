@@ -69,9 +69,9 @@
         color: '!text-[rgb(var(--link-6))]',
       },
       PENDING: {
-        icon: 'icon-icon_wait',
+        icon: 'icon-icon_block_filled',
         label: 'report.status.pending',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
     },
     [ReportEnum.API_SCENARIO_REPORT]: {
@@ -105,7 +105,7 @@
       PENDING: {
         icon: 'icon-icon_wait',
         label: 'report.status.pending',
-        color: '!text-[rgb(var(--link-6))]',
+        color: '!text-[var(--color-text-input-border)]',
       },
     },
   });

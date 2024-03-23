@@ -406,6 +406,7 @@ export interface RequestResult {
   url: string;
   method: string;
   responseResult: ResponseResult;
+  [key: string]: any;
 }
 export interface RequestTaskResult {
   requestResults: RequestResult[]; // 请求结果

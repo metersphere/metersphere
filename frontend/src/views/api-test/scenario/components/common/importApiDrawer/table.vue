@@ -218,11 +218,12 @@
    * 表格单行选中事件处理
    */
   function handleRowSelectChange(key: string) {
-    const selectedData = currentTable.value.propsRes.value.data.find((e) => e.id === key);
+    const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === key);
     if (tableSelectedKeys.value.includes(key)) {
       // 取消选中
       tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== key);
-    } else if (selectedData) {
+    }
+    if (selectedData) {
       tableSelectedData.value.push(selectedData);
     }
     emit('select', tableSelectedData.value);

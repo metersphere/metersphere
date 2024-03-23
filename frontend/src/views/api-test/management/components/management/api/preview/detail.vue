@@ -357,7 +357,7 @@
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   const props = defineProps<{
-    isCase?: boolean; // case详情
+    isCase?: boolean; // case 详情
     detail: RequestParam;
     protocols: ProtocolItem[];
     isPriorityLocalExec?: boolean;
