@@ -208,6 +208,7 @@
     <a-auto-complete
       ref="autoCompleteRef"
       v-model:model-value="innerValue"
+      :disabled="props.disabled"
       :data="autoCompleteParams"
       :placeholder="t('ms.paramsInput.placeholder', { at: '@' })"
       :class="`ms-params-input ${paramSettingVisible ? 'ms-params-input--focus' : ''}`"
@@ -219,7 +220,12 @@
       @select="selectAutoComplete"
     >
       <template #suffix>
-        <MsIcon type="icon-icon_mock" class="ms-params-input-suffix-icon" @click.stop="openParamSetting" />
+        <MsIcon
+          v-if="!props.disabled"
+          type="icon-icon_mock"
+          class="ms-params-input-suffix-icon"
+          @click.stop="openParamSetting"
+        />
       </template>
       <template #option="{ data }">
         <div class="w-[350px]">
@@ -263,6 +269,7 @@
 
   const props = defineProps<{
     value: string;
+    disabled?: boolean;
     size?: 'small' | 'large' | 'medium' | 'mini';
   }>();
   const emit = defineEmits<{
@@ -338,6 +345,7 @@
 
   onMounted(() => {
     useEventListener(autoCompleteRef.value?.inputRef, 'dblclick', () => {
+      if (props.disabled) return;
       emit('dblclick');
     });
     const autoCompleteInput = (autoCompleteRef.value?.inputRef as any)?.$el.querySelector('.arco-input');

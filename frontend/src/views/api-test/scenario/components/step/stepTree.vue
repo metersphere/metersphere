@@ -199,6 +199,8 @@
       v-model:visible="customCaseDrawerVisible"
       :active-step="activeStep"
       :request="currentStepDetail"
+      @apply-step="applyApiStep"
+      @delete-step="deleteCaseStep"
     />
     <importApiDrawer
       v-if="importApiDrawerVisible"
@@ -264,6 +266,7 @@
   import quoteContent from './stepNodeComposition/quoteContent.vue';
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -733,9 +736,21 @@
   /**
    * API 详情抽屉关闭时应用更改
    */
-  function applyApiStep(request: RequestParam) {
+  function applyApiStep(request: RequestParam | CaseRequestParam) {
     if (activeStep.value) {
       stepsDetailMap.value[activeStep.value?.stepId] = request;
+      activeStep.value = undefined;
+    }
+  }
+
+  /**
+   * 删除
+   */
+  function deleteCaseStep() {
+    if (activeStep.value) {
+      customCaseDrawerVisible.value = false;
+      steps.value = steps.value.filter((item) => item.stepId !== activeStep.value?.stepId);
+      delete stepsDetailMap.value[activeStep.value?.stepId];
       activeStep.value = undefined;
     }
   }

@@ -117,7 +117,7 @@
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :placeholder="t('apiTestManagement.apiNamePlaceholder')"
-          disabled
+          :disabled="!isEditableApi"
           allow-clear
           class="mt-[8px]"
         />
@@ -170,6 +170,7 @@
                   <httpHeader
                     v-if="requestVModel.activeTab === RequestComposition.HEADER"
                     v-model:params="requestVModel.headers"
+                    :disabled-except-param="!isEditableApi"
                     :layout="activeLayout"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
@@ -178,6 +179,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.BODY"
                     v-model:params="requestVModel.body"
                     :layout="activeLayout"
+                    :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     :upload-temp-file-api="props.uploadTempFileApi"
                     :file-save-as-source-id="props.fileSaveAsSourceId"
@@ -189,6 +191,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
                     v-model:params="requestVModel.query"
                     :layout="activeLayout"
+                    :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
                   />
@@ -196,6 +199,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.REST"
                     v-model:params="requestVModel.rest"
                     :layout="activeLayout"
+                    :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
                   />
@@ -203,6 +207,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
                     v-model:config="requestVModel.children[0].preProcessorConfig"
                     :is-definition="false"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                   <postcondition
@@ -210,6 +215,7 @@
                     v-model:config="requestVModel.children[0].postProcessorConfig"
                     :response="requestVModel.response?.requestResults[0]?.responseResult.body"
                     :layout="activeLayout"
+                    :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     :is-definition="false"
                     @change="handleActiveDebugChange"
@@ -218,16 +224,19 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
                     :is-definition="false"
+                    :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
                   />
                   <auth
                     v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
                     v-model:params="requestVModel.authConfig"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                   <setting
                     v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
                     v-model:params="requestVModel.otherConfig"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                 </div>
@@ -1011,7 +1020,7 @@
   function handleClose() {
     // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep
     if (!requestVModel.value.isNew) {
-      emit('applyStep', requestVModel.value);
+      emit('applyStep', { ...requestVModel.value, ...makeRequestParams() });
     }
   }
 
@@ -1065,8 +1074,38 @@
             isCopyApiNeedInit.value
             // 引用接口时，需要初始化引用接口的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
           ) {
-            initQuoteApiDetail();
+            await initQuoteApiDetail();
           }
+          // TODO: 类型报错
+          // if (
+          //   props.requestType === ScenarioStepType.QUOTE_API &&
+          //   props.request.request &&
+          //   requestVModel.value.request
+          // ) {
+          //   // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
+          //   ['headers', 'query', 'rest'].forEach((type) => {
+          //     props.request.request[type]?.forEach((item) => {
+          //       const index = requestVModel.value.request[type]?.findIndex((itemReq) => itemReq.key === item.key);
+          //       if (index > -1) {
+          //         requestVModel.value.request[type][index].value = item.value;
+          //         requestVModel.value[type] = requestVModel.value.request[type];
+          //       }
+          //     });
+          //   });
+          //   if (props.request.request.body.bodyType !== 'NONE') {
+          //     ['formDataBody', 'wwwFormBody'].forEach((type) => {
+          //       props.request.request.body[type].formValues.forEach((item) => {
+          //         const index = requestVModel.value.request.body[type].formValues.findIndex(
+          //           (itemReq) => itemReq.key === item.key
+          //         );
+          //         if (index > -1) {
+          //           requestVModel.value.request.body[type]?.formValues[index].value = item.value;
+          //           requestVModel.value.body = requestVModel.value.request?.body;
+          //         }
+          //       });
+          //     });
+          //   }
+          // }
         }
         await initProtocolList();
         if (props.request) {

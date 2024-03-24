@@ -30,7 +30,8 @@
         v-if="requestVModel.activeTab === RequestComposition.HEADER"
         v-model:params="requestVModel.headers"
         :layout="activeLayout"
-        :disabled="props.disabledExceptParam"
+        :disabled-param-value="props.disabledParamValue"
+        :disabled-except-param="props.disabledExceptParam"
         :second-box-height="secondBoxHeight"
         @change="handleActiveDebugChange"
       />
@@ -38,7 +39,8 @@
         v-else-if="requestVModel.activeTab === RequestComposition.BODY"
         v-model:params="requestVModel.body"
         :layout="activeLayout"
-        :disabled="props.disabledExceptParam"
+        :disabled-param-value="props.disabledParamValue"
+        :disabled-except-param="props.disabledExceptParam"
         :second-box-height="secondBoxHeight"
         :upload-temp-file-api="props.uploadTempFileApi"
         :file-save-as-source-id="props.fileSaveAsSourceId"
@@ -50,7 +52,8 @@
         v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
         v-model:params="requestVModel.query"
         :layout="activeLayout"
-        :disabled="props.disabledExceptParam"
+        :disabled-param-value="props.disabledParamValue"
+        :disabled-except-param="props.disabledExceptParam"
         :second-box-height="secondBoxHeight"
         @change="handleActiveDebugChange"
       />
@@ -58,7 +61,8 @@
         v-else-if="requestVModel.activeTab === RequestComposition.REST"
         v-model:params="requestVModel.rest"
         :layout="activeLayout"
-        :disabled="props.disabledExceptParam"
+        :disabled-param-value="props.disabledParamValue"
+        :disabled-except-param="props.disabledExceptParam"
         :second-box-height="secondBoxHeight"
         @change="handleActiveDebugChange"
       />
@@ -157,10 +161,10 @@
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
-    defaultParams?: RequestParam;
     detailLoading?: boolean; // 详情加载状态
     isPriorityLocalExec?: boolean; // 是否优先本地执行
-    disabledExceptParam?: boolean; // 除了可以修改参数值其他都只读
+    disabledParamValue?: boolean; // 参数值禁用
+    disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     isShowCommonContentTabKey?: boolean; // 是否展示请求内容公共tabKey
     uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
