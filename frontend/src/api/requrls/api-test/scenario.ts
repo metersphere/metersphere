@@ -7,6 +7,7 @@ export const DeleteModuleUrl = '/api/scenario/module/delete'; // 删除模块
 export const ScenarioPageUrl = '/api/scenario/page'; // 接口场景列表
 export const AddScenarioUrl = '/api/scenario/add'; // 添加接口场景
 export const GetScenarioUrl = '/api/scenario/get'; // 获取接口场景详情
+export const GetScenarioStepUrl = '/api/scenario/step/get'; // 获取接口场景步骤详情
 export const UpdateScenarioUrl = '/api/scenario/update'; // 更新接口场景
 export const RecycleScenarioUrl = '/api/scenario/delete-to-gc'; // 删除接口场景
 export const BatchRecycleScenarioUrl = '/api/scenario/batch-operation/delete-gc'; // 批量删除接口场景

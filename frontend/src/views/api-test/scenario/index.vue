@@ -91,14 +91,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
-  import { getGenerateId, mapTree, TreeNode } from '@/utils';
+  import { getGenerateId } from '@/utils';
 
-  import {
-    ApiScenarioGetModuleParams,
-    ApiScenarioTableItem,
-    Scenario,
-    ScenarioStepItem,
-  } from '@/models/apiTest/scenario';
+  import { ApiScenarioGetModuleParams, ApiScenarioTableItem, Scenario } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
@@ -127,6 +122,7 @@
         ...defaultScenarioInfo,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+        isNew: false,
       });
     } else {
       apiTabs.value.push({
@@ -197,6 +193,8 @@
           projectId: appStore.currentProjectId,
         });
         const scenarioDetail = await getScenarioDetail(res.id);
+        scenarioDetail.stepDetails = {};
+        scenarioDetail.isNew = false;
         activeScenarioTab.value = scenarioDetail as ScenarioParams;
       } else {
         await updateScenario({
@@ -219,10 +217,6 @@
       appStore.showLoading();
       const res = await getScenarioDetail(record.id);
       res.stepDetails = {};
-      // mapTree<ScenarioStepItem>(res.steps, (node: TreeNode<ScenarioStepItem>) => {
-      //   res.stepDetails[node.id] = node.config;
-      //   return node;
-      // });
       newTab(res, isCopy);
     } catch (error) {
       // eslint-disable-next-line no-console

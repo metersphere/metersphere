@@ -44,10 +44,11 @@
 
   const props = defineProps<{
     data: ConditionStepDetail;
+    stepId: string | number;
   }>();
   const emit = defineEmits<{
     (e: 'change', innerData: ConditionStepDetail): void;
-    (e: 'quickInput', dataKey: keyof ConditionStepDetail): void;
+    (e: 'quickInput', dataKey: string): void;
   }>();
 
   const { t } = useI18n();
@@ -70,8 +71,8 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(innerData.value.id)) {
-        emit('quickInput', 'value');
+      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(props.stepId)) {
+        emit('quickInput', 'conditionValue');
       }
     }
   );

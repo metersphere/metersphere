@@ -313,7 +313,9 @@ export interface LoopStepDetail extends StepDetailsCommon {
   msCountController: CountController;
   whileController: WhileController;
 }
-export type ScenarioStepDetail = Partial<CustomApiStepDetail & ConditionStepDetail & LoopStepDetail>;
+export type ScenarioStepDetail = Partial<
+  CustomApiStepDetail & ConditionStepDetail & LoopStepDetail & { protocol: string; method: RequestMethods }
+>;
 export interface ScenarioStepItem {
   id: string | number;
   sort: number;
@@ -324,7 +326,7 @@ export interface ScenarioStepItem {
   resourceNum?: string; // 详情或者引用的类型才有
   stepType: ScenarioStepType;
   refType: ScenarioStepRefType;
-  config?: ScenarioStepDetail; // 对应场景里stepDetails里的详情信息，只有逻辑控制器需要
+  config: ScenarioStepDetail; // 存储步骤列表需要展示的信息
   csvFileIds?: string[];
   projectId?: string;
   versionId?: string;

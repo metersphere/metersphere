@@ -14,6 +14,7 @@ import {
   ExecuteHistoryUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
+  GetScenarioStepUrl,
   GetScenarioUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
@@ -193,4 +194,9 @@ export function addScenario(params: Scenario) {
 // 获取场景详情
 export function getScenarioDetail(id: string) {
   return MSR.get<ScenarioDetail>({ url: GetScenarioUrl, params: id });
+}
+
+// 获取场景步骤详情
+export function getScenarioStep(stepId: string | number) {
+  return MSR.get({ url: GetScenarioStepUrl, params: stepId });
 }

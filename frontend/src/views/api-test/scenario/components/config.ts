@@ -7,45 +7,55 @@ import {
   WhileConditionType,
 } from '@/enums/apiEnum';
 
+// 循环控制器
+export const defaultLoopController = {
+  loopType: ScenarioStepLoopTypeEnum.LOOP_COUNT,
+  forEachController: {
+    loopTime: 0, // 循环间隔时间
+    value: '', // 变量值
+    variable: '', // 变量名
+  },
+  msCountController: {
+    loops: 0, // 循环次数
+  },
+  whileController: {
+    conditionType: WhileConditionType.CONDITION, // 条件类型
+    timeout: 0, // 超时时间
+    msWhileScript: {
+      scriptValue: '', // 脚本值
+    }, // 脚本
+    msWhileVariable: {
+      condition: RequestAssertionCondition.EQUALS, // 条件操作符
+      value: '', // 变量值
+      variable: '', // 变量名
+    }, // 变量
+  },
+};
+
+// 自定义请求
+export const defaultCustomApiConfig = {
+  customizeRequest: false, // 是否自定义请求
+  customizeRequestEnvEnable: false, // 是否启用环境
+};
+
+// 条件控制器
+export const defaultConditionController = {
+  value: '', // 变量值
+  variable: '', // 变量名
+  condition: RequestAssertionCondition.EQUALS, // 条件操作符
+};
+
 export const defaultStepItemCommon = {
   checked: false,
   expanded: false,
   enable: true,
   children: [],
+  copyFromStepId: '', // 如果步骤是复制的，这个字段是复制的步骤id
+  isNew: true, // 是否新建的步骤
   config: {
     id: '',
-    copyFromStepId: '', // 如果步骤是复制的，这个字段是复制的步骤id
     name: '',
     enable: true,
-    polymorphicName: '', // 多态名称，用于后台区分使用的是哪个组件
-    // 自定义请求
-    customizeRequest: false, // 是否自定义请求
-    customizeRequestEnvEnable: false, // 是否启用环境
-    // 条件控制器
-    value: '', // 变量值
-    variable: '', // 变量名
-    condition: RequestAssertionCondition.EQUALS, // 条件操作符
-    loopType: ScenarioStepLoopTypeEnum.LOOP_COUNT,
-    forEachController: {
-      loopTime: 0, // 循环间隔时间
-      value: '', // 变量值
-      variable: '', // 变量名
-    },
-    msCountController: {
-      loops: 0, // 循环次数
-    },
-    whileController: {
-      conditionType: WhileConditionType.CONDITION, // 条件类型
-      timeout: 0, // 超时时间
-      msWhileScript: {
-        scriptValue: '', // 脚本值
-      }, // 脚本
-      msWhileVariable: {
-        condition: RequestAssertionCondition.EQUALS, // 条件操作符
-        value: '', // 变量值
-        variable: '', // 变量名
-      }, // 变量
-    },
     waitTime: 0, // 等待时间
   },
   createActionsVisible: false,
