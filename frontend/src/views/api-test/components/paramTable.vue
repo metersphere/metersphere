@@ -37,7 +37,7 @@
     <template #documentMustIncludeTitle>
       <div class="flex flex-row items-center gap-[4px]">
         <a-checkbox
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :model-value="mustIncludeAllChecked"
           :indeterminate="mustIncludeIndeterminate"
           @change="(v) => handleMustIncludeChange(v as boolean)"
@@ -48,7 +48,7 @@
     <template #documentTypeCheckingTitle>
       <div class="flex flex-row items-center gap-[4px]">
         <a-checkbox
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :model-value="typeCheckingAllChecked"
           :indeterminate="typeCheckingIndeterminate"
           @change="(v) => handleTypeCheckingChange(v as boolean)"
@@ -75,7 +75,7 @@
         <a-auto-complete
           v-if="columnConfig.inputType === 'autoComplete'"
           v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)"
           class="ms-form-table-input"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
@@ -99,7 +99,7 @@
         <a-input
           v-else
           v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="ms-form-table-input"
           :max-length="255"
@@ -115,7 +115,7 @@
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
       >
         <MsButton
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           type="icon"
           :class="[
             record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
@@ -129,7 +129,7 @@
       </a-tooltip>
       <a-select
         v-model:model-value="record.paramType"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-full"
         size="mini"
@@ -140,7 +140,7 @@
     <template #extractType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractType"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-[110px]"
         size="mini"
@@ -151,7 +151,7 @@
     <template #variableType="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.variableType"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-[110px]"
         size="mini"
@@ -162,7 +162,7 @@
     <template #extractScope="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractScope"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-[180px]"
         size="mini"
@@ -191,6 +191,7 @@
         </template>
         <a-input
           v-model:model-value="record.value"
+          :disabled="props.disabledParamValue"
           class="ms-form-table-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
@@ -201,7 +202,7 @@
       <MsAddAttachment
         v-else-if="record.paramType === RequestParamsType.FILE"
         v-model:file-list="record.files"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         mode="input"
         :multiple="true"
         :fields="{
@@ -220,7 +221,7 @@
       <MsParamsInput
         v-else
         v-model:value="record.value"
-        :disabled="props.disabled"
+        :disabled="props.disabledParamValue"
         size="mini"
         @change="() => addTableLine(rowIndex)"
         @dblclick="quickInputParams(record)"
@@ -232,7 +233,7 @@
       <div class="flex items-center justify-between">
         <a-input-number
           v-model:model-value="record.minLength"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :placeholder="t('apiTestDebug.paramMin')"
           :min="0"
           class="ms-form-table-input ms-form-table-input-number"
@@ -243,7 +244,7 @@
         <div class="mx-[4px]">{{ t('common.to') }}</div>
         <a-input-number
           v-model:model-value="record.maxLength"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :placeholder="t('apiTestDebug.paramMax')"
           :min="0"
           class="ms-form-table-input"
@@ -270,7 +271,7 @@
         </template>
         <MsTagsInput
           v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           :max-tag-count="2"
           input-class="ms-form-table-input"
           size="mini"
@@ -283,7 +284,7 @@
     <template #description="{ record, columnConfig, rowIndex }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         size="mini"
         @input="() => addTableLine(rowIndex)"
         @dblclick="quickInputDesc(record)"
@@ -294,7 +295,7 @@
     <template #encode="{ record, rowIndex }">
       <a-switch
         v-model:model-value="record.encode"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         size="small"
         class="ms-form-table-input-switch"
         type="line"
@@ -305,7 +306,7 @@
     <template #mustContain="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         @change="handleMustContainColChange(false)"
       />
     </template>
@@ -313,7 +314,7 @@
     <template #typeChecking="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         @change="handleTypeCheckingColChange(false)"
       />
     </template>
@@ -321,7 +322,7 @@
     <template #header="{ record, columnConfig, rowIndex }">
       <a-select
         v-model="record.header"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         class="ms-form-table-input"
         size="mini"
         @change="() => addTableLine(rowIndex)"
@@ -331,7 +332,12 @@
     </template>
     <!-- 匹配条件 -->
     <template #condition="{ record, columnConfig }">
-      <a-select v-model="record.condition" :disabled="props.disabled" size="mini" class="ms-form-table-input">
+      <a-select
+        v-model="record.condition"
+        :disabled="props.disabledExceptParam"
+        size="mini"
+        class="ms-form-table-input"
+      >
         <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">{{
           t(item.label)
         }}</a-option>
@@ -349,20 +355,25 @@
             record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
             '!mr-[4px] !p-[4px]',
           ]"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           size="mini"
           @click="toggleRequired(record, rowIndex)"
         >
           <div>*</div>
         </MsButton>
       </a-tooltip>
-      <a-input v-model="record.expectedValue" :disabled="props.disabled" size="mini" class="ms-form-table-input" />
+      <a-input
+        v-model="record.expectedValue"
+        :disabled="props.disabledExceptParam"
+        size="mini"
+        class="ms-form-table-input"
+      />
     </template>
     <!-- 项目选择 -->
     <template #project="{ record, rowIndex }">
       <a-select
         v-model:model-value="record.projectId"
-        :disabled="props.disabled"
+        :disabled="props.disabledExceptParam"
         class="ms-form-table-input w-max-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
         :bordered="false"
         allow-search
@@ -390,7 +401,7 @@
         v-if="record.projectId"
         v-model:model-value="record.environmentId"
         v-model:input-value="record.environmentInput"
-        :disabled="props.disabled || !record.projectId"
+        :disabled="props.disabledExceptParam || !record.projectId"
         :options="[]"
         mode="remote"
         value-key="id"
@@ -421,7 +432,7 @@
         <a-switch
           v-if="columnConfig.hasDisable"
           v-model="record.enable"
-          :disabled="props.disabled"
+          :disabled="props.disabledExceptParam"
           size="small"
           type="line"
           class="mr-[8px]"
@@ -442,7 +453,7 @@
               <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
               <a-select
                 v-model:model-value="record.contentType"
-                :disabled="props.disabled"
+                :disabled="props.disabledExceptParam"
                 :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
                 allow-create
                 size="mini"
@@ -578,7 +589,8 @@
       selectable?: boolean;
       showSetting?: boolean; // 是否显示列设置
       tableKey?: TableKeyEnum; // 表格key showSetting为true时必传
-      disabled?: boolean; // 是否禁用
+      disabledParamValue?: boolean; // 参数值禁用
+      disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
       showSelectorAll?: boolean; // 是否显示全选
       isSimpleSetting?: boolean; // 是否简单Column设置
       response?: string; // 响应内容
@@ -635,7 +647,7 @@
   const paramsLength = computed(() => paramsData.value.length);
 
   function deleteParam(record: Record<string, any>, rowIndex: number) {
-    if (props.disabled) return;
+    if (props.disabledExceptParam) return;
     if (props.isTreeTable) {
       emit('treeDelete', record);
       return;

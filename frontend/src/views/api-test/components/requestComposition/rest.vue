@@ -11,7 +11,7 @@
     </div>
     <batchAddKeyVal
       :params="innerParams"
-      :disabled="props.disabled"
+      :disabled="props.disabledExceptParam"
       :default-param-item="defaultRequestParamsItem"
       @apply="handleBatchParamApply"
     />
@@ -19,7 +19,8 @@
   <paramTable
     :params="innerParams"
     :columns="columns"
-    :disabled="props.disabled"
+    :disabled-param-value="props.disabledParamValue"
+    :disabled-except-param="props.disabledExceptParam"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
     :default-param-item="defaultRequestParamsItem"
@@ -45,7 +46,8 @@
     params: ExecuteRequestCommonParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
-    disabled?: boolean;
+    disabledParamValue?: boolean; // 参数值禁用
+    disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;

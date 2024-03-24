@@ -10,11 +10,12 @@
     @close="handleClose"
   >
     <template #title>
-      <stepType v-if="props.activeStep?.type" :type="props.activeStep?.type" class="mr-[4px]" />
+      <stepType v-if="activeStep?.type" :type="activeStep?.type" class="mr-[4px]" />
       <a-input
+        v-if="activeStep?.name"
         v-show="isShowEditStepNameInput"
         ref="stepNameInputRef"
-        v-model:model-value="stepName"
+        v-model:model-value="activeStep.name"
         class="flex-1"
         :placeholder="t('apiScenario.pleaseInputStepName')"
         :max-length="255"
@@ -24,22 +25,17 @@
       />
       <div v-show="!isShowEditStepNameInput" class="flex flex-1 items-center justify-between">
         <div class="flex items-center gap-[8px]">
-          <a-tooltip :content="stepName">
-            <span> {{ characterLimit(stepName) }}</span>
+          <a-tooltip :content="activeStep?.name">
+            <span> {{ characterLimit(activeStep?.name) }}</span>
           </a-tooltip>
           <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
         </div>
         <div class="right-operation-button-icon flex items-center">
-          <MsButton v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']" type="icon" status="secondary">
+          <MsButton type="icon" status="secondary">
             <MsIcon type="icon-icon_swich" />
             {{ t('common.replace') }}
           </MsButton>
-          <MsButton
-            v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
-            class="mr-4"
-            type="icon"
-            status="secondary"
-          >
+          <MsButton class="mr-4" type="icon" status="secondary" @click="handleDelete">
             <MsIcon type="icon-icon_delete-trash_outlined" />
             {{ t('common.delete') }}
           </MsButton>
@@ -68,7 +64,7 @@
       ref="requestAndResponseRef"
       :detail-loading="loading"
       :disabled-except-param="isQuote"
-      :default-params="defaultCaseParams"
+      :disabled-param-value="isQuote"
       :request="requestVModel"
       :is-priority-local-exec="isPriorityLocalExec"
       :file-save-as-source-id="requestVModel.id"
@@ -83,7 +79,7 @@
 
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import { InputInstance, Message } from '@arco-design/web-vue';
+  import { InputInstance } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -120,16 +116,23 @@
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
-    activeStep?: ScenarioStepItem;
     request?: RequestParam; // 请求参数集合
   }>();
   const emit = defineEmits<{
     (e: 'applyStep', request: RequestParam): void;
+    (e: 'deleteStep'): void;
   }>();
 
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', { required: true });
+  const activeStep = defineModel<ScenarioStepItem>('activeStep', {
+    required: false,
+  });
+  const isCopyNeedInit = computed(
+    () => activeStep.value?.type === ScenarioStepType.COPY_CASE && props.request?.request === null
+  );
+  const isQuote = computed(() => activeStep.value?.type === ScenarioStepType.QUOTE_CASE);
 
   const defaultCaseParams: RequestParam = {
     id: `case-${Date.now()}`,
@@ -198,16 +201,7 @@
     postDependency: [], // 后置依赖
   };
 
-  const isCopyNeedInit = computed(
-    () => props.activeStep?.type === ScenarioStepType.COPY_CASE && props.request?.request === null
-  );
-  const isQuote = computed(() => props.activeStep?.type === ScenarioStepType.QUOTE_CASE);
-
-  const stepName = ref(props.activeStep?.name);
-  watchEffect(() => {
-    stepName.value = props.activeStep?.name;
-  });
-  const requestVModel = ref<RequestParam>(cloneDeep(defaultCaseParams));
+  const requestVModel = ref<RequestParam>(props.request || cloneDeep(defaultCaseParams));
 
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const requestAndResponseRef = ref<InstanceType<typeof requestAndResponse>>();
@@ -234,8 +228,6 @@
     });
   }
   function updateStepName() {
-    // TODO: 更新步骤名称接口
-    Message.success(t('common.updateSuccess'));
     isShowEditStepNameInput.value = false;
   }
 
@@ -301,14 +293,20 @@
   }
 
   function handleClose() {
-    emit('applyStep', requestVModel.value);
+    if (!isQuote.value) {
+      emit('applyStep', { ...requestVModel.value, ...requestAndResponseRef.value?.makeRequestParams() });
+    }
+  }
+
+  function handleDelete() {
+    emit('deleteStep');
   }
 
   const loading = ref(false);
   async function initQuoteCaseDetail() {
     try {
       loading.value = true;
-      const res = await getCaseDetail(requestVModel.value.id as string);
+      const res = await getCaseDetail(props.request?.id as string);
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
