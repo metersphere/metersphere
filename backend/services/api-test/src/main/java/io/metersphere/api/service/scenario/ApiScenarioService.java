@@ -1846,14 +1846,8 @@ public class ApiScenarioService extends MoveNodeService {
         return extApiScenarioStepMapper.getStepDTOByScenarioIds(scenarioIds);
     }
 
-    public Object getStepDetail(StepRequest request) {
-        ApiScenarioStep step = apiScenarioStepMapper.selectByPrimaryKey(request.getStepId());
-        if (step == null) {
-            step = new ApiScenarioStep();
-            step.setStepType(request.getStepType());
-            step.setResourceId(request.getResourceId());
-            step.setRefType(ApiScenarioStepRefType.REF.name());
-        }
+    public Object getStepDetail(String stepId) {
+        ApiScenarioStep step = apiScenarioStepMapper.selectByPrimaryKey(stepId);
         StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
         Object stepDetail = stepParser.parseDetail(step);
         if (stepDetail instanceof AbstractMsTestElement msTestElement) {
