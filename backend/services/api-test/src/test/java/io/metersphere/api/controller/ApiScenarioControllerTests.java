@@ -95,7 +95,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
-    protected static final String STEP_GET = "step/get";
+    protected static final String STEP_GET = "step/get/{0}";
     protected static final String DEBUG = "debug";
     protected static final String RUN = "run/{0}";
     protected static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
@@ -1125,12 +1125,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         steps = apiScenarioDetail.getSteps();
         requestGetStepDetail(steps);
 
-        StepRequest stepRequest = new StepRequest();
-        stepRequest.setStepId(addApiScenario.getId());
-        stepRequest.setStepType("API_SCENARIO");
-        stepRequest.setResourceId(addApiScenario.getId());
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, stepRequest);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, addApiScenario.getId());
     }
 
     private void requestGetStepDetail(List<? extends ApiScenarioStepCommonDTO> steps) throws Exception {
@@ -1138,11 +1134,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             return;
         }
         for (ApiScenarioStepCommonDTO step : steps) {
-            StepRequest stepRequest = new StepRequest();
-            stepRequest.setStepId(step.getId());
-            stepRequest.setStepType(step.getStepType());
-            stepRequest.setResourceId(step.getResourceId());
-            this.requestPost(STEP_GET, stepRequest);
+            this.requestGet(STEP_GET, step.getId());
             List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
             requestGetStepDetail(children);
         }
@@ -2630,12 +2622,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiScenarioSystemRequest.setRefType(ApiScenarioStepRefType.COPY.name());
         this.requestPostWithOkAndReturn("/get/system-request", apiScenarioSystemRequest);
 
-        StepRequest stepRequest = new StepRequest();
-        stepRequest.setStepId("system-scenario-id1");
-        stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
-        stepRequest.setResourceId("system-scenario-id1");
-
-        mockMvc.perform(getPostRequestBuilder(STEP_GET, stepRequest))
+        mockMvc.perform(getRequestBuilder(STEP_GET, "system-scenario-id1"))
                 .andExpect(status().isOk());
     }
 
