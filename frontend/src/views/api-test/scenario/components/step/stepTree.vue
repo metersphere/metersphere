@@ -87,7 +87,7 @@
                 />
                 <!-- API、CASE、场景步骤名称 -->
                 <template v-if="checkStepIsApi(step)">
-                  <apiMethodName v-if="checkStepShowMethod(step)" :method="step.method" />
+                  <apiMethodName v-if="checkStepShowMethod(step)" :method="step.config.method" />
                   <div
                     v-if="step.id === showStepNameEditInputStepId"
                     class="name-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
@@ -268,6 +268,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import { getScenarioStep } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import {
@@ -527,11 +528,9 @@
   function handleStepContentChange($event, step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
     if (realStep) {
-      // Object.keys($event).forEach((key) => {
-      //   realStep.config[key] = $event[key];
-      // });
-      realStep.config = $event;
-      console.log('handleStepContentChange', $event);
+      Object.keys($event).forEach((key) => {
+        realStep.config[key] = $event[key];
+      });
     }
   }
 
@@ -566,12 +565,29 @@
     return undefined;
   });
 
+  async function getStepDetail(step: ScenarioStepItem) {
+    try {
+      appStore.showLoading();
+      const res = await getScenarioStep(step.id);
+      stepDetails.value[step.id] = {
+        ...res,
+        protocol: step.config.protocol,
+        method: step.config.method,
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
   /**
    * 处理步骤选中事件
    * @param _selectedKeys 选中的 key集合
    * @param step 点击的步骤节点
    */
-  function handleStepSelect(_selectedKeys: Array<string | number>, step: ScenarioStepItem) {
+  async function handleStepSelect(_selectedKeys: Array<string | number>, step: ScenarioStepItem) {
     const _stepType = getStepType(step);
     const offspringIds: string[] = [];
     mapTree(step.children || [], (e) => {
@@ -580,9 +596,14 @@
     });
     selectedKeys.value = [step.id, ...offspringIds];
     if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
+      // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
+      if (stepDetails.value[step.id] === undefined) {
+        // 详情映射中没有加载过该 api 详情，说明是初次查看详情，引用的 api 不需要在这里加载详情
+        await getStepDetail(step);
+      }
       customApiDrawerVisible.value = true;
-    } else if ([ScenarioStepType.QUOTE_CASE, ScenarioStepType.COPY_CASE].includes(step.type)) {
+    } else if (step.stepType === ScenarioStepType.API_CASE) {
       activeStep.value = step;
       customCaseDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.SCRIPT) {
@@ -653,7 +674,6 @@
       ScenarioStepType.API,
       refType,
       sort,
-      stepDetails.value,
       appStore.currentProjectId
     );
     const insertCaseSteps = buildInsertStepInfos(
@@ -661,7 +681,6 @@
       ScenarioStepType.API_CASE,
       refType,
       sort + insertApiSteps.length,
-      stepDetails.value,
       appStore.currentProjectId
     );
     const insertScenarioSteps = buildInsertStepInfos(
@@ -669,7 +688,6 @@
       ScenarioStepType.API_SCENARIO,
       refType,
       sort + insertApiSteps.length + insertCaseSteps.length,
-      stepDetails.value,
       appStore.currentProjectId
     );
     const insertSteps = insertApiSteps.concat(insertCaseSteps).concat(insertScenarioSteps);
@@ -703,12 +721,17 @@
     } else {
       steps.value.push({
         ...cloneDeep(defaultStepItemCommon),
+        config: {
+          customizeRequest: true,
+          customizeRequestEnvEnable: request.customizeRequestEnvEnable,
+          protocol: request.protocol,
+          method: request.method,
+        },
         id: request.id,
         sort: steps.value.length + 1,
         stepType: ScenarioStepType.CUSTOM_REQUEST,
         refType: ScenarioStepRefType.DIRECT,
         name: t('apiScenario.customApi'),
-        method: request.method,
         projectId: appStore.currentProjectId,
       });
     }
@@ -719,6 +742,7 @@
    */
   function applyApiStep(request: RequestParam | CaseRequestParam) {
     if (activeStep.value) {
+      request.isNew = false;
       stepDetails.value[activeStep.value?.id] = request;
       activeStep.value = undefined;
     }
@@ -730,8 +754,8 @@
   function deleteCaseStep() {
     if (activeStep.value) {
       customCaseDrawerVisible.value = false;
-      steps.value = steps.value.filter((item) => item.stepId !== activeStep.value?.stepId);
-      delete stepsDetailMap.value[activeStep.value?.stepId];
+      steps.value = steps.value.filter((item) => item.id !== activeStep.value?.id);
+      delete stepDetails.value[activeStep.value?.id];
       activeStep.value = undefined;
     }
   }
@@ -851,6 +875,13 @@
     }
     quickInputDataKey.value = dataKey;
     quickInputParamValue.value = step.config?.[dataKey] || '';
+    if (quickInputDataKey.value === 'msWhileVariableValue' && activeStep.value?.config.whileController) {
+      quickInputParamValue.value = activeStep.value.config.whileController.msWhileVariable.value;
+    } else if (quickInputDataKey.value === 'msWhileVariableScriptValue' && activeStep.value?.config.whileController) {
+      quickInputParamValue.value = activeStep.value.config.whileController.msWhileScript.scriptValue;
+    } else if (quickInputDataKey.value === 'conditionValue' && activeStep.value?.config) {
+      quickInputParamValue.value = activeStep.value.config.value || '';
+    }
     showQuickInput.value = true;
   }
 
@@ -862,7 +893,13 @@
 
   function applyQuickInput() {
     if (activeStep.value) {
-      activeStep.value[quickInputDataKey.value] = quickInputParamValue.value;
+      if (quickInputDataKey.value === 'msWhileVariableValue' && activeStep.value.config.whileController) {
+        activeStep.value.config.whileController.msWhileVariable.value = quickInputParamValue.value;
+      } else if (quickInputDataKey.value === 'msWhileVariableScriptValue' && activeStep.value.config.whileController) {
+        activeStep.value.config.whileController.msWhileScript.scriptValue = quickInputParamValue.value;
+      } else if (quickInputDataKey.value === 'conditionValue' && activeStep.value.config) {
+        activeStep.value.config.value = quickInputParamValue.value;
+      }
       showQuickInput.value = false;
       clearQuickInput();
     }

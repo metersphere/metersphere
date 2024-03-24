@@ -54,7 +54,11 @@
   import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   import useCreateActions from './useCreateActions';
-  import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
+  import {
+    defaultConditionController,
+    defaultLoopController,
+    defaultStepItemCommon,
+  } from '@/views/api-test/scenario/components/config';
   import { DropdownPosition } from '@arco-design/web-vue/es/dropdown/interface';
 
   const props = defineProps<{
@@ -90,7 +94,7 @@
     default: undefined,
   });
 
-  const { handleCreateStep } = useCreateActions();
+  const { handleCreateStep, buildInsertStepInfos } = useCreateActions();
 
   /**
    * 处理创建步骤操作
@@ -112,15 +116,15 @@
             selectedKeys.value
           );
         } else {
-          steps.value.push({
-            ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
-            sort: steps.value.length + 1,
-            stepType: ScenarioStepType.LOOP_CONTROLLER,
-            refType: ScenarioStepRefType.DIRECT,
-            name: t('apiScenario.loopControl'),
-            projectId: appStore.currentProjectId,
-          });
+          steps.value.push(
+            buildInsertStepInfos(
+              [cloneDeep(defaultStepItemCommon)],
+              ScenarioStepType.LOOP_CONTROLLER,
+              ScenarioStepRefType.DIRECT,
+              steps.value.length + 1,
+              appStore.currentProjectId
+            )[0]
+          );
         }
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
@@ -137,15 +141,15 @@
             selectedKeys.value
           );
         } else {
-          steps.value.push({
-            ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
-            sort: steps.value.length + 1,
-            stepType: ScenarioStepType.IF_CONTROLLER,
-            refType: ScenarioStepRefType.DIRECT,
-            name: t('apiScenario.conditionControl'),
-            projectId: appStore.currentProjectId,
-          });
+          steps.value.push(
+            buildInsertStepInfos(
+              [cloneDeep(defaultStepItemCommon)],
+              ScenarioStepType.IF_CONTROLLER,
+              ScenarioStepRefType.DIRECT,
+              steps.value.length + 1,
+              appStore.currentProjectId
+            )[0]
+          );
         }
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
@@ -162,15 +166,15 @@
             selectedKeys.value
           );
         } else {
-          steps.value.push({
-            ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
-            sort: steps.value.length + 1,
-            stepType: ScenarioStepType.ONCE_ONLY_CONTROLLER,
-            refType: ScenarioStepRefType.DIRECT,
-            name: t('apiScenario.onlyOnceControl'),
-            projectId: appStore.currentProjectId,
-          });
+          steps.value.push(
+            buildInsertStepInfos(
+              [cloneDeep(defaultStepItemCommon)],
+              ScenarioStepType.ONCE_ONLY_CONTROLLER,
+              ScenarioStepRefType.DIRECT,
+              steps.value.length + 1,
+              appStore.currentProjectId
+            )[0]
+          );
         }
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
@@ -187,15 +191,15 @@
             selectedKeys.value
           );
         } else {
-          steps.value.push({
-            ...cloneDeep(defaultStepItemCommon),
-            id: getGenerateId(),
-            sort: steps.value.length + 1,
-            stepType: ScenarioStepType.CONSTANT_TIMER,
-            refType: ScenarioStepRefType.DIRECT,
-            name: t('apiScenario.waitTime'),
-            projectId: appStore.currentProjectId,
-          });
+          steps.value.push(
+            buildInsertStepInfos(
+              [cloneDeep(defaultStepItemCommon)],
+              ScenarioStepType.CONSTANT_TIMER,
+              ScenarioStepRefType.DIRECT,
+              steps.value.length + 1,
+              appStore.currentProjectId
+            )[0]
+          );
         }
         break;
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:

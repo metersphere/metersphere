@@ -4,7 +4,7 @@
     :width="960"
     no-content-padding
     :show-continue="true"
-    :footer="!!requestVModel.isNew"
+    :footer="requestVModel.isNew === true"
     @confirm="handleSave"
     @continue="handleContinue"
     @close="handleClose"
@@ -18,11 +18,21 @@
         />
         {{ title }}
       </div>
-      <div v-if="requestVModel.isNew" class="ml-auto flex items-center gap-[16px]">
-        <div v-show="requestVModel.useEnv === 'false'" class="text-[14px] font-normal text-[var(--color-text-4)]">
+      <div
+        v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
+        class="ml-auto flex items-center gap-[16px]"
+      >
+        <div
+          v-show="!requestVModel.customizeRequestEnvEnable"
+          class="text-[14px] font-normal text-[var(--color-text-4)]"
+        >
           {{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
         </div>
-        <a-select v-model:model-value="requestVModel.useEnv" class="w-[150px]" @change="handleUseEnvChange">
+        <a-select
+          v-model:model-value="requestVModel.customizeRequestEnvEnable"
+          class="w-[150px]"
+          @change="handleUseEnvChange"
+        >
           <template #prefix>
             <div> {{ t('project.environmental.env') }} </div>
           </template>
@@ -348,7 +358,7 @@
 
   export type RequestParam = ExecuteApiRequestFullParams & {
     response?: RequestTaskResult;
-    useEnv: string;
+    customizeRequestEnvEnable: boolean;
     request?: ExecuteApiRequestFullParams; // 请求参数集合
   } & RequestCustomAttr &
     TabItem;
@@ -389,7 +399,7 @@
   const defaultDebugParams: RequestParam = {
     type: 'api',
     id: '',
-    useEnv: 'false',
+    customizeRequestEnvEnable: false,
     protocol: 'HTTP',
     url: '',
     activeTab: RequestComposition.HEADER,
@@ -614,14 +624,22 @@
    * 控制插件表单字段显示
    */
   function controlPluginFormFields() {
-    const allFields = fApi.value?.fields();
+    const currentFormFields = fApi.value?.fields();
     let fields: string[] = [];
-    if (requestVModel.value.useEnv === 'true') {
+    if (requestVModel.value.customizeRequestEnvEnable) {
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields || [];
     } else {
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
     }
-    fApi.value?.hidden(true, allFields?.filter((e) => !fields.includes(e)) || []);
+    // 确保fields展示完整
+    if (currentFormFields && currentFormFields.length < fields.length) {
+      fApi.value?.hidden(false, fields);
+      fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
+      fApi.value?.refresh();
+    } else {
+      // 隐藏多余的字段
+      fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
+    }
     return fields;
   }
 
@@ -640,6 +658,7 @@
             form[key] = formData[key];
           });
           fApi.value?.setValue(cloneDeep(form));
+          fApi.value?.clearValidateState();
           setTimeout(() => {
             // 初始化时赋值会触发表单数据变更，300ms 是为了与 handlePluginFormChange的防抖时间保持一致
             isInitPluginForm.value = true;
@@ -745,17 +764,6 @@
   const secondBoxHeight = ref(0);
 
   watch(
-    () => showResponse.value,
-    (val) => {
-      if (val) {
-        splitBoxSize.value = 0.6;
-      } else {
-        splitBoxSize.value = 1;
-      }
-    }
-  );
-
-  watch(
     () => splitBoxSize.value,
     debounce((val) => {
       // 动画 300ms
@@ -785,9 +793,7 @@
     if (val) {
       verticalSplitBoxRef.value?.expand(0.6);
     } else {
-      verticalSplitBoxRef.value?.collapse(
-        splitContainerRef.value ? `${splitContainerRef.value.clientHeight - 42}px` : 0
-      );
+      verticalSplitBoxRef.value?.collapse(1);
     }
   }
 
@@ -921,6 +927,7 @@
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
       name: requestVModel.value.name,
+      customizeRequestEnvEnable: requestVModel.value.customizeRequestEnvEnable,
       children: [
         {
           polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
@@ -1042,9 +1049,15 @@
     () => visible.value,
     async (val) => {
       if (val) {
+        if (protocolOptions.value.length === 0) {
+          await initProtocolList();
+        }
         if (props.request) {
-          console.log('props.request', props.request);
-          requestVModel.value = cloneDeep(props.request);
+          requestVModel.value = cloneDeep({
+            ...defaultDebugParams,
+            ...props.request,
+            isNew: false,
+          });
           if (
             _stepType.value.isQuoteApi ||
             isCopyApiNeedInit.value
@@ -1082,15 +1095,12 @@
           //     });
           //   }
           // }
+          handleActiveDebugProtocolChange(requestVModel.value.protocol);
         } else {
           requestVModel.value = cloneDeep({
             ...defaultDebugParams,
             id: getGenerateId(),
           });
-        }
-        await initProtocolList();
-        if (props.request) {
-          handleActiveDebugProtocolChange(requestVModel.value.protocol);
         }
       }
     },
@@ -1099,6 +1109,19 @@
     }
   );
 </script>
+
+<style lang="less">
+  .hidden-second {
+    :deep(.arco-split-trigger, .arco-split-pane-second) {
+      @apply hidden;
+    }
+  }
+  .show-second {
+    :deep(.arco-split-trigger, .arco-split-pane-second) {
+      @apply block;
+    }
+  }
+</style>
 
 <style lang="less" scoped>
   .exec-btn {
@@ -1125,15 +1148,5 @@
   }
   :deep(.arco-tabs-tab) {
     @apply leading-none;
-  }
-  .hidden-second {
-    :deep(.arco-split-trigger) {
-      @apply hidden;
-    }
-  }
-  .show-second {
-    :deep(.arco-split-trigger) {
-      @apply block;
-    }
   }
 </style>

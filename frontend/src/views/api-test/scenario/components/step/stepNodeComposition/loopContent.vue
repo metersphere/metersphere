@@ -225,8 +225,8 @@
         emit(
           'quickInput',
           innerData.value.whileController.conditionType === WhileConditionType.CONDITION
-            ? 'whileController.msWhileVariable.value'
-            : 'whileController.msWhileScript.scriptValue'
+            ? 'msWhileVariableValue'
+            : 'msWhileVariableScriptValue'
         );
       }
     }

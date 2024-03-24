@@ -10,7 +10,7 @@
     @close="handleClose"
   >
     <template #title>
-      <stepType v-if="activeStep?.type" :type="activeStep?.type" class="mr-[4px]" />
+      <stepType v-if="props.activeStep?.stepType" :step="props.activeStep" class="mr-[4px]" />
       <a-input
         v-if="activeStep?.name"
         v-show="isShowEditStepNameInput"
@@ -84,8 +84,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import { ScenarioStepItem } from '../step/stepTree.vue';
-  import stepType from './stepType.vue';
+  import stepType from './stepType/stepType.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import requestAndResponse from '@/views/api-test/components/requestAndResponse.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -103,12 +102,14 @@
   import { getLocalConfig } from '@/api/modules/user/index';
   import { characterLimit, getGenerateId } from '@/utils';
 
+  import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import { LocalConfig } from '@/models/user';
   import {
     RequestAuthType,
     RequestComposition,
     RequestMethods,
     ResponseComposition,
+    ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
 
@@ -202,6 +203,20 @@
   };
 
   const requestVModel = ref<RequestParam>(props.request || cloneDeep(defaultCaseParams));
+  const isCopyCase = computed(
+    () =>
+      props.activeStep?.stepType === ScenarioStepType.API_CASE && props.activeStep?.refType === ScenarioStepRefType.COPY
+  );
+  const isCopyNeedInit = computed(() => isCopyCase.value && props.request?.request === null);
+  const isQuote = computed(
+    () =>
+      props.activeStep?.stepType === ScenarioStepType.API_CASE && props.activeStep?.refType === ScenarioStepRefType.REF
+  );
+
+  const stepName = ref(props.activeStep?.name);
+  watchEffect(() => {
+    stepName.value = props.activeStep?.name;
+  });
 
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const requestAndResponseRef = ref<InstanceType<typeof requestAndResponse>>();

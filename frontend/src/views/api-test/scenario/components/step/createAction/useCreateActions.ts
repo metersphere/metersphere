@@ -6,7 +6,7 @@ import { getGenerateId, insertNodes, TreeNode } from '@/utils';
 import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
-import { defaultStepItemCommon } from '../../config';
+import { defaultConditionController, defaultLoopController, defaultStepItemCommon } from '../../config';
 
 export default function useCreateActions() {
   const { t } = useI18n();
@@ -48,7 +48,6 @@ export default function useCreateActions() {
       id: getGenerateId(),
       ...defaultStepInfo,
     };
-    console.log('newStep', newStep);
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
       step.id,
@@ -70,7 +69,6 @@ export default function useCreateActions() {
     stepType: ScenarioStepType,
     refType: ScenarioStepRefType,
     startOrder: number,
-    stepDetails: Record<string, any>,
     projectId: string
   ): ScenarioStepItem[] {
     let name: string;
@@ -98,15 +96,40 @@ export default function useCreateActions() {
     }
     return newSteps.map((item, index) => {
       const id = getGenerateId();
-      stepDetails[id] = item; // 导入系统请求的引用接口和 case 的时候需要先存储一下引用的接口/用例信息
+      let resourceField = {};
+      let config = {};
+      if (stepType === ScenarioStepType.LOOP_CONTROLLER) {
+        config = cloneDeep(defaultLoopController);
+      } else if (stepType === ScenarioStepType.IF_CONTROLLER) {
+        config = cloneDeep(defaultConditionController);
+      }
+      if (item.id) {
+        // 引用复制接口、用例、场景时的源资源信息
+        resourceField = {
+          resourceId: item.id,
+          resourceNum: item.num,
+          resourceName: item.name,
+        };
+      }
+      if (item.protocol) {
+        // 自定义请求、api、case 添加协议和方法
+        config = {
+          ...config,
+          protocol: item.protocol,
+          method: item.method,
+        };
+      }
       return {
         ...cloneDeep(defaultStepItemCommon),
         ...item,
         id,
+        config: {
+          ...defaultStepItemCommon.config,
+          ...config,
+        },
         stepType,
         refType,
-        resourceId: item.id,
-        resourceName: item.name,
+        ...resourceField,
         name: name || item.name,
         sort: startOrder + index,
         projectId,

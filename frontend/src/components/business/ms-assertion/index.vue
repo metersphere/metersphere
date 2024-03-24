@@ -236,6 +236,7 @@
       const currentIndex = assertions.value.findIndex((item) => item.id === activeKey.value);
       const tmpArr = assertions.value;
       tmpArr[currentIndex] = cloneDeep(val);
+      console.log('tmpArr', assertions.value, tmpArr);
       assertions.value = tmpArr;
     },
   });

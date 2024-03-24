@@ -224,7 +224,7 @@ export function mapTree<T>(
     return _tree
       .map((node: TreeNode<T>, i: number) => {
         const fullPath = node.path ? `${_parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
-        node.sort = i + 1; // order从 1 开始
+        node.sort = i + 1; // sort 从 1 开始
         node.parent = _parent || undefined; // 没有父节点说明是树的第一层
         const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
         if (newNode) {
