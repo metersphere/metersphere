@@ -46,6 +46,8 @@
 </template>
 
 <script setup lang="ts">
+  import { cloneDeep } from 'lodash-es';
+
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import conditionContent from './content.vue';
   import conditionList from './list.vue';
@@ -93,7 +95,7 @@
    */
   function copyListItem() {
     const copyItem = {
-      ...activeItem.value,
+      ...cloneDeep(activeItem.value),
       id: new Date().getTime(),
     };
     data.value.push(copyItem as ExecuteConditionProcessor);
