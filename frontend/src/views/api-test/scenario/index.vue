@@ -274,7 +274,7 @@
   const currentEnvConfig = ref<EnvConfig>();
   const reportId = ref('');
   const websocket = ref<WebSocket>();
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
 
   /**
    * 开启websocket监听，接收执行结果
@@ -291,14 +291,18 @@
         if (activeScenarioTab.value.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab
           activeScenarioTab.value.executeLoading = false;
+          activeScenarioTab.value.isExecute = false;
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[activeScenarioTab.value.id][data.reportId] = data.taskResult;
+          temporaryScenarioReportMap[data.reportId] = data.taskResult;
         }
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
         websocket.value?.close();
-        activeScenarioTab.value.executeLoading = false;
+        if (activeScenarioTab.value.reportId === data.reportId) {
+          activeScenarioTab.value.executeLoading = false;
+          activeScenarioTab.value.isExecute = false;
+        }
       }
     });
   }
@@ -346,9 +350,10 @@
   const scenarioId = computed(() => activeScenarioTab.value.id);
   const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);
   // 为子孙组件提供属性
+  provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);
-  provide('temporaryResponseMap', temporaryResponseMap);
+  provide('temporaryScenarioReportMap', readonly(temporaryScenarioReportMap));
 </script>
 
 <style scoped lang="less">

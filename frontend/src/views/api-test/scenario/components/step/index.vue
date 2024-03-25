@@ -118,15 +118,22 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import stepTree from './stepTree.vue';
 
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { debugScenario } from '@/api/modules/api-test/scenario';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { deleteNodes, filterTree, getGenerateId } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
-  import { Scenario } from '@/models/apiTest/scenario';
+  import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
 
   const props = defineProps<{
     isNew?: boolean; // 是否新建
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const scenario = defineModel<Scenario>('scenario', {
@@ -209,12 +216,9 @@
     }
   }
 
-  function batchDebug() {
-    console.log('批量调试');
-  }
-
   function batchDelete() {
-    console.log('批量删除');
+    deleteNodes(scenario.value.steps, checkedKeys.value, 'id');
+    Message.success(t('common.deleteSuccess'));
   }
 
   function checkReport() {
@@ -225,14 +229,94 @@
     console.log('刷新步骤信息');
   }
 
-  async function executeScenario() {
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
+  const stepReportId = ref('');
+  const websocket = ref<WebSocket>();
+  const temporaryStepReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+
+  /**
+   * 开启websocket监听，接收执行结果
+   */
+  function debugSocket(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+    websocket.value = getSocket(
+      stepReportId.value,
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? localExecuteUrl : ''
+    );
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        if (scenario.value.stepReportId === data.reportId) {
+          // 判断当前查看的tab是否是当前返回的报告的tab
+          scenario.value.executeLoading = false;
+          scenario.value.isExecute = false;
+        } else {
+          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+          temporaryStepReportMap[data.reportId] = data.taskResult;
+        }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
+        if (scenario.value.reportId === data.reportId) {
+          scenario.value.executeLoading = false;
+          scenario.value.isExecute = false;
+        }
+      }
+    });
+  }
+
+  async function realExecute(
+    executeParams: ApiScenarioDebugRequest,
+    executeType?: 'localExec' | 'serverExec',
+    localExecuteUrl?: string
+  ) {
     try {
       scenario.value.executeLoading = true;
+      stepReportId.value = getGenerateId();
+      scenario.value.reportId = stepReportId.value; // 存储报告ID
+      debugSocket(executeType, localExecuteUrl); // 开启websocket
+      executeParams.environmentId = currentEnvConfig?.value.id || '';
+      const res = await debugScenario(executeParams);
+      if (executeType === 'localExec' && localExecuteUrl) {
+        await localExecuteApiDebug(localExecuteUrl, res);
+      }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
-    } finally {
       scenario.value.executeLoading = false;
     }
+  }
+
+  function batchDebug() {
+    const selectedKeysSet = new Set(checkedKeys.value);
+    const waitTingDebugSteps = filterTree(
+      scenario.value.steps,
+      (node) => {
+        if (selectedKeysSet.has(node.id)) {
+          selectedKeysSet.delete(node.id);
+          return true;
+        }
+        return false;
+      },
+      'id'
+    );
+    const waitingDebugStepDetails = {};
+    Object.keys(scenario.value.stepDetails).forEach((key) => {
+      if (selectedKeysSet.has(key)) {
+        waitingDebugStepDetails[key] = scenario.value.stepDetails[key];
+      }
+    });
+    realExecute({
+      id: scenario.value.id || '',
+      steps: waitTingDebugSteps,
+      stepDetails: waitingDebugStepDetails,
+      grouped: false,
+      environmentId: currentEnvConfig?.value.id || '',
+      uploadFileIds: scenario.value.uploadFileIds,
+      linkFileIds: scenario.value.linkFileIds,
+      projectId: appStore.currentProjectId,
+      scenarioConfig: scenario.value.scenarioConfig,
+    });
   }
 </script>
 

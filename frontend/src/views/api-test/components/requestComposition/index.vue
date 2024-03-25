@@ -826,7 +826,7 @@
    * 控制插件表单字段显示
    */
   function controlPluginFormFields() {
-    const allFields = fApi.value?.fields();
+    const currentFormFields = fApi.value?.fields();
     let fields: string[] = [];
     if (props.isDefinition) {
       // 接口定义使用接口定义的字段集
@@ -836,7 +836,14 @@
       // 根据 apiDebugFields 字段集合展示需要的字段，隐藏其他字段
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
     }
-    fApi.value?.hidden(true, allFields?.filter((e) => !fields.includes(e)) || []);
+    // 确保fields展示完整
+    fApi.value?.hidden(false, fields);
+    if (currentFormFields && currentFormFields.length < fields.length) {
+      fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
+    } else {
+      // 隐藏多余的字段
+      fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
+    }
     return fields;
   }
 
@@ -1087,8 +1094,10 @@
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
         websocket.value?.close();
-        requestVModel.value.executeLoading = false;
-        requestVModel.value.isExecute = false;
+        if (requestVModel.value.reportId === data.reportId) {
+          requestVModel.value.executeLoading = false;
+          requestVModel.value.isExecute = false;
+        }
       }
     });
   }

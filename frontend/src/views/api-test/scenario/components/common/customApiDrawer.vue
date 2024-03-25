@@ -650,8 +650,8 @@
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];
     }
     // 确保fields展示完整
+    fApi.value?.hidden(false, fields);
     if (currentFormFields && currentFormFields.length < fields.length) {
-      fApi.value?.hidden(false, fields);
       fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
     } else {
       // 隐藏多余的字段

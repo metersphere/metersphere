@@ -322,6 +322,7 @@ export interface ScenarioStepItem {
   name: string;
   executeStatus?: ScenarioExecuteStatus;
   enable: boolean; // 是否启用
+  copyFromStepId?: string; // 如果步骤是复制的，这个字段是复制的步骤id；如果复制的步骤也是复制的，并且没有加载过详情，则这个 id 是最原始的 被复制的步骤 id
   resourceId?: string; // 详情或者引用的类型才有
   resourceNum?: string; // 详情或者引用的类型才有
   stepType: ScenarioStepType;
@@ -368,7 +369,9 @@ export interface Scenario {
   executeTime?: string | number; // 执行时间
   executeSuccessCount?: number; // 执行成功数量
   executeFailCount?: number; // 执行失败数量
-  reportId?: string;
+  reportId?: string | number; // 场景报告 id
+  stepReportId?: string | number; // 步骤报告 id（单个或批量调试）
+  isExecute?: boolean; // 是否从列表执行进去场景详情
 }
 export interface ScenarioDetail extends Scenario {
   stepTotal: number;
