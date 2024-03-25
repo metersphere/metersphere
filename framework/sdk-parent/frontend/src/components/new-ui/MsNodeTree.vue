@@ -49,7 +49,7 @@
                   v-if="data.id && !isDefault(data) && !hideNodeOperator"
                   :content="$t('test_track.module.add_submodule')"
                   placement="top">
-                  <el-button class="node-operate-btn" @click.stop="append(node, data)" icon="el-icon-plus"/>
+                  <el-button class="node-operate-btn" @click.stop="append(node, data)" :disabled="appendChildDisable" icon="el-icon-plus"/>
                 </el-tooltip>
 
                 <el-button v-if="!data.id" class="node-operate-btn" @click="remove(node, data)" icon="el-icon-delete"/>
@@ -142,7 +142,7 @@
               v-if="data.id && !isDefault(data) && !hideNodeOperator"
               :content="$t('test_track.module.add_submodule')"
               placement="top" :case-num="getCaseNum(data)">
-              <el-button class="node-operate-btn" @click.stop="append(node, data)" icon="el-icon-plus"/>
+              <el-button class="node-operate-btn" @click.stop="append(node, data)" :disabled="appendChildDisable" icon="el-icon-plus"/>
             </el-tooltip>
 
             <el-button v-if="!data.id" class="node-operate-btn" @click="remove(node, data)" icon="el-icon-delete"/>
@@ -210,6 +210,7 @@ export default {
         label: "label"
       },
       extendTreeNodes: [],
+      appendChildDisable: false
     };
   },
   props: {
@@ -396,6 +397,7 @@ export default {
       }
     },
     edit(node, data, isAppend) {
+      this.appendChildDisable = true;
       this.$set(data, 'isEdit', true);
       this.$nextTick(() => {
         this.$refs.nameInput.focus();
@@ -469,11 +471,8 @@ export default {
         this.$set(data, 'children', [])
       }
       data.children.push(newChild);
-      this.edit(node, newChild, true);
       node.expanded = true;
-      this.$nextTick(() => {
-        this.$refs.nameInput.focus();
-      });
+      this.edit(node, newChild, true);
     },
     save(node, data) {
       if (data.name.trim() === '') {
@@ -506,10 +505,12 @@ export default {
         data.level = param.level;
       }
       this.$set(data, 'isEdit', false);
+      this.appendChildDisable = false;
     },
     remove(node, data) {
       if (data.label === undefined) {
         this.$refs.tree.remove(node);
+        this.appendChildDisable = false;
         return;
       }
       let title = this.$t('commons.confirm_delete') + ': ' + this.$t("project.project_file.file_module_type.module") + data.label + "?";
