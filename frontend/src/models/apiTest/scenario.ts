@@ -368,6 +368,7 @@ export interface Scenario {
   executeTime?: string | number; // 执行时间
   executeSuccessCount?: number; // 执行成功数量
   executeFailCount?: number; // 执行失败数量
+  reportId?: string;
 }
 export interface ScenarioDetail extends Scenario {
   stepTotal: number;
@@ -383,4 +384,18 @@ export interface ScenarioDetail extends Scenario {
   createTime: number;
   updateTime: number;
   updateUser: string;
+}
+
+export interface ApiScenarioDebugRequest {
+  id: string | number; // 场景 id
+  grouped: boolean;
+  environmentId: string;
+  scenarioConfig: ScenarioConfig;
+  stepDetails: Record<string, ScenarioStepDetail>;
+  reportId?: string | number;
+  steps: ScenarioStepItem[];
+  projectId: string;
+  uploadFileIds: string[];
+  linkFileIds: string[];
+  frontendDebug?: boolean;
 }

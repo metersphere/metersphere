@@ -2,29 +2,49 @@
   <MsSplitBox ref="splitBoxRef" :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
     <template #first>
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
-        <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="p-[16px]">
+        <a-tab-pane
+          :key="ScenarioCreateComposition.STEP"
+          :title="t('apiScenario.step')"
+          class="scenario-create-tab-pane"
+        >
           <step v-if="activeKey === ScenarioCreateComposition.STEP" v-model:scenario="scenario" is-new />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioCreateComposition.PARAMS" :title="t('apiScenario.params')" class="p-[16px]">
+        <a-tab-pane
+          :key="ScenarioCreateComposition.PARAMS"
+          :title="t('apiScenario.params')"
+          class="scenario-create-tab-pane"
+        >
           <params
             v-if="activeKey === ScenarioCreateComposition.PARAMS"
             v-model:params="scenario.scenarioConfig.variable.commonVariables"
           />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioCreateComposition.PRE_POST" :title="t('apiScenario.prePost')" class="p-[16px]">
+        <a-tab-pane
+          :key="ScenarioCreateComposition.PRE_POST"
+          :title="t('apiScenario.prePost')"
+          class="scenario-create-tab-pane"
+        >
           <prePost
             v-if="activeKey === ScenarioCreateComposition.PRE_POST"
             v-model:post-processor-config="scenario.scenarioConfig.postProcessorConfig"
             v-model:pre-processor-config="scenario.scenarioConfig.preProcessorConfig"
           />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioCreateComposition.ASSERTION" :title="t('apiScenario.assertion')" class="p-[16px]">
+        <a-tab-pane
+          :key="ScenarioCreateComposition.ASSERTION"
+          :title="t('apiScenario.assertion')"
+          class="scenario-create-tab-pane"
+        >
           <assertion
             v-if="activeKey === ScenarioCreateComposition.ASSERTION"
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
           />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioCreateComposition.SETTING" :title="t('common.setting')" class="p-[16px]">
+        <a-tab-pane
+          :key="ScenarioCreateComposition.SETTING"
+          :title="t('common.setting')"
+          class="scenario-create-tab-pane"
+        >
           <setting
             v-if="activeKey === ScenarioCreateComposition.SETTING"
             v-model:other-config="scenario.scenarioConfig.otherConfig"
@@ -206,6 +226,9 @@
       .arco-tabs-pane {
         @apply h-full;
       }
+    }
+    .scenario-create-tab-pane {
+      padding: 8px 16px;
     }
   }
 </style>

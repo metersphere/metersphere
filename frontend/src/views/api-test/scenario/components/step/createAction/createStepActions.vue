@@ -48,7 +48,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { findNodeByKey, getGenerateId } from '@/utils';
+  import { findNodeByKey } from '@/utils';
 
   import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';

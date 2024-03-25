@@ -6,7 +6,12 @@ import { getGenerateId, insertNodes, TreeNode } from '@/utils';
 import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
-import { defaultConditionController, defaultLoopController, defaultStepItemCommon } from '../../config';
+import {
+  defaultConditionController,
+  defaultLoopController,
+  defaultStepItemCommon,
+  defaultTimeController,
+} from '../../config';
 
 export default function useCreateActions() {
   const { t } = useI18n();
@@ -102,6 +107,8 @@ export default function useCreateActions() {
         config = cloneDeep(defaultLoopController);
       } else if (stepType === ScenarioStepType.IF_CONTROLLER) {
         config = cloneDeep(defaultConditionController);
+      } else if (stepType === ScenarioStepType.CONSTANT_TIMER) {
+        config = cloneDeep(defaultTimeController);
       }
       if (item.id) {
         // 引用复制接口、用例、场景时的源资源信息

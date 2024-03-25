@@ -45,6 +45,11 @@ export const defaultConditionController = {
   condition: RequestAssertionCondition.EQUALS, // 条件操作符
 };
 
+// 条件控制器
+export const defaultTimeController = {
+  delay: 0, // 等待时间
+};
+
 export const defaultStepItemCommon = {
   checked: false,
   expanded: false,
@@ -56,7 +61,6 @@ export const defaultStepItemCommon = {
     id: '',
     name: '',
     enable: true,
-    waitTime: 0, // 等待时间
   },
   createActionsVisible: false,
 };

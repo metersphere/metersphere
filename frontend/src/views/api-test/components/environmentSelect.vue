@@ -31,14 +31,19 @@
   const { openNewPage } = useOpenNewPage();
 
   const currentEnv = defineModel<string>('currentEnv', { default: '' });
-  const currentEnvConfig = ref<EnvConfig>();
+  const currentEnvConfig = defineModel<EnvConfig>('currentEnvConfig', {
+    default: {},
+  });
   const envLoading = ref(false);
   const envOptions = ref<SelectOptionData[]>([]);
 
   async function initEnvironment() {
     try {
-      currentEnvConfig.value = await getEnvironment(currentEnv.value);
-      currentEnvConfig.value.id = currentEnv.value;
+      const res = await getEnvironment(currentEnv.value);
+      currentEnvConfig.value = {
+        ...res,
+        id: currentEnv.value,
+      };
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

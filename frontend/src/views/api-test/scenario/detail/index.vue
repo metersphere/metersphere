@@ -34,22 +34,26 @@
         </template>
       </MsDetailCard>
     </div>
-    <div class="h-[calc(100%-124px)]">
+    <div class="h-[calc(100%-104px)]">
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
         <a-tab-pane
           :key="ScenarioDetailComposition.BASE_INFO"
           :title="t('apiScenario.baseInfo')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <baseInfo :scenario="scenario as ScenarioDetail" />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioDetailComposition.STEP" :title="t('apiScenario.step')" class="px-[24px] py-[16px]">
+        <a-tab-pane
+          :key="ScenarioDetailComposition.STEP"
+          :title="t('apiScenario.step')"
+          class="scenario-detail-tab-pane"
+        >
           <step v-if="activeKey === ScenarioDetailComposition.STEP" v-model:scenario="scenario" />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.PARAMS"
           :title="t('apiScenario.params')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <params
             v-if="activeKey === ScenarioDetailComposition.PARAMS"
@@ -59,7 +63,7 @@
         <a-tab-pane
           :key="ScenarioDetailComposition.PRE_POST"
           :title="t('apiScenario.prePost')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <prePost
             v-if="activeKey === ScenarioDetailComposition.PRE_POST"
@@ -70,7 +74,7 @@
         <a-tab-pane
           :key="ScenarioDetailComposition.ASSERTION"
           :title="t('apiScenario.assertion')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <assertion
             v-if="activeKey === ScenarioDetailComposition.ASSERTION"
@@ -80,28 +84,32 @@
         <a-tab-pane
           :key="ScenarioDetailComposition.EXECUTE_HISTORY"
           :title="t('apiScenario.executeHistory')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <executeHistory v-if="activeKey === ScenarioDetailComposition.EXECUTE_HISTORY" :scenario-id="scenario.id" />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.CHANGE_HISTORY"
           :title="t('apiScenario.changeHistory')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <changeHistory v-if="activeKey === ScenarioDetailComposition.CHANGE_HISTORY" :source-id="scenario.id" />
         </a-tab-pane>
         <!-- <a-tab-pane
           :key="ScenarioDetailComposition.DEPENDENCY"
           :title="t('apiScenario.dependency')"
-          class="px-[24px] py-[16px]"
+          class="scenario-detail-tab-pane"
         >
           <dependency v-if="activeKey === ScenarioDetailComposition.DEPENDENCY" />
         </a-tab-pane>
-        <a-tab-pane :key="ScenarioDetailComposition.QUOTE" :title="t('apiScenario.quote')" class="px-[24px] py-[16px]">
+        <a-tab-pane :key="ScenarioDetailComposition.QUOTE" :title="t('apiScenario.quote')" class="scenario-detail-tab-pane">
           <quote v-if="activeKey === ScenarioDetailComposition.QUOTE" />
         </a-tab-pane> -->
-        <a-tab-pane :key="ScenarioDetailComposition.SETTING" :title="t('common.setting')" class="px-[24px] py-[16px]">
+        <a-tab-pane
+          :key="ScenarioDetailComposition.SETTING"
+          :title="t('common.setting')"
+          class="scenario-detail-tab-pane"
+        >
           <setting
             v-if="activeKey === ScenarioDetailComposition.SETTING"
             v-model:other-config="scenario.scenarioConfig.otherConfig"
@@ -197,5 +205,16 @@
   }
   :deep(.arco-tabs-content) {
     @apply pt-0;
+
+    height: calc(100% - 49px);
+    .arco-tabs-content-list {
+      @apply h-full;
+      .arco-tabs-pane {
+        @apply h-full;
+      }
+    }
+    .scenario-detail-tab-pane {
+      padding: 8px 16px;
+    }
   }
 </style>
