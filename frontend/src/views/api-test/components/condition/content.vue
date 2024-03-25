@@ -373,6 +373,7 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
+              :placeholder="t('ms.paramsInput.commonPlaceholder')"
               size="mini"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
