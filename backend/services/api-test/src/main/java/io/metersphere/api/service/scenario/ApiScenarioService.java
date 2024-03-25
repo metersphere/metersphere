@@ -1565,7 +1565,8 @@ public class ApiScenarioService extends MoveNodeService {
             setPartialRefStepEnable(step, stepDetailMap);
 
             // 将步骤详情解析生成对应的MsTestElement
-            AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceDetailMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
+            AbstractMsTestElement msTestElement = stepParser.parseTestElement(step,
+                    MapUtils.isNotEmpty(resourceDetailMap) ? resourceDetailMap.getOrDefault(step.getResourceId(),StringUtils.EMPTY) : StringUtils.EMPTY, stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
                 if (msTestElement instanceof MsHTTPElement msHTTPElement) {
                     // 暂存http类型的步骤

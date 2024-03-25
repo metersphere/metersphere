@@ -21,10 +21,10 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.CONSTANT_TI
 public class TimeWaitingProcessorConverter extends MsProcessorConverter<TimeWaitingProcessor> {
     @Override
     public void parse(HashTree hashTree, TimeWaitingProcessor processor, ParameterConfig config) {
-        hashTree.add(getConstantTimerElement(processor));
+        hashTree.add(getConstantTimerElement(),getConstantTimer(processor));
     }
 
-    private DebugSampler getConstantTimerElement(TimeWaitingProcessor processor) {
+    private DebugSampler getConstantTimerElement() {
         // 添加 debugSampler 步骤间生效
         DebugSampler debugSampler = new DebugSampler();
         debugSampler.setEnabled(true);
@@ -37,9 +37,6 @@ public class TimeWaitingProcessorConverter extends MsProcessorConverter<TimeWait
         debugSampler.setProperty("displayJMeterVariables", false);
         debugSampler.setProperty("displaySystemProperties", false);
 
-        ConstantTimer constantTimer = getConstantTimer(processor);
-
-        debugSampler.addTestElement(constantTimer);
         return debugSampler;
     }
 
