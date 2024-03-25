@@ -958,7 +958,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         MsConstantTimerController constantTimerController = new MsConstantTimerController();
         constantTimerController.setName(StringUtils.isNotBlank(name) ? name : "等待控制器");
         constantTimerController.setEnable(enable);
-        constantTimerController.setDelay("1000");
+        constantTimerController.setDelay(1000L);
         return constantTimerController;
     }
 

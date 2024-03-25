@@ -14,7 +14,5 @@ public class MsConstantTimerController extends AbstractMsTestElement {
     /**
      * 延迟时间
      */
-    private String delay;
-
-
+    private Long delay;
 }

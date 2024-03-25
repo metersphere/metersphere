@@ -158,7 +158,7 @@ public class MsHTTPElementTest {
         processors.add(sqlProcessor1);
 
         TimeWaitingProcessor timeWaitingProcessor = new TimeWaitingProcessor();
-        timeWaitingProcessor.setDelay(1000);
+        timeWaitingProcessor.setDelay(1000L);
         timeWaitingProcessor.setEnable(true);
         processors.add(timeWaitingProcessor);
 
