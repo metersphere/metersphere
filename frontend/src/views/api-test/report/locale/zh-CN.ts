@@ -65,4 +65,8 @@ export default {
   'report.detail.api.extract': '提取',
   'report.detail.api.assert': '断言',
   'report.detail.api.subRequest': '子请求',
+  'report.detail.api.scriptError': '脚本错误',
+  'report.detail.api.scriptErrorTip': '脚本报错',
+  'report.detail.api.scenario': '场景',
+  'report.detail.api.request': '请求',
 };

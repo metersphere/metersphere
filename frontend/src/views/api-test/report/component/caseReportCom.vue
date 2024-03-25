@@ -56,8 +56,8 @@
             <div class="flex items-center">
               <span class="count"> {{ getExcuteRate() }} %</span>
               <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
-              <span>{{ getRequestEacuteCount }}</span>
-              <span class="mx-1 text-[var(--color-text-4)]">/ {{ getRequestTotalCount || 0 }}</span>
+              <span>{{ getIndicators(getRequestEacuteCount) }}</span>
+              <span class="mx-1 text-[var(--color-text-4)]">/ {{ getIndicators(getRequestTotalCount) }}</span>
             </div>
           </div>
           <div class="time-card-item-rote">
@@ -70,8 +70,17 @@
                 >{{ detail.assertionPassRate === 'Calculating' ? '-' : detail.assertionPassRate || '0.00' }}%</span
               >
               <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
-              <span>{{ addCommasToNumber(detail.assertionSuccessCount || 0) }}</span>
-              <span class="mx-1 text-[var(--color-text-4)]">/ {{ detail.assertionCount || 0 }}</span>
+              <span>{{
+                getIndicators(detail.assertionSuccessCount) === '-'
+                  ? '-'
+                  : addCommasToNumber(detail.assertionSuccessCount || 0)
+              }}</span>
+              <span class="mx-1 text-[var(--color-text-4)]"
+                >/
+                {{
+                  getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
+                }}</span
+              >
             </div>
           </div>
         </div>
@@ -80,20 +89,13 @@
     <!-- 报告步骤分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <div class="mb-4 flex h-[36px] items-center justify-between">
-        <div class="flex items-center">
-          <div class="mr-2 font-medium leading-[36px]">{{ t('report.detail.api.reportDetail') }}</div>
-          <a-radio-group v-model:model-value="activeTab" type="button" size="small">
-            <a-radio v-for="item of methods" :key="item.value" :value="item.value">
-              {{ t(item.label) }}
-            </a-radio>
-          </a-radio-group>
-        </div>
-        <a-select v-model="condition" class="w-[240px]" :placeholder="t('report.detail.api.filterPlaceholder')">
-          <a-option :key="1" :value="1"> 1 </a-option>
-        </a-select>
-      </div>
-      <TiledList show-type="CASE" :active-type="activeTab" :report-detail="detail || []" />
+      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" />
+      <TiledList
+        :key-words="cascaderKeywords"
+        show-type="CASE"
+        :active-type="activeTab"
+        :report-detail="detail || []"
+      />
     </div>
     <!-- 报告明细结束 -->
   </div>
@@ -104,12 +106,15 @@
   import dayjs from 'dayjs';
 
   import SetReportChart from './case/setReportChart.vue';
+  import reportInfoHeader from './step/reportInfoHeaders.vue';
   import TiledList from './tiledList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber, formatDuration } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
+
+  import { getIndicators } from '../utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -156,6 +161,8 @@
     console: '',
   });
 
+  const cascaderKeywords = ref<string>('');
+
   const getTotalTime = computed(() => {
     if (detail.value) {
       const { endTime, startTime } = detail.value;
@@ -166,16 +173,6 @@
     }
     return '-';
   });
-  const methods = ref([
-    {
-      label: t('report.detail.api.tiledDisplay'),
-      value: 'tiled',
-    },
-    {
-      label: t('report.detail.api.tabDisplay'),
-      value: 'tab',
-    },
-  ]);
 
   const legendData = ref<LegendData[]>([]);
   const charOptions = ref({
@@ -237,7 +234,6 @@
     },
   });
   const activeTab = ref<'tiled' | 'tab'>('tiled');
-  const condition = ref('');
 
   function getExcuteRate() {
     return 100 - Number(detail.value.requestPendingRate)
@@ -301,7 +297,7 @@
       return {
         ...item,
         label: t(item.label),
-        count: detail.value[item.value] || 0,
+        count: detail.value[item.value] === 'Calculating' ? '-' : detail.value[item.value] || 0,
         rote: detail.value[item.rateKey] === 'Calculating' ? '-' : detail.value[item.rateKey],
       };
     });

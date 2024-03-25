@@ -28,31 +28,31 @@
           <!-- 总数 -->
           <div class="countItem">
             <span class="mr-2 text-[var(--color-text-4)]"> {{ t('report.detail.stepTotal') }}</span>
-            {{ detail.stepTotal || 0 }}
+            {{ getTotal() || 0 }}
           </div>
           <!-- 通过 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.successCount') }}</div>
-            {{ detail.successCount || 0 }}
+            {{ getIndicators(detail.successCount) }}
           </div>
           <!-- 误报 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.fakeErrorCount') }}</div>
-            {{ detail.fakeErrorCount || 0 }}
+            {{ getIndicators(detail.fakeErrorCount) }}
           </div>
           <!-- 失败 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.errorCount') }}</div>
-            {{ detail.errorCount || 0 }}
+            {{ getIndicators(detail.errorCount) }}
           </div>
           <!-- 未执行 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.pendingCount') }}</div>
-            {{ detail.pendingCount || 0 }}
+            {{ getIndicators(detail.pendingCount) }}
           </div>
         </div>
         <StepProgress :report-detail="detail" height="8px" radius="var(--border-radius-mini)" />
@@ -88,12 +88,19 @@
             </div>
             <div class="flex items-center">
               <span class="text-[18px] font-medium text-[var(--color-text-1)]"
-                >{{ detail.assertionPassRate || 0 }} <span>%</span></span
+                >{{ getIndicators(detail.assertionPassRate) }} <span>%</span></span
               >
               <a-divider direction="vertical" :margin="0" class="!mx-2 h-[16px]"></a-divider>
-              <span class="text-[var(--color-text-1)]">{{ addCommasToNumber(detail.assertionSuccessCount || 0) }}</span>
+              <span class="text-[var(--color-text-1)]">{{
+                getIndicators(detail.assertionSuccessCount) === '-'
+                  ? '-'
+                  : addCommasToNumber(detail.assertionSuccessCount || 0)
+              }}</span>
               <span class="text-[var(--color-text-4)]"
-                ><span class="mx-1">/</span> {{ addCommasToNumber(detail.assertionCount) || 0 }}</span
+                ><span class="mx-1">/</span>
+                {{
+                  getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
+                }}</span
               >
             </div>
           </div>
@@ -106,7 +113,7 @@
           <div class="relative mr-4">
             <div class="absolute bottom-0 left-[30%] top-[35%] text-center">
               <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-              <div class="text-[18px] font-medium">4</div>
+              <div class="text-[18px] font-medium">{{ getTotal() }}</div>
             </div>
             <MsChart width="110px" height="110px" :options="charOptions" />
           </div>
@@ -127,20 +134,8 @@
     <!-- 报告步骤分析和请求分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <div class="mb-4 flex h-[36px] items-center justify-between">
-        <div class="flex items-center">
-          <div class="mr-2 font-medium leading-[36px]">{{ t('report.detail.api.reportDetail') }}</div>
-          <a-radio-group v-model:model-value="activeTab" type="button" size="small">
-            <a-radio v-for="item of methods" :key="item.value" :value="item.value">
-              {{ t(item.label) }}
-            </a-radio>
-          </a-radio-group>
-        </div>
-        <a-select v-model="condition" class="w-[240px]" :placeholder="t('report.detail.api.filterPlaceholder')">
-          <a-option :key="1" :value="1"> 1 </a-option>
-        </a-select>
-      </div>
-      <TiledList show-type="API" :active-type="activeTab" :report-detail="detail || []" />
+      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" />
+      <TiledList :key-words="cascaderKeywords" show-type="API" :active-type="activeTab" :report-detail="detail || []" />
     </div>
     <!-- 报告明细结束 -->
   </div>
@@ -151,6 +146,7 @@
   import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import reportInfoHeader from './step/reportInfoHeaders.vue';
   import StepProgress from './stepProgress.vue';
   import TiledList from './tiledList.vue';
 
@@ -158,6 +154,8 @@
   import { addCommasToNumber, formatDuration } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
+
+  import { getIndicators } from '../utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -204,7 +202,7 @@
     console: '',
   });
 
-  const timeUnits = ['ms', 'sec', 'min', 'hr'];
+  const cascaderKeywords = ref<string>('');
 
   const getTotalTime = computed(() => {
     if (detail.value) {
@@ -216,16 +214,10 @@
     }
     return '-';
   });
-  const methods = ref([
-    {
-      label: t('report.detail.api.tiledDisplay'),
-      value: 'tiled',
-    },
-    {
-      label: t('report.detail.api.tabDisplay'),
-      value: 'tab',
-    },
-  ]);
+  function getTotal() {
+    const { errorCount, successCount, fakeErrorCount, pendingCount } = detail.value;
+    return errorCount + successCount + fakeErrorCount + pendingCount;
+  }
 
   const legendData = ref<LegendData[]>([]);
   const charOptions = ref({
@@ -287,7 +279,6 @@
     },
   });
   const activeTab = ref<'tiled' | 'tab'>('tiled');
-  const condition = ref('');
 
   function initOptionsData() {
     const tempArr = [
@@ -334,7 +325,7 @@
       return {
         ...item,
         label: t(item.label),
-        count: detail.value[item.value] || 0,
+        count: detail.value[item.value] === 'Calculating' ? '-' : detail.value[item.value] || 0,
         rote: detail.value[item.rateKey] === 'Calculating' ? '-' : detail.value[item.rateKey],
       };
     });

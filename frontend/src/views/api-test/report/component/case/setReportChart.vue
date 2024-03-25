@@ -3,7 +3,7 @@
     <div class="relative mr-4">
       <div class="absolute bottom-0 left-[30%] top-[35%] text-center">
         <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-        <div class="text-[18px] font-medium">4</div>
+        <div class="text-[18px] font-medium">{{ totalCount }}</div>
       </div>
       <MsChart width="110px" height="110px" :options="props.options" />
     </div>
@@ -38,6 +38,12 @@
     options: Record<string, any>;
     legendData: LegendData[];
   }>();
+
+  const totalCount = computed(() => {
+    return props.legendData.reduce((prev, item) => {
+      return prev + item.count;
+    }, 0);
+  });
 </script>
 
 <style scoped lang="less">

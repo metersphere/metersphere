@@ -5,17 +5,11 @@
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
     }"
   >
-    <!-- <a-scrollbar
-      :style="{
-        overflow: 'auto',
-        height: 'calc(100vh - 424px)',
-        width: '100%',
-      }"
-    > -->
     <!-- 步骤树 -->
     <stepTree
       ref="stepTreeRef"
       v-model:steps="tiledList"
+      v-model:expandedKeys="expandedKeys"
       :show-type="props.showType"
       :active-type="props.activeType"
       :expand-all="isExpandAll"
@@ -24,7 +18,6 @@
       :report-id="props.reportDetail.id"
       @detail="showDetail"
     />
-    <!-- </a-scrollbar> -->
     <!-- 步骤抽屉 -->
     <StepDrawer
       v-model:visible="showStepDrawer"
@@ -41,12 +34,10 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import StepDrawer from './step/stepDrawer.vue';
   import StepTree from './step/stepTree.vue';
-
-  import { addLevelToTree } from '@/utils';
 
   import type { ReportDetail, ScenarioItemType } from '@/models/apiTest/report';
 
@@ -56,6 +47,7 @@
     reportDetail: ReportDetail;
     activeType: 'tiled' | 'tab'; // 平铺模式|tab模式
     showType: 'API' | 'CASE'; // 接口场景|用例
+    keyWords: string;
   }>();
 
   const tiledList = ref<ScenarioItemType[]>([]);
@@ -77,19 +69,74 @@
     activeStepIndex.value = item.sort;
   }
 
-  onMounted(() => {
-    tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
-  });
+  const expandedKeys = ref<(string | number)[]>([]);
+  const originTreeData = ref<ScenarioItemType[]>([]);
 
-  watchEffect(() => {
-    if (props.reportDetail && props.reportDetail.children) {
-      tiledList.value = props.reportDetail.children || [];
-      tiledList.value = addLevelToTree<ScenarioItemType>(tiledList.value) as ScenarioItemType[];
-      tiledList.value.forEach((item) => {
-        addFoldField(item);
+  function initStepTree() {
+    tiledList.value = cloneDeep(props.reportDetail.children) || [];
+    tiledList.value.forEach((item) => {
+      addFoldField(item);
+    });
+    originTreeData.value = cloneDeep(tiledList.value);
+  }
+
+  watch(
+    () => props.reportDetail,
+    (val) => {
+      if (val && val.children) {
+        initStepTree();
+      }
+    },
+    { deep: true, immediate: true }
+  );
+
+  function searchStep() {
+    const splitLevel = props.keyWords.split('-');
+    const stepTypeStatus = splitLevel[1];
+    const stepType = splitLevel[0] !== 'REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
+    const search = (_data: ScenarioItemType[]) => {
+      const result: ScenarioItemType[] = [];
+      _data.forEach((item) => {
+        if (
+          (stepType.includes(item.stepType) && item.status && item.status.includes(stepTypeStatus)) ||
+          (stepTypeStatus && stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier)
+        ) {
+          result.push({ ...item, expanded: true });
+        } else if (item.children) {
+          const filterData = search(item.children);
+          if (filterData.length) {
+            result.push({
+              ...item,
+              expanded: true,
+              children: filterData,
+            });
+          }
+        }
       });
+      result.forEach((item: any) => expandedKeys.value.push(item.stepId)); // 搜索时，匹配的节点需要自动展开
+      return result;
+    };
+
+    return search(originTreeData.value);
+  }
+
+  // 防抖搜索
+  const updateDebouncedSearch = debounce(() => {
+    if (props.keyWords) {
+      tiledList.value = searchStep();
     }
-  });
+  }, 300);
+
+  watch(
+    () => props.keyWords,
+    (val) => {
+      if (!val) {
+        initStepTree();
+      } else {
+        updateDebouncedSearch();
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">
