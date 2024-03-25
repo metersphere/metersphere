@@ -29,7 +29,7 @@
           type="text"
           class="one-text-line flex w-full text-[rgb(var(--primary-5))]"
           @click="showReportDetail(record.id, rowIndex, record.integrated)"
-          >{{ characterLimit(record.name) }}</div
+          >{{ characterLimit(record.name) }}-{{ dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss') }}</div
         >
       </template>
       <!-- 报告类型 -->
@@ -185,7 +185,7 @@
       title: 'report.name',
       dataIndex: 'name',
       slotName: 'name',
-      width: 200,
+      width: 300,
       showInTable: true,
       showTooltip: true,
       editType: hasAnyPermission(['PROJECT_API_REPORT:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,

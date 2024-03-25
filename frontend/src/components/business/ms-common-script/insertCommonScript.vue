@@ -16,7 +16,7 @@
     @cancel="handleDrawerCancel"
   >
     <div class="mb-4 flex items-center justify-between">
-      <a-button type="outline" @click="addCommonScript">
+      <a-button v-permission="['PROJECT_CUSTOM_FUNCTION:READ+ADD']" type="outline" @click="addCommonScript">
         {{ t('project.commonScript.addPublicScript') }}
       </a-button>
       <a-input-search

@@ -35,7 +35,7 @@
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE" class="res-item">
               <ResConsole :console="props.console?.trim()" />
             </div>
-            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.HEADER" class="res-item">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.HEADER" class="">
               <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.REAL_REQUEST">

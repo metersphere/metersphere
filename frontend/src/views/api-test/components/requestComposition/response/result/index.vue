@@ -77,7 +77,7 @@
   <a-spin
     v-else
     :loading="loading"
-    :class="[props.isResponseModel ? 'h-[300px] w-full' : 'h-[calc(100%-35px)] w-full px-[18px] pb-[18px]']"
+    :class="[props.isResponseModel ? 'h-full w-full' : 'h-[calc(100%-35px)] w-full px-[18px] pb-[18px]']"
   >
     <result
       v-model:active-tab="activeTab"
@@ -256,7 +256,10 @@
         stepDetailInfo.value = cloneDeep(res) as any;
         // TODO 子请求后台数据不全--需要后边有数据进行测试
         activeStepDetail.value = stepDetailInfo.value[activeIndex.value];
-        subRequestResults.value = stepDetailInfo.value[activeIndex.value].content.subRequestResults;
+        if (stepDetailInfo.value.length) {
+          subRequestResults.value = stepDetailInfo.value[activeIndex.value].content.subRequestResults;
+        }
+
         if (activeType.value === 'ResContent') {
           activeStepDetailCopy.value = cloneDeep(activeStepDetail.value);
         } else {

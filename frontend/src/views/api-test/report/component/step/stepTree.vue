@@ -30,7 +30,7 @@
             >
               {{ step.sort }}
             </div>
-            <div class="step-node-content flex justify-between">
+            <div class="step-node-content flex justify-between" @click.stop="showDetail(step)">
               <div class="flex items-center">
                 <!-- 步骤展开折叠按钮 -->
                 <a-tooltip
@@ -68,7 +68,7 @@
                   :status="step.stepType || ''"
                 />
                 <a-tooltip :content="step.name">
-                  <div class="step-name-container" @click.stop="showDetail(step)">
+                  <div class="step-name-container">
                     <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
                       {{ step.name }}
                     </div>
@@ -137,11 +137,11 @@
             <div v-if="!step.fold" class="line"></div>
           </div>
           <!-- 折叠展开内容 -->
-          <div v-if="showResContent(step)" class="mt-4 h-[210px] pl-2">
+          <div v-if="showResContent(step)" class="foldContent mt-4 pl-2">
             <a-scrollbar
               :style="{
                 overflow: 'auto',
-                height: '210px',
+                height: 'calc(100vh - 540px)',
                 width: '100%',
               }"
             >
@@ -426,5 +426,8 @@
     width: 100%;
     height: 1px;
     background: var(--color-text-n8);
+  }
+  :deep(.foldContent .arco-scrollbar-track-direction-vertical) {
+    left: -12px !important;
   }
 </style>

@@ -207,7 +207,12 @@
             {{ condition.commonScriptInfo?.name || '-' }}
           </div>
           <a-divider margin="8px" direction="vertical" />
-          <MsButton type="text" class="font-medium" @click="showQuoteDrawer = true">
+          <MsButton
+            v-permission="['PROJECT_CUSTOM_FUNCTION:READ']"
+            type="text"
+            class="font-medium"
+            @click="showQuoteDrawer = true"
+          >
             {{ t('apiTestDebug.quote') }}
           </MsButton>
         </div>
