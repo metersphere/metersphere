@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsCard from '@/components/pure/ms-card/index.vue';
   import TaskCenter from './component/taskCom.vue';
 </script>
