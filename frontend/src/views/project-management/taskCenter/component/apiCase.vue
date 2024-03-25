@@ -54,19 +54,14 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record }">
+        <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
+        <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
-          v-if="
-            ['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status) &&
-            hasAnyPermission(permissionsMap[props.group].stop)
-          "
+          v-if="['RUNNING', 'RERUNNING'].includes(record.status) && hasAnyPermission(permissionsMap[props.group].stop)"
           class="!mr-0"
           @click="stop(record)"
           >{{ t('project.taskCenter.stop') }}</MsButton
         >
-        <!--        <a-divider v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
-        <MsButton class="!mr-0" @click="execution(record)">{{ t('project.taskCenter.execution') }}</MsButton>
-        <a-divider direction="vertical" />-->
-        <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -214,7 +209,7 @@
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 220,
+      width: 180,
       fixed: 'right',
     },
   ];
