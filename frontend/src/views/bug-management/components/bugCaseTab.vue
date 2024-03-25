@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <a-button type="primary" @click="handleSelect">{{ t('caseManagement.featureCase.linkCase') }}</a-button>
+      <a-button type="primary" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">{{
+        t('caseManagement.featureCase.linkCase')
+      }}</a-button>
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
@@ -25,12 +27,14 @@
         ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
+        <MsButton :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="cancelLink(record)">{{
+          t('caseManagement.featureCase.cancelLink')
+        }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="handleSelect">
+          <MsButton class="ml-[8px]" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">
             {{ t('caseManagement.featureCase.linkCase') }}
           </MsButton>
         </div>
@@ -105,6 +109,7 @@
   import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';

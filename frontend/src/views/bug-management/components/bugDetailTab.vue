@@ -66,7 +66,11 @@
       </div>
       <!-- 附件布局 -->
       <div class="mt-6">
-        <AddAttachment v-model:file-list="fileList" @link-file="associatedFile" />
+        <AddAttachment
+          v-model:file-list="fileList"
+          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+          @link-file="associatedFile"
+        />
       </div>
     </a-form>
     <MsFileList
@@ -96,7 +100,7 @@
               {{ t('ms.upload.preview') }}
             </MsButton>
             <MsButton
-              v-if="item.status === 'done'"
+              v-if="item.status === 'done' && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
               type="button"
               status="primary"
               class="!mr-[4px]"
@@ -146,7 +150,7 @@
               {{ t('caseManagement.featureCase.download') }}
             </MsButton>
             <MsButton
-              v-if="item.isUpdateFlag"
+              v-if="item.isUpdateFlag && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
               type="button"
               status="primary"
               class="!mr-[4px]"
@@ -226,6 +230,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { downloadByteFile, sleep } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
   import { findParents, Option } from '@/utils/recursion';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
@@ -299,6 +304,7 @@
               ...fileInfo,
               name: fileInfo.fileName,
               isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
+              showDelete: hasAnyPermission(['PROJECT_BUG:READ+UPDATE']),
             };
           })
           .map((fileInfo: any) => {

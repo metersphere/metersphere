@@ -44,7 +44,6 @@
           {{ t('common.edit') }}
         </MsButton>
         <MsButton
-          v-permission="['PROJECT_BUG:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -56,7 +55,6 @@
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
-          v-permission="['PROJECT_BUG:READ+UPDATE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -115,7 +113,7 @@
                     v-if="activeTab === 'detail'"
                     ref="bugDetailTabRef"
                     :form-item="formItem"
-                    :allow-edit="true"
+                    :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
                     :detail-info="detailInfo"
                     :is-platform-default-template="isPlatformDefaultTemplate"
                     :platform-system-fields="platformSystemFields"

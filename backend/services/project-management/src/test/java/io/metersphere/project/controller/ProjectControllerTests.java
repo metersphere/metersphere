@@ -252,9 +252,6 @@ public class ProjectControllerTests extends BaseTest {
         list = parseObjectFromMvcResult(mvcResult, List.class);
         //断言list是空的
         Assertions.assertEquals(0, list.size());
-
-        //权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getOptions + DEFAULT_ORGANIZATION_ID);
     }
 
     @Test

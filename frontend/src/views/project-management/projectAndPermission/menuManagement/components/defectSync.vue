@@ -258,6 +258,12 @@
       if (res && res.platform_key) {
         formCreateValue.value = JSON.parse(res.bug_platform_config);
         // 如果平台key存在调用平台change拉取插件字段
+        const findKey = platformOption.value.find((item) => item.id === res.platform_key);
+        if (!findKey) {
+          formRef.value?.resetFields();
+          platformRules.value = [];
+          return;
+        }
         await handlePlatformChange(res.platform_key);
         form.SYNC_ENABLE = res.sync_enable;
         form.PLATFORM_KEY = res.platform_key;
