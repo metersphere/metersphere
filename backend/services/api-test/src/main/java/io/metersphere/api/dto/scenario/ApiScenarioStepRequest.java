@@ -14,4 +14,8 @@ public class ApiScenarioStepRequest extends ApiScenarioStepCommonDTO {
      * 保存时需要根据这个字段查询原步骤详情保存
      */
     private String copyFromStepId;
+    /**
+     * 记录当前步骤是否是新增的步骤
+     */
+    private Boolean isNew;
 }
