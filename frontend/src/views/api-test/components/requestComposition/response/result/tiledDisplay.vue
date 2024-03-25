@@ -3,10 +3,10 @@
     <!-- 展开折叠列表 -->
     <div class="tiledList">
       <div v-for="item of props.menuList" :key="item.value" class="menu-list-wrapper">
-        <div class="menu-list">
+        <div v-if="isShowContent(item.value)" class="menu-list">
           <div class="flex items-center">
             <MsButton
-              v-if="expandIds.includes(item.value)"
+              v-if="!expandIds.includes(item.value)"
               type="icon"
               class="!mr-2 !rounded-full bg-[rgb(var(--primary-1))]"
               size="small"
@@ -28,28 +28,28 @@
           </div>
         </div>
         <transition name="fade">
-          <div v-show="expandIds.includes(item.value)" class="expandContent">
+          <div v-show="!expandIds.includes(item.value) && isShowContent(item.value)" class="expandContent">
             <div v-if="item.value === ResponseComposition.BODY" class="res-item">
               <ResBody :request-result="props.requestResult" @copy="copyScript" />
             </div>
-            <div v-if="expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE" class="res-item">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE" class="res-item">
               <ResConsole :console="props.console?.trim()" />
             </div>
-            <div v-if="expandIds.includes(item.value) && item.value === ResponseComposition.HEADER" class="res-item">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.HEADER" class="res-item">
               <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
             </div>
-            <div v-if="expandIds.includes(item.value) && item.value === ResponseComposition.REAL_REQUEST">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.REAL_REQUEST">
               <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
             </div>
-            <div v-if="expandIds.includes(item.value) && item.value === ResponseComposition.EXTRACT">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.EXTRACT">
               <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
             </div>
-            <div v-if="expandIds.includes(item.value) && item.value === ResponseComposition.ASSERTION">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.ASSERTION">
               <ResAssertion :request-result="props.requestResult" />
             </div>
           </div>
         </transition>
-        <a-divider type="dashed" :margin="0" class="!mb-4"></a-divider>
+        <a-divider v-if="isShowContent(item.value)" type="dashed" :margin="0" class="!mb-4"></a-divider>
       </div>
     </div>
   </div>
@@ -98,6 +98,32 @@
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
+    }
+  }
+
+  const showBody = computed(() => props.requestResult?.responseResult.body);
+  const showHeaders = computed(() => props.requestResult?.responseResult.headers);
+  const showRealRequest = computed(
+    () => props.requestResult?.responseResult?.headers.trim() || props.requestResult?.url || props.requestResult?.body
+  );
+  const showExtract = computed(() => props.requestResult?.responseResult?.vars?.trim());
+
+  function isShowContent(key: keyof typeof ResponseComposition) {
+    switch (key) {
+      case ResponseComposition.BODY:
+        return showBody.value;
+      case ResponseComposition.HEADER:
+        return showHeaders.value;
+      case ResponseComposition.REAL_REQUEST:
+        return showRealRequest.value;
+      case ResponseComposition.CONSOLE:
+        return props?.console?.trim();
+      case ResponseComposition.EXTRACT:
+        return showExtract.value;
+      case ResponseComposition.ASSERTION:
+        return props.requestResult?.responseResult.assertions.length;
+      default:
+        break;
     }
   }
 </script>
