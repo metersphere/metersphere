@@ -18,6 +18,10 @@ public abstract class StepParserFactory {
         stepParserMap.put(ApiScenarioStepType.API.name(), new ApiStepParser());
         stepParserMap.put(ApiScenarioStepType.API_CASE.name(), new ApiCaseStepParser());
         stepParserMap.put(ApiScenarioStepType.API_SCENARIO.name(), new ApiScenarioStepParser());
+        stepParserMap.put(ApiScenarioStepType.CONSTANT_TIMER.name(), new ConstantTimerStepParser());
+        stepParserMap.put(ApiScenarioStepType.LOOP_CONTROLLER.name(), new LoopControllerStepParser());
+        stepParserMap.put(ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name(), new OnceOnlyControllerStepParser());
+        stepParserMap.put(ApiScenarioStepType.IF_CONTROLLER.name(), new IfControllerStepParser());
     }
 
     public static StepParser getStepParser(String stepType) {
