@@ -73,6 +73,11 @@
         label: 'report.status.pending',
         color: '!text-[var(--color-text-input-border)]',
       },
+      null: {
+        icon: 'icon-icon_block_filled',
+        label: 'report.status.pending',
+        color: '!text-[var(--color-text-input-border)]',
+      },
     },
     [ReportEnum.API_SCENARIO_REPORT]: {
       SUCCESS: {

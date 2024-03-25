@@ -30,8 +30,7 @@
   const appStore = useAppStore();
   const { openNewPage } = useOpenNewPage();
 
-  const currentEnv = ref('');
-
+  const currentEnv = defineModel<string>('currentEnv', { default: '' });
   const currentEnvConfig = ref<EnvConfig>();
   const envLoading = ref(false);
   const envOptions = ref<SelectOptionData[]>([]);
@@ -54,8 +53,8 @@
         label: item.name,
         value: item.id,
       }));
-      currentEnv.value = res[0]?.id || '';
-      initEnvironment();
+      currentEnv.value = currentEnv.value.length ? currentEnv.value : res[0]?.id;
+      await initEnvironment();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

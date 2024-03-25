@@ -3,7 +3,7 @@
     <a-tabs v-model:active-key="activeKey" class="h-full px-[16px]" animation lazy-load>
       <template #extra>
         <div class="flex gap-[12px]">
-          <environmentSelect v-if="props.isDrawer" ref="environmentSelectRef" />
+          <environmentSelect v-if="props.isDrawer" v-model:current-env="environmentIdByDrawer" />
           <execute
             ref="executeRef"
             v-model:detail="caseDetail"
@@ -116,8 +116,10 @@
   const { openModal } = useModal();
 
   const caseDetail = ref<RequestParam>(cloneDeep(props.detail)); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+  const environmentIdByDrawer = ref(props.detail.environmentId);
   watchEffect(() => {
     caseDetail.value = cloneDeep(props.detail); // props.detail是嵌套的引用类型，防止不必要的修改来源影响props.detail的数据
+    environmentIdByDrawer.value = props.detail.environmentId;
   });
 
   const activeKey = ref('detail');
@@ -219,11 +221,9 @@
 
   const protocols = inject<Ref<ProtocolItem[]>>('protocols');
 
-  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
-  const currentEnvConfigByDrawer = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
   const currentEnvConfigByInject = inject<Ref<EnvConfig>>('currentEnvConfig');
   const environmentId = computed(() =>
-    props.isDrawer ? currentEnvConfigByDrawer.value?.id : currentEnvConfigByInject?.value?.id
+    props.isDrawer ? environmentIdByDrawer.value : currentEnvConfigByInject?.value?.id
   );
 
   const executeRef = ref<InstanceType<typeof execute>>();

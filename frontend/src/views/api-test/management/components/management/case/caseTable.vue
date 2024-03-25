@@ -139,13 +139,16 @@
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="lastReportStatusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of lastReportStatusList" :key="val" :value="val">
-                    <span>{{ val }}</span>
+                    <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
           </template>
         </a-trigger>
+      </template>
+      <template #lastReportStatus="{ record }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.lastReportStatus" />
       </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
@@ -316,6 +319,7 @@
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import {
     batchDeleteCase,
@@ -339,6 +343,7 @@
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
+  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -434,9 +439,9 @@
     {
       title: 'case.lastReportStatus',
       dataIndex: 'lastReportStatus',
+      slotName: 'lastReportStatus',
       titleSlotName: 'lastReportStatusFilter',
       showInTable: false,
-      showTooltip: true,
       width: 150,
     },
     {
@@ -545,8 +550,10 @@
     return caseLevelFields.value?.options || [];
   });
   const lastReportStatusFilterVisible = ref(false);
-  const lastReportStatusList = ['error', 'FakeError', 'success'];
-  const lastReportStatusFilters = ref<string[]>([...lastReportStatusList]);
+  const lastReportStatusList = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+  });
+  const lastReportStatusFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
