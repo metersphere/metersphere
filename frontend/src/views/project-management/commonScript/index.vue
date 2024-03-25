@@ -106,7 +106,7 @@
     CommonScriptItem,
     ParamsRequestType,
   } from '@/models/projectManagement/commonScript';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -137,6 +137,7 @@
       dataIndex: 'description',
       width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.enable',

@@ -378,9 +378,33 @@
   };
   const paramForm = ref<Record<string, any>>({ ...defaultParamForm });
   const paramFormRef = ref<FormInstance>();
-  const paramTypeOptions: CascaderOption[] = cloneDeep(mockAllGroup);
   const paramFuncOptions: MockParamItem[] = cloneDeep(mockFunctions);
   const currentParamsInputGroup = ref<MockParamInputGroupItem[]>([]);
+
+  function genMockParamTypeOptions() {
+    // 国际化处理
+    const mockParamTypeOptions: { label: string; value: string; children: any }[] = [];
+    mockAllGroup.forEach((item) => {
+      const optionChildren: { label: string; value: string }[] = [];
+      if (item.children) {
+        item.children.forEach((child) => {
+          const childOpt = {
+            label: t(child.label),
+            value: child.value,
+          };
+          optionChildren.push(childOpt);
+        });
+      }
+      const option = {
+        label: t(item.label),
+        value: item.value,
+        children: optionChildren,
+      };
+      mockParamTypeOptions.push(option);
+    });
+    return mockParamTypeOptions;
+  }
+  const paramTypeOptions = genMockParamTypeOptions();
 
   /**
    * 切换变量类型，设置变量输入框的输入组
