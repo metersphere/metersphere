@@ -209,15 +209,21 @@ public class ApiReportService {
         if (CollectionUtils.isEmpty(apiTestCaseRecords)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
-        ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
-        BeanUtils.copyBean(apiReportStepDTO, apiReportDTO);
-        apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
-        apiReportStepDTO.setReportId(id);
-        apiReportStepDTO.setSort(1L);
-        apiReportStepDTO.setStepType(ApiExecuteResourceType.API_CASE.name());
-        List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
-        apiReportSteps.add(apiReportStepDTO);
-        apiReportDTO.setChildren(apiReportSteps);
+        ApiReportDetailExample apiReportDetailExample = new ApiReportDetailExample();
+        apiReportDetailExample.createCriteria().andReportIdEqualTo(id).andStepIdEqualTo(apiTestCaseRecords.getFirst().getApiTestCaseId());
+        List<ApiReportDetail> apiReportDetails = apiReportDetailMapper.selectByExampleWithBLOBs(apiReportDetailExample);
+        if (CollectionUtils.isNotEmpty(apiReportDetails)) {
+            ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
+            BeanUtils.copyBean(apiReportStepDTO, apiReportDetails.getFirst());
+            apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
+            apiReportStepDTO.setReportId(id);
+            apiReportStepDTO.setSort(1L);
+            apiReportStepDTO.setName(apiReport.getName());
+            apiReportStepDTO.setStepType(ApiExecuteResourceType.API_CASE.name());
+            List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
+            apiReportSteps.add(apiReportStepDTO);
+            apiReportDTO.setChildren(apiReportSteps);
+        }
         return apiReportDTO;
     }
 
