@@ -268,7 +268,7 @@ public class ApiScenarioReportService {
         detailExample.createCriteria().andStepIdEqualTo(stepId).andReportIdEqualTo(reportId);
         List<ApiScenarioReportDetail> apiReportDetails = apiScenarioReportDetailMapper.selectByExampleWithBLOBs(detailExample);
         if (CollectionUtils.isEmpty(apiReportDetails)) {
-            throw new MSException(Translator.get("api_case_report_not_exist"));
+            return new ArrayList<>();
         }
         return apiReportDetails;
     }
