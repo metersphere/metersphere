@@ -475,7 +475,7 @@ export default {
     nodeCpuUsage(row) {
       let nodeInfo = this.nodeOperationInfo[this.resourcePool];
       if (nodeInfo) {
-        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.id].cpuUsage;
+        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.ip + ':' + row.port]?.cpuUsage;
       } else {
         return "";
       }
@@ -483,7 +483,7 @@ export default {
     nodeTaskCount(row) {
       let nodeInfo = this.nodeOperationInfo[this.resourcePool];
       if (nodeInfo) {
-        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.id].runningTask;
+        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.ip + ':' + row.port]?.runningTask;
       } else {
         return -1;
       }

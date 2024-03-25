@@ -105,7 +105,7 @@ public class PrometheusService {
 
                         if (StringUtils.isNotBlank(result)) {
                             int taskResult = Integer.parseInt(result);
-                            nodeOperationInfo.addNodeOperationInfo(String.valueOf(configMap.get("id")), ip, port, cpuUsage, taskResult);
+                            nodeOperationInfo.addNodeOperationInfo(ip + ":" + port, ip, port, cpuUsage, taskResult);
                         }
                     }
                 } catch (Exception e) {
