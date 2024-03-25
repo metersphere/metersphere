@@ -49,6 +49,8 @@
         <if test="request.keyword != null and request.keyword != ''">
             and (
             task.resource_name like concat('%', #{request.keyword},'%')
+                or
+            task.resource_id like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="taskCenterScheduleFilters">

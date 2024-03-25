@@ -140,7 +140,7 @@
 
     <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
         SELECT
-        api_report.id,
+        distinct api_report.id,
         api_report.project_id,
         api_report.integrated,
         api_report.STATUS,
