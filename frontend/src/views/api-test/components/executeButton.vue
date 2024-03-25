@@ -45,7 +45,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'execute', executeType?: 'localExec' | 'serverExec'): void;
+    (e: 'execute', executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string): void;
     (e: 'stopDebug'): void;
   }>();
 
@@ -94,7 +94,7 @@
 
   async function execute(executeType?: 'localExec' | 'serverExec') {
     if (!caseDetail.value || props.isEmit) {
-      emit('execute', executeType);
+      emit('execute', executeType, localExecuteUrl.value);
       return;
     }
     try {

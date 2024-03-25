@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full flex-col gap-[16px]">
+  <div class="flex h-full flex-col gap-[8px]">
     <div class="action-line">
       <div class="action-group">
         <a-checkbox
@@ -79,7 +79,7 @@
         </a-button>
       </div>
     </div>
-    <div class="h-[calc(100%-48px)]">
+    <div class="h-[calc(100%-30px)]">
       <stepTree
         ref="stepTreeRef"
         v-model:steps="scenario.steps"
@@ -223,6 +223,16 @@
 
   function refreshStepInfo() {
     console.log('刷新步骤信息');
+  }
+
+  async function executeScenario() {
+    try {
+      scenario.value.executeLoading = true;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      scenario.value.executeLoading = false;
+    }
   }
 </script>
 

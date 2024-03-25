@@ -16,11 +16,16 @@
         </template>
       </MsEditableTab>
       <div v-if="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
-        <environmentSelect />
+        <environmentSelect v-model:current-env-config="currentEnvConfig" />
         <a-button type="primary" :loading="saveLoading" @click="saveScenario">
           {{ t('common.save') }}
         </a-button>
-        <!-- <executeButton /> -->
+        <executeButton
+          :execute-loading="activeScenarioTab.executeLoading"
+          is-emit
+          @execute="handleExecute"
+          @stop-debug="handleStopExecute"
+        />
       </div>
     </div>
     <a-divider class="!my-0" />
@@ -84,17 +89,31 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
   import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
-  // import executeButton from '@/views/api-test/components/executeButton.vue';
+  import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
-  import { addScenario, getScenarioDetail, getTrashModuleCount, updateScenario } from '@/api/modules/api-test/scenario';
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import {
+    addScenario,
+    debugScenario,
+    getScenarioDetail,
+    getTrashModuleCount,
+    updateScenario,
+  } from '@/api/modules/api-test/scenario';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
-  import { ApiScenarioGetModuleParams, ApiScenarioTableItem, Scenario } from '@/models/apiTest/scenario';
+  import {
+    ApiScenarioDebugRequest,
+    ApiScenarioGetModuleParams,
+    ApiScenarioTableItem,
+    Scenario,
+  } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultScenario } from './components/config';
@@ -251,6 +270,85 @@
       });
     }
   }
+
+  const currentEnvConfig = ref<EnvConfig>();
+  const reportId = ref('');
+  const websocket = ref<WebSocket>();
+  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+
+  /**
+   * 开启websocket监听，接收执行结果
+   */
+  function debugSocket(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+    websocket.value = getSocket(
+      reportId.value,
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? localExecuteUrl : ''
+    );
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        if (activeScenarioTab.value.reportId === data.reportId) {
+          // 判断当前查看的tab是否是当前返回的报告的tab
+          activeScenarioTab.value.executeLoading = false;
+        } else {
+          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+          temporaryResponseMap[activeScenarioTab.value.id][data.reportId] = data.taskResult;
+        }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
+        activeScenarioTab.value.executeLoading = false;
+      }
+    });
+  }
+
+  async function realExecute(
+    executeParams: ApiScenarioDebugRequest,
+    executeType?: 'localExec' | 'serverExec',
+    localExecuteUrl?: string
+  ) {
+    try {
+      activeScenarioTab.value.executeLoading = true;
+      reportId.value = getGenerateId();
+      activeScenarioTab.value.reportId = reportId.value; // 存储报告ID
+      debugSocket(executeType, localExecuteUrl); // 开启websocket
+      executeParams.environmentId = currentEnvConfig.value?.id || '';
+      const res = await debugScenario(executeParams);
+      if (executeType === 'localExec' && localExecuteUrl) {
+        await localExecuteApiDebug(localExecuteUrl, res);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      activeScenarioTab.value.executeLoading = false;
+    }
+  }
+
+  function handleExecute(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+    const environmentId = currentEnvConfig.value?.id || '';
+    realExecute(
+      {
+        grouped: false,
+        environmentId,
+        ...activeScenarioTab.value,
+      },
+      executeType,
+      localExecuteUrl
+    );
+  }
+
+  function handleStopExecute() {
+    websocket.value?.close();
+    activeScenarioTab.value.executeLoading = false;
+  }
+
+  const scenarioId = computed(() => activeScenarioTab.value.id);
+  const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);
+  // 为子孙组件提供属性
+  provide('scenarioId', scenarioId);
+  provide('scenarioExecuteLoading', scenarioExecuteLoading);
+  provide('temporaryResponseMap', temporaryResponseMap);
 </script>
 
 <style scoped lang="less">

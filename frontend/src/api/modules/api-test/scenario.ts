@@ -9,6 +9,7 @@ import {
   BatchRecoverScenarioUrl,
   BatchRecycleScenarioUrl,
   BatchRunScenarioUrl,
+  DebugScenarioUrl,
   DeleteModuleUrl,
   DeleteScenarioUrl,
   ExecuteHistoryUrl,
@@ -23,7 +24,10 @@ import {
   RecycleScenarioUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
+  ScenarioTransferFileUrl,
+  ScenarioTransferModuleOptionsUrl,
   ScenarioTrashPageUrl,
+  ScenarioUploadTempFileUrl,
   UpdateModuleUrl,
   UpdateScenarioUrl,
 } from '@/api/requrls/api-test/scenario';
@@ -32,6 +36,7 @@ import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
   ApiScenarioBatchRunParams,
+  ApiScenarioDebugRequest,
   ApiScenarioGetModuleParams,
   ApiScenarioModuleUpdateParams,
   ApiScenarioPageParams,
@@ -44,7 +49,7 @@ import {
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
-import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules } from '@/models/common';
+import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
 
 // 更新模块
 export function updateModule(data: ApiScenarioModuleUpdateParams) {
@@ -199,4 +204,24 @@ export function getScenarioDetail(id: string) {
 // 获取场景步骤详情
 export function getScenarioStep(stepId: string | number) {
   return MSR.get({ url: GetScenarioStepUrl, params: stepId });
+}
+
+// 文件转存
+export function transferFile(data: TransferFileParams) {
+  return MSR.post({ url: ScenarioTransferFileUrl, data });
+}
+
+// 文件转存目录
+export function getTransferOptions(projectId: string) {
+  return MSR.get<ModuleTreeNode[]>({ url: ScenarioTransferModuleOptionsUrl, params: projectId });
+}
+
+// 上传文件
+export function uploadTempFile(file: File) {
+  return MSR.uploadFile({ url: ScenarioUploadTempFileUrl }, { fileList: [file] }, 'file');
+}
+
+// 场景调试
+export function debugScenario(data: ApiScenarioDebugRequest) {
+  return MSR.post({ url: DebugScenarioUrl, data });
 }

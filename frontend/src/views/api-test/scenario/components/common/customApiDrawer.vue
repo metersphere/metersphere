@@ -188,10 +188,10 @@
                     :layout="activeLayout"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
-                    :upload-temp-file-api="props.uploadTempFileApi"
-                    :file-save-as-source-id="props.fileSaveAsSourceId"
-                    :file-save-as-api="props.fileSaveAsApi"
-                    :file-module-options-api="props.fileModuleOptionsApi"
+                    :upload-temp-file-api="uploadTempFile"
+                    :file-save-as-source-id="scenarioId"
+                    :file-save-as-api="transferFile"
+                    :file-module-options-api="getTransferOptions"
                     @change="handleActiveDebugChange"
                   />
                   <httpQuery
@@ -213,7 +213,7 @@
                   <precondition
                     v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
                     v-model:config="requestVModel.children[0].preProcessorConfig"
-                    :is-definition="false"
+                    is-definition
                     :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
@@ -224,13 +224,13 @@
                     :layout="activeLayout"
                     :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
-                    :is-definition="false"
+                    is-definition
                     @change="handleActiveDebugChange"
                   />
                   <assertion
                     v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                    :is-definition="false"
+                    is-definition
                     :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
                   />
@@ -262,7 +262,7 @@
               :is-expanded="isVerticalExpanded"
               :request-task-result="requestVModel.response"
               :is-edit="false"
-              :upload-temp-file-api="props.uploadTempFileApi"
+              :upload-temp-file-api="uploadTempFile"
               :loading="requestVModel.executeLoading || loading"
               :is-definition="false"
               @change-expand="changeVerticalExpand"
@@ -299,6 +299,7 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getDefinitionDetail } from '@/api/modules/api-test/management';
+  import { getTransferOptions, transferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -313,7 +314,6 @@
     RequestTaskResult,
   } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -378,10 +378,6 @@
     };
     executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
     localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
-    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
-    fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
-    fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
-    fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
     permissionMap?: {
       execute: string;
       create: string;
@@ -396,6 +392,9 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
+
+  // 注入祖先组件提供的属性
+  const scenarioId = inject<string | number>('scenarioId');
 
   const visible = defineModel<boolean>('visible', { required: true });
   const loading = defineModel<boolean>('detailLoading', { default: false });
@@ -666,7 +665,6 @@
    */
   function setPluginFormData() {
     const tempForm = temporaryPluginFormMap[requestVModel.value.stepId];
-    console.log('setPluginFormData', temporaryPluginFormMap, requestVModel.value.stepId);
     if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = isEditableApi.value ? tempForm || requestVModel.value : requestVModel.value;
@@ -696,17 +694,9 @@
   }
 
   // 切换是否使用环境变量
-  async function handleUseEnvChange() {
+  function handleUseEnvChange() {
     if (!isHttpProtocol.value) {
-      const pluginId = protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId;
-      const res = await getPluginScript(pluginId);
-      pluginScriptMap.value[requestVModel.value.protocol] = res;
-      fApi.value?.nextTick(() => {
-        controlPluginFormFields();
-      });
-      nextTick(() => {
-        fApi.value?.resetFields();
-      });
+      controlPluginFormFields();
     }
   }
 
@@ -1055,7 +1045,6 @@
         resourceId: res.id,
         ...parseRequestBodyResult,
       };
-      console.log('initQuoteApiDetail', requestVModel.value);
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
         loading.value = false;

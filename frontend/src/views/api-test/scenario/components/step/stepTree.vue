@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full flex-col gap-[16px]">
+  <div class="flex h-full flex-col gap-[8px]">
     <a-spin class="max-h-[calc(100%-46px)] w-full" :loading="loading">
       <MsTree
         ref="treeRef"
