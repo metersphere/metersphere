@@ -174,7 +174,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
             apiTestCase.setUpdateUser("admin");
             apiTestCase.setVersionId("1.0");
             apiTestCase.setDeleted(false);
-            caseMapper.insert(apiTestCase);
+            caseMapper.insertSelective(apiTestCase);
             ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
             apiTestCaseBlob.setId(apiTestCase.getId());
             apiTestCaseBlob.setRequest(JSON.toJSONBytes(msHttpElement));

@@ -72,7 +72,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         apiTestCase.setUpdateUser("admin");
         apiTestCase.setVersionId("1.0");
         apiTestCase.setDeleted(false);
-        apiTestCaseMapper.insert(apiTestCase);
+        apiTestCaseMapper.insertSelective(apiTestCase);
 
         List<ApiReport> reports = new ArrayList<>();
         List<ApiTestCaseRecord> records = new ArrayList<>();

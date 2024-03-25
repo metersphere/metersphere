@@ -176,6 +176,7 @@ public class TestPlanTestService {
             apiScenario.setDeleted(false);
             apiScenario.setStepTotal(1);
             apiScenario.setRequestPassRate("100");
+            apiScenario.setLastReportStatus("UN_EXECUTED");
             returnList.add(apiScenario);
         }
         apiScenarioMapper.batchInsert(returnList);
@@ -335,6 +336,7 @@ public class TestPlanTestService {
             apiTestCase.setCreateUser("admin");
             apiTestCase.setUpdateUser("admin");
             apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCase.setLastReportStatus("UN_EXECUTED");
             returnList.add(apiTestCase);
         }
         apiTestCaseMapper.batchInsert(returnList);

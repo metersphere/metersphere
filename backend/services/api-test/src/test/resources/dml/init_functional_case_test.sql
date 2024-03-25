@@ -14,12 +14,12 @@ VALUES ('gyq_associate_case_id_1', 100, 'TEST_MODULE_ID', 'project-associate-cas
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('gyq_associate_case_id_1', 'STEP', '1111', '', '', 'TEST');
 
 INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
-VALUES ('gyq_associate_api_case_id_1','gyq_associate_api_case_id_1','P0',1001, null, 'Underway', null, null, 100, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
+VALUES ('gyq_associate_api_case_id_1','gyq_associate_api_case_id_1','P0',1001, null, 'Underway', 'PENDING', null, 100, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
 
 
 
 INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
-VALUES ('gyq_associate_api_case_id_2','测试查询模块用','P0',1002, null, 'Underway', null, null, 200, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
+VALUES ('gyq_associate_api_case_id_2','测试查询模块用','P0',1002, null, 'Underway', 'PENDING', null, 200, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
 
 
 INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)

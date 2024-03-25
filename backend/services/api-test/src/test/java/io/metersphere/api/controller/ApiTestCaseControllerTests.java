@@ -221,6 +221,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setUpdateUser("admin");
             apiTestCase.setVersionId("1.0");
             apiTestCase.setDeleted(false);
+            apiTestCase.setLastReportStatus("SUCCESS");
             caseMapper.insert(apiTestCase);
             ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
             apiTestCaseBlob.setId(apiTestCase.getId());

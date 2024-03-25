@@ -1174,7 +1174,7 @@ public class SystemProjectControllerTests extends BaseTest {
         apiTestCase.setUpdateUser("admin");
         apiTestCase.setVersionId("1.0");
         apiTestCase.setDeleted(false);
-        apiTestCaseMapper.insert(apiTestCase);
+        apiTestCaseMapper.insertSelective(apiTestCase);
         ApiTestCase anotherCase = new ApiTestCase();
         anotherCase.setId("test-apiTestCaseId1");
         anotherCase.setApiDefinitionId("apiDefinitionId");
@@ -1190,7 +1190,7 @@ public class SystemProjectControllerTests extends BaseTest {
         anotherCase.setUpdateUser("admin");
         anotherCase.setVersionId("1.0");
         anotherCase.setDeleted(false);
-        apiTestCaseMapper.insert(anotherCase);
+        apiTestCaseMapper.insertSelective(anotherCase);
         PosRequest request = new PosRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setTargetId(apiTestCase.getId());

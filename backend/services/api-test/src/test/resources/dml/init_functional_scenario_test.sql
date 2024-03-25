@@ -14,8 +14,8 @@ VALUES ('gyq_associate_scenario_id_1', 100, 'TEST_MODULE_ID', 'project-associate
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('gyq_associate_scenario_id_1', 'STEP', '1111', '', '', 'TEST');
 
 INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time, deleted)
-VALUES ('associate_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status',  null, null,1000001, 1,'v1.10', 'associate_gyq_api_scenario_one','project-associate-scenario-test', 'gyq_associate_test_scenario_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000, false),
-       ('associate_gyq_api_scenario_two', 'api_scenario_two', 'p1', 'test-api-status',  null, null,1000001, 1,'v1.10', 'associate_gyq_api_scenario_two','project-associate-scenario-test', 'gyq_associate_test_scenario_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000, false);
+VALUES ('associate_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status',  'PENDING', null,1000001, 1,'v1.10', 'associate_gyq_api_scenario_one','project-associate-scenario-test', 'gyq_associate_test_scenario_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000, false),
+       ('associate_gyq_api_scenario_two', 'api_scenario_two', 'p1', 'test-api-status',  'PENDING', null,1000001, 1,'v1.10', 'associate_gyq_api_scenario_two','project-associate-scenario-test', 'gyq_associate_test_scenario_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000, false);
 
 
 INSERT INTO api_scenario_module(id, name,parent_id, project_id, pos, create_time, update_time, update_user, create_user)
