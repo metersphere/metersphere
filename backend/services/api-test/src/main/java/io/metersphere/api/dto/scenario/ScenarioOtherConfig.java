@@ -29,7 +29,7 @@ public class ScenarioOtherConfig {
      * 失败策略
      * @see FailureStrategy
      */
-    private String failureStrategy;
+    private String failureStrategy = FailureStrategy.CONTINUE.name();
 
     public enum FailureStrategy {
         /**
