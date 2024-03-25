@@ -6,6 +6,7 @@
     :span-method="props.spanMethod"
     :class="!props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : ''"
     v-on="propsEvent"
+    @drag-change="tableChange"
   >
     <!-- 展开行-->
     <template #expand-icon="{ expanded, record }">
@@ -285,6 +286,10 @@
       immediate: true,
     }
   );
+
+  function tableChange() {
+    emit('change', propsRes.value.data);
+  }
 
   function emitChange(from: string, isInit?: boolean) {
     if (!isInit) {

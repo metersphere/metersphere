@@ -1007,6 +1007,7 @@
   function handleFormTableChange(data: any[]) {
     paramsData.value = [...data];
     emitChange('handleFormTableChange');
+    addTableLine(data.length - 1);
   }
 
   /**

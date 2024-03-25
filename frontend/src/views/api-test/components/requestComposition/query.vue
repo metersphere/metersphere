@@ -23,6 +23,7 @@
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
+    draggable
     :default-param-item="defaultRequestParamsItem"
     @change="handleParamTableChange"
   />
