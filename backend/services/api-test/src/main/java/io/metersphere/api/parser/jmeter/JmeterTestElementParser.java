@@ -1,11 +1,14 @@
 package io.metersphere.api.parser.jmeter;
 
+import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.utils.JmeterElementConverterRegister;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.sampler.DebugSampler;
@@ -26,7 +29,6 @@ import java.io.ByteArrayOutputStream;
  */
 public class JmeterTestElementParser implements TestElementParser {
 
-    private Boolean onSampleError;
     private String name;
     private ParameterConfig config;
 
@@ -44,7 +46,7 @@ public class JmeterTestElementParser implements TestElementParser {
         TestPlan testPlan = getPlan();
         name = msTestElement.getName();
         final HashTree testPlanTree = hashTree.add(testPlan);
-        final HashTree groupTree = testPlanTree.add(getThreadGroup());
+        final HashTree groupTree = testPlanTree.add(getThreadGroup(msTestElement));
 
         // 解析 msTestElement
         JmeterElementConverterRegister.getConverter(msTestElement.getClass()).toHashTree(groupTree, msTestElement, config);
@@ -77,7 +79,7 @@ public class JmeterTestElementParser implements TestElementParser {
         return testPlan;
     }
 
-    public ThreadGroup getThreadGroup() {
+    public ThreadGroup getThreadGroup(AbstractMsTestElement msTestElement) {
         LoopController loopController = new LoopController();
         loopController.setName("LoopController");
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
@@ -96,9 +98,15 @@ public class JmeterTestElementParser implements TestElementParser {
         threadGroup.setDuration(0);
         threadGroup.setProperty(ThreadGroup.ON_SAMPLE_ERROR, ThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
         threadGroup.setScheduler(false);
-        if (onSampleError != null && !onSampleError) {
-            threadGroup.setProperty("ThreadGroup.on_sample_error", "stopthread");
+
+        // 设置失败停止
+        if (msTestElement instanceof MsScenario msScenario && msScenario.getScenarioConfig() != null) {
+            ScenarioOtherConfig otherConfig = msScenario.getScenarioConfig().getOtherConfig();
+            if (StringUtils.equals(otherConfig.getFailureStrategy(), ScenarioOtherConfig.FailureStrategy.STOP.name())) {
+                threadGroup.setProperty("ThreadGroup.on_sample_error", "stopthread");
+            }
         }
+
         threadGroup.setSamplerController(loopController);
         return threadGroup;
     }
