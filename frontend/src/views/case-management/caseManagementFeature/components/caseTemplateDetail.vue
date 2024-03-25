@@ -753,6 +753,16 @@
       };
     });
     fileList.value = [];
+    form.value.tags = [];
+    stepData.value = [
+      {
+        id: getGenerateId(),
+        step: '',
+        expected: '',
+        showStep: false,
+        showExpected: false,
+      },
+    ];
     caseFormRef.value?.resetFields();
   }
 
