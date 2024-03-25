@@ -28,10 +28,11 @@
           </span>
         </span>
       </MsTag> -->
+
+      <slot name="right"></slot>
       <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleRefresh">
         <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
       </MsTag>
-      <slot name="right"></slot>
     </div>
   </div>
   <FilterForm

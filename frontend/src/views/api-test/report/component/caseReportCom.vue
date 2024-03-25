@@ -5,7 +5,7 @@
       <span>
         {{ detail.poolName || '-' }}
         <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.requestDuration || '-' }}
+        {{ detail.environmentName || '-' }}
         <a-divider direction="vertical" :margin="4"></a-divider>
         {{ detail.creatUserName || '-' }}
       </span>

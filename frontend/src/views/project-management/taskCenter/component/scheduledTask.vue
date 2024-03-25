@@ -95,7 +95,6 @@
       dataIndex: 'value',
       slotName: 'value',
       showInTable: true,
-      isTag: true,
       width: 150,
       showDrag: true,
     },
@@ -138,7 +137,7 @@
     project: getScheduleProApiCaseList,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group],
     {
       columns,
@@ -148,8 +147,8 @@
       showSetting: false,
       selectable: true,
       heightUsed: 300,
-      enableDrag: true,
-      showSelectAll: true,
+      enableDrag: false,
+      showSelectorAll: true,
     }
   );
 

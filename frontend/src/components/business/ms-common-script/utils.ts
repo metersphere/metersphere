@@ -1,11 +1,25 @@
 import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
 
 import { useI18n } from '@/hooks/useI18n';
+import { hasAnyPermission } from '@/utils/permission';
 
 import type { CommonScriptMenu } from '@/models/projectManagement/commonScript';
 import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
 const { t } = useI18n();
+
+function getInsertCommonScript() {
+  if (hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ'])) {
+    return [
+      {
+        title: t('project.processor.insertPublicScript'),
+        value: 'custom_function',
+        command: 'custom_function',
+      },
+    ];
+  }
+  return [];
+}
 
 export const SCRIPT_MENU: CommonScriptMenu[] = [
   {
@@ -42,11 +56,7 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
     title: t('project.processor.paramEnvironmentSetGlobalVariable'),
     value: `vars.put(\${__metersphere_env_id}+"key","value");\nvars.put("key","value");`,
   },
-  {
-    title: t('project.processor.insertPublicScript'),
-    value: 'custom_function',
-    command: 'custom_function',
-  },
+  ...getInsertCommonScript(),
   {
     title: t('project.processor.terminationTest'),
     value: 'ctx.getEngine().stopTest();',

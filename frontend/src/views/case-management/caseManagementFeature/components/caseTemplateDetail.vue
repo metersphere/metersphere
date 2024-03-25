@@ -197,7 +197,13 @@
                   height: 200,
                 },
               }"
-            ></a-tree-select>
+            >
+              <template #tree-slot-title="node">
+                <div class="inline-flex w-full">
+                  <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+                </div>
+              </template>
+            </a-tree-select>
           </a-form-item>
           <MsFormCreate
             v-if="formRules.length"
