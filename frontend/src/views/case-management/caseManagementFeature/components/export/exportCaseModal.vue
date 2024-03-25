@@ -74,8 +74,8 @@
           <a-button
             class="ml-3"
             type="primary"
-            :disabled="isDisabled"
             :loading="props.confirmLoading"
+            :disabled="fileList.length < 1"
             @click="saveConfirm"
             >{{ t('caseManagement.featureCase.checkTemplate') }}</a-button
           >
@@ -125,13 +125,6 @@
     emit('close');
   };
 
-  // const versionOptions = ref([
-  //   {
-  //     id: '1001',
-  //     name: 'V1.0',
-  //   },
-  // ]);
-
   const fileTypeTip = computed(() => {
     return props.validateType === 'Excel'
       ? t('caseManagement.featureCase.excelImportTip')
@@ -139,8 +132,6 @@
   });
 
   const isRecover = ref<boolean>(false);
-
-  const isDisabled = ref<boolean>(false);
 
   // 下载excel|| xmind模板
   async function downloadExcelTemplate() {

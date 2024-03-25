@@ -54,7 +54,7 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
+        <MsButton class="!mr-0" @click="viewReport">{{ t('project.taskCenter.viewReport') }}</MsButton>
         <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
           v-if="['RUNNING', 'RERUNNING'].includes(record.status) && hasAnyPermission(permissionsMap[props.group].stop)"
@@ -91,10 +91,12 @@
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { RouteEnum } from '@/enums/routeEnum';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { TaskStatus } from './utils';
@@ -110,7 +112,7 @@
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
   const statusListFilters = ref<string[]>(Object.keys(TaskStatus[props.moduleType]));
-
+  const { openNewPage } = useOpenNewPage();
   const filterOptions = computed(() => {
     return statusListFilters.value.map((item) => {
       return {
@@ -330,10 +332,15 @@
   const statusFilters = computed(() => {
     return Object.keys(TaskStatus[props.moduleType]);
   });
+
   function handleFilterHidden(val: boolean) {
     if (!val) {
       initData();
     }
+  }
+
+  function viewReport() {
+    openNewPage(RouteEnum.API_TEST_REPORT);
   }
 
   watch(

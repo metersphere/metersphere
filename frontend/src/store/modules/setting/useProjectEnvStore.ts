@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { number } from 'echarts';
+import { cloneDeep } from 'lodash-es';
 import localforage from 'localforage';
 
 import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
@@ -17,6 +17,7 @@ import {
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
 export const NEW_ENV_GROUP = 'newEnvGroup';
+// 环境默认配置项
 const envParamsDefaultConfig: EnvConfig = {
   commonVariables: [],
   httpConfig: [],
@@ -70,6 +71,7 @@ const useProjectEnvStore = defineStore(
     const backupEnvDetailInfo = ref<EnvDetailItem>({
       projectId: '',
       name: '',
+      description: '',
       config: envParamsDefaultConfig,
     });
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
@@ -106,14 +108,14 @@ const useProjectEnvStore = defineStore(
           backupEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',
-            config: envParamsDefaultConfig,
+            config: cloneDeep(envParamsDefaultConfig),
           };
         } else if (id === ALL_PARAM) {
           allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
         } else if (id !== ALL_PARAM && id) {
           const tmpObj = await getDetailEnv(id);
           currentEnvDetailInfo.value = { ...tmpObj };
-          backupEnvDetailInfo.value = tmpObj;
+          backupEnvDetailInfo.value = cloneDeep(tmpObj);
         }
       } catch (e) {
         // eslint-disable-next-line no-console
