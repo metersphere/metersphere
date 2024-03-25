@@ -322,6 +322,7 @@
     RequestConditionProcessor,
     RequestMethods,
     ResponseComposition,
+    ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
 
@@ -1065,36 +1066,36 @@
           ) {
             await initQuoteApiDetail();
           }
-          // TODO: 类型报错
-          // if (
-          //   props.requestType === ScenarioStepType.QUOTE_API &&
-          //   props.request.request &&
-          //   requestVModel.value.request
-          // ) {
-          //   // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
-          //   ['headers', 'query', 'rest'].forEach((type) => {
-          //     props.request.request[type]?.forEach((item) => {
-          //       const index = requestVModel.value.request[type]?.findIndex((itemReq) => itemReq.key === item.key);
-          //       if (index > -1) {
-          //         requestVModel.value.request[type][index].value = item.value;
-          //         requestVModel.value[type] = requestVModel.value.request[type];
-          //       }
-          //     });
-          //   });
-          //   if (props.request.request.body.bodyType !== 'NONE') {
-          //     ['formDataBody', 'wwwFormBody'].forEach((type) => {
-          //       props.request.request.body[type].formValues.forEach((item) => {
-          //         const index = requestVModel.value.request.body[type].formValues.findIndex(
-          //           (itemReq) => itemReq.key === item.key
-          //         );
-          //         if (index > -1) {
-          //           requestVModel.value.request.body[type]?.formValues[index].value = item.value;
-          //           requestVModel.value.body = requestVModel.value.request?.body;
-          //         }
-          //       });
-          //     });
-          //   }
-          // }
+          if (
+            props.step?.stepType === ScenarioStepType.API &&
+            props.step?.refType === ScenarioStepRefType.REF &&
+            props.request.request &&
+            requestVModel.value.request
+          ) {
+            // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
+            ['headers', 'query', 'rest'].forEach((type) => {
+              props.request?.request?.[type]?.forEach((item) => {
+                const index = requestVModel.value.request?.[type]?.findIndex((itemReq) => itemReq.key === item.key);
+                if (index > -1 && requestVModel.value.request) {
+                  requestVModel.value.request[type][index].value = item.value;
+                  requestVModel.value[type] = requestVModel.value.request?.[type];
+                }
+              });
+            });
+            if (props.request.request.body.bodyType !== 'NONE') {
+              ['formDataBody', 'wwwFormBody'].forEach((type) => {
+                props.request?.request?.body[type].formValues.forEach((item) => {
+                  const index = requestVModel.value.request?.body[type].formValues.findIndex(
+                    (itemReq) => itemReq.key === item.key
+                  );
+                  if (index > -1 && requestVModel.value.request?.body) {
+                    requestVModel.value.request.body[type].formValues[index].value = item.value;
+                    requestVModel.value.body = requestVModel.value.request?.body;
+                  }
+                });
+              });
+            }
+          }
           handleActiveDebugProtocolChange(requestVModel.value.protocol);
         } else {
           requestVModel.value = cloneDeep({

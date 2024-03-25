@@ -261,7 +261,6 @@
   import createStepActions from './createAction/createStepActions.vue';
   import stepInsertStepTrigger from './createAction/stepInsertStepTrigger.vue';
   import conditionContent from './stepNodeComposition/conditionContent.vue';
-  import customApiContent from './stepNodeComposition/customApiContent.vue';
   import loopControlContent from './stepNodeComposition/loopContent.vue';
   import quoteContent from './stepNodeComposition/quoteContent.vue';
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
@@ -330,8 +329,6 @@
       return quoteContent;
     }
     switch (step.stepType) {
-      case ScenarioStepType.CUSTOM_REQUEST:
-        return customApiContent;
       case ScenarioStepType.LOOP_CONTROLLER:
         return loopControlContent;
       case ScenarioStepType.IF_CONTROLLER:
