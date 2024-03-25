@@ -83,6 +83,6 @@ export const apiSocket = (url: string, host?: string) => {
   return new WebSocket(uri);
 };
 
-export function getSocket(reportId: string, socketUrl?: string, host?: string) {
+export function getSocket(reportId: string | number, socketUrl?: string, host?: string) {
   return apiSocket(`${socketUrl || ConnectionWebsocketUrl}/${reportId}`, host);
 }

@@ -85,7 +85,7 @@
                   @change="handleStepContentChange($event, step)"
                   @click.stop
                 />
-                <!-- API、CASE、场景步骤名称 -->
+                <!-- 自定义请求、API、CASE、场景步骤名称 -->
                 <template v-if="checkStepIsApi(step)">
                   <apiMethodName v-if="checkStepShowMethod(step)" :method="step.config.method" />
                   <div
@@ -329,6 +329,8 @@
       return quoteContent;
     }
     switch (step.stepType) {
+      case ScenarioStepType.CUSTOM_REQUEST:
+        return quoteContent;
       case ScenarioStepType.LOOP_CONTROLLER:
         return loopControlContent;
       case ScenarioStepType.IF_CONTROLLER:
@@ -595,8 +597,8 @@
     if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
-      if (stepDetails.value[step.id] === undefined) {
-        // 详情映射中没有加载过该 api 详情，说明是初次查看详情，引用的 api 不需要在这里加载详情
+      if (stepDetails.value[step.id] === undefined && !step.isNew) {
+        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情
         await getStepDetail(step);
       }
       customApiDrawerVisible.value = true;
@@ -700,14 +702,14 @@
    */
   function addCustomApiStep(request: RequestParam) {
     request.isNew = false;
-    stepDetails.value[request.id] = request;
+    stepDetails.value[request.stepId] = request;
     if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
         {
           stepType: ScenarioStepType.CUSTOM_REQUEST,
           name: t('apiScenario.customApi'),
           method: request.method,
-          id: request.id,
+          id: request.stepId,
           projectId: appStore.currentProjectId,
         },
         activeStep.value,
@@ -724,7 +726,7 @@
           protocol: request.protocol,
           method: request.method,
         },
-        id: request.id,
+        id: request.stepId,
         sort: steps.value.length + 1,
         stepType: ScenarioStepType.CUSTOM_REQUEST,
         refType: ScenarioStepRefType.DIRECT,
@@ -732,6 +734,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    console.log(steps.value);
   }
 
   /**

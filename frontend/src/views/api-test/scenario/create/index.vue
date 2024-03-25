@@ -1,5 +1,5 @@
 <template>
-  <MsSplitBox :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
+  <MsSplitBox ref="splitBoxRef" :size="0.7" :max="0.9" :min="0.7" direction="horizontal" expand-direction="right">
     <template #first>
       <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
         <a-tab-pane :key="ScenarioCreateComposition.STEP" :title="t('apiScenario.step')" class="p-[16px]">
@@ -36,7 +36,7 @@
       <div class="p-[16px]">
         <!-- TODO:第一版没有模板 -->
         <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
-        <a-form ref="activeApiTabFormRef" :model="scenario" layout="vertical">
+        <a-form ref="createFormRef" :model="scenario" layout="vertical">
           <a-form-item
             field="name"
             :label="t('apiScenario.name')"
@@ -141,6 +141,8 @@
 </template>
 
 <script setup lang="ts">
+  import { FormInstance } from '@arco-design/web-vue';
+
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
@@ -171,6 +173,23 @@
   const activeKey = ref<ScenarioCreateComposition>(ScenarioCreateComposition.STEP);
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
+  });
+
+  const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
+  const createFormRef = ref<FormInstance>();
+
+  function validScenarioForm(cb: () => Promise<void>) {
+    createFormRef.value?.validate(async (errors) => {
+      if (errors) {
+        splitBoxRef.value?.expand();
+      } else {
+        cb();
+      }
+    });
+  }
+
+  defineExpose({
+    validScenarioForm,
   });
 </script>
 

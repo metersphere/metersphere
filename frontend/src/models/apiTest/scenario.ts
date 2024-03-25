@@ -331,6 +331,7 @@ export interface ScenarioStepItem {
   projectId?: string;
   versionId?: string;
   children?: ScenarioStepItem[];
+  isNew: boolean; // 是否新建的步骤，引用复制类型以此区分调用步骤详情还是资源详情
   // 页面渲染以及交互需要字段
   checked?: boolean; // 是否选中
   expanded?: boolean; // 是否展开

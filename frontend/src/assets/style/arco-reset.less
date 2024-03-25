@@ -263,7 +263,7 @@
   border: 1px solid var(--color-text-input-border);
   background-color: var(--color-text-fff);
   &:not(:disabled):hover {
-    border-color: rgb(var(--primary-5));
+    border-color: rgb(var(--primary-5)) !important;
     background-color: white;
   }
   input::placeholder {
@@ -363,8 +363,20 @@
   background: none;
   box-shadow: none;
 }
-.arco-form-item-status-success .arco-input-wrapper:not(.arco-input-disabled) {
-  border-color: var(--color-text-input-border);
+.arco-form-item-status-success {
+  &:hover {
+    .arco-input-wrapper:not(.arco-input-disabled),
+    .arco-select-view:not(.arco-select-view-disabled),
+    .arco-textarea-wrapper:not(.arco-textarea-disabled) {
+      background: white;
+    }
+  }
+  .arco-input-wrapper:not(.arco-input-disabled),
+  .arco-select-view:not(.arco-select-view-disabled),
+  .arco-textarea-wrapper:not(.arco-textarea-disabled) {
+    border-color: var(--color-text-input-border);
+    background: white;
+  }
 }
 .arco-form-item-message {
   width: 100%;

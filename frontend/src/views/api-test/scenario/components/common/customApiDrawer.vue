@@ -283,7 +283,6 @@
   import { cloneDeep, debounce } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -322,7 +321,6 @@
     RequestConditionProcessor,
     RequestMethods,
     ResponseComposition,
-    ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
 
@@ -349,20 +347,25 @@
 
   export interface RequestCustomAttr {
     type: 'api';
+    name: string;
+    stepId: string | number; // 所属步骤 id
+    resourceId: string | number; // 引用、复制的资源 id
     isNew: boolean;
     protocol: string;
     activeTab: RequestComposition;
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
+    responseActiveTab: ResponseComposition;
+    unSaved: boolean;
+    uploadFileIds: string[];
+    linkFileIds: string[];
   }
 
   export type RequestParam = ExecuteApiRequestFullParams & {
     response?: RequestTaskResult;
     customizeRequestEnvEnable: boolean;
-    request?: ExecuteApiRequestFullParams; // 请求参数集合
-  } & RequestCustomAttr &
-    TabItem;
+  } & RequestCustomAttr;
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
@@ -398,8 +401,10 @@
   const loading = defineModel<boolean>('detailLoading', { default: false });
 
   const defaultDebugParams: RequestParam = {
+    name: '',
     type: 'api',
-    id: '',
+    stepId: '',
+    resourceId: '',
     customizeRequestEnvEnable: false,
     protocol: 'HTTP',
     url: '',
@@ -607,7 +612,8 @@
   const currentPluginScript = computed<Record<string, any>[]>(
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
   );
-  const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request?.request === null);
+  // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
+  const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
   const isEditableApi = computed(
     () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
   );
@@ -616,7 +622,7 @@
   const handlePluginFormChange = debounce(() => {
     if (isEditableApi.value) {
       // 复制或者新建的时候需要缓存表单数据，引用的不能更改
-      temporaryPluginFormMap[requestVModel.value.id] = fApi.value?.formData();
+      temporaryPluginFormMap[requestVModel.value.stepId] = fApi.value?.formData();
     }
     handleActiveDebugChange();
   }, 300);
@@ -636,7 +642,6 @@
     if (currentFormFields && currentFormFields.length < fields.length) {
       fApi.value?.hidden(false, fields);
       fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
-      fApi.value?.refresh();
     } else {
       // 隐藏多余的字段
       fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
@@ -648,27 +653,30 @@
    * 设置插件表单数据
    */
   function setPluginFormData() {
-    const tempForm = temporaryPluginFormMap[requestVModel.value.id];
+    const tempForm = temporaryPluginFormMap[requestVModel.value.stepId];
+    console.log('setPluginFormData', temporaryPluginFormMap, requestVModel.value.stepId);
     if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = isEditableApi.value ? tempForm || requestVModel.value : requestVModel.value;
-      if (fApi.value) {
-        fApi.value.nextRefresh(() => {
-          const form = {};
-          controlPluginFormFields().forEach((key) => {
-            form[key] = formData[key];
+      nextTick(() => {
+        if (fApi.value) {
+          fApi.value.nextRefresh(() => {
+            const form = {};
+            controlPluginFormFields().forEach((key) => {
+              form[key] = formData[key];
+            });
+            fApi.value?.setValue(cloneDeep(form));
+            setTimeout(() => {
+              // 初始化时赋值会触发表单数据变更，300ms 是为了与 handlePluginFormChange的防抖时间保持一致
+              isInitPluginForm.value = true;
+            }, 300);
           });
-          fApi.value?.setValue(cloneDeep(form));
-          fApi.value?.clearValidateState();
-          setTimeout(() => {
-            // 初始化时赋值会触发表单数据变更，300ms 是为了与 handlePluginFormChange的防抖时间保持一致
-            isInitPluginForm.value = true;
-          }, 300);
-        });
-      }
+        }
+      });
     } else {
-      fApi.value?.nextTick(() => {
+      nextTick(() => {
         controlPluginFormFields();
+        fApi.value?.clearValidateState();
         fApi.value?.resetFields();
         isInitPluginForm.value = true;
       });
@@ -831,7 +839,6 @@
     return conditionCopy;
   }
 
-  const reportId = ref('');
   const websocket = ref<WebSocket>();
 
   /**
@@ -839,14 +846,14 @@
    */
   function debugSocket(executeType?: 'localExec' | 'serverExec') {
     websocket.value = getSocket(
-      reportId.value,
+      requestVModel.value.stepId,
       executeType === 'localExec' ? '/ws/debug' : '',
       executeType === 'localExec' ? localExecuteUrl.value : ''
     );
     websocket.value.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
-        if (requestVModel.value.reportId === data.reportId) {
+        if (requestVModel.value.stepId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           requestVModel.value.response = data.taskResult;
           requestVModel.value.executeLoading = false;
@@ -922,7 +929,8 @@
     }
     return {
       ...requestParams,
-      id: requestVModel.value.id,
+      resourceId: requestVModel.value.resourceId,
+      stepId: requestVModel.value.stepId,
       activeTab: requestVModel.value.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
       responseActiveTab: ResponseComposition.BODY,
       protocol: requestVModel.value.protocol,
@@ -1016,7 +1024,7 @@
   async function initQuoteApiDetail() {
     try {
       loading.value = true;
-      const res = await getDefinitionDetail(requestVModel.value.id);
+      const res = await getDefinitionDetail(props.step?.resourceId || '');
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
@@ -1032,9 +1040,10 @@
         response: cloneDeep(defaultResponse),
         url: res.path,
         name: res.name, // request里面还有个name但是是null
-        id: res.id,
+        resourceId: res.id,
         ...parseRequestBodyResult,
       };
+      console.log('initQuoteApiDetail', requestVModel.value);
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
         loading.value = false;
@@ -1054,53 +1063,26 @@
           await initProtocolList();
         }
         if (props.request) {
+          // 查看自定义请求、引用 api、复制 api
           requestVModel.value = cloneDeep({
             ...defaultDebugParams,
             ...props.request,
             isNew: false,
           });
-          if (
-            _stepType.value.isQuoteApi ||
-            isCopyApiNeedInit.value
-            // 引用接口时，需要初始化引用接口的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
-          ) {
+          if (_stepType.value.isQuoteApi) {
+            // 引用接口时，每次都要获取源接口数据
             await initQuoteApiDetail();
           }
-          if (
-            props.step?.stepType === ScenarioStepType.API &&
-            props.step?.refType === ScenarioStepRefType.REF &&
-            props.request.request &&
-            requestVModel.value.request
-          ) {
-            // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
-            ['headers', 'query', 'rest'].forEach((type) => {
-              props.request?.request?.[type]?.forEach((item) => {
-                const index = requestVModel.value.request?.[type]?.findIndex((itemReq) => itemReq.key === item.key);
-                if (index > -1 && requestVModel.value.request) {
-                  requestVModel.value.request[type][index].value = item.value;
-                  requestVModel.value[type] = requestVModel.value.request?.[type];
-                }
-              });
-            });
-            if (props.request.request.body.bodyType !== 'NONE') {
-              ['formDataBody', 'wwwFormBody'].forEach((type) => {
-                props.request?.request?.body[type].formValues.forEach((item) => {
-                  const index = requestVModel.value.request?.body[type].formValues.findIndex(
-                    (itemReq) => itemReq.key === item.key
-                  );
-                  if (index > -1 && requestVModel.value.request?.body) {
-                    requestVModel.value.request.body[type].formValues[index].value = item.value;
-                    requestVModel.value.body = requestVModel.value.request?.body;
-                  }
-                });
-              });
-            }
-          }
+          handleActiveDebugProtocolChange(requestVModel.value.protocol);
+        } else if (_stepType.value.isQuoteApi || isCopyApiNeedInit.value) {
+          // 引用接口时，需要初始化引用接口的详情；复制只在第一次初始化的时候需要加载后台数据，复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
+          await initQuoteApiDetail();
           handleActiveDebugProtocolChange(requestVModel.value.protocol);
         } else {
+          // 新建自定义请求
           requestVModel.value = cloneDeep({
             ...defaultDebugParams,
-            id: getGenerateId(),
+            stepId: getGenerateId(),
           });
         }
       }
