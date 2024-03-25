@@ -49,7 +49,13 @@
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
       </MsButton>
-      <MsButton v-permission="['CASE_REVIEW:READ+UPDATE']" type="button" status="default" :loading="followLoading" @click="toggleFollowReview">
+      <MsButton
+        v-permission="['CASE_REVIEW:READ+UPDATE']"
+        type="button"
+        status="default"
+        :loading="followLoading"
+        @click="toggleFollowReview"
+      >
         <MsIcon
           :type="reviewDetail.followFlag ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
           :class="`mr-[8px] ${reviewDetail.followFlag ? 'text-[rgb(var(--warning-6))]' : ''}`"
@@ -57,7 +63,7 @@
         {{ t(reviewDetail.followFlag ? 'common.forked' : 'common.fork') }}
       </MsButton>
       <MsTableMoreAction :list="moreAction" @select="handleMoreSelect">
-        <MsButton type="button" status="default">
+        <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD', 'CASE_REVIEW:READ+DELETE']" type="button" status="default">
           <MsIcon type="icon-icon_more_outlined" class="mr-[8px]" />
           {{ t('common.more') }}
         </MsButton>

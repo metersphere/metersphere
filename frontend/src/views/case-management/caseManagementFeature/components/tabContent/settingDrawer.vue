@@ -6,6 +6,7 @@
     :width="480"
     unmount-on-close
     :footer="false"
+    class="tab-setting-drawer"
   >
     <div class="header mb-1 flex h-[22px] items-center justify-between">
       <div class="flex items-center text-[var(--color-text-4)]"
@@ -214,5 +215,11 @@
   .itemTab {
     height: 38px;
     @apply flex items-center justify-between p-3;
+  }
+</style>
+
+<style>
+  .tab-setting-drawer .ms-drawer-body-scrollbar {
+    min-width: auto !important;
   }
 </style>
