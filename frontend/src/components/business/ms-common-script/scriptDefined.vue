@@ -2,10 +2,10 @@
   <div v-if="props.showHeader && props.showType === 'commonScript'" class="w-full bg-[var(--color-bg-3)] p-4 pb-0">
     <div class="flex items-center justify-between">
       <div>
-        <MsTag class="!mr-2 cursor-pointer" theme="outline" @click="undoHandler">
-          <template #icon><icon-undo class="mr-1 text-[16px] text-[var(--color-text-4)]" /> </template>
-          {{ t('project.commonScript.undo') }}</MsTag
-        >
+        <!--        <MsTag class="!mr-2 cursor-pointer" theme="outline" @click="undoHandler">-->
+        <!--          <template #icon><icon-undo class="mr-1 text-[16px] text-[var(&#45;&#45;color-text-4)]" /> </template>-->
+        <!--          {{ t('project.commonScript.undo') }}</MsTag-->
+        <!--        >-->
         <MsTag theme="outline" class="cursor-pointer" @click="clearCode">
           <template #icon>
             <icon-eraser class="mr-1 text-[16px] text-[var(--color-text-4)]" />
