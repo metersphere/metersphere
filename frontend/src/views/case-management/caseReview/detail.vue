@@ -8,6 +8,7 @@
     no-bottom-radius
     no-content-padding
     hide-divider
+    :handle-back="backToTable"
   >
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
@@ -368,6 +369,12 @@
     } finally {
       followLoading.value = false;
     }
+  }
+
+  function backToTable() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
+    });
   }
 
   function copyReview() {
