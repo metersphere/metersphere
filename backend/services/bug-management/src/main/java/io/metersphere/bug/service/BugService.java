@@ -1432,10 +1432,9 @@ public class BugService {
      */
     private FileRequest buildTmpImageFileRequest(String fileId) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
-        // 临时图片文件名称固定为image.png
-        fileRequest.setFileName("image.png");
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
         fileRequest.setStorage(StorageType.MINIO.name());
+        fileRequest.setFileName(bugAttachmentService.getTempFileNameByFileId(fileId));
         return fileRequest;
     }
 
