@@ -488,7 +488,7 @@ export function handleTreeDragDrop<T>(
  * @param treeArr 目标树
  * @param targetKey 目标节点唯一值
  */
-export function deleteNode<T>(treeArr: TreeNode<T>[], targetKey: string, customKey = 'key'): void {
+export function deleteNode<T>(treeArr: TreeNode<T>[], targetKey: string | number, customKey = 'key'): void {
   function deleteNodeInTree(tree: TreeNode<T>[]): void {
     for (let i = 0; i < tree.length; i++) {
       const node = tree[i];
@@ -503,6 +503,28 @@ export function deleteNode<T>(treeArr: TreeNode<T>[], targetKey: string, customK
   }
 
   deleteNodeInTree(treeArr);
+}
+
+/**
+ * 删除树形数组中的多个节点
+ * @param treeArr 目标树
+ * @param targetKeys 目标节点唯一值的数组
+ */
+export function deleteNodes<T>(treeArr: TreeNode<T>[], targetKeys: (string | number)[], customKey = 'key'): void {
+  const targetKeysSet = new Set(targetKeys);
+  function deleteNodesInTree(tree: TreeNode<T>[]): void {
+    for (let i = tree.length - 1; i >= 0; i--) {
+      const node = tree[i];
+      if (targetKeysSet.has(node[customKey])) {
+        tree.splice(i, 1); // 直接删除当前节点
+        targetKeysSet.delete(node[customKey]); // 删除后从集合中移除
+      } else if (Array.isArray(node.children)) {
+        deleteNodesInTree(node.children); // 递归删除子节点
+      }
+    }
+  }
+
+  deleteNodesInTree(treeArr);
 }
 
 /**

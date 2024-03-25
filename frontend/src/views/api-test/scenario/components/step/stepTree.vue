@@ -104,7 +104,7 @@
                   </div>
                   <a-tooltip :content="step.name">
                     <div class="step-name-container">
-                      <div class="one-line-text mr-[4px] max-w-[150px] font-medium text-[var(--color-text-1)]">
+                      <div class="one-line-text mr-[4px] max-w-[350px] font-medium text-[var(--color-text-1)]">
                         {{ step.name }}
                       </div>
                       <MsIcon
@@ -442,20 +442,34 @@
     switch (item.eventTag) {
       case 'copy':
         const id = getGenerateId();
+        const stepDetail = stepDetails.value[node.id];
+        if (stepDetail) {
+          // 如果复制的步骤还有详情数据，则也复制详情数据
+          stepDetails.value[id] = cloneDeep(stepDetail);
+        }
         insertNodes<ScenarioStepItem>(
           steps.value,
           node.id,
           {
             ...cloneDeep(
               mapTree<ScenarioStepItem>(node, (childNode) => {
+                const childId = getGenerateId();
+                const childStepDetail = stepDetails.value[node.id];
+                if (childStepDetail) {
+                  // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
+                  stepDetails.value[childId] = cloneDeep(childStepDetail);
+                }
                 return {
-                  ...childNode,
-                  id: getGenerateId(), // TODO:引用类型额外需要一个复制来源 ID
+                  ...cloneDeep(childNode),
+                  copyFromStepId: childNode.id,
+                  id: childId,
                 };
               })[0]
             ),
             name: `copy-${node.name}`,
+            copyFromStepId: node.id,
             sort: node.sort + 1,
+            isNew: false,
             id,
           },
           'after',
@@ -567,9 +581,10 @@
   async function getStepDetail(step: ScenarioStepItem) {
     try {
       appStore.showLoading();
-      const res = await getScenarioStep(step.id);
+      const res = await getScenarioStep(step.copyFromStepId || step.id);
       stepDetails.value[step.id] = {
         ...res,
+        stepId: step.id,
         protocol: step.config.protocol,
         method: step.config.method,
       };
@@ -597,8 +612,11 @@
     if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
-      if (stepDetails.value[step.id] === undefined && !step.isNew) {
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情
+      if (
+        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+        (stepDetails.value[step.id] === undefined && !step.isNew)
+      ) {
+        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
         await getStepDetail(step);
       }
       customApiDrawerVisible.value = true;
@@ -734,7 +752,6 @@
         projectId: appStore.currentProjectId,
       });
     }
-    console.log(steps.value);
   }
 
   /**

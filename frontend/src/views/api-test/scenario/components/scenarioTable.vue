@@ -60,13 +60,14 @@
         <a-select
           v-model:model-value="record.status"
           class="param-input w-full"
+          size="mini"
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" />
+            <apiStatus :status="record.status" size="small" />
           </template>
           <a-option v-for="item of Object.values(ApiScenarioStatus)" :key="item" :value="item">
-            <apiStatus :status="item" />
+            <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
       </template>
@@ -75,6 +76,7 @@
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
+          size="mini"
           @change="() => handlePriorityStatusChange(record)"
         >
           <template #label>
@@ -398,9 +400,8 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 126,
+      width: 100,
       showTooltip: true,
-      showInTable: true,
       columnSelectorDisabled: true,
     },
     {
@@ -412,7 +413,6 @@
       },
       width: 134,
       showTooltip: true,
-      showInTable: true,
       columnSelectorDisabled: true,
     },
     {
@@ -420,7 +420,6 @@
       dataIndex: 'priority',
       slotName: 'priority',
       width: 100,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.status',
@@ -428,7 +427,6 @@
       slotName: 'status',
       titleSlotName: 'statusFilter',
       width: 140,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.runResult',
@@ -437,15 +435,12 @@
       slotName: 'lastReportStatus',
       showTooltip: true,
       width: 100,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.tags',
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
-      width: 456,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.scenarioEnv',
@@ -456,19 +451,16 @@
       title: 'apiScenario.table.columns.steps',
       dataIndex: 'stepTotal',
       width: 100,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
       width: 100,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.module',
       dataIndex: 'modulePath',
       width: 176,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.createTime',
@@ -478,7 +470,6 @@
         sorter: true,
       },
       width: 189,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.updateTime',
@@ -488,21 +479,16 @@
         sorter: true,
       },
       width: 189,
-      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
-      titleSlotName: 'createUser',
-      width: 109,
-      showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
-      titleSlotName: 'updateUser',
-      width: 109,
-      showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'common.operation',
