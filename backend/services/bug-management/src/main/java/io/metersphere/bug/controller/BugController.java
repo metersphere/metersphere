@@ -228,14 +228,14 @@ public class BugController {
 
     @GetMapping("/follow/{id}")
     @Operation(summary = "缺陷管理-详情-关注缺陷")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public void follow(@PathVariable String id) {
         bugService.follow(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/unfollow/{id}")
     @Operation(summary = "缺陷管理-详情-取消关注缺陷")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public void unfollow(@PathVariable String id) {
         bugService.unfollow(id, SessionUtils.getUserId());
     }

@@ -42,7 +42,7 @@ public class BugRelateCaseController {
 
     @PostMapping("/un-relate/page")
     @Operation(description = "缺陷管理-关联用例-未关联用例-列表分页")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<TestCaseProviderDTO>> unRelatedPage(@Validated @RequestBody TestCasePageProviderRequest request) {
         // 目前只保留功能用例的Provider接口, 后续其他用例根据RelateCaseType扩展
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -51,7 +51,7 @@ public class BugRelateCaseController {
 
     @PostMapping("/un-relate/module/count")
     @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树数量")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> countTree(@RequestBody @Validated TestCasePageProviderRequest request) {
         return bugRelateCaseCommonService.countTree(request);
@@ -59,7 +59,7 @@ public class BugRelateCaseController {
 
     @PostMapping("/un-relate/module/tree")
     @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@RequestBody @Validated AssociateCaseModuleRequest request) {
         return bugRelateCaseCommonService.getRelateCaseTree(request);
@@ -75,7 +75,7 @@ public class BugRelateCaseController {
 
     @PostMapping("/page")
     @Operation(description = "缺陷管理-关联用例-列表分页查询")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<BugRelateCaseDTO>> page(@Validated @RequestBody BugRelatedCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, bugRelateCaseCommonService.page(request));

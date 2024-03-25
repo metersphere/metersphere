@@ -140,6 +140,13 @@ export default defineComponent({
       );
     };
 
+    watch(
+      () => props.commentList,
+      () => {
+        expendedIds.value = [];
+      }
+    );
+
     const renderChildrenList = (list?: CommentItem[]) => {
       if (!list || list.length === 0) {
         return null;
