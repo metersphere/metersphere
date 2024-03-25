@@ -8,11 +8,9 @@ const ShareRoute: AppRouteRecordRaw = {
   name: ShareEnum.SHARE,
   component: SHARE_LAYOUT,
   meta: {
-    locale: 'menu.testPlan',
-    icon: 'icon-icon_test-tracking_filled',
-    hideChildrenInMenu: true,
-    roles: ['*'],
     hideInMenu: true,
+    roles: ['*'],
+    requiresAuth: true,
   },
   children: [
     // 测试计划

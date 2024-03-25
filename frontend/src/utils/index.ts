@@ -895,3 +895,23 @@ export function addLevelToTree<T>(tree: TreeNode<T>[], level = 0): TreeNode<T>[]
     return newNode;
   });
 }
+/**
+ * 时间转换单位
+ * @param ms 目标时间时间
+ */
+export function formatDuration(ms: number) {
+  // 将毫秒转换为秒
+  const seconds = ms / 1000;
+  // 如果小于1秒，则直接返回毫秒
+  if (seconds < 1) return `${ms}-ms`;
+  // 如果小于60秒，则返回秒
+  if (seconds < 60) return `${seconds}-sec`;
+  // 将秒转换为分钟
+  const minutes = seconds / 60;
+  // 如果小于60分钟，则返回分钟
+  if (minutes < 60) return `${minutes.toFixed(1)}-min`;
+  // 将分钟转换为小时
+  const hours = minutes / 60;
+  // 返回小时
+  return `${hours.toFixed(1)}-hr`;
+}

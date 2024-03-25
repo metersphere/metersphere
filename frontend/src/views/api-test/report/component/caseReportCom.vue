@@ -33,14 +33,16 @@
           <div class="time-card-item flex h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title">{{ t('report.detail.api.totalTime') }}</span>
-            <span class="count">{{ getTotalTime }}</span
-            ><span class="time-card-item-title">s</span>
+            <span class="count">{{ getTotalTime.split('-')[0] || '-' }}</span
+            ><span class="time-card-item-title">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
           </div>
           <div class="time-card-item h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title"> {{ t('report.detail.api.requestTotalTime') }}</span>
-            <span class="count">{{ detail.requestDuration || '-' }}</span
-            ><span class="time-card-item-title">s</span>
+            <span class="count">{{ formatDuration(detail.requestDuration).split('-')[0] || '-' }}</span
+            ><span class="time-card-item-title">{{
+              formatDuration(detail.requestDuration).split('-')[1] || 'ms'
+            }}</span>
           </div>
         </div>
 
@@ -105,7 +107,7 @@
   import TiledList from './tiledList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { addCommasToNumber } from '@/utils';
+  import { addCommasToNumber, formatDuration } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
 
@@ -158,7 +160,7 @@
     if (detail.value) {
       const { endTime, startTime } = detail.value;
       if (endTime && startTime && endTime !== 0 && startTime !== 0) {
-        return endTime - startTime;
+        return formatDuration(endTime - startTime);
       }
       return '-';
     }

@@ -63,8 +63,8 @@
               {{ t('report.detail.api.totalTime') }}
             </div>
             <div>
-              <span class="ml-4 text-[18px] font-medium">{{ getTotalTime }}</span
-              >s
+              <span class="ml-4 text-[18px] font-medium">{{ getTotalTime.split('-')[0] || '-' }}</span>
+              <span class="ml-1 text-[var(--color-text-4)]">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
             </div>
           </div>
           <div class="timer-card mr-2">
@@ -73,8 +73,12 @@
               {{ t('report.detail.api.requestTotalTime') }}
             </div>
             <div>
-              <span class="ml-4 text-[18px] font-medium">{{ detail.requestDuration }}</span
-              >s
+              <span class="ml-4 text-[18px] font-medium">{{
+                formatDuration(detail.requestDuration).split('-')[0] || '-'
+              }}</span>
+              <span class="ml-1 text-[var(--color-text-4)]">{{
+                formatDuration(detail.requestDuration).split('-')[1] || 'ms'
+              }}</span>
             </div>
           </div>
           <div class="timer-card min-w-[200px]">
@@ -151,7 +155,7 @@
   import TiledList from './tiledList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { addCommasToNumber } from '@/utils';
+  import { addCommasToNumber, formatDuration } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
 
@@ -200,11 +204,13 @@
     console: '',
   });
 
+  const timeUnits = ['ms', 'sec', 'min', 'hr'];
+
   const getTotalTime = computed(() => {
     if (detail.value) {
       const { endTime, startTime } = detail.value;
       if (endTime && startTime && endTime !== 0 && startTime !== 0) {
-        return endTime - startTime;
+        return formatDuration(endTime - startTime);
       }
       return '-';
     }
