@@ -134,12 +134,14 @@
       slotName: 'name',
       width: 300,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.description',
       dataIndex: 'description',
       width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.enable',
@@ -180,6 +182,10 @@
       dataIndex: 'updateTime',
       width: 180,
       showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
   ];
 
