@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="mb-4 flex items-center justify-between">
-      <a-button v-permission="['PROJECT_APPLICATION_API:READ+ADD']" type="primary" @click="showAddRule(undefined)">{{
+      <a-button v-permission="['PROJECT_APPLICATION_API:UPDATE']" type="primary" @click="showAddRule(undefined)">{{
         t('project.menu.addFalseAlertRules')
       }}</a-button>
       <a-input-search
@@ -35,7 +35,7 @@
             </span>
             <span>
               <MsButton
-                v-permission="['PROJECT_APPLICATION_API:READ+DELETE']"
+                v-permission="['PROJECT_APPLICATION_API:DELETE']"
                 class="!mr-0"
                 @click="handleDelete(record.id)"
                 >{{ t('common.delete') }}</MsButton
@@ -55,7 +55,7 @@
             <a-divider direction="vertical" />
           </span>
           <MsTableMoreAction
-            v-permission="['PROJECT_APPLICATION_API:READ+DELETE']"
+            v-permission="['PROJECT_APPLICATION_API:UPDATE']"
             class="!mr-0"
             :list="tableActions"
             @select="handleMoreAction($event, record)"
