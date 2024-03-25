@@ -34,8 +34,15 @@
       <template #name="{ record }">
         <div class="flex items-center">
           <div class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]">{{ record.name }}</div>
-          <a-popover :title="record.name" position="right">
-            <a-button type="text" class="ml-2 px-0">{{ t('project.commonScript.preview') }}</a-button>
+          <a-popover :title="record.name" position="bottom">
+            <a-button type="text" class="ml-2 px-0"> {{ t('project.commonScript.preview') }}</a-button>
+            <template #title>
+              <div class="w-[436px] bg-[var(--color-bg-3)] px-2 pb-2">
+                <span style="word-break: break-all">
+                  {{ record.name }}
+                </span>
+              </div>
+            </template>
             <template #content>
               <div class="w-[436px] bg-[var(--color-bg-3)] px-2 pb-2">
                 <MsCodeEditor
@@ -156,7 +163,7 @@
       dataIndex: 'tags',
       showInTable: true,
       isTag: true,
-      width: 150,
+      width: 456,
       showDrag: true,
     },
     {

@@ -75,7 +75,13 @@
       </div>
       <div class="flex items-center gap-[8px]">
         {{ t('apiTestDebug.index') }}
-        <a-input-number v-model:model-value="expressionForm.specifyMatchNum" :min="1" class="w-[80px]" />
+        <a-input-number
+          v-model:model-value="expressionForm.specifyMatchNum"
+          :default-value="1"
+          :min="1"
+          :precision="0"
+          class="w-[80px]"
+        />
         {{ t('apiTestDebug.unit') }}
       </div>
     </div>
