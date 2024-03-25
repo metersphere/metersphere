@@ -133,7 +133,7 @@
         </div>
       </template>
     </ms-base-table>
-    <deleteReviewModal v-model:visible="dialogVisible" :record="activeRecord" @success="loadList" />
+    <deleteReviewModal v-model:visible="dialogVisible" :record="activeRecord" @success="removeReviewModal" />
     <a-modal
       v-model:visible="moveModalVisible"
       title-align="start"
@@ -662,6 +662,12 @@
   function handleMoveModalCancel() {
     moveModalVisible.value = false;
     selectedModuleKeys.value = [];
+  }
+
+  function removeReviewModal() {
+    loadList();
+    resetSelector();
+    emit('init', { ...tableQueryParams.value });
   }
 
   /**
