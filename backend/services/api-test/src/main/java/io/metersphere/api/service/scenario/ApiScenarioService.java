@@ -95,6 +95,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -124,8 +125,6 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenarioFollowerMapper apiScenarioFollowerMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
-    @Resource
-    private ProjectService projectService;
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
     @Resource
@@ -418,16 +417,17 @@ public class ApiScenarioService extends MoveNodeService {
             List<ApiScenarioCsvStep> csvSteps = new ArrayList<>();
             List<ApiScenarioStep> steps = getApiScenarioSteps(null, request.getSteps(), csvSteps);
             steps.forEach(step -> step.setScenarioId(scenario.getId()));
-            // 获取待添加的步骤详情
-            List<ApiScenarioStepBlob> apiScenarioStepsDetails = getPartialRefStepDetails(request.getSteps());
-            apiScenarioStepsDetails.addAll(getUpdateStepDetails(steps, request.getStepDetails()));
-            apiScenarioStepsDetails.forEach(step -> step.setScenarioId(scenario.getId()));
+            // 处理特殊的步骤详情
+            addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+            List<ApiScenarioStepBlob> apiScenarioStepBlobs = getUpdateStepBlobs(steps, request.getStepDetails());
+            apiScenarioStepBlobs.forEach(step -> step.setScenarioId(scenario.getId()));
 
             if (CollectionUtils.isNotEmpty(steps)) {
                 apiScenarioStepMapper.batchInsert(steps);
             }
-            if (CollectionUtils.isNotEmpty(apiScenarioStepsDetails)) {
-                apiScenarioStepBlobMapper.batchInsert(apiScenarioStepsDetails);
+
+            if (CollectionUtils.isNotEmpty(apiScenarioStepBlobs)) {
+                apiScenarioStepBlobMapper.batchInsert(apiScenarioStepBlobs);
             }
 
             saveStepCsv(steps, csvSteps);
@@ -678,9 +678,9 @@ public class ApiScenarioService extends MoveNodeService {
 
             saveStepCsv(apiScenarioSteps, scenarioCsvSteps);
             // 获取待更新的步骤详情
-            List<ApiScenarioStepBlob> apiScenarioStepsDetails = getPartialRefStepDetails(request.getSteps());
-            apiScenarioStepsDetails.addAll(getUpdateStepDetails(apiScenarioSteps, request.getStepDetails()));
-            apiScenarioStepsDetails.forEach(step -> step.setScenarioId(scenario.getId()));
+            addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+            List<ApiScenarioStepBlob> updateStepBlobs = getUpdateStepBlobs(apiScenarioSteps, request.getStepDetails());
+            updateStepBlobs.forEach(step -> step.setScenarioId(scenario.getId()));
 
             List<String> stepIds = apiScenarioSteps.stream().map(ApiScenarioStep::getId).collect(Collectors.toList());
             List<String> originStepIds = extApiScenarioStepMapper.getStepIdsByScenarioId(scenario.getId());
@@ -701,14 +701,14 @@ public class ApiScenarioService extends MoveNodeService {
             Set<String> originStepDetailIds = new HashSet<>(extApiScenarioStepBlobMapper.getStepIdsByScenarioId(scenario.getId()));
 
             // 添加新增的步骤详情
-            List<ApiScenarioStepBlob> addApiScenarioStepsDetails = apiScenarioStepsDetails.stream()
+            List<ApiScenarioStepBlob> addApiScenarioStepsDetails = updateStepBlobs.stream()
                     .filter(step -> !originStepDetailIds.contains(step.getId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(addApiScenarioStepsDetails)) {
                 apiScenarioStepBlobMapper.batchInsert(addApiScenarioStepsDetails);
             }
             // 更新原有的步骤详情
-            apiScenarioStepsDetails.stream()
+            updateStepBlobs.stream()
                     .filter(step -> originStepDetailIds.contains(step.getId()))
                     .forEach(apiScenarioStepBlobMapper::updateByPrimaryKeySelective);
         } else if (MapUtils.isNotEmpty(request.getStepDetails())) {
@@ -718,13 +718,18 @@ public class ApiScenarioService extends MoveNodeService {
             // 更新原有的步骤详情
             request.getStepDetails().forEach((stepId, stepDetail) -> {
                 if (originStepDetailIds.contains(stepId)) {
-                    ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
-                    apiScenarioStepBlob.setId(stepId);
-                    apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
+                    ApiScenarioStepBlob apiScenarioStepBlob = getApiScenarioStepBlob(stepId, stepDetail);
                     apiScenarioStepBlobMapper.updateByPrimaryKeySelective(apiScenarioStepBlob);
                 }
             });
         }
+    }
+
+    private ApiScenarioStepBlob getApiScenarioStepBlob(String stepId, Object stepDetail) {
+        ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
+        apiScenarioStepBlob.setId(stepId);
+        apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
+        return apiScenarioStepBlob;
     }
 
     private void deleteStepDetailByScenarioId(String scenarioId) {
@@ -742,7 +747,7 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 获取待更新的 ApiScenarioStepBlob 列表
      */
-    private List<ApiScenarioStepBlob> getUpdateStepDetails(List<ApiScenarioStep> apiScenarioSteps, Map<String, Object> stepDetails) {
+    private List<ApiScenarioStepBlob> getUpdateStepBlobs(List<ApiScenarioStep> apiScenarioSteps, Map<String, Object> stepDetails) {
         if (MapUtils.isEmpty(stepDetails)) {
             return Collections.emptyList();
         }
@@ -750,26 +755,54 @@ public class ApiScenarioService extends MoveNodeService {
         Map<String, ApiScenarioStep> scenarioStepMap = apiScenarioSteps.stream()
                 .collect(Collectors.toMap(ApiScenarioStep::getId, Function.identity()));
 
-        List<ApiScenarioStepBlob> apiScenarioStepsDetails = new ArrayList<>();
+        List<ApiScenarioStepBlob> apiScenarioStepBlobs = new ArrayList<>();
         stepDetails.forEach((stepId, stepDetail) -> {
             ApiScenarioStep step = scenarioStepMap.get(stepId);
             if (step == null) {
                 return;
             }
-            if (!isRef(step.getRefType()) || isRefApi(step.getStepType(), step.getRefType())) {
+            if (hasDetail(step.getStepType(), step.getRefType())) {
                 // 非引用的步骤，如果有编辑内容，保存到blob表
-                // 如果引用的是接口定义，也保存详情，因为应用接口定义允许修改参数值
+                // 如果引用的是接口定义，也保存详情，因为应用接口定义允许修改参数
                 ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
                 apiScenarioStepBlob.setId(stepId);
-                apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
-                apiScenarioStepsDetails.add(apiScenarioStepBlob);
+                if (stepDetail instanceof byte[] detailBytes) {
+                    apiScenarioStepBlob.setContent(detailBytes);
+                } else {
+                    apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
+                }
+                apiScenarioStepBlobs.add(apiScenarioStepBlob);
             }
         });
-        return apiScenarioStepsDetails;
+        return apiScenarioStepBlobs;
+    }
+
+    private boolean isPartialRef(String refType) {
+        return StringUtils.equals(refType, ApiScenarioStepRefType.PARTIAL_REF.name());
+    }
+
+    private boolean isRefOrPartialRef(String refType) {
+        return StringUtils.equalsAny(refType, ApiScenarioStepRefType.REF.name(), ApiScenarioStepRefType.PARTIAL_REF.name());
     }
 
     private boolean isRef(String refType) {
-        return StringUtils.equalsAny(refType, ApiScenarioStepRefType.REF.name(), ApiScenarioStepRefType.PARTIAL_REF.name());
+        return StringUtils.equals(refType, ApiScenarioStepRefType.REF.name());
+    }
+
+    /**
+     * 是否有步骤详情
+     * 非完全引用的步骤
+     *
+     * @param stepType
+     * @param refType
+     * @return
+     */
+    private boolean hasDetail(String stepType, String refType) {
+        return !isRef(refType) || isRefApi(stepType, refType);
+    }
+
+    private boolean hasDetail(ApiScenarioStepCommonDTO step) {
+        return hasDetail(step.getStepType(), step.getRefType());
     }
 
     /**
@@ -818,33 +851,134 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     /**
-     * 解析步骤树结构
-     * 获取待更新的 ApiScenarioStep 列表
+     * 补充
+     * 部分引用的 detail
+     * copyFromStepId 的 detail
+     * isNew 的资源的 detail
      */
-    private List<ApiScenarioStepBlob> getPartialRefStepDetails(List<? extends ApiScenarioStepCommonDTO> steps) {
+    private void addSpecialStepDetails(List<ApiScenarioStepRequest> steps, Map<String, Object> stepDetails) {
         if (CollectionUtils.isEmpty(steps)) {
-            return Collections.emptyList();
+            return;
         }
-        List<ApiScenarioStepBlob> apiScenarioStepsDetails = new ArrayList<>();
 
-        for (ApiScenarioStepCommonDTO step : steps) {
-            if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.REF.name())) {
-                // 引用的步骤不解析子步骤
-                continue;
+        // key 的 stepId，value 为 copyFrom 的步骤ID
+        Map<String, String> copyFromStepIdMap = new HashMap<>();
+        // key 的 stepId，value 为 copyFrom 的接口ID
+        Map<String, String> isNewApiResourceMap = new HashMap<>();
+        // key 的 stepId，value 为 copyFrom 的接口用例ID
+        Map<String, String> isNewApiCaseResourceMap = new HashMap<>();
+
+        // 遍历步骤树
+        traversalStepTree(steps, (step) -> {
+            ApiScenarioStepRequest stepRequest = (ApiScenarioStepRequest) step;
+
+            // 补充部分引用的 detail
+            addPartialRefStepDetail(stepDetails, step);
+
+            // 如果该步骤没有步骤详情
+            if (stepDetails.get(stepRequest.getId()) == null && hasDetail(step)) {
+                if (isApiOrCase(step) && BooleanUtils.isTrue(((ApiScenarioStepRequest) step).getIsNew())) {
+                    // 处理 isNew 的用例步骤
+                    if (isApi(step.getStepType())) {
+                        isNewApiResourceMap.put(step.getId(), step.getResourceId());
+                    } else {
+                        isNewApiCaseResourceMap.put(step.getId(), step.getResourceId());
+                    }
+                } else if (StringUtils.isNotBlank(stepRequest.getCopyFromStepId())) {
+                    // 处理 copyFromStep 的情况
+                    if (stepDetails.containsKey(stepRequest.getCopyFromStepId())) {
+                        // 如果有传 copyFromStepId 的详情，优先使用
+                        stepDetails.put(step.getId(), stepDetails.get(stepRequest.getCopyFromStepId()));
+                    } else {
+                        // 没有传，则记录ID，后续统一查库
+                        copyFromStepIdMap.put(stepRequest.getId(), stepRequest.getCopyFromStepId());
+                    }
+                }
             }
-            if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.PARTIAL_REF.name())) {
-                // 如果是部分引用，blob表保存启用的子步骤ID
-                Set<String> enableStepSet = getEnableStepSet(step.getChildren());
-                PartialRefStepDetail stepDetail = new PartialRefStepDetail();
-                stepDetail.setEnableStepIds(enableStepSet);
-                ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
-                apiScenarioStepBlob.setId(step.getId());
-                apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
-                apiScenarioStepsDetails.add(apiScenarioStepBlob);
+
+            if (isRefOrPartialRef(step.getRefType())) {
+                // 引用或者部分引用类型不解析子步骤
+                return false;
             }
-            apiScenarioStepsDetails.addAll(getPartialRefStepDetails(step.getChildren()));
+            return true;
+        });
+
+        // 处理新copy的接口定义的步骤详情
+        putCopyStepDetails(stepDetails, isNewApiResourceMap, (subIds, copyFromBlobMap) -> {
+            apiDefinitionService.getBlobByIds(subIds)
+                    .forEach(apiDefinitionBlob -> copyFromBlobMap.put(apiDefinitionBlob.getId(), apiDefinitionBlob.getRequest()));
+        });
+
+        // 处理新copy的接口用例的步骤详情
+        putCopyStepDetails(stepDetails, isNewApiCaseResourceMap, (subIds, copyFromBlobMap) -> {
+            apiTestCaseService.getBlobByIds(subIds)
+                    .forEach(apiTestCaseBlob -> copyFromBlobMap.put(apiTestCaseBlob.getId(), apiTestCaseBlob.getRequest()));
+        });
+
+        // 处理新copy的步骤的步骤详情
+        putCopyStepDetails(stepDetails, isNewApiCaseResourceMap, (subIds, copyFromBlobMap) -> {
+            ApiScenarioStepBlobExample example = new ApiScenarioStepBlobExample();
+            example.createCriteria().andIdIn(subIds);
+            apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example)
+                    .forEach(scenarioStepBlob -> copyFromBlobMap.put(scenarioStepBlob.getId(), scenarioStepBlob.getContent()));
+        });
+    }
+
+    /**
+     * @param stepDetails
+     * @param copyFromIdMap        key 为 stepID，value 为复制的 resourceId 或者 stepId
+     * @param handlePutBlobMapFunc
+     */
+    private void putCopyStepDetails(Map<String, Object> stepDetails, Map<String, String> copyFromIdMap, BiConsumer<List<String>, Map<String, byte[]>> handlePutBlobMapFunc) {
+        if (MapUtils.isEmpty(copyFromIdMap)) {
+            return;
         }
-        return apiScenarioStepsDetails;
+        // 处理新copy的步骤的步骤详情
+        Map<String, byte[]> copyFromBlobMap = new HashMap<>();
+        SubListUtils.dealForSubList(copyFromIdMap.values().stream().toList(), 50, (subIds) -> {
+            handlePutBlobMapFunc.accept(subIds, copyFromBlobMap);
+        });
+
+        copyFromIdMap.forEach((stepId, copyFromId) -> {
+            if (copyFromBlobMap.containsKey(copyFromId)) {
+                stepDetails.put(stepId, copyFromBlobMap.get(copyFromId));
+            }
+        });
+    }
+
+    /**
+     * 补充部分引用的 detail
+     *
+     * @param stepDetails
+     * @param step
+     */
+    private void addPartialRefStepDetail(Map<String, Object> stepDetails, ApiScenarioStepCommonDTO step) {
+        if (isPartialRef(step)) {
+            // 如果是部分引用，blob表保存启用的子步骤ID
+            Set<String> enableStepSet = getEnableStepSet(step.getChildren());
+            PartialRefStepDetail stepDetail = new PartialRefStepDetail();
+            stepDetail.setEnableStepIds(enableStepSet);
+            stepDetails.put(step.getId(), stepDetail);
+        }
+    }
+
+    private boolean isApiOrCase(ApiScenarioStepCommonDTO step) {
+        return isApi(step.getStepType()) || isApiCase(step.getStepType());
+    }
+
+    /**
+     * 遍历步骤树
+     */
+    private void traversalStepTree(List<? extends ApiScenarioStepCommonDTO> steps, Function<ApiScenarioStepCommonDTO, Boolean> handleStepFunc) {
+        if (CollectionUtils.isEmpty(steps)) {
+            return;
+        }
+        for (ApiScenarioStepCommonDTO step : steps) {
+            Boolean isParseChild = handleStepFunc.apply(step);
+            if (BooleanUtils.isTrue(isParseChild)) {
+                traversalStepTree(step.getChildren(), handleStepFunc);
+            }
+        }
     }
 
     /**
@@ -860,7 +994,7 @@ public class ApiScenarioService extends MoveNodeService {
                 enableSteps.add(step.getId());
             }
             // 完全引用和部分引用不解析子步骤
-            if (!isRef(step.getRefType())) {
+            if (!isRefOrPartialRef(step.getRefType())) {
                 // 获取子步骤中 enable 的步骤
                 enableSteps.addAll(getEnableStepSet(step.getChildren()));
             }
@@ -1473,7 +1607,7 @@ public class ApiScenarioService extends MoveNodeService {
                                     ApiScenarioStepCommonDTO step,
                                     AbstractMsTestElement msTestElement) {
         // 引用的场景设置场景参数
-        if (!isScenarioStep(step.getStepType()) || !isRef(step.getRefType()) || !(msTestElement instanceof MsScenario msScenario)) {
+        if (!isScenarioStep(step.getStepType()) || !isRefOrPartialRef(step.getRefType()) || !(msTestElement instanceof MsScenario msScenario)) {
             return;
         }
 
@@ -1641,7 +1775,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     private void buildRefResourceIdMap(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, List<String>> refResourceIdMap) {
         for (ApiScenarioStepCommonDTO step : steps) {
-            if (isRef(step.getRefType()) && BooleanUtils.isTrue(step.getEnable())) {
+            if (isRefOrPartialRef(step.getRefType()) && BooleanUtils.isTrue(step.getEnable())) {
                 // 记录引用的步骤ID
                 List<String> resourceIds = refResourceIdMap.computeIfAbsent(step.getStepType(), k -> new ArrayList<>());
                 resourceIds.add(step.getResourceId());
@@ -1789,7 +1923,7 @@ public class ApiScenarioService extends MoveNodeService {
             if (CollectionUtils.isEmpty(children)) {
                 return;
             }
-            if (isRefApiScenario(step)) {
+            if (isRefOrPartialScenario(step)) {
                 // 如果当前步骤是引用的场景，获取该场景的子步骤
                 Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioStepMap.get(step.getResourceId())
                         .stream()
@@ -1808,8 +1942,8 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 判断步骤是否是引用的场景
      */
-    private boolean isRefApiScenario(ApiScenarioStepDTO step) {
-        return isRef(step.getRefType()) && isScenarioStep(step.getStepType());
+    private boolean isRefOrPartialScenario(ApiScenarioStepDTO step) {
+        return isRefOrPartialRef(step.getRefType()) && isScenarioStep(step.getStepType());
     }
 
     /**
@@ -1830,7 +1964,7 @@ public class ApiScenarioService extends MoveNodeService {
 
         // 获取步骤中引用的场景ID
         List<String> childScenarioIds = steps.stream()
-                .filter(this::isRefApiScenario)
+                .filter(this::isRefOrPartialScenario)
                 .map(ApiScenarioStepDTO::getResourceId)
                 .collect(Collectors.toList());
 
