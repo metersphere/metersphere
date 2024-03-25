@@ -143,18 +143,18 @@
               </template>
               {{ t('project.commonScript.formatting') }}
             </a-button>
-            <a-button
-              :disabled="props.disabled"
-              type="outline"
-              class="arco-btn-outline--secondary p-[0_8px]"
-              size="mini"
-              @click="undoScript"
-            >
-              <template #icon>
-                <MsIcon type="icon-icon_undo_outlined" class="text-var(--color-text-4)" size="12" />
-              </template>
-              {{ t('common.revoke') }}
-            </a-button>
+            <!--            <a-button-->
+            <!--              :disabled="props.disabled"-->
+            <!--              type="outline"-->
+            <!--              class="arco-btn-outline&#45;&#45;secondary p-[0_8px]"-->
+            <!--              size="mini"-->
+            <!--              @click="undoScript"-->
+            <!--            >-->
+            <!--              <template #icon>-->
+            <!--                <MsIcon type="icon-icon_undo_outlined" class="text-var(&#45;&#45;color-text-4)" size="12" />-->
+            <!--              </template>-->
+            <!--              {{ t('common.revoke') }}-->
+            <!--            </a-button>-->
             <a-button
               :disabled="props.disabled"
               type="outline"
