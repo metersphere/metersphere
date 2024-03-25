@@ -21,7 +21,6 @@ const EMPTY = { label: 'advanceFilter.operator.empty', value: 'EMPTY' };
 const NOT_EMPTY = { label: 'advanceFilter.operator.not_empty', value: 'NOT_EMPTY' };
 const REGEX = { label: 'advanceFilter.operator.regexp', value: 'REGEX' };
 const LENGTH_EQUAL = { label: 'advanceFilter.operator.length.equal', value: 'LENGTH_EQUALS' };
-const LENGTH_NOT_EQUAL = { label: 'advanceFilter.operator.length.not_equal', value: 'LENGTH_NOT_EQUALS' };
 const LENGTH_GT = { label: 'advanceFilter.operator.length.gt', value: 'LENGTH_GT' };
 const LENGTH_GE = { label: 'advanceFilter.operator.length.ge', value: 'LENGTH_GT_OR_EQUALS' };
 const LENGTH_LT = { label: 'advanceFilter.operator.length.lt', value: 'LENGTH_LT' };
