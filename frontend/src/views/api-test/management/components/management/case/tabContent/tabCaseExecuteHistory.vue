@@ -51,8 +51,8 @@
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(ExecuteStatusFilters)" :key="val" :value="val">
-                    <execute-status :status="val" />
+                  <a-checkbox v-for="val of statusList" :key="val" :value="val">
+                    <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -64,7 +64,7 @@
         <span>{{ t(TriggerModeLabel[record.triggerMode]) }}</span>
       </template>
       <template #status="{ record }">
-        <execute-status :status="record.status" />
+        <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
       </template>
       <template #operation="{ record }">
         <a-tooltip :disabled="!record.deleted" :content="t('case.detail.report.delete')" position="top">
@@ -105,23 +105,26 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import response from '@/views/api-test/components/requestComposition/response/index.vue';
-  import ExecuteStatus from '@/views/api-test/scenario/components/executeStatus.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiCaseExecuteHistory, getCaseReportDetail, getReportById } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiCaseReportDetail, RequestResult, RequestTaskResult } from '@/models/apiTest/common';
+  import { ApiCaseReportDetail, RequestTaskResult } from '@/models/apiTest/common';
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
-  import { ExecuteStatusFilters, ResponseComposition } from '@/enums/apiEnum';
-  import { TriggerModeLabel } from '@/enums/reportEnum';
+  import { ResponseComposition } from '@/enums/apiEnum';
+  import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
 
   import { defaultResponse } from '@/views/api-test/components/config';
 
   const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
   const triggerModeFilterVisible = ref(false);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(ExecuteStatusFilters));
+  const statusFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
+  const statusList = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+  });
 
   const showResponse = ref(false);
 

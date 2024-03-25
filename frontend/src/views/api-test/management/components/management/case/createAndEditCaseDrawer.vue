@@ -34,7 +34,7 @@
                 :max-length="255"
                 show-word-limit
               />
-              <environmentSelect ref="environmentSelectRef" />
+              <environmentSelect v-model:current-env="environmentId" />
               <execute
                 ref="executeRef"
                 v-model:detail="detailForm"
@@ -160,8 +160,8 @@
     },
   ]);
 
-  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
-  const currentEnvConfig = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
+  const environmentId = ref(currentEnvConfig?.value?.id);
 
   const formRef = ref<FormInstance>();
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
@@ -202,10 +202,12 @@
     if (isCopy) {
       detailForm.value.name = `copy_${record?.name}`;
     }
+    environmentId.value = currentEnvConfig?.value?.id;
     // 编辑
     if (!isCopy && record?.id) {
       isEdit.value = true;
       detailForm.value = cloneDeep(record as RequestParam);
+      environmentId.value = record.environmentId;
       detailForm.value.isNew = false;
     }
     innerVisible.value = true;
@@ -231,7 +233,7 @@
         const { name, priority, status, tags, id } = detailForm.value;
         const params: AddApiCaseParams = {
           projectId: appStore.currentProjectId,
-          environmentId: currentEnvConfig.value?.id as string,
+          environmentId: environmentId.value as string,
           apiDefinitionId: apiDefinitionId.value,
           linkFileIds,
           uploadFileIds,
