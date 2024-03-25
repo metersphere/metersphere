@@ -10,7 +10,7 @@
     @close="handleClose"
   >
     <template #title>
-      <stepType v-if="props.activeStep?.stepType" :step="props.activeStep" class="mr-[4px]" />
+      <stepType v-if="activeStep?.stepType" :step="activeStep" class="mr-[4px]" />
       <a-input
         v-if="activeStep?.name"
         v-show="isShowEditStepNameInput"
@@ -130,10 +130,6 @@
   const activeStep = defineModel<ScenarioStepItem>('activeStep', {
     required: false,
   });
-  const isCopyNeedInit = computed(
-    () => activeStep.value?.type === ScenarioStepType.COPY_CASE && props.request?.request === null
-  );
-  const isQuote = computed(() => activeStep.value?.type === ScenarioStepType.QUOTE_CASE);
 
   const defaultCaseParams: RequestParam = {
     id: `case-${Date.now()}`,
@@ -205,17 +201,17 @@
   const requestVModel = ref<RequestParam>(props.request || cloneDeep(defaultCaseParams));
   const isCopyCase = computed(
     () =>
-      props.activeStep?.stepType === ScenarioStepType.API_CASE && props.activeStep?.refType === ScenarioStepRefType.COPY
+      activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.COPY
   );
   const isCopyNeedInit = computed(() => isCopyCase.value && props.request?.request === null);
   const isQuote = computed(
     () =>
-      props.activeStep?.stepType === ScenarioStepType.API_CASE && props.activeStep?.refType === ScenarioStepRefType.REF
+      activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.REF
   );
 
-  const stepName = ref(props.activeStep?.name);
+  const stepName = ref(activeStep.value?.name);
   watchEffect(() => {
-    stepName.value = props.activeStep?.name;
+    stepName.value = activeStep.value?.name;
   });
 
   const executeRef = ref<InstanceType<typeof executeButton>>();
