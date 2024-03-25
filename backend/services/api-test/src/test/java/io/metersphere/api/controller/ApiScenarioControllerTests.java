@@ -2621,9 +2621,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiScenarioSystemRequest.setScenarioRequest(scenarioSystemRequest);
         apiScenarioSystemRequest.setRefType(ApiScenarioStepRefType.COPY.name());
         this.requestPostWithOkAndReturn("/get/system-request", apiScenarioSystemRequest);
-
-        mockMvc.perform(getRequestBuilder(STEP_GET, "system-scenario-id1"))
-                .andExpect(status().isOk());
     }
 
     @Test

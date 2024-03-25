@@ -20,7 +20,7 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
     }
 
     public boolean isValid(MsResponseCodeAssertion msAssertion) {
-        return StringUtils.isNotBlank(msAssertion.getExpectedValue()) && StringUtils.isNotBlank(msAssertion.getCondition());
+        return StringUtils.isNotBlank(msAssertion.getCondition());
     }
 
     private ResponseAssertion parse2ResponseAssertion(MsResponseCodeAssertion msAssertion, boolean isIgnoreStatus) {
