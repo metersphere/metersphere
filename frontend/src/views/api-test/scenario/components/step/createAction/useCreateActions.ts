@@ -121,7 +121,6 @@ export default function useCreateActions() {
       }
       return {
         ...cloneDeep(defaultStepItemCommon),
-        ...item,
         id,
         config: {
           ...defaultStepItemCommon.config,

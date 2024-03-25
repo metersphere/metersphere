@@ -3,14 +3,14 @@
     <div class="flex items-center justify-between p-[24px_24px_8px_24px]">
       <MsEditableTab
         v-model:active-tab="activeScenarioTab"
-        v-model:tabs="apiTabs"
+        v-model:tabs="scenarioTabs"
         class="flex-1 overflow-hidden"
         @add="() => newTab()"
       >
         <template #label="{ tab }">
-          <a-tooltip :content="tab.label" :mouse-enter-delay="500">
+          <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
             <div class="one-line-text max-w-[144px]">
-              {{ tab.label }}
+              {{ tab.name || tab.label }}
             </div>
           </a-tooltip>
         </template>
@@ -61,7 +61,7 @@
       </MsSplitBox>
     </div>
     <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
-      <create v-model:scenario="activeScenarioTab" :module-tree="folderTree"></create>
+      <create ref="createRef" v-model:scenario="activeScenarioTab" :module-tree="folderTree"></create>
     </div>
     <div v-else class="pageWrap">
       <detail v-model:scenario="activeScenarioTab"></detail>
@@ -107,33 +107,33 @@
 
   const { t } = useI18n();
 
-  const apiTabs = ref<ScenarioParams[]>([
+  const scenarioTabs = ref<ScenarioParams[]>([
     {
       id: 'all',
       label: t('apiScenario.allScenario'),
       closable: false,
     } as ScenarioParams,
   ]);
-  const activeScenarioTab = ref<ScenarioParams>(apiTabs.value[0] as ScenarioParams);
+  const activeScenarioTab = ref<ScenarioParams>(scenarioTabs.value[0] as ScenarioParams);
 
   function newTab(defaultScenarioInfo?: Scenario, isCopy = false) {
     if (defaultScenarioInfo) {
-      apiTabs.value.push({
+      scenarioTabs.value.push({
         ...defaultScenarioInfo,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         isNew: false,
       });
     } else {
-      apiTabs.value.push({
+      scenarioTabs.value.push({
         ...cloneDeep(defaultScenario),
-        id: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
-        label: `${t('apiScenario.createScenario')}${apiTabs.value.length}`,
+        id: getGenerateId(),
+        label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
         moduleId: 'root',
         priority: 'P0',
       });
     }
-    activeScenarioTab.value = apiTabs.value[apiTabs.value.length - 1] as ScenarioParams;
+    activeScenarioTab.value = scenarioTabs.value[scenarioTabs.value.length - 1] as ScenarioParams;
   }
 
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -182,9 +182,10 @@
 
   onBeforeMount(selectRecycleCount);
 
+  const createRef = ref<InstanceType<typeof create>>();
   const saveLoading = ref(false);
 
-  async function saveScenario() {
+  async function realSaveScenario() {
     try {
       saveLoading.value = true;
       if (activeScenarioTab.value.isNew) {
@@ -195,7 +196,19 @@
         const scenarioDetail = await getScenarioDetail(res.id);
         scenarioDetail.stepDetails = {};
         scenarioDetail.isNew = false;
-        activeScenarioTab.value = scenarioDetail as ScenarioParams;
+        scenarioDetail.id = res.id;
+        if (!scenarioDetail.steps) {
+          scenarioDetail.steps = [];
+        }
+        const index = scenarioTabs.value.findIndex((e) => e.id === activeScenarioTab.value.id);
+        if (index !== -1) {
+          const newScenarioTab = {
+            ...cloneDeep(activeScenarioTab.value),
+            ...scenarioDetail,
+          };
+          scenarioTabs.value.splice(index, 1, newScenarioTab);
+          activeScenarioTab.value = newScenarioTab;
+        }
       } else {
         await updateScenario({
           ...activeScenarioTab.value,
@@ -212,11 +225,22 @@
     }
   }
 
+  function saveScenario() {
+    if (activeScenarioTab.value.isNew) {
+      createRef.value?.validScenarioForm(realSaveScenario);
+    } else {
+      realSaveScenario();
+    }
+  }
+
   async function openScenarioTab(record: ApiScenarioTableItem, isCopy?: boolean) {
     try {
       appStore.showLoading();
       const res = await getScenarioDetail(record.id);
       res.stepDetails = {};
+      if (!res.steps) {
+        res.steps = [];
+      }
       newTab(res, isCopy);
     } catch (error) {
       // eslint-disable-next-line no-console
