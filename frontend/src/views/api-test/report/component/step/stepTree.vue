@@ -4,6 +4,7 @@
       <MsTree
         ref="treeRef"
         v-model:selected-keys="selectedKeys"
+        v-model:expanded-keys="innerExpandedKeys"
         v-model:data="steps"
         :expand-all="props.expandAll"
         :field-names="{ title: 'name', key: 'stepId', children: 'children' }"
@@ -75,9 +76,27 @@
                 </a-tooltip>
               </div>
               <div class="flex">
-                <MsTag class="cursor-pointer" :type="step.status === 'SUCCESS' ? 'success' : 'danger'" theme="light">
-                  {{ step.status === 'SUCCESS' ? t('report.detail.api.pass') : t('report.detail.api.resError') }}
-                </MsTag>
+                <stepStatus v-if="step.status" :status="step.status" />
+                <!-- 脚本报错 -->
+                <a-popover position="left" content-class="response-popover-content">
+                  <MsTag
+                    v-if="step.scriptIdentifier"
+                    type="primary"
+                    theme="light"
+                    :self-style="{
+                      color: 'rgb(var(--primary-3))',
+                      background: 'rgb(var(--primary-1))',
+                    }"
+                  >
+                    <template #icon>
+                      <MsIcon type="icon-icon_info_outlined" class="mx-1 !text-[rgb(var(--primary-3))]" size="16" />
+                      <span class="!text-[rgb(var(--primary-3))]">{{ t('report.detail.api.scriptErrorTip') }}</span>
+                    </template>
+                  </MsTag>
+                  <template #content>
+                    <div>{{ step.scriptIdentifier }}</div>
+                  </template>
+                </a-popover>
                 <span class="statusCode mx-2">
                   <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
                   <a-popover position="left" content-class="response-popover-content">
@@ -97,14 +116,22 @@
                 <span class="resTime">
                   {{ t('report.detail.api.responseTime') }}
                   <span class="resTimeCount ml-2"
-                    >{{ formatDuration(step.requestTime).split('-')[0]
-                    }}{{ formatDuration(step.requestTime).split('-')[1] }}</span
+                    >{{ step.requestTime ? formatDuration(step.requestTime).split('-')[0] : '-'
+                    }}{{ step.requestTime ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
                   ></span
                 >
-                <span class="resSize">
-                  {{ t('report.detail.api.responseSize') }}
-                  <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
-                >
+                <a-popover position="left" content-class="response-popover-content">
+                  <span class="resSize">
+                    {{ t('report.detail.api.responseSize') }}
+                    <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                  >
+                  <template #content>
+                    <span class="resSize">
+                      {{ t('report.detail.api.responseSize') }}
+                      <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                    >
+                  </template>
+                </a-popover>
               </div>
             </div>
             <div v-if="!step.fold" class="line"></div>
@@ -142,6 +169,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData } from '@/components/business/ms-tree/types';
+  import stepStatus from './stepStatus.vue';
   import StepDetailContent from '@/views/api-test/components/requestComposition/response/result/index.vue';
   import ConditionStatus from '@/views/api-test/report/component/conditionStatus.vue';
 
@@ -160,6 +188,7 @@
     console?: string;
     environmentName?: string;
     reportId?: string;
+    expandedKeys: (string | number)[];
   }>();
   const loading = ref(false);
 
@@ -169,6 +198,9 @@
 
   const steps = defineModel<ScenarioItemType[]>('steps', {
     required: true,
+  });
+  const innerExpandedKeys = defineModel<(string | number)[]>('expandedKeys', {
+    required: false,
   });
 
   /**

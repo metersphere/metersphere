@@ -11,4 +11,8 @@ export function addFoldField(node: ScenarioItemType) {
   }
 }
 
+// 是否为计算中
+export function getIndicators(value: any) {
+  return value === 'Calculating' ? '-' : value || 0;
+}
 export default {};

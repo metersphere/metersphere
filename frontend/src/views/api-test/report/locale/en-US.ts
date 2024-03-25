@@ -66,4 +66,8 @@ export default {
   'report.detail.api.extract': 'extract',
   'report.detail.api.assert': 'assertion',
   'report.detail.api.subRequest': 'Sub-request',
+  'report.detail.api.scriptError': 'Script error',
+  'report.detail.api.scriptErrorTip': 'Script error',
+  'report.detail.api.scenario': 'scenario',
+  'report.detail.api.request': 'request',
 };
