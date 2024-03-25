@@ -411,7 +411,7 @@ public class ApiReportControllerTests extends BaseTest {
 
         mockMvc.perform(getRequestBuilder(DETAIL + "test" + "/test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         mockMvc.perform(getRequestBuilder(DETAIL + "api-report-id10"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

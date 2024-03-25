@@ -238,7 +238,7 @@ public class ApiReportService {
         apiReportDetailExample.createCriteria().andStepIdEqualTo(stepId).andReportIdEqualTo(reportId);
         List<ApiReportDetail> apiReportDetails = apiReportDetailMapper.selectByExampleWithBLOBs(apiReportDetailExample);
         if (CollectionUtils.isEmpty(apiReportDetails)) {
-            throw new MSException(Translator.get("api_case_report_not_exist"));
+            return new ArrayList<>();
         }
         return apiReportDetails;
     }

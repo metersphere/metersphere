@@ -101,10 +101,10 @@
           label: t('common.list'),
           value: 'LIST',
         },
-        {
+        /* {
           label: t('common.json'),
           value: 'JSON',
-        },
+        }, */
       ],
       titleSlotName: 'typeTitle',
       typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
