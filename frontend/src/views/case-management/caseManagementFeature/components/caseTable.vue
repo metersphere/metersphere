@@ -1574,7 +1574,6 @@
   watch(
     () => props.activeFolder,
     (val) => {
-      keyword.value = '';
       if (props.activeFolder !== 'recycle' && val) {
         initData();
         resetSelector();
