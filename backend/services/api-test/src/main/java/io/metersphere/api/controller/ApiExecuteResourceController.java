@@ -44,8 +44,8 @@ public class ApiExecuteResourceController {
         LogUtils.info("获取执行脚本: {}", key);
         String script = stringRedisTemplate.opsForValue().get(key);
         stringRedisTemplate.delete(key);
-        apiReportService.updateReportStatus(reportId, ApiReportStatus.RERUNNING.name());
-        apiScenarioReportService.updateReportStatus(reportId, ApiReportStatus.RERUNNING.name());
+        apiReportService.updateReportStatus(reportId, ApiReportStatus.RUNNING.name());
+        apiScenarioReportService.updateReportStatus(reportId, ApiReportStatus.RUNNING.name());
         return Optional.ofNullable(script).orElse(StringUtils.EMPTY);
     }
 
