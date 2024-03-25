@@ -607,6 +607,7 @@
   watchEffect(() => {
     if (isComplete.value) {
       if (isShowCompleteMsg.value) {
+        isShowCompleteMsg.value = false;
         Message.success(t('bugManagement.syncSuccess'));
         fetchData();
       }
