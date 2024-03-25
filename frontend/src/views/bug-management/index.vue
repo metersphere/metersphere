@@ -638,7 +638,7 @@
     try {
       await syncBugEnterprise({
         projectId: appStore.currentProjectId,
-        pre: syncObject.operator === 'le',
+        pre: syncObject.operator === 'LT_OR_EQUALS',
         createTime: syncObject.time,
       });
       Message.warning(t('bugManagement.synchronizing'));
