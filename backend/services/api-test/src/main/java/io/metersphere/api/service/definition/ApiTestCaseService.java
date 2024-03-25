@@ -559,21 +559,35 @@ public class ApiTestCaseService extends MoveNodeService {
         apiTestCaseMapper.updateByPrimaryKeySelective(update);
     }
 
-    public List<ApiDefinitionExecuteInfo> getModuleInfoByIds(List<String> ids) {
+    public List<ApiDefinitionExecuteInfo> getModuleInfoByIds(List<String> apiCaseIds) {
         // 获取接口定义ID和用例ID的映射
-        Map<String, String> apiCaseDefinitionMap = extApiTestCaseMapper.getApiCaseDefinitionInfo(ids)
-                .stream()
-                .collect(Collectors.toMap(ApiTestCase::getApiDefinitionId, ApiTestCase::getId));
+        List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getApiCaseDefinitionInfo(apiCaseIds);
 
-        List<String> definitionIds = apiCaseDefinitionMap.keySet().stream().collect(Collectors.toList());
+        List<String> definitionIds = apiTestCases.stream()
+                .map(ApiTestCase::getApiDefinitionId)
+                .distinct()
+                .toList();
+
         if (CollectionUtils.isEmpty(definitionIds)) {
             return List.of();
         }
-        List<ApiDefinitionExecuteInfo> definitionExecuteInfos = extApiDefinitionMapper.getApiDefinitionExecuteInfo(definitionIds);
-        // 将 resourceId 从定义ID替换成用例ID
-        definitionExecuteInfos.forEach(info ->
-                info.setResourceId(apiCaseDefinitionMap.get(info.getResourceId())));
-        return definitionExecuteInfos;
+
+        Map<String, ApiDefinitionExecuteInfo> definitionExecuteInfoMap = extApiDefinitionMapper.getApiDefinitionExecuteInfo(definitionIds).stream()
+                .collect(Collectors.toMap(ApiDefinitionExecuteInfo::getResourceId, Function.identity()));
+
+        return apiTestCases.stream().map(apiTestCase -> {
+                    ApiDefinitionExecuteInfo apiDefinitionExecuteInfo = definitionExecuteInfoMap.get(apiTestCase.getApiDefinitionId());
+                    if (apiDefinitionExecuteInfo == null) {
+                        return null;
+                    } else {
+                        // 将 resourceId 从定义ID替换成用例ID
+                        apiDefinitionExecuteInfo = BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinitionExecuteInfo);
+                        apiDefinitionExecuteInfo.setResourceId(apiTestCase.getId());
+                        return apiDefinitionExecuteInfo;
+                    }
+                })
+                .filter(item -> item != null)
+                .toList();
     }
 
     public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
@@ -602,6 +616,7 @@ public class ApiTestCaseService extends MoveNodeService {
     /**
      * 接口执行
      * 传请求详情执行
+     *
      * @param request
      * @return
      */
@@ -615,6 +630,7 @@ public class ApiTestCaseService extends MoveNodeService {
     /**
      * 接口执行
      * 传ID执行
+     *
      * @param id
      * @param reportId
      * @param userId
@@ -633,6 +649,7 @@ public class ApiTestCaseService extends MoveNodeService {
     /**
      * 接口执行
      * 保存报告
+     *
      * @param runRequest
      * @param apiTestCase
      * @param reportId
@@ -664,6 +681,7 @@ public class ApiTestCaseService extends MoveNodeService {
     /**
      * 接口调试
      * 不存报告，实时获取结果
+     *
      * @param request
      * @return
      */

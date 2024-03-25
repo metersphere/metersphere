@@ -62,7 +62,6 @@ public class ApiStepParser extends StepParser {
         } else {
             return parse2MsTestElement(getStepBlobString(step.getId()));
         }
-
     }
 
 
