@@ -12,7 +12,7 @@
         asterisk-position="end"
       >
         <a-input
-          v-model:modelValue="reviewForm.name"
+          v-model.trim.modelValue="reviewForm.name"
           :placeholder="t('caseManagement.caseReview.reviewNamePlaceholder')"
           :max-length="255"
         />
@@ -223,6 +223,7 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FormInstance } from '@arco-design/web-vue';
+  import { string } from 'fast-glob/out/utils';
 
   const route = useRoute();
   const router = useRouter();
