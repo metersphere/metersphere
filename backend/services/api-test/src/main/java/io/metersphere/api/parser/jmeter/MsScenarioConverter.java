@@ -6,15 +6,18 @@ import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
+import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.dto.scenario.ScenarioStepConfig;
 import io.metersphere.api.dto.scenario.ScenarioVariable;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
+import io.metersphere.api.parser.jmeter.processor.TimeWaitingProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.project.api.assertion.MsAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
+import io.metersphere.project.api.processor.TimeWaitingProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
@@ -27,6 +30,7 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
@@ -58,6 +62,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         // 添加场景和环境变量
         addArguments(tree, msScenario, envInfo);
 
+        // 添加场景每个步骤的全局等待时间
+        addScenarioStepTimeWaiting(tree, msScenario);
+
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
         // 添加场景前置
@@ -74,6 +81,26 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
         // 添加场景断言
         addScenarioAssertions(tree, msScenario, config);
+    }
+
+    /**
+     * 添加步骤等待
+     * @param tree
+     * @param msScenario
+     */
+    private void addScenarioStepTimeWaiting(HashTree tree, MsScenario msScenario) {
+        if (isRootScenario(msScenario.getRefType())) {
+            // 获取场景前后置
+            ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
+            ScenarioOtherConfig otherConfig = scenarioConfig.getOtherConfig();
+            if (BooleanUtils.isTrue(otherConfig.getEnableStepWait())) {
+                TimeWaitingProcessor timeWaitingProcessor = new TimeWaitingProcessor();
+                timeWaitingProcessor.setDelay(otherConfig.getStepWaitTime());
+                timeWaitingProcessor.setName(msScenario.getName());
+                ConstantTimer constantTimer = TimeWaitingProcessorConverter.getConstantTimer(timeWaitingProcessor);
+                tree.add(constantTimer);
+            }
+        }
     }
 
     /**
@@ -244,7 +271,6 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         // 获取场景前后置
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         MsProcessorConfig processorConfig = isPre ? scenarioConfig.getPreProcessorConfig() : scenarioConfig.getPostProcessorConfig();
-
 
         if (processorConfig == null || CollectionUtils.isEmpty(processorConfig.getProcessors())) {
             return;

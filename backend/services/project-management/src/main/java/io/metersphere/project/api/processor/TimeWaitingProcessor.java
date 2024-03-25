@@ -15,5 +15,5 @@ public class TimeWaitingProcessor extends MsProcessor {
      * 等待时间
      * 单位：毫秒
      */
-    private Integer delay;
+    private Long delay;
 }
