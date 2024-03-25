@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full flex-col gap-[16px]">
-    <a-spin class="max-h-[calc(100%-46px)] w-full" :loading="loading">
+    <a-spin class="max-h-[calc(100vh - 454px)] w-full" :loading="loading">
       <MsTree
         ref="treeRef"
         v-model:selected-keys="selectedKeys"
@@ -8,7 +8,7 @@
         :expand-all="props.expandAll"
         :field-names="{ title: 'name', key: 'stepId', children: 'children' }"
         :virtual-list-props="{
-          height: `calc(100vh - 406px)`,
+          height: `calc(100vh - 454px)`,
           threshold: 20,
           fixedSize: true,
           buffer: 15,
@@ -96,7 +96,10 @@
                 </span>
                 <span class="resTime">
                   {{ t('report.detail.api.responseTime') }}
-                  <span class="resTimeCount ml-2">{{ step.requestTime || 0 }}ms</span></span
+                  <span class="resTimeCount ml-2"
+                    >{{ formatDuration(step.requestTime).split('-')[0]
+                    }}{{ formatDuration(step.requestTime).split('-')[1] }}</span
+                  ></span
                 >
                 <span class="resSize">
                   {{ t('report.detail.api.responseSize') }}
@@ -143,7 +146,7 @@
   import ConditionStatus from '@/views/api-test/report/component/conditionStatus.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { findNodeByKey, mapTree } from '@/utils';
+  import { findNodeByKey, formatDuration, mapTree } from '@/utils';
 
   import type { ScenarioItemType } from '@/models/apiTest/report';
   import { ScenarioStepType } from '@/enums/apiEnum';
