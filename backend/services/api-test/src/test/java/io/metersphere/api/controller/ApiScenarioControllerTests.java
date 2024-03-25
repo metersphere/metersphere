@@ -806,7 +806,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(7)
     public void testLoopController() throws Exception {
         // @@请求成功
-        mockPost("/api/debug", "");
+        mockPost("/api/scenario/debug", "");
         baseResourcePoolTestService.initProjectResourcePool();
 
         // @@请求成功
@@ -2580,6 +2580,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiTestCase.setPos(i * 64L);
             apiTestCase.setApiDefinitionId("system-api-id");
             apiTestCase.setVersionId("1.0");
+            apiTestCase.setLastReportStatus("未执行");
             apiTestCases.add(apiTestCase);
         }
         apiTestCaseMapper.batchInsert(apiTestCases);

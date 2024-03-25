@@ -38,7 +38,7 @@ INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, 
 VALUES ('aspect_gyq_api_one', 'api_test','HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, '100001100001' , 'test_module', true, 'v1.10','aspect_gyq_api_one', null, UNIX_TIMESTAMP() * 1000,'admin', UNIX_TIMESTAMP() * 1000,'admin', null,null,false);
 
 INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
-VALUES ('aspect_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status',  null, null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000);
+VALUES ('aspect_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status',  'PENDING', null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000);
 
 INSERT INTO test_plan(id, project_id, group_id, module_id, name, status, type, tags, create_time, create_user,
                       update_time, update_user, planned_start_time, planned_end_time, actual_start_time,
