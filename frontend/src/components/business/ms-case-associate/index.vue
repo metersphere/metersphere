@@ -44,7 +44,7 @@
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
-            <div class="folder-count">({{ modulesCount.total || 0 }})</div>
+            <div class="folder-count">({{ modulesCount.total || modulesCount.all || 0 }})</div>
           </div>
           <div class="ml-auto flex items-center">
             <a-tooltip

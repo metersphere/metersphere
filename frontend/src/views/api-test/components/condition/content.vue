@@ -5,7 +5,8 @@
       v-if="
         condition.processorType === RequestConditionProcessor.SCRIPT ||
         condition.processorType === RequestConditionProcessor.SCENARIO_SCRIPT ||
-        condition.processorType === RequestConditionProcessor.REQUEST_SCRIPT
+        condition.processorType === RequestConditionProcessor.REQUEST_SCRIPT ||
+        condition?.assertionType === RequestConditionProcessor.SCRIPT
       "
     >
       <!-- 前后置请求开始 -->
@@ -645,7 +646,8 @@ if (!result){
     () => condition.value.commonScriptInfo,
     (info) => {
       propsRes.value.data = info?.params as any[]; // 查看详情的时候需要赋值一下
-    }
+    },
+    { deep: true, immediate: true }
   );
 
   const showQuoteDrawer = ref(false);

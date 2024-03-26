@@ -189,6 +189,7 @@
     v-model:visible="caseAssociateVisible"
     v-model:project="caseAssociateProject"
     :reviewers="reviewForm.reviewers"
+    :associated-ids="selectedAssociateCasesParams.selectIds"
     @success="writeAssociateCases"
   />
 </template>
@@ -424,7 +425,6 @@
       loading.value = false;
     }
   }
-
   onBeforeMount(() => {
     initModules();
     initReviewers();

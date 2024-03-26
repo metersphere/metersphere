@@ -1,6 +1,6 @@
 <template>
+  <!--     class="tiled-wrap h-[calc(100vh - 374px)] p-4" -->
   <div
-    class="tiled-wrap h-[calc(100vh - 374px)] p-4"
     :class="{
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
     }"

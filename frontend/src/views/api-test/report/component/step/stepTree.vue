@@ -1,6 +1,12 @@
 <template>
   <div class="flex h-full flex-col gap-[16px]">
-    <a-spin class="max-h-[calc(100vh - 454px)] w-full" :loading="loading">
+    <a-spin class="w-full" :loading="loading">
+      <!--  不做虚拟滚动  :virtual-list-props="{
+          height: `calc(100vh - 454px)`,
+          threshold: 20,
+          fixedSize: true,
+          buffer: 15,
+        }" -->
       <MsTree
         ref="treeRef"
         v-model:selected-keys="selectedKeys"
@@ -8,12 +14,6 @@
         v-model:data="steps"
         :expand-all="props.expandAll"
         :field-names="{ title: 'name', key: 'stepId', children: 'children' }"
-        :virtual-list-props="{
-          height: `calc(100vh - 454px)`,
-          threshold: 20,
-          fixedSize: true,
-          buffer: 15,
-        }"
         title-class="step-tree-node-title"
         node-highlight-class="step-tree-node-focus"
         action-on-node-click="expand"
@@ -426,8 +426,5 @@
     width: 100%;
     height: 1px;
     background: var(--color-text-n8);
-  }
-  :deep(.foldContent .arco-scrollbar-track-direction-vertical) {
-    left: -12px !important;
   }
 </style>

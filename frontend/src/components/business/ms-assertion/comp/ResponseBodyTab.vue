@@ -1,14 +1,14 @@
 <template>
   <div class="flex w-full flex-col">
     <div>
-      <a-radio-group v-model:model-value="activeTab" type="button" size="small">
+      <a-radio-group v-model:model-value="condition.assertionBodyType" type="button" size="small">
         <a-radio v-for="item of responseRadios" :key="item.value" :value="item.value">
           {{ t(item.label) }}
         </a-radio>
       </a-radio-group>
     </div>
     <!-- jsonPath开始 -->
-    <div v-if="activeTab === ResponseBodyAssertionType.JSON_PATH" class="mt-[16px]">
+    <div v-if="condition.assertionBodyType === ResponseBodyAssertionType.JSON_PATH" class="mt-[16px]">
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.jsonPathAssertion.assertions"
@@ -91,7 +91,7 @@
     </div>
     <!-- jsonPath结束 -->
     <!-- xPath开始 -->
-    <div v-if="activeTab === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
+    <div v-if="condition.assertionBodyType === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
       <a-radio-group
         v-model="condition.xpathAssertion.responseFormat"
@@ -184,7 +184,7 @@
     </div>
     <!-- xPath结束 -->
     <!-- document开始 -->
-    <div v-if="activeTab === ResponseBodyAssertionType.DOCUMENT" class="relative mt-[16px]">
+    <div v-if="condition.assertionBodyType === ResponseBodyAssertionType.DOCUMENT" class="relative mt-[16px]">
       <div class="text-[var(--color-text-1)]">
         {{ t('ms.assertion.responseContentType') }}
       </div>
@@ -248,7 +248,7 @@
     </div>
     <!-- document结束 -->
     <!-- 正则开始 -->
-    <div v-if="activeTab === ResponseBodyAssertionType.REGEX" class="mt-[16px]">
+    <div v-if="condition.assertionBodyType === ResponseBodyAssertionType.REGEX" class="mt-[16px]">
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.regexAssertion.assertions"
@@ -330,10 +330,6 @@
       </paramsTable>
     </div>
     <!-- 正则结束 -->
-    <!-- 这一版断言里边的脚本不需要 -->
-    <!-- <div v-if="activeTab === ResponseBodyAssertionType.SCRIPT" class="mt-[16px]">
-      <conditionContent v-model:data="condition.script" :height-used="600" is-build-in class="mt-[16px]" />
-    </div> -->
   </div>
   <fastExtraction
     v-model:visible="fastExtractionVisible"
@@ -350,12 +346,10 @@
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TableOperationColumn } from '../../ms-user-group-comp/authTable.vue';
-  import conditionContent from '@/views/api-test/components/condition/content.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
   import moreSetting from '@/views/api-test/components/fastExtraction/moreSetting.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import {
     countNodes,
@@ -374,8 +368,6 @@
     XPathExtract,
   } from '@/models/apiTest/common';
   import {
-    RequestConditionProcessor,
-    RequestConditionScriptLanguage,
     RequestExtractEnvType,
     RequestExtractExpressionEnum,
     RequestExtractExpressionRuleType,
@@ -385,26 +377,31 @@
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
 
+  const { t } = useI18n();
+
   interface Param {
     [key: string]: any;
   }
-
-  const emit = defineEmits<{
-    // (e: 'update:data', data: ExecuteConditionProcessor): void;
-    (e: 'copy'): void;
-    (e: 'delete', id: number): void;
-    (e: 'change', param: Param): void;
-  }>();
-  const { t } = useI18n();
-  const rootId = 0; // 1970-01-01 00:00:00 UTC
 
   const props = defineProps<{
     data: Param;
     response?: string;
     disabled?: boolean;
   }>();
+
+  const emit = defineEmits<{
+    (e: 'update:data', data: ExecuteConditionProcessor): void;
+    (e: 'copy'): void;
+    (e: 'delete', id: number): void;
+    (e: 'change', param: Param): void;
+  }>();
+
+  const condition = useVModel(props, 'data', emit);
+
+  const rootId = 0; // 1970-01-01 00:00:00 UTC
+
   const activeTab = ref(ResponseBodyAssertionType.JSON_PATH);
-  const activeResponseFormat = ref('XML');
+
   const defaultParamItem = {
     jsonPathAssertion: {
       assertions: [],
@@ -414,25 +411,7 @@
     regexAssertion: {
       assertions: [],
     },
-    // TODO文档暂时不做
-    // documentAssertion: {
-    //   jsonAssertion: [
-    //     {
-    //       id: rootId,
-    //       paramsName: 'root',
-    //       mustInclude: false,
-    //       typeChecking: false,
-    //       paramType: 'object',
-    //       matchCondition: '',
-    //       matchValue: '',
-    //     },
-    //   ],
-    //   responseFormat: 'JSON',
-    //   followApi: false,
-    // },
   };
-
-  const condition = useVModel(props, 'data', emit);
 
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
@@ -521,7 +500,7 @@
       case ResponseBodyAssertionType.JSON_PATH:
         condition.value.jsonPathAssertion.assertions = data;
         if (!isInit) {
-          emit('change', { ...condition.value, assertionBodyType: activeTab.value });
+          emit('change', { ...condition.value });
         }
 
         break;
@@ -530,7 +509,6 @@
         if (!isInit) {
           emit('change', {
             ...condition.value,
-            assertionBodyType: activeTab.value,
           });
         }
         break;
@@ -540,7 +518,7 @@
       case ResponseBodyAssertionType.REGEX:
         condition.value.regexAssertion.assertions = data;
         if (!isInit) {
-          emit('change', { ...defaultParamItem, ...condition.value, assertionBodyType: activeTab.value });
+          emit('change', { ...defaultParamItem, ...condition.value });
         }
         break;
       default:
@@ -642,6 +620,7 @@
       align: 'right',
     },
   ];
+
   const documentDefaultParamItem = {
     id: new Date().getTime(),
     paramsName: '',
@@ -731,7 +710,7 @@
             ...record,
             id: new Date().getTime().toString(),
           });
-          emit('change', { ...condition.value, assertionBodyType: activeTab.value });
+          // emit('change', { ...condition.value });
         }
 
         break;
@@ -743,11 +722,9 @@
             id: new Date().getTime().toString(),
           });
         }
-        emit('change', {
-          ...condition.value,
-          assertionBodyType: activeTab.value,
-          responseFormat: activeResponseFormat.value,
-        });
+        // emit('change', {
+        //   ...condition.value,
+        // });
         break;
       case ResponseBodyAssertionType.DOCUMENT:
         condition.value.documentAssertion.jsonAssertion.push({
@@ -763,7 +740,7 @@
             id: new Date().getTime().toString(),
           });
         }
-        emit('change', { ...condition.value, assertionBodyType: activeTab.value });
+        // emit('change', { ...condition.value});
         break;
       default:
         break;
@@ -886,6 +863,7 @@
       }
     }
   };
+
   const handleScriptChange = (data: ExecuteConditionProcessor) => {
     condition.value.script = data;
   };

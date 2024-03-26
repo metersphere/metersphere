@@ -207,12 +207,24 @@
 
   const confirmLoading = ref<boolean>(false);
 
+  async function getFetch() {
+    setLoadListParams({
+      keyword: keyword.value,
+      sourceId: props.caseId,
+      projectId: currentProjectId.value,
+      sourceType: currentSelectCase.value,
+    });
+    await loadList();
+    featureCaseStore.getCaseCounts(props.caseId);
+  }
+
   async function saveHandler(params: TableQueryParams) {
     try {
       confirmLoading.value = true;
       await associationPublicCase(params);
       Message.success(t('caseManagement.featureCase.AssociatedSuccess'));
       innerVisible.value = false;
+      getFetch();
     } catch (error) {
       console.log(error);
     } finally {
@@ -253,17 +265,6 @@
       caseTypeOptions.value.push(...currentModule);
     });
     currentSelectCase.value = caseTypeOptions.value[0].value;
-  }
-
-  async function getFetch() {
-    setLoadListParams({
-      keyword: keyword.value,
-      sourceId: props.caseId,
-      projectId: currentProjectId.value,
-      sourceType: currentSelectCase.value,
-    });
-    await loadList();
-    featureCaseStore.getCaseCounts(props.caseId);
   }
 
   async function cancelLink(record: any) {

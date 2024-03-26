@@ -31,12 +31,13 @@
               <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
             </div>
           </a-radio>
-          <a-radio value="new_window">
+          <!-- TODO 这版本不上新窗口 -->
+          <!-- <a-radio value="new_window">
             <div class="mode-button">
               <MsIcon :class="{ 'active-color': currentMode === 'new_window' }" type="icon-icon_into-item_outlined" />
               <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
             </div>
-          </a-radio>
+          </a-radio> -->
         </a-radio-group>
       </template>
       <template v-if="props.showPagination">
