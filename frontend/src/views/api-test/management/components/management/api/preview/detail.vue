@@ -473,11 +473,13 @@
       title: 'apiTestManagement.paramName',
       dataIndex: 'key',
       inputType: 'text',
+      width: 220,
     },
     {
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
+      width: 220,
     },
     {
       title: 'common.desc',
@@ -499,16 +501,19 @@
       title: 'apiTestManagement.paramName',
       dataIndex: 'key',
       inputType: 'text',
+      width: 220,
     },
     {
       title: 'apiTestDebug.paramType',
       dataIndex: 'paramType',
       inputType: 'text',
+      width: 96,
     },
     {
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
+      width: 220,
     },
     {
       title: 'apiTestManagement.required',
@@ -518,6 +523,7 @@
       valueFormat: (record) => {
         return record.required ? t('common.yes') : t('common.no');
       },
+      width: 68,
     },
     {
       title: 'apiTestDebug.paramLengthRange',
@@ -529,6 +535,7 @@
           ? '-'
           : `${record.minLength} ${t('common.to')} ${record.maxLength}`;
       },
+      width: 110,
     },
     {
       title: 'apiTestDebug.encode',
@@ -538,6 +545,7 @@
       valueFormat: (record) => {
         return record.encode ? t('common.yes') : t('common.no');
       },
+      width: 68,
     },
     {
       title: 'common.desc',
@@ -565,17 +573,20 @@
           title: 'apiTestManagement.paramName',
           dataIndex: 'key',
           inputType: 'text',
+          width: 220,
         },
         {
           title: 'apiTestManagement.paramsType',
           dataIndex: 'paramType',
           inputType: 'text',
+          width: 96,
         },
         {
           title: 'apiTestManagement.paramVal',
           dataIndex: 'value',
           inputType: 'text',
           showTooltip: true,
+          width: 220,
         },
         {
           title: 'apiTestManagement.required',
@@ -585,6 +596,7 @@
           valueFormat: (record) => {
             return record.required ? t('common.yes') : t('common.no');
           },
+          width: 68,
         },
         {
           title: 'apiTestDebug.paramLengthRange',
@@ -596,6 +608,7 @@
               ? '-'
               : `${record.minLength} ${t('common.to')} ${record.maxLength}`;
           },
+          width: 110,
         },
         {
           title: 'apiTestDebug.encode',
@@ -605,13 +618,13 @@
           valueFormat: (record) => {
             return record.encode ? t('common.yes') : t('common.no');
           },
+          width: 68,
         },
         {
           title: 'common.desc',
           dataIndex: 'description',
           inputType: 'text',
           showTooltip: true,
-          width: 100,
         },
       ];
     }

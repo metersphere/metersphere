@@ -1,7 +1,7 @@
 <template>
   <!-- TODO:接口请求超过5S以上可展示取消请求按钮，避免用户过长等待 -->
   <MsCard :loading="loading" show-full-screen simple no-content-padding>
-    <MsSplitBox :size="0.25" :max="0.5">
+    <MsSplitBox :size="300" :max="0.5">
       <template #first>
         <moduleTree
           ref="moduleTreeRef"
