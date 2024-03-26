@@ -22,11 +22,8 @@
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
         class="ml-auto flex items-center gap-[16px]"
       >
-        <div
-          v-show="!requestVModel.customizeRequestEnvEnable"
-          class="text-[14px] font-normal text-[var(--color-text-4)]"
-        >
-          {{ t('apiScenario.env', { name: props.envDetailItem?.name }) }}
+        <div class="text-[14px] font-normal text-[var(--color-text-4)]">
+          {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
         </div>
         <a-select
           v-model:model-value="requestVModel.customizeRequestEnvEnable"
@@ -300,7 +297,6 @@
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getDefinitionDetail } from '@/api/modules/api-test/management';
   import { getTransferOptions, transferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { getGenerateId, parseQueryParams } from '@/utils';
@@ -309,12 +305,12 @@
   import {
     ExecuteApiRequestFullParams,
     ExecuteConditionConfig,
-    ExecuteRequestParams,
     PluginConfig,
     RequestResult,
     RequestTaskResult,
   } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -372,13 +368,6 @@
     request?: RequestParam; // 请求参数集合
     step?: ScenarioStepItem;
     detailLoading?: boolean; // 详情加载状态
-    envDetailItem?: {
-      id?: string;
-      projectId: string;
-      name: string;
-    };
-    executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
-    localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
     permissionMap?: {
       execute: string;
       create: string;
@@ -390,6 +379,8 @@
   const emit = defineEmits<{
     (e: 'addStep', request: RequestParam): void;
     (e: 'applyStep', request: RequestParam): void;
+    (e: 'execute', request: RequestParam, executeType?: 'localExec' | 'serverExec'): void;
+    (e: 'stopDebug'): void;
   }>();
 
   const appStore = useAppStore();
@@ -397,6 +388,8 @@
 
   // 注入祖先组件提供的属性
   const scenarioId = inject<string | number>('scenarioId');
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
+  const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
 
   const visible = defineModel<boolean>('visible', { required: true });
   const loading = defineModel<boolean>('detailLoading', { default: false });
@@ -477,13 +470,25 @@
     }
     return t('apiScenario.customApi');
   });
+
+  watch(
+    () => props.stepResponses,
+    (val) => {
+      if (val) {
+        requestVModel.value.executeLoading = false;
+      }
+    },
+    {
+      deep: true,
+    }
+  );
+
   // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
   const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
   const isEditableApi = computed(
     () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
   );
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
 
   function handleActiveDebugChange() {
@@ -639,8 +644,6 @@
   }
 
   const hasLocalExec = ref(false); // 是否配置了api本地执行
-  const isPriorityLocalExec = ref(false); // 是否优先本地执行
-  const localExecuteUrl = ref('');
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
   const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换传入的 API 数据导致动态表单数据丢失
@@ -865,38 +868,6 @@
     return conditionCopy;
   }
 
-  const websocket = ref<WebSocket>();
-
-  /**
-   * 开启websocket监听，接收执行结果
-   */
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      requestVModel.value.stepId,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl.value : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (requestVModel.value.stepId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          requestVModel.value.response = data.taskResult;
-          requestVModel.value.executeLoading = false;
-          requestVModel.value.isExecute = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        requestVModel.value.executeLoading = false;
-        requestVModel.value.isExecute = false;
-      }
-    });
-  }
-
   /**
    * 生成请求参数
    * @param executeType 执行类型，执行时传入
@@ -950,9 +921,6 @@
         polymorphicName,
       };
     }
-    if (isExecute) {
-      debugSocket(executeType); // 开启websocket
-    }
     return {
       ...requestParams,
       resourceId: requestVModel.value.resourceId,
@@ -971,6 +939,7 @@
           preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
         },
       ],
+      executeLoading: isExecute,
       ...parseRequestBodyResult,
     };
   }
@@ -980,38 +949,14 @@
    * @param val 执行类型
    */
   async function execute(executeType?: 'localExec' | 'serverExec') {
+    requestVModel.value.executeLoading = true;
     if (isHttpProtocol.value) {
-      try {
-        if (!props.executeApi) return;
-        requestVModel.value.executeLoading = true;
-        requestVModel.value.response = cloneDeep(defaultResponse);
-        const res = await props.executeApi(makeRequestParams(executeType));
-        if (executeType === 'localExec' && props.localExecuteApi) {
-          await props.localExecuteApi(localExecuteUrl.value, res);
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        requestVModel.value.executeLoading = false;
-      }
+      emit('execute', makeRequestParams(executeType), executeType);
     } else {
       // 插件需要校验动态表单
       fApi.value?.validate(async (valid) => {
         if (valid === true) {
-          try {
-            if (!props.executeApi) return;
-            requestVModel.value.executeLoading = true;
-            requestVModel.value.response = cloneDeep(defaultResponse);
-            const res = await props.executeApi(makeRequestParams(executeType));
-            if (executeType === 'localExec' && props.localExecuteApi) {
-              await props.localExecuteApi(localExecuteUrl.value, res);
-            }
-          } catch (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
-            requestVModel.value.executeLoading = false;
-          }
+          emit('execute', makeRequestParams(executeType), executeType);
         } else {
           requestVModel.value.activeTab = RequestComposition.PLUGIN;
           nextTick(() => {
@@ -1023,8 +968,7 @@
   }
 
   function stopDebug() {
-    websocket.value?.close();
-    requestVModel.value.executeLoading = false;
+    emit('stopDebug');
   }
 
   function handleContinue() {
@@ -1067,6 +1011,7 @@
         url: res.path,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
+        stepId: props.step?.id || '',
         ...parseRequestBodyResult,
       };
       if (_stepType.value.isQuoteApi && props.request && isHttpProtocol.value) {

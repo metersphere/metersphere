@@ -178,8 +178,8 @@
             <template #content>
               <responseResult
                 :active-tab="ResponseComposition.BODY"
-                :request-result="props.stepResponses?.[step.id]"
-                :console="props.stepResponses?.[step.id]?.console"
+                :request-result="scenario.stepResponses?.[step.id]"
+                :console="scenario.stepResponses?.[step.id]?.console"
                 :show-empty="false"
                 :is-edit="false"
                 is-definition
@@ -215,18 +215,19 @@
     </createStepActions>
     <customApiDrawer
       v-model:visible="customApiDrawerVisible"
-      :env-detail-item="{ id: 'demp-id-112233', projectId: '123456', name: 'demo环境' }"
       :request="currentStepDetail"
       :step="activeStep"
-      :step-responses="props.stepResponses"
+      :step-responses="scenario.stepResponses"
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
+      @stop-debug="handleStopExecute"
+      @execute="handleApiExecute"
     />
     <customCaseDrawer
       v-model:visible="customCaseDrawerVisible"
       :active-step="activeStep"
       :request="currentStepDetail"
-      :step-responses="props.stepResponses"
+      :step-responses="scenario.stepResponses"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep"
     />
@@ -278,7 +279,6 @@
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
-  import dayjs from 'dayjs';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -312,7 +312,7 @@
     TreeNode,
   } from '@/utils';
 
-  import { ExecuteConditionProcessor, RequestResult } from '@/models/apiTest/common';
+  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { ApiScenarioDebugRequest, CreateStepAction, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
@@ -338,7 +338,6 @@
   const props = defineProps<{
     stepKeyword: string;
     expandAll?: boolean;
-    stepResponses?: Record<string | number, RequestResult>;
   }>();
   const emit = defineEmits<{
     (e: 'updateResource', uploadFileIds: string[], linkFileIds: string[]): void;
@@ -360,6 +359,7 @@
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
   });
+  const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
   const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
@@ -372,8 +372,10 @@
   }
 
   function getExecuteStatus(step: ScenarioStepItem) {
-    if (props.stepResponses && props.stepResponses[step.id]) {
-      return props.stepResponses[step.id].isSuccessful ? ScenarioExecuteStatus.SUCCESS : ScenarioExecuteStatus.FAILED;
+    if (scenario.value.stepResponses && scenario.value.stepResponses[step.id]) {
+      return scenario.value.stepResponses[step.id].isSuccessful
+        ? ScenarioExecuteStatus.SUCCESS
+        : ScenarioExecuteStatus.FAILED;
     }
     return step.executeStatus;
   }
@@ -692,12 +694,31 @@
   }
 
   const websocket = ref<WebSocket>();
-  const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  let temporaryStepReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换场景tab导致报告丢失
+
+  watch(
+    () => scenario.value.id,
+    () => {
+      const stepKeys = Object.keys(temporaryStepReportMap);
+      if (stepKeys.length > 0) {
+        stepKeys.forEach((key) => {
+          const report = temporaryStepReportMap[key];
+          scenario.value.stepResponses[report.stepId] = temporaryStepReportMap[key];
+        });
+        temporaryStepReportMap = {};
+      }
+    }
+  );
 
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(reportId?: string | number, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+  function debugSocket(
+    step: ScenarioStepItem,
+    reportId?: string | number,
+    executeType?: 'localExec' | 'serverExec',
+    localExecuteUrl?: string
+  ) {
     websocket.value = getSocket(
       reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
@@ -706,27 +727,22 @@
     websocket.value.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
-        if (scenario.value.reportId === data.reportId) {
+        if (step.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
             scenario.value.stepResponses[result.stepId] = {
               ...result,
               console: data.taskResult.console,
             };
-            if (result.isSuccessful) {
-              scenario.value.executeSuccessCount += 1;
-            } else {
-              scenario.value.executeFailCount += 1;
-            }
           });
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
           data.taskResult.requestResults.forEach((result) => {
-            if (scenario.value.reportId) {
-              if (temporaryScenarioReportMap[scenario.value.reportId] === undefined) {
-                temporaryScenarioReportMap[scenario.value.reportId] = {};
+            if (step.reportId) {
+              if (temporaryStepReportMap[step.reportId] === undefined) {
+                temporaryStepReportMap[step.reportId] = {};
               }
-              temporaryScenarioReportMap[scenario.value.reportId][result.stepId] = {
+              temporaryStepReportMap[step.reportId] = {
                 ...result,
                 console: data.taskResult.console,
               };
@@ -736,30 +752,31 @@
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
         websocket.value?.close();
-        if (scenario.value.reportId === data.reportId) {
-          scenario.value.executeLoading = false;
-          scenario.value.isExecute = false;
+        if (step.reportId === data.reportId) {
+          step.isExecuting = false;
         }
       }
     });
   }
 
   async function realExecute(
-    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>,
+    executeParams: Pick<
+      ApiScenarioDebugRequest,
+      'steps' | 'stepDetails' | 'reportId' | 'uploadFileIds' | 'linkFileIds'
+    >,
     executeType?: 'localExec' | 'serverExec',
     localExecuteUrl?: string
   ) {
+    const [currentStep] = executeParams.steps;
     try {
-      scenario.value.executeLoading = true;
-      debugSocket(executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
+      currentStep.isExecuting = true;
+      debugSocket(currentStep, executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
         environmentId: currentEnvConfig?.value.id || '',
         projectId: appStore.currentProjectId,
         scenarioConfig: scenario.value.scenarioConfig,
-        uploadFileIds: scenario.value.uploadFileIds,
-        linkFileIds: scenario.value.linkFileIds,
         frontendDebug: executeType === 'localExec',
         ...executeParams,
       });
@@ -770,15 +787,71 @@
       // eslint-disable-next-line no-console
       console.log(error);
       websocket.value?.close();
-      scenario.value.executeLoading = false;
+      currentStep.isExecuting = false;
     }
   }
 
+  /**
+   * 单个步骤执行调试
+   */
   function executeStep(node: MsTreeNodeData) {
-    if (scenario.value.executeLoading) {
+    if (node.isExecuting) {
       return;
     }
-    console.log('执行步骤', node);
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.id, 'id');
+    if (realStep) {
+      realStep.reportId = getGenerateId();
+      realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
+      const stepDetail = stepDetails.value[realStep.id];
+      delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
+      realExecute(
+        {
+          steps: [realStep as ScenarioStepItem],
+          stepDetails: {
+            [realStep.id]: stepDetails.value[realStep.id],
+          },
+          reportId: realStep.reportId,
+          uploadFileIds: stepDetail?.uploadFileIds || [],
+          linkFileIds: stepDetail?.linkFileIds || [],
+        },
+        isPriorityLocalExec?.value ? 'localExec' : 'serverExec'
+      );
+    }
+  }
+
+  /**
+   * 处理 api 详情抽屉的执行动作
+   * @param request 抽屉内的请求参数
+   * @param executeType 执行类型
+   */
+  function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'id');
+    if (realStep) {
+      delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
+      realStep.reportId = getGenerateId();
+      realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
+      request.executeLoading = true;
+      realExecute(
+        {
+          steps: [realStep as ScenarioStepItem],
+          stepDetails: {
+            [realStep.id]: request,
+          },
+          reportId: realStep.reportId,
+          uploadFileIds: request.uploadFileIds || [],
+          linkFileIds: request.linkFileIds || [],
+        },
+        executeType
+      );
+    }
+  }
+
+  function handleStopExecute() {
+    websocket.value?.close();
+    if (activeStep.value) {
+      activeStep.value.isExecuting = false;
+      activeStep.value.executeStatus = undefined;
+    }
   }
 
   /**

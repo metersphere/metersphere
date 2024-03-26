@@ -342,6 +342,8 @@ export interface ScenarioStepItem {
   resourceName?: string; // 引用复制接口、用例、场景时的源资源名称
   method?: RequestMethods;
   executeStatus?: ScenarioExecuteStatus;
+  isExecuting?: boolean; // 是否正在执行
+  reportId?: string | number; // 步骤单个调试时的报告id
 }
 // 场景
 export interface Scenario {
