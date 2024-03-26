@@ -155,14 +155,13 @@
   });
 
   async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
-    if (!props.uploadTempFileApi) return;
-    if (files.length === 0 && file === undefined) {
-      innerParams.value.binaryBody.file = undefined;
-      emit('change');
-      return;
-    }
     try {
-      if (file?.local && file.file) {
+      if (file?.local && file.file && props.uploadTempFileApi) {
+        if (files.length === 0) {
+          innerParams.value.binaryBody.file = undefined;
+          emit('change');
+          return;
+        }
         // 本地上传
         appStore.showLoading();
         const res = await props.uploadTempFileApi(file.file);
