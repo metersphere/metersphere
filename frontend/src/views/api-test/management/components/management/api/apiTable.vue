@@ -604,7 +604,7 @@
           }
           Message.success(t('common.deleteSuccess'));
           resetSelector();
-          loadList();
+          loadApiList();
           if (typeof refreshModuleTree === 'function') {
             refreshModuleTree();
           }
@@ -724,7 +724,7 @@
           Message.success(t('common.updateSuccess'));
           cancelBatch();
           resetSelector();
-          loadList();
+          loadApiList();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -764,8 +764,9 @@
       } else {
         activeApi.value = null;
       }
-      loadList();
       resetSelector();
+      loadList();
+
       if (typeof refreshModuleTree === 'function') {
         refreshModuleTree();
       }

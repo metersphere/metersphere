@@ -176,10 +176,11 @@
             customField.fieldId = item.field;
             customField.value = Array.isArray(item.value) ? JSON.stringify(item.value) : item.value;
           });
-          const { selectedIds, selectAll } = props.batchParams;
+          const { selectedIds, selectAll, excludeIds } = props.batchParams;
           const params: TableQueryParams = {
-            selectIds: selectAll ? [] : selectedIds,
-            selectAll,
+            selectIds: selectedIds || [],
+            selectAll: !!selectAll,
+            excludeIds: excludeIds || [],
             projectId: currentProjectId.value,
             append: enable as boolean,
             tags: form.value.tags,
