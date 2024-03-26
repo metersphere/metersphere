@@ -1095,23 +1095,27 @@ public class FunctionalCaseService {
     private void handleImportCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
         //需要保存的自定义字段
         Map<String, Object> customData = functionalCaseExcelData.getCustomData();
-        customData.forEach((k, v) -> {
-            if (customFieldsMap.containsKey(k)) {
-                TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(k);
-                FunctionalCaseCustomField caseCustomField = new FunctionalCaseCustomField();
-                caseCustomField.setCaseId(caseId);
-                caseCustomField.setFieldId(templateCustomFieldDTO.getFieldId());
-                if (StringUtils.equalsIgnoreCase(v.toString(), "[]")) {
-                    //数组类型
-                    caseCustomField.setValue(JSON.toJSONString(templateCustomFieldDTO.getDefaultValue()));
-                } else {
-                    caseCustomField.setValue(StringUtils.defaultIfBlank(v.toString(),
-                            Optional.ofNullable(templateCustomFieldDTO.getDefaultValue()).map(Object::toString).orElse(StringUtils.EMPTY)
-                    ));
-                }
-                customFieldMapper.insertSelective(caseCustomField);
-            }
+        customFieldsMap.forEach((k, v) -> {
+            Object value = customData.get(k);
+            FunctionalCaseCustomField caseCustomField = new FunctionalCaseCustomField();
+            caseCustomField.setCaseId(caseId);
+            caseCustomField.setFieldId(v.getFieldId());
+            Optional.ofNullable(value).ifPresentOrElse(v1 -> {
+                setCustomFieldValue(v1.toString(), caseCustomField);
+            }, () -> {
+                setCustomFieldValue(v.getDefaultValue(), caseCustomField);
+            });
+            customFieldMapper.insertSelective(caseCustomField);
         });
+    }
+
+    private void setCustomFieldValue(Object value, FunctionalCaseCustomField caseCustomField) {
+        if (StringUtils.equalsIgnoreCase(value.toString(), "[]") || value instanceof List) {
+            //数组类型
+            caseCustomField.setValue(JSON.toJSONString(value));
+        } else {
+            caseCustomField.setValue(value.toString());
+        }
     }
 
 
