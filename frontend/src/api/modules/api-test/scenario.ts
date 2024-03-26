@@ -13,6 +13,7 @@ import {
   DeleteModuleUrl,
   DeleteScenarioUrl,
   ExecuteHistoryUrl,
+  ExecuteScenarioUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
   GetScenarioStepUrl,
@@ -224,4 +225,9 @@ export function uploadTempFile(file: File) {
 // 场景调试
 export function debugScenario(data: ApiScenarioDebugRequest) {
   return MSR.post({ url: DebugScenarioUrl, data });
+}
+
+// 场景执行
+export function executeScenario(data: ApiScenarioDebugRequest) {
+  return MSR.post({ url: ExecuteScenarioUrl, data });
 }
