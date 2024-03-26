@@ -5,6 +5,7 @@
     unmount-on-close
     :footer="false"
     :title="t('project.environmental.displaySetting')"
+    class="column-drawer"
     @cancel="handleCancel"
   >
     <div class="ms-table-column-seletor">
