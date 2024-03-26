@@ -207,6 +207,7 @@
         title: 'apiTestDebug.paramName',
         dataIndex: 'key',
         slotName: 'key',
+        width: 240,
       },
       {
         title: 'apiTestDebug.paramType',
