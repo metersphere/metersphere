@@ -48,7 +48,9 @@
       <div class="flex items-center justify-between">
         <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]" @change="emit('change')">
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
-          <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
+          <a-radio v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ'])" :value="true">{{
+            t('apiTestDebug.quote')
+          }}</a-radio>
         </a-radio-group>
         <div v-if="props.showAssociatedScene" class="flex items-center">
           <a-switch
@@ -488,6 +490,7 @@
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ProtocolItem } from '@/models/apiTest/common';
   import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
