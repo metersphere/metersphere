@@ -67,9 +67,12 @@
         api_scenario.id,
         api_scenario.project_id,
         api_scenario.name,
+        api_scenario.num,
         api_scenario.priority,
         api_scenario.tags,
-        api_scenario.name as versionName
+        api_scenario.pos,
+        api_scenario.version_id,
+        project_version.name as versionName
         FROM
         api_scenario
         LEFT JOIN project_version ON api_scenario.version_id = project_version.id
