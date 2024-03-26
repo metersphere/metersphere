@@ -58,6 +58,7 @@ export default {
   'project.menu.organizationId': '组织 ID',
   'project.menu.azureId': 'Azure 过滤 ID',
   'project.menu.defectType': '缺陷类型',
+  'project.menu.demandType': '需求类型',
   'project.menu.howGetJiraKey': '如何获取JIRA 项目 key ',
   'project.menu.preview': '预览',
   'project.menu.pleaseInputJiraKey': '请输入 JIRA 项目 key',

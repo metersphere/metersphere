@@ -1,13 +1,15 @@
 <template>
-  <a-select
-    v-model:model-value="selectValue"
-    :placeholder="t(props.placeholder || 'common.pleaseSelect')"
-    allow-search
-    :multiple="props.multiple"
-    @search="searchHandler"
-  >
-    <a-option v-for="opt of optionsList" :key="opt.value" :value="opt.value">{{ opt.label }}</a-option>
-  </a-select>
+  <a-spin :loading="selectLoading" class="block w-full">
+    <a-select
+      v-model:model-value="selectValue"
+      :placeholder="t(props.placeholder || 'common.pleaseSelect')"
+      allow-search
+      :multiple="props.multiple"
+      @search="searchHandler"
+    >
+      <a-option v-for="opt of optionsList" :key="opt.value" :value="opt.value">{{ opt.label }}</a-option>
+    </a-select>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -45,11 +47,13 @@
   const selectValue = ref<string[] | string>();
 
   const optionsList = ref<{ label: string; value: string }[]>([]);
+  const selectLoading = ref(false);
 
   const params = ref<OptionsParams>();
   const pluginId = (sessionStorage.getItem('platformKey') as string) || 'jira';
   async function getLinksItem() {
     if (props.optionMethod) {
+      selectLoading.value = true;
       params.value = {
         pluginId,
         organizationId: organizationId.value,
@@ -58,6 +62,7 @@
       };
       try {
         const res = await getPluginOptions(params.value);
+        selectLoading.value = false;
         optionsList.value = res.map((item) => {
           return {
             label: item.text,
@@ -65,6 +70,7 @@
           };
         });
       } catch (error) {
+        selectLoading.value = false;
         // eslint-disable-next-line no-console
         console.log(error);
       }
