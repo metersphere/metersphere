@@ -127,4 +127,5 @@ export default {
   'project.environmental.env.deleteTip': '删除后会导致引用此环境的场景无法正常执行',
   'project.environmental.env.deleteGroup': '是否删除环境组 `{name}`？',
   'project.environmental.env.deleteGroupTip': '删除后会导致引用此环境组的场景无法正常执行',
+  'project.environmental.database.nameIsExist': '数据源名称已存在',
 };
