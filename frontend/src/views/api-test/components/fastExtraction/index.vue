@@ -140,7 +140,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
-  import FormInstance from '@arco-design/web-vue';
+  import FormInstance, { Message } from '@arco-design/web-vue';
   import { JSONPath } from 'jsonpath-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -250,6 +250,9 @@
           matchResult.value = [];
         }
         break;
+    }
+    if (matchResult.value.length > 0) {
+      Message.success(t('apiTestDebug.testSuccess'));
     }
     isMatched.value = true;
   }

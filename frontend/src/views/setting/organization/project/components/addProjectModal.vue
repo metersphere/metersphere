@@ -70,6 +70,7 @@
           v-if="showPool"
           field="resourcePoolIds"
           :label="t('system.project.resourcePool')"
+          asterisk-position="end"
           :rules="[{ required: showPool, message: t('system.project.poolIsNotNull') }]"
         >
           <MsSystemPool
