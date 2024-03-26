@@ -205,7 +205,7 @@
         :mouse-enter-delay="100"
         mini
       >
-        <div class="one-line-text">{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
+        <div class="one-line-text max-w-[300px]">{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段结束 -->
@@ -584,6 +584,7 @@
       dataIndex: 'tags',
       showInTable: true,
       isTag: true,
+      width: 456,
       showDrag: true,
     },
     {

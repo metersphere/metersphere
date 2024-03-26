@@ -26,14 +26,8 @@
       </div>
     </div>
     <div v-if="showBody" class="ms-assertion-body w-full">
-      <a-scrollbar
-        :style="{
-          overflow: 'auto',
-          height: 'calc(100vh - 458px)',
-          width: '100%',
-        }"
-      >
-        <VueDraggable v-model="assertions" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
+      <div class="ms-assertion-body-left h-full w-[20%] min-w-[220px]">
+        <VueDraggable v-model="assertions" ghost-class="ghost" handle=".sort-handle">
           <div
             v-for="(item, index) in assertions"
             :key="item.id"
@@ -75,25 +69,32 @@
             </div>
           </div>
         </VueDraggable>
-      </a-scrollbar>
-      <section class="ms-assertion-body-right h-full">
+      </div>
+      <div
+        class="ms-assertion-body-right h-full"
+        :class="{
+          'p-4': getCurrentItemState.assertionType !== ResponseAssertionType.SCRIPT,
+          'border border-solid border-[var(--color-text-n8)]':
+            getCurrentItemState.assertionType !== ResponseAssertionType.SCRIPT,
+        }"
+      >
         <!-- 响应头 -->
         <ResponseHeaderTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_HEADER"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_HEADER"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 状态码 -->
         <StatusCodeTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_CODE"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_CODE"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 响应体 -->
         <ResponseBodyTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_BODY"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_BODY"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           :response="props.response"
@@ -101,27 +102,26 @@
         />
         <!-- 响应时间 -->
         <ResponseTimeTab
-          v-if="valueKey === ResponseAssertionType.RESPONSE_TIME"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_TIME"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 变量 -->
         <VariableTab
-          v-if="valueKey === ResponseAssertionType.VARIABLE"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.VARIABLE"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- 脚本 -->
         <ScriptTab
-          v-if="valueKey === ResponseAssertionType.SCRIPT"
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
           v-model:data="getCurrentItemState"
-          :disabled="props.disabled"
           @change="handleChange"
         />
         <!-- </a-scrollbar> -->
-      </section>
+      </div>
     </div>
   </div>
 </template>
@@ -159,7 +159,9 @@
   // 当前鼠标所在的key
   const focusKey = ref<string>('');
   // 所有的断言列表参数
-  const assertions = defineModel<any[]>('params', { default: [] });
+  const assertions = defineModel<any[]>('params', {
+    required: true,
+  });
 
   const props = defineProps<{
     isDefinition?: boolean; // 是否是定义页面
@@ -170,75 +172,16 @@
 
   const emit = defineEmits<{
     (e: 'update:assertionConfig', params: ExecuteAssertionConfig): void;
+    // TODO 类型优化
+    (e: 'update:params', params: any[]): void;
     (e: 'change'): void;
   }>();
 
   const innerConfig = useVModel(props, 'assertionConfig', emit);
 
-  // Item点击的key
   const activeKey = ref<string>('');
-  // 展示的value
-  const valueKey = computed(() => {
-    return activeKey.value && assertions.value.find((item) => item.id === activeKey.value)?.assertionType;
-  });
-  const defaultResBodyItem = {
-    jsonPathAssertion: {
-      assertions: [],
-    },
-    xpathAssertion: { responseFormat: 'XML', assertions: [] },
-    assertionBodyType: '',
-    regexAssertion: {
-      assertions: [],
-    },
-    // TODO文档暂时不做
-    // documentAssertion: {
-    //   jsonAssertion: [
-    //     {
-    //       id: rootId,
-    //       paramsName: 'root',
-    //       mustInclude: false,
-    //       typeChecking: false,
-    //       paramType: 'object',
-    //       matchCondition: '',
-    //       matchValue: '',
-    //     },
-    //   ],
-    //   responseFormat: 'JSON',
-    //   followApi: false,
-    // },
-  };
 
-  // 计算当前页面的存储的状态
-  const getCurrentItemState = computed({
-    get: () => {
-      const currentResItem =
-        assertions.value.find((item: any) => item.id === activeKey.value) || assertions.value[0] || {};
-      if (currentResItem && currentResItem?.assertionType === ResponseAssertionType.RESPONSE_BODY) {
-        const { jsonPathAssertion, xpathAssertion, regexAssertion } = currentResItem;
-        return {
-          ...currentResItem,
-          jsonPathAssertion: jsonPathAssertion || defaultResBodyItem.jsonPathAssertion,
-          xpathAssertion: xpathAssertion || defaultResBodyItem.xpathAssertion,
-          assertionBodyType: '',
-          regexAssertion: regexAssertion || defaultResBodyItem.regexAssertion,
-          bodyAssertionDataByType: {},
-        };
-      }
-      if (currentResItem && currentResItem?.assertionType === ResponseAssertionType.SCRIPT) {
-        return {
-          ...currentResItem,
-          processorType: ResponseAssertionType.SCRIPT,
-        };
-      }
-      return currentResItem;
-    },
-    set: (val: ExecuteAssertion) => {
-      const currentIndex = assertions.value.findIndex((item) => item.id === activeKey.value);
-      const tmpArr = assertions.value;
-      tmpArr[currentIndex] = cloneDeep(val);
-      assertions.value = tmpArr;
-    },
-  });
+  const getCurrentItemState = ref(assertions.value[0]);
 
   const itemMoreActions: ActionsItem[] = [
     {
@@ -282,6 +225,7 @@
   const showBody = computed(() => {
     return assertions.value.length > 0;
   });
+
   // dropdown选择
   const handleSelect = (value: string | number | Record<string, any> | undefined) => {
     const id = new Date().getTime().toString();
@@ -363,7 +307,9 @@
       default:
         break;
     }
-    activeKey.value = id;
+    getCurrentItemState.value = assertions.value[assertions.value.length - 1];
+    activeKey.value = assertions.value[assertions.value.length - 1].id;
+    emit('change');
   };
 
   const handleMoreActionSelect = (event: ActionsItem, item: MsAssertionItem) => {
@@ -373,10 +319,10 @@
       activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
     } else {
       // copy 当前item
-      const tmpObj = { ...assertions.value[currentIndex], id: new Date().getTime().valueOf().toString() };
-      const tmpArr = assertions.value;
+      const tmpObj = { ...cloneDeep(assertions.value[currentIndex]), id: new Date().getTime().valueOf().toString() };
+      const tmpArr = cloneDeep(assertions.value);
       tmpArr.splice(currentIndex, 0, tmpObj);
-      assertions.value = tmpArr;
+      assertions.value = cloneDeep(tmpArr);
       activeKey.value = tmpObj.id;
     }
   };
@@ -422,24 +368,30 @@
 <style lang="less" scoped>
   .ms-assertion {
     width: 100%;
+    height: calc(100% - 22px);
     &-body {
       display: flex;
       margin-top: 8px;
+      height: calc(100% - 42px);
       flex-flow: row nowrap;
       gap: 8px;
       &-left {
         display: flex;
+        overflow-y: auto;
         padding: 12px;
         width: 216px;
         min-width: 216px;
+        height: 100%;
         background-color: var(--color-text-n9);
         flex-direction: column;
         gap: 4px;
+        .ms-scroll-bar();
         &-item {
           display: flex;
-          flex-flow: row nowrap;
           justify-content: space-between;
           align-items: center;
+          margin: 4px 0;
+          flex-flow: row nowrap;
           padding: 4px 8px;
           border-radius: 4px;
           background-color: var(--color-text-fff);
@@ -483,8 +435,6 @@
       &-right {
         display: flex;
         flex-grow: 1;
-        padding: 0;
-        border: 1px solid var(--color-text-n8);
         border-radius: 4px;
         background: var(--color-text-fff);
       }

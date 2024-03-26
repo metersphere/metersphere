@@ -3,9 +3,11 @@
     <div v-if="$slots.quickCreate" class="ms-base-table-quickCreate">
       <slot name="quickCreate"></slot>
     </div>
+    <!-- 表只做自适应不做可拖拽列 -->
     <a-table
       v-bind="{ ...$attrs, ...scrollObj }"
       :row-class="getRowClass"
+      :column-resizable="false"
       :span-method="spanMethod"
       :columns="currentColumns"
       :expanded-keys="props.expandedKeys"

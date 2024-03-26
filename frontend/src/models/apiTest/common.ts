@@ -249,6 +249,7 @@ export interface ExecuteConditionProcessorCommon {
   associateScenarioResult?: boolean; // 是否关联场景结果
   ignoreProtocols: string[]; // 忽略协议
   beforeStepScript: boolean; // 是否是步骤内前置脚本前
+  assertionType?: RequestConditionProcessor;
 }
 // 执行请求-前后置条件-脚本处理器
 export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
