@@ -88,6 +88,7 @@
         v-model:steps="scenario.steps"
         v-model:checked-keys="checkedKeys"
         v-model:stepKeyword="keyword"
+        v-model:scenario="scenario"
         :expand-all="isExpandAll"
         :step-details="scenario.stepDetails"
         :step-responses="scenario.stepResponses"
@@ -266,13 +267,13 @@
     });
   }
 
-  function handleUpdateResource(uploadFileIds, linkFileIds) {
+  function handleUpdateResource(uploadFileIds?: string[], linkFileIds?: string[]) {
     const uploadFileIdsSet = new Set(scenario.value.uploadFileIds);
     const linkFileIdsSet = new Set(scenario.value.linkFileIds);
-    uploadFileIds.forEach((id) => {
+    uploadFileIds?.forEach((id) => {
       uploadFileIdsSet.add(id);
     });
-    linkFileIds.forEach((id) => {
+    linkFileIds?.forEach((id) => {
       linkFileIdsSet.add(id);
     });
     // scenario.value.uploadFileIds = Array.from(uploadFileIdsSet);
