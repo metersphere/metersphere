@@ -782,7 +782,13 @@
         },
         suffix
       );
-      Message.success(t('common.operationSuccess'));
+
+      if (type.includes('REPORT')) {
+        Message.success(t('project.application.report.tips'));
+      } else {
+        Message.success(t('common.operationSuccess'));
+      }
+
       getMenuConfig(suffix);
     } catch (e) {
       // eslint-disable-next-line no-console

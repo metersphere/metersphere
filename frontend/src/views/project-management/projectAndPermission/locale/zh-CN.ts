@@ -8,4 +8,5 @@ export default {
   'project.permission.memberPermission': '成员权限',
   'project.permission.member': '成员',
   'project.permission.userGroup': '用户组',
+  'project.application.report.tips': '操作成功, 新修改的有效期适用于后续生成的报告链接, 已生成的不会生效;',
 };

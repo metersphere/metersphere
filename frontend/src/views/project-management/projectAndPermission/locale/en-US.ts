@@ -8,4 +8,6 @@ export default {
   'project.permission.memberPermission': 'Member Permission',
   'project.permission.member': 'Member',
   'project.permission.userGroup': 'User Group',
+  'project.application.report.tips':
+    'Success. The new validity period applies to subsequent report links. The generated validity period does not take effect;',
 };
