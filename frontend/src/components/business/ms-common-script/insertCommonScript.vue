@@ -60,6 +60,20 @@
           </a-popover>
         </div>
       </template>
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilterValue"
+          :title="(columnConfig.title as string)"
+          :list="createUserFilterOptions"
+          value-key="value"
+          @search="initData()"
+        >
+          <template #item="{ item }">
+            {{ item.text }}
+          </template>
+        </TableFilter>
+      </template>
       <template #status="{ record }">
         <MsTag v-if="record.status === 'PASSED'" type="success" theme="light">{{
           t('project.commonScript.testsPass')
@@ -93,11 +107,17 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
-  import { addOrUpdateCommonScriptReq, getInsertCommonScriptPage } from '@/api/modules/project-management/commonScript';
+  import {
+    addOrUpdateCommonScriptReq,
+    getCustomFuncColumnOption,
+    getInsertCommonScriptPage,
+  } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
+  import { BugOptionItem } from '@/models/bug-management';
   import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
 
   import Message from '@arco-design/web-vue/es/message';
@@ -131,7 +151,9 @@
       emit('update:visible', val);
     },
   });
-
+  const createUserFilterOptions = ref<BugOptionItem[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilterValue = ref<string[]>([]);
   const keyword = ref<string>('');
 
   const columns: MsTableColumn = [
@@ -169,6 +191,7 @@
     {
       title: 'project.commonScript.createUser',
       dataIndex: 'createUserName',
+      titleSlotName: 'createUserFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -238,6 +261,9 @@
       keyword: keyword.value,
       projectId: currentProjectId.value,
       type: props.scriptLanguage,
+      filter: {
+        createUser: createUserFilterValue.value,
+      },
     });
     loadList();
   }
@@ -301,11 +327,17 @@
     }
   }
 
+  async function initFilterOptions() {
+    const res = await getCustomFuncColumnOption(appStore.currentProjectId);
+    createUserFilterOptions.value = res.userOption;
+  }
+
   watch(
     () => props.visible,
     (val) => {
       if (val) {
         resetSelector();
+        initFilterOptions();
         initData();
       }
     }

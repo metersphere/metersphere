@@ -12,6 +12,9 @@ export const DeleteCommonScriptUrl = '/project/custom/func/delete';
 export const GetCommonScriptStatusUrl = '/project/custom/func/status';
 // 插入公共脚
 export const GetInsertCommonScriptPageUrl = '/project/custom/func/page';
+
+export const GetCustomFuncColumnsOptionUrl = '/project/custom/func/columns-option/';
+
 // 获取公共脚本从Api导入
 export const GetFormApiImportUrl = '/api/definition/module/tree';
 // 获取从api导入列表

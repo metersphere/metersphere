@@ -1,9 +1,12 @@
 package io.metersphere.project.service;
 
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.CustomFunctionBlobExample;
 import io.metersphere.project.domain.CustomFunctionExample;
+import io.metersphere.project.dto.ProjectUserDTO;
+import io.metersphere.project.dto.customfunction.CustomFuncColumnsOptionDTO;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
@@ -13,6 +16,7 @@ import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.CustomFunctionBlobMapper;
 import io.metersphere.project.mapper.CustomFunctionMapper;
 import io.metersphere.project.mapper.ExtCustomFunctionMapper;
+import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.uid.IDGenerator;
@@ -35,6 +39,9 @@ import java.util.Optional;
 @Transactional(rollbackFor = Exception.class)
 public class CustomFunctionService {
 
+    @Resource
+    ProjectMemberService projectMemberService;
+    
     @Resource
     CustomFunctionMapper customFunctionMapper;
 
@@ -183,5 +190,19 @@ public class CustomFunctionService {
         example.createCriteria()
                 .andIdIn(commonScriptIds);
         return customFunctionMapper.selectByExample(example);
+    }
+
+
+    public CustomFuncColumnsOptionDTO getColumnsOption(String projectId) {
+        ProjectMemberRequest request = new ProjectMemberRequest();
+        request.setProjectId(projectId);
+        List<ProjectUserDTO> projectMembers = projectMemberService.listMember(request);
+        List<SelectOption> selectOptions = projectMembers.stream().map(user -> {
+            SelectOption option = new SelectOption();
+            option.setText(user.getName());
+            option.setValue(user.getId());
+            return option;
+        }).toList();
+        return new CustomFuncColumnsOptionDTO(selectOptions);
     }
 }
