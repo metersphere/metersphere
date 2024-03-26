@@ -49,7 +49,7 @@
                   v-if="data.id && !isDefault(data) && !hideNodeOperator"
                   :content="$t('test_track.module.add_submodule')"
                   placement="top">
-                  <el-button class="node-operate-btn" @click.stop="append(node, data)" :disabled="appendChildDisable" icon="el-icon-plus"/>
+                  <el-button class="node-operate-btn" @click.stop="append(node, data)" v-if="!appendChildDisable" icon="el-icon-plus"/>
                 </el-tooltip>
 
                 <el-button v-if="!data.id" class="node-operate-btn" @click="remove(node, data)" icon="el-icon-delete"/>
@@ -142,7 +142,7 @@
               v-if="data.id && !isDefault(data) && !hideNodeOperator"
               :content="$t('test_track.module.add_submodule')"
               placement="top" :case-num="getCaseNum(data)">
-              <el-button class="node-operate-btn" @click.stop="append(node, data)" :disabled="appendChildDisable" icon="el-icon-plus"/>
+              <el-button class="node-operate-btn" @click.stop="append(node, data)" v-if="!appendChildDisable" icon="el-icon-plus"/>
             </el-tooltip>
 
             <el-button v-if="!data.id" class="node-operate-btn" @click="remove(node, data)" icon="el-icon-delete"/>
