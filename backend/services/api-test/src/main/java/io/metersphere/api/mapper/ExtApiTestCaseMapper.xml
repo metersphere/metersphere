@@ -438,8 +438,8 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='last_execute_result'">
-                            and atc.last_execute_result in
+                        <when test="key=='lastReportStatus'">
+                            and atc.last_report_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
