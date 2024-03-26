@@ -26,10 +26,10 @@
         <slot name="suffix"></slot>
       </template>
     </a-input-tag>
-    <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">
-      {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
-    </span>
   </div>
+  <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">
+    {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
+  </span>
 </template>
 
 <script setup lang="ts">
