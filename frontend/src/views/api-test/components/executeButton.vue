@@ -154,7 +154,9 @@
     () => props.executeCase,
     (val) => {
       if (val === true) {
-        execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+        setTimeout(() => {
+          execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+        }, 300);
       }
     },
     { immediate: true }
