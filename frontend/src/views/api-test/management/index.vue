@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <MsSplitBox :size="0.25" :max="0.5">
+    <MsSplitBox :size="300" :max="0.5">
       <template #first>
         <div class="flex flex-col">
           <div class="p-[16px]">
