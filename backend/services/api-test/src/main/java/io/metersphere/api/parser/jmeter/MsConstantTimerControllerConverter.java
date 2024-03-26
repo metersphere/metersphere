@@ -1,8 +1,7 @@
 package io.metersphere.api.parser.jmeter;
 
 import io.metersphere.api.dto.request.controller.MsConstantTimerController;
-import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
-import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
+import io.metersphere.api.parser.jmeter.processor.ScenarioTimeWaitingProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.project.api.processor.TimeWaitingProcessor;
@@ -19,8 +18,7 @@ public class MsConstantTimerControllerConverter extends AbstractJmeterElementCon
             LogUtils.info("MsConstantTimerController is disabled");
             return;
         }
-        MsProcessorConverter timeWaitingConverter = MsProcessorConverterFactory.getPostConverter(TimeWaitingProcessor.class);
         TimeWaitingProcessor timeWaitingProcessor = BeanUtils.copyBean(new TimeWaitingProcessor(), element);
-        timeWaitingConverter.parse(tree, timeWaitingProcessor, config);
+        new ScenarioTimeWaitingProcessorConverter().parse(tree, timeWaitingProcessor, config);
     }
 }
