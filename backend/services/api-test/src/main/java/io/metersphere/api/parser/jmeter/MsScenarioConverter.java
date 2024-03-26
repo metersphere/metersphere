@@ -11,7 +11,7 @@ import io.metersphere.api.dto.scenario.ScenarioStepConfig;
 import io.metersphere.api.dto.scenario.ScenarioVariable;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
-import io.metersphere.api.parser.jmeter.processor.TimeWaitingProcessorConverter;
+import io.metersphere.api.parser.jmeter.processor.ScenarioTimeWaitingProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
@@ -30,7 +30,6 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
@@ -63,7 +62,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         addArguments(tree, msScenario, envInfo);
 
         // 添加场景每个步骤的全局等待时间
-        addScenarioStepTimeWaiting(tree, msScenario);
+        addScenarioStepTimeWaiting(tree, msScenario, msParameter);
 
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
@@ -88,7 +87,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
      * @param tree
      * @param msScenario
      */
-    private void addScenarioStepTimeWaiting(HashTree tree, MsScenario msScenario) {
+    private void addScenarioStepTimeWaiting(HashTree tree, MsScenario msScenario, ParameterConfig config) {
         if (isRootScenario(msScenario.getRefType())) {
             // 获取场景前后置
             ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
@@ -97,8 +96,8 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 TimeWaitingProcessor timeWaitingProcessor = new TimeWaitingProcessor();
                 timeWaitingProcessor.setDelay(otherConfig.getStepWaitTime());
                 timeWaitingProcessor.setName(msScenario.getName());
-                ConstantTimer constantTimer = TimeWaitingProcessorConverter.getConstantTimer(timeWaitingProcessor);
-                tree.add(constantTimer);
+                MsProcessorConverter timeWaitingConverter = MsProcessorConverterFactory.getPreConverter(TimeWaitingProcessor.class);
+                timeWaitingConverter.parse(tree, timeWaitingProcessor, config);
             }
         }
     }
@@ -283,7 +282,14 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         // 添加场景前置处理器
         scenarioPreProcessors.forEach(processor -> {
             processor.setProjectId(msScenario.getProjectId());
-            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+            MsProcessorConverter converter;
+            if (processor instanceof TimeWaitingProcessor) {
+                // 场景的的等待时间，需要包一层 debugSampler
+                converter = new ScenarioTimeWaitingProcessorConverter();
+            } else {
+                converter = getConverterFunc.apply(processor.getClass());
+            }
+            converter.parse(tree, processor, config);
         });
     }
 
