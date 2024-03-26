@@ -261,7 +261,7 @@
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
               :request-result="props.stepResponses?.[requestVModel.stepId]"
-              :console="props.stepResponses?.[requestVModel.stepId].console"
+              :console="props.stepResponses?.[requestVModel.stepId]?.console"
               :show-empty="false"
               :is-edit="false"
               is-definition

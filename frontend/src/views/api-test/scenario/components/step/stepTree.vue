@@ -278,6 +278,7 @@
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+  import dayjs from 'dayjs';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -296,7 +297,9 @@
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import responseResult from '@/views/api-test/components/requestComposition/response/index.vue';
 
-  import { getScenarioStep } from '@/api/modules/api-test/scenario';
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import {
@@ -310,7 +313,8 @@
   } from '@/utils';
 
   import { ExecuteConditionProcessor, RequestResult } from '@/models/apiTest/common';
-  import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ApiScenarioDebugRequest, CreateStepAction, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     ResponseComposition,
     ScenarioAddStepActionType,
@@ -353,7 +357,10 @@
   const stepDetails = defineModel<Record<string, any>>('stepDetails', {
     required: true,
   });
-  const scenarioExecuteLoading = inject<Ref<boolean>>('scenarioExecuteLoading');
+  const scenario = defineModel<Scenario>('scenario', {
+    required: true,
+  });
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
   const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
   const loading = ref(false);
@@ -684,8 +691,91 @@
     }
   }
 
+  const websocket = ref<WebSocket>();
+  const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+
+  /**
+   * 开启websocket监听，接收执行结果
+   */
+  function debugSocket(reportId?: string | number, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+    websocket.value = getSocket(
+      reportId || '',
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? localExecuteUrl : ''
+    );
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        if (scenario.value.reportId === data.reportId) {
+          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+          data.taskResult.requestResults.forEach((result) => {
+            scenario.value.stepResponses[result.stepId] = {
+              ...result,
+              console: data.taskResult.console,
+            };
+            if (result.isSuccessful) {
+              scenario.value.executeSuccessCount += 1;
+            } else {
+              scenario.value.executeFailCount += 1;
+            }
+          });
+        } else {
+          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+          data.taskResult.requestResults.forEach((result) => {
+            if (scenario.value.reportId) {
+              if (temporaryScenarioReportMap[scenario.value.reportId] === undefined) {
+                temporaryScenarioReportMap[scenario.value.reportId] = {};
+              }
+              temporaryScenarioReportMap[scenario.value.reportId][result.stepId] = {
+                ...result,
+                console: data.taskResult.console,
+              };
+            }
+          });
+        }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
+        if (scenario.value.reportId === data.reportId) {
+          scenario.value.executeLoading = false;
+          scenario.value.isExecute = false;
+        }
+      }
+    });
+  }
+
+  async function realExecute(
+    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>,
+    executeType?: 'localExec' | 'serverExec',
+    localExecuteUrl?: string
+  ) {
+    try {
+      scenario.value.executeLoading = true;
+      debugSocket(executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
+      const res = await debugScenario({
+        id: scenario.value.id || '',
+        grouped: false,
+        environmentId: currentEnvConfig?.value.id || '',
+        projectId: appStore.currentProjectId,
+        scenarioConfig: scenario.value.scenarioConfig,
+        uploadFileIds: scenario.value.uploadFileIds,
+        linkFileIds: scenario.value.linkFileIds,
+        frontendDebug: executeType === 'localExec',
+        ...executeParams,
+      });
+      if (executeType === 'localExec' && localExecuteUrl) {
+        await localExecuteApiDebug(localExecuteUrl, res);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      websocket.value?.close();
+      scenario.value.executeLoading = false;
+    }
+  }
+
   function executeStep(node: MsTreeNodeData) {
-    if (scenarioExecuteLoading?.value) {
+    if (scenario.value.executeLoading) {
       return;
     }
     console.log('执行步骤', node);
