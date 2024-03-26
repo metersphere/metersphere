@@ -33,6 +33,14 @@
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
+              <div class="filter-button">
+                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetModeFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
             </div>
           </template>
         </a-trigger>
@@ -55,6 +63,14 @@
                     <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -228,7 +244,21 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadExecuteList();
+      triggerModeFilterVisible.value = false;
+      statusFilterVisible.value = false;
     }
+  }
+
+  function resetModeFilter() {
+    triggerModeListFilters.value = Object.keys(TriggerModeLabel);
+    triggerModeFilterVisible.value = false;
+    loadExecuteList();
+  }
+
+  function resetStatusFilter() {
+    statusFilters.value = Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+    statusFilterVisible.value = false;
+    loadExecuteList();
   }
 
   function loadedReportDetail(detail: ApiCaseReportDetail[]) {
@@ -279,5 +309,11 @@
     align-items: center;
     flex-direction: row;
     margin-bottom: 21px;
+  }
+  .filter-button {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin: 12px;
   }
 </style>
