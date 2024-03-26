@@ -238,25 +238,24 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
 import {
-    _handleSelectAll,
-    buildBatchParam,
-    deepClone,
-    getCustomTableWidth,
-    getLastTableSortField,
-    getSelectDataCounts,
-    getTableHeaderWithCustomFields,
-    initCondition,
-    toggleAllSelection
+  _handleSelectAll,
+  buildBatchParam,
+  deepClone,
+  getCustomTableWidth,
+  getLastTableSortField,
+  getSelectDataCounts,
+  getTableHeaderWithCustomFields,
+  initCondition,
+  toggleAllSelection
 } from "metersphere-frontend/src/utils/tableUtils";
 import {
-    batchDeleteTestReviewCase,
-    batchEditTestReviewCaseReviewer,
-    batchEditTestReviewCaseStatus,
-    deleteTestReviewCase,
-    getTesReviewById
+  batchDeleteTestReviewCase,
+  batchEditTestReviewCaseReviewer,
+  batchEditTestReviewCaseStatus,
+  deleteTestReviewCase,
+  getTesReviewById
 } from "@/api/test-review";
 import {getTestTemplate} from "@/api/custom-field-template";
-import {mapState} from "pinia";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -397,9 +396,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    ...mapState(useStore, {
-        moduleOptions: 'testCaseReviewCaseModuleOptions'
-    }),
+    moduleOptions() {
+      return useStore().testCaseReviewCaseModuleOptions;
+    },
     nodePathMap() {
         let map = new Map();
         if (this.moduleOptions) {
