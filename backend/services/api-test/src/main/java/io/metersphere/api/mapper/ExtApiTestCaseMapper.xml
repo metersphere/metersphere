@@ -174,10 +174,13 @@
     <select id="listByProviderRequest" resultMap="TestCaseProviderDTO">
         SELECT
         atc.id,
+        atc.num,
+        atc.pos,
         atc.project_id,
         atc.name,
         atc.priority,
         atc.tags,
+        atc.version_id,
         v.name as versionName
         FROM
         api_test_case atc
