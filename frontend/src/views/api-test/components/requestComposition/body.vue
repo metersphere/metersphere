@@ -64,7 +64,7 @@
       />
       <MsAddAttachment
         v-model:file-list="fileList"
-        :disabled="props.disabledExceptParam"
+        :disabled="props.disabledParamValue"
         mode="input"
         :multiple="false"
         :fields="{

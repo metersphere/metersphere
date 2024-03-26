@@ -237,13 +237,50 @@
       label: t('apiTestDebug.setting'),
     },
   ];
+  const headerNum = computed(
+    () => filterKeyValParams(requestVModel.value?.headers ?? [], defaultHeaderParamsItem).validParams?.length
+  );
+  const restNum = computed(
+    () => filterKeyValParams(requestVModel.value?.rest ?? [], defaultRequestParamsItem).validParams?.length
+  );
+  const queryNum = computed(
+    () => filterKeyValParams(requestVModel.value?.query ?? [], defaultRequestParamsItem).validParams?.length
+  );
+  const preProcessorNum = computed(() => requestVModel.value.children[0].preProcessorConfig.processors.length);
+  const postProcessorNum = computed(() => requestVModel.value.children[0].postProcessorConfig.processors.length);
+  const assertionsNum = computed(() => requestVModel.value.children[0].assertionConfig.assertions.length);
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
     // HTTP 协议 tabs
     if (isHttpProtocol.value) {
+      // 引用CASE：如果[请求头、query、rest、前后置、断言]没有数据则直接隐藏tab
+      if (props.disabledExceptParam) {
+        return httpContentTabList.filter(
+          (item) =>
+            !(!restNum.value && item.value === RequestComposition.REST) &&
+            !(!queryNum.value && item.value === RequestComposition.QUERY) &&
+            !(!headerNum.value && item.value === RequestComposition.HEADER) &&
+            !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
+            !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
+            !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
+        );
+      }
       return props.isShowCommonContentTabKey
         ? httpContentTabList
         : httpContentTabList.filter((e) => !commonContentTabKey.includes(e.value));
+    }
+    if (props.disabledExceptParam) {
+      return [
+        ...pluginContentTab,
+        ...httpContentTabList
+          .filter((e) => commonContentTabKey.includes(e.value))
+          .filter(
+            (item) =>
+              !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
+              !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
+              !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
+          ),
+      ];
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -251,27 +288,28 @@
   function getTabBadge(tabKey: RequestComposition) {
     switch (tabKey) {
       case RequestComposition.HEADER:
-        const headerNum = filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams.length;
-        return `${headerNum > 0 ? headerNum : ''}`;
+        return `${headerNum.value > 0 ? headerNum.value : ''}`;
       case RequestComposition.BODY:
         return requestVModel.value.body?.bodyType !== RequestBodyFormat.NONE ? '1' : '';
       case RequestComposition.QUERY:
-        const queryNum = filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams.length;
-        return `${queryNum > 0 ? queryNum : ''}`;
+        return `${queryNum.value > 0 ? queryNum.value : ''}`;
       case RequestComposition.REST:
-        const restNum = filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams.length;
-        return `${restNum > 0 ? restNum : ''}`;
+        return `${restNum.value > 0 ? restNum.value : ''}`;
       case RequestComposition.PRECONDITION:
-        return `${requestVModel.value.children[0].preProcessorConfig.processors.length || ''}`;
+        return `${preProcessorNum.value > 99 ? '99+' : preProcessorNum.value || ''}`;
       case RequestComposition.POST_CONDITION:
-        return `${requestVModel.value.children[0].postProcessorConfig.processors.length || ''}`;
+        return `${postProcessorNum.value > 99 ? '99+' : postProcessorNum.value || ''}`;
       case RequestComposition.ASSERTION:
-        return `${requestVModel.value.children[0].assertionConfig.assertions.length || ''}`;
+        return `${assertionsNum.value > 99 ? '99+' : assertionsNum.value || ''}`;
       case RequestComposition.AUTH:
         return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
       default:
         return '';
     }
+  }
+  // 设置第一个tab为当前tab
+  function setActiveTabByFirst() {
+    requestVModel.value.activeTab = contentTabList.value[0].value;
   }
 
   const protocolLoading = ref(false);
@@ -492,6 +530,7 @@
     initPluginScript,
     handleActiveDebugChange,
     makeRequestParams,
+    setActiveTabByFirst,
   });
 </script>
 

@@ -5,7 +5,7 @@
     :mask="false"
     :width="900"
     :footer="false"
-    :show-full-screen="!isShowEditStepNameInput"
+    show-full-screen
     no-content-padding
     @close="handleClose"
   >
@@ -67,7 +67,7 @@
       :disabled-param-value="isQuote"
       :request="requestVModel"
       :is-priority-local-exec="isPriorityLocalExec"
-      :file-save-as-source-id="requestVModel.id"
+      :file-save-as-source-id="requestVModel.resourceId"
       :file-module-options-api="getTransferOptionsCase"
       :file-save-as-api="transferFileCase"
       :upload-temp-file="uploadTempFileCase"
@@ -133,6 +133,7 @@
 
   const defaultCaseParams: RequestParam = {
     id: `case-${Date.now()}`,
+    resourceId: '',
     type: 'case',
     moduleId: 'root',
     protocol: 'HTTP',
@@ -203,7 +204,7 @@
     () =>
       activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.COPY
   );
-  const isCopyNeedInit = computed(() => isCopyCase.value && props.request?.request === null);
+  const isCopyNeedInit = computed(() => isCopyCase.value && props.request === undefined);
   const isQuote = computed(
     () =>
       activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.REF
@@ -280,10 +281,11 @@
       debugSocket(executeType); // 开启websocket
       let res;
       const params = {
+        apiDefinitionId: requestVModel.value.apiDefinitionId,
         ...makeRequestParams,
         reportId: reportId.value,
       };
-      if (!(requestVModel.value.id as string).startsWith('c') && executeType === 'serverExec') {
+      if (!(requestVModel.value.resourceId as string).startsWith('c') && executeType === 'serverExec') {
         // 已创建的服务端
         res = await runCase(params);
       } else {
@@ -317,7 +319,7 @@
   async function initQuoteCaseDetail() {
     try {
       loading.value = true;
-      const res = await getCaseDetail(props.request?.id as string);
+      const res = await getCaseDetail(activeStep.value?.resourceId || '');
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
@@ -334,10 +336,11 @@
         response: cloneDeep(defaultResponse),
         url: res.path,
         name: res.name, // request里面还有个name但是是null
-        id: res.id,
+        resourceId: res.id,
         ...parseRequestBodyResult,
       };
       nextTick(() => {
+        requestAndResponseRef.value?.setActiveTabByFirst();
         // 等待内容渲染出来再隐藏loading
         loading.value = false;
       });
@@ -352,12 +355,10 @@
     () => visible.value,
     async (val) => {
       if (val) {
-        if (props.request) {
-          requestVModel.value = { ...cloneDeep(defaultCaseParams), ...props.request };
-          if (isQuote.value || isCopyNeedInit.value) {
-            // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
-            initQuoteCaseDetail();
-          }
+        requestVModel.value = { ...cloneDeep(defaultCaseParams), ...props.request };
+        if (isQuote.value || isCopyNeedInit.value) {
+          // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
+          initQuoteCaseDetail();
         }
         await initLocalConfig();
       }
