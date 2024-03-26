@@ -6,7 +6,7 @@
       :columns="columns"
       :scroll="{ minWidth: '700px' }"
       :default-param-item="defaultParamItem"
-      :disabled="props.disabled"
+      :disabled-except-param="props.disabled"
       @change="handleParamTableChange"
     />
   </div>

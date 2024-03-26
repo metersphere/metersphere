@@ -475,6 +475,11 @@
     }
     return t('apiScenario.customApi');
   });
+  // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
+  const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
+  const isEditableApi = computed(
+    () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
+  );
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
@@ -538,11 +543,48 @@
       label: t('apiTestDebug.setting'),
     },
   ];
+  const headerNum = computed(
+    () => filterKeyValParams(requestVModel.value?.headers ?? [], defaultHeaderParamsItem).validParams?.length
+  );
+  const restNum = computed(
+    () => filterKeyValParams(requestVModel.value?.rest ?? [], defaultRequestParamsItem).validParams?.length
+  );
+  const queryNum = computed(
+    () => filterKeyValParams(requestVModel.value?.query ?? [], defaultRequestParamsItem).validParams?.length
+  );
+  const preProcessorNum = computed(() => requestVModel.value.children[0].preProcessorConfig.processors.length);
+  const postProcessorNum = computed(() => requestVModel.value.children[0].postProcessorConfig.processors.length);
+  const assertionsNum = computed(() => requestVModel.value.children[0].assertionConfig.assertions.length);
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
     // HTTP 协议 tabs
     if (isHttpProtocol.value) {
+      // 引用API：请求头、query、rest、前后置、断言。如果没有数据直接隐藏tab
+      if (!isEditableApi.value) {
+        return httpContentTabList.filter(
+          (item) =>
+            !(!restNum.value && item.value === RequestComposition.REST) &&
+            !(!queryNum.value && item.value === RequestComposition.QUERY) &&
+            !(!headerNum.value && item.value === RequestComposition.HEADER) &&
+            !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
+            !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
+            !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
+        );
+      }
       return httpContentTabList;
+    }
+    if (!isEditableApi.value) {
+      return [
+        ...pluginContentTab,
+        ...httpContentTabList
+          .filter((e) => commonContentTabKey.includes(e.value))
+          .filter(
+            (item) =>
+              !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
+              !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
+              !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
+          ),
+      ];
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -553,34 +595,19 @@
   function getTabBadge(tabKey: RequestComposition) {
     switch (tabKey) {
       case RequestComposition.HEADER:
-        const headerNum = filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem).validParams.length;
-        return `${headerNum > 0 ? headerNum : ''}`;
+        return `${headerNum.value > 0 ? headerNum.value : ''}`;
       case RequestComposition.BODY:
         return requestVModel.value.body?.bodyType !== RequestBodyFormat.NONE ? '1' : '';
       case RequestComposition.QUERY:
-        const queryNum = filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams.length;
-        return `${queryNum > 0 ? queryNum : ''}`;
+        return `${queryNum.value > 0 ? queryNum.value : ''}`;
       case RequestComposition.REST:
-        const restNum = filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams.length;
-        return `${restNum > 0 ? restNum : ''}`;
+        return `${restNum.value > 0 ? restNum.value : ''}`;
       case RequestComposition.PRECONDITION:
-        return `${
-          requestVModel.value.children[0].preProcessorConfig.processors.length > 99
-            ? '99+'
-            : requestVModel.value.children[0].preProcessorConfig.processors.length || ''
-        }`;
+        return `${preProcessorNum.value > 99 ? '99+' : preProcessorNum.value || ''}`;
       case RequestComposition.POST_CONDITION:
-        return `${
-          requestVModel.value.children[0].postProcessorConfig.processors.length > 99
-            ? '99+'
-            : requestVModel.value.children[0].postProcessorConfig.processors.length || ''
-        }`;
+        return `${postProcessorNum.value > 99 ? '99+' : postProcessorNum.value || ''}`;
       case RequestComposition.ASSERTION:
-        return `${
-          requestVModel.value.children[0].assertionConfig.assertions.length > 99
-            ? '99+'
-            : requestVModel.value.children[0].assertionConfig.assertions.length || ''
-        }`;
+        return `${assertionsNum.value > 99 ? '99+' : assertionsNum.value || ''}`;
       case RequestComposition.AUTH:
         return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
       default:
@@ -622,11 +649,6 @@
   );
   const currentPluginScript = computed<Record<string, any>[]>(
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
-  );
-  // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
-  const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
-  const isEditableApi = computed(
-    () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
   );
 
   // 处理插件表单输入框变化
@@ -1045,7 +1067,37 @@
         resourceId: res.id,
         ...parseRequestBodyResult,
       };
+      if (_stepType.value.isQuoteApi && props.request && isHttpProtocol.value) {
+        // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
+        ['headers', 'query', 'rest'].forEach((type) => {
+          props.request?.[type]?.forEach((item) => {
+            if (!item.key.length) return;
+            const index = requestVModel.value[type]?.findIndex((itemReq) => itemReq.key === item.key);
+            // 相同key的进行替换值;key不同的取交集
+            if (index > -1) {
+              requestVModel.value[type][index].value = item.value;
+            } else {
+              requestVModel.value[type].push(item);
+            }
+          });
+        });
+        ['formDataBody', 'wwwFormBody'].forEach((type) => {
+          props.request?.body?.[type].formValues.forEach((item) => {
+            if (!item.key.length) return;
+            const index = requestVModel.value.body[type].formValues.findIndex((itemReq) => itemReq.key === item.key);
+            if (index > -1) {
+              requestVModel.value.body[type].formValues[index].value = item.value;
+            } else {
+              requestVModel.value.body[type].formValues.push(item);
+            }
+          });
+        });
+        if (props.request?.body.binaryBody.file) {
+          requestVModel.value.body.binaryBody.file = props.request?.body.binaryBody.file;
+        }
+      }
       nextTick(() => {
+        requestVModel.value.activeTab = contentTabList.value[0].value;
         // 等待内容渲染出来再隐藏loading
         loading.value = false;
       });

@@ -49,7 +49,7 @@
               <span class="ms-assertion-body-left-item-row-title">{{ item.name }}</span>
             </div>
             <div class="ms-assertion-body-left-item-switch">
-              <div class="ms-assertion-body-left-item-switch-action">
+              <div v-show="!props.disabled" class="ms-assertion-body-left-item-switch-action">
                 <MsIcon
                   type="icon-icon_drag"
                   class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"

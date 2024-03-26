@@ -12,7 +12,7 @@
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.jsonPathAssertion.assertions"
-        :disabled="props.disabled"
+        :disabled-except-param="props.disabled"
         :selectable="false"
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
@@ -105,7 +105,7 @@
       <paramsTable
         ref="extractParamsTableRef"
         v-model:params="condition.xpathAssertion.assertions"
-        :disabled="props.disabled"
+        :disabled-except-param="props.disabled"
         :selectable="false"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
@@ -200,7 +200,7 @@
       <div class="mt-[16px]">
         <paramsTable
           v-model:params="condition.document.jsonAssertion"
-          :disabled="props.disabled"
+          :disabled-except-param="props.disabled"
           :selectable="false"
           :columns="documentColumns"
           :scroll="{
@@ -253,7 +253,7 @@
         ref="extractParamsTableRef"
         v-model:params="condition.regexAssertion.assertions"
         :selectable="false"
-        :disabled="props.disabled"
+        :disabled-except-param="props.disabled"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"

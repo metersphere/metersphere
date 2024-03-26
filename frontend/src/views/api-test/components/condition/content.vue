@@ -256,6 +256,7 @@
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
         <a-input
           v-model:model-value="condition.name"
+          :disabled="props.disabled"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
           @input="() => emit('change')"
@@ -266,7 +267,12 @@
           {{ condition.dataSourceName || '-' }}
         </div>
         <a-divider margin="8px" direction="vertical" />
-        <MsButton type="text" class="font-medium" @click="quoteSqlSourceDrawerVisible = true">
+        <MsButton
+          type="text"
+          class="font-medium"
+          :disabled="props.disabled"
+          @click="quoteSqlSourceDrawerVisible = true"
+        >
           {{ t('apiTestDebug.introduceSource') }}
         </MsButton>
       </div>
@@ -297,6 +303,7 @@
         <a-input
           v-model:model-value="condition.variableNames"
           :max-length="255"
+          :disabled="props.disabled"
           :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
           @input="() => emit('change')"
         />
@@ -313,6 +320,7 @@
         </div>
         <paramTable
           :params="condition.extractParams"
+          :disabled-except-param="props.disabled"
           :columns="sqlSourceColumns"
           :selectable="false"
           :default-param-item="defaultKeyValueParamItem"
@@ -323,6 +331,7 @@
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
         <a-input
           v-model:model-value="condition.resultVariable"
+          :disabled="props.disabled"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
           @input="() => emit('change')"
@@ -351,6 +360,7 @@
       <paramTable
         ref="extractParamsTableRef"
         :params="condition.extractors"
+        :disabled-except-param="props.disabled"
         :default-param-item="defaultExtractParamItem"
         :columns="extractParamsColumns"
         :selectable="false"
@@ -380,6 +390,7 @@
               :max-length="255"
               :placeholder="t('ms.paramsInput.commonPlaceholder')"
               size="mini"
+              :disabled="props.disabled"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -394,7 +405,9 @@
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
+                      disabledExpressionSuffix || props.disabled
+                        ? 'ms-params-input-suffix-icon--disabled'
+                        : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record)"
                   />
@@ -828,6 +841,7 @@ if (!result){
   const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
   function showFastExtraction(record: ExpressionConfig) {
+    if (props.disabled) return;
     activeRecord.value = { ...record };
     fastExtractionVisible.value = true;
   }
