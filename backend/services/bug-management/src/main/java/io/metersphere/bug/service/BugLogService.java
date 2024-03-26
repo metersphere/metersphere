@@ -39,7 +39,7 @@ public class BugLogService {
      * @return 日志
      */
     public LogDTO addLog(BugEditRequest request, List<MultipartFile> files) {
-        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_CREATE, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, request.getTitle());
         dto.setHistory(true);
         dto.setPath("/bug/add");
         dto.setMethod(HttpMethodConstants.POST.name());
@@ -56,7 +56,7 @@ public class BugLogService {
      */
     public LogDTO updateLog(BugEditRequest request, List<MultipartFile> files) {
         BugDTO history = getOriginalValue(request.getId());
-        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_UPDATE, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, request.getTitle());
         dto.setHistory(true);
         dto.setPath("/bug/update");
         dto.setMethod(HttpMethodConstants.POST.name());

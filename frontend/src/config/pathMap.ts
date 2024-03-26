@@ -124,22 +124,6 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.BUG_MANAGEMENT_INDEX,
         permission: [],
         level: MENU_LEVEL[2],
-        children: [
-          {
-            key: 'BUG_MANAGEMENT_BUG_INDEX_CREATE', // 缺陷管理-创建缺陷
-            locale: 'bugManagement.addBug',
-            route: RouteEnum.BUG_MANAGEMENT_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
-            key: 'BUG_MANAGEMENT_BUG_INDEX_UPDATE', // 缺陷管理-更新缺陷
-            locale: 'bugManagement.editBug',
-            route: RouteEnum.BUG_MANAGEMENT_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-        ],
       },
       {
         key: 'BUG_MANAGEMENT_BUG_RECYCLE', // 缺陷管理-回收站
@@ -163,23 +147,6 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.CASE_MANAGEMENT_CASE,
         permission: [],
         level: MENU_LEVEL[2],
-        children: [
-          {
-            key: 'CASE_MANAGEMENT_CASE_CREATE', // 功能测试-功能用例创建
-            locale: 'menu.caseManagement.featureCaseDetail',
-            route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
-            key: 'CASE_MANAGEMENT_CASE_UPDATE', // 功能测试-功能用例更新
-            locale: 'menu.caseManagement.featureCaseEdit',
-            route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[2],
-            alias: 'FUNCTIONAL_CASE_TASK',
-          },
-        ],
       },
       {
         key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
@@ -187,46 +154,6 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.CASE_MANAGEMENT_REVIEW,
         permission: [],
         level: MENU_LEVEL[2],
-        children: [
-          {
-            key: 'CASE_MANAGEMENT_REVIEW_LIST', // 功能测试-功能用例-用例评审列表
-            locale: 'menu.caseManagement.caseManagementReview',
-            route: RouteEnum.CASE_MANAGEMENT_REVIEW,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
-            key: 'CASE_MANAGEMENT_REVIEW_CREATE', // 功能测试-功能用例-创建评审
-            locale: 'menu.caseManagement.caseManagementReviewCreate',
-            route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
-            key: 'CASE_MANAGEMENT_REVIEW_UPDATE', // 功能测试-功能用例-更新评审
-            locale: 'menu.caseManagement.caseManagementCaseReviewEdit',
-            route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
-            key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-评审详情
-            locale: 'menu.caseManagement.caseManagementReviewDetail',
-            route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
-            permission: [],
-            level: MENU_LEVEL[2],
-            alias: 'CASE_REVIEW_TASK',
-            children: [
-              {
-                key: 'CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL', // 功能测试-功能用例-评审详情-用例详情
-                locale: 'menu.caseManagement.caseManagementReviewDetailCaseDetail',
-                route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
-                permission: [],
-                level: MENU_LEVEL[2],
-              },
-            ],
-          },
-        ],
       },
     ],
   },
