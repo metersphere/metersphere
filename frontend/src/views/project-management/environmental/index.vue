@@ -45,6 +45,7 @@
                 <div class="env-row-extra">
                   <MsMoreAction
                     v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
+                    trigger="click"
                     :list="allMoreAction"
                     @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.ENVIRONMENT)"
                   />
@@ -75,48 +76,47 @@
                   <div
                     v-for="element in envList"
                     :key="element.id"
-                    class="env-item hover:bg-[rgb(var(--primary-1))]"
+                    class="env-item"
+                    :class="[activeKey === element.id ? 'env-item-focus' : '']"
                     @click="handleListItemClick(element)"
                   >
-                    <RenamePop
-                      :list="envList"
-                      :type="(showType as EnvAuthScopeEnum)"
-                      v-bind="popVisible[element.id]"
-                      @cancel="handleRenameCancel(element)"
-                      @submit="handleRenameCancel(element, true)"
-                    >
-                      <div class="flex max-w-[100%] grow flex-row items-center justify-between">
-                        <a-tooltip :content="element.name">
-                          <div
-                            class="one-line-text"
-                            :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeKey }"
-                            >{{ element.name }}</div
-                          >
-                        </a-tooltip>
-                        <div class="node-extra">
+                    <div class="flex max-w-[100%] grow flex-row items-center justify-between">
+                      <a-tooltip :content="element.name">
+                        <div
+                          class="one-line-text"
+                          :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeKey }"
+                          >{{ element.name }}</div
+                        >
+                      </a-tooltip>
+                      <div class="env-item-actions">
+                        <RenamePop
+                          :list="envList"
+                          :type="(showType as EnvAuthScopeEnum)"
+                          v-bind="popVisible[element.id]"
+                          @cancel="handleRenameCancel(element)"
+                          @success="envSuccessHandler"
+                        >
                           <div class="flex flex-row items-center gap-[8px]">
-                            <MsButton
+                            <icon-drag-dot-vertical
                               v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-                              type="icon"
-                              class="drag-handle !mr-0 p-[2px]"
-                            >
-                              <MsIcon
-                                type="icon-icon_drag"
-                                size="16"
-                                class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                              />
-                            </MsButton>
+                              class="drag-handle env-item-drag-icon"
+                            />
                             <MsMoreAction
                               v-permission="['PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
+                              trigger="click"
                               :list="envMoreAction(element.mock || false)"
                               @select="
                                 (value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)
                               "
-                            />
+                            >
+                              <MsButton type="icon" size="mini" class="env-item-actions-btn">
+                                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+                              </MsButton>
+                            </MsMoreAction>
                           </div>
-                        </div>
+                        </RenamePop>
                       </div>
-                    </RenamePop>
+                    </div>
                   </div>
                 </VueDraggable>
               </div>
@@ -156,46 +156,44 @@
                 <div
                   v-for="element in evnGroupList"
                   :key="element.id"
-                  class="env-item hover:bg-[rgb(var(--primary-1))]"
+                  class="env-item"
+                  :class="[activeGroupKey === element.id ? 'env-item-focus' : '']"
                   @click="handleListItemClickGroup(element)"
                 >
-                  <RenamePop
-                    :list="evnGroupList"
-                    :type="(showType as EnvAuthScopeEnum)"
-                    v-bind="groupPopVisible[element.id]"
-                    @cancel="handleRenameCancelGroup(element)"
-                    @submit="handleRenameCancelGroup(element, true)"
-                  >
-                    <div class="flex max-w-[100%] grow flex-row items-center justify-between">
-                      <a-tooltip :content="element.name">
-                        <div
-                          class="one-line-text"
-                          :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeGroupKey }"
-                          >{{ element.name }}</div
-                        >
-                      </a-tooltip>
-                      <div class="node-extra">
+                  <div class="flex max-w-[100%] grow flex-row items-center justify-between">
+                    <a-tooltip :content="element.name">
+                      <div
+                        class="one-line-text"
+                        :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeGroupKey }"
+                        >{{ element.name }}</div
+                      >
+                    </a-tooltip>
+                    <div class="env-item-actions">
+                      <RenamePop
+                        :list="evnGroupList"
+                        :type="(showType as EnvAuthScopeEnum)"
+                        v-bind="groupPopVisible[element.id]"
+                        @cancel="handleRenameCancelGroup(element)"
+                        @success="envSuccessCroupHandler(element)"
+                      >
                         <div class="flex flex-row items-center gap-[8px]">
-                          <MsButton
+                          <icon-drag-dot-vertical
                             v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-                            type="icon"
-                            class="drag-handle !mr-0 p-[2px]"
-                          >
-                            <MsIcon
-                              type="icon-icon_drag"
-                              size="16"
-                              class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                            />
-                          </MsButton>
+                            class="env-item-drag-icon drag-handle"
+                          />
                           <MsMoreAction
                             v-permission="['PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                             :list="groupMoreAction"
                             @select="(value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_GROUP)"
-                          />
+                          >
+                            <MsButton type="icon" size="mini" class="env-item-actions-btn">
+                              <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+                            </MsButton>
+                          </MsMoreAction>
                         </div>
-                      </div>
+                      </RenamePop>
                     </div>
-                  </RenamePop>
+                  </div>
                 </div>
               </VueDraggable>
             </div>
@@ -216,7 +214,11 @@
           @ok="successHandler"
         />
         <!-- 环境组 -->
-        <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" @save-or-update="handleUpdateEnvGroup" />
+        <EnvGroupBox
+          v-else-if="showType === 'PROJECT_GROUP'"
+          ref="envGroupBoxRef"
+          @save-or-update="handleUpdateEnvGroup"
+        />
       </template>
     </MsSplitBox>
   </div>
@@ -263,7 +265,6 @@
     groupListEnv,
     listEnv,
   } from '@/api/modules/project-management/envManagement';
-  import { deleteModule } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -273,10 +274,8 @@
     NEW_ENV_PARAM,
   } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
-  import { EnvListItem } from '@/models/projectManagement/environmental';
-  import { PopVisible } from '@/models/setting/usergroup';
+  import { EnvListItem, PopVisible } from '@/models/projectManagement/environmental';
   import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
 
   import { SortableEvent } from 'sortablejs';
@@ -322,6 +321,11 @@
   const envMoreAction = (isMock: boolean | undefined) => {
     return [
       {
+        label: t('common.rename'),
+        eventTag: 'rename',
+        permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
+      },
+      {
         label: t('common.export'),
         eventTag: 'export',
         permission: ['PROJECT_ENVIRONMENT:READ+EXPORT'],
@@ -355,6 +359,11 @@
 
   // 环境组moreAction
   const groupMoreAction: ActionsItem[] = [
+    {
+      label: t('common.rename'),
+      eventTag: 'rename',
+      permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
+    },
     {
       label: t('common.delete'),
       danger: true,
@@ -589,22 +598,27 @@
   function changeShowType(value: string | number | boolean) {
     if (value === 'PROJECT_GROUP') {
       initGroupList(keyword.value, true);
-      // store.setCurrentGroupId('');
     }
   }
 
-  const handleRenameCancel = (element: EnvListItem, shouldSearch?: boolean) => {
-    if (shouldSearch) {
-      initData();
-    }
+  const handleRenameCancel = async (element: EnvListItem) => {
     popVisible.value[element.id].visible = false;
   };
 
-  const handleRenameCancelGroup = (element: EnvListItem, shouldSearch?: boolean) => {
-    if (shouldSearch) {
-      initGroupList();
-    }
+  async function envSuccessHandler() {
+    initData();
+    store.initEnvDetail();
+  }
+
+  const envGroupBoxRef = ref();
+
+  const handleRenameCancelGroup = async (element: EnvListItem) => {
     groupPopVisible.value[element.id].visible = false;
+  };
+
+  const envSuccessCroupHandler = async (element: EnvListItem) => {
+    await initGroupList();
+    envGroupBoxRef.value.initDetail(element.id);
   };
 
   const handleListItemClick = (element: EnvListItem) => {
@@ -644,6 +658,17 @@
           handleGlobalImport();
         } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
           handleEnvImport();
+        }
+        break;
+      case 'rename':
+        if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_GROUP) {
+          const tmpObj = evnGroupList.value.filter((ele) => ele.id === id)[0];
+          const visibleItem = { visible: true, defaultName: tmpObj.name, id };
+          groupPopVisible.value[id] = visibleItem;
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT_PARAM) {
+          const tmpObj = envList.value.filter((ele) => ele.id === id)[0];
+          const visibleItem = { visible: true, defaultName: tmpObj.name, id };
+          popVisible.value[id] = visibleItem;
         }
         break;
       default:
@@ -688,24 +713,36 @@
   .env-item {
     display: flex;
     align-items: center;
-    padding: 7px 8px;
-    height: 38px;
+    padding: 8px 4px;
     box-sizing: border-box;
-    border-radius: 4px;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
-    .node-extra {
-      opacity: 0;
-      &:hover {
-        opacity: 1;
-      }
-    }
     &:hover {
-      .node-extra {
-        opacity: 1;
+      background-color: rgb(var(--primary-1));
+      .ms-list-drag-icon {
+        @apply visible;
+      }
+      .env-item-actions {
+        @apply visible;
       }
     }
-    :active {
-      color: rgb(var(--primary-5));
+    .ms-list-drag-icon {
+      @apply invisible cursor-move;
+    }
+    .env-item-actions {
+      @apply invisible flex items-center justify-end;
+      .env-item-actions-btn {
+        @apply !mr-0;
+
+        padding: 4px;
+        border-radius: var(--border-radius-mini);
+      }
+    }
+  }
+  .env-item-focus {
+    background-color: rgb(var(--primary-1));
+    .env-item-actions {
+      @apply visible;
     }
   }
   .env-row {

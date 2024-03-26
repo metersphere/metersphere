@@ -6,7 +6,7 @@
         height: 'calc(100vh - 490px)',
       }"
     >
-      <conditionContent v-model:data="condition" />
+      <conditionContent v-model:data="condition" :disabled="props.disabled" />
     </a-scrollbar>
   </div>
 </template>
@@ -26,7 +26,7 @@
 
   interface ScriptTabProps {
     data: any;
-    // disabled?: boolean;
+    disabled?: boolean;
   }
 
   const props = defineProps<ScriptTabProps>();

@@ -1,30 +1,26 @@
 <template>
-  <a-popover
+  <a-popconfirm
     ref="popoverRef"
     :popup-visible="currentVisible"
-    position="bl"
+    position="bottom"
     trigger="click"
-    class="w-[277px]"
+    class="ms-pop-confirm--hidden-icon"
     :content-class="props.id ? 'move-left' : ''"
+    :ok-loading="loading"
+    :cancel-button-props="{ disabled: loading }"
+    @popup-visible-change="reset"
   >
     <template #content>
+      <div class="mb-[1px] text-[14px] font-medium text-[var(--color-text-1)]">{{
+        props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
+      }}</div>
       <div v-outer="handleOutsideClick">
         <div class="form">
-          <a-form
-            ref="formRef"
-            :model="form"
-            size="large"
-            layout="vertical"
-            :label-col-props="{ span: 0 }"
-            :wrapper-col-props="{ span: 24 }"
-          >
-            <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{
-              props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
-            }}</div>
+          <a-form ref="formRef" :model="form" layout="vertical">
             <a-form-item field="name" :rules="[{ validator: validateName }]">
               <a-input
                 v-model="form.name"
-                class="w-[243px]"
+                class="w-[245px]"
                 :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
                 allow-clear
                 :max-length="255"
@@ -34,7 +30,7 @@
             </a-form-item>
           </a-form>
         </div>
-        <div class="flex flex-row flex-nowrap justify-end gap-2">
+        <!-- <div class="mb-1 mt-4 flex flex-row flex-nowrap justify-end gap-2">
           <a-button type="secondary" size="mini" :disabled="loading" @click="handleCancel">
             {{ t('common.cancel') }}
           </a-button>
@@ -45,47 +41,52 @@
             :disabled="form.name.length === 0"
             @click="handleBeforeOk"
           >
-            {{ props.id ? t('common.rename') : t('common.create') }}
+            {{ t('common.confirm') }}
           </a-button>
-        </div>
+        </div> -->
       </div>
     </template>
     <slot></slot>
-  </a-popover>
+  </a-popconfirm>
 </template>
 
 <script lang="ts" setup>
   import { reactive, ref, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
-  import { updateOrAddOrgUserGroup, updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
+  import {
+    getGroupDetailEnv,
+    groupAddEnv,
+    groupUpdateEnv,
+    updateOrAddEnv,
+  } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
-  import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
+  import { EnvAuthScopeEnum } from '@/enums/envEnum';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
-
+  const store = useProjectEnvStore();
   const props = defineProps<{
     id?: string;
     list: EnvListItem[];
     visible?: boolean;
     defaultName?: string;
+    description?: string;
     type: EnvAuthScopeEnum;
   }>();
-  const systemType = ref(props.type);
+
   const emit = defineEmits<{
     (e: 'cancel', value: boolean): void;
-    (e: 'submit', currentId: string): void;
+    (e: 'success'): void;
   }>();
 
   const formRef = ref<FormInstance>();
   const currentVisible = ref(props.visible);
-  // trigger相关变量
 
   const form = reactive({
     name: '',
@@ -122,29 +123,33 @@
       if (errors) {
         return false;
       }
+      // let res: EnvListItem;
       try {
         loading.value = true;
-        let res: EnvListItem | undefined;
-        if (systemType.value === EnvAuthScopeEnum.PROJECT) {
-          res = await updateOrAddUserGroup({ id: props.id, name: form.name });
-        } else if (systemType.value === EnvAuthScopeEnum.PROJECT_GROUP) {
-          // 组织用户组
-          res = await updateOrAddOrgUserGroup({
-            id: props.id,
-            name: form.name,
-            scopeId: appStore.currentOrgId,
-          });
+
+        if (props.type === EnvAuthScopeEnum.PROJECT) {
+          await updateOrAddEnv({ fileList: [], request: { ...store.currentEnvDetailInfo, name: form.name } });
         } else {
-          // 项目用户组 项目用户组只有创建
-          res = await updateOrAddProjectUserGroup({ name: form.name });
+          const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
+          if (id) {
+            const detail: Record<string, any> = await getGroupDetailEnv(id);
+            const envGroupProject = detail?.environmentGroupInfo.filter(
+              (item: any) => item.projectId && item.environmentId
+            );
+            const params = {
+              id,
+              name: form.name,
+              description: detail.description,
+              projectId: appStore.currentProjectId,
+              envGroupProject,
+            };
+
+            await groupUpdateEnv(params);
+          }
         }
-        if (res) {
-          Message.success(
-            props.id ? t('system.userGroup.updateUserGroupSuccess') : t('system.userGroup.addUserGroupSuccess')
-          );
-          emit('submit', res.id);
-          handleCancel();
-        }
+        Message.success(t('project.fileManagement.renameSuccess'));
+        emit('success');
+        handleCancel();
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -153,6 +158,7 @@
       }
     });
   };
+
   watchEffect(() => {
     currentVisible.value = props.visible;
     form.name = props.defaultName || '';
@@ -163,11 +169,20 @@
       handleCancel();
     }
   };
+  function reset(val: boolean) {
+    if (!val) {
+      form.name = '';
+      formRef.value?.resetFields();
+    }
+  }
 </script>
 
 <style lang="less">
   .move-left {
     position: relative;
     right: 22px;
+  }
+  :deep(.arco-trigger-content) {
+    padding: 16px;
   }
 </style>

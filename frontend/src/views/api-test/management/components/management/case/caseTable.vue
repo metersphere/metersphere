@@ -434,7 +434,6 @@
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
-      width: 150,
     },
     {
       title: 'case.lastReportStatus',
@@ -711,6 +710,7 @@
             await deleteCase(record?.id as string);
           }
           Message.success(t('common.deleteSuccess'));
+          resetSelector();
           loadCaseListAndResetSelector();
           if (typeof refreshModuleTree === 'function') {
             refreshModuleTree();
@@ -832,6 +832,7 @@
           });
           Message.success(t('common.updateSuccess'));
           cancelBatchEdit();
+          resetSelector();
           loadCaseListAndResetSelector();
         } catch (error) {
           // eslint-disable-next-line no-console
