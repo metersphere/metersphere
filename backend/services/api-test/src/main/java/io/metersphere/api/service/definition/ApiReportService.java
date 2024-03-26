@@ -177,6 +177,7 @@ public class ApiReportService {
         ApiReport apiReport = checkResource(id);
         BeanUtils.copyBean(apiReportDTO, apiReport);
         //查询console
+        apiReportDTO.setTotal(apiReportDTO.getErrorCount() + apiReportDTO.getSuccessCount() + apiReportDTO.getPendingCount() + apiReportDTO.getFakeErrorCount());
         ApiReportLogExample consoleExample = new ApiReportLogExample();
         consoleExample.createCriteria().andReportIdEqualTo(id);
         List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(consoleExample);

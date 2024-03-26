@@ -18,5 +18,7 @@ public class ApiReportDTO extends ApiReport {
     private String environmentName;
     @Schema(description = "创建人")
     private String creatUserName;
+    @Schema(description = "步骤总数")
+    private Long total;
 
 }

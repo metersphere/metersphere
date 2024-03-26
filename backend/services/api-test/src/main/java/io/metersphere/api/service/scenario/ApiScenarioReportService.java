@@ -189,6 +189,7 @@ public class ApiScenarioReportService {
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
         getStepTree(steps, scenarioReportStepMap);
         scenarioReportDTO.setStepTotal(steps.size());
+        scenarioReportDTO.setRequestTotal(scenarioReportDTO.getErrorCount() + scenarioReportDTO.getPendingCount() + scenarioReportDTO.getSuccessCount() + scenarioReportDTO.getFakeErrorCount());
         scenarioReportDTO.setChildren(steps);
         //控制台信息 console
         ApiScenarioReportLogExample example = new ApiScenarioReportLogExample();
