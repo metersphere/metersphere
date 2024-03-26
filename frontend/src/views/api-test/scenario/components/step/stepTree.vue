@@ -179,7 +179,7 @@
               <responseResult
                 :active-tab="ResponseComposition.BODY"
                 :request-result="props.stepResponses?.[step.id]"
-                :console="props.stepResponses?.[step.id].console"
+                :console="props.stepResponses?.[step.id]?.console"
                 :show-empty="false"
                 :is-edit="false"
                 is-definition

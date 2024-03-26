@@ -127,13 +127,6 @@
   .response-container {
     margin-top: 8px;
     height: calc(100% - 48px);
-    .response-header-pre {
-      @apply h-full overflow-auto bg-white;
-      .ms-scroll-bar();
-
-      padding: 8px 12px;
-      border-radius: var(--border-radius-small);
-    }
   }
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);

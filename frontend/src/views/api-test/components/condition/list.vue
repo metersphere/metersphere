@@ -7,7 +7,7 @@
     item-key-field="id"
     :disabled="props.disabled"
     :item-border="false"
-    class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
+    class="h-full overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
     item-class="mb-[4px] bg-white !p-[4px_8px]"
     :item-more-actions="moreActions"
     active-item-class="!bg-[rgb(var(--primary-1))] text-[rgb(var(--primary-5))]"

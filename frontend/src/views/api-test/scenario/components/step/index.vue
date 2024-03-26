@@ -124,11 +124,13 @@
   import stepTree from './stepTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { deleteNodes, filterTree, getGenerateId } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
   import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
   import { ScenarioExecuteStatus } from '@/enums/apiEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     isNew?: boolean; // 是否新建
@@ -138,6 +140,7 @@
   }>();
 
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
@@ -226,7 +229,9 @@
   }
 
   function checkReport() {
-    console.log('查看报告');
+    openNewPage(ApiTestRouteEnum.API_TEST_REPORT, {
+      reportId: scenario.value.reportId,
+    });
   }
 
   function refreshStepInfo() {

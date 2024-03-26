@@ -70,11 +70,11 @@
         ref="createRef"
         v-model:scenario="activeScenarioTab"
         :module-tree="folderTree"
-        @batch-debug="realExecute"
+        @batch-debug="realExecute($event, false)"
       ></create>
     </div>
     <div v-else class="pageWrap">
-      <detail v-model:scenario="activeScenarioTab" @batch-debug="realExecute"></detail>
+      <detail v-model:scenario="activeScenarioTab" @batch-debug="realExecute($event, false)"></detail>
     </div>
   </MsCard>
 </template>
@@ -102,6 +102,7 @@
   import {
     addScenario,
     debugScenario,
+    executeScenario,
     getScenarioDetail,
     getTrashModuleCount,
     updateScenario,
@@ -336,6 +337,7 @@
 
   async function realExecute(
     executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>,
+    isExecute?: boolean,
     executeType?: 'localExec' | 'serverExec',
     localExecuteUrl?: string
   ) {
@@ -348,17 +350,32 @@
       activeScenarioTab.value.executeFailCount = 0;
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
-      activeScenarioTab.value.isDebug = true;
-      const res = await debugScenario({
-        id: activeScenarioTab.value.id,
-        grouped: false,
-        environmentId: currentEnvConfig.value?.id || '',
-        projectId: appStore.currentProjectId,
-        scenarioConfig: activeScenarioTab.value.scenarioConfig,
-        uploadFileIds: activeScenarioTab.value.uploadFileIds,
-        linkFileIds: activeScenarioTab.value.linkFileIds,
-        ...executeParams,
-      });
+      activeScenarioTab.value.isDebug = !isExecute;
+      let res;
+      if (isExecute && executeType !== 'localExec') {
+        res = await executeScenario({
+          id: activeScenarioTab.value.id,
+          grouped: false,
+          environmentId: currentEnvConfig.value?.id || '',
+          projectId: appStore.currentProjectId,
+          scenarioConfig: activeScenarioTab.value.scenarioConfig,
+          uploadFileIds: activeScenarioTab.value.uploadFileIds,
+          linkFileIds: activeScenarioTab.value.linkFileIds,
+          ...executeParams,
+        });
+      } else {
+        res = await debugScenario({
+          id: activeScenarioTab.value.id,
+          grouped: false,
+          environmentId: currentEnvConfig.value?.id || '',
+          projectId: appStore.currentProjectId,
+          scenarioConfig: activeScenarioTab.value.scenarioConfig,
+          uploadFileIds: activeScenarioTab.value.uploadFileIds,
+          linkFileIds: activeScenarioTab.value.linkFileIds,
+          frontendDebug: executeType === 'localExec',
+          ...executeParams,
+        });
+      }
       if (executeType === 'localExec' && localExecuteUrl) {
         await localExecuteApiDebug(localExecuteUrl, res);
       }
@@ -385,6 +402,7 @@
         stepDetails: waitingDebugStepDetails,
         reportId: getGenerateId(),
       },
+      true,
       executeType,
       localExecuteUrl
     );

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
+  <div class="h-full overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
     <pre class="response-header-pre">{{ getResponsePreContent(props.activeTab) }}</pre>
   </div>
 </template>
@@ -8,8 +8,6 @@
   /**
    * @description (共用) 请求头 || 提取 || 真实请求
    */
-  import { ref } from 'vue';
-
   import { useI18n } from '@/hooks/useI18n';
 
   import { RequestResult } from '@/models/apiTest/common';
@@ -40,4 +38,12 @@
   }
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  .response-header-pre {
+    @apply h-full overflow-auto bg-white;
+    .ms-scroll-bar();
+
+    padding: 8px 12px;
+    border-radius: var(--border-radius-small);
+  }
+</style>
