@@ -63,6 +63,7 @@ export default {
   'project.menu.organizationId': 'Organization ID',
   'project.menu.azureId': 'Azure Filter ID',
   'project.menu.defectType': 'Defect Type',
+  'project.menu.demandType': 'Demand Type',
   'project.menu.howGetJiraKey': 'How to get JIRA project key',
   'project.menu.preview': 'Preview',
   'project.menu.pleaseInputJiraKey': 'Please enter JIRA project key',
