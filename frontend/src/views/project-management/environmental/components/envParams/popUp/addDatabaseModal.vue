@@ -222,6 +222,13 @@
       if (errors) {
         return;
       }
+      const isExist = store.currentEnvDetailInfo.config.dataSources.some(
+        (item) => item.dataSource === form.value.dataSource && item.id !== form.value.id
+      );
+      if (isExist) {
+        Message.error(t('project.environmental.database.nameIsExist'));
+        return;
+      }
       const { driverId } = form.value;
       try {
         const index = store.currentEnvDetailInfo.config.dataSources.findIndex((item: any) => item.id === form.value.id);
@@ -230,7 +237,6 @@
         } else if (index > -1 && props.isCopy) {
           const insertItem = {
             ...form.value,
-            dataSource: `copy_${form.value.dataSource}`,
             id: getGenerateId(),
             driver: driverOption.value.find((item) => item.value === driverId)?.label,
           };
@@ -262,12 +268,20 @@
         (item) => item.id === props.currentId
       ) as DataSourceItem;
       if (currentItem) {
-        form.value = {
-          ...currentItem,
-        };
+        if (props.isCopy) {
+          form.value = {
+            ...currentItem,
+            id: '',
+            dataSource: `copy_${currentItem.dataSource}`,
+          };
+        } else {
+          form.value = {
+            ...currentItem,
+          };
+        }
+      } else {
+        formReset();
       }
-    } else {
-      formReset();
     }
   });
 </script>

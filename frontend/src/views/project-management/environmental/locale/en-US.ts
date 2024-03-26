@@ -123,4 +123,5 @@ export default {
   'project.environmental.env.deleteGroup': 'Whether to delete the environment group `{name}`？',
   'project.environmental.env.deleteGroupTip':
     'Deleting it will cause scenes that reference this environment group to fail to execute properly!',
+  'project.environmental.database.nameIsExist': 'Database name already exists',
 };
