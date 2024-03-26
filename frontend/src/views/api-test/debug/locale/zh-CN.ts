@@ -182,4 +182,5 @@ export default {
   'apiTestDebug.noPluginTip': '该插件已卸载，无法查看插件详情',
   'apiTestDebug.noPlugin': '插件已卸载',
   'apiTestDebug.unsavedLeave': '有标签页的内容未保存，离开后后未保存的内容将丢失，确定要离开吗？',
+  'apiTestDebug.searchByDataBaseName': '按数据源名称搜索',
 };
