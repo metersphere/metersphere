@@ -93,7 +93,12 @@
     <!-- xPath开始 -->
     <div v-if="activeTab === ResponseBodyAssertionType.XPATH" class="mt-[16px]">
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
-      <a-radio-group v-model="activeResponseFormat" class="mb-[16px] mt-[16px]" type="button" size="small">
+      <a-radio-group
+        v-model="condition.xpathAssertion.responseFormat"
+        class="mb-[16px] mt-[16px]"
+        type="button"
+        size="small"
+      >
         <a-radio key="XML" value="XML">XML</a-radio>
         <a-radio key="HTML" value="HTML">HTML</a-radio>
       </a-radio-group>
