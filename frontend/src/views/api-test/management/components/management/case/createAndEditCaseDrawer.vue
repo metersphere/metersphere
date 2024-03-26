@@ -256,8 +256,8 @@
           }
           emit('loadCase', id as string);
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
+          drawerLoading.value = false;
+          return;
         }
         if (!isContinue) {
           handleSaveCaseCancel();
