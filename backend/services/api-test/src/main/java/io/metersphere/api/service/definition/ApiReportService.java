@@ -187,12 +187,14 @@ public class ApiReportService {
         //查询资源池名称
         apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
         //查询环境名称
+        String environmentName = Translator.get("api_report_default_env");
         if (StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId())) {
             Environment environment = environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId());
             if (environment != null) {
-                apiReportDTO.setEnvironmentName(environment.getName());
+                environmentName = environment.getName();
             }
         }
+        apiReportDTO.setEnvironmentName(environmentName);
         apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());
         //需要查询出所有的步骤
         if (BooleanUtils.isTrue(apiReport.getIntegrated())) {

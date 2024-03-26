@@ -201,12 +201,14 @@ public class ApiScenarioReportService {
         //查询资源池名称
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
         //查询环境名称
+        String environmentName = Translator.get("api_report_default_env");
         if (StringUtils.isNotBlank(scenarioReport.getEnvironmentId())) {
             Environment environment = environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId());
             if (environment != null) {
-                scenarioReportDTO.setEnvironmentName(environment.getName());
+                environmentName = environment.getName();
             }
         }
+        scenarioReportDTO.setEnvironmentName(environmentName);
         scenarioReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(scenarioReport.getCreateUser()).getName());
         return scenarioReportDTO;
     }

@@ -10,7 +10,7 @@
       <div class="text-[var(--color-text-1)]">{{ t('apiTestDebug.sourceList') }}</div>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('project.projectVersion.searchPlaceholder')"
+        :placeholder="t('apiTestDebug.searchByDataBaseName')"
         class="w-[230px]"
         allow-clear
         @search="searchDataSource"
