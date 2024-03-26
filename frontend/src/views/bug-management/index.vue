@@ -202,7 +202,7 @@
     v-model:visible="batchEditVisible"
     :select-param="currentSelectParams"
     :custom-fields="customFields"
-    @submit="fetchData"
+    @submit="batchEditConfirm"
   />
 </template>
 
@@ -577,6 +577,11 @@
     }
   };
 
+  const batchEditConfirm = () => {
+    resetSelector();
+    fetchData();
+  };
+
   const handleCreate = () => {
     router.push({
       name: RouteEnum.BUG_MANAGEMENT_DETAIL,
@@ -716,6 +721,7 @@
           };
           await deleteBatchBug(tmpObj);
           Message.success(t('common.deleteSuccess'));
+          resetSelector();
           fetchData();
         } catch (error) {
           // eslint-disable-next-line no-console
