@@ -21,6 +21,7 @@ import {
   ExecuteApiRequestFullParams,
   ExecuteAssertionItem,
   ExecuteConditionConfig,
+  RequestResult,
   ResponseDefinition,
 } from './common';
 
@@ -320,7 +321,6 @@ export interface ScenarioStepItem {
   id: string | number;
   sort: number;
   name: string;
-  executeStatus?: ScenarioExecuteStatus;
   enable: boolean; // 是否启用
   copyFromStepId?: string; // 如果步骤是复制的，这个字段是复制的步骤id；如果复制的步骤也是复制的，并且没有加载过详情，则这个 id 是最原始的 被复制的步骤 id
   resourceId?: string; // 详情或者引用的类型才有
@@ -337,9 +337,11 @@ export interface ScenarioStepItem {
   checked?: boolean; // 是否选中
   expanded?: boolean; // 是否展开
   createActionsVisible?: boolean; // 是否展示创建步骤下拉
+  responsePopoverVisible?: boolean; // 是否展示步骤响应 popover
   parent?: ScenarioStepItem; // 父级节点，第一层的父级节点为undefined
   resourceName?: string; // 引用复制接口、用例、场景时的源资源名称
   method?: RequestMethods;
+  executeStatus?: ScenarioExecuteStatus;
 }
 // 场景
 export interface Scenario {
@@ -367,11 +369,12 @@ export interface Scenario {
   unSaved: boolean;
   executeLoading: boolean; // 执行loading
   executeTime?: string | number; // 执行时间
-  executeSuccessCount?: number; // 执行成功数量
-  executeFailCount?: number; // 执行失败数量
+  executeSuccessCount: number; // 执行成功数量
+  executeFailCount: number; // 执行失败数量
   reportId?: string | number; // 场景报告 id
-  stepReportId?: string | number; // 步骤报告 id（单个或批量调试）
+  stepResponses: Record<string | number, RequestResult>; // 步骤响应集合，key 为步骤 id，value 为步骤响应内容
   isExecute?: boolean; // 是否从列表执行进去场景详情
+  isDebug?: boolean; // 是否调试，区分执行场景和批量调试步骤
 }
 export interface ScenarioDetail extends Scenario {
   stepTotal: number;

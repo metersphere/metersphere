@@ -19,6 +19,7 @@
     </div>
   </div>
   <a-empty
+    v-if="props.showEmpty"
     v-show="!props.requestResult?.responseResult.responseCode"
     class="flex h-[150px] items-center gap-[16px] p-[16px]"
   >
@@ -55,14 +56,20 @@
   import { RequestResult } from '@/models/apiTest/common';
   import { ResponseComposition } from '@/enums/apiEnum';
 
-  const props = defineProps<{
-    requestResult?: RequestResult;
-    console?: string;
-    isPriorityLocalExec: boolean;
-    requestUrl?: string;
-    isHttpProtocol: boolean;
-    isDefinition?: boolean;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      requestResult?: RequestResult;
+      console?: string;
+      isPriorityLocalExec: boolean;
+      requestUrl?: string;
+      isHttpProtocol?: boolean;
+      isDefinition?: boolean;
+      showEmpty?: boolean;
+    }>(),
+    {
+      showEmpty: true,
+    }
+  );
   const emit = defineEmits(['execute']);
 
   const { t } = useI18n();

@@ -7,7 +7,12 @@
           :title="t('apiScenario.step')"
           class="scenario-create-tab-pane"
         >
-          <step v-if="activeKey === ScenarioCreateComposition.STEP" v-model:scenario="scenario" is-new />
+          <step
+            v-if="activeKey === ScenarioCreateComposition.STEP"
+            v-model:scenario="scenario"
+            is-new
+            @batch-debug="emit('batchDebug', $event)"
+          />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioCreateComposition.PARAMS"
@@ -171,7 +176,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { Scenario } from '@/models/apiTest/scenario';
+  import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { ApiScenarioStatus, ScenarioCreateComposition } from '@/enums/apiEnum';
 
@@ -186,6 +191,9 @@
 
   const props = defineProps<{
     moduleTree: ModuleTreeNode[]; // 模块树
+  }>();
+  const emit = defineEmits<{
+    (e: 'batchDebug', data: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>): void;
   }>();
 
   const { t } = useI18n();

@@ -63,6 +63,7 @@ export const defaultStepItemCommon = {
     enable: true,
   },
   createActionsVisible: false,
+  responsePopoverVisible: false,
 };
 
 export const defaultScenario: Scenario = {
@@ -112,6 +113,8 @@ export const defaultScenario: Scenario = {
   isNew: true,
   unSaved: false,
   executeLoading: false, // 执行loading
+  isDebug: false,
+  stepResponses: {},
 };
 
 export const conditionOptions = [

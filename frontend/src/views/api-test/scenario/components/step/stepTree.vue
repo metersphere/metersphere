@@ -168,7 +168,33 @@
           />
         </template>
         <template #extraEnd="step">
-          <executeStatus v-if="step.executeStatus" :status="step.executeStatus" size="small" />
+          <a-popover
+            v-if="step.executeStatus"
+            position="br"
+            content-class="scenario-step-response-popover"
+            @popup-visible-change="handleResponsePopoverVisibleChange($event, step)"
+          >
+            <executeStatus :status="getExecuteStatus(step) || step.executeStatus" size="small" />
+            <template #content>
+              <responseResult
+                :active-tab="ResponseComposition.BODY"
+                :request-result="props.stepResponses?.[step.id]"
+                :console="props.stepResponses?.[step.id].console"
+                :show-empty="false"
+                :is-edit="false"
+                is-definition
+              >
+                <template #titleLeft>
+                  <div class="flex items-center text-[14px]">
+                    <div class="font-medium text-[var(--color-text-1)]">{{ t('apiScenario.response') }}</div>
+                    <a-tooltip :content="step.name">
+                      <div class="one-line-text">({{ step.name }})</div>
+                    </a-tooltip>
+                  </div>
+                </template>
+              </responseResult>
+            </template>
+          </a-popover>
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
           <div
@@ -192,6 +218,7 @@
       :env-detail-item="{ id: 'demp-id-112233', projectId: '123456', name: 'demo环境' }"
       :request="currentStepDetail"
       :step="activeStep"
+      :step-responses="props.stepResponses"
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
     />
@@ -199,6 +226,7 @@
       v-model:visible="customCaseDrawerVisible"
       :active-step="activeStep"
       :request="currentStepDetail"
+      :step-responses="props.stepResponses"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep"
     />
@@ -266,6 +294,7 @@
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import responseResult from '@/views/api-test/components/requestComposition/response/index.vue';
 
   import { getScenarioStep } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
@@ -280,9 +309,15 @@
     TreeNode,
   } from '@/utils';
 
-  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { ExecuteConditionProcessor, RequestResult } from '@/models/apiTest/common';
   import { CreateStepAction, ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
+  import {
+    ResponseComposition,
+    ScenarioAddStepActionType,
+    ScenarioExecuteStatus,
+    ScenarioStepRefType,
+    ScenarioStepType,
+  } from '@/enums/apiEnum';
 
   import type { RequestParam } from '../common/customApiDrawer.vue';
   import useCreateActions from './createAction/useCreateActions';
@@ -299,6 +334,10 @@
   const props = defineProps<{
     stepKeyword: string;
     expandAll?: boolean;
+    stepResponses?: Record<string | number, RequestResult>;
+  }>();
+  const emit = defineEmits<{
+    (e: 'updateResource', uploadFileIds: string[], linkFileIds: string[]): void;
   }>();
 
   const appStore = useAppStore();
@@ -314,11 +353,31 @@
   const stepDetails = defineModel<Record<string, any>>('stepDetails', {
     required: true,
   });
+  const scenarioExecuteLoading = inject<Ref<boolean>>('scenarioExecuteLoading');
 
   const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
-  const focusStepKey = ref<string>(''); // 聚焦的key
+  const focusStepKey = ref<string | number>(''); // 聚焦的key
+
+  function setFocusNodeKey(id: string | number) {
+    focusStepKey.value = id || '';
+  }
+
+  function getExecuteStatus(step: ScenarioStepItem) {
+    if (props.stepResponses && props.stepResponses[step.id]) {
+      return props.stepResponses[step.id].isSuccessful ? ScenarioExecuteStatus.SUCCESS : ScenarioExecuteStatus.FAILED;
+    }
+    return step.executeStatus;
+  }
+
+  function handleResponsePopoverVisibleChange(visible: boolean, step: ScenarioStepItem) {
+    if (visible) {
+      setFocusNodeKey(step.id);
+    } else {
+      setFocusNodeKey('');
+    }
+  }
 
   /**
    * 根据步骤类型获取步骤内容组件
@@ -340,10 +399,6 @@
       default:
         return () => null;
     }
-  }
-
-  function setFocusNodeKey(id: string) {
-    focusStepKey.value = id || '';
   }
 
   function checkStepIsApi(step: ScenarioStepItem) {
@@ -630,6 +685,9 @@
   }
 
   function executeStep(node: MsTreeNodeData) {
+    if (scenarioExecuteLoading?.value) {
+      return;
+    }
     console.log('执行步骤', node);
   }
 
@@ -721,6 +779,7 @@
   function addCustomApiStep(request: RequestParam) {
     request.isNew = false;
     stepDetails.value[request.stepId] = request;
+    emit('updateResource', request.uploadFileIds, request.linkFileIds);
     if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
         {
@@ -761,6 +820,7 @@
     if (activeStep.value) {
       request.isNew = false;
       stepDetails.value[activeStep.value?.id] = request;
+      emit('updateResource', request.uploadFileIds, request.linkFileIds);
       activeStep.value = undefined;
     }
   }
@@ -946,6 +1006,27 @@
   .step-tree-active-action {
     color: rgb(var(--primary-5));
     background-color: rgb(var(--primary-1));
+  }
+  .scenario-step-response-popover {
+    width: 500px;
+    height: 450px;
+    .arco-popover-content {
+      @apply h-full;
+      .response {
+        .response-head {
+          background-color: var(--color-text-n9);
+        }
+
+        border: 1px solid var(--color-text-n8);
+        border-radius: var(--border-radius-small);
+        .arco-spin {
+          padding: 0;
+          .response-container {
+            padding: 0 16px 14px;
+          }
+        }
+      }
+    }
   }
 </style>
 

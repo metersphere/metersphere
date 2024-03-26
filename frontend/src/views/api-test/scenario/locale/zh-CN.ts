@@ -136,6 +136,8 @@ export default {
   'apiScenario.allStep': '所有子步骤',
   'apiScenario.saveAsApi': '保存为新接口',
   'apiScenario.scenarioLevel': '场景等级',
+  'apiScenario.running': '执行中',
+  'apiScenario.response': '响应内容',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',
