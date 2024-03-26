@@ -109,7 +109,7 @@
   }
 
   function validateTagsCountBlur() {
-    if (tagsLength.value >= 10) {
+    if (tagsLength.value > 10) {
       Message.warning(t('common.tagCountMax'));
       return false;
     }

@@ -784,9 +784,9 @@
           // value: 'PRIORITY',
           //    value: 'STATUS',
           const batchEditParam = {
-            selectIds: batchParams.value?.selectedIds || [],
+            selectIds: batchParams.value?.selectAll ? [] : batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
-            excludeIds: batchParams.value?.excludeIds || [],
+            excludeIds: batchParams.value?.selectAll ? [] : batchParams.value?.excludeIds || [],
             condition: { keyword: keyword.value },
             projectId: appStore.currentProjectId,
             moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],

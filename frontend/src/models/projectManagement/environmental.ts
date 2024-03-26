@@ -170,3 +170,12 @@ export interface EnvironmentItem {
   description: string;
   pos: number;
 }
+
+export interface PopVisibleItem {
+  id?: string;
+  visible: boolean;
+  defaultName: string;
+}
+export interface PopVisible {
+  [key: string]: PopVisibleItem;
+}

@@ -300,7 +300,7 @@ export default function useTableProps<T>(
       // 当前是跨页全部选中状态，则取消当前页的选中项
       propsRes.value.data.forEach((item) => {
         propsRes.value.selectedKeys.delete(item.id);
-        propsRes.value.excludeKeys.add(item.id);
+        propsRes.value.excludeKeys.delete(item.id);
       });
     } else {
       // 当前是当前页选中状态，则清空选中项
