@@ -6,6 +6,7 @@ import {
   GetCommonScriptDetailUrl,
   GetCommonScriptPageUrl,
   GetCommonScriptStatusUrl,
+  GetCustomFuncColumnsOptionUrl,
   GetFormApiImportModuleCountUrl,
   GetFormApiImportPageListUrl,
   GetFormApiImportUrl,
@@ -21,6 +22,7 @@ import type {
   CommonScriptItem,
   TestScriptType,
 } from '@/models/projectManagement/commonScript';
+import { CustomFuncColumnOptionItem } from '@/models/projectManagement/commonScript';
 
 // 获取公共脚本列表
 export function getCommonScriptPage(data: TableQueryParams) {
@@ -54,6 +56,13 @@ export function getCommonScriptStatus(data: AddOrUpdateCommonScript) {
 // 获取插入脚本列表
 export function getInsertCommonScriptPage(data: TableQueryParams) {
   return MSR.post<CommonList<CommonScriptItem[]>>({ url: GetInsertCommonScriptPageUrl, data });
+}
+
+/**
+ * 表格筛选字段的数据查询
+ */
+export function getCustomFuncColumnOption(projectId: string) {
+  return MSR.get<CustomFuncColumnOptionItem>({ url: `${GetCustomFuncColumnsOptionUrl}${projectId}` });
 }
 
 // 获取从Api导入

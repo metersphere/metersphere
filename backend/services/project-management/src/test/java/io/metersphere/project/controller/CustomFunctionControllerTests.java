@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author: LAN
@@ -49,6 +47,8 @@ public class CustomFunctionControllerTests extends BaseTest {
     private final static String PAGE = BASE_PATH + "page";
     private static final String DETAIL = BASE_PATH + "detail/";
     private static final String STATUS = BASE_PATH + "status";
+
+    private static final String COLUMNS_OPTION = BASE_PATH + "columns-option/";
 
     private static CustomFunction customFunction;
 
@@ -330,6 +330,15 @@ public class CustomFunctionControllerTests extends BaseTest {
         filters.put("status", List.of("UNDERWAY"));
         filters.put("tags", List.of("tag1"));
         request.setFilter(filters);
+    }
+
+    @Test
+    @Order(10)
+    public void columnsOption() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(COLUMNS_OPTION + DEFAULT_PROJECT_ID);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FUNCTION_READ, COLUMNS_OPTION + "/" + DEFAULT_PROJECT_ID);
     }
 
     @Test

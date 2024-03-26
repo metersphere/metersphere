@@ -359,8 +359,11 @@ public class UserService {
      */
     private void checkProcessUserAndThrowException(List<String> userIdList, String operatorId, String operatorName, String exceptionMessage) {
         for (String userId : userIdList) {
-            if (StringUtils.equalsAny(userId, "admin", operatorId)) {
+            //当前用户或admin不能被操作
+            if (StringUtils.equals(userId, operatorId)) {
                 throw new MSException(exceptionMessage + ":" + operatorName);
+            } else if (StringUtils.equals(userId, "admin")) {
+                throw new MSException(exceptionMessage + ": admin");
             }
         }
     }

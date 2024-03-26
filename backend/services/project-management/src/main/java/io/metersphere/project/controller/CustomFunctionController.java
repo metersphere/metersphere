@@ -3,6 +3,7 @@ package io.metersphere.project.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.project.domain.CustomFunction;
+import io.metersphere.project.dto.customfunction.CustomFuncColumnsOptionDTO;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
@@ -46,6 +47,14 @@ public class CustomFunctionController {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, customFunctionService.getPage(request));
+    }
+
+    @GetMapping("/columns-option/{projectId}")
+    @Operation(summary = "项目管理-公共脚本-请求头筛选相关选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public CustomFuncColumnsOptionDTO getColumnsOption(@PathVariable String projectId) {
+        return customFunctionService.getColumnsOption(projectId);
     }
 
     @GetMapping("/detail/{id}")

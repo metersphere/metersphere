@@ -6,6 +6,12 @@ export interface CommonScriptMenu {
   command?: string;
 }
 
+export interface CustomFuncColumnOptionItem {
+  userOption: {
+    value: string; // 缺陷id
+    text: string; // 缺陷编号
+  }[]; // 用户相关下拉选项
+}
 // 脚本列表
 export interface CommonScriptItem {
   id: string;

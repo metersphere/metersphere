@@ -54,6 +54,10 @@
                             and c.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='createUser'">
+                            and c.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
             </foreach>
