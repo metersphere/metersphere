@@ -33,29 +33,33 @@
         <slot name="title" v-bind="_props"></slot>
       </template>
       <template v-if="$slots['extra'] || props.nodeMoreActions" #extra="_props">
-        <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
-          <slot name="extra" v-bind="_props"></slot>
-          <MsTableMoreAction
-            v-if="props.nodeMoreActions"
-            :list="
-              typeof props.filterMoreActionFunc === 'function'
-                ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
-                : props.nodeMoreActions
-            "
-            trigger="click"
-            @select="handleNodeMoreSelect($event, _props)"
-            @close="moreActionsClose"
-          >
-            <MsButton
-              type="text"
-              :size="props.nodeMoreActionSize || 'mini'"
-              class="ms-tree-node-extra__more"
-              @click="focusNodeKey = _props[props.fieldNames.key]"
+        <div class="sticky right-0 flex items-center justify-between">
+          <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
+            <slot name="extra" v-bind="_props"></slot>
+            <MsTableMoreAction
+              v-if="props.nodeMoreActions"
+              :list="
+                typeof props.filterMoreActionFunc === 'function'
+                  ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
+                  : props.nodeMoreActions
+              "
+              trigger="click"
+              @select="handleNodeMoreSelect($event, _props)"
+              @close="moreActionsClose"
             >
-              <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </MsTableMoreAction>
-          <slot name="extraEnd" v-bind="_props"></slot>
+              <MsButton
+                type="text"
+                :size="props.nodeMoreActionSize || 'mini'"
+                class="ms-tree-node-extra__more"
+                @click="focusNodeKey = _props[props.fieldNames.key]"
+              >
+                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+              </MsButton>
+            </MsTableMoreAction>
+          </div>
+          <div class="ms-tree-node-extra-end">
+            <slot name="extraEnd" v-bind="_props"></slot>
+          </div>
         </div>
       </template>
     </a-tree>
@@ -412,6 +416,9 @@
               }
             }
           }
+          .ms-tree-node-extra {
+            @apply visible w-auto;
+          }
         }
         .arco-tree-node-indent-block {
           width: 1px;
@@ -459,7 +466,7 @@
           width: 60%;
         }
         .ms-tree-node-extra {
-          @apply invisible relative sticky right-0 flex w-0 items-center;
+          @apply invisible flex w-0 items-center;
 
           margin-left: -4px;
           height: 32px;
@@ -482,6 +489,9 @@
           .ms-tree-node-extra__more {
             margin-right: 4px;
           }
+        }
+        .ms-tree-node-extra-end {
+          @apply flex items-center;
         }
         .arco-tree-node-custom-icon {
           @apply hidden;

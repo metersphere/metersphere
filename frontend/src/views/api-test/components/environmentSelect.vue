@@ -43,6 +43,7 @@
       currentEnvConfig.value = {
         ...res,
         id: currentEnv.value,
+        name: envOptions.value.find((item) => item.value === currentEnv.value)?.label || '',
       };
     } catch (error) {
       // eslint-disable-next-line no-console

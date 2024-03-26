@@ -43,43 +43,45 @@
           </a-button>
         </template>
       </div>
-      <template v-if="scenario.executeTime">
-        <div class="action-group">
-          <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
-          <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
-        </div>
-        <div class="action-group">
-          <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
-          <div class="flex items-center gap-[4px]">
-            <div class="text-[var(--color-text-1)]">{{ t('common.success') }}</div>
-            <div class="text-[rgb(var(--success-6))]">{{ scenario.executeSuccessCount }}</div>
+      <div class="action-group ml-auto">
+        <template v-if="scenario.executeTime">
+          <div class="action-group">
+            <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
+            <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
           </div>
-          <div class="flex items-center gap-[4px]">
-            <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
-            <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
+          <div class="action-group">
+            <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
+            <div class="flex items-center gap-[4px]">
+              <div class="text-[var(--color-text-1)]">{{ t('common.success') }}</div>
+              <div class="text-[rgb(var(--success-6))]">{{ scenario.executeSuccessCount }}</div>
+            </div>
+            <div class="flex items-center gap-[4px]">
+              <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
+              <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
+            </div>
+            <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
+              {{ t('apiScenario.checkReport') }}
+            </MsButton>
           </div>
-          <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
-            {{ t('apiScenario.checkReport') }}
-          </MsButton>
+        </template>
+        <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
+          <a-input
+            v-model:model-value="keyword"
+            :placeholder="t('apiScenario.searchByName')"
+            allow-clear
+            class="w-[200px]"
+          />
+          <a-button
+            v-if="!props.isNew"
+            type="outline"
+            class="arco-btn-outline--secondary !mr-0 !p-[8px]"
+            @click="refreshStepInfo"
+          >
+            <template #icon>
+              <icon-refresh class="text-[var(--color-text-4)]" />
+            </template>
+          </a-button>
         </div>
-      </template>
-      <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
-        <a-input
-          v-model:model-value="keyword"
-          :placeholder="t('apiScenario.searchByName')"
-          allow-clear
-          class="w-[200px]"
-        />
-        <a-button
-          v-if="!props.isNew"
-          type="outline"
-          class="arco-btn-outline--secondary !mr-0 !p-[8px]"
-          @click="refreshStepInfo"
-        >
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
       </div>
     </div>
     <div class="h-[calc(100%-30px)]">
@@ -91,7 +93,6 @@
         v-model:scenario="scenario"
         :expand-all="isExpandAll"
         :step-details="scenario.stepDetails"
-        :step-responses="scenario.stepResponses"
         @update-resource="handleUpdateResource"
       />
     </div>

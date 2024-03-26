@@ -64,6 +64,7 @@ export const defaultStepItemCommon = {
   },
   createActionsVisible: false,
   responsePopoverVisible: false,
+  isExecuting: false,
 };
 
 export const defaultScenario: Scenario = {

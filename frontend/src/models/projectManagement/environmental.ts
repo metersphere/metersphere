@@ -62,6 +62,7 @@ export interface EnvConfig {
   postProcessorConfig: ProcessorConfig;
   assertionConfig: AssertionConfig;
   pluginConfigMap: EnvConfigItem;
+  name?: string;
 }
 export interface EnvDetailItem {
   id?: string;

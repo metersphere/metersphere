@@ -21,6 +21,7 @@
           {{ t('common.save') }}
         </a-button>
         <executeButton
+          ref="executeButtonRef"
           :execute-loading="activeScenarioTab.executeLoading"
           is-emit
           @execute="handleExecute"
@@ -172,6 +173,8 @@
   const activeFolder = ref<string>('all');
   const offspringIds = ref<string[]>([]);
   const isShowScenario = ref(false);
+  const executeButtonRef = ref<InstanceType<typeof executeButton>>();
+  const currentEnvConfig = ref<EnvConfig>();
 
   // 获取激活用例类型样式
   const getActiveClass = (type: string) => {
@@ -221,6 +224,7 @@
         const res = await addScenario({
           ...activeScenarioTab.value,
           projectId: appStore.currentProjectId,
+          environmentId: currentEnvConfig.value?.id || '',
         });
         const scenarioDetail = await getScenarioDetail(res.id);
         scenarioDetail.stepDetails = {};
@@ -241,6 +245,7 @@
       } else {
         await updateScenario({
           ...activeScenarioTab.value,
+          environmentId: currentEnvConfig.value?.id || '',
         });
       }
       Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
@@ -281,7 +286,6 @@
     }
   }
 
-  const currentEnvConfig = ref<EnvConfig>();
   const websocket = ref<WebSocket>();
   const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
 
@@ -352,7 +356,8 @@
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
       activeScenarioTab.value.isDebug = !isExecute;
       let res;
-      if (isExecute && executeType !== 'localExec') {
+      if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
+        // 执行场景且非本地执行且非未保存场景
         res = await executeScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
@@ -437,9 +442,11 @@
     }
   );
 
+  const isPriorityLocalExec = computed(() => executeButtonRef.value?.isPriorityLocalExec);
   const scenarioId = computed(() => activeScenarioTab.value.id);
   const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);
   // 为子孙组件提供属性
+  provide('isPriorityLocalExec', readonly(isPriorityLocalExec));
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);
