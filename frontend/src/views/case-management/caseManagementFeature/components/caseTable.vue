@@ -847,7 +847,6 @@
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
       selectable: true,
-      showJumpMethod: true,
       showSetting: true,
       heightUsed: 380,
       enableDrag: true,

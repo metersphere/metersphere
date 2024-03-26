@@ -491,7 +491,6 @@
       {
         tableKey: TableKeyEnum.BUG_MANAGEMENT,
         selectable: true,
-        showJumpMethod: true,
         noDisable: false,
         showSetting: true,
         heightUsed: 380,
