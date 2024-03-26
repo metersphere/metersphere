@@ -110,7 +110,8 @@
       :is-priority-local-exec="props.isPriorityLocalExec"
       :request-url="requestVModel.url"
       :is-expanded="true"
-      :request-task-result="requestVModel.response"
+      :request-result="requestVModel.response?.requestResults[0]"
+      :console="requestVModel.response?.console"
       :is-edit="false"
       hide-layout-switch
       :upload-temp-file-api="props.uploadTempFileApi"

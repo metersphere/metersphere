@@ -408,6 +408,8 @@ export interface RequestResult {
   url: string;
   method: string;
   responseResult: ResponseResult;
+  isSuccessful?: boolean;
+  console?: string;
   [key: string]: any;
 }
 export interface RequestTaskResult {

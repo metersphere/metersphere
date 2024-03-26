@@ -66,10 +66,15 @@
       </MsSplitBox>
     </div>
     <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
-      <create ref="createRef" v-model:scenario="activeScenarioTab" :module-tree="folderTree"></create>
+      <create
+        ref="createRef"
+        v-model:scenario="activeScenarioTab"
+        :module-tree="folderTree"
+        @batch-debug="realExecute"
+      ></create>
     </div>
     <div v-else class="pageWrap">
-      <detail v-model:scenario="activeScenarioTab"></detail>
+      <detail v-model:scenario="activeScenarioTab" @batch-debug="realExecute"></detail>
     </div>
   </MsCard>
 </template>
@@ -81,6 +86,7 @@
 
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+  import dayjs from 'dayjs';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
@@ -104,7 +110,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
-  import { getGenerateId } from '@/utils';
+  import { filterTree, getGenerateId } from '@/utils';
 
   import {
     ApiScenarioDebugRequest,
@@ -114,6 +120,7 @@
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
+  import { ScenarioExecuteStatus } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultScenario } from './components/config';
@@ -124,6 +131,7 @@
 
   export type ScenarioParams = Scenario & TabItem;
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const scenarioTabs = ref<ScenarioParams[]>([
@@ -142,6 +150,7 @@
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         isNew: false,
+        stepResponses: {},
       });
     } else {
       scenarioTabs.value.push({
@@ -149,6 +158,7 @@
         id: getGenerateId(),
         label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
         moduleId: 'root',
+        projectId: appStore.currentProjectId,
         priority: 'P0',
       });
     }
@@ -166,7 +176,6 @@
   const getActiveClass = (type: string) => {
     return activeFolder.value === type ? 'folder-text case-active' : 'folder-text';
   };
-  const appStore = useAppStore();
   const recycleModulesCount = ref(0);
 
   const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
@@ -272,16 +281,15 @@
   }
 
   const currentEnvConfig = ref<EnvConfig>();
-  const reportId = ref('');
   const websocket = ref<WebSocket>();
   const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
 
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+  function debugSocket(reportId?: string | number, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
     websocket.value = getSocket(
-      reportId.value,
+      reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
       executeType === 'localExec' ? localExecuteUrl : ''
     );
@@ -289,12 +297,31 @@
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
         if (activeScenarioTab.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab
-          activeScenarioTab.value.executeLoading = false;
-          activeScenarioTab.value.isExecute = false;
+          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+          data.taskResult.requestResults.forEach((result) => {
+            activeScenarioTab.value.stepResponses[result.stepId] = {
+              ...result,
+              console: data.taskResult.console,
+            };
+            if (result.isSuccessful) {
+              activeScenarioTab.value.executeSuccessCount += 1;
+            } else {
+              activeScenarioTab.value.executeFailCount += 1;
+            }
+          });
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryScenarioReportMap[data.reportId] = data.taskResult;
+          data.taskResult.requestResults.forEach((result) => {
+            if (activeScenarioTab.value.reportId) {
+              if (temporaryScenarioReportMap[activeScenarioTab.value.reportId] === undefined) {
+                temporaryScenarioReportMap[activeScenarioTab.value.reportId] = {};
+              }
+              temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId] = {
+                ...result,
+                console: data.taskResult.console,
+              };
+            }
+          });
         }
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
@@ -308,34 +335,55 @@
   }
 
   async function realExecute(
-    executeParams: ApiScenarioDebugRequest,
+    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>,
     executeType?: 'localExec' | 'serverExec',
     localExecuteUrl?: string
   ) {
     try {
       activeScenarioTab.value.executeLoading = true;
-      reportId.value = getGenerateId();
-      activeScenarioTab.value.reportId = reportId.value; // 存储报告ID
-      debugSocket(executeType, localExecuteUrl); // 开启websocket
-      executeParams.environmentId = currentEnvConfig.value?.id || '';
-      const res = await debugScenario(executeParams);
+      debugSocket(executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
+      // 重置执行结果
+      activeScenarioTab.value.executeTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+      activeScenarioTab.value.executeSuccessCount = 0;
+      activeScenarioTab.value.executeFailCount = 0;
+      activeScenarioTab.value.stepResponses = {};
+      activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
+      activeScenarioTab.value.isDebug = true;
+      const res = await debugScenario({
+        id: activeScenarioTab.value.id,
+        grouped: false,
+        environmentId: currentEnvConfig.value?.id || '',
+        projectId: appStore.currentProjectId,
+        scenarioConfig: activeScenarioTab.value.scenarioConfig,
+        uploadFileIds: activeScenarioTab.value.uploadFileIds,
+        linkFileIds: activeScenarioTab.value.linkFileIds,
+        ...executeParams,
+      });
       if (executeType === 'localExec' && localExecuteUrl) {
         await localExecuteApiDebug(localExecuteUrl, res);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      websocket.value?.close();
       activeScenarioTab.value.executeLoading = false;
     }
   }
 
   function handleExecute(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
-    const environmentId = currentEnvConfig.value?.id || '';
+    const waitingDebugStepDetails = {};
+    const waitTingDebugSteps = filterTree(activeScenarioTab.value.steps, (node) => {
+      if (node.enable) {
+        node.executeStatus = ScenarioExecuteStatus.EXECUTING;
+        waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
+      }
+      return !!node.enable;
+    });
     realExecute(
       {
-        grouped: false,
-        environmentId,
-        ...activeScenarioTab.value,
+        steps: waitTingDebugSteps,
+        stepDetails: waitingDebugStepDetails,
+        reportId: getGenerateId(),
       },
       executeType,
       localExecuteUrl
@@ -347,13 +395,36 @@
     activeScenarioTab.value.executeLoading = false;
   }
 
+  watch(
+    () => activeScenarioTab.value.id,
+    (val) => {
+      if (val !== 'all' && activeScenarioTab.value.reportId && !activeScenarioTab.value.executeLoading) {
+        // 当前查看的 tab 非全部场景 tab 页，且当前场景有报告ID，且不是正在执行中，则读取缓存报告
+        const cacheReport = temporaryScenarioReportMap[activeScenarioTab.value.reportId];
+        if (cacheReport) {
+          // 如果有缓存的报告未读取，则直接赋值
+          Object.keys(cacheReport).forEach((stepId) => {
+            const result = cacheReport[stepId];
+            activeScenarioTab.value.stepResponses[stepId] = result;
+            if (result.isSuccessful) {
+              activeScenarioTab.value.executeSuccessCount += 1;
+            } else {
+              activeScenarioTab.value.executeFailCount += 1;
+            }
+          });
+          activeScenarioTab.value.executeLoading = false;
+          delete temporaryScenarioReportMap[activeScenarioTab.value.reportId]; // 取完释放缓存
+        }
+      }
+    }
+  );
+
   const scenarioId = computed(() => activeScenarioTab.value.id);
   const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);
   // 为子孙组件提供属性
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);
-  provide('temporaryScenarioReportMap', readonly(temporaryScenarioReportMap));
 </script>
 
 <style scoped lang="less">

@@ -48,7 +48,11 @@
           :title="t('apiScenario.step')"
           class="scenario-detail-tab-pane"
         >
-          <step v-if="activeKey === ScenarioDetailComposition.STEP" v-model:scenario="scenario" />
+          <step
+            v-if="activeKey === ScenarioDetailComposition.STEP"
+            v-model:scenario="scenario"
+            @batch-debug="emit('batchDebug', $event)"
+          />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.PARAMS"
@@ -133,7 +137,7 @@
   import step from '../components/step/index.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
-  import { Scenario, ScenarioDetail } from '@/models/apiTest/scenario';
+  import { ApiScenarioDebugRequest, Scenario, ScenarioDetail } from '@/models/apiTest/scenario';
   import { ScenarioDetailComposition } from '@/enums/apiEnum';
 
   // 组成部分异步导入
@@ -146,7 +150,10 @@
   // const quote = defineAsyncComponent(() => import('../components/quote.vue'));
   const setting = defineAsyncComponent(() => import('../components/setting.vue'));
 
-  const emit = defineEmits(['updateFollow']);
+  const emit = defineEmits<{
+    (e: 'batchDebug', data: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>): void;
+    (e: 'updateFollow'): void;
+  }>();
 
   const { copy, isSupported } = useClipboard();
   const { t } = useI18n();

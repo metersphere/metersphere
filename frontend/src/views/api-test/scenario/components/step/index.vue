@@ -6,6 +6,7 @@
           v-show="scenario.steps.length > 0"
           v-model:model-value="checkedAll"
           :indeterminate="indeterminate"
+          :disabled="scenarioExecuteLoading"
           @change="handleChangeAll"
         />
         <div class="flex items-center gap-[4px]">
@@ -28,16 +29,16 @@
           </a-button>
         </a-tooltip>
         <template v-if="checkedAll || indeterminate">
-          <a-button type="outline" size="mini" @click="batchEnable">
+          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchEnable">
             {{ t('common.batchEnable') }}
           </a-button>
-          <a-button type="outline" size="mini" @click="batchDisable">
+          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDisable">
             {{ t('common.batchDisable') }}
           </a-button>
-          <a-button type="outline" size="mini" @click="batchDebug">
+          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDebug">
             {{ t('common.batchDebug') }}
           </a-button>
-          <a-button type="outline" size="mini" @click="batchDelete">
+          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDelete">
             {{ t('common.batchDelete') }}
           </a-button>
         </template>
@@ -57,7 +58,9 @@
             <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
             <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
           </div>
-          <MsButton type="text" @click="checkReport">{{ t('apiScenario.checkReport') }}</MsButton>
+          <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
+            {{ t('apiScenario.checkReport') }}
+          </MsButton>
         </div>
       </template>
       <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
@@ -87,6 +90,8 @@
         v-model:stepKeyword="keyword"
         :expand-all="isExpandAll"
         :step-details="scenario.stepDetails"
+        :step-responses="scenario.stepResponses"
+        @update-resource="handleUpdateResource"
       />
     </div>
   </div>
@@ -118,27 +123,26 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import stepTree from './stepTree.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
-  import { debugScenario } from '@/api/modules/api-test/scenario';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { deleteNodes, filterTree, getGenerateId } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
   import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
+  import { ScenarioExecuteStatus } from '@/enums/apiEnum';
 
   const props = defineProps<{
     isNew?: boolean; // 是否新建
   }>();
+  const emit = defineEmits<{
+    (e: 'batchDebug', data: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>): void;
+  }>();
 
-  const appStore = useAppStore();
   const { t } = useI18n();
 
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
   });
+  const scenarioExecuteLoading = inject<Ref<boolean>>('scenarioExecuteLoading');
 
   const checkedAll = ref(false); // 是否全选
   const indeterminate = ref(false); // 是否半选
@@ -229,94 +233,45 @@
     console.log('刷新步骤信息');
   }
 
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const stepReportId = ref('');
-  const websocket = ref<WebSocket>();
-  const temporaryStepReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
-
-  /**
-   * 开启websocket监听，接收执行结果
-   */
-  function debugSocket(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
-    websocket.value = getSocket(
-      stepReportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (scenario.value.stepReportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab
-          scenario.value.executeLoading = false;
-          scenario.value.isExecute = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryStepReportMap[data.reportId] = data.taskResult;
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        if (scenario.value.reportId === data.reportId) {
-          scenario.value.executeLoading = false;
-          scenario.value.isExecute = false;
-        }
-      }
-    });
-  }
-
-  async function realExecute(
-    executeParams: ApiScenarioDebugRequest,
-    executeType?: 'localExec' | 'serverExec',
-    localExecuteUrl?: string
-  ) {
-    try {
-      scenario.value.executeLoading = true;
-      stepReportId.value = getGenerateId();
-      scenario.value.reportId = stepReportId.value; // 存储报告ID
-      debugSocket(executeType, localExecuteUrl); // 开启websocket
-      executeParams.environmentId = currentEnvConfig?.value.id || '';
-      const res = await debugScenario(executeParams);
-      if (executeType === 'localExec' && localExecuteUrl) {
-        await localExecuteApiDebug(localExecuteUrl, res);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      scenario.value.executeLoading = false;
-    }
-  }
-
   function batchDebug() {
-    const selectedKeysSet = new Set(checkedKeys.value);
-    const waitTingDebugSteps = filterTree(
-      scenario.value.steps,
-      (node) => {
-        if (selectedKeysSet.has(node.id)) {
-          selectedKeysSet.delete(node.id);
-          return true;
+    scenario.value.executeLoading = true;
+    const checkedKeysSet = new Set(checkedKeys.value);
+    const waitTingDebugSteps = filterTree(scenario.value.steps, (node) => {
+      if (checkedKeysSet.has(node.id)) {
+        if (!node.enable) {
+          // 如果步骤未开启，则删除已选 id，方便下面waitingDebugStepDetails详情判断是否携带
+          checkedKeysSet.delete(node.id);
+        } else {
+          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         }
-        return false;
-      },
-      'id'
-    );
+        return !!node.enable;
+      }
+      return false;
+    });
     const waitingDebugStepDetails = {};
     Object.keys(scenario.value.stepDetails).forEach((key) => {
-      if (selectedKeysSet.has(key)) {
+      if (checkedKeysSet.has(key)) {
         waitingDebugStepDetails[key] = scenario.value.stepDetails[key];
       }
     });
-    realExecute({
-      id: scenario.value.id || '',
+    emit('batchDebug', {
       steps: waitTingDebugSteps,
       stepDetails: waitingDebugStepDetails,
-      grouped: false,
-      environmentId: currentEnvConfig?.value.id || '',
-      uploadFileIds: scenario.value.uploadFileIds,
-      linkFileIds: scenario.value.linkFileIds,
-      projectId: appStore.currentProjectId,
-      scenarioConfig: scenario.value.scenarioConfig,
+      reportId: getGenerateId(),
     });
+  }
+
+  function handleUpdateResource(uploadFileIds, linkFileIds) {
+    const uploadFileIdsSet = new Set(scenario.value.uploadFileIds);
+    const linkFileIdsSet = new Set(scenario.value.linkFileIds);
+    uploadFileIds.forEach((id) => {
+      uploadFileIdsSet.add(id);
+    });
+    linkFileIds.forEach((id) => {
+      linkFileIdsSet.add(id);
+    });
+    // scenario.value.uploadFileIds = Array.from(uploadFileIdsSet);
+    // scenario.value.linkFileIds = Array.from(linkFileIdsSet);
   }
 </script>
 

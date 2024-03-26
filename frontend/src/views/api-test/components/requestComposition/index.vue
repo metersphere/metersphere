@@ -276,7 +276,8 @@
                 :request-url="requestVModel.url"
                 :is-expanded="isVerticalExpanded"
                 :hide-layout-switch="props.hideResponseLayoutSwitch"
-                :request-task-result="requestVModel.response"
+                :request-result="requestVModel.response?.requestResults[0]"
+                :console="requestVModel.response?.console"
                 :is-edit="props.isDefinition && isHttpProtocol && !props.isCase"
                 :upload-temp-file-api="props.uploadTempFileApi"
                 :loading="requestVModel.executeLoading || loading"
@@ -1039,7 +1040,7 @@
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
   const selectTree = computed(() =>
-    filterTree(cloneDeep(props.moduleTree), (e) => {
+    filterTree(cloneDeep(props.moduleTree || []), (e) => {
       e.draggable = false;
       return e.type === 'MODULE';
     })
@@ -1227,6 +1228,7 @@
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+        websocket.value?.close();
         requestVModel.value.executeLoading = false;
       }
     } else {
@@ -1244,6 +1246,7 @@
           } catch (error) {
             // eslint-disable-next-line no-console
             console.log(error);
+            websocket.value?.close();
             requestVModel.value.executeLoading = false;
           }
         } else {

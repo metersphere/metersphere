@@ -1,73 +1,75 @@
 <template>
   <div class="response flex h-full min-w-[300px] flex-col">
     <div :class="['response-head', props.isExpanded ? '' : 'border-t']">
-      <div class="flex items-center justify-between">
-        <template v-if="props.activeLayout === 'vertical'">
-          <MsButton
-            v-if="props.isExpanded"
-            type="icon"
-            class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
+      <slot name="titleLeft">
+        <div class="flex items-center justify-between">
+          <template v-if="props.activeLayout === 'vertical'">
+            <MsButton
+              v-if="props.isExpanded"
+              type="icon"
+              class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
+              size="small"
+              @click="emit('changeExpand', false)"
+            >
+              <icon-down :size="8" />
+            </MsButton>
+            <MsButton
+              v-else
+              type="icon"
+              status="secondary"
+              class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
+              size="small"
+              @click="emit('changeExpand', true)"
+            >
+              <icon-right :size="8" />
+            </MsButton>
+          </template>
+          <div
+            v-if="props.isEdit && props.requestResult?.responseResult?.responseCode"
+            class="ml-[4px] flex items-center"
+          >
+            <MsButton
+              type="text"
+              :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]', '!mr-0']"
+              @click="() => setActiveResponse('content')"
+            >
+              {{ t('apiTestDebug.responseContent') }}
+            </MsButton>
+            <a-divider direction="vertical" :margin="4"></a-divider>
+            <MsButton
+              type="text"
+              :class="['font-medium', activeResponseType === 'result' ? '' : '!text-[var(--color-text-n4)]']"
+              @click="() => setActiveResponse('result')"
+            >
+              {{ t('apiTestManagement.executeResult') }}
+            </MsButton>
+          </div>
+          <div v-else class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
+          <a-radio-group
+            v-if="!props.hideLayoutSwitch"
+            v-model:model-value="innerLayout"
+            type="button"
             size="small"
-            @click="emit('changeExpand', false)"
+            @change="(val) => emit('changeLayout', val as Direction)"
           >
-            <icon-down :size="8" />
-          </MsButton>
-          <MsButton
-            v-else
-            type="icon"
-            status="secondary"
-            class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
-            size="small"
-            @click="emit('changeExpand', true)"
-          >
-            <icon-right :size="8" />
-          </MsButton>
-        </template>
-        <div
-          v-if="props.isEdit && props.requestTaskResult?.requestResults[0]?.responseResult?.responseCode"
-          class="ml-[4px] flex items-center"
-        >
-          <MsButton
-            type="text"
-            :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]', '!mr-0']"
-            @click="() => setActiveResponse('content')"
-          >
-            {{ t('apiTestDebug.responseContent') }}
-          </MsButton>
-          <a-divider direction="vertical" :margin="4"></a-divider>
-          <MsButton
-            type="text"
-            :class="['font-medium', activeResponseType === 'result' ? '' : '!text-[var(--color-text-n4)]']"
-            @click="() => setActiveResponse('result')"
-          >
-            {{ t('apiTestManagement.executeResult') }}
-          </MsButton>
+            <a-radio value="vertical">{{ t('apiTestDebug.vertical') }}</a-radio>
+            <a-radio value="horizontal">{{ t('apiTestDebug.horizontal') }}</a-radio>
+          </a-radio-group>
         </div>
-        <div v-else class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
-        <a-radio-group
-          v-if="!props.hideLayoutSwitch"
-          v-model:model-value="innerLayout"
-          type="button"
-          size="small"
-          @change="(val) => emit('changeLayout', val as Direction)"
-        >
-          <a-radio value="vertical">{{ t('apiTestDebug.vertical') }}</a-radio>
-          <a-radio value="horizontal">{{ t('apiTestDebug.horizontal') }}</a-radio>
-        </a-radio-group>
-      </div>
+      </slot>
       <div
-        v-if="props.requestTaskResult?.requestResults[0]?.responseResult?.responseCode"
-        class="flex items-center justify-between gap-[24px]"
+        v-if="props.requestResult?.responseResult?.responseCode"
+        class="flex items-center justify-between gap-[24px] text-[14px]"
       >
         <a-popover position="left" content-class="response-popover-content">
           <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
-            {{ props.requestTaskResult.requestResults[0].responseResult.responseCode }}
+            {{ props.requestResult.responseResult.responseCode }}
           </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
               <div :style="{ color: statusCodeColor }">
-                {{ props.requestTaskResult.requestResults[0].responseResult.responseCode }}
+                {{ props.requestResult.responseResult.responseCode }}
               </div>
             </div>
           </template>
@@ -84,13 +86,13 @@
         </a-popover>
         <a-popover position="left" content-class="response-popover-content">
           <div class="one-line-text text-[rgb(var(--success-7))]">
-            {{ props.requestTaskResult.requestResults[0].responseResult.responseSize }} bytes
+            {{ props.requestResult.responseResult.responseSize }} bytes
           </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
               <div class="one-line-text text-[rgb(var(--success-7))]">
-                {{ props.requestTaskResult.requestResults[0].responseResult.responseSize }} bytes
+                {{ props.requestResult.responseResult.responseSize }} bytes
               </div>
             </div>
           </template>
@@ -128,12 +130,13 @@
       <result
         v-else-if="!props.isEdit || (props.isEdit && activeResponseType === 'result')"
         v-model:active-tab="innerActiveTab"
-        :request-result="props.requestTaskResult?.requestResults[0]"
-        :console="props.requestTaskResult?.console"
+        :request-result="props.requestResult"
+        :console="props.console"
         :is-http-protocol="props.isHttpProtocol"
         :is-priority-local-exec="props.isPriorityLocalExec"
         :request-url="props.requestUrl"
         :is-definition="props.isDefinition"
+        :show-empty="props.showEmpty"
         @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
       />
     </a-spin>
@@ -149,29 +152,33 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestTaskResult } from '@/models/apiTest/common';
+  import { RequestResult } from '@/models/apiTest/common';
   import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
 
   const props = withDefaults(
     defineProps<{
       activeTab: ResponseComposition;
-      isExpanded: boolean;
-      isPriorityLocalExec: boolean;
+      isExpanded?: boolean;
+      isPriorityLocalExec?: boolean;
       requestUrl?: string;
-      isHttpProtocol: boolean;
+      isHttpProtocol?: boolean;
       activeLayout?: Direction;
       responseDefinition?: ResponseItem[];
-      requestTaskResult?: RequestTaskResult;
+      requestResult?: RequestResult;
+      console?: string;
       hideLayoutSwitch?: boolean; // 隐藏布局切换
       loading?: boolean;
       isEdit?: boolean; // 是否可编辑
       uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
       isDefinition?: boolean;
       isResponseModel?: boolean;
+      showEmpty?: boolean;
     }>(),
     {
+      isExpanded: true,
       activeLayout: 'vertical',
       hideLayoutSwitch: false,
+      showEmpty: true,
     }
   );
   const emit = defineEmits<{
@@ -194,7 +201,7 @@
   });
   // 响应时间信息
   const timingInfo = computed(() => {
-    if (props.requestTaskResult) {
+    if (props.requestResult) {
       const {
         dnsLookupTime,
         downloadTime,
@@ -204,7 +211,7 @@
         sslHandshakeTime,
         tcpHandshakeTime,
         transferStartTime,
-      } = props.requestTaskResult.requestResults[0].responseResult;
+      } = props.requestResult.responseResult;
       return {
         dnsLookupTime,
         tcpHandshakeTime,
@@ -220,8 +227,8 @@
   });
   // 响应状态码对应颜色
   const statusCodeColor = computed(() => {
-    if (props.requestTaskResult) {
-      const code = props.requestTaskResult.requestResults[0].responseResult.responseCode;
+    if (props.requestResult) {
+      const code = props.requestResult.responseResult.responseCode;
       if (code >= 200 && code < 300) {
         return 'rgb(var(--success-7)';
       }
@@ -295,9 +302,9 @@
   }
 
   watch(
-    () => props.requestTaskResult,
-    (task) => {
-      if (task?.requestResults[0]?.responseResult?.responseCode) {
+    () => props.requestResult,
+    (requestResult) => {
+      if (requestResult?.responseResult?.responseCode) {
         setActiveResponse('result');
       }
     }

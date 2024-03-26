@@ -244,6 +244,7 @@ export enum ScenarioDetailComposition {
 // 场景执行状态
 export enum ScenarioExecuteStatus {
   SUCCESS = 'SUCCESS',
+  EXECUTING = 'EXECUTING',
   FAILED = 'FAILED',
   STOP = 'STOP',
 }

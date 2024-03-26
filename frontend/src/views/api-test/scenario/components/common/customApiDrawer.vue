@@ -260,14 +260,14 @@
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
-              :request-task-result="requestVModel.response"
+              :request-result="props.stepResponses?.[requestVModel.stepId]"
+              :console="props.stepResponses?.[requestVModel.stepId].console"
+              :show-empty="false"
               :is-edit="false"
-              :upload-temp-file-api="uploadTempFile"
+              is-definition
               :loading="requestVModel.executeLoading || loading"
-              :is-definition="false"
               @change-expand="changeVerticalExpand"
               @change-layout="handleActiveLayoutChange"
-              @change="handleActiveDebugChange"
               @execute="execute"
             />
           </template>
@@ -311,6 +311,7 @@
     ExecuteConditionConfig,
     ExecuteRequestParams,
     PluginConfig,
+    RequestResult,
     RequestTaskResult,
   } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
@@ -383,6 +384,7 @@
       create: string;
       update: string;
     };
+    stepResponses?: Record<string | number, RequestResult>;
   }>();
 
   const emit = defineEmits<{

@@ -1,3 +1,5 @@
+import { TreeNodeData } from '@arco-design/web-vue';
+
 import { RequestMethods } from '@/enums/apiEnum';
 
 // 请求返回结构
@@ -61,7 +63,7 @@ export interface AddModuleParams {
   parentId: string;
 }
 // 模块树节点
-export interface ModuleTreeNode {
+export interface ModuleTreeNode extends TreeNodeData {
   id: string;
   name: string;
   type: 'MODULE' | 'API';

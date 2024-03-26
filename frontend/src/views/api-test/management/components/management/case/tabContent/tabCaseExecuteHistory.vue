@@ -104,7 +104,8 @@
         :is-http-protocol="props.protocol === 'HTTP'"
         :is-priority-local-exec="false"
         :active-tab="ResponseComposition.BODY"
-        :request-task-result="responseContent"
+        :request-result="responseContent?.requestResults[0]"
+        :console="responseContent?.console"
         :is-definition="true"
         :is-response-model="true"
       ></response>

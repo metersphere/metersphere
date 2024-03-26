@@ -22,10 +22,15 @@
       color: 'rgb(var(--link-6))',
       text: 'common.stop',
     },
+    [ScenarioExecuteStatus.EXECUTING]: {
+      bgColor: 'rgb(var(--link-2))',
+      color: 'rgb(var(--link-6))',
+      text: 'apiScenario.running',
+    },
     [ScenarioExecuteStatus.FAILED]: {
       bgColor: 'rgb(var(--danger-2))',
       color: 'rgb(var(--danger-6))',
-      text: 'common.failed',
+      text: 'common.fail',
     },
     [ScenarioExecuteStatus.SUCCESS]: {
       bgColor: 'rgb(var(--success-2))',

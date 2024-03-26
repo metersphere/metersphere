@@ -102,6 +102,7 @@
   import { getLocalConfig } from '@/api/modules/user/index';
   import { characterLimit, getGenerateId } from '@/utils';
 
+  import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import { LocalConfig } from '@/models/user';
   import {
@@ -118,6 +119,7 @@
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
+    stepResponses?: Record<string | number, RequestResult>;
   }>();
   const emit = defineEmits<{
     (e: 'applyStep', request: RequestParam): void;
@@ -355,7 +357,14 @@
     () => visible.value,
     async (val) => {
       if (val) {
-        requestVModel.value = { ...cloneDeep(defaultCaseParams), ...props.request };
+        requestVModel.value = {
+          ...cloneDeep(defaultCaseParams),
+          ...props.request,
+          response: {
+            requestResults: [props.stepResponses?.[props.request?.stepId] || defaultResponse.requestResults[0]],
+            console: props.stepResponses?.[props.request?.stepId].console || '',
+          },
+        };
         if (isQuote.value || isCopyNeedInit.value) {
           // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
           initQuoteCaseDetail();
