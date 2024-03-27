@@ -536,36 +536,54 @@
 
   // 删除本地文件
   async function deleteFileHandler(item: MsFileItem) {
-    openModal({
-      type: 'error',
-      title: t('caseManagement.featureCase.deleteFile', { name: item?.name }),
-      content: t('caseManagement.featureCase.deleteFileTip'),
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          const params = {
-            id: item.uid,
-            local: item.local,
-            caseId: detailForm.value.id,
-            projectId: currentProjectId.value,
-          };
-          await deleteFileOrCancelAssociation(params);
-          Message.success(
-            item.local
-              ? t('caseManagement.featureCase.deleteSuccess')
-              : t('caseManagement.featureCase.cancelLinkSuccess')
-          );
-          emit('updateSuccess');
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
+    if (!item.local) {
+      try {
+        const params = {
+          id: item.uid,
+          local: item.local,
+          caseId: detailForm.value.id,
+          projectId: currentProjectId.value,
+        };
+        await deleteFileOrCancelAssociation(params);
+        Message.success(
+          item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
+        );
+        emit('updateSuccess');
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      openModal({
+        type: 'error',
+        title: t('caseManagement.featureCase.deleteFile', { name: item?.name }),
+        content: t('caseManagement.featureCase.deleteFileTip'),
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            const params = {
+              id: item.uid,
+              local: item.local,
+              caseId: detailForm.value.id,
+              projectId: currentProjectId.value,
+            };
+            await deleteFileOrCancelAssociation(params);
+            Message.success(
+              item.local
+                ? t('caseManagement.featureCase.deleteSuccess')
+                : t('caseManagement.featureCase.cancelLinkSuccess')
+            );
+            emit('updateSuccess');
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
+    }
   }
   const transferVisible = ref<boolean>(false);
 
@@ -660,6 +678,15 @@
     {
       deep: true,
     }
+  );
+
+  // 监视文件列表处理关联和本地文件
+  watch(
+    () => fileList.value,
+    (arr) => {
+      getListFunParams.value.combine.hiddenIds = arr.filter((item) => !item.local).map((item) => item.uid);
+    },
+    { deep: true, immediate: true }
   );
 
   async function startUpload(fileIds?: string[]) {
