@@ -5,6 +5,7 @@ import io.metersphere.bug.dto.request.BugFileSourceRequest;
 import io.metersphere.bug.dto.request.BugFileTransferRequest;
 import io.metersphere.bug.dto.request.BugUploadFileRequest;
 import io.metersphere.bug.dto.response.BugFileDTO;
+import io.metersphere.bug.service.BugAttachmentLogService;
 import io.metersphere.bug.service.BugAttachmentService;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
@@ -13,6 +14,8 @@ import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -62,6 +65,7 @@ public class BugAttachmentController {
     @Operation(summary = "缺陷管理-附件-上传/关联文件")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.uploadLog(#request, #file)", msClass = BugAttachmentLogService.class)
     public void uploadFile(@Validated @RequestPart("request") BugUploadFileRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         bugAttachmentService.uploadFile(request, file, SessionUtils.getUserId());
     }
@@ -70,6 +74,7 @@ public class BugAttachmentController {
     @Operation(summary = "缺陷管理-附件-删除/取消关联文件")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#request)", msClass = BugAttachmentLogService.class)
     public void deleteFile(@RequestBody BugDeleteFileRequest request) {
         bugAttachmentService.deleteFile(request);
     }

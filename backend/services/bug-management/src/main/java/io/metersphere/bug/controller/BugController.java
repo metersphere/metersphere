@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author song-cc-rock
@@ -134,8 +135,8 @@ public class BugController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "缺陷管理-列表-删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
-    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getNoticeById(#id)", targetClass = BugNoticeService.class)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = BugLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getNoticeById(#id)", targetClass = BugNoticeService.class)
     public void delete(@PathVariable String id) {
         bugService.delete(id, SessionUtils.getUserId());
     }
@@ -145,7 +146,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void sync(@PathVariable String projectId) {
-        bugSyncService.syncBugs(projectId, SessionUtils.getUserId());
+        bugSyncService.syncBugs(projectId, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
     }
 
     @PostMapping("/sync/all")
@@ -153,7 +154,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void syncAll(@RequestBody BugSyncRequest request) {
-        bugSyncService.syncAllBugs(request, SessionUtils.getUserId());
+        bugSyncService.syncAllBugs(request, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
     }
 
     @GetMapping("/sync/check/{projectId}")

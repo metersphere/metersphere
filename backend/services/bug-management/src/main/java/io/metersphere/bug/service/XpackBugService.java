@@ -20,7 +20,8 @@ public interface XpackBugService {
      * @param project 项目
      * @param request 同步请求参数
      * @param currentUser 当前用户
+     * @param language 语言环境
      */
-    void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser);
+    void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language);
 
 }

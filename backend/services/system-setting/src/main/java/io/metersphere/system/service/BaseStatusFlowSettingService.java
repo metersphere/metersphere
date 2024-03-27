@@ -17,6 +17,7 @@ import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.mapper.StatusDefinitionMapper;
+import io.metersphere.system.mapper.StatusItemMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +42,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class BaseStatusFlowSettingService {
 
+    @Resource
+    protected StatusItemMapper statusItemMapper;
     @Resource
     protected StatusDefinitionMapper statusDefinitionMapper;
     @Resource
@@ -280,8 +283,9 @@ public class BaseStatusFlowSettingService {
      * @return 状态选项集合
      */
     public List<SelectOption> getStatusTransitions(String scopeId, String scene, String targetStatusId) {
-        if (StringUtils.isBlank(targetStatusId)) {
-            // 创建时, 获取开始状态的选项值即可
+        StatusItem targetStatus = statusItemMapper.selectByPrimaryKey(targetStatusId);
+        if (StringUtils.isBlank(targetStatusId) || targetStatus == null) {
+            // 创建或该目标状态被删除时, 获取开始状态的选项值即可
             List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(scopeId, scene);
             statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
             List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList();
