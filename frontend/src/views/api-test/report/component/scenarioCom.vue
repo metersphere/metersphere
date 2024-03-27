@@ -4,19 +4,73 @@
     <div class="report-header flex items-center justify-between">
       <!-- TODO 虚拟数据替换接口后边 -->
       <span>
-        {{ detail.environmentName || '-' }}
-        <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.poolName || '-' }}
-        <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.requestDuration }}
-        <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.creatUserName || '-' }}
+        <a-popover position="left" content-class="response-popover-content">
+          <span> {{ detail.environmentName || '-' }}</span>
+          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
+              <span class="mx-1"> {{ detail.environmentName || '-' }}</span>
+            </div>
+          </template>
+        </a-popover>
+        <a-popover position="bottom" content-class="response-popover-content">
+          <span> {{ detail.poolName || '-' }}</span>
+          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
+              <span class="mx-1"> {{ detail.poolName || '-' }}</span>
+            </div>
+          </template>
+        </a-popover>
+
+        <a-popover position="left" content-class="response-popover-content">
+          <span v-if="!detail.integrated">
+            {{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[0] : '-' }}
+            <span>{{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[1] : 'ms' }}</span>
+            <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          </span>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.globalWaitingTime') }}</div>
+              {{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[0] : '-' }}
+              <span class="mx-1">{{
+                detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[1] : 'ms'
+              }}</span>
+            </div>
+          </template>
+        </a-popover>
+        <a-popover position="left" content-class="response-popover-content">
+          <span v-if="detail.runMode">
+            {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
+          >
+          <a-divider v-if="detail.runMode" direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
+              <div class="mt-1">
+                {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</div
+              >
+            </div>
+          </template>
+        </a-popover>
+
+        <a-popover position="bottom" content-class="response-popover-content">
+          <span> {{ detail.creatUserName || '-' }}</span>
+          <template #content>
+            <div class="items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.reportCreator') }}</div>
+              <div class="mx-1 mt-1"> {{ detail.creatUserName || '-' }}</div>
+            </div>
+          </template>
+        </a-popover>
       </span>
       <span>
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-        {{ dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+        {{ detail.startTime ? dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
-        {{ dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+        {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
       </span>
     </div>
     <!-- 报告参数结束 -->
@@ -28,7 +82,7 @@
           <!-- 总数 -->
           <div class="countItem">
             <span class="mr-2 text-[var(--color-text-4)]"> {{ t('report.detail.stepTotal') }}</span>
-            {{ getTotal() || 0 }}
+            {{ detail.stepTotal || 0 }}
           </div>
           <!-- 通过 -->
           <div class="countItem">
@@ -113,7 +167,7 @@
           <div class="relative mr-4">
             <div class="absolute bottom-0 left-[30%] top-[35%] text-center">
               <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-              <div class="text-[18px] font-medium">{{ getTotal() }}</div>
+              <div class="text-[18px] font-medium">{{ getIndicators(detail.requestTotal) }}</div>
             </div>
             <MsChart width="110px" height="110px" :options="charOptions" />
           </div>
@@ -214,10 +268,6 @@
     }
     return '-';
   });
-  function getTotal() {
-    const { errorCount, successCount, fakeErrorCount, pendingCount } = detail.value;
-    return errorCount + successCount + fakeErrorCount + pendingCount;
-  }
 
   const legendData = ref<LegendData[]>([]);
   const charOptions = ref({

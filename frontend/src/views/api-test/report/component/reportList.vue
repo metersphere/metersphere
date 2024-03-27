@@ -29,7 +29,7 @@
           type="text"
           class="one-text-line flex w-full text-[rgb(var(--primary-5))]"
           @click="showReportDetail(record.id, rowIndex, record.integrated)"
-          >{{ characterLimit(record.name) }}-{{ dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss') }}</div
+          >{{ characterLimit(record.name) }}</div
         >
       </template>
       <!-- 报告类型 -->

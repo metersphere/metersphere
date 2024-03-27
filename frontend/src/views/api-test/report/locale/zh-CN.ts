@@ -57,6 +57,7 @@ export default {
   'report.detail.api.resSuccess': '成功',
   'report.detail.api.resError': '失败',
   'report.detail.api.apiCase': '接口用例',
+  'report.detail.api.customRequest': '自定义请求',
   'report.detail.api': '接口定义',
   'report.detail.api.resBody': '响应体',
   'report.detail.api.resHeader': '响应头',
@@ -69,4 +70,8 @@ export default {
   'report.detail.api.scriptErrorTip': '脚本报错',
   'report.detail.api.scenario': '场景',
   'report.detail.api.request': '请求',
+  'report.detail.api.globalWaitingTime': '场景全局等待时间',
+  'report.detail.api.executeEnv': '运行环境',
+  'report.detail.api.reportCreator': '报告创建人',
+  'report.detail.api.runMode': '运行模式',
 };

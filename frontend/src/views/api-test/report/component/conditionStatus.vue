@@ -13,21 +13,12 @@
   }>();
   // 场景步骤类型映射
   const scenarioStepMap = {
-    // [ScenarioStepType.QUOTE_API]: { label: 'apiScenario.quoteApi', color: 'rgb(var(--link-7))' },
-    // [ScenarioStepType.COPY_API]: { label: 'apiScenario.copyApi', color: 'rgb(var(--link-7))' },
-    // [ScenarioStepType.QUOTE_CASE]: { label: 'apiScenario.quoteCase', color: 'rgb(var(--success-7))' },
-    // [ScenarioStepType.COPY_CASE]: { label: 'apiScenario.copyCase', color: 'rgb(var(--success-7))' },
-    // [ScenarioStepType.QUOTE_SCENARIO]: { label: 'apiScenario.quoteScenario', color: 'rgb(var(--primary-7))' },
-    // [ScenarioStepType.COPY_SCENARIO]: { label: 'apiScenario.copyScenario', color: 'rgb(var(--primary-7))' },
-    // [ScenarioStepType.WAIT_TIME]: { label: 'apiScenario.waitTime', color: 'rgb(var(--warning-6))' },
     [ScenarioStepType.LOOP_CONTROLLER]: { label: 'apiScenario.loopControl', color: 'rgba(167, 98, 191, 1)' },
     [ScenarioStepType.IF_CONTROLLER]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },
     [ScenarioStepType.ONCE_ONLY_CONTROLLER]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
     [ScenarioStepType.SCRIPT]: { label: 'apiScenario.scriptOperation', color: 'rgba(20, 225, 198, 1)' },
-    // [ScenarioStepType.SCRIPT_OPERATION]: { label: 'apiScenario.scriptOperation', color: 'rgba(20, 225, 198, 1)' },
-    // [ScenarioStepType.CUSTOM_API]: { label: 'apiScenario.customApi', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.API_CASE]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
-    [ScenarioStepType.CUSTOM_REQUEST]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.CUSTOM_REQUEST]: { label: 'report.detail.api.customRequest', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.API]: { label: 'report.detail.api', color: 'rgb(var(--link-4))' },
   };
 

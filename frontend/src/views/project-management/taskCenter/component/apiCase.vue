@@ -53,8 +53,11 @@
       <template #operationTime="{ record }">
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
-      <template #operation="{ record }">
-        <MsButton class="!mr-0" @click="viewReport">{{ t('project.taskCenter.viewReport') }}</MsButton>
+      <template #operation="{ record, rowIndex }">
+        <MsButton class="!mr-0" @click="viewReport(record.id, rowIndex)">{{
+          t('project.taskCenter.viewReport')
+        }}</MsButton>
+        <span></span>
         <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
           v-if="['RUNNING', 'RERUNNING'].includes(record.status) && hasAnyPermission(permissionsMap[props.group].stop)"
@@ -65,6 +68,22 @@
       </template>
     </ms-base-table>
   </div>
+  <ReportDetailDrawer
+    v-model:visible="showDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
+  <CaseReportDrawer
+    v-model:visible="showCaseDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
 </template>
 
 <script setup lang="ts">
@@ -77,6 +96,8 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import ExecutionStatus from './executionStatus.vue';
+  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
+  import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 
   import {
     batchStopRealOrdApi,
@@ -96,7 +117,6 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
-  import { RouteEnum } from '@/enums/routeEnum';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { TaskStatus } from './utils';
@@ -339,8 +359,21 @@
     }
   }
 
-  function viewReport() {
-    openNewPage(RouteEnum.API_TEST_REPORT);
+  /**
+   * 报告详情 showReportDetail
+   */
+  const activeDetailId = ref<string>('');
+  const activeReportIndex = ref<number>(0);
+  const showDetailDrawer = ref<boolean>(false);
+  const showCaseDetailDrawer = ref<boolean>(false);
+  function viewReport(id: string, rowIndex: number) {
+    if (props.moduleType === 'API_CASE') {
+      showCaseDetailDrawer.value = true;
+    } else {
+      showDetailDrawer.value = true;
+    }
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex;
   }
 
   watch(

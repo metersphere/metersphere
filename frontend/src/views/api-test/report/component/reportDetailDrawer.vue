@@ -75,7 +75,6 @@
     tableData: any[];
     pagination: MsPaginationI;
     pageChange: (page: number) => Promise<void>;
-    showType: string; // 报告类型
     isShare?: boolean;
   }>();
 

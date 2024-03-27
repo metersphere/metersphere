@@ -30,8 +30,8 @@
             >
               {{ step.sort }}
             </div>
-            <div class="step-node-content flex justify-between" @click.stop="showDetail(step)">
-              <div class="flex items-center">
+            <div class="step-node-content flex justify-between">
+              <div class="flex flex-1 items-center">
                 <!-- 步骤展开折叠按钮 -->
                 <a-tooltip
                   v-if="step.children?.length > 0"
@@ -62,13 +62,12 @@
                     <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
                   </span>
                 </div>
-                <ConditionStatus
-                  v-if="props.showType === 'API' && showCondition.includes(step.stepType)"
-                  class="mx-1"
-                  :status="step.stepType || ''"
-                />
+                <div v-if="props.showType === 'API' && showCondition.includes(step.stepType)" class="flex-shrink-0">
+                  <ConditionStatus class="mx-1" :status="step.stepType || ''" />
+                </div>
+
                 <a-tooltip :content="step.name">
-                  <div class="step-name-container">
+                  <div class="step-name-container w-full flex-grow" @click.stop="showDetail(step)">
                     <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
                       {{ step.name }}
                     </div>
@@ -97,41 +96,43 @@
                     <div>{{ step.scriptIdentifier }}</div>
                   </template>
                 </a-popover>
-                <span class="statusCode mx-2">
-                  <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
-                  <a-popover position="left" content-class="response-popover-content">
-                    <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor(step.code) }">
-                      {{ step.code || '-' }}
-                    </div>
-                    <template #content>
-                      <div class="flex items-center gap-[8px] text-[14px]">
-                        <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
-                        <div :style="{ color: statusCodeColor(step.code) }">
-                          {{ step.code || '-' }}
-                        </div>
+                <div v-show="step.children && step.children.length > 0" class="flex">
+                  <span class="statusCode mx-2">
+                    <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
+                    <a-popover position="left" content-class="response-popover-content">
+                      <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor(step.code) }">
+                        {{ step.code || '-' }}
                       </div>
-                    </template>
-                  </a-popover>
-                </span>
-                <span class="resTime">
-                  {{ t('report.detail.api.responseTime') }}
-                  <span class="resTimeCount ml-2"
-                    >{{ step.requestTime ? formatDuration(step.requestTime).split('-')[0] : '-'
-                    }}{{ step.requestTime ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
-                  ></span
-                >
-                <a-popover position="left" content-class="response-popover-content">
-                  <span class="resSize">
-                    {{ t('report.detail.api.responseSize') }}
-                    <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                      <template #content>
+                        <div class="flex items-center gap-[8px] text-[14px]">
+                          <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+                          <div :style="{ color: statusCodeColor(step.code) }">
+                            {{ step.code || '-' }}
+                          </div>
+                        </div>
+                      </template>
+                    </a-popover>
+                  </span>
+                  <span class="resTime">
+                    {{ t('report.detail.api.responseTime') }}
+                    <span class="resTimeCount ml-2"
+                      >{{ step.requestTime ? formatDuration(step.requestTime).split('-')[0] : '-'
+                      }}{{ step.requestTime ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
+                    ></span
                   >
-                  <template #content>
+                  <a-popover position="left" content-class="response-popover-content">
                     <span class="resSize">
                       {{ t('report.detail.api.responseSize') }}
                       <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
                     >
-                  </template>
-                </a-popover>
+                    <template #content>
+                      <span class="resSize">
+                        {{ t('report.detail.api.responseSize') }}
+                        <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                      >
+                    </template>
+                  </a-popover>
+                </div>
               </div>
             </div>
             <div v-if="!step.fold" class="line"></div>
