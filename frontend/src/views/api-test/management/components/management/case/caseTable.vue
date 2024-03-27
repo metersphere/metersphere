@@ -418,6 +418,7 @@
         sorter: true,
       },
       width: 150,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.apiStatus',
@@ -429,18 +430,21 @@
         sorter: true,
       },
       width: 150,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.path',
       dataIndex: 'path',
       showTooltip: true,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'common.tag',
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
+      showDrag: true,
     },
     {
       title: 'case.lastReportStatus',
@@ -449,6 +453,7 @@
       titleSlotName: 'lastReportStatusFilter',
       showInTable: false,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'case.passRate',
@@ -457,6 +462,7 @@
       showInTable: false,
       showTooltip: true,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'case.caseEnvironment',
@@ -464,6 +470,7 @@
       showTooltip: true,
       showInTable: false,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'case.tableColumnUpdateUser',
@@ -471,6 +478,7 @@
       showInTable: false,
       showTooltip: true,
       width: 180,
+      showDrag: true,
     },
     {
       title: 'case.tableColumnUpdateTime',
@@ -482,12 +490,14 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: 'case.tableColumnCreateUser',
       dataIndex: 'createName',
       showTooltip: true,
       width: 180,
+      showDrag: true,
     },
     {
       title: 'case.tableColumnCreateTime',
@@ -499,6 +509,7 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -517,6 +528,7 @@
     showSelectAll: true,
     draggable: { type: 'handle', width: 32 },
     heightUsed: props.isApi ? 356 : 308,
+    showSubdirectory: true,
   });
   const batchActions = {
     baseAction: [

@@ -358,6 +358,7 @@
       slotName: 'method',
       titleSlotName: 'methodFilter',
       width: 140,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.apiStatus',
@@ -365,12 +366,14 @@
       slotName: 'status',
       titleSlotName: 'statusFilter',
       width: 130,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.path',
       dataIndex: 'path',
       showTooltip: true,
       width: 200,
+      showDrag: true,
     },
     {
       title: 'common.tag',
@@ -378,11 +381,13 @@
       isTag: true,
       isStringTag: true,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.version',
       dataIndex: 'versionName',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.createTime',
@@ -392,6 +397,7 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.updateTime',
@@ -401,11 +407,13 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: 'common.creator',
       dataIndex: 'createUserName',
       width: 180,
+      showDrag: true,
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -426,6 +434,7 @@
       showSelectAll: !props.readOnly,
       draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
       heightUsed: 308,
+      showSubdirectory: true,
     },
     (item) => ({
       ...item,
