@@ -125,14 +125,11 @@ public class BaseProjectService {
     }
 
     private void swapProject(List<Project> projectList, String sessionProjectId) {
-        int ownerProjectIndex = 0;
-        for (int i = 0; i < projectList.size(); i++) {
-            if (StringUtils.equals(projectList.get(i).getId(), sessionProjectId)) {
-                ownerProjectIndex = i;
-                break;
-            }
+        Project ownerProject = projectList.stream().filter(project -> StringUtils.equals(project.getId(), sessionProjectId)).findFirst().orElse(null);
+        if (ownerProject != null) {
+            projectList.remove(ownerProject);
+            projectList.add(0, ownerProject);
         }
-        Collections.swap(projectList, 0, ownerProjectIndex);
     }
 
     public List<Project> getProjectByIds(List<String> ids) {
