@@ -81,6 +81,7 @@
           :min="1"
           :precision="0"
           class="w-[80px]"
+          @blur="inputNotNull"
         />
         {{ t('apiTestDebug.unit') }}
       </div>
@@ -123,6 +124,12 @@
   const { t } = useI18n();
 
   const expressionForm = useVModel(props, 'config', emit);
+
+  function inputNotNull() {
+    if (!expressionForm.value.resultMatchingRuleNum) {
+      expressionForm.value.resultMatchingRuleNum = 1;
+    }
+  }
 </script>
 
 <style lang="less" scoped></style>
