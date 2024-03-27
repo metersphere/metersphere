@@ -407,3 +407,19 @@ export interface ApiScenarioUpdateDTO extends Partial<Scenario> {
   deleteFileIds?: string[];
   unLinkFileIds?: string[];
 }
+
+export interface GetSystemRequestTypeParams {
+  moduleIds?: (string | number)[];
+  selectedIds: (string | number)[];
+  unselectedIds: (string | number)[];
+  projectId: string;
+  protocol?: string;
+  versionId?: string;
+}
+
+export interface GetSystemRequestParams {
+  apiRequest?: GetSystemRequestTypeParams;
+  caseRequest?: GetSystemRequestTypeParams;
+  scenarioRequest?: GetSystemRequestTypeParams;
+  refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF;
+}

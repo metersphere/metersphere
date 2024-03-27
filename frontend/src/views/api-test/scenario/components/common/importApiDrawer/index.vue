@@ -19,6 +19,7 @@
             <div class="mb-[12px] flex items-center gap-[8px]">
               <MsProjectSelect v-model:project="currentProject" @change="resetModule" />
               <a-select
+                v-if="activeKey !== 'scenario'"
                 v-model:model-value="protocol"
                 :options="protocolOptions"
                 class="w-[90px]"
@@ -70,11 +71,11 @@
           </MsButton>
         </div>
         <div class="flex items-center gap-[12px]">
-          <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-          <a-button type="primary" :disabled="totalSelected === 0" @click="handleCopy">
+          <a-button type="secondary" :disabled="loading" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+          <a-button type="primary" :loading="loading" :disabled="totalSelected === 0" @click="handleCopy">
             {{ t('common.copy') }}
           </a-button>
-          <a-button type="primary" :disabled="totalSelected === 0" @click="handleQuote">
+          <a-button type="primary" :loading="loading" :disabled="totalSelected === 0" @click="handleQuote">
             {{ t('common.quote') }}
           </a-button>
         </div>
@@ -96,11 +97,13 @@
   import apiTable from './table.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
+  import { getSystemRequest } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
-  import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
+  import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
+  import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
+  import { ScenarioStepRefType } from '@/enums/apiEnum';
 
   export interface ImportData {
     api: MsTableDataItem<ApiDefinitionDetail>[];
@@ -121,6 +124,7 @@
   });
   const activeKey = ref<'api' | 'case' | 'scenario'>('api');
 
+  const loading = ref(false);
   const selectedApis = ref<MsTableDataItem<ApiDefinitionDetail>[]>([]);
   const selectedCases = ref<MsTableDataItem<ApiCaseDetail>[]>([]);
   const selectedScenarios = ref<MsTableDataItem<ApiScenarioTableItem>[]>([]);
@@ -167,7 +171,9 @@
   const moduleIds = ref<(string | number)[]>([]);
 
   function resetModule() {
-    moduleTreeRef.value?.init(activeKey.value);
+    nextTick(() => {
+      moduleTreeRef.value?.init(activeKey.value);
+    });
   }
 
   function handleModuleSelect(ids: (string | number)[], node: MsTreeNodeData) {
@@ -187,28 +193,100 @@
     visible.value = false;
   }
 
-  function handleCopy() {
-    emit(
-      'copy',
-      cloneDeep({
-        api: selectedApis.value,
-        case: selectedCases.value,
-        scenario: selectedScenarios.value,
-      })
-    );
-    handleCancel();
+  async function getScenarioSteps(refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF) {
+    const scenarioMap: Record<string, MsTableDataItem<ApiScenarioTableItem>[]> = {};
+    selectedScenarios.value.forEach((e) => {
+      if (!scenarioMap[e.projectId]) {
+        scenarioMap[e.projectId] = [];
+      }
+      scenarioMap[e.projectId].push(e);
+    });
+    const scenarioRequestArr: any[] = [];
+    Object.keys(scenarioMap).forEach((projectId) => {
+      scenarioRequestArr.push(
+        getSystemRequest({
+          scenarioRequest: {
+            projectId,
+            unselectedIds: [],
+            selectedIds: scenarioMap[projectId].map((e) => e.id),
+          },
+          refType,
+        })
+      );
+    });
+    try {
+      loading.value = true;
+      const allRes = await Promise.all(scenarioRequestArr);
+      let fullScenarioArr: MsTableDataItem<ApiScenarioTableItem>[] = [];
+      allRes.forEach((res) => {
+        fullScenarioArr.push(...res);
+      });
+      if (refType === ScenarioStepRefType.COPY) {
+        fullScenarioArr = fullScenarioArr.map((e) => {
+          return {
+            ...e,
+            name: `copy-${e.name}`,
+            copyFromStepId: e.id,
+          };
+        });
+        emit(
+          'copy',
+          cloneDeep({
+            api: selectedApis.value,
+            case: selectedCases.value,
+            scenario: fullScenarioArr,
+          })
+        );
+        handleCancel();
+      } else {
+        emit(
+          'quote',
+          cloneDeep({
+            api: selectedApis.value,
+            case: selectedCases.value,
+            scenario: fullScenarioArr,
+          })
+        );
+        handleCancel();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
-  function handleQuote() {
-    emit(
-      'quote',
-      cloneDeep({
-        api: selectedApis.value,
-        case: selectedCases.value,
-        scenario: selectedScenarios.value,
-      })
-    );
-    handleCancel();
+  async function handleCopy() {
+    if (selectedScenarios.value.length > 0) {
+      await getScenarioSteps(ScenarioStepRefType.COPY);
+    } else {
+      emit(
+        'copy',
+        cloneDeep({
+          api: selectedApis.value,
+          case: selectedCases.value,
+          scenario: selectedScenarios.value,
+        })
+      );
+      handleCancel();
+    }
+  }
+
+  async function handleQuote() {
+    if (selectedScenarios.value.length > 0) {
+      await getScenarioSteps(ScenarioStepRefType.REF);
+    } else {
+      emit(
+        'quote',
+        cloneDeep({
+          api: selectedApis.value,
+          case: selectedCases.value,
+          scenario: selectedScenarios.value,
+        })
+      );
+      handleCancel();
+    }
   }
 
   onBeforeMount(() => {

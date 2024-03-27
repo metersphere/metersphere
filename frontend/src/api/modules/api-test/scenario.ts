@@ -18,6 +18,7 @@ import {
   GetModuleTreeUrl,
   GetScenarioStepUrl,
   GetScenarioUrl,
+  GetSystemRequestUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   MoveModuleUrl,
@@ -45,6 +46,7 @@ import {
   ApiScenarioUpdateDTO,
   ExecuteHistoryItem,
   ExecutePageParams,
+  GetSystemRequestParams,
   Scenario,
   ScenarioDetail,
   ScenarioHistoryItem,
@@ -230,4 +232,9 @@ export function debugScenario(data: ApiScenarioDebugRequest) {
 // 场景执行
 export function executeScenario(data: ApiScenarioDebugRequest) {
   return MSR.post({ url: ExecuteScenarioUrl, data });
+}
+
+// 获取导入的系统请求数据
+export function getSystemRequest(data: GetSystemRequestParams) {
+  return MSR.post<ApiScenarioTableItem[]>({ url: GetSystemRequestUrl, data });
 }

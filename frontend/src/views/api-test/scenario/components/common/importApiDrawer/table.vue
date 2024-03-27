@@ -191,7 +191,72 @@
   // 接口用例表格
   const useCaseTable = useTable(getCasePage, tableConfig);
   // 接口场景表格
-  const useScenarioTable = useTable(getScenarioPage, tableConfig);
+  const useScenarioTable = useTable(getScenarioPage, {
+    ...tableConfig,
+    columns: [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        fixed: 'left',
+        width: 100,
+        showTooltip: true,
+        columnSelectorDisabled: true,
+      },
+      {
+        title: 'apiScenario.table.columns.name',
+        dataIndex: 'name',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 134,
+        showTooltip: true,
+        columnSelectorDisabled: true,
+      },
+      {
+        title: 'apiScenario.table.columns.level',
+        dataIndex: 'priority',
+        slotName: 'priority',
+        width: 100,
+      },
+      {
+        title: 'apiScenario.table.columns.status',
+        dataIndex: 'status',
+        slotName: 'status',
+        titleSlotName: 'statusFilter',
+        width: 140,
+      },
+      {
+        title: 'apiScenario.table.columns.tags',
+        dataIndex: 'tags',
+        isTag: true,
+        isStringTag: true,
+        width: 240,
+      },
+      {
+        title: 'apiScenario.table.columns.scenarioEnv',
+        dataIndex: 'environmentName',
+        width: 159,
+      },
+      {
+        title: 'apiScenario.table.columns.steps',
+        dataIndex: 'stepTotal',
+        width: 100,
+      },
+      {
+        title: 'apiScenario.table.columns.module',
+        dataIndex: 'modulePath',
+        width: 120,
+        showTooltip: true,
+      },
+    ],
+  });
 
   const methodFilterVisible = ref(false);
   const methodFilters = ref(Object.keys(RequestMethods));
@@ -324,6 +389,7 @@
       case 'scenario':
       default:
         routeName = ApiTestRouteEnum.API_TEST_SCENARIO;
+        query.sId = id;
         break;
     }
     openNewPage(routeName, query);
