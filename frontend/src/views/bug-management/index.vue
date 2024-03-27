@@ -676,7 +676,7 @@
     } else {
       detailVisible.value = true;
       activeDetailId.value = id;
-      activeCaseIndex.value = rowIndex;
+      activeCaseIndex.value = rowIndex - 1;
     }
   };
 
