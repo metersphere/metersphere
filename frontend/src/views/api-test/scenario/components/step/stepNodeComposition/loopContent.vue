@@ -142,7 +142,24 @@
       :disabled="!innerData.forEachController.loopTime"
     >
       <a-input-number
+        v-if="innerData.loopType === ScenarioStepLoopTypeEnum.FOREACH"
         v-model:model-value="innerData.forEachController.loopTime"
+        size="mini"
+        :step="1"
+        :min="0"
+        :precision="0"
+        hide-button
+        class="w-[110px] px-[8px]"
+        model-event="input"
+        @blur="handleInputChange"
+      >
+        <template #prefix>
+          <div class="text-[12px] text-[var(--color-text-4)]">{{ t('apiScenario.space') }}:</div>
+        </template>
+      </a-input-number>
+      <a-input-number
+        v-else-if="innerData.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT"
+        v-model:model-value="innerData.msCountController.loopTime"
         size="mini"
         :step="1"
         :min="0"

@@ -494,6 +494,10 @@ export function deleteNode<T>(treeArr: TreeNode<T>[], targetKey: string | number
       const node = tree[i];
       if (node[customKey] === targetKey) {
         tree.splice(i, 1); // 直接删除当前节点
+        // 重新调整剩余子节点的 sort 序号
+        for (let j = i; j < tree.length; j++) {
+          tree[j].sort = j + 1;
+        }
         return;
       }
       if (Array.isArray(node.children)) {
@@ -518,6 +522,10 @@ export function deleteNodes<T>(treeArr: TreeNode<T>[], targetKeys: (string | num
       if (targetKeysSet.has(node[customKey])) {
         tree.splice(i, 1); // 直接删除当前节点
         targetKeysSet.delete(node[customKey]); // 删除后从集合中移除
+        // 重新调整剩余子节点的 sort 序号
+        for (let j = i; j < tree.length; j++) {
+          tree[j].sort = j + 1;
+        }
       } else if (Array.isArray(node.children)) {
         deleteNodesInTree(node.children); // 递归删除子节点
       }

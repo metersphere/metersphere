@@ -17,6 +17,7 @@ export const defaultLoopController = {
   },
   msCountController: {
     loops: 0, // 循环次数
+    loopTime: 0, // 循环间隔时间
   },
   whileController: {
     conditionType: WhileConditionType.CONDITION, // 条件类型
@@ -65,6 +66,7 @@ export const defaultStepItemCommon = {
   createActionsVisible: false,
   responsePopoverVisible: false,
   isExecuting: false,
+  executeStatus: undefined,
 };
 
 export const defaultScenario: Scenario = {

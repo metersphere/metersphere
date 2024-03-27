@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-[16px] flex items-center justify-end">
+    <div class="mb-[8px] flex items-center justify-end">
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('apiScenario.executeHistory.searchPlaceholder')"
@@ -119,7 +119,7 @@
       dataIndex: 'id',
       slotName: 'num',
       fixed: 'left',
-      width: 100,
+      width: 150,
     },
     {
       title: 'apiScenario.executeHistory.execution.triggerMode',
@@ -131,7 +131,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 150,
+      width: 100,
     },
     {
       title: 'apiScenario.executeHistory.execution.status',
@@ -142,14 +142,13 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 150,
+      width: 100,
     },
     {
       title: 'apiScenario.executeHistory.execution.operator',
-      dataIndex: 'createUser',
-      slotName: 'operationUser',
+      dataIndex: 'operationUser',
       showTooltip: true,
-      width: 150,
+      width: 100,
     },
     {
       title: 'apiScenario.executeHistory.execution.operatorTime',
@@ -159,7 +158,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 200,
+      width: 180,
     },
     {
       title: 'common.operation',
@@ -168,7 +167,7 @@
       fixed: 'right',
       showInTable: true,
       showDrag: false,
-      width: 150,
+      width: 100,
     },
   ];
 
@@ -179,7 +178,7 @@
       scroll: { x: '100%' },
       showSetting: false,
       selectable: false,
-      heightUsed: 374,
+      heightUsed: 398,
     },
     (item) => ({
       ...item,

@@ -19,7 +19,7 @@
         </div>
       </template>
     </a-popover> -->
-    <MsTag
+    <!-- <MsTag
       v-if="props.data.projectId !== appStore.currentProjectId"
       theme="outline"
       size="small"
@@ -30,7 +30,7 @@
       }"
     >
       {{ t('apiScenario.crossProject') }}
-    </MsTag>
+    </MsTag> -->
   </div>
 </template>
 

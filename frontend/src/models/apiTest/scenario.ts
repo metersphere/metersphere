@@ -272,6 +272,7 @@ export interface ForEachController {
 }
 export interface CountController {
   loops: number; // 循环次数
+  loopTime: number; // 循环间隔时间
 }
 export interface WhileScript {
   scriptValue: string; // 脚本值
@@ -400,7 +401,7 @@ export interface ApiScenarioDebugRequest {
   environmentId: string;
   scenarioConfig: ScenarioConfig;
   stepDetails: Record<string, ScenarioStepDetail>;
-  reportId?: string | number;
+  reportId: string | number;
   steps: ScenarioStepItem[];
   projectId: string;
   uploadFileIds: string[];
