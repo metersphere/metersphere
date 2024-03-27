@@ -43,23 +43,6 @@ export interface ApiScenarioGetModuleParams {
   refId?: string;
 }
 
-// 场景修改参数
-export interface ApiScenarioUpdateDTO {
-  id: string | number;
-  name?: string;
-  priority?: string;
-  status?: ApiScenarioStatus;
-  moduleId?: string | number;
-  description?: string;
-  tags?: string[];
-  grouped?: boolean;
-  environmentId?: string;
-  uploadFileIds?: string[];
-  linkFileIds?: string[];
-  deleteFileIds?: string[];
-  unLinkFileIds?: string[];
-}
-
 // 场景详情
 export interface ApiScenarioTableItem {
   id: string;
@@ -407,4 +390,20 @@ export interface ApiScenarioDebugRequest {
   uploadFileIds: string[];
   linkFileIds: string[];
   frontendDebug?: boolean;
+}
+
+// 场景修改参数
+export interface ApiScenarioUpdateDTO extends Partial<Scenario> {
+  id: string | number;
+  name?: string;
+  status?: ApiScenarioStatus;
+  moduleId?: string | number;
+  description?: string;
+  tags?: string[];
+  grouped?: boolean;
+  environmentId?: string;
+  uploadFileIds?: string[];
+  linkFileIds?: string[];
+  deleteFileIds?: string[];
+  unLinkFileIds?: string[];
 }

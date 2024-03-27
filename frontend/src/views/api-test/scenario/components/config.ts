@@ -16,7 +16,7 @@ export const defaultLoopController = {
     variable: '', // 变量名
   },
   msCountController: {
-    loops: 0, // 循环次数
+    loops: 1, // 循环次数
     loopTime: 0, // 循环间隔时间
   },
   whileController: {

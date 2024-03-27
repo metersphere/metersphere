@@ -10,7 +10,7 @@
       />
       <a-tooltip
         v-if="innerData.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT"
-        :content="innerData.msCountController.loops.toString()"
+        :content="innerData.msCountController.loops?.toString()"
         :disabled="!innerData.msCountController.loops"
       >
         <a-input-number
@@ -18,7 +18,7 @@
           class="w-[80px] px-[8px]"
           size="mini"
           :step="1"
-          :min="0"
+          :min="1"
           hide-button
           :precision="0"
           model-event="input"
@@ -118,7 +118,10 @@
         >
         </a-input>
       </a-tooltip>
-      <a-tooltip :content="innerData.whileController.timeout.toString()" :disabled="!innerData.whileController.timeout">
+      <a-tooltip
+        :content="innerData.whileController.timeout?.toString()"
+        :disabled="!innerData.whileController.timeout"
+      >
         <a-input-number
           v-model:model-value="innerData.whileController.timeout"
           class="w-[100px] px-[8px]"
@@ -138,7 +141,7 @@
     </template>
     <a-tooltip
       v-if="innerData.loopType !== ScenarioStepLoopTypeEnum.WHILE"
-      :content="innerData.forEachController.loopTime.toString()"
+      :content="innerData.forEachController.loopTime?.toString()"
       :disabled="!innerData.forEachController.loopTime"
     >
       <a-input-number
