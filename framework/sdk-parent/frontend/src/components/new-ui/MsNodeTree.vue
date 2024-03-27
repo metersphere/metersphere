@@ -290,6 +290,7 @@ export default {
       return hasPermissions(permission[0]);
     },
     init() {
+      this.appendChildDisable = false;
       let num = this.getTotalCount();
       this.extendTreeNodes = [];
       this.extendTreeNodes.unshift({
