@@ -403,6 +403,7 @@ public class ApiScenarioService extends MoveNodeService {
     public ApiScenario add(ApiScenarioAddRequest request, String creator) {
         checkAddExist(request);
         ApiScenario scenario = getAddApiScenario(request, creator);
+        scenario.setStepTotal(request.getSteps().size());
         apiScenarioMapper.insert(scenario);
 
         // 更新场景配置
@@ -627,6 +628,7 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenario scenario = BeanUtils.copyBean(new ApiScenario(), request);
         scenario.setUpdateUser(updater);
         scenario.setUpdateTime(System.currentTimeMillis());
+        scenario.setStepTotal(CollectionUtils.isNotEmpty(request.getSteps()) ? request.getSteps().size() : 0);
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
 
         if (request.getScenarioConfig() != null) {

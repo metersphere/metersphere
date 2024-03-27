@@ -73,25 +73,25 @@ public class ApiTaskCenterController {
         apiTaskCenterService.projectStop(request, SessionUtils.getCurrentProjectId(), SessionUtils.getUserId());
     }
 
-    @GetMapping("/api/project/stop/{id}")
+    @GetMapping("/api/project/stop/{moduleType}/{id}")
     @Operation(summary = "项目-任务中心-接口用例/场景-停止任务")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public void stopById(@PathVariable String id) {
-        apiTaskCenterService.stopById(id, SessionUtils.getUserId(), OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, "/task/center/api/project/stop");
+    public void stopById(@PathVariable String moduleType, @PathVariable String id) {
+        apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(), OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, "/task/center/api/project/stop");
     }
 
-    @GetMapping("/api/org/stop/{id}")
+    @GetMapping("/api/org/stop/{moduleType}/{id}")
     @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP)
-    public void stopOrgById(@PathVariable String id) {
-        apiTaskCenterService.stopById(id, SessionUtils.getUserId(), OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, "/task/center/api/org/stop");
+    public void stopOrgById(@PathVariable String moduleType, @PathVariable String id) {
+        apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(), OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, "/task/center/api/org/stop");
     }
 
-    @GetMapping("/api/system/stop/{id}")
+    @GetMapping("/api/system/stop/{moduleType}/{id}")
     @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public void stopSystemById(@PathVariable String id) {
-        apiTaskCenterService.stopById(id, SessionUtils.getUserId(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER, "/task/center/api/system/stop");
+    public void stopSystemById(@PathVariable String moduleType,@PathVariable String id) {
+        apiTaskCenterService.stopById(moduleType ,id, SessionUtils.getUserId(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER, "/task/center/api/system/stop");
     }
 
 

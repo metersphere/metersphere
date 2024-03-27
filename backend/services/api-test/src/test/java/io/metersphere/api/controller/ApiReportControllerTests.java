@@ -23,7 +23,9 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
@@ -72,6 +74,8 @@ public class ApiReportControllerTests extends BaseTest {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
 
     private static final String BASIC = "/api/report/case";
     private static final String PAGE = BASIC + "/page";
@@ -306,6 +310,21 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport1.setEnvironmentId("env_id");
         apiReportMapper.updateByPrimaryKeySelective(apiReport1);
         this.requestGetWithOk(GET + "test-report-id");
+
+        EnvironmentGroup environmentGroup = new EnvironmentGroup();
+        environmentGroup.setId("env_group_id");
+        environmentGroup.setProjectId(DEFAULT_PROJECT_ID);
+        environmentGroup.setName("env_group_name");
+        environmentGroup.setCreateUser("admin");
+        environmentGroup.setUpdateUser("admin");
+        environmentGroup.setUpdateTime(System.currentTimeMillis());
+        environmentGroup.setCreateTime(System.currentTimeMillis());
+        environmentGroup.setPos(1L);
+        environmentGroupMapper.insert(environmentGroup);
+        apiReport1.setEnvironmentId("env_group_id");
+        apiReportMapper.updateByPrimaryKeySelective(apiReport1);
+        this.requestGetWithOk(GET + "test-report-id");
+        environmentGroupMapper.deleteByPrimaryKey("env_group_id");
 
         reports = new ArrayList<>();
         apiReport = new ApiReport();

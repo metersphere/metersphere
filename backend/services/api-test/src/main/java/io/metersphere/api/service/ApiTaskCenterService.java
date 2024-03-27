@@ -263,17 +263,18 @@ public class ApiTaskCenterService {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     TaskRunnerClient.stopApi(endpoint, subList);
+                } catch (Exception e) {
+                    LogUtils.error(e);
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                         extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
+                        extApiReportMapper.updateApiCaseStatus(subList);
                         //记录日志
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_CASE.toString());
                     } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                         extApiScenarioReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
+                        extApiScenarioReportMapper.updateApiScenario(subList);
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_SCENARIO.toString());
                     }
-
-                } catch (Exception e) {
-                    LogUtils.error(e);
                     throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
                 }
             });
@@ -324,11 +325,12 @@ public class ApiTaskCenterService {
         stopApiTask(request, List.of(currentProjectId), userId, PROJECT_STOP, HttpMethodConstants.POST.name(), OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
-    public void stopById(String id, String userId, String module, String path) {
+    public void stopById(String moduleType, String id, String userId, String module, String path) {
         List<String> reportIds = new ArrayList<>();
         reportIds.add(id);
         TaskCenterBatchRequest request = new TaskCenterBatchRequest();
         request.setSelectIds(reportIds);
+        request.setModuleType(moduleType);
         stopApiTask(request, null, userId, path, HttpMethodConstants.GET.name(), module);
     }
 }

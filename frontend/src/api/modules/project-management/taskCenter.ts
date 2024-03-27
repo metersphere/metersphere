@@ -43,14 +43,14 @@ export function batchStopRealProjectApi(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: batchStopRealProjectApiUrl, data });
 }
 
-export function stopRealSysApi(id: string) {
-  return MSR.get({ url: `${stopRealSysApiUrl}/${id}` });
+export function stopRealSysApi(moduleType: string, id: string) {
+  return MSR.get({ url: `${stopRealSysApiUrl}/${moduleType}/${id}` });
 }
-export function stopRealOrdApi(id: string) {
-  return MSR.get({ url: `${stopRealOrdApiUrl}/${id}` });
+export function stopRealOrdApi(moduleType: string, id: string) {
+  return MSR.get({ url: `${stopRealOrdApiUrl}/${moduleType}/${id}` });
 }
-export function stopRealProjectApi(id: string) {
-  return MSR.get({ url: `${stopRealProjectApiUrl}/${id}` });
+export function stopRealProjectApi(moduleType: string, id: string) {
+  return MSR.get({ url: `${stopRealProjectApiUrl}/${moduleType}/${id}` });
 }
 
 // 定时任务

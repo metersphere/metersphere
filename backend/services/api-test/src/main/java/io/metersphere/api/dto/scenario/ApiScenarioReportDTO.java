@@ -22,5 +22,14 @@ public class ApiScenarioReportDTO extends ApiScenarioReport {
     private String creatUserName;
     @Schema(description = "请求总数")
     private Long requestTotal;
-
+    @Schema(description = "等待时间")
+    private Long waitingTime;
+    @Schema(description = "步骤失败数")
+    private Long stepErrorCount;
+    @Schema(description = "步骤误报数")
+    private Long stepFakeErrorCount;
+    @Schema(description = "步骤未执行数")
+    private Long stepPendingCount;
+    @Schema(description = "步骤成功数")
+    private Long stepSuccessCount;
 }

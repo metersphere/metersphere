@@ -293,6 +293,7 @@
           await loadRealMap.value[props.group].batchStop({
             selectIds: selectAll ? [] : selectIds,
             selectAll,
+            moduleType: props.moduleType,
           });
           resetSelector();
           Message.success(t('project.taskCenter.stopSuccess'));
@@ -330,7 +331,7 @@
       },
       onBeforeOk: async () => {
         try {
-          await loadRealMap.value[props.group].stop(record.id);
+          await loadRealMap.value[props.group].stop(props.moduleType, record.id);
           resetSelector();
           Message.success(t('project.taskCenter.stopSuccess'));
           initData();

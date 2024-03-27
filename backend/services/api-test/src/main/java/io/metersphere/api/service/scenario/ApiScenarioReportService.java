@@ -8,14 +8,18 @@ import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
+import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -23,6 +27,7 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -59,6 +64,8 @@ public class ApiScenarioReportService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private UserMapper userMapper;
 
@@ -182,6 +189,13 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isEmpty(scenarioReportSteps)) {
             throw new MSException(Translator.get("api_scenario_report_not_exist"));
         }
+        if (BooleanUtils.isFalse(scenarioReport.getIntegrated())) {
+            ApiScenarioBlob apiScenarioBlob = extApiScenarioReportMapper.getScenarioBlob(id);
+            if (apiScenarioBlob != null) {
+                ScenarioConfig scenarioConfig = JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class);
+                scenarioReportDTO.setWaitingTime(scenarioConfig.getOtherConfig().getStepWaitTime());
+            }
+        }
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
         // TODO 查询修改
@@ -191,6 +205,11 @@ public class ApiScenarioReportService {
         scenarioReportDTO.setStepTotal(steps.size());
         scenarioReportDTO.setRequestTotal(scenarioReportDTO.getErrorCount() + scenarioReportDTO.getPendingCount() + scenarioReportDTO.getSuccessCount() + scenarioReportDTO.getFakeErrorCount());
         scenarioReportDTO.setChildren(steps);
+
+        scenarioReportDTO.setStepErrorCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.ERROR.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepSuccessCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepPendingCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepFakeErrorCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.FAKE_ERROR.name(), step.getStatus())).count());
         //控制台信息 console
         ApiScenarioReportLogExample example = new ApiScenarioReportLogExample();
         example.createCriteria().andReportIdEqualTo(id);
@@ -206,6 +225,10 @@ public class ApiScenarioReportService {
             Environment environment = environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId());
             if (environment != null) {
                 environmentName = environment.getName();
+            }
+            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId());
+            if (environmentGroup != null) {
+                environmentName = environmentGroup.getName();
             }
         }
         scenarioReportDTO.setEnvironmentName(environmentName);
@@ -248,7 +271,11 @@ public class ApiScenarioReportService {
                     } else {
                         step.setStatus(ApiReportStatus.PENDING.name());
                     }
-
+                } else if (stepTypes.contains(step.getStepType())) {
+                    step.setStatus(ApiReportStatus.PENDING.name());
+                    if (StringUtils.equals(ApiScenarioStepType.CONSTANT_TIMER.name(), step.getStepType())) {
+                        step.setStatus(ApiReportStatus.SUCCESS.name());
+                    }
                 }
             }
         }
