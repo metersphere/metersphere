@@ -7,8 +7,8 @@
   </div>
   <div class="flex items-center justify-between">
     <a-button
+      v-if="!store.currentEnvDetailInfo.mock"
       v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-      :disabled="store.currentEnvDetailInfo.mock"
       type="outline"
       @click="handleAddHttp"
       >{{ t('project.environmental.addHttp') }}</a-button
@@ -50,7 +50,9 @@
           t('common.copy')
         }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
-        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+        <MsButton class="!mr-0" :disabled="isDisabled || store.currentEnvDetailInfo.mock" @click="handleEdit(record)">{{
+          t('common.edit')
+        }}</MsButton>
         <a-divider class="h-[16px]" direction="vertical" />
         <MsTableMoreAction
           v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
@@ -92,7 +94,6 @@
   import type { ModuleTreeNode } from '@/models/common';
   import type { CommonParams } from '@/models/projectManagement/environmental';
   import { HttpForm } from '@/models/projectManagement/environmental';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
   const { t } = useI18n();
