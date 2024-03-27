@@ -121,7 +121,7 @@
       case ResponseComposition.EXTRACT:
         return showExtract.value;
       case ResponseComposition.ASSERTION:
-        return props.requestResult?.responseResult.assertions.length;
+        return (props.requestResult?.responseResult.assertions || []).length;
       default:
         break;
     }

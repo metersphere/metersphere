@@ -8,15 +8,28 @@
         </a-radio>
       </a-radio-group>
     </div>
-    <MsCascader
-      v-model:model-value="innerKeyword"
-      mode="native"
-      option-size="small"
-      :multiple="false"
-      class="w-[240px]"
-      :options="cascaderOptions || []"
-      :placeholder="t('report.detail.api.filterPlaceholder')"
-    />
+    <div class="w-[240px]">
+      <MsCascader
+        v-model:model-value="innerKeyword"
+        mode="native"
+        option-size="small"
+        class="w-full"
+        :multiple="false"
+        :options="cascaderOptions || []"
+        :virtual-list-props="{ height: 200 }"
+        :placeholder="t('report.detail.api.filterPlaceholder')"
+      >
+        <template #option="{ data }">
+          <div title="">
+            <a-tooltip :content="t(data.label)">
+              <div class="one-line-text w-[100%]" title="">
+                {{ t(data.label) }}
+              </div>
+            </a-tooltip>
+          </div>
+        </template>
+      </MsCascader>
+    </div>
   </div>
 </template>
 
@@ -90,4 +103,4 @@
   ]);
 </script>
 
-<style scoped></style>
+<style scoped lang="less"></style>

@@ -40,7 +40,7 @@
           >
             <div class="ms-assertion-body-left-item-row">
               <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-              <span class="ms-assertion-body-left-item-row-title">{{ item.name }}</span>
+              <span class="one-text-line">{{ item.name }}</span>
             </div>
             <div class="ms-assertion-body-left-item-switch">
               <div v-show="!props.disabled" class="ms-assertion-body-left-item-switch-action">
@@ -49,7 +49,7 @@
                   class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
                 />
                 <MsTableMoreAction
-                  :list="itemMoreActions"
+                  :list="getItemMoreActions(item)"
                   trigger="click"
                   @select="handleMoreActionSelect($event, item)"
                   @close="focusKey = ''"
@@ -149,7 +149,7 @@
   import { ExecuteAssertionConfig } from '@/models/apiTest/common';
   import { ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
-  import { MsAssertionItem } from './type';
+  import { ExecuteAssertion, MsAssertionItem } from './type';
 
   defineOptions({
     name: 'MsAssertion',
@@ -182,7 +182,6 @@
   const activeKey = ref<string>('');
 
   const getCurrentItemState = ref(assertions.value[0]);
-
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -193,6 +192,13 @@
       eventTag: 'delete',
     },
   ];
+  function getItemMoreActions(item: any) {
+    if (item.assertionType === ResponseAssertionType.SCRIPT) {
+      return itemMoreActions;
+    }
+    return itemMoreActions.slice(-1);
+  }
+
   // 源选项
   const assertOptionSource = [
     {
@@ -226,6 +232,21 @@
     return assertions.value.length > 0;
   });
 
+  function validateAddType(value: string | number | Record<string, any> | undefined) {
+    // 找到对应的类型项
+    const addTypeLength =
+      assertions.value.filter(
+        (item: any) => item.assertionType === value && item.assertionType !== ResponseAssertionType.SCRIPT
+      ).length === 1;
+    if (addTypeLength) {
+      // 赋值当前项加深颜色并且不添加
+      getCurrentItemState.value = assertions.value.find((item: any) => item.assertionType === value);
+      activeKey.value = getCurrentItemState.value.id;
+      return false;
+    }
+    return true;
+  }
+
   // dropdown选择
   const handleSelect = (value: string | number | Record<string, any> | undefined) => {
     const id = new Date().getTime().toString();
@@ -236,79 +257,83 @@
       enable: true,
     };
 
-    switch (value) {
-      // 请求头
-      case ResponseAssertionType.RESPONSE_HEADER:
-        assertions.value.push({
-          ...tmpObj,
-          assertions: [],
-        });
-        break;
-      // 状态码
-      case ResponseAssertionType.RESPONSE_CODE:
-        assertions.value.push({
-          ...tmpObj,
-          condition: 'EQUALS',
-          expectedValue: '200',
-        });
-        break;
-      case ResponseAssertionType.RESPONSE_BODY:
-        assertions.value.push({
-          ...tmpObj,
-          assertionBodyType: ResponseBodyAssertionType.JSON_PATH,
-          jsonPathAssertion: {
+    // 校验添加的类型是否已经重复
+    if (validateAddType(value)) {
+      switch (value) {
+        // 请求头
+        case ResponseAssertionType.RESPONSE_HEADER:
+          assertions.value.push({
+            ...tmpObj,
             assertions: [],
-          },
-          xpathAssertion: {
-            responseFormat: 'XML',
-            assertions: [],
-          },
-          regexAssertion: {
-            assertions: [],
-          },
-          bodyAssertionDataByType: {},
-        });
-        break;
-      // 响应时间
-      case ResponseAssertionType.RESPONSE_TIME:
-        assertions.value.push({
-          ...tmpObj,
-          expectedValue: 100,
-        });
-        break;
-      case ResponseAssertionType.VARIABLE:
-        assertions.value.push({
-          ...tmpObj,
-          condition: '',
-          expectedValue: '',
-          variableAssertionItems: [],
-        });
-        break;
-      case ResponseAssertionType.SCRIPT:
-        assertions.value.push({
-          ...tmpObj,
-          id,
-          processorType: ResponseAssertionType.SCRIPT,
-          name: t('apiTestDebug.preconditionScriptName'),
-          enableCommonScript: false,
-          script: '',
-          scriptId: '',
-          scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
-          commonScriptInfo: {
-            id: '',
-            name: '',
+          });
+          break;
+        // 状态码
+        case ResponseAssertionType.RESPONSE_CODE:
+          assertions.value.push({
+            ...tmpObj,
+            condition: 'EQUALS',
+            expectedValue: '200',
+          });
+          break;
+        case ResponseAssertionType.RESPONSE_BODY:
+          assertions.value.push({
+            ...tmpObj,
+            assertionBodyType: ResponseBodyAssertionType.JSON_PATH,
+            jsonPathAssertion: {
+              assertions: [],
+            },
+            xpathAssertion: {
+              responseFormat: 'XML',
+              assertions: [],
+            },
+            regexAssertion: {
+              assertions: [],
+            },
+            bodyAssertionDataByType: {},
+          });
+          break;
+        // 响应时间
+        case ResponseAssertionType.RESPONSE_TIME:
+          assertions.value.push({
+            ...tmpObj,
+            expectedValue: 100,
+          });
+          break;
+        case ResponseAssertionType.VARIABLE:
+          assertions.value.push({
+            ...tmpObj,
+            condition: '',
+            expectedValue: '',
+            variableAssertionItems: [],
+          });
+          break;
+        case ResponseAssertionType.SCRIPT:
+          assertions.value.push({
+            ...tmpObj,
+            id,
+            processorType: ResponseAssertionType.SCRIPT,
+            name: t('apiTestDebug.preconditionScriptName'),
+            enableCommonScript: false,
             script: '',
-            params: [{}],
+            scriptId: '',
             scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
-          },
-        });
-        break;
+            commonScriptInfo: {
+              id: '',
+              name: '',
+              script: '',
+              params: [{}],
+              scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
+            },
+          });
+          break;
 
-      default:
-        break;
+        default:
+          break;
+      }
+      getCurrentItemState.value = assertions.value[assertions.value.length - 1];
+      activeKey.value = assertions.value[assertions.value.length - 1].id;
     }
-    getCurrentItemState.value = assertions.value[assertions.value.length - 1];
-    activeKey.value = assertions.value[assertions.value.length - 1].id;
+
     emit('change');
   };
 

@@ -110,6 +110,10 @@
     return false;
   });
 
+  const hasEXTRACT = computed(() => {
+    return data.value.filter((item: any) => item.processorType === RequestConditionProcessor.EXTRACT).length > 0;
+  });
+
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -123,20 +127,15 @@
   ];
 
   let moreActions: ActionsItem[] = [...itemMoreActions];
-  watch(
-    () => hasPreAndPost.value,
-    (val) => {
-      if (val) {
-        moreActions = itemMoreActions.slice(-1);
-      } else {
-        moreActions = itemMoreActions;
-      }
-    }
-  );
 
   watchEffect(() => {
     activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
     emit('activeChange', activeItem.value);
+    if (hasPreAndPost.value || hasEXTRACT.value) {
+      moreActions = itemMoreActions.slice(-1);
+    } else {
+      moreActions = itemMoreActions;
+    }
   });
 
   function handleItemClick(item: ExecuteConditionProcessor) {

@@ -118,7 +118,13 @@
         <pre v-for="(e, i) of matchResult" :key="i">{{ e }}</pre>
       </div>
     </div>
-    <a-collapse v-model:active-key="moreSettingActive" :bordered="false" :show-expand-icon="false" class="mt-[16px]">
+    <a-collapse
+      v-if="props.isShowMoreSetting"
+      v-model:active-key="moreSettingActive"
+      :bordered="false"
+      :show-expand-icon="false"
+      class="mt-[16px]"
+    >
       <a-collapse-item :key="1">
         <template #header>
           <MsButton
@@ -157,11 +163,17 @@
   import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { RequestExtractExpressionEnum, RequestExtractExpressionRuleType } from '@/enums/apiEnum';
 
-  const props = defineProps<{
-    visible: boolean;
-    config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
-    response?: string; // 响应内容
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      visible: boolean;
+      config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
+      response?: string; // 响应内容
+      isShowMoreSetting?: boolean; // 是否展示更多设置
+    }>(),
+    {
+      isShowMoreSetting: true,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
     (e: 'apply', config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>): void;
@@ -235,7 +247,7 @@
         if (matchesIterator) {
           const matches = Array.from(matchesIterator);
           try {
-            if (expressionForm.value.expressionMatchingRule === RequestExtractExpressionRuleType.EXPRESSION) {
+            if (expressionForm.value.expressionMatchingRule === 'EXPRESSION') {
               // 匹配表达式，取第一个匹配结果，是完整匹配结果
               matchResult.value = matches.map((e) => e[0]) || [];
             } else {
