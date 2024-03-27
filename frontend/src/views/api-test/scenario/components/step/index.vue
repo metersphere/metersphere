@@ -127,7 +127,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { deleteNodes, filterTree, getGenerateId } from '@/utils';
+  import { deleteNodes, filterTree, getGenerateId, mapTree } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
   import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
@@ -207,16 +207,22 @@
 
   async function handleBeforeBatchToggle(done: (closed: boolean) => void) {
     try {
-      let ids = checkedKeys.value;
+      const ids = new Set(checkedKeys.value);
       if (batchToggleRange.value === 'top') {
-        ids = scenario.value.steps.map((item) => item.id);
+        scenario.value.steps = scenario.value.steps.map((item) => {
+          if (ids.has(item.id)) {
+            item.enable = isBatchEnable.value;
+          }
+          return item;
+        });
+      } else {
+        scenario.value.steps = mapTree(scenario.value.steps, (node) => {
+          if (ids.has(node.id)) {
+            node.enable = isBatchEnable.value;
+          }
+          return node;
+        });
       }
-      console.log('ids', ids);
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 1000);
-      });
       done(true);
       Message.success(isBatchEnable.value ? t('common.enableSuccess') : t('common.disableSuccess'));
     } catch (error) {
@@ -228,6 +234,10 @@
   function batchDelete() {
     deleteNodes(scenario.value.steps, checkedKeys.value, 'id');
     Message.success(t('common.deleteSuccess'));
+    if (scenario.value.steps.length === 0) {
+      checkedAll.value = false;
+      indeterminate.value = false;
+    }
   }
 
   function checkReport() {

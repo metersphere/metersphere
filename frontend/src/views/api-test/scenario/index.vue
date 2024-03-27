@@ -84,6 +84,7 @@
    * @description 接口测试-接口场景主页
    */
 
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -132,6 +133,7 @@
 
   export type ScenarioParams = Scenario & TabItem;
 
+  const route = useRoute();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -211,8 +213,6 @@
     });
   }
 
-  onBeforeMount(selectRecycleCount);
-
   const createRef = ref<InstanceType<typeof create>>();
   const saveLoading = ref(false);
 
@@ -278,10 +278,10 @@
     }
   }
 
-  async function openScenarioTab(record: ApiScenarioTableItem, isCopy?: boolean) {
+  async function openScenarioTab(record: ApiScenarioTableItem | string, isCopy?: boolean) {
     try {
       appStore.showLoading();
-      const res = await getScenarioDetail(record.id);
+      const res = await getScenarioDetail(typeof record === 'string' ? record : record.id);
       res.stepDetails = {};
       if (!res.steps) {
         res.steps = [];
@@ -296,6 +296,13 @@
       });
     }
   }
+
+  onBeforeMount(() => {
+    selectRecycleCount();
+    if (route.query.sId) {
+      openScenarioTab(route.query.sId as string);
+    }
+  });
 
   const websocket = ref<WebSocket>();
   const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失

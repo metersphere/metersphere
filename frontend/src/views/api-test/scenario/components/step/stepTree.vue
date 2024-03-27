@@ -60,7 +60,7 @@
               <div class="mr-[8px] flex items-center gap-[8px]">
                 <!-- 步骤启用/禁用 -->
                 <a-switch
-                  :default-checked="step.enable"
+                  v-model:model-value="step.enable"
                   size="small"
                   @click.stop="handleStepToggleEnable(step)"
                 ></a-switch>
@@ -242,6 +242,8 @@
       :step-responses="scenario.stepResponses"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep"
+      @stop-debug="handleStopExecute(activeStep)"
+      @execute="(request, executeType) => handleApiExecute((request as unknown as RequestParam), executeType)"
     />
     <importApiDrawer
       v-if="importApiDrawerVisible"
@@ -519,6 +521,7 @@
       case 'copy':
         const id = getGenerateId();
         const stepDetail = stepDetails.value[node.id];
+        const { isQuoteScenario } = getStepType(node as ScenarioStepItem);
         if (stepDetail) {
           // 如果复制的步骤还有详情数据，则也复制详情数据
           stepDetails.value[id] = cloneDeep(stepDetail);
@@ -531,13 +534,25 @@
               mapTree<ScenarioStepItem>(node, (childNode) => {
                 const childId = getGenerateId();
                 const childStepDetail = stepDetails.value[node.id];
+                let childCopyFromStepId = childNode.id;
                 if (childStepDetail) {
                   // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
                   stepDetails.value[childId] = cloneDeep(childStepDetail);
                 }
+                if (!isQuoteScenario) {
+                  // 非引用场景才处理复制来源 id
+                  if (childStepDetail || (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.REF)) {
+                    // 如果子步骤查看过详情，则复制来源直接取它的 id
+                    // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是引用的步骤，则还是取它本身的 id
+                    childCopyFromStepId = childNode.id;
+                  } else if (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.COPY) {
+                    // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是复制的步骤，则取它的来源 id
+                    childCopyFromStepId = childNode.copyFromStepId;
+                  }
+                }
                 return {
                   ...cloneDeep(childNode),
-                  copyFromStepId: childNode.id,
+                  copyFromStepId: childCopyFromStepId,
                   id: childId,
                 };
               })[0]
@@ -545,7 +560,7 @@
             name: `copy-${node.name}`,
             copyFromStepId: node.id,
             sort: node.sort + 1,
-            isNew: false,
+            isNew: true,
             id,
           },
           'after',
@@ -819,7 +834,12 @@
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.id, 'id');
     if (realStep) {
       realStep.reportId = getGenerateId();
-      realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
+      if (
+        [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(realStep.stepType)
+      ) {
+        // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
+        realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
+      }
       const stepDetail = stepDetails.value[realStep.id];
       delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
       realExecute(

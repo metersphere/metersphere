@@ -380,6 +380,8 @@
       title: 'apiTestManagement.paramName',
       dataIndex: 'key',
       inputType: 'text',
+      width: 250,
+      showTooltip: true,
     },
     {
       title: 'apiTestManagement.paramVal',

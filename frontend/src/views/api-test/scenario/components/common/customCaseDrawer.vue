@@ -1,8 +1,6 @@
 <template>
   <MsDrawer
     v-model:visible="visible"
-    unmount-on-close
-    :mask="false"
     :width="900"
     :footer="false"
     show-full-screen
@@ -88,17 +86,13 @@
   import requestAndResponse from '@/views/api-test/components/requestAndResponse.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
-    debugCase,
     getCaseDetail,
     getTransferOptionsCase,
-    runCase,
     transferFileCase,
     uploadTempFileCase,
   } from '@/api/modules/api-test/management';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
-  import { characterLimit, getGenerateId } from '@/utils';
+  import { characterLimit } from '@/utils';
 
   import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
@@ -121,6 +115,8 @@
   const emit = defineEmits<{
     (e: 'applyStep', request: RequestParam): void;
     (e: 'deleteStep'): void;
+    (e: 'execute', request: RequestParam, executeType?: 'localExec' | 'serverExec'): void;
+    (e: 'stopDebug'): void;
   }>();
 
   const { t } = useI18n();
@@ -208,11 +204,23 @@
     () =>
       activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.REF
   );
+  const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
 
   const stepName = ref(activeStep.value?.name);
   watchEffect(() => {
     stepName.value = activeStep.value?.name;
   });
+  watch(
+    () => props.stepResponses,
+    (val) => {
+      if (val && val[requestVModel.value.stepId]) {
+        requestVModel.value.executeLoading = false;
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const requestAndResponseRef = ref<InstanceType<typeof requestAndResponse>>();
@@ -230,66 +238,31 @@
     isShowEditStepNameInput.value = false;
   }
 
-  const reportId = ref('');
-  const websocket = ref<WebSocket>();
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
-  // 开启websocket监听，接收执行结果
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      reportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? executeRef.value?.localExecuteUrl : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (requestVModel.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          requestVModel.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
-          requestVModel.value.executeLoading = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        requestVModel.value.executeLoading = false;
-      }
-    });
-  }
+  /**
+   * 执行调试
+   * @param val 执行类型
+   */
   async function handleExecute(executeType?: 'localExec' | 'serverExec') {
-    try {
-      requestVModel.value.executeLoading = true;
-      requestVModel.value.response = cloneDeep(defaultResponse);
-      const makeRequestParams = requestAndResponseRef.value?.makeRequestParams(executeType); // 写在reportId之前，防止覆盖reportId
-      reportId.value = getGenerateId();
-      requestVModel.value.reportId = reportId.value; // 存储报告ID
-      debugSocket(executeType); // 开启websocket
-      let res;
-      const params = {
-        apiDefinitionId: requestVModel.value.apiDefinitionId,
-        ...makeRequestParams,
-        reportId: reportId.value,
-      };
-      if (!(requestVModel.value.resourceId as string).startsWith('c') && executeType === 'serverExec') {
-        // 已创建的服务端
-        res = await runCase(params);
-      } else {
-        res = await debugCase(params);
-      }
-      if (executeType === 'localExec') {
-        await localExecuteApiDebug(executeRef.value?.localExecuteUrl ?? '', res);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      requestVModel.value.executeLoading = false;
+    requestVModel.value.executeLoading = true;
+    if (isHttpProtocol.value) {
+      emit('execute', requestAndResponseRef.value?.makeRequestParams(executeType), executeType);
+    } else {
+      // 插件需要校验动态表单
+      // fApi.value?.validate(async (valid) => {
+      //   if (valid === true) {
+      //     emit('execute', requestAndResponseRef.value?.makeRequestParams(executeType), executeType);
+      //   } else {
+      //     requestVModel.value.activeTab = RequestComposition.PLUGIN;
+      //     nextTick(() => {
+      //       scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+      //     });
+      //   }
+      // });
     }
   }
+
   function stopDebug() {
-    websocket.value?.close();
-    requestVModel.value.executeLoading = false;
+    emit('stopDebug');
   }
 
   function handleClose() {

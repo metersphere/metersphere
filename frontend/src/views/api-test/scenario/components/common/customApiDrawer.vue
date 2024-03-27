@@ -362,7 +362,7 @@
 
   export type RequestParam = ExecuteApiRequestFullParams & {
     response?: RequestTaskResult;
-    customizeRequestEnvEnable: boolean;
+    customizeRequestEnvEnable?: boolean;
   } & RequestCustomAttr;
 
   const props = defineProps<{

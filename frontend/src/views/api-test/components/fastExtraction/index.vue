@@ -235,7 +235,7 @@
         if (matchesIterator) {
           const matches = Array.from(matchesIterator);
           try {
-            if (expressionForm.value.expressionMatchingRule === 'EXPRESSION') {
+            if (expressionForm.value.expressionMatchingRule === RequestExtractExpressionRuleType.EXPRESSION) {
               // 匹配表达式，取第一个匹配结果，是完整匹配结果
               matchResult.value = matches.map((e) => e[0]) || [];
             } else {
