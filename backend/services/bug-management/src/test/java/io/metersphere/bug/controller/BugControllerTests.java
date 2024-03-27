@@ -634,13 +634,13 @@ public class BugControllerTests extends BaseTest {
         List<Bug> remainBugs = bugMapper.selectByExample(example);
         Project defaultProject = projectMapper.selectByPrimaryKey("default-project-for-bug");
         // 同步第一次
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
         // 同步第二次
         renameLocalFile(updateRequest2.getId()); // 重命名后, 同步时会删除本地文件
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
         // 同步第三次
         deleteLocalFile(updateRequest2.getId()); // 手动删除关联的文件, 重新同步时会下载平台附件
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
 
         // 全选删除所有Jira缺陷
         BugBatchRequest request = new BugBatchRequest();
@@ -719,9 +719,9 @@ public class BugControllerTests extends BaseTest {
         Project project = projectMapper.selectByPrimaryKey("default-project-for-bug");
         this.requestPostWithOk(BUG_SYNC_ALL, request);
         BugService mockBugService = Mockito.mock(BugService.class);
-        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project, "admin");
+        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
         ReflectionTestUtils.setField(bugSyncService, "bugService", mockBugService);
-        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest, "admin"));
+        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage()));
         assertEquals(msException.getMessage(), "sync error!");
     }
 
