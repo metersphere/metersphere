@@ -102,6 +102,7 @@
   }
 
   async function openCaseTab(apiInfo: ApiCaseDetail | string) {
+    caseExecute.value = false;
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
@@ -115,7 +116,15 @@
 
   async function openCaseTabAndExecute(apiInfo: ApiCaseDetail | string) {
     caseExecute.value = true;
-    await openCaseTab(apiInfo);
+    const isLoadedTabIndex = apiTabs.value.findIndex(
+      (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
+    );
+    if (isLoadedTabIndex > -1) {
+      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      activeApiTab.value = apiTabs.value[isLoadedTabIndex] as RequestParam;
+      return;
+    }
+    await openOrUpdateCaseTab(true, typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
   }
 
   const caseTableRef = ref<InstanceType<typeof caseTable>>();
