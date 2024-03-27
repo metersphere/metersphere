@@ -11,7 +11,7 @@
       </div>
     </template>
 
-    <a-form ref="batchExecuteFormRef" class="rounded-[4px]" :model="batchExecuteForm" layout="vertical">
+    <a-form ref="batchExecuteFormRef" class="ms-form rounded-[4px]" :model="batchExecuteForm" layout="vertical">
       <a-form-item field="defaultEnv" :label="t('case.execute.selectEnv')">
         <a-radio-group v-model="batchExecuteForm.defaultEnv">
           <a-radio value="true"
