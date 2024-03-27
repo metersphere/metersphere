@@ -46,17 +46,18 @@
     @batch-action="handleTableBatch"
     @change="changeHandler"
     @module-change="initData()"
+    @cell-click="showCaseDetailEvent"
   >
     <template #num="{ record, rowIndex }">
-      <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
-    </template>
-    <template #name="{ record, rowIndex }">
-      <div
+      <span
         type="text"
-        class="one-line-text text-[rgb(var(--primary-5))]"
+        class="one-line-text px-0 text-[rgb(var(--primary-5))]"
         @click="showCaseDetail(record.id, rowIndex)"
-        >{{ characterLimit(record.name) }}</div
+        >{{ record.num }}</span
       >
+    </template>
+    <template #name="{ record }">
+      <div type="text">{{ characterLimit(record.name) }}</div>
     </template>
     <template #updateUserName="{ record }">
       <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
@@ -345,7 +346,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -1222,8 +1223,6 @@
 
   // 抽屉详情
   function showCaseDetail(id: string, index: number) {
-    showDetailDrawer.value = true;
-    activeDetailId.value = id;
     activeCaseIndex.value = index;
   }
 
@@ -1445,15 +1444,18 @@
     }
   }
 
-  // function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
-  //   showDetailDrawer.value = false;
-  //   if (column.title === 'name' || column.title === 'num') {
-  //     const rowIndex = propsRes.value.data.map((item: any) => item.id).indexOf(record.id);
-  //     showDetailDrawer.value = true;
-  //     activeDetailId.value = record.id;
-  //     activeCaseIndex.value = rowIndex;
-  //   }
-  // }
+  function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
+    showDetailDrawer.value = false;
+    if (column.title === 'num') {
+      activeDetailId.value = record.id;
+      if (activeCaseIndex.value > 0) {
+        activeCaseIndex.value -= 1;
+      }
+      setTimeout(() => {
+        showDetailDrawer.value = true;
+      }, 100);
+    }
+  }
 
   // 批量添加需求
   const confirmLoading = ref<boolean>(false);
@@ -1559,7 +1561,6 @@
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
-
     await initFilter();
     initData();
   });
