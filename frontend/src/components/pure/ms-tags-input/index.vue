@@ -64,7 +64,7 @@
       size: 'medium',
     }
   );
-  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear']);
+  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear', 'blur']);
 
   const { t } = useI18n();
 
@@ -142,6 +142,7 @@
       innerInputValue.value = '';
       tagsLength.value += 1;
     }
+    emit('blur');
   }
 
   function tagInputEnter() {

@@ -496,6 +496,7 @@
         id: props.detailInfo.id,
         projectId: currentProjectId.value,
         templateId: props.detailInfo.templateId,
+        tags: props.detailInfo.tags,
         deleteLocalFileIds: form.value.deleteLocalFileIds,
         unLinkRefIds: form.value.unLinkRefIds,
         linkFileIds: form.value.linkFileIds,

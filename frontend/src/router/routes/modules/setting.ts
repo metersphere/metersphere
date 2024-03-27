@@ -132,26 +132,6 @@ const Setting: AppRouteRecordRaw = {
             ],
           },
         },
-        {
-          path: 'authorizedmanagement',
-          name: SettingRouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT,
-          component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
-          meta: {
-            locale: 'menu.settings.system.authorizedManagement',
-            roles: ['SYSTEM_AUTH:READ'],
-            isTopMenu: true,
-          },
-        },
-        {
-          path: 'log',
-          name: SettingRouteEnum.SETTING_SYSTEM_LOG,
-          component: () => import('@/views/setting/system/log/index.vue'),
-          meta: {
-            locale: 'menu.settings.system.log',
-            roles: ['SYSTEM_LOG:READ'],
-            isTopMenu: true,
-          },
-        },
         // 任务中心
         {
           path: 'taskCenter',
@@ -170,6 +150,26 @@ const Setting: AppRouteRecordRaw = {
           meta: {
             locale: 'menu.settings.system.pluginManager',
             roles: ['SYSTEM_PLUGIN:READ'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'authorizedmanagement',
+          name: SettingRouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT,
+          component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.authorizedManagement',
+            roles: ['SYSTEM_AUTH:READ'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'log',
+          name: SettingRouteEnum.SETTING_SYSTEM_LOG,
+          component: () => import('@/views/setting/system/log/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.log',
+            roles: ['SYSTEM_LOG:READ'],
             isTopMenu: true,
           },
         },
@@ -395,16 +395,6 @@ const Setting: AppRouteRecordRaw = {
             ],
           },
         },
-        {
-          path: 'log',
-          name: SettingRouteEnum.SETTING_ORGANIZATION_LOG,
-          component: () => import('@/views/setting/organization/log/index.vue'),
-          meta: {
-            locale: 'menu.settings.organization.log',
-            roles: ['ORGANIZATION_LOG:READ'],
-            isTopMenu: true,
-          },
-        },
         // 任务中心
         {
           path: 'taskCenter',
@@ -413,6 +403,16 @@ const Setting: AppRouteRecordRaw = {
           meta: {
             locale: 'menu.projectManagement.taskCenter',
             roles: ['ORGANIZATION_TASK_CENTER:READ'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'log',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_LOG,
+          component: () => import('@/views/setting/organization/log/index.vue'),
+          meta: {
+            locale: 'menu.settings.organization.log',
+            roles: ['ORGANIZATION_LOG:READ'],
             isTopMenu: true,
           },
         },
