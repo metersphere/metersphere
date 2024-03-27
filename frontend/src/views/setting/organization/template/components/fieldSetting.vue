@@ -82,7 +82,13 @@
             ></MsPopConfirm
           >
 
-          <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
+          <a-divider
+            v-if="
+              !record.internal && hasAnyPermission(props.updatePermission) && hasAnyPermission(props.deletePermission)
+            "
+            class="h-[12px]"
+            direction="vertical"
+          />
           <MsTableMoreAction
             v-if="!record.internal"
             v-permission="props.deletePermission"
