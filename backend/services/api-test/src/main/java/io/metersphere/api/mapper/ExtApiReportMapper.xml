@@ -11,6 +11,17 @@
             #{id}
         </foreach>
     </update>
+    <update id="updateApiCaseStatus">
+        update api_test_case
+        set last_report_status = 'STOPPED'
+        where id in
+        (select api_test_case_id from api_test_case_record where api_report_id
+        in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        )
+    </update>
 
     <select id="list" resultType="io.metersphere.api.domain.ApiReport">
         select
@@ -186,7 +197,7 @@
         api_report.deleted = false
         and api_report.test_plan_id = 'NONE'
         and api_report.start_time BETWEEN #{startTime} AND #{endTime}
-        and status in ('PENDING', 'RUNNING')
+        and status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
             and id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">

@@ -1,5 +1,6 @@
 package io.metersphere.api.mapper;
 
+import io.metersphere.api.domain.ApiScenarioBlob;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
@@ -44,4 +45,8 @@ public interface ExtApiScenarioReportMapper {
      * 根据项目获取组织id
      */
     List<ReportDTO> getOrgListByProjectIds(@Param("ids") List<String> ids);
+
+    ApiScenarioBlob getScenarioBlob(String id);
+
+    void updateApiScenario(List<String> subList);
 }

@@ -394,6 +394,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(id);
         ApiScenario copyApiScenario = BeanUtils.copyBean(new ApiScenario(), apiScenario);
         copyApiScenario = BeanUtils.copyBean(copyApiScenario, request);
+        copyApiScenario.setStepTotal(apiScenario.getStepTotal());
         Assertions.assertEquals(apiScenario, copyApiScenario);
         if (scenarioConfig != null) {
             Assertions.assertEquals(scenarioConfig, JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));

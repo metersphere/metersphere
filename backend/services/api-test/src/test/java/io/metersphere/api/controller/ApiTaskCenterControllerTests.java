@@ -202,7 +202,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
     @Order(12)
     public void stopById() throws Exception {
         mockPost("/api/stop", "");
-        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/project/stop/task-report-id0")
+        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/project/stop/API_CASE/task-report-id0")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID)
@@ -210,14 +210,14 @@ public class ApiTaskCenterControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         mockPost("/api/stop", "");
-        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/org/stop/task-report-id0")
+        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/org/stop/API_SCENARIO/task-report-id0")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID)
                         .header(SessionConstants.CURRENT_ORGANIZATION, DEFAULT_ORGANIZATION_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/system/stop/task-report-id0")
+        mockMvc.perform(MockMvcRequestBuilders.get("/task/center/api/system/stop/API_SCENARIO/task-report-id0")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID)

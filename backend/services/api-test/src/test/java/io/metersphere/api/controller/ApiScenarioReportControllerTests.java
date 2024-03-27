@@ -23,7 +23,9 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
@@ -72,6 +74,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
 
     private static final String BASIC = "/api/report/scenario";
     private static final String PAGE = BASIC + "/page";
@@ -290,14 +294,14 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         List<ApiScenarioReportDetail> details = new ArrayList<>();
         for (int i = 1; i < 20; i++) {
             ApiScenarioReportDetail apiReportDetail = new ApiScenarioReportDetail();
-            apiReportDetail.setId("test-report-detail-id" + i+2);
+            apiReportDetail.setId("test-report-detail-id" + i + 2);
             apiReportDetail.setReportId("test-scenario-report-id");
             apiReportDetail.setStepId("test-scenario-report-step-id" + i);
             if (i % 2 == 0) {
                 apiReportDetail.setStatus(ApiReportStatus.SUCCESS.name());
                 apiReportDetail.setResponseSize(1L);
                 apiReportDetail.setRequestTime(2L);
-            } else if (i % 3 == 0){
+            } else if (i % 3 == 0) {
                 apiReportDetail.setStatus(null);
                 apiReportDetail.setResponseSize(0L);
                 apiReportDetail.setRequestTime(2L);
@@ -335,6 +339,22 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         scenarioReport1.setEnvironmentId("env_id");
         apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport1);
         this.requestGetWithOk(GET + "test-scenario-report-id");
+
+        //插入一个环境组
+        EnvironmentGroup environmentGroup = new EnvironmentGroup();
+        environmentGroup.setId("env_group_id");
+        environmentGroup.setProjectId(DEFAULT_PROJECT_ID);
+        environmentGroup.setName("env_group_name");
+        environmentGroup.setCreateUser("admin");
+        environmentGroup.setUpdateUser("admin");
+        environmentGroup.setUpdateTime(System.currentTimeMillis());
+        environmentGroup.setCreateTime(System.currentTimeMillis());
+        environmentGroup.setPos(1L);
+        environmentGroupMapper.insert(environmentGroup);
+        scenarioReport1.setEnvironmentId("env_group_id");
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport1);
+        this.requestGetWithOk(GET + "test-scenario-report-id");
+        environmentGroupMapper.deleteByPrimaryKey("env_group_id");
 
         mockMvc.perform(getRequestBuilder(GET + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -396,7 +416,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertNotNull(shareInfoDTO.getShareUrl());
         Assertions.assertNotNull(shareInfoDTO.getId());
         String shareId = shareInfoDTO.getId();
-        MvcResult mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-scenario-report-id")
+        MvcResult mvcResult1 = this.requestGetWithOk(BASIC + "/share/" + shareId + "/" + "test-scenario-report-id")
                 .andReturn();
         ApiScenarioReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiScenarioReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -409,7 +429,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mvcResult = this.requestGetWithOk(BASIC+ "/share/detail/" + shareId + "/" + "test-scenario-report-id" + "/" + "test-scenario-report-step-id1")
+        mvcResult = this.requestGetWithOk(BASIC + "/share/detail/" + shareId + "/" + "test-scenario-report-id" + "/" + "test-scenario-report-step-id1")
                 .andReturn();
         List<ApiScenarioReportDetailDTO> data = ApiDataUtils.parseArray(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiScenarioReportDetailDTO.class);
         Assertions.assertNotNull(data);
@@ -418,10 +438,10 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-scenario-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC + "/share/" + shareId + "/" + "test-scenario-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
-        
+
 
         shareInfo = new ApiReportShareRequest();
         shareInfo.setReportId("test-scenario-report-id");
@@ -445,7 +465,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             projectApplicationMapper.insert(projectApplication);
         }
 
-        mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-scenario-report-id")
+        mvcResult1 = this.requestGetWithOk(BASIC + "/share/" + shareId + "/" + "test-scenario-report-id")
                 .andReturn();
         apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiScenarioReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -456,7 +476,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-scenario-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC + "/share/" + shareId + "/" + "test-scenario-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
     }

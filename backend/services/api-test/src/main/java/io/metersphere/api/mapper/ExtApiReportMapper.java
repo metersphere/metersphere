@@ -36,4 +36,6 @@ public interface ExtApiReportMapper {
     void updateReportStatus(@Param("ids") List<String> ids, @Param("time") long time, @Param("userId") String userId);
 
     List<ReportDTO> selectByIds(@Param("ids") List<String> ids);
+
+    void updateApiCaseStatus(@Param("ids") List<String> ids);
 }

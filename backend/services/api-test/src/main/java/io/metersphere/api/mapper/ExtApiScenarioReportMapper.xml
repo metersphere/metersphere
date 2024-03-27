@@ -11,6 +11,16 @@
             #{id}
         </foreach>
     </update>
+    <update id="updateApiScenario">
+        update api_scenario
+        set last_report_status = 'STOPPED'
+        where id in (
+        select api_scenario_id from api_scenario_record where api_scenario_report_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+            )
+    </update>
 
     <select id="list" resultType="io.metersphere.api.domain.ApiScenarioReport">
         select
@@ -114,7 +124,7 @@
         api_scenario_report.deleted = false
         and api_scenario_report.test_plan_id = 'NONE'
         and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
-        and status in ('PENDING', 'RUNNING')
+        and status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
             and id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -202,6 +212,13 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="getScenarioBlob" resultType="io.metersphere.api.domain.ApiScenarioBlob">
+        select
+        api_scenario_blob.*
+        from api_scenario_blob inner join api_scenario_record on api_scenario_blob.id = api_scenario_record.api_scenario_id
+        where api_scenario_record.api_scenario_report_id = #{id}
+
     </select>
 
     <sql id="filters">

@@ -7,8 +7,10 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
@@ -59,6 +61,8 @@ public class ApiReportService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
 
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -193,6 +197,11 @@ public class ApiReportService {
             if (environment != null) {
                 environmentName = environment.getName();
             }
+            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId());
+            if (environmentGroup != null) {
+                environmentName = environmentGroup.getName();
+            }
+
         }
         apiReportDTO.setEnvironmentName(environmentName);
         apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());

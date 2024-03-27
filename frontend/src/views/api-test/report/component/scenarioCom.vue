@@ -88,25 +88,25 @@
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.successCount') }}</div>
-            {{ getIndicators(detail.successCount) }}
+            {{ getIndicators(detail.stepSuccessCount) }}
           </div>
           <!-- 误报 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.fakeErrorCount') }}</div>
-            {{ getIndicators(detail.fakeErrorCount) }}
+            {{ getIndicators(detail.stepFakeErrorCount) }}
           </div>
           <!-- 失败 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.errorCount') }}</div>
-            {{ getIndicators(detail.errorCount) }}
+            {{ getIndicators(detail.stepErrorCount) }}
           </div>
           <!-- 未执行 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.pendingCount') }}</div>
-            {{ getIndicators(detail.pendingCount) }}
+            {{ getIndicators(detail.stepPendingCount) }}
           </div>
         </div>
         <StepProgress :report-detail="detail" height="8px" radius="var(--border-radius-mini)" />
@@ -254,6 +254,10 @@
     children: [], // 步骤列表
     stepTotal: 0, // 步骤总数
     console: '',
+    stepSuccessCount: 0, // 步骤成功数
+    stepErrorCount: 0, // 步骤失败数
+    stepFakeErrorCount: 0, // 步骤误报数
+    stepPendingCount: 0, // 步骤未执行数
   });
 
   const cascaderKeywords = ref<string>('');

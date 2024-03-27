@@ -18,7 +18,8 @@ export default {
   'project.taskCenter.viewReport': 'View report',
   'project.taskCenter.batchStopTask': 'Are you sure to stop {num} tasks?',
   'project.taskCenter.stopTask': 'Are you sure to stop {name} task?',
-  'project.taskCenter.stopTaskContent': 'After stopping,{name} please operate with caution?',
+  'project.taskCenter.stopTaskContent':
+    'Stopping will affect report generation, and the completed report cannot be stopped.',
   'project.taskCenter.confirmStop': 'Confirm stop',
   'project.taskCenter.stopSuccess': 'Stop successfully',
   'project.taskCenter.testResource': 'Test resource',

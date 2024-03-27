@@ -67,6 +67,7 @@
         :label="t('case.execute.reportName')"
         :rules="[{ required: true, message: t('apiTestManagement.reportNameRequired') }]"
         :validate-trigger="['blur', 'input']"
+        asterisk-position="end"
       >
         <a-input
           v-model="batchExecuteForm.integratedReportName"
@@ -77,6 +78,7 @@
       <a-form-item
         field="poolId"
         :label="t('case.execute.pool')"
+        asterisk-position="end"
         :rules="[{ required: true, message: t('apiTestManagement.poolRequired') }]"
       >
         <a-select v-model="batchExecuteForm.poolId" :placeholder="t('common.pleaseSelect')">
