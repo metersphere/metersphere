@@ -811,7 +811,7 @@ public class ApiScenarioService extends MoveNodeService {
      * 解析步骤树结构
      * 获取待更新的 ApiScenarioStep 列表
      */
-    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepRequest parent,
+    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
                                                       List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
@@ -1292,7 +1292,7 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenarioReport scenarioReport = getScenarioReport(userId);
         scenarioReport.setId(reportId);
         scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        scenarioReport.setName(apiScenario.getName());
+        scenarioReport.setName(apiScenario.getName() + DateUtils.getTimeString(System.currentTimeMillis()));
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(poolId);
         scenarioReport.setEnvironmentId(apiScenario.getEnvironmentId());

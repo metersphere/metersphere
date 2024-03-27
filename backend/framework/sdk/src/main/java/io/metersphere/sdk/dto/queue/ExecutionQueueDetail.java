@@ -19,4 +19,9 @@ public class ExecutionQueueDetail implements Serializable {
      * 排序
      */
     private Integer sort;
+
+    /**
+     * 当前资源产生的执行报告id
+     */
+    private String reportId;
 }

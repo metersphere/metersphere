@@ -463,10 +463,10 @@
     </sql>
 
     <sql id="queryVersionCondition">
-        <if test="request.versionId != null">
+        <if test="request.versionId != null and request.versionId != ''">
             and ${versionTable}.version_id = #{request.versionId}
         </if>
-        <if test="request.versionId == null and request.apiDefinitionId == null">
+        <if test="request.versionId == null and request.versionId != '' and request.apiDefinitionId == null and request.apiDefinitionId == ''">
             AND a.latest = 1
         </if>
     </sql>
