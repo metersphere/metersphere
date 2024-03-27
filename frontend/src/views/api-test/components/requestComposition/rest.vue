@@ -1,7 +1,7 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <div class="flex items-center gap-[4px]">
-      <div class="font-medium">Rest</div>
+      <div class="font-medium">REST</div>
       <a-tooltip :content="t('apiTestDebug.restTip', { id: '{id}' })" position="right">
         <icon-question-circle
           class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"

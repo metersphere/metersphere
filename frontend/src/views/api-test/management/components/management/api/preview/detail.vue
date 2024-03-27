@@ -94,7 +94,7 @@
           </div>
           <div v-if="previewDetail.rest.length > 0" class="detail-item">
             <div class="detail-item-title">
-              <div class="detail-item-title-text">Rest</div>
+              <div class="detail-item-title-text">REST</div>
               <a-radio-group v-model:model-value="restShowType" type="button" size="mini">
                 <a-radio value="table">Table</a-radio>
                 <a-radio value="raw">Raw</a-radio>
