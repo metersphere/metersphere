@@ -407,6 +407,7 @@
     {
       title: 'apiScenario.table.columns.name',
       dataIndex: 'name',
+      slotName: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -419,6 +420,7 @@
       title: 'apiScenario.table.columns.level',
       dataIndex: 'priority',
       slotName: 'priority',
+      showDrag: true,
       width: 100,
     },
     {
@@ -426,6 +428,7 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
+      showDrag: true,
       width: 140,
     },
     {
@@ -434,6 +437,7 @@
       dataIndex: 'lastReportStatus',
       slotName: 'lastReportStatus',
       showTooltip: true,
+      showDrag: true,
       width: 100,
     },
     {
@@ -441,25 +445,30 @@
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.scenarioEnv',
       dataIndex: 'environmentName',
+      showDrag: true,
       width: 159,
     },
     {
       title: 'apiScenario.table.columns.steps',
       dataIndex: 'stepTotal',
+      showDrag: true,
       width: 100,
     },
     {
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
+      showDrag: true,
       width: 100,
     },
     {
       title: 'apiScenario.table.columns.module',
       dataIndex: 'modulePath',
+      showDrag: true,
       width: 176,
     },
     {
@@ -470,6 +479,7 @@
         sorter: true,
       },
       width: 189,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.updateTime',
@@ -478,17 +488,24 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
       width: 189,
     },
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
+      slotName: 'createUserName',
       showTooltip: true,
+      showDrag: true,
+      width: 109,
     },
     {
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
+      slotName: 'updateUserName',
       showTooltip: true,
+      showDrag: true,
+      width: 109,
     },
     {
       title: 'common.operation',
