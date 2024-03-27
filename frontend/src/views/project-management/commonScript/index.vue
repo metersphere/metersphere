@@ -130,6 +130,7 @@
       slotName: 'name',
       width: 300,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.description',
