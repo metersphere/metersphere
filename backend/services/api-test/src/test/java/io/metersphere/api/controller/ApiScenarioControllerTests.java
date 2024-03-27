@@ -981,7 +981,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         constantTimer.setId(IDGenerator.nextStr());
         stepDetails.put(constantTimer.getId(), JSON.parseObject(ApiDataUtils.toJSONString(constantTimerController)));
         config = new LinkedHashMap<>();
-        config.put("waitTime", 1000);
+        config.put("delay", 1000L);
         constantTimer.setConfig(config);
         steps.add(constantTimer);
         constantTimerController = constantTimerController("test-constant-timer", false);
@@ -992,7 +992,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         constantTimer.setId(IDGenerator.nextStr());
         stepDetails.put(constantTimer.getId(), JSON.parseObject(ApiDataUtils.toJSONString(constantTimerController)));
         config = new LinkedHashMap<>();
-        config.put("waitTime", 1000);
+        config.put("delay", 1000L);
         constantTimer.setConfig(config);
         steps.add(constantTimer);
 

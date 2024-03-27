@@ -8,10 +8,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class MsConstantTimerController extends AbstractMsTestElement {
     /**
-     * id
-     */
-    private String id;
-    /**
      * 延迟时间
      */
     private Long delay;
