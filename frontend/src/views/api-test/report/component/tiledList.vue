@@ -1,6 +1,6 @@
 <template>
   <div
-    class="tiled-wrap h-[calc(100vh - 374px)] p-4"
+    class="tiled-wrap p-4"
     :class="{
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
     }"
@@ -141,7 +141,7 @@
 
 <style scoped lang="less">
   .tiled-wrap {
-    height: calc(100vh - 424px);
+    min-height: calc(100vh - 424px);
     border-radius: 4px;
   }
 </style>

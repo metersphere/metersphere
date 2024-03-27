@@ -3,17 +3,56 @@
     <!-- 报告参数开始 -->
     <div class="report-header flex items-center justify-between">
       <span>
-        {{ detail.poolName || '-' }}
-        <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.environmentName || '-' }}
-        <a-divider direction="vertical" :margin="4"></a-divider>
-        {{ detail.creatUserName || '-' }}
+        <a-popover position="left" content-class="response-popover-content">
+          <span> {{ detail.environmentName || '-' }}</span>
+          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
+              <span class="mx-1"> {{ detail.environmentName || '-' }}</span>
+            </div>
+          </template>
+        </a-popover>
+        <a-popover position="bottom" content-class="response-popover-content">
+          <span> {{ detail.poolName || '-' }}</span>
+          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
+              <span class="mx-1"> {{ detail.poolName || '-' }}</span>
+            </div>
+          </template>
+        </a-popover>
+        <a-popover position="left" content-class="response-popover-content">
+          <span v-if="detail.runMode">
+            {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
+          >
+          <a-divider v-if="detail.runMode" direction="vertical" :margin="4" class="!mx-2"></a-divider>
+          <template #content>
+            <div class="items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
+              <div class="mx-1 mt-1">
+                {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</div
+              >
+            </div>
+          </template>
+        </a-popover>
+
+        <a-popover position="bottom" content-class="response-popover-content">
+          <span> {{ detail.creatUserName || '-' }}</span>
+          <template #content>
+            <div class="items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.reportCreator') }}</div>
+              <div class="mt-1"> {{ detail.creatUserName || '-' }}</div>
+            </div>
+          </template>
+        </a-popover>
       </span>
       <span>
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-        {{ dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+        {{ detail.startTime ? dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
-        {{ dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+        {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
       </span>
     </div>
     <!-- 报告参数结束 -->
@@ -23,7 +62,11 @@
       <div class="request-analyze min-h-[110px]">
         <div class="block-title mb-4">{{ t('report.detail.api.requestAnalysis') }}</div>
         <!-- 独立报告 -->
-        <SetReportChart :legend-data="legendData" :options="charOptions" />
+        <SetReportChart
+          :legend-data="legendData"
+          :options="charOptions"
+          :request-total="getIndicators(detail.requestTotal)"
+        />
         <!-- 集合报告 -->
         <!-- </div> -->
       </div>

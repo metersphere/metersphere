@@ -75,7 +75,6 @@
     tableData: any[];
     pagination: MsPaginationI;
     pageChange: (page: number) => Promise<void>;
-    showType: string; // 报告类型 独立报告或集合报告
   }>();
 
   const emit = defineEmits<{

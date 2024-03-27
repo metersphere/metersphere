@@ -58,6 +58,7 @@ export default {
   'report.detail.api.resSuccess': 'Success',
   'report.detail.api.resError': 'Error',
   'report.detail.api.apiCase': 'Api Case',
+  'report.detail.api.customRequest': 'Custom request',
   'report.detail.api': 'Api',
   'report.detail.api.resBody': 'response body',
   'report.detail.api.resHeader': 'headers',
@@ -70,4 +71,8 @@ export default {
   'report.detail.api.scriptErrorTip': 'Script error',
   'report.detail.api.scenario': 'scenario',
   'report.detail.api.request': 'request',
+  'report.detail.api.globalWaitingTime': 'Scenario global waiting time',
+  'report.detail.api.executeEnv': 'Running environment',
+  'report.detail.api.reportCreator': 'Report creator',
+  'report.detail.api.runMode': 'Run mode',
 };
