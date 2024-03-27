@@ -167,6 +167,7 @@ export default {
   'case.execute.reportName': '报告名称',
   'case.execute.pool': '资源池运行',
   'case.allCase': '全部CASE',
+  'case.detail': '用例详情',
   'case.caseName': '用例名称',
   'case.caseNameRequired': '用例名称不能为空',
   'case.caseNamePlaceholder': '请输入用例名称',

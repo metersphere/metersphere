@@ -705,7 +705,7 @@
         .length
   );
   const bodyTabBadgeApi = computed(() =>
-    props.apiDetail?.request.body?.bodyType !== RequestBodyFormat.NONE ? '1' : ''
+    props.apiDetail?.request?.body?.bodyType !== RequestBodyFormat.NONE ? '1' : ''
   );
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
@@ -1575,6 +1575,7 @@
   }
 
   onBeforeMount(() => {
+    if (props.isCase) return;
     initLocalConfig();
   });
 

@@ -148,7 +148,12 @@
         </a-trigger>
       </template>
       <template #lastReportStatus="{ record }">
-        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.lastReportStatus" />
+        <ExecutionStatus
+          :module-type="ReportEnum.API_REPORT"
+          :status="record.lastReportStatus"
+          :class="[!record.lastReportId ? '' : 'cursor-pointer']"
+          @click="showResult(record)"
+        />
       </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
@@ -285,9 +290,9 @@
   />
   <caseDetailDrawer
     v-model:visible="caseDetailDrawerVisible"
+    v-model:execute-case="caseExecute"
     :detail="caseDetail as RequestParam"
     :api-detail="apiDetail as RequestParam"
-    :execute-case="caseExecute"
     @update-follow="caseDetail.follow = !caseDetail.follow"
     @load-case="(id: string) => loadCase(id)"
     @delete-case="deleteCaseByDetail"
@@ -300,6 +305,8 @@
     :batch-run-func="batchExecuteCase"
     @finished="loadCaseListAndResetSelector"
   />
+  <!-- 执行结果抽屉 -->
+  <caseReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
 </template>
 
 <script setup lang="ts">
@@ -316,6 +323,7 @@
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import caseDetailDrawer from './caseDetailDrawer.vue';
+  import caseReportDrawer from './caseReportDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
@@ -367,7 +375,6 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
-  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission([
@@ -712,9 +719,6 @@
           Message.success(t('common.deleteSuccess'));
           resetSelector();
           loadCaseListAndResetSelector();
-          if (typeof refreshModuleTree === 'function') {
-            refreshModuleTree();
-          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -930,6 +934,14 @@
   function loadCase(id: string) {
     getCaseDetailInfo(id);
     loadCaseList();
+  }
+
+  const activeReportId = ref('');
+  const showExecuteResult = ref(false);
+  async function showResult(record: ApiCaseDetail) {
+    if (!record.lastReportId) return;
+    activeReportId.value = record.lastReportId;
+    showExecuteResult.value = true;
   }
 
   defineExpose({

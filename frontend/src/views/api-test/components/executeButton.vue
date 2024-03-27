@@ -1,7 +1,6 @@
 <template>
   <a-dropdown-button
-    v-if="!caseDetail?.executeLoading && !props.executeLoading"
-    v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+    v-if="hasLocalExec && !props.executeLoading"
     class="exec-btn"
     @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
     @select="execute"
@@ -16,32 +15,21 @@
       </a-doption>
     </template>
   </a-dropdown-button>
-  <a-button v-else type="primary" @click="stopDebug">{{ t('common.stop') }}</a-button>
+  <a-button v-else-if="!hasLocalExec && !props.executeLoading" type="primary" @click="() => execute('serverExec')">
+    {{ t('apiTestDebug.serverExec') }}
+  </a-button>
+  <a-button v-else type="primary" @click="emit('stopDebug')">
+    {{ t('common.stop') }}
+  </a-button>
 </template>
 
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import { cloneDeep } from 'lodash-es';
 
-  import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
-
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
-  import { debugCase, runCase } from '@/api/modules/api-test/management';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
-  import useAppStore from '@/store/modules/app';
-  import { getGenerateId } from '@/utils';
-
-  import { LocalConfig } from '@/models/user';
-
-  import { defaultResponse } from '@/views/api-test/components/config';
+  import { getLocalConfig } from '@/api/modules/user/index';
 
   const props = defineProps<{
-    environmentId?: string;
-    request?: (...args) => Record<string, any>;
-    isCaseDetail?: boolean;
-    executeCase?: boolean;
     executeLoading?: boolean;
-    isEmit?: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -50,117 +38,35 @@
   }>();
 
   const { t } = useI18n();
-  const appStore = useAppStore();
 
-  const caseDetail = defineModel<RequestParam>('detail', {
-    required: false,
-  });
+  const hasLocalExec = ref(false); // 是否配置了api本地执行
+  const isPriorityLocalExec = ref(false); // 是否优先本地执行
+  const localExecuteUrl = ref('');
 
-  const apiLocalExec = inject<Ref<LocalConfig>>('apiLocalExec');
-  const isPriorityLocalExec = ref(apiLocalExec?.value?.enable || false); // 是否优先本地执行
-  const localExecuteUrl = ref(apiLocalExec?.value?.userUrl || '');
-  const reportId = ref('');
-  const websocket = ref<WebSocket>();
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
-
-  /**
-   * 开启websocket监听，接收执行结果
-   */
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      reportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl.value : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      if (!caseDetail.value || props.isEmit) return;
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (caseDetail.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          caseDetail.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
-          caseDetail.value.executeLoading = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        caseDetail.value.executeLoading = false;
-      }
-    });
-  }
-
-  async function execute(executeType?: 'localExec' | 'serverExec') {
-    if (!caseDetail.value || props.isEmit) {
-      emit('execute', executeType, localExecuteUrl.value);
+  async function initLocalConfig() {
+    if (hasLocalExec.value) {
       return;
     }
     try {
-      caseDetail.value.executeLoading = true;
-      caseDetail.value.response = cloneDeep(defaultResponse);
-      const makeRequestParams = props.request && props.request(executeType); // 写在reportId之前，防止覆盖reportId
-      reportId.value = getGenerateId();
-      caseDetail.value.reportId = reportId.value; // 存储报告ID
-      let res;
-      const params = {
-        environmentId: props.environmentId as string,
-        frontendDebug: executeType === 'localExec',
-        reportId: reportId.value,
-        apiDefinitionId: caseDetail.value.apiDefinitionId,
-      };
-      debugSocket(executeType); // 开启websocket
-      if (!(caseDetail.value.id as string).startsWith('c') && executeType === 'serverExec') {
-        // 已创建的服务端
-        res = await runCase({
-          request: props.isCaseDetail ? caseDetail.value.request : makeRequestParams?.request,
-          id: caseDetail.value.id as string,
-          projectId: caseDetail.value.projectId,
-          linkFileIds: caseDetail.value.linkFileIds,
-          uploadFileIds: caseDetail.value.uploadFileIds,
-          ...params,
-        });
-      } else {
-        res = await debugCase({
-          request: props.isCaseDetail ? caseDetail.value.request : makeRequestParams?.request,
-          linkFileIds: makeRequestParams?.linkFileIds,
-          uploadFileIds: makeRequestParams?.uploadFileIds,
-          id: `case-${Date.now()}`,
-          projectId: appStore.currentProjectId,
-          ...params,
-        });
-      }
-      if (executeType === 'localExec') {
-        await localExecuteApiDebug(localExecuteUrl.value, res);
+      const res = await getLocalConfig();
+      const apiLocalExec = res.find((e) => e.type === 'API');
+      if (apiLocalExec) {
+        hasLocalExec.value = true;
+        isPriorityLocalExec.value = apiLocalExec.enable || false;
+        localExecuteUrl.value = apiLocalExec.userUrl || '';
       }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      caseDetail.value.executeLoading = false;
     }
   }
+  onBeforeMount(() => {
+    initLocalConfig();
+  });
 
-  function stopDebug() {
-    if (!caseDetail.value || props.isEmit) {
-      emit('stopDebug');
-      return;
-    }
-    websocket.value?.close();
-    caseDetail.value.executeLoading = false;
+  async function execute(executeType?: 'localExec' | 'serverExec') {
+    emit('execute', executeType, localExecuteUrl.value);
   }
-
-  watch(
-    () => props.executeCase,
-    (val) => {
-      if (val === true) {
-        setTimeout(() => {
-          execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
-        }, 300);
-      }
-    },
-    { immediate: true }
-  );
 
   defineExpose({
     isPriorityLocalExec,

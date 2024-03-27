@@ -82,58 +82,41 @@
       <template #status="{ record }">
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
       </template>
-      <template #operation="{ record }">
+      <template #operation="{ record, rowIndex }">
         <a-tooltip :disabled="!record.deleted" :content="t('case.detail.report.delete')" position="top">
-          <MsButton :disabled="record.deleted" class="!mr-0" @click="showResult(record)"
+          <MsButton :disabled="record.deleted" class="!mr-0" @click="showResult(record, rowIndex)"
             >{{ t('apiScenario.executeHistory.execution.operation') }}
           </MsButton>
         </a-tooltip>
       </template>
     </ms-base-table>
-    <a-modal
-      v-model:visible="showResponse"
-      class="ms-modal-response ms-modal-response-body"
-      title-align="start"
-      :footer="false"
-    >
-      <template #title> {{ t('caseManagement.featureCase.tableColumnExecutionResult') }} </template>
-      <response
-        v-show="showResponse"
-        :hide-layout-switch="true"
-        :is-expanded="true"
-        :is-http-protocol="props.protocol === 'HTTP'"
-        :is-priority-local-exec="false"
-        :active-tab="ResponseComposition.BODY"
-        :request-result="responseContent?.requestResults[0]"
-        :console="responseContent?.console"
-        :is-definition="true"
-        :is-response-model="true"
-      ></response>
-    </a-modal>
   </div>
+  <CaseReportDrawer
+    v-model:visible="showResponse"
+    :report-id="activeReportId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
 </template>
 
 <script setup lang="ts">
-  import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import response from '@/views/api-test/components/requestComposition/response/index.vue';
+  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
-  import { getApiCaseExecuteHistory, getCaseReportDetail, getReportById } from '@/api/modules/api-test/management';
+  import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiCaseReportDetail, RequestTaskResult } from '@/models/apiTest/common';
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
-  import { ResponseComposition } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
-
-  import { defaultResponse } from '@/views/api-test/components/config';
 
   const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
   const triggerModeFilterVisible = ref(false);
@@ -144,8 +127,6 @@
   });
 
   const showResponse = ref(false);
-
-  const responseContent = ref<RequestTaskResult>();
 
   const props = defineProps<{
     sourceId: string | number;
@@ -262,39 +243,20 @@
     loadExecuteList();
   }
 
-  function loadedReportDetail(detail: ApiCaseReportDetail[]) {
-    responseContent.value = cloneDeep(defaultResponse);
-    const apiCaseReportDetailElement = detail[0];
-    if (apiCaseReportDetailElement.id) {
-      responseContent.value.requestResults[0] = apiCaseReportDetailElement.content;
-    }
-  }
-
-  async function loadedReport(detail: Record<string, any>) {
-    if (detail.id) {
-      if (detail.children && detail.children.length > 0) {
-        try {
-          const caseReportDetail = await getCaseReportDetail(detail.id, detail.children[0].stepId);
-          loadedReportDetail(caseReportDetail);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-  }
-
-  async function showResult(record: ApiCaseExecuteHistoryItem) {
-    try {
-      showResponse.value = true;
-      const result = await getReportById(record.id);
-      await loadedReport(result);
-    } catch (error) {
-      console.error(error);
-    }
+  const activeReportIndex = ref<number>(0);
+  const activeReportId = ref('');
+  async function showResult(record: ApiCaseExecuteHistoryItem, rowIndex: number) {
+    activeReportId.value = record.id;
+    activeReportIndex.value = rowIndex;
+    showResponse.value = true;
   }
 
   onBeforeMount(() => {
     loadExecuteList();
+  });
+
+  defineExpose({
+    loadExecuteList,
   });
 </script>
 
