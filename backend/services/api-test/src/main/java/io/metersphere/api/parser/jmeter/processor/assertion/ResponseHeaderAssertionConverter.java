@@ -9,6 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-12-27  21:01
@@ -49,8 +53,13 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String condition = msAssertion.getCondition();
         assertion.setName(String.format("Response header %s %s", condition.toLowerCase().replace("_", ""), expectedValue));
         MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
-        if (msAssertionCondition != null) {
-            assertion.addTestString(generateRegexExpression(condition, expectedValue));
+        Map<MsAssertionCondition, Function<String, String>> regexgenerateMap = new HashMap<>();
+        regexgenerateMap.put(MsAssertionCondition.EQUALS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": ",value, "\\b"));
+        regexgenerateMap.put(MsAssertionCondition.NOT_EQUALS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!", value,"\\b)\\d+"));
+        regexgenerateMap.put(MsAssertionCondition.CONTAINS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": .*", value, ".*\\b"));
+        regexgenerateMap.put(MsAssertionCondition.NOT_CONTAINS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!.*", value, ").*\\b"));
+        if (msAssertionCondition != null && regexgenerateMap.get(msAssertionCondition) != null) {
+            assertion.addTestString(regexgenerateMap.get(msAssertionCondition).apply(expectedValue));
         } else {
             assertion.addTestString(expectedValue);
         }
