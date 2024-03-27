@@ -97,7 +97,7 @@
 
         <a-form-item
           v-if="fieldForm.type === 'NUMBER'"
-          field="selectFormat"
+          field="selectNumber"
           :label="t('system.orgTemplate.numberFormat')"
           asterisk-position="end"
         >
@@ -200,7 +200,7 @@
   const fieldForm = ref<AddOrUpdateField>({ ...initFieldForm });
   const isEdit = ref<boolean>(false);
   const selectFormat = ref<FormItemType>(); // 选择格式
-  const selectNumber = ref<FormItemType>(); // 数字格式
+  const selectNumber = ref<FormItemType>('INT'); // 数字格式
   const isMultipleSelectMember = ref<boolean | undefined>(false); // 成员多选
   const fieldType = ref<FormItemType>(); // 整体字段类型
 
@@ -289,7 +289,7 @@
       }
 
       // 如果选择是数值
-      if (selectNumber.value) {
+      if (formCopy.type === 'NUMBER') {
         formCopy.type = selectNumber.value;
       }
 
