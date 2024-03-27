@@ -131,7 +131,7 @@
   import { countNodes } from '@/utils/tree';
 
   import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
-  import { ScenarioExecuteStatus } from '@/enums/apiEnum';
+  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -248,7 +248,10 @@
         if (!node.enable) {
           // 如果步骤未开启，则删除已选 id，方便下面waitingDebugStepDetails详情判断是否携带
           checkedKeysSet.delete(node.id);
-        } else {
+        } else if (
+          [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(node.stepType)
+        ) {
+          // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
           node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         }
         return !!node.enable;

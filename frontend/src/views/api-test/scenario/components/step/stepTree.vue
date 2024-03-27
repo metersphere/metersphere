@@ -66,10 +66,18 @@
                 ></a-switch>
                 <!-- 步骤执行 -->
                 <MsIcon
+                  v-show="!step.isExecuting"
                   type="icon-icon_play-round_filled"
                   :size="18"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
                   @click.stop="executeStep(step)"
+                />
+                <MsIcon
+                  v-show="step.isExecuting"
+                  type="icon-icon_stop"
+                  :size="20"
+                  class="cursor-pointer text-[rgb(var(--link-6))]"
+                  @click.stop="handleStopExecute(step)"
                 />
               </div>
               <!-- 步骤类型 -->
@@ -169,9 +177,10 @@
         </template>
         <template #extraEnd="step">
           <a-popover
-            v-if="step.executeStatus"
+            v-if="step.executeStatus && checkStepIsApi(step)"
             position="br"
             content-class="scenario-step-response-popover"
+            :disabled="![ScenarioExecuteStatus.SUCCESS, ScenarioExecuteStatus.FAILED].includes(step.executeStatus)"
             @popup-visible-change="handleResponsePopoverVisibleChange($event, step)"
           >
             <executeStatus :status="getExecuteStatus(step) || step.executeStatus" size="small" />
@@ -195,6 +204,11 @@
               </responseResult>
             </template>
           </a-popover>
+          <executeStatus
+            v-else-if="step.executeStatus"
+            :status="getExecuteStatus(step) || step.executeStatus"
+            size="small"
+          />
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
           <div
@@ -220,7 +234,7 @@
       :step-responses="scenario.stepResponses"
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
-      @stop-debug="handleStopExecute"
+      @stop-debug="handleStopExecute(activeStep)"
       @execute="handleApiExecute"
     />
     <customCaseDrawer
@@ -693,7 +707,7 @@
     }
   }
 
-  const websocket = ref<WebSocket>();
+  const websocketMap: Record<string | number, WebSocket> = {};
   let temporaryStepReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换场景tab导致报告丢失
 
   watch(
@@ -715,16 +729,16 @@
    */
   function debugSocket(
     step: ScenarioStepItem,
-    reportId?: string | number,
+    reportId: string | number,
     executeType?: 'localExec' | 'serverExec',
     localExecuteUrl?: string
   ) {
-    websocket.value = getSocket(
+    websocketMap[reportId] = getSocket(
       reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
       executeType === 'localExec' ? localExecuteUrl : ''
     );
-    websocket.value.addEventListener('message', (event) => {
+    websocketMap[reportId].addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
         if (step.reportId === data.reportId) {
@@ -751,7 +765,7 @@
         }
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
-        websocket.value?.close();
+        websocketMap[reportId].close();
         if (step.reportId === data.reportId) {
           step.isExecuting = false;
         }
@@ -786,7 +800,7 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      websocket.value?.close();
+      websocketMap[executeParams.reportId].close();
       currentStep.isExecuting = false;
     }
   }
@@ -843,14 +857,43 @@
         },
         executeType
       );
+    } else {
+      // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
+      const reportId = getGenerateId();
+      request.executeLoading = true;
+      activeStep.value = {
+        id: request.stepId,
+        name: t('apiScenario.customApi'),
+        stepType: ScenarioStepType.CUSTOM_REQUEST,
+        refType: ScenarioStepRefType.DIRECT,
+        sort: 1,
+        enable: true,
+        isNew: true,
+        config: {},
+        projectId: appStore.currentProjectId,
+        isExecuting: false,
+        reportId,
+      };
+      realExecute(
+        {
+          steps: [activeStep.value],
+          stepDetails: {
+            [request.stepId]: request,
+          },
+          reportId,
+          uploadFileIds: request.uploadFileIds || [],
+          linkFileIds: request.linkFileIds || [],
+        },
+        executeType
+      );
     }
   }
 
-  function handleStopExecute() {
-    websocket.value?.close();
-    if (activeStep.value) {
-      activeStep.value.isExecuting = false;
-      activeStep.value.executeStatus = undefined;
+  function handleStopExecute(step?: ScenarioStepItem) {
+    if (step?.reportId) {
+      websocketMap[step.reportId].close();
+      step.isExecuting = false;
+      step.executeStatus = undefined;
     }
   }
 

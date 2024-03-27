@@ -474,7 +474,7 @@
   watch(
     () => props.stepResponses,
     (val) => {
-      if (val) {
+      if (val && val[requestVModel.value.stepId]) {
         requestVModel.value.executeLoading = false;
       }
     },

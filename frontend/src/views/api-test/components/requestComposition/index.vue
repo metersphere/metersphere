@@ -73,23 +73,33 @@
             "
           >
             <a-dropdown-button
-              v-if="!requestVModel.executeLoading"
+              v-if="hasLocalExec"
               :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
               class="exec-btn"
               @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
               @select="execute"
             >
               {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-              <template v-if="hasLocalExec" #icon>
+              <template #icon>
                 <icon-down />
               </template>
-              <template v-if="hasLocalExec" #content>
+              <template #content>
                 <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
                   {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
                 </a-doption>
               </template>
             </a-dropdown-button>
-            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+            <a-button
+              v-else-if="!requestVModel.executeLoading"
+              class="mr-[12px]"
+              type="primary"
+              @click="() => execute('serverExec')"
+            >
+              {{ t('apiTestDebug.serverExec') }}
+            </a-button>
+            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+              {{ t('common.stop') }}
+            </a-button>
           </template>
           <!-- 接口定义-且有保存或更新权限 -->
           <template

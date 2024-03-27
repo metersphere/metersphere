@@ -112,7 +112,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
-  import { filterTree, getGenerateId } from '@/utils';
+  import { filterTree, getGenerateId, mapTree } from '@/utils';
 
   import {
     ApiScenarioDebugRequest,
@@ -122,7 +122,7 @@
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { ScenarioExecuteStatus } from '@/enums/apiEnum';
+  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultScenario } from './components/config';
@@ -367,6 +367,12 @@
           uploadFileIds: activeScenarioTab.value.uploadFileIds,
           linkFileIds: activeScenarioTab.value.linkFileIds,
           ...executeParams,
+          steps: mapTree(executeParams.steps, (node) => {
+            return {
+              ...node,
+              parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+            };
+          }),
         });
       } else {
         res = await debugScenario({
@@ -379,6 +385,12 @@
           linkFileIds: activeScenarioTab.value.linkFileIds,
           frontendDebug: executeType === 'localExec',
           ...executeParams,
+          steps: mapTree(executeParams.steps, (node) => {
+            return {
+              ...node,
+              parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+            };
+          }),
         });
       }
       if (executeType === 'localExec' && localExecuteUrl) {
@@ -398,6 +410,12 @@
       if (node.enable) {
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
+        if (
+          [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(node.stepType)
+        ) {
+          // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
+          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
+        }
       }
       return !!node.enable;
     });
