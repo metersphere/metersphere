@@ -168,6 +168,7 @@
       slotName: 'method',
       titleSlotName: 'methodFilter',
       width: 140,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.apiStatus',
@@ -175,12 +176,14 @@
       slotName: 'status',
       titleSlotName: 'statusFilter',
       width: 130,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.path',
       dataIndex: 'path',
       showTooltip: true,
       width: 200,
+      showDrag: true,
     },
     {
       title: 'common.tag',
@@ -188,11 +191,13 @@
       isTag: true,
       isStringTag: true,
       width: 150,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.version',
       dataIndex: 'versionName',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.deleteTime',
@@ -202,6 +207,7 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.deleteUser',
@@ -212,6 +218,7 @@
         sorter: true,
       },
       width: 180,
+      showDrag: true,
     },
     {
       title: 'common.operation',
@@ -232,6 +239,7 @@
       showSelectAll: !props.readOnly,
       draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
       heightUsed: 374,
+      showSubdirectory: true,
     },
     (item) => ({
       ...item,
@@ -470,15 +478,12 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
-
       .arco-input::placeholder {
         @apply invisible;
       }
-
       .arco-select-view-icon {
         @apply invisible;
       }
-
       .arco-select-view-value {
         color: var(--color-text-brand);
       }

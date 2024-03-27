@@ -526,6 +526,7 @@
       showSelectAll: !props.readOnly,
       draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
       heightUsed: 374,
+      showSubdirectory: true,
     },
     (item) => ({
       ...item,
