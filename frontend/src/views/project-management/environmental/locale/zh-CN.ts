@@ -82,7 +82,7 @@ export default {
   'project.environmental.database.username': '用户名',
   'project.environmental.database.password': '密码',
   'project.environmental.database.usernameIsRequire': '用户名不能为空',
-  'project.environmental.database.poolMax': '最大链接数',
+  'project.environmental.database.poolMax': '最大连接数',
   'project.environmental.database.timeout': '超时时间 (ms）',
   'project.environmental.database.url': '数据库连接 URL',
   'project.environmental.database.urlExtra': '执行多条 SQL 语句需配置 allowMultiQueries=true',

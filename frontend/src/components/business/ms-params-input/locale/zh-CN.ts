@@ -143,7 +143,7 @@ export default {
   'ms.paramsInput.lengthDesc': '数据长度',
   'ms.paramsInput.numberDesc': '字符串转数字',
   'ms.paramsInput.paramSetting': '参数设置',
-  'ms.paramsInput.mockType': 'mock类型',
+  'ms.paramsInput.mockType': 'Mock类型',
   'ms.paramsInput.jmeterType': 'JMeter类型',
   'ms.paramsInput.mockTypePlaceholder': '请选择参数类型',
   'ms.paramsInput.personal': '个人信息',
