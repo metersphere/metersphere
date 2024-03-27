@@ -11,7 +11,7 @@ const BugManagement: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.bugManagement',
     icon: 'icon-icon_defect',
-    order: 2,
+    order: 7,
     roles: ['PROJECT_BUG:READ'],
     hideChildrenInMenu: true,
   },

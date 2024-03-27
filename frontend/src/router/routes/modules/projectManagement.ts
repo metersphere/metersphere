@@ -11,7 +11,7 @@ const ProjectManagement: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.projectManagement',
     icon: 'icon-icon_project-settings-filled',
-    order: 7,
+    order: 2,
     hideChildrenInMenu: true,
     roles: [
       'PROJECT_BASE_INFO:READ',
@@ -335,17 +335,6 @@ const ProjectManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
-    // 项目日志
-    {
-      path: 'log',
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_LOG,
-      component: () => import('@/views/project-management/log/index.vue'),
-      meta: {
-        locale: 'menu.projectManagement.log',
-        roles: ['PROJECT_LOG:READ'],
-        isTopMenu: true,
-      },
-    },
     // 菜单管理-误报规则
     {
       path: 'errorReportRule',
@@ -375,6 +364,17 @@ const ProjectManagement: AppRouteRecordRaw = {
       meta: {
         locale: 'menu.projectManagement.environmentManagement',
         roles: ['PROJECT_ENVIRONMENT:READ'],
+        isTopMenu: true,
+      },
+    },
+    // 项目日志
+    {
+      path: 'log',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_LOG,
+      component: () => import('@/views/project-management/log/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.log',
+        roles: ['PROJECT_LOG:READ'],
         isTopMenu: true,
       },
     },
