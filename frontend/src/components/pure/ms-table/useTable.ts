@@ -312,6 +312,12 @@ export default function useTableProps<T>(
     }
   };
 
+  // 重置筛选
+  const clearSelector = () => {
+    propsRes.value.selectorStatus = SelectAllEnum.NONE; // 重置选择器状态
+    resetSelector();
+  };
+
   // 获取当前表格的选中项数量
   const getSelectedCount = () => {
     const { selectorStatus, msPagination, excludeKeys, selectedKeys } = propsRes.value;
@@ -472,6 +478,7 @@ export default function useTableProps<T>(
     setAdvanceFilter,
     resetPagination,
     getSelectedCount,
+    clearSelector,
     resetSelector,
     getTableQueryParams,
     setTableSelected,

@@ -298,8 +298,20 @@ export interface LoopStepDetail extends StepDetailsCommon {
   msCountController: CountController;
   whileController: WhileController;
 }
+export interface ScenarioStepConfig {
+  useCurrentScenarioParam: boolean; // 是否优先使用当前场景参数
+  useBothScenarioParam: boolean; // 是否当前场景参数和源场景参数都应用（勾选非空值时为 true）
+  enableScenarioEnv: boolean; // 是否应用源场景环境
+}
 export type ScenarioStepDetail = Partial<
-  CustomApiStepDetail & ConditionStepDetail & LoopStepDetail & { protocol: string; method: RequestMethods }
+  CustomApiStepDetail &
+    ConditionStepDetail &
+    LoopStepDetail &
+    ScenarioStepConfig & {
+      protocol: string;
+      method: RequestMethods;
+      isRefScenarioStep?: boolean; // 是否是完全引用的场景下的步骤，是的话不允许启用禁用
+    }
 >;
 export interface ScenarioStepItem {
   id: string | number;

@@ -100,6 +100,7 @@
   import { getSystemRequest } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId, mapTree } from '@/utils';
 
   import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
@@ -193,8 +194,13 @@
     visible.value = false;
   }
 
+  /**
+   * 获取复制或引用的步骤数据
+   * @param refType 复制或引用
+   */
   async function getScenarioSteps(refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF) {
     const scenarioMap: Record<string, MsTableDataItem<ApiScenarioTableItem>[]> = {};
+    // 可以跨项目选择，但是接口的项目 id 是单个，所以需要按项目分组
     selectedScenarios.value.forEach((e) => {
       if (!scenarioMap[e.projectId]) {
         scenarioMap[e.projectId] = [];
@@ -203,6 +209,7 @@
     });
     const scenarioRequestArr: any[] = [];
     Object.keys(scenarioMap).forEach((projectId) => {
+      // 组装请求
       scenarioRequestArr.push(
         getSystemRequest({
           scenarioRequest: {
@@ -225,8 +232,15 @@
         fullScenarioArr = fullScenarioArr.map((e) => {
           return {
             ...e,
+            children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
+              return {
+                ...node,
+                copyFromStepId: node.id,
+                id: getGenerateId(),
+              };
+            }),
             name: `copy-${e.name}`,
-            copyFromStepId: e.id,
+            copyFromStepId: e.resourceId,
           };
         });
         emit(
@@ -239,6 +253,21 @@
         );
         handleCancel();
       } else {
+        fullScenarioArr = fullScenarioArr.map((e) => {
+          return {
+            ...e,
+            children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
+              return {
+                ...node,
+                copyFromStepId: node.id,
+                config: {
+                  isRefScenarioStep: true, // 默认是完全引用的
+                },
+                id: getGenerateId(),
+              };
+            }),
+          };
+        });
         emit(
           'quote',
           cloneDeep({

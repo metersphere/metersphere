@@ -260,7 +260,6 @@
               :is-expanded="isVerticalExpanded"
               :request-result="props.stepResponses?.[requestVModel.stepId]"
               :console="props.stepResponses?.[requestVModel.stepId]?.console"
-              :show-empty="false"
               :is-edit="false"
               is-definition
               :loading="requestVModel.executeLoading || loading"
@@ -362,6 +361,7 @@
 
   export type RequestParam = ExecuteApiRequestFullParams & {
     response?: RequestTaskResult;
+    customizeRequest?: boolean;
     customizeRequestEnvEnable?: boolean;
   } & RequestCustomAttr;
 
@@ -395,11 +395,12 @@
   const visible = defineModel<boolean>('visible', { required: true });
   const loading = defineModel<boolean>('detailLoading', { default: false });
 
-  const defaultDebugParams: RequestParam = {
+  const defaultApiParams: RequestParam = {
     name: '',
     type: 'api',
     stepId: '',
     resourceId: '',
+    customizeRequest: true,
     customizeRequestEnvEnable: false,
     protocol: 'HTTP',
     url: '',
@@ -455,7 +456,7 @@
     executeLoading: false,
   };
 
-  const requestVModel = ref<RequestParam>(defaultDebugParams);
+  const requestVModel = ref<RequestParam>(defaultApiParams);
   const _stepType = computed(() => {
     if (props.step) {
       return getStepType(props.step);
@@ -832,7 +833,9 @@
     if (val) {
       verticalSplitBoxRef.value?.expand(0.6);
     } else {
-      verticalSplitBoxRef.value?.collapse(1);
+      verticalSplitBoxRef.value?.collapse(
+        splitContainerRef.value ? `${splitContainerRef.value.clientHeight - 42}px` : 0
+      );
     }
   }
 
@@ -843,7 +846,8 @@
         if (val) {
           changeVerticalExpand(true);
         } else {
-          changeVerticalExpand(false);
+          isVerticalExpanded.value = false;
+          verticalSplitBoxRef.value?.collapse(1);
         }
       });
     }
@@ -931,6 +935,7 @@
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
       name: requestVModel.value.name,
+      customizeRequest: props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.request,
       customizeRequestEnvEnable: requestVModel.value.customizeRequestEnvEnable,
       children: [
         {
@@ -1066,7 +1071,7 @@
         if (props.request) {
           // 查看自定义请求、引用 api、复制 api
           requestVModel.value = cloneDeep({
-            ...defaultDebugParams,
+            ...defaultApiParams,
             ...props.request,
             isNew: false,
           });
@@ -1082,7 +1087,7 @@
         } else {
           // 新建自定义请求
           requestVModel.value = cloneDeep({
-            ...defaultDebugParams,
+            ...defaultApiParams,
             stepId: getGenerateId(),
           });
         }

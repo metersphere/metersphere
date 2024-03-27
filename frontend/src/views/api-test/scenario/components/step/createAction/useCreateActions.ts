@@ -9,6 +9,7 @@ import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 import {
   defaultConditionController,
   defaultLoopController,
+  defaultScenarioStepConfig,
   defaultStepItemCommon,
   defaultTimeController,
 } from '../../config';
@@ -109,11 +110,13 @@ export default function useCreateActions() {
         config = cloneDeep(defaultConditionController);
       } else if (stepType === ScenarioStepType.CONSTANT_TIMER) {
         config = cloneDeep(defaultTimeController);
+      } else if (stepType === ScenarioStepType.API_SCENARIO) {
+        config = cloneDeep(defaultScenarioStepConfig);
       }
-      if (item.id) {
+      if (item.id || item.resourceId) {
         // 引用复制接口、用例、场景时的源资源信息
         resourceField = {
-          resourceId: item.id,
+          resourceId: item.id || item.resourceId,
           resourceNum: item.num,
           resourceName: item.name,
         };
@@ -132,6 +135,7 @@ export default function useCreateActions() {
         config: {
           ...defaultStepItemCommon.config,
           ...config,
+          isRefScenarioStep: item.config?.isRefScenarioStep || false,
         },
         children: item.children || [],
         stepType,
