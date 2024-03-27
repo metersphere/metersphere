@@ -11,7 +11,13 @@
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
-      <a-tabs v-model:active-key="activeApiTab.definitionActiveKey" animation lazy-load class="ms-api-tab-nav">
+      <a-tabs
+        v-model:active-key="activeApiTab.definitionActiveKey"
+        animation
+        lazy-load
+        class="ms-api-tab-nav"
+        @change="changeDefinitionActiveKey"
+      >
         <a-tab-pane
           v-if="!activeApiTab.isNew"
           key="preview"
@@ -52,6 +58,7 @@
         </a-tab-pane>
         <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
           <caseTable
+            ref="caseTableRef"
             :is-api="true"
             :active-module="props.activeModule"
             :protocol="activeApiTab.protocol"
@@ -229,6 +236,7 @@
   }
 
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
+  const caseTableRef = ref<InstanceType<typeof caseTable>>();
 
   watch(
     () => activeApiTab.value.id,
@@ -297,6 +305,13 @@
 
   function refreshTable() {
     apiTableRef.value?.loadApiList();
+  }
+
+  function changeDefinitionActiveKey(val: string | number) {
+    // 在定义可以添加用例，故需要切换到case时刷新数据
+    if (val === 'case') {
+      caseTableRef.value?.loadCaseList();
+    }
   }
 
   defineExpose({

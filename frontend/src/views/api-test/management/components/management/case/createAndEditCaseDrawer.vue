@@ -34,12 +34,13 @@
                 :max-length="255"
                 show-word-limit
               />
-              <environmentSelect v-model:current-env="environmentId" />
-              <execute
+              <environmentSelect ref="environmentSelectRef" v-model:current-env="environmentId" />
+              <executeButton
                 ref="executeRef"
-                v-model:detail="detailForm"
-                :environment-id="currentEnvConfig?.id as string"
-                :request="requestCompositionRef?.makeRequestParams"
+                v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+                :execute-loading="detailForm.executeLoading"
+                @stop-debug="stopDebug"
+                @execute="handleExecute"
               />
             </div>
           </a-form-item>
@@ -84,7 +85,7 @@
           :file-save-as-api="transferFileCase"
           :current-env-config="currentEnvConfig"
           is-definition
-          @execute="(val: 'localExec' | 'serverExec')=>executeRef?.execute(val)"
+          @execute="handleExecute"
         />
       </div>
     </div>
@@ -103,25 +104,30 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
-  import execute from '@/views/api-test/components/executeButton.vue';
+  import executeButton from '@/views/api-test/components/executeButton.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
     addCase,
+    debugCase,
     getDefinitionDetail,
     getTransferOptionsCase,
+    runCase,
     transferFileCase,
     updateCase,
     uploadTempFileCase,
   } from '@/api/modules/api-test/management';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId } from '@/utils';
 
   import { AddApiCaseParams, ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
+  import { casePriorityOptions, defaultResponse } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     apiDetail?: RequestParam | ApiDefinitionDetail;
@@ -175,7 +181,6 @@
   });
   const detailForm = ref(cloneDeep(defaultDetail.value));
   const isEdit = ref(false);
-  const executeRef = ref<InstanceType<typeof execute>>();
 
   async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
     apiDefinitionId.value = apiId;
@@ -276,6 +281,84 @@
       }
     });
   }
+  const executeRef = ref<InstanceType<typeof executeButton>>();
+  const reportId = ref('');
+  const websocket = ref<WebSocket>();
+  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  // 开启websocket监听，接收执行结果
+  function debugSocket(executeType?: 'localExec' | 'serverExec') {
+    websocket.value = getSocket(
+      reportId.value,
+      executeType === 'localExec' ? '/ws/debug' : '',
+      executeType === 'localExec' ? executeRef.value?.localExecuteUrl : ''
+    );
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        if (detailForm.value.reportId === data.reportId) {
+          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+          detailForm.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
+          detailForm.value.executeLoading = false;
+        } else {
+          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+          temporaryResponseMap[data.reportId] = data.taskResult;
+        }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
+        detailForm.value.executeLoading = false;
+      }
+    });
+  }
+  async function handleExecute(executeType?: 'localExec' | 'serverExec') {
+    try {
+      detailForm.value.executeLoading = true;
+      detailForm.value.response = cloneDeep(defaultResponse);
+      const makeRequestParams = requestCompositionRef.value?.makeRequestParams(executeType); // 写在reportId之前，防止覆盖reportId
+      reportId.value = getGenerateId();
+      detailForm.value.reportId = reportId.value; // 存储报告ID
+      let res;
+      const params = {
+        environmentId: environmentId.value as string,
+        frontendDebug: executeType === 'localExec',
+        reportId: reportId.value,
+        apiDefinitionId: detailForm.value.apiDefinitionId,
+        request: makeRequestParams?.request,
+        linkFileIds: makeRequestParams?.linkFileIds,
+        uploadFileIds: makeRequestParams?.uploadFileIds,
+      };
+      debugSocket(executeType); // 开启websocket
+      if (!(detailForm.value.id as string).startsWith('c') && executeType === 'serverExec') {
+        // 已创建的服务端
+        res = await runCase({
+          id: detailForm.value.id as string,
+          projectId: detailForm.value.projectId,
+          ...params,
+        });
+      } else {
+        res = await debugCase({
+          id: `case-${Date.now()}`,
+          projectId: appStore.currentProjectId,
+          ...params,
+        });
+      }
+      if (executeType === 'localExec') {
+        await localExecuteApiDebug(executeRef.value?.localExecuteUrl as string, res);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      detailForm.value.executeLoading = false;
+    }
+  }
+  function stopDebug() {
+    websocket.value?.close();
+    detailForm.value.executeLoading = false;
+  }
+
+  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
+  const currentEnvConfigByDrawer = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
+  provide('currentEnvConfig', readonly(currentEnvConfigByDrawer));
 
   defineExpose({
     open,

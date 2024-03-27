@@ -173,6 +173,7 @@ export default {
   'case.execute.reportName': 'Report name',
   'case.execute.pool': 'Resource pool operation',
   'case.allCase': 'All Case',
+  'case.detail': 'Case Detail',
   'case.caseName': 'Case Name',
   'case.caseLevel': 'Case Level',
   'case.caseEnvironment': 'Case Environment',

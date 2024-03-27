@@ -23,7 +23,6 @@
         <executeButton
           ref="executeButtonRef"
           :execute-loading="activeScenarioTab.executeLoading"
-          is-emit
           @execute="handleExecute"
           @stop-debug="handleStopExecute"
         />

@@ -13,8 +13,8 @@
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <caseDetail
+        v-model:execute-case="caseExecute"
         :detail="activeApiTab"
-        :execute-case="caseExecute"
         :module-tree="props.moduleTree"
         @delete-case="deleteCase"
         @update-follow="activeApiTab.follow = !activeApiTab.follow"

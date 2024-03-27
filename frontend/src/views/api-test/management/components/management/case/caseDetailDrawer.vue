@@ -56,8 +56,8 @@
     </template>
     <caseDetail
       ref="caseDerailRef"
+      v-model:execute-case="executeCase"
       is-drawer
-      :execute-case="props.executeCase"
       :detail="props.detail"
       :api-detail="props.apiDetail"
       v-bind="$attrs"
@@ -78,7 +78,6 @@
   const props = defineProps<{
     detail: RequestParam;
     apiDetail?: RequestParam;
-    executeCase?: boolean;
   }>();
 
   const { t } = useI18n();
@@ -86,6 +85,7 @@
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
   });
+  const executeCase = defineModel<boolean>('executeCase', { default: false });
   const caseDerailRef = ref<InstanceType<typeof caseDetail>>();
 
   function handleSelect(val: string | number | Record<string, any> | undefined) {

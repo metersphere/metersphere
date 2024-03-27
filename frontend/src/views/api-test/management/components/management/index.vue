@@ -10,8 +10,15 @@
     >
       <template #label="{ tab }">
         <apiMethodName
-          v-if="tab.id !== 'all'"
+          v-if="tab.id !== 'all' && tab.type === 'api'"
           :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol"
+          class="mr-[4px]"
+        />
+        <svg-icon
+          v-if="tab.id !== 'all' && tab.type === 'case'"
+          width="16px"
+          height="16px"
+          :name="'apiCase'"
           class="mr-[4px]"
         />
         <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
@@ -58,14 +65,12 @@
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getProtocolList } from '@/api/modules/api-test/common';
-  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { LocalConfig } from '@/models/user';
   import {
     RequestAuthType,
     RequestComposition,
@@ -277,30 +282,17 @@
     }
   }
 
-  const apiLocalExec = ref<Record<string, any> | LocalConfig | undefined>({});
-  async function initLocalConfig() {
-    try {
-      const res = await getLocalConfig();
-      apiLocalExec.value = res.find((e) => e.type === 'API');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
   const currentEnvConfig = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
 
   onBeforeMount(() => {
     initProtocolList();
-    initLocalConfig();
   });
 
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('defaultCaseParams', readonly(defaultCaseParams));
   provide('protocols', readonly(protocols));
-  provide('apiLocalExec', readonly(apiLocalExec));
 
   defineExpose({
     newTab,

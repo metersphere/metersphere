@@ -54,8 +54,7 @@
       <executeButton
         ref="executeRef"
         class="ml-[16px]"
-        is-emit
-        :detail="requestVModel"
+        :execute-loading="requestVModel.executeLoading"
         @execute="handleExecute"
         @stop-debug="stopDebug"
       />
@@ -99,12 +98,10 @@
     uploadTempFileCase,
   } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
-  import { getLocalConfig } from '@/api/modules/user/index';
   import { characterLimit, getGenerateId } from '@/utils';
 
   import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { LocalConfig } from '@/models/user';
   import {
     RequestAuthType,
     RequestComposition,
@@ -220,18 +217,6 @@
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const requestAndResponseRef = ref<InstanceType<typeof requestAndResponse>>();
   const isPriorityLocalExec = computed(() => executeRef.value?.isPriorityLocalExec ?? false);
-
-  const apiLocalExec = ref<Record<string, any> | LocalConfig | undefined>({});
-  async function initLocalConfig() {
-    try {
-      const res = await getLocalConfig();
-      apiLocalExec.value = res.find((e) => e.type === 'API');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-  provide('apiLocalExec', readonly(apiLocalExec));
 
   const isShowEditStepNameInput = ref(false);
   const stepNameInputRef = ref<InputInstance>();
@@ -369,7 +354,6 @@
           // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)
           initQuoteCaseDetail();
         }
-        await initLocalConfig();
       }
     }
   );
