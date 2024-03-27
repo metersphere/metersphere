@@ -30,7 +30,7 @@
         v-if="batchExecuteForm.defaultEnv == 'false'"
         field="environmentId"
         :label="t('case.execute.newEnv')"
-        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        :rules="[{ required: true, message: t('apiTestManagement.envRequired') }]"
         asterisk-position="end"
         required
       >
@@ -63,9 +63,9 @@
       </a-form-item>
       <a-form-item
         v-if="batchExecuteForm.integratedReport == 'true'"
-        field="integratedReport"
+        field="integratedReportName"
         :label="t('case.execute.reportName')"
-        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        :rules="[{ required: true, message: t('apiTestManagement.reportNameRequired') }]"
         :validate-trigger="['blur', 'input']"
       >
         <a-input
@@ -74,7 +74,11 @@
           :placeholder="t('formCreate.PleaseEnter')"
         />
       </a-form-item>
-      <a-form-item field="poolId" :label="t('case.execute.pool')">
+      <a-form-item
+        field="poolId"
+        :label="t('case.execute.pool')"
+        :rules="[{ required: true, message: t('apiTestManagement.poolRequired') }]"
+      >
         <a-select v-model="batchExecuteForm.poolId" :placeholder="t('common.pleaseSelect')">
           <a-option v-for="item of resourcePoolList" :key="item.id" :value="item.id">
             {{ t(item.name) }}
