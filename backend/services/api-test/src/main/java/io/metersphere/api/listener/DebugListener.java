@@ -22,7 +22,6 @@ public class DebugListener {
     public static final String DEBUG_CONSUME_ID = "MS-API-DEBUG-CONSUME";
 
     private ApiEnvironmentService apiEnvironmentService;
-    ;
 
     @KafkaListener(id = DEBUG_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_DEBUG_TOPIC, groupId = DEBUG_CONSUME_ID + "_" + "${random.uuid}")
     public void debugConsume(ConsumerRecord<?, String> record) {
