@@ -12,7 +12,6 @@
           <a-input
             v-model="form.name"
             :max-length="255"
-            class="w-[732px]"
             :placeholder="t('project.environmental.envNamePlaceholder')"
             @blur="store.currentEnvDetailInfo.name = form.name"
           />

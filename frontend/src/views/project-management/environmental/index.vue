@@ -323,6 +323,7 @@
       {
         label: t('common.rename'),
         eventTag: 'rename',
+        disabled: isMock,
         permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
       },
       {
