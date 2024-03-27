@@ -180,14 +180,10 @@
                         <MsTagsInput
                           v-model:model-value="tags"
                           :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                          @blur="changeTag"
                         />
                       </a-form-item>
                     </a-form>
-
-                    <!--                <span class="label"> {{ t('bugManagement.detail.tag') }}</span>-->
-                    <!--                <span style="width: 200px">-->
-                    <!--                  <MsTag v-for="item of tags" :key="item"> {{ item }} </MsTag>-->
-                    <!--                </span>-->
                   </div>
                 </div>
 
@@ -195,7 +191,7 @@
               </div>
               <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
               <div v-else>
-                <a-empty> 暂无内容 </a-empty>
+                <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
               </div>
             </a-spin>
           </template>
@@ -559,6 +555,12 @@
   }
 
   const handelFormCreateChange = debounce(() => {
+    rightLoading.value = true;
+    bugDetailTabRef.value?.handleSave();
+  }, 300);
+
+  const changeTag = debounce(() => {
+    detailInfo.value.tags = tags.value;
     rightLoading.value = true;
     bugDetailTabRef.value?.handleSave();
   }, 300);
