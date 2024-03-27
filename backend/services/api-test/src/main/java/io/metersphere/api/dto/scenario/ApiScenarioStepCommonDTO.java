@@ -19,7 +19,7 @@ import java.util.List;
  * @CreateTime: 2024-01-10  11:24
  */
 @Data
-public class ApiScenarioStepCommonDTO {
+public class ApiScenarioStepCommonDTO<T extends ApiScenarioStepCommonDTO> {
     @Schema(description = "步骤id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_step.id.not_blank}")
     @Size(max = 50, message = "{api_scenario_step.id.length_range}")
@@ -75,5 +75,5 @@ public class ApiScenarioStepCommonDTO {
 
     @Valid
     @Schema(description = "子步骤")
-    private List<? extends ApiScenarioStepCommonDTO> children;
+    private List<T> children;
 }

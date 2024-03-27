@@ -8,7 +8,7 @@ import lombok.Data;
  * @CreateTime: 2024-01-10  11:24
  */
 @Data
-public class ApiScenarioStepDTO extends ApiScenarioStepCommonDTO {
+public class ApiScenarioStepDTO extends ApiScenarioStepCommonDTO<ApiScenarioStepDTO> {
 
     @Schema(description = "场景id")
     private String scenarioId;

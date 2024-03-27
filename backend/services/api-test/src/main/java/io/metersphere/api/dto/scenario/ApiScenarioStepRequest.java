@@ -7,7 +7,7 @@ import lombok.Data;
  * @CreateTime: 2024-01-10  11:24
  */
 @Data
-public class ApiScenarioStepRequest extends ApiScenarioStepCommonDTO {
+public class ApiScenarioStepRequest extends ApiScenarioStepCommonDTO<ApiScenarioStepRequest> {
     /**
      * 记录是从哪个步骤复制来的
      * 如果没有传步骤详情
