@@ -1,4 +1,4 @@
-import { Scenario } from '@/models/apiTest/scenario';
+import { Scenario, ScenarioStepConfig } from '@/models/apiTest/scenario';
 import {
   ApiScenarioStatus,
   RequestAssertionCondition,
@@ -51,6 +51,13 @@ export const defaultTimeController = {
   delay: 0, // 等待时间
 };
 
+// 场景配置
+export const defaultScenarioStepConfig: ScenarioStepConfig = {
+  enableScenarioEnv: false,
+  useBothScenarioParam: false,
+  useCurrentScenarioParam: true,
+};
+
 export const defaultStepItemCommon = {
   checked: false,
   expanded: false,
@@ -62,6 +69,7 @@ export const defaultStepItemCommon = {
     id: '',
     name: '',
     enable: true,
+    isRefScenarioStep: false,
   },
   createActionsVisible: false,
   responsePopoverVisible: false,

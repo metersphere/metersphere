@@ -255,7 +255,7 @@ export enum ScenarioStepType {
   LOOP_CONTROLLER = 'LOOP_CONTROLLER', // 循环控制器
   API = 'API', // 接口定义
   CUSTOM_REQUEST = 'CUSTOM_REQUEST', // 自定义请求
-  API_SCENARIO = ' API_SCENARIO', // 场景
+  API_SCENARIO = 'API_SCENARIO', // 场景
   IF_CONTROLLER = 'IF_CONTROLLER', // 条件控制器
   ONCE_ONLY_CONTROLLER = 'ONCE_ONLY_CONTROLLER', // 一次控制器
   CONSTANT_TIMER = 'CONSTANT_TIMER', // 等待控制器

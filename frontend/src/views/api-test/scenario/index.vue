@@ -119,10 +119,11 @@
     ApiScenarioGetModuleParams,
     ApiScenarioTableItem,
     Scenario,
+    ScenarioStepItem,
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultScenario } from './components/config';

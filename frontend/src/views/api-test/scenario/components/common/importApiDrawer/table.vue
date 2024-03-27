@@ -287,11 +287,16 @@
     if (tableSelectedKeys.value.includes(key)) {
       // 取消选中
       tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== key);
-    }
-    if (selectedData) {
+    } else if (selectedData) {
       tableSelectedData.value.push(selectedData);
     }
     emit('select', tableSelectedData.value);
+  }
+
+  function clearSelector() {
+    tableSelectedData.value = [];
+    currentTable.value.clearSelector();
+    emit('select', []);
   }
 
   /**
@@ -310,10 +315,13 @@
   // 绑定表格事件
   useApiTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
   useApiTable.propsEvent.value.selectAllChange = handleSelectAllChange;
+  useApiTable.propsEvent.value.clearSelector = clearSelector;
   useCaseTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
   useCaseTable.propsEvent.value.selectAllChange = handleSelectAllChange;
+  useCaseTable.propsEvent.value.clearSelector = clearSelector;
   useScenarioTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
   useScenarioTable.propsEvent.value.selectAllChange = handleSelectAllChange;
+  useScenarioTable.propsEvent.value.clearSelector = clearSelector;
 
   function loadPage(ids?: (string | number)[]) {
     nextTick(() => {

@@ -58,8 +58,9 @@
                 </div>
               </a-tooltip>
               <div class="mr-[8px] flex items-center gap-[8px]">
-                <!-- 步骤启用/禁用 -->
+                <!-- 步骤启用/禁用，完全引用的场景下的子孙步骤不可禁用 -->
                 <a-switch
+                  v-show="step.config.isRefScenarioStep !== true"
                   v-model:model-value="step.enable"
                   size="small"
                   @click.stop="handleStepToggleEnable(step)"
@@ -241,7 +242,7 @@
       :request="currentStepDetail"
       :step-responses="scenario.stepResponses"
       @apply-step="applyApiStep"
-      @delete-step="deleteCaseStep"
+      @delete-step="deleteCaseStep(activeStep)"
       @stop-debug="handleStopExecute(activeStep)"
       @execute="(request, executeType) => handleApiExecute((request as unknown as RequestParam), executeType)"
     />
@@ -286,6 +287,85 @@
         </template>
       </MsCodeEditor>
     </a-modal>
+    <a-modal
+      v-model:visible="showScenarioConfig"
+      :title="t('apiScenario.scenarioConfig')"
+      :ok-text="t('common.confirm')"
+      class="ms-modal-form"
+      body-class="!overflow-hidden !p-0"
+      :width="680"
+      title-align="start"
+      @ok="applyQuickInput"
+    >
+      <a-form :model="scenarioConfigForm" layout="vertical" class="ms-form">
+        <a-form-item>
+          <template #label>
+            <div class="flex items-center gap-[4px]">
+              {{ t('apiScenario.quoteMode') }}
+              <a-tooltip position="right">
+                <icon-question-circle
+                  class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                  size="16"
+                />
+                <template #content>
+                  <div>{{ t('apiScenario.fullQuoteTip') }}</div>
+                  <div>{{ t('apiScenario.stepQuoteTip') }}</div>
+                </template>
+              </a-tooltip>
+            </div>
+          </template>
+          <a-radio-group v-model:model-value="scenarioConfigForm.refType">
+            <a-radio :value="ScenarioStepRefType.REF">{{ t('apiScenario.fullQuote') }}</a-radio>
+            <a-radio :value="ScenarioStepRefType.PARTIAL_REF">{{ t('apiScenario.stepQuote') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="t('apiScenario.runRule')">
+          <a-radio-group v-model:model-value="scenarioConfigForm.useCurrentScenarioParam" type="button">
+            <a-radio :value="true">{{ t('apiScenario.currentScenario') }}</a-radio>
+            <a-radio :value="false">{{ t('apiScenario.sourceScenario') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="" class="hidden-item">
+          <a-radio-group v-model:model-value="scenarioConfigForm.useBothScenarioParam">
+            <a-radio :value="false">{{ t('apiScenario.empty') }}</a-radio>
+            <a-radio :value="true">{{ t('apiScenario.sourceScenarioEnv') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="" class="hidden-item !mb-0">
+          <div class="flex items-center gap-[8px]">
+            <a-checkbox v-model:model-value="scenarioConfigForm.enableScenarioEnv" class="ml-[6px]"></a-checkbox>
+            <div class="flex items-center gap-[4px]">
+              {{ t('apiScenario.sourceScenarioEnv') }}
+              <a-tooltip :content="t('apiScenario.sourceScenarioEnvTip')" position="right">
+                <icon-question-circle
+                  class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                  size="16"
+                />
+              </a-tooltip>
+            </div>
+          </div>
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="text-[var(--color-text-4)]">
+              {{ t('apiScenario.valuePriority') }}
+            </div>
+            <div v-if="scenarioConfigForm.useCurrentScenarioParam" class="text-[var(--color-text-1)]">
+              {{ t('apiScenario.currentScenarioAndNull') }}
+            </div>
+            <div v-else class="text-[var(--color-text-1)]">
+              {{ t('apiScenario.sourceScenarioAndNull') }}
+            </div>
+          </div>
+          <div class="flex items-center gap-[12px]">
+            <a-button type="secondary" @click="cancelScenarioConfig">{{ t('common.cancel') }}</a-button>
+            <a-button type="primary" @click="saveScenarioConfig">{{ t('common.confirm') }}</a-button>
+          </div>
+        </div>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -327,7 +407,13 @@
   } from '@/utils';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
-  import { ApiScenarioDebugRequest, CreateStepAction, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import {
+    ApiScenarioDebugRequest,
+    CreateStepAction,
+    Scenario,
+    ScenarioStepConfig,
+    ScenarioStepItem,
+  } from '@/models/apiTest/scenario';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     ResponseComposition,
@@ -380,6 +466,7 @@
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string | number>(''); // 聚焦的key
+  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤、弹窗配置时记录当前操作的步骤节点
 
   function setFocusNodeKey(id: string | number) {
     focusStepKey.value = id || '';
@@ -516,6 +603,53 @@
     return stepMoreActions;
   }
 
+  const scenarioConfigForm = ref<
+    ScenarioStepConfig & {
+      refType: ScenarioStepRefType;
+    }
+  >({
+    refType: ScenarioStepRefType.REF,
+    enableScenarioEnv: false,
+    useBothScenarioParam: false,
+    useCurrentScenarioParam: true,
+  });
+  const showScenarioConfig = ref(false);
+
+  function cancelScenarioConfig() {
+    showScenarioConfig.value = false;
+    scenarioConfigForm.value = {
+      refType: ScenarioStepRefType.REF,
+      enableScenarioEnv: false,
+      useBothScenarioParam: false,
+      useCurrentScenarioParam: true,
+    };
+  }
+
+  function saveScenarioConfig() {
+    if (activeStep.value) {
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.id, 'id');
+      if (realStep) {
+        realStep.refType = scenarioConfigForm.value.refType;
+        realStep.config = {
+          ...realStep.config,
+          ...scenarioConfigForm.value,
+        };
+        realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
+          // 更新子孙步骤是否完全引用
+          if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
+            child.config.isRefScenarioStep = true;
+            child.enable = true;
+          } else {
+            child.config.isRefScenarioStep = false;
+          }
+          return child;
+        });
+        Message.success(t('apiScenario.setSuccess'));
+        cancelScenarioConfig();
+      }
+    }
+  }
+
   function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
       case 'copy':
@@ -569,7 +703,12 @@
         );
         break;
       case 'config':
-        console.log('config', node);
+        activeStep.value = node as ScenarioStepItem;
+        scenarioConfigForm.value = {
+          refType: node.refType,
+          ...node.config,
+        };
+        showScenarioConfig.value = true;
         break;
       case 'delete':
         deleteNode(steps.value, node.id, 'id');
@@ -659,7 +798,6 @@
   const customCaseDrawerVisible = ref(false);
   const customApiDrawerVisible = ref(false);
   const scriptOperationDrawerVisible = ref(false);
-  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
   const activeCreateAction = ref<CreateStepAction>(); // 用于抽屉操作创建步骤时记录当前插入类型
   const currentStepDetail = computed<any>(() => {
     // TODO: 步骤详情类型
@@ -1008,7 +1146,11 @@
    */
   function addCustomApiStep(request: RequestParam) {
     request.isNew = false;
-    stepDetails.value[request.stepId] = request;
+    stepDetails.value[request.stepId] = {
+      ...request,
+      customizeRequest: true,
+      customizeRequestEnvEnable: request.customizeRequestEnvEnable,
+    };
     emit('updateResource', request.uploadFileIds, request.linkFileIds);
     if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
@@ -1028,8 +1170,6 @@
       steps.value.push({
         ...cloneDeep(defaultStepItemCommon),
         config: {
-          customizeRequest: true,
-          customizeRequestEnvEnable: request.customizeRequestEnvEnable,
           protocol: request.protocol,
           method: request.method,
         },
@@ -1058,11 +1198,10 @@
   /**
    * 删除
    */
-  function deleteCaseStep() {
-    if (activeStep.value) {
+  function deleteCaseStep(step?: ScenarioStepItem) {
+    if (step) {
       customCaseDrawerVisible.value = false;
-      steps.value = steps.value.filter((item) => item.id !== activeStep.value?.id);
-      delete stepDetails.value[activeStep.value?.id];
+      deleteNode(steps.value, step.id, 'id');
       activeStep.value = undefined;
     }
   }
@@ -1103,11 +1242,16 @@
    * @param dropNode 释放节点
    */
   function isAllowDropInside(dropNode: MsTreeNodeData) {
-    return [
-      ScenarioStepType.LOOP_CONTROLLER,
-      ScenarioStepType.IF_CONTROLLER,
-      ScenarioStepType.ONCE_ONLY_CONTROLLER,
-    ].includes(dropNode.stepType);
+    return (
+      // 逻辑控制器内可以拖拽任意类型的步骤
+      [
+        ScenarioStepType.LOOP_CONTROLLER,
+        ScenarioStepType.IF_CONTROLLER,
+        ScenarioStepType.ONCE_ONLY_CONTROLLER,
+      ].includes(dropNode.stepType) ||
+      // 复制的场景内可以释放任意类型的步骤
+      (dropNode.stepType === ScenarioStepType.API_SCENARIO && dropNode.refType === ScenarioStepRefType.COPY)
+    );
   }
 
   /**
@@ -1357,6 +1501,12 @@
     }
     .ms-tree-node-extra {
       @apply !visible !w-auto;
+    }
+  }
+  .ms-form {
+    :deep(.arco-form-item-wrapper-col),
+    :deep(.arco-form-item-content) {
+      min-height: auto;
     }
   }
 </style>

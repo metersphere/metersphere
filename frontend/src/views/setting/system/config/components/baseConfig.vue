@@ -167,10 +167,7 @@
             allow-clear
           />
         </a-form-item>
-        <a-form-item
-            :label="t('system.config.email.from')"
-            field="from" asterisk-position="end"
-            :rules="[emailRule]">
+        <a-form-item :label="t('system.config.email.from')" field="from" asterisk-position="end" :rules="[emailRule]">
           <a-input
             v-model:model-value="emailConfigForm.from"
             :max-length="255"
