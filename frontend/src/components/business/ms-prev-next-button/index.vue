@@ -78,7 +78,8 @@
     () => props.detailId,
     (val) => {
       activeDetailId.value = val;
-    }
+    },
+    { immediate: true }
   );
 
   const activeDetailIndex = ref(props.detailIndex);

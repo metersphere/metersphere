@@ -111,6 +111,16 @@
     }
   );
 
+  watch(
+    () => props.detailId,
+    (val) => {
+      nextTick(() => {
+        // 为了确保 prevNextButtonRef 已渲染
+        openNextDetail();
+      });
+    }
+  );
+
   defineExpose({
     initDetail,
     openPrevDetail,
