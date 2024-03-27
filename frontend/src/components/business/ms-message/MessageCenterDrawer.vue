@@ -17,7 +17,7 @@
       <div class="h-full w-[180px] bg-white">
         <a-menu
           class="mr-[16px] w-[180px] min-w-[180px] bg-white p-[4px]"
-          :default-selected-keys="defaultModule"
+          :default-selected-keys="[defaultModule]"
           @menu-item-click="clickModule"
         >
           <a-menu-item :key="'all'">

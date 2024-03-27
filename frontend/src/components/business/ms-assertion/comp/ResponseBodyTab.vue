@@ -335,6 +335,7 @@
     v-model:visible="fastExtractionVisible"
     :config="activeRecord"
     :response="props.response"
+    :is-show-more-setting="false"
     @apply="handleFastExtractionApply"
   />
 </template>
@@ -342,6 +343,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
   import { TableColumnData, TableData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -641,7 +643,7 @@
         return {
           ...activeRecord.value,
           moreSettingPopoverVisible: false,
-        } as any; // TOOD: 这里的后台类型应该是不对的，需要修改
+        } as any;
       }
       return e;
     });
@@ -682,17 +684,17 @@
 
     fastExtractionVisible.value = false;
     nextTick(() => {
-      if (activeTab.value === ResponseBodyAssertionType.JSON_PATH) {
+      if (condition.value.assertionBodyType === ResponseBodyAssertionType.JSON_PATH) {
         extractParamsTableRef.value?.addTableLine(
           condition.value.jsonPathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
         );
       }
-      if (activeTab.value === ResponseBodyAssertionType.XPATH) {
+      if (condition.value.assertionBodyType === ResponseBodyAssertionType.XPATH) {
         extractParamsTableRef.value?.addTableLine(
           condition.value.xpathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
         );
       }
-      if (activeTab.value === ResponseBodyAssertionType.REGEX) {
+      if (condition.value.assertionBodyType === ResponseBodyAssertionType.REGEX) {
         extractParamsTableRef.value?.addTableLine(
           condition.value.xpathAssertion.regexAssertion?.findIndex((e) => e.id === activeRecord.value.id) || 0
         );
@@ -701,8 +703,8 @@
     emit('change', { ...condition.value });
   }
 
-  function copyItem(record) {
-    switch (activeTab.value) {
+  function copyItem(record: Record<string, any>) {
+    switch (condition.value.assertionBodyType) {
       case ResponseBodyAssertionType.JSON_PATH:
         const jsonIndex = condition.value.jsonPathAssertion.assertions.findIndex((item) => item.id === record.id);
         if (jsonIndex > -1) {
@@ -710,9 +712,10 @@
             ...record,
             id: new Date().getTime().toString(),
           });
-          // emit('change', { ...condition.value });
+          const temArr = cloneDeep(condition.value.jsonPathAssertion.assertions);
+          condition.value.jsonPathAssertion.assertions = temArr;
+          emit('change', { ...condition.value });
         }
-
         break;
       case ResponseBodyAssertionType.XPATH:
         const xpathIndex = condition.value.xpathAssertion.assertions.findIndex((item) => item.id === record.id);
@@ -721,10 +724,12 @@
             ...record,
             id: new Date().getTime().toString(),
           });
+          const temArr = cloneDeep(condition.value.xpathAssertion.assertions);
+          condition.value.xpathAssertion.assertions = temArr;
         }
-        // emit('change', {
-        //   ...condition.value,
-        // });
+        emit('change', {
+          ...condition.value,
+        });
         break;
       case ResponseBodyAssertionType.DOCUMENT:
         condition.value.documentAssertion.jsonAssertion.push({
@@ -733,14 +738,16 @@
         });
         break;
       case ResponseBodyAssertionType.REGEX:
-        const regIndex = condition.value.xpathAssertion.assertions.findIndex((item) => item.id === record.id);
+        const regIndex = condition.value.regexAssertion.assertions.findIndex((item) => item.id === record.id);
         if (regIndex > -1) {
           condition.value.regexAssertion.assertions.splice(regIndex, 0, {
             ...record,
             id: new Date().getTime().toString(),
           });
+          const temArr = cloneDeep(condition.value.regexAssertion.assertions);
+          condition.value.regexAssertion.assertions = temArr;
         }
-        // emit('change', { ...condition.value});
+        emit('change', { ...condition.value });
         break;
       default:
         break;

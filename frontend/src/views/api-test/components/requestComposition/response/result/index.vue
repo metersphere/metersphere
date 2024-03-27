@@ -181,15 +181,9 @@
    */
   async function loadLoop() {
     if (activeStepDetail.value?.content) {
-      const { content } = activeStepDetail.value;
       activeStepDetailCopy.value = {
         ...activeStepDetail.value,
-        content: {
-          ...content,
-          responseResult: {
-            ...subRequestResults.value[current.value - 1],
-          },
-        },
+        content: cloneDeep(subRequestResults.value[current.value - 1]),
       };
     }
   }

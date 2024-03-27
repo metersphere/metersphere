@@ -55,8 +55,12 @@
     getScheduleSysApiCaseList,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
+  import { useTableStore } from '@/store';
 
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
+
+  const tableStore = useTableStore();
 
   const { t } = useI18n();
 
@@ -128,6 +132,7 @@
       dataIndex: 'operation',
       width: 120,
       fixed: 'right',
+      showDrag: false,
     },
   ];
 
@@ -140,11 +145,11 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group],
     {
-      columns,
+      tableKey: TableKeyEnum.TASK_SCHEDULE_TASK,
       scroll: {
         x: '100%',
       },
-      showSetting: false,
+      showSetting: true,
       selectable: true,
       heightUsed: 300,
       enableDrag: false,
@@ -205,6 +210,9 @@
       }
     }
   );
+  onMounted(async () => {
+    await tableStore.initColumn(TableKeyEnum.TASK_SCHEDULE_TASK, columns, 'drawer', true);
+  });
 </script>
 
 <style scoped></style>

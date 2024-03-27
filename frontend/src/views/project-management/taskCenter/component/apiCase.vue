@@ -113,13 +113,17 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { TaskStatus } from './utils';
+
+  const tableStore = useTableStore();
 
   const { openModal } = useModal();
 
@@ -239,11 +243,11 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,
     {
-      columns,
+      tableKey: TableKeyEnum.TASK_API_CASE,
       scroll: {
         x: '100%',
       },
-      showSetting: false,
+      showSetting: true,
       selectable: true,
       heightUsed: 330,
       showSelectAll: true,
@@ -293,7 +297,6 @@
           await loadRealMap.value[props.group].batchStop({
             selectIds: selectAll ? [] : selectIds,
             selectAll,
-            moduleType: props.moduleType,
           });
           resetSelector();
           Message.success(t('project.taskCenter.stopSuccess'));
@@ -386,6 +389,9 @@
       }
     }
   );
+  onMounted(async () => {
+    await tableStore.initColumn(TableKeyEnum.TASK_API_CASE, columns, 'drawer', true);
+  });
 </script>
 
 <style scoped></style>

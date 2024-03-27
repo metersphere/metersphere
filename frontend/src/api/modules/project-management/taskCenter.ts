@@ -17,6 +17,7 @@ import {
 
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type { RealTaskCenterApiCaseItem, TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
+import { TaskCenterEnum } from '@/enums/taskCenter';
 
 // 实时任务
 export function getRealSysApiCaseList(data: TableQueryParams) {
@@ -43,13 +44,13 @@ export function batchStopRealProjectApi(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: batchStopRealProjectApiUrl, data });
 }
 
-export function stopRealSysApi(moduleType: string, id: string) {
+export function stopRealSysApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealSysApiUrl}/${moduleType}/${id}` });
 }
-export function stopRealOrdApi(moduleType: string, id: string) {
+export function stopRealOrdApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealOrdApiUrl}/${moduleType}/${id}` });
 }
-export function stopRealProjectApi(moduleType: string, id: string) {
+export function stopRealProjectApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealProjectApiUrl}/${moduleType}/${id}` });
 }
 

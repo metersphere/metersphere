@@ -2,7 +2,7 @@
   <div>
     <paramsTable
       v-model:params="condition.assertions"
-      :selectable="false"
+      :selectable="true"
       :columns="columns"
       :scroll="{ minWidth: '700px' }"
       :default-param-item="defaultParamItem"
@@ -15,12 +15,13 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { responseHeaderOption } from '@/config/apiTest';
 
   import type { ExecuteAssertionItem } from '@/models/apiTest/common';
+
+  import { statusCodeOptions } from './utils';
 
   interface Param {
     [key: string]: any;

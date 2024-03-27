@@ -271,7 +271,7 @@
       showSetting: true,
       selectable: true,
       heightUsed: 330,
-      showSelectorAll: false,
+      showSelectorAll: true,
     },
     (item) => ({
       ...item,
@@ -402,15 +402,14 @@
   const showCaseDetailDrawer = ref<boolean>(false);
   const activeCaseReportType = ref('');
   function showReportDetail(id: string, rowIndex: number, integrated: boolean) {
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex;
     if (props.moduleType === ReportEnum.API_SCENARIO_REPORT) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
       activeCaseReportType.value = integrated ? 'INTEGRATED' : 'INDEPENDENT';
     }
-
-    activeDetailId.value = id;
-    activeReportIndex.value = rowIndex;
   }
 
   watch(

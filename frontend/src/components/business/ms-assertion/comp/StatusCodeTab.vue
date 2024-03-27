@@ -32,9 +32,9 @@
   import { computed } from 'vue';
   import { useVModel } from '@vueuse/core';
 
-  import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
-
   import { useI18n } from '@/hooks/useI18n';
+
+  import { statusCodeOptions } from './utils';
 
   const { t } = useI18n();
   interface Param {

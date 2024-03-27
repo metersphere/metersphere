@@ -197,6 +197,11 @@
         });
         break;
       case RequestConditionProcessor.EXTRACT:
+        const isEXTRACT = data.value.find((item) => item.processorType === RequestConditionProcessor.EXTRACT);
+        if (isEXTRACT) {
+          return;
+        }
+
         data.value.push({
           id,
           processorType: RequestConditionProcessor.EXTRACT,
