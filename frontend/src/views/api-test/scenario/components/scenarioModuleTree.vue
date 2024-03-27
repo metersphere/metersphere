@@ -7,7 +7,7 @@
         allow-clear
       />
       <a-button
-        v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']"
+        v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
         type="primary"
         value="newScenario"
         @click="
@@ -32,7 +32,7 @@
         </a-tooltip>
         <template v-if="!props.readOnly">
           <a-dropdown @select="handleSelect">
-            <MsButton v-permission="['[PROJECT_API_SCENARIO:READ+ADD]']" type="icon" class="!mr-0 p-[2px]">
+            <MsButton v-permission="['PROJECT_API_SCENARIO:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
               <MsIcon
                 type="icon-icon_create_planarity"
                 size="18"
