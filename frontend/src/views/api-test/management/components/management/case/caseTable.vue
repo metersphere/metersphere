@@ -912,6 +912,7 @@
   }
   async function openCaseDetailDrawer(id: string) {
     await getCaseDetailInfo(id);
+    caseExecute.value = false;
     caseDetailDrawerVisible.value = true;
   }
 
