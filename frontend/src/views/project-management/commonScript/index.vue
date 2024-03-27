@@ -17,8 +17,8 @@
           <div
             class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]"
             @click="showDetail(record)"
-            >{{ record.name }}</div
-          >
+            >{{ record.name }}
+          </div>
           <a-popover :title="t('project.commonScript.publicScriptName')" position="right">
             <a-button type="text" class="ml-2 px-0">{{ t('project.commonScript.preview') }}</a-button>
             <template #content>
@@ -39,10 +39,30 @@
         </div>
       </template>
       <template #status="{ record }">
-        <MsTag v-if="record.status === 'PASSED'" type="success" theme="light">{{
-          t('project.commonScript.testsPass')
-        }}</MsTag>
-        <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
+        <commonScriptStatus :status="record.status" />
+      </template>
+      <template #statusFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="statusFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
+            {{ t(columnConfig.title as string) }}
+            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </MsButton>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="flex items-center justify-center px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                  <a-checkbox v-for="val of Object.values(CommonScriptStatusEnum)" :key="val" :value="val">
+                    <commonScriptStatus :status="val" />
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
       </template>
       <template #operation="{ record }">
         <MsButton v-permission="['PROJECT_CUSTOM_FUNCTION:READ+UPDATE']" status="primary" @click="editHandler(record)">
@@ -53,12 +73,13 @@
           v-permission="['PROJECT_CUSTOM_FUNCTION:READ+DELETE']"
           :list="actions"
           @select="(item:ActionsItem) => handleMoreActionSelect(item,record)"
-      /></template>
+        />
+      </template>
     </ms-base-table>
     <template v-if="(keyword || '').trim() === ''" #empty>
       <div class="flex items-center justify-center">
         {{ t('caseManagement.caseReview.tableNoData') }}
-        <MsButton class="ml-[8px]"> {{ t('project.commonScript.addPublicScript') }} </MsButton>
+        <MsButton class="ml-[8px]"> {{ t('project.commonScript.addPublicScript') }}</MsButton>
       </div>
     </template>
     <AddScriptDrawer
@@ -88,6 +109,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
+  import commonScriptStatus from './components/commonScriptStatus.vue';
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
   import {
@@ -106,6 +128,7 @@
     CommonScriptItem,
     ParamsRequestType,
   } from '@/models/projectManagement/commonScript';
+  import { CommonScriptStatusEnum } from '@/enums/commonScriptStatusEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
@@ -116,8 +139,9 @@
   const { openModal } = useModal();
 
   const { t } = useI18n();
-
+  const statusFilterVisible = ref(false);
   const keyword = ref<string>('');
+  const statusFilters = ref<string[]>(Object.keys(CommonScriptStatusEnum));
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE', 'PROJECT_CUSTOM_FUNCTION:READ+DELETE'])
@@ -147,6 +171,11 @@
       showInTable: true,
       width: 150,
       showDrag: true,
+      titleSlotName: 'statusFilter',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'project.commonScript.tags',
@@ -227,8 +256,17 @@
     setLoadListParams({
       projectId: currentProjectId.value,
       keyword: keyword.value,
+      filter: {
+        status: statusFilters.value,
+      },
     });
     loadList();
+  }
+
+  function handleFilterHidden(val: boolean) {
+    if (!val) {
+      initData();
+    }
   }
 
   function deleteScript(record: CommonScriptItem) {
@@ -273,6 +311,7 @@
     scriptId.value = record.id;
     showDetailDrawer.value = true;
   }
+
   const paramsList = ref<ParamsRequestType[]>([]);
   const confirmLoading = ref<boolean>(false);
 
