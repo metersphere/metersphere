@@ -177,13 +177,15 @@
         </template>
         <template #extraEnd="step">
           <a-popover
-            v-if="step.executeStatus && checkStepIsApi(step)"
+            v-if="
+              getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
+              getExecuteStatus(step) === ScenarioExecuteStatus.FAILED
+            "
             position="br"
             content-class="scenario-step-response-popover"
-            :disabled="![ScenarioExecuteStatus.SUCCESS, ScenarioExecuteStatus.FAILED].includes(step.executeStatus)"
             @popup-visible-change="handleResponsePopoverVisibleChange($event, step)"
           >
-            <executeStatus :status="getExecuteStatus(step) || step.executeStatus" size="small" />
+            <executeStatus :status="getExecuteStatus(step)" size="small" />
             <template #content>
               <responseResult
                 :active-tab="ResponseComposition.BODY"
@@ -204,11 +206,7 @@
               </responseResult>
             </template>
           </a-popover>
-          <executeStatus
-            v-else-if="step.executeStatus"
-            :status="getExecuteStatus(step) || step.executeStatus"
-            size="small"
-          />
+          <executeStatus v-else-if="step.executeStatus" :status="getExecuteStatus(step)" size="small" />
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
           <div
@@ -793,6 +791,12 @@
         scenarioConfig: scenario.value.scenarioConfig,
         frontendDebug: executeType === 'localExec',
         ...executeParams,
+        steps: mapTree(executeParams.steps, (node) => {
+          return {
+            ...node,
+            parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+          };
+        }),
       });
       if (executeType === 'localExec' && localExecuteUrl) {
         await localExecuteApiDebug(localExecuteUrl, res);

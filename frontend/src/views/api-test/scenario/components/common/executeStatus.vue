@@ -1,5 +1,5 @@
 <template>
-  <MsTag :self-style="status.style" :size="props.size"> {{ status.text }}</MsTag>
+  <MsTag v-if="status" :self-style="status.style" :size="props.size"> {{ status.text }}</MsTag>
 </template>
 
 <script setup lang="ts">
@@ -10,7 +10,7 @@
   import { ScenarioExecuteStatus } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    status: ScenarioExecuteStatus;
+    status?: ScenarioExecuteStatus;
     size?: Size;
   }>();
 
@@ -37,16 +37,23 @@
       color: 'rgb(var(--success-6))',
       text: 'common.success',
     },
+    [ScenarioExecuteStatus.UN_EXECUTE]: {
+      bgColor: 'var(--color-text-4)',
+      color: 'var(--color-text-n9)',
+      text: 'apiScenario.unExecute',
+    },
   };
   const status = computed(() => {
-    const config = statusMap[props.status];
-    return {
-      style: {
-        backgroundColor: config?.bgColor,
-        color: config?.color,
-      },
-      text: t(config?.text),
-    };
+    if (props.status) {
+      const config = statusMap[props.status];
+      return {
+        style: {
+          backgroundColor: config?.bgColor,
+          color: config?.color,
+        },
+        text: t(config?.text),
+      };
+    }
   });
 </script>
 

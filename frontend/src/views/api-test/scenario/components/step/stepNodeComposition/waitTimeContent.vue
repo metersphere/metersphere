@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-[4px]" draggable="false">
-    <a-tooltip :content="innerData.delay.toString()" :disabled="!innerData.delay">
+    <a-tooltip :content="innerData.delay?.toString()" :disabled="!innerData.delay">
       <a-input-number
         v-model:model-value="innerData.delay"
         class="max-w-[500px] px-[8px]"

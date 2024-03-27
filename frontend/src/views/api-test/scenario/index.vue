@@ -223,6 +223,12 @@
       if (activeScenarioTab.value.isNew) {
         const res = await addScenario({
           ...activeScenarioTab.value,
+          steps: mapTree(activeScenarioTab.value.steps, (node) => {
+            return {
+              ...node,
+              parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+            };
+          }),
           projectId: appStore.currentProjectId,
           environmentId: currentEnvConfig.value?.id || '',
         });
@@ -246,6 +252,12 @@
         await updateScenario({
           ...activeScenarioTab.value,
           environmentId: currentEnvConfig.value?.id || '',
+          steps: mapTree(activeScenarioTab.value.steps, (node) => {
+            return {
+              ...node,
+              parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+            };
+          }),
         });
       }
       Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
@@ -394,6 +406,7 @@
         });
       }
       if (executeType === 'localExec' && localExecuteUrl) {
+        // 本地执行需要调 debug 接口获取响应结果，然后再调本地执行接口
         await localExecuteApiDebug(localExecuteUrl, res);
       }
     } catch (error) {

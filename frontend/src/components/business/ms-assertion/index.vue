@@ -149,7 +149,7 @@
   import { ExecuteAssertionConfig } from '@/models/apiTest/common';
   import { ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
-  import { ExecuteAssertion, MsAssertionItem } from './type';
+  import { MsAssertionItem } from './type';
 
   defineOptions({
     name: 'MsAssertion',

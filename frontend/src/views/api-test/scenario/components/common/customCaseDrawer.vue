@@ -362,7 +362,7 @@
           ...props.request,
           response: {
             requestResults: [props.stepResponses?.[props.request?.stepId] || defaultResponse.requestResults[0]],
-            console: props.stepResponses?.[props.request?.stepId].console || '',
+            console: props.stepResponses?.[props.request?.stepId]?.console || '',
           },
         };
         if (isQuote.value || isCopyNeedInit.value) {
