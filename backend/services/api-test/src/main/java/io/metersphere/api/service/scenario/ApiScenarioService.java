@@ -809,14 +809,14 @@ public class ApiScenarioService extends MoveNodeService {
      * 解析步骤树结构
      * 获取待更新的 ApiScenarioStep 列表
      */
-    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
-                                                      List<? extends ApiScenarioStepCommonDTO> steps, List<ApiScenarioCsvStep> csvSteps) {
+    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepRequest parent,
+                                                      List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
         List<ApiScenarioStep> apiScenarioSteps = new ArrayList<>();
         long sort = 1;
-        for (ApiScenarioStepCommonDTO step : steps) {
+        for (ApiScenarioStepRequest step : steps) {
             ApiScenarioStep apiScenarioStep = new ApiScenarioStep();
             BeanUtils.copyBean(apiScenarioStep, step);
             apiScenarioStep.setSort(sort++);
