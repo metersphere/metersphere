@@ -524,7 +524,7 @@
     },
     {
       value: RequestComposition.QUERY,
-      label: RequestComposition.QUERY,
+      label: 'Query',
     },
     {
       value: RequestComposition.REST,

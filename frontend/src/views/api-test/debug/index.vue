@@ -70,11 +70,13 @@
   >
     <template #title>
       <a-tooltip position="right" :content="t('apiTestDebug.importByCURLTip')">
-        {{ t('apiTestDebug.importByCURL') }}
-        <icon-exclamation-circle
-          class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-          size="16"
-        />
+        <span
+          >{{ t('apiTestDebug.importByCURL') }}
+          <icon-exclamation-circle
+            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </span>
       </a-tooltip>
     </template>
     <div class="h-full">
