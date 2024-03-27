@@ -520,6 +520,14 @@
         ORDER BY pos DESC
             LIMIT 1;
     </select>
+    <select id="getApiCaseExecuteInfoByIds" resultType="io.metersphere.api.domain.ApiScenario">
+        select id, name, environment_id, project_id
+        from api_scenario
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">

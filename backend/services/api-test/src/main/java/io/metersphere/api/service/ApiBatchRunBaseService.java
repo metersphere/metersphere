@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,7 +26,7 @@ public class ApiBatchRunBaseService {
      * @param runModeConfig
      * @return
      */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, Map<String, String> caseReportMap, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
         List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
         AtomicInteger sort = new AtomicInteger(1);
@@ -33,6 +34,8 @@ public class ApiBatchRunBaseService {
             ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
             queueDetail.setResourceId(resourceId);
             queueDetail.setSort(sort.getAndIncrement());
+            // caseReportMap 为 null ，说明是集合报告，生成一个虚拟的报告ID
+            queueDetail.setReportId(caseReportMap == null ? UUID.randomUUID().toString() : caseReportMap.get(resourceId));
             queueDetails.add(queueDetail);
         }
         apiExecutionQueueService.insertQueue(queue, queueDetails);

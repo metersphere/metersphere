@@ -13,6 +13,7 @@ import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtApiScenarioMapper {
@@ -55,4 +56,6 @@ public interface ExtApiScenarioMapper {
     void updatePos(String id, long pos);
 
     Long getPos(String projectId);
+
+    List<ApiScenario> getApiCaseExecuteInfoByIds(List<String> subIds);
 }
