@@ -145,4 +145,5 @@ export default {
   'common.notQuote': '不引用',
   'common.execute': '执行',
   'common.replace': '替换',
+  'common.value.notNull': '属性值不能为空',
 };
