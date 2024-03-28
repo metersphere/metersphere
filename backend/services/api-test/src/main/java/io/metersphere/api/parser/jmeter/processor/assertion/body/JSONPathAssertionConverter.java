@@ -34,7 +34,7 @@ public class JSONPathAssertionConverter extends ResponseBodyTypeAssertionConvert
         String condition = msAssertion.getCondition();
         String expression = msAssertion.getExpression();
         String expectedValue = msAssertion.getExpectedValue();
-        assertion.setName(String.format("Response date JSONPath expect %s %s %s", expression, condition.toLowerCase().replace("_", ""), expectedValue));
+        assertion.setName(String.format("Response data JSONPath expect %s %s %s", expression, condition.toLowerCase().replace("_", ""), expectedValue));
         if (BooleanUtils.isFalse(globalEnable)) {
             // 如果整体禁用，则禁用
             assertion.setEnabled(false);

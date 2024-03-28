@@ -47,16 +47,16 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         }
         String expectedValue = msAssertion.getExpectedValue();
         String condition = msAssertion.getCondition();
-        assertion.setName(String.format("Response header %s %s", condition.toLowerCase().replace("_", ""), expectedValue));
         MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
         String header = msAssertion.getHeader();
         String testString = switch (msAssertionCondition) {
-            case CONTAINS -> StringUtils.join("\\b", msAssertion.getHeader(),": .*", expectedValue, ".*\\b");
-            case NOT_CONTAINS -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!.*", expectedValue, ").*\\b");
+            case CONTAINS -> StringUtils.join("\\b", header,": .*", expectedValue, ".*\\b");
+            case NOT_CONTAINS -> StringUtils.join("\\b", header,": (?!.*", expectedValue, ").*\\b");
             case EQUALS -> StringUtils.join("\\b", header,": ",expectedValue, "\\b");
-            case NOT_EQUALS -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!", expectedValue,"\\b)\\d+");
+            case NOT_EQUALS -> StringUtils.join("\\b", header,": (?!", expectedValue,"\\b)\\d+");
             default -> expectedValue;
         };
+        assertion.setName(String.format("Response header %s %s %s", header, condition.toLowerCase().replace("_", ""), expectedValue));
         assertion.addTestString(testString);
         assertion.setToContainsType();
 

@@ -46,6 +46,8 @@ public class ApiScenarioReportStepDTO {
 
     @Schema(description = "脚本标识")
     private String scriptIdentifier;
+    @Schema(description = "循环控制器步骤的排序")
+    private Long loopIndex;
 
     @Schema(description = "子节点")
     private List<ApiScenarioReportStepDTO> children;
