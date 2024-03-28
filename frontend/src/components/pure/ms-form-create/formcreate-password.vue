@@ -6,6 +6,8 @@
     :placeholder="placeholder"
     style="width: 100%"
     autocomplete="username"
+    allow-clear
+    @clear="clearHandler"
   >
     <template #suffix>
       <span v-if="!isShowPassword" @click="togglePasswordVisibility">
@@ -36,6 +38,11 @@
       emits('update:modelValue', val);
     }
   );
+
+  function clearHandler() {
+    inputValue.value = '';
+    emits('update:modelValue', inputValue.value);
+  }
 
   const isShowPassword = ref<boolean>(true);
   const togglePasswordVisibility = () => {

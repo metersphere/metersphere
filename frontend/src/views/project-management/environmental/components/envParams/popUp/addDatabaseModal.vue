@@ -258,31 +258,37 @@
       }
     });
   };
-  onMounted(() => {
-    getDriverOption();
-  });
 
-  watchEffect(() => {
-    if (props.currentId) {
-      const currentItem = store.currentEnvDetailInfo.config.dataSources.find(
-        (item) => item.id === props.currentId
-      ) as DataSourceItem;
-      if (currentItem) {
-        if (props.isCopy) {
-          form.value = {
-            ...currentItem,
-            id: '',
-            dataSource: `copy_${currentItem.dataSource}`,
-          };
-        } else {
-          form.value = {
-            ...currentItem,
-          };
+  watch(
+    () => props.visible,
+    (val) => {
+      if (val) {
+        if (props.currentId) {
+          const currentItem = store.currentEnvDetailInfo.config.dataSources.find(
+            (item) => item.id === props.currentId
+          ) as DataSourceItem;
+          if (currentItem) {
+            if (props.isCopy) {
+              form.value = {
+                ...currentItem,
+                id: '',
+                dataSource: `copy_${currentItem.dataSource}`,
+              };
+            } else {
+              form.value = {
+                ...currentItem,
+              };
+            }
+          } else {
+            formReset();
+          }
         }
-      } else {
-        formReset();
       }
     }
+  );
+
+  onMounted(() => {
+    getDriverOption();
   });
 </script>
 

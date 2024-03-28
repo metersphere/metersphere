@@ -50,15 +50,11 @@
                   </div>
                 </a-tooltip>
                 <!-- 展开折叠控制器 -->
-                <div v-if="getShowExpand(step)" class="mx-1">
-                  <span
-                    v-if="step.fold"
-                    class="collapsebtn flex items-center justify-center"
-                    @click.stop="expandHandler(step)"
-                  >
+                <div v-if="getShowExpand(step)" class="mx-1" @click.stop="expandHandler(step)">
+                  <span v-if="step.fold" class="collapsebtn flex items-center justify-center">
                     <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
                   </span>
-                  <span v-else class="expand flex items-center justify-center" @click.stop="expandHandler(step)">
+                  <span v-else class="expand flex items-center justify-center">
                     <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
                   </span>
                 </div>
@@ -66,7 +62,7 @@
                   <ConditionStatus class="mx-1" :status="step.stepType || ''" />
                 </div>
 
-                <a-tooltip :content="step.name">
+                <a-tooltip :content="step.name" position="tl">
                   <div class="step-name-container w-full flex-grow" @click.stop="showDetail(step)">
                     <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
                       {{ step.name }}
@@ -137,7 +133,7 @@
             </div>
             <div v-if="!step.fold" class="line"></div>
           </div>
-          <!-- 折叠展开内容 -->
+          <!-- 折叠展开内容 v-if="showResContent(step)" -->
           <div v-if="showResContent(step)" class="foldContent mt-4 pl-2">
             <a-scrollbar
               :style="{
@@ -155,6 +151,7 @@
                 :show-type="props.showType"
                 :is-response-model="true"
                 :report-id="props?.reportId"
+                :steps="steps"
               />
             </a-scrollbar>
           </div>
@@ -232,6 +229,7 @@
 
   function expandHandler(item: ScenarioItemType) {
     const realStep = findNodeByKey<ScenarioItemType>(steps.value, item.stepId, 'stepId');
+    // TODO
     if (realStep) {
       realStep.fold = !realStep.fold;
     }

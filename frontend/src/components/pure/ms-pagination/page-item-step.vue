@@ -1,8 +1,18 @@
 <template>
   <component :is="simple ? 'span' : 'li'" :class="cls" @click="handleClick">
     <slot :type="isNext ? 'next' : 'previous'">
-      <MsIcon v-if="isNext" size="12px" type="icon-icon_right_outlined" />
-      <MsIcon v-else size="12px" type="icon-icon_left_outlined" />
+      <MsIcon
+        v-if="isNext"
+        size="12px"
+        :class="{ 'text-[var(--color-text-4)]': props.current === props.pages }"
+        type="icon-icon_right_outlined"
+      />
+      <MsIcon
+        v-else
+        size="12px"
+        :class="{ 'text-[var(--color-text-4)]': props.current === 1 }"
+        type="icon-icon_left_outlined"
+      />
     </slot>
   </component>
 </template>

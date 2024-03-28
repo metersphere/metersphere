@@ -11,7 +11,7 @@
               t('organization.service.expand')
             }}</span>
           </template>
-          <div class="flex w-[100%] flex-row justify-between text-sm font-normal">
+          <div class="flex w-[100%] flex-row justify-between pb-1 text-sm font-normal">
             <div v-for="(item, index) in cardContent" :key="item.id" class="item mt-4" :class="`ms-item-${index}`">
               <span class="mr-3">
                 <svg-icon width="64px" height="46px" :name="item.icon" />
@@ -114,6 +114,7 @@
       ],
       step: '@/assets/images/ms_plugindownload.jpg',
       description: 'organization.service.description',
+      bg: '@/assets/svg/service_01.svg',
     },
     {
       id: '1002',
@@ -129,6 +130,7 @@
       ],
       step: '@/assets/images/ms_configplugin.jpg',
       description: 'organization.service.configDescription',
+      bg: '@/assets/svg/service_02.svg',
     },
   ]);
   const isCollapse = ref<boolean>(false);
@@ -167,11 +169,13 @@
     @apply flex items-center rounded-md;
   }
   .ms-item-0 {
-    background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center;
+    background: url('@/assets/svg/service_01.svg') no-repeat;
+    background-position: center;
     background-size: cover;
   }
   .ms-item-1 {
-    background: url('@/assets/images/ms_configplugin.jpg') no-repeat center;
+    background: url('@/assets/svg/service_02.svg') no-repeat;
+    background-position: center;
     background-size: cover;
   }
 </style>
