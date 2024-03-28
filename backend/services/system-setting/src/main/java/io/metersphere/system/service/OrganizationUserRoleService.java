@@ -47,8 +47,8 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
                 .andScopeIdIn(Arrays.asList(organizationId, UserRoleEnum.GLOBAL.toString()));
         example.setOrderByClause("create_time asc");
         List<UserRole> userRoles = userRoleMapper.selectByExample(example);
-        userRoles.sort(Comparator.comparing(UserRole::getInternal)
-                .thenComparing(UserRole::getScopeId).thenComparing(Comparator.comparing(UserRole::getCreateTime).reversed()).reversed());
+        userRoles.sort(Comparator.comparing(UserRole::getInternal).thenComparing(UserRole::getScopeId)
+                .thenComparing(Comparator.comparing(UserRole::getCreateTime).thenComparing(UserRole::getId).reversed()).reversed());
         return userRoles;
     }
 

@@ -6,6 +6,7 @@
           ref="ugLeftRef"
           :add-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
           :update-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
+          :is-global-disable="true"
           @handle-select="handleSelect"
           @add-user-success="handleAddMember"
         />
