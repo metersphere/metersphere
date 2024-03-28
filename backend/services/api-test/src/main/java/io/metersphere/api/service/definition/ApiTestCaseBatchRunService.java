@@ -274,7 +274,7 @@ public class ApiTestCaseBatchRunService {
      */
     private ApiReport initIntegratedReport(ApiRunModeConfigDTO runModeConfig, List<String> ids, String userId, String projectId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
-        apiReport.setName(runModeConfig.getCollectionReport().getReportName() + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiReport.setName(runModeConfig.getCollectionReport().getReportName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setIntegrated(true);
         apiReport.setProjectId(projectId);
         // 初始化集成报告与用例的关联关系
@@ -369,7 +369,7 @@ public class ApiTestCaseBatchRunService {
     private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
         apiReport.setEnvironmentId(getEnvId(runModeConfig, apiTestCase));
-        apiReport.setName(apiTestCase.getName() + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setProjectId(apiTestCase.getProjectId());
         apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());
         return apiReport;

@@ -23,6 +23,7 @@ import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -236,7 +237,7 @@ public class ApiScenarioBatchRunService {
      */
     private ApiScenarioReport initIntegratedReport(ApiRunModeConfigDTO runModeConfig, List<String> ids, String userId, String projectId) {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
-        apiScenarioReport.setName(runModeConfig.getCollectionReport().getReportName());
+        apiScenarioReport.setName(runModeConfig.getCollectionReport().getReportName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiScenarioReport.setIntegrated(true);
         apiScenarioReport.setProjectId(projectId);
         // 初始化集成报告与用例的关联关系
@@ -334,7 +335,7 @@ public class ApiScenarioBatchRunService {
     private ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
         apiScenarioReport.setEnvironmentId(getEnvId(runModeConfig, apiScenario));
-        apiScenarioReport.setName(apiScenario.getName());
+        apiScenarioReport.setName(apiScenario.getName() + "_" +  DateUtils.getTimeString(System.currentTimeMillis()));
         apiScenarioReport.setProjectId(apiScenario.getProjectId());
         apiScenarioReport.setTriggerMode(TaskTriggerMode.BATCH.name());
         return apiScenarioReport;
