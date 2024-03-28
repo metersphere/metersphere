@@ -3,31 +3,16 @@
     <div class="px-[24px] pt-[16px]">
       <MsDetailCard :title="`【${scenario.num}】${scenario.name}`" :description="description" class="!py-[8px]">
         <template #titleAppend>
-          <apiStatus :status="scenario.status" size="small" />
-        </template>
-        <template #titleRight>
-          <a-button
-            type="outline"
+          <MsIcon
             :loading="followLoading"
-            size="mini"
-            class="arco-btn-outline--secondary mr-[4px] !bg-transparent"
+            :type="scenario.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+            :class="`${scenario.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+            class="cursor-pointer"
+            :size="16"
             @click="toggleFollowReview"
-          >
-            <div class="flex items-center gap-[4px]">
-              <MsIcon
-                :type="scenario.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-                :class="`${scenario.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-                :size="14"
-              />
-              {{ t(scenario.follow ? 'common.forked' : 'common.fork') }}
-            </div>
-          </a-button>
-          <a-button type="outline" size="mini" class="arco-btn-outline--secondary !bg-transparent" @click="share">
-            <div class="flex items-center gap-[4px]">
-              <MsIcon type="icon-icon_share1" class="text-[var(--color-text-4)]" :size="14" />
-              {{ t('common.share') }}
-            </div>
-          </a-button>
+          />
+          <MsIcon type="icon-icon_share1" class="cursor-pointer text-[var(--color-text-4)]" :size="16" @click="share" />
+          <apiStatus :status="scenario.status" size="small" />
         </template>
         <template #priority="{ value }">
           <caseLevel :case-level="value as CaseLevel" />
@@ -39,9 +24,15 @@
         <a-tab-pane
           :key="ScenarioDetailComposition.BASE_INFO"
           :title="t('apiScenario.baseInfo')"
-          class="scenario-detail-tab-pane"
+          class="scenario-detail-tab-pane base-info-pane"
         >
-          <baseInfo :scenario="scenario as ScenarioDetail" />
+          <baseInfo
+            ref="baseInfoRef"
+            is-edit
+            :scenario="scenario as ScenarioDetail"
+            :module-tree="props.moduleTree"
+            class="w-[30%]"
+          />
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.STEP"
@@ -140,6 +131,7 @@
   import { followScenario } from '@/api/modules/api-test/scenario';
 
   import { ApiScenarioDebugRequest, Scenario, ScenarioDetail } from '@/models/apiTest/scenario';
+  import { ModuleTreeNode } from '@/models/common';
   import { ScenarioDetailComposition } from '@/enums/apiEnum';
 
   // 组成部分异步导入
@@ -152,6 +144,9 @@
   // const quote = defineAsyncComponent(() => import('../components/quote.vue'));
   const setting = defineAsyncComponent(() => import('../components/setting.vue'));
 
+  const props = defineProps<{
+    moduleTree: ModuleTreeNode[]; // 模块树
+  }>();
   const emit = defineEmits<{
     (e: 'batchDebug', data: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>): void;
     (e: 'updateFollow'): void;
@@ -208,6 +203,21 @@
   }
 
   const activeKey = ref<ScenarioDetailComposition>(ScenarioDetailComposition.STEP);
+
+  const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
+  function validScenarioForm(cb: () => Promise<void>) {
+    baseInfoRef.value?.createFormRef?.validate(async (errors) => {
+      if (errors) {
+        activeKey.value = ScenarioDetailComposition.BASE_INFO;
+      } else {
+        cb();
+      }
+    });
+  }
+
+  defineExpose({
+    validScenarioForm,
+  });
 </script>
 
 <style lang="less" scoped>
@@ -226,6 +236,10 @@
     }
     .scenario-detail-tab-pane {
       padding: 8px 16px;
+    }
+    .base-info-pane {
+      @apply h-full  overflow-auto;
+      .ms-scroll-bar();
     }
   }
 </style>

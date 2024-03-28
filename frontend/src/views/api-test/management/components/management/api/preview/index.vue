@@ -7,32 +7,17 @@
         :simple-show-count="4"
       >
         <template #titleAppend>
-          <apiStatus :status="previewDetail.status" size="small" />
-        </template>
-        <template #titleRight>
-          <a-button
+          <MsIcon
             v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
-            type="outline"
             :loading="followLoading"
-            size="mini"
-            class="arco-btn-outline--secondary mr-[4px] !bg-transparent"
+            :type="previewDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+            :class="`${previewDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+            class="cursor-pointer"
+            :size="16"
             @click="toggleFollowReview"
-          >
-            <div class="flex items-center gap-[4px]">
-              <MsIcon
-                :type="previewDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-                :class="`${previewDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-                :size="14"
-              />
-              {{ t(previewDetail.follow ? 'common.forked' : 'common.fork') }}
-            </div>
-          </a-button>
-          <a-button type="outline" size="mini" class="arco-btn-outline--secondary !bg-transparent" @click="share">
-            <div class="flex items-center gap-[4px]">
-              <MsIcon type="icon-icon_share1" class="text-[var(--color-text-4)]" :size="14" />
-              {{ t('common.share') }}
-            </div>
-          </a-button>
+          />
+          <MsIcon type="icon-icon_share1" class="cursor-pointer text-[var(--color-text-4)]" :size="16" @click="share" />
+          <apiStatus :status="previewDetail.status" size="small" />
         </template>
         <template #type="{ value }">
           <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
@@ -171,6 +156,7 @@
       followLoading.value = true;
       await toggleFollowDefinition(previewDetail.value.id);
       Message.success(previewDetail.value.follow ? t('common.unFollowSuccess') : t('common.followSuccess'));
+      previewDetail.value.follow = !previewDetail.value.follow;
       emit('updateFollow');
     } catch (error) {
       // eslint-disable-next-line no-console

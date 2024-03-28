@@ -30,7 +30,7 @@
         >
           <MsIcon
             :type="props.detail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-            :class="[props.detail.follow ? 'text-[rgb(var(--warning-6))]' : '']"
+            :class="[props.detail.follow ? '!text-[rgb(var(--warning-6))]' : '']"
           />
           {{ t('common.fork') }}
         </MsButton>

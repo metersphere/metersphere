@@ -43,7 +43,7 @@
         </template>
       </MsSplitBox>
     </div>
-    <detail v-else v-model:scenario="activeApiTab"></detail>
+    <!-- <detail v-else v-model:scenario="activeApiTab"></detail> -->
   </MsCard>
 </template>
 
@@ -57,7 +57,7 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import detail from './detail/index.vue';
+  // import detail from './detail/index.vue';
   import RecycleTable from '@/views/api-test/scenario/recycle/recycleTable.vue';
   import recycleTree from '@/views/api-test/scenario/recycle/recycleTree.vue';
 

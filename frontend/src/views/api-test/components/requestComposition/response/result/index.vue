@@ -234,7 +234,6 @@
    *   响应状态码对应颜色
    */
   const statusCodeColor = computed(() => {
-    debugger;
     if (activeStepDetailCopy.value?.content) {
       const code = Number(activeStepDetailCopy.value?.content?.responseResult.responseCode);
       if (code >= 200 && code < 300) {
