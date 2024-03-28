@@ -10,11 +10,24 @@
       />
       <div class="mb-[8px] flex items-center gap-[8px]">
         <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
-        <a-dropdown v-if="!props.readOnly && !props.trash" @select="handleSelect">
+        <a-dropdown
+          v-if="
+            !props.readOnly &&
+            !props.trash &&
+            hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])
+          "
+          @select="handleSelect"
+        >
           <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
           <template #content>
-            <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
-            <a-doption v-if="moduleProtocol === 'HTTP'" value="import">
+            <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="newApi">{{
+              t('apiTestManagement.newApi')
+            }}</a-doption>
+            <a-doption
+              v-if="moduleProtocol === 'HTTP'"
+              v-permission="['PROJECT_API_DEFINITION:READ+IMPORT']"
+              value="import"
+            >
               {{ t('apiTestManagement.importApi') }}
             </a-doption>
           </template>
@@ -43,7 +56,7 @@
           </a-tooltip>
           <template v-if="!props.readOnly && !props.trash">
             <a-dropdown @select="handleSelect">
-              <MsButton type="icon" class="!mr-0 p-[2px]">
+              <MsButton v-permission="['PROJECT_API_DEFINITION:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
                 <MsIcon
                   type="icon-icon_create_planarity"
                   size="18"
@@ -51,8 +64,12 @@
                 />
               </MsButton>
               <template #content>
-                <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
-                <a-doption value="addModule">{{ t('apiTestManagement.addSubModule') }}</a-doption>
+                <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="newApi">{{
+                  t('apiTestManagement.newApi')
+                }}</a-doption>
+                <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="addModule">{{
+                  t('apiTestManagement.addSubModule')
+                }}</a-doption>
               </template>
             </a-dropdown>
             <popConfirm
@@ -184,6 +201,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 
