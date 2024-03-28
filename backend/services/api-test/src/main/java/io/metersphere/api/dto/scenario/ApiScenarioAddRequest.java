@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.constants.ApiScenarioStatus;
+import io.metersphere.api.dto.ResourceAddFileParam;
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -73,15 +74,16 @@ public class ApiScenarioAddRequest {
     private Map<String, Object> stepDetails;
 
     /**
-     * 新上传的文件ID
-     * 创建时先按ID创建目录，再把文件放入目录
+     * 步骤文件操作相关参数
+     * key 为步骤ID
+     * 值为文件参数
      */
-    @Schema(description = "新上传的文件ID")
-    private List<String> uploadFileIds;
+    @Schema(description = "步骤文件操作相关参数")
+    private Map<String, ResourceAddFileParam> stepFileParam;
 
     /**
-     * 新关联的文件ID
+     * 步骤文件操作相关参数
      */
-    @Schema(description = "关联文件ID")
-    private List<String> linkFileIds;
+    @Schema(description = "场景文件操作相关参数")
+    private ResourceAddFileParam fileParam;
 }

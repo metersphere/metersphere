@@ -19,6 +19,7 @@ import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,13 +127,13 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         List<String> scenarioIds = extApiScenarioMapper.selectByProjectId(projectId);
         if (CollectionUtils.isNotEmpty(scenarioIds)) {
             SubListUtils.dealForSubList(scenarioIds, 500, subList -> {
-                cascadeDelete(subList, OperationLogConstants.SYSTEM);
+                cascadeDelete(subList, projectId, OperationLogConstants.SYSTEM);
             });
         }
     }
 
 
-    public void cascadeDelete(@NotEmpty List<String> subList, String operator) {
+    public void cascadeDelete(@NotEmpty List<String> subList, String projectId, String operator) {
         ApiScenarioBlobExample example = new ApiScenarioBlobExample();
         example.createCriteria().andIdIn(subList);
         //删除blob
@@ -148,18 +149,9 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         blobExample.createCriteria().andScenarioIdIn(subList);
         apiScenarioStepBlobMapper.deleteByExample(blobExample);
 
-        ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
-        apiScenarioExample.createCriteria().andIdIn(subList);
-        List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(apiScenarioExample);
-        scenarioList.forEach(scenario -> {
-            //删除文件
-            String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
-            try {
-                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
-            } catch (Exception ignore) {
-            }
+        String scenarioDirPrefix = DefaultRepositoryDir.getApiScenarioDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(scenarioDirPrefix, subList, projectId, operator, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
 
-        });
         //删除csv
         ApiScenarioCsvExample csvExample = new ApiScenarioCsvExample();
         csvExample.createCriteria().andScenarioIdIn(subList);
@@ -172,7 +164,10 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
             apiScenarioCsvStepMapper.deleteByExample(csvStepExample);
         }
         apiScenarioCsvMapper.deleteByExample(csvExample);
+
         //删除场景
+        ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
+        apiScenarioExample.createCriteria().andIdIn(subList);
         apiScenarioMapper.deleteByExample(apiScenarioExample);
 
     }
@@ -230,10 +225,11 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
 
     private void deleteCase(List<String> ids, String projectId) {
         deleteCaseFollows(ids);
-        ids.forEach(id -> {
-            String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_CASE);
-        });
+
+        // 批量删除文件
+        String apiCaseDirPrefix = DefaultRepositoryDir.getApiCaseDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiCaseDirPrefix, ids, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_CASE);
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
@@ -243,10 +239,9 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
     }
 
     private void deleteMock(List<String> ids, String projectId) {
-        ids.forEach(id -> {
-            String apiCaseDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_CASE);
-        });
+        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiDefinitionDir, ids, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
+
         ApiDefinitionMockConfigExample configExample = new ApiDefinitionMockConfigExample();
         configExample.createCriteria().andIdIn(ids);
         apiDefinitionMockConfigMapper.deleteByExample(configExample);
@@ -257,10 +252,9 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
 
     private void deleteApi(List<String> ids, String projectId) {
         deleteApiFollows(ids);
-        ids.forEach(id -> {
-            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
-        });
+        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiDefinitionDir, ids, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
+
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         apiDefinitionMapper.deleteByExample(example);

@@ -56,6 +56,7 @@ public class DefaultRepositoryDir {
      */
     private static final String PROJECT_API_DEBUG_DIR = PROJECT_DIR + "/api-debug/%s";
     private static final String PROJECT_API_SCENARIO_DIR = PROJECT_DIR + "/api-scenario/%s";
+    private static final String PROJECT_API_SCENARIO_STEP_DIR = PROJECT_API_SCENARIO_DIR + "/step/%s";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";
 
     /**
@@ -125,5 +126,13 @@ public class DefaultRepositoryDir {
 
     public static String getApiScenarioDir(String projectId, String apiScenarioId) {
         return String.format(PROJECT_API_SCENARIO_DIR, projectId, apiScenarioId);
+    }
+
+    public static String getApiScenarioStepDir(String projectId, String apiScenarioId, String stepId) {
+        return String.format(PROJECT_API_SCENARIO_STEP_DIR, projectId, apiScenarioId, stepId);
+    }
+
+    public static String getProjectDir(String projectId) {
+        return String.format(PROJECT_DIR, projectId);
     }
 }

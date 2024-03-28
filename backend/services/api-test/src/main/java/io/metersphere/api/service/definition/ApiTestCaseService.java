@@ -368,11 +368,11 @@ public class ApiTestCaseService extends MoveNodeService {
     public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
         deleteFollows(ids);
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByIds(ids, true);
-        //删除文件关联关系
-        ids.forEach(id -> {
-            String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_CASE);
-        });
+
+        // 批量删除关联文件
+        String apiCaseDirPrefix = DefaultRepositoryDir.getApiCaseDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiCaseDirPrefix, ids, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_CASE);
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
