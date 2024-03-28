@@ -310,7 +310,7 @@
           <a-input-number
             v-model:model-value="form.testResourceDTO.concurrentNumber"
             :min="1"
-            :max="9999999"
+            :max="isXpack ? 9999999 : 10"
             :step="1"
             mode="button"
             class="w-[160px]"
