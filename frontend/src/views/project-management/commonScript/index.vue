@@ -107,7 +107,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
   import commonScriptStatus from './components/commonScriptStatus.vue';
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
@@ -129,7 +128,7 @@
     ParamsRequestType,
   } from '@/models/projectManagement/commonScript';
   import { CommonScriptStatusEnum } from '@/enums/commonScriptStatusEnum';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -141,7 +140,7 @@
   const { t } = useI18n();
   const statusFilterVisible = ref(false);
   const keyword = ref<string>('');
-  const statusFilters = ref<string[]>(Object.keys(CommonScriptStatusEnum));
+  const statusFilters = ref<string[]>([]);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE', 'PROJECT_CUSTOM_FUNCTION:READ+DELETE'])

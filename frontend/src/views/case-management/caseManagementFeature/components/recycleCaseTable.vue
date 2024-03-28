@@ -633,14 +633,14 @@
   });
 
   // 用例等级表头检索
-  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+  const statusFilters = ref<string[]>([]);
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
   const caseFilters = ref<string[]>([]);
-  const executeResultFilters = ref(Object.keys(executionResultMap));
+  const executeResultFilters = ref<string[]>([]);
   const updateUserFilters = ref<string[]>([]);
   const createUserFilters = ref<string[]>([]);
   const deleteUserFilters = ref<string[]>([]);

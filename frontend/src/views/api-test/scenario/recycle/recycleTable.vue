@@ -162,7 +162,7 @@
   }>();
 
   const lastReportStatusFilterVisible = ref(false);
-  const lastReportStatusListFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]));
+  const lastReportStatusListFilters = ref<string[]>([]);
   const lastReportStatusFilters = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]);
   });
@@ -335,7 +335,7 @@
   };
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(ApiScenarioStatus));
+  const statusFilters = ref<string[]>([]);
   const tableStore = useTableStore();
 
   async function loadScenarioList(refreshTreeCount?: boolean) {
@@ -354,7 +354,7 @@
       moduleIds,
       filter: {
         lastReportStatus: lastReportStatusListFilters.value,
-        status: statusFilters.value.length === Object.keys(ApiScenarioStatus).length ? undefined : statusFilters.value,
+        status: statusFilters.value,
       },
     };
     setLoadListParams(params);

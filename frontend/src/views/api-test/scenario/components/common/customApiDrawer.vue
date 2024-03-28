@@ -10,13 +10,13 @@
     @close="handleClose"
   >
     <template #title>
-      <div class="flex items-center gap-[8px]">
-        <stepTypeVue
-          v-if="props.step"
-          v-show="props.step.stepType !== ScenarioStepType.CUSTOM_REQUEST"
-          :step="props.step"
-        />
-        {{ title }}
+      <div class="flex max-w-[60%] items-center gap-[8px]">
+        <stepTypeVue v-if="props.step" :step="props.step" />
+        <a-tooltip :content="title" position="bottom">
+          <div class="one-line-text">
+            {{ title }}
+          </div>
+        </a-tooltip>
       </div>
       <div
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
@@ -475,7 +475,7 @@
     if (_stepType.value.isCopyApi || _stepType.value.isQuoteApi) {
       return props.step?.name;
     }
-    return t('apiScenario.customApi');
+    return props.step?.name || t('apiScenario.customApi');
   });
   const showEnvPrefix = computed(
     () =>

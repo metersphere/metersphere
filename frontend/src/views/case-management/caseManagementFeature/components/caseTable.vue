@@ -876,9 +876,9 @@
     excludeIds: [],
     currentSelectCount: 0,
   });
-  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+  const statusFilters = ref<string[]>([]);
   const caseFilters = ref<string[]>([]);
-  const executeResultFilters = ref(Object.keys(executionResultMap));
+  const executeResultFilters = ref<string[]>([]);
 
   async function initTableParams() {
     let moduleIds: string[] = [];

@@ -473,7 +473,7 @@
   async function initFilter() {
     await featureStore.getDefaultTemplate();
     caseLevelList.value = featureStore.getSystemCaseLevelFields();
-    caseFilters.value = caseLevelList.value.map((item) => item.value);
+    caseFilters.value = [];
   }
 
   watch(

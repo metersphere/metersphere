@@ -179,8 +179,14 @@
         <template #extraEnd="step">
           <a-popover
             v-if="
-              getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
-              getExecuteStatus(step) === ScenarioExecuteStatus.FAILED
+              ![
+                ScenarioStepType.LOOP_CONTROLLER,
+                ScenarioStepType.IF_CONTROLLER,
+                ScenarioStepType.ONCE_ONLY_CONTROLLER,
+                ScenarioStepType.CONSTANT_TIMER,
+              ].includes(step.stepType) &&
+              (getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
+                getExecuteStatus(step) === ScenarioExecuteStatus.FAILED)
             "
             position="br"
             content-class="scenario-step-response-popover"

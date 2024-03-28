@@ -504,9 +504,9 @@
   ];
 
   const methodFilterVisible = ref(false);
-  const methodFilters = ref(Object.keys(RequestMethods));
+  const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const statusFilters = ref<string[]>([]);
 
   const tableStore = useTableStore();
   async function getModuleIds() {
@@ -529,9 +529,8 @@
       moduleIds,
       protocol: props.protocol,
       filter: {
-        status:
-          statusFilters.value.length === Object.keys(RequestDefinitionStatus).length ? undefined : statusFilters.value,
-        method: methodFilters.value.length === Object.keys(RequestMethods).length ? undefined : methodFilters.value,
+        status: statusFilters.value,
+        method: methodFilters.value,
       },
     };
     setLoadListParams(params);

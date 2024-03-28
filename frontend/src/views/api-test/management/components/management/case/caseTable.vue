@@ -560,7 +560,7 @@
   ];
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const statusFilters = ref<string[]>([]);
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
@@ -571,7 +571,7 @@
   const lastReportStatusList = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
   });
-  const lastReportStatusFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
+  const lastReportStatusFilters = ref<string[]>([]);
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
