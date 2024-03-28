@@ -254,6 +254,7 @@
 
 <script lang="ts" setup>
   import { computed, defineModel, nextTick, onMounted, ref, useAttrs, watch } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -497,6 +498,7 @@
       currentEditValue.value = '';
     } else {
       if (!record[dataIndex]) {
+        Message.warning(t('common.value.notNull'));
         return;
       }
       // 触发的是Enter

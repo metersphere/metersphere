@@ -144,4 +144,5 @@ export default {
   'common.notQuote': 'Not quote',
   'common.execute': 'execute',
   'common.replace': 'replace',
+  'common.value.notNull': 'The attribute value cannot be empty',
 };
