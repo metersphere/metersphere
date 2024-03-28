@@ -229,7 +229,7 @@
         });
       } else {
         scenario.value.steps = mapTree(scenario.value.steps, (node) => {
-          if (ids.has(node.id) && node.config.isRefScenarioStep !== true) {
+          if (ids.has(node.id) && node.isRefScenarioStep !== true) {
             // 如果是完全引用的场景下的子孙步骤，则不允许操作启用禁用
             node.enable = isBatchEnable.value;
           }

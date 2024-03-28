@@ -54,11 +54,7 @@
   import { ScenarioAddStepActionType, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   import useCreateActions from './useCreateActions';
-  import {
-    defaultConditionController,
-    defaultLoopController,
-    defaultStepItemCommon,
-  } from '@/views/api-test/scenario/components/config';
+  import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
   import { DropdownPosition } from '@arco-design/web-vue/es/dropdown/interface';
 
   const props = defineProps<{
@@ -76,6 +72,7 @@
         | ScenarioAddStepActionType.SCRIPT_OPERATION,
       step?: ScenarioStepItem
     );
+    (e: 'addDone');
   }>();
 
   const appStore = useAppStore();
@@ -126,6 +123,7 @@
             )[0]
           );
         }
+        emit('addDone');
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
         if (step.value && props.createStepAction) {
@@ -151,6 +149,7 @@
             )[0]
           );
         }
+        emit('addDone');
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
         if (step.value && props.createStepAction) {
@@ -176,6 +175,7 @@
             )[0]
           );
         }
+        emit('addDone');
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
         if (step.value && props.createStepAction) {
@@ -201,6 +201,7 @@
             )[0]
           );
         }
+        emit('addDone');
         break;
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
       case ScenarioAddStepActionType.CUSTOM_API:

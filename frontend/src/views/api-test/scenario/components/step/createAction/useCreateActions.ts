@@ -135,8 +135,9 @@ export default function useCreateActions() {
         config: {
           ...defaultStepItemCommon.config,
           ...config,
-          isRefScenarioStep: item.config?.isRefScenarioStep || false,
         },
+        isQuoteScenarioStep: item.config?.isQuoteScenarioStep || false,
+        isRefScenarioStep: item.config?.isRefScenarioStep || false,
         children: item.children || [],
         stepType,
         refType,
