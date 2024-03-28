@@ -139,6 +139,7 @@
   import { getBaseInfo, updateBaseInfo } from '@/api/modules/user';
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
+  import { formatPhoneNumber } from '@/utils';
   import { validateEmail, validatePhone } from '@/utils/validate';
 
   import { OrganizationProjectListItem } from '@/models/user';
@@ -174,7 +175,7 @@
       },
       {
         label: t('ms.personal.phone'),
-        value: userStore.phone || '',
+        value: formatPhoneNumber(userStore.phone || ''),
       },
       {
         label: t('ms.personal.org'),
