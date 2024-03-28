@@ -266,7 +266,7 @@
         />
       </div>
       <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
-        <div class="text-[var(--color-text-2)]">
+        <div class="max-w-[70%] break-words text-[var(--color-text-2)]">
           {{ condition.dataSourceName || '-' }}
         </div>
         <a-divider margin="8px" direction="vertical" />
