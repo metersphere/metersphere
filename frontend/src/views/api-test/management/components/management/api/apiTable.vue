@@ -48,6 +48,14 @@
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
+              <div class="filter-button">
+                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetMethodFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
             </div>
           </template>
         </a-trigger>
@@ -70,6 +78,14 @@
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -532,6 +548,8 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadApiList();
+      methodFilterVisible.value = false;
+      statusFilterVisible.value = false;
     }
   }
 
@@ -792,6 +810,18 @@
     selectedModuleKeys.value = [];
   }
 
+  function resetMethodFilter() {
+    methodFilters.value = Object.keys(RequestMethods);
+    methodFilterVisible.value = false;
+    loadApiList();
+  }
+
+  function resetStatusFilter() {
+    statusFilters.value = Object.keys(RequestDefinitionStatus);
+    statusFilterVisible.value = false;
+    loadApiList();
+  }
+
   /**
    * 处理文件夹树节点选中事件
    */
@@ -874,5 +904,11 @@
         color: var(--color-text-brand);
       }
     }
+  }
+  .filter-button {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin: 12px;
   }
 </style>
