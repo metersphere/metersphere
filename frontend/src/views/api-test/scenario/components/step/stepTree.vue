@@ -325,10 +325,18 @@
             <a-radio :value="false">{{ t('apiScenario.sourceScenario') }}</a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item label="" class="hidden-item">
+        <a-form-item :label="t('apiScenario.currentScenarioTip')">
           <a-radio-group v-model:model-value="scenarioConfigForm.useBothScenarioParam">
             <a-radio :value="false">{{ t('apiScenario.empty') }}</a-radio>
-            <a-radio :value="true">{{ t('apiScenario.sourceScenarioEnv') }}</a-radio>
+            <a-radio :value="true">
+              {{
+                t(
+                  scenarioConfigForm.useCurrentScenarioParam
+                    ? 'apiScenario.sourceScenarioParams'
+                    : 'apiScenario.currentScenarioParams'
+                )
+              }}
+            </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="" class="hidden-item !mb-0">
@@ -352,11 +360,8 @@
             <div class="text-[var(--color-text-4)]">
               {{ t('apiScenario.valuePriority') }}
             </div>
-            <div v-if="scenarioConfigForm.useCurrentScenarioParam" class="text-[var(--color-text-1)]">
-              {{ t('apiScenario.currentScenarioAndNull') }}
-            </div>
-            <div v-else class="text-[var(--color-text-1)]">
-              {{ t('apiScenario.sourceScenarioAndNull') }}
+            <div v-if="scenarioConfigParamTip" class="text-[var(--color-text-1)]">
+              {{ scenarioConfigParamTip }}
             </div>
           </div>
           <div class="flex items-center gap-[12px]">
@@ -614,7 +619,74 @@
     useCurrentScenarioParam: true,
   });
   const showScenarioConfig = ref(false);
+  const scenarioConfigParamTip = computed(() => {
+    if (
+      scenarioConfigForm.value.useCurrentScenarioParam &&
+      !scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用当前场景参数-空值
+      return t('apiScenario.currentScenarioAndNull');
+    }
+    if (
+      scenarioConfigForm.value.useCurrentScenarioParam &&
+      !scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用当前场景参数-空值-且选择源场景环境
+      return t('apiScenario.currentScenarioAndNullAndSourceEnv');
+    }
+    if (
+      scenarioConfigForm.value.useCurrentScenarioParam &&
+      scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用当前场景参数-原场景参数
+      return t('apiScenario.currentScenarioAndSourceScenario');
+    }
+    if (
+      scenarioConfigForm.value.useCurrentScenarioParam &&
+      scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用当前场景参数-原场景参数-且选择源场景环境
+      return t('apiScenario.currentScenarioAndSourceScenarioAndSourceEnv');
+    }
+    if (
+      !scenarioConfigForm.value.useCurrentScenarioParam &&
+      !scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用原场景参数-空值
+      return t('apiScenario.sourceScenarioAndNull');
+    }
+    if (
+      !scenarioConfigForm.value.useCurrentScenarioParam &&
+      !scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用原场景参数-空值-且选择源场景环境
+      return t('apiScenario.sourceScenarioAndNullAndSourceEnv');
+    }
+    if (
+      !scenarioConfigForm.value.useCurrentScenarioParam &&
+      scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用原场景参数-当前场景参数
+      return t('apiScenario.sourceScenarioAndCurrentScenario');
+    }
+    if (
+      !scenarioConfigForm.value.useCurrentScenarioParam &&
+      scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.enableScenarioEnv
+    ) {
+      // 使用原场景参数-当前场景参数-且选择源场景环境
+      return t('apiScenario.sourceScenarioAndCurrentScenarioAndSourceEnv');
+    }
+  });
 
+  // 关闭场景配置弹窗
   function cancelScenarioConfig() {
     showScenarioConfig.value = false;
     scenarioConfigForm.value = {
@@ -625,11 +697,12 @@
     };
   }
 
+  // 应用场景配置
   function saveScenarioConfig() {
     if (activeStep.value) {
       const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.id, 'id');
       if (realStep) {
-        realStep.refType = scenarioConfigForm.value.refType;
+        realStep.refType = scenarioConfigForm.value.refType; // 更新场景引用类型
         realStep.config = {
           ...realStep.config,
           ...scenarioConfigForm.value,
@@ -1443,7 +1516,7 @@
     .arco-tree-node-title {
       @apply !cursor-pointer bg-white;
 
-      padding: 12px 4px;
+      padding: 8px 4px;
       &:hover {
         background-color: var(--color-text-n9) !important;
       }

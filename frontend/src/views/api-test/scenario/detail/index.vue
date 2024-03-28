@@ -1,7 +1,7 @@
 <template>
   <div class="h-full w-full overflow-hidden">
     <div class="px-[24px] pt-[16px]">
-      <MsDetailCard :title="`【${scenario.num}】${scenario.name}`" :description="description">
+      <MsDetailCard :title="`【${scenario.num}】${scenario.name}`" :description="description" class="!py-[8px]">
         <template #titleAppend>
           <apiStatus :status="scenario.status" size="small" />
         </template>
@@ -137,6 +137,8 @@
   import step from '../components/step/index.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
+  import { followScenario } from '@/api/modules/api-test/scenario';
+
   import { ApiScenarioDebugRequest, Scenario, ScenarioDetail } from '@/models/apiTest/scenario';
   import { ScenarioDetailComposition } from '@/enums/apiEnum';
 
@@ -184,6 +186,8 @@
   async function toggleFollowReview() {
     try {
       followLoading.value = true;
+      await followScenario(scenario.value.id || '');
+      scenario.value.follow = !scenario.value.follow;
       Message.success(scenario.value.follow ? t('common.unFollowSuccess') : t('common.followSuccess'));
       emit('updateFollow');
     } catch (error) {
@@ -196,7 +200,7 @@
 
   function share() {
     if (isSupported) {
-      copy(`${window.location.href}&dId=${scenario.value.id}`);
+      copy(`${window.location.href}&sId=${scenario.value.id}`);
       Message.success(t('common.copySuccess'));
     } else {
       Message.error(t('common.copyNotSupport'));

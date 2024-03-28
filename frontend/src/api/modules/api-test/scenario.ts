@@ -14,6 +14,7 @@ import {
   DeleteScenarioUrl,
   ExecuteHistoryUrl,
   ExecuteScenarioUrl,
+  FollowScenarioUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
   GetScenarioStepUrl,
@@ -237,4 +238,9 @@ export function executeScenario(data: ApiScenarioDebugRequest) {
 // 获取导入的系统请求数据
 export function getSystemRequest(data: GetSystemRequestParams) {
   return MSR.post<ApiScenarioTableItem[]>({ url: GetSystemRequestUrl, data });
+}
+
+// 关注/取消关注接口场景
+export function followScenario(id: string | number) {
+  return MSR.get({ url: FollowScenarioUrl, params: id });
 }

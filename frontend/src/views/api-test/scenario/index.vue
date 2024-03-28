@@ -147,13 +147,27 @@
   ]);
   const activeScenarioTab = ref<ScenarioParams>(scenarioTabs.value[0] as ScenarioParams);
 
-  function newTab(defaultScenarioInfo?: Scenario, isCopy = false) {
+  function newTab(defaultScenarioInfo?: Scenario, action?: 'copy' | 'execute') {
     if (defaultScenarioInfo) {
+      const isCopy = action === 'copy';
+      let copySteps = defaultScenarioInfo.steps;
+      if (isCopy) {
+        copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
+          return {
+            ...node,
+            copyFromStepId: node.id,
+            id: getGenerateId(),
+          };
+        });
+      }
       scenarioTabs.value.push({
         ...defaultScenarioInfo,
+        steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
-        isNew: false,
+        name: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+        isNew: isCopy,
+        isExecute: action === 'execute',
         stepResponses: {},
       });
     } else {
@@ -279,7 +293,7 @@
     }
   }
 
-  async function openScenarioTab(record: ApiScenarioTableItem | string, isCopy?: boolean) {
+  async function openScenarioTab(record: ApiScenarioTableItem | string, action?: 'copy' | 'execute') {
     try {
       appStore.showLoading();
       const res = await getScenarioDetail(typeof record === 'string' ? record : record.id);
@@ -287,7 +301,7 @@
       if (!res.steps) {
         res.steps = [];
       }
-      newTab(res, isCopy);
+      newTab(res, action);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
