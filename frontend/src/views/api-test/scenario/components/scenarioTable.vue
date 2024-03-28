@@ -586,7 +586,7 @@
   ];
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(ApiScenarioStatus));
+  const statusFilters = ref<string[]>([]);
   const tableStore = useTableStore();
 
   const activeModules = computed(() => {

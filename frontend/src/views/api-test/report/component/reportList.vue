@@ -174,8 +174,8 @@
   const statusFilterVisible = ref(false);
   const triggerModeFilterVisible = ref(false);
 
-  const statusListFilters = ref<string[]>(Object.keys(ReportStatus[props.moduleType]));
-  const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
+  const statusListFilters = ref<string[]>([]);
+  const triggerModeListFilters = ref<string[]>([]);
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
@@ -287,7 +287,7 @@
       moduleType: props.moduleType,
       filter: {
         status: statusListFilters.value,
-        integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
+        integrated: Array.of((showType.value === 'INTEGRATED').toString()),
         triggerMode: triggerModeListFilters.value,
       },
     });

@@ -495,7 +495,7 @@
   };
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>(Object.keys(reviewStatusMap));
+  const statusFilters = ref<string[]>([]);
   const tableQueryParams = ref<any>();
   async function searchReview(filter?: FilterResult) {
     let moduleIds: string[] = [];

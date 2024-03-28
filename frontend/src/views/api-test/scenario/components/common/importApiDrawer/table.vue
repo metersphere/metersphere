@@ -259,9 +259,9 @@
   });
 
   const methodFilterVisible = ref(false);
-  const methodFilters = ref(Object.keys(RequestMethods));
+  const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const statusFilters = ref<string[]>([]);
   const tableSelectedData = ref<MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]>([]);
   const tableSelectedKeys = computed(() => {
     return tableSelectedData.value.map((e) => e.id);
@@ -332,11 +332,8 @@
         moduleIds: ids || props.moduleIds,
         protocol: props.protocol,
         filter: {
-          status:
-            statusFilters.value.length === Object.keys(RequestDefinitionStatus).length
-              ? undefined
-              : statusFilters.value,
-          method: methodFilters.value.length === Object.keys(RequestMethods).length ? undefined : methodFilters.value,
+          status: statusFilters.value,
+          method: methodFilters.value,
         },
       });
       currentTable.value.loadList();

@@ -24,7 +24,7 @@
       <div v-show="!isShowEditStepNameInput" class="flex flex-1 items-center justify-between">
         <div class="flex items-center gap-[8px]">
           <a-tooltip :content="activeStep?.name">
-            <span> {{ characterLimit(activeStep?.name) }}</span>
+            <div class="one-line-text max-w-[300px]"> {{ characterLimit(activeStep?.name) }}</div>
           </a-tooltip>
           <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
         </div>

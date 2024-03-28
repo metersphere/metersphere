@@ -185,8 +185,8 @@ export function calculateMaxDepth(arr?: Node[], depth = 0) {
 }
 
 export interface TreeNode<T> {
-  [key: string]: any;
   children?: TreeNode<T>[];
+  [key: string]: any;
 }
 
 /**
