@@ -1,9 +1,9 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.CustomFieldOptionExample;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,11 @@ public class BaseCustomFieldOptionService {
     public List<CustomFieldOption> getByFieldId(String fieldId) {
         CustomFieldOptionExample example = new CustomFieldOptionExample();
         example.createCriteria().andFieldIdEqualTo(fieldId);
-        return customFieldOptionMapper.selectByExample(example);
+        List<CustomFieldOption> options = customFieldOptionMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(options)) {
+            options.sort(Comparator.comparing(CustomFieldOption::getPos));
+        }
+        return options;
     }
 
     public void addByFieldId(String fieldId, List<CustomFieldOption> customFieldOptions) {
@@ -90,6 +95,10 @@ public class BaseCustomFieldOptionService {
         }
         CustomFieldOptionExample example = new CustomFieldOptionExample();
         example.createCriteria().andFieldIdIn(fieldIds);
-        return customFieldOptionMapper.selectByExample(example);
+        List<CustomFieldOption> options = customFieldOptionMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(options)) {
+            options.sort(Comparator.comparing(CustomFieldOption::getPos));
+        }
+        return options;
     }
 }

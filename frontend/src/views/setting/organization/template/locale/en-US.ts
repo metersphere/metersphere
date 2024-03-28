@@ -90,6 +90,7 @@ export default {
   'system.orgTemplate.caseName': 'Use case name',
   'system.orgTemplate.caseNamePlaceholder': 'Please enter a use case name',
   'system.orgTemplate.defectNamePlaceholder': 'Please enter a use defect name',
+  'system.orgTemplate.noDefaultPlaceholder': 'Default value are not supported',
   'system.orgTemplate.precondition': 'precondition',
   'system.orgTemplate.stepDescription': 'Step description',
   'system.orgTemplate.changeType': 'Change type',
@@ -164,6 +165,9 @@ export default {
   'system.orgTemplate.custom': 'custom',
   'system.orgTemplate.defectName': 'Defect Name',
   'system.orgTemplate.defectContent': 'Defect Content',
+  'system.orgTemplate.defectHandleUser': 'AssignUser',
+  'system.orgTemplate.defectStatus': 'Status',
+  'system.orgTemplate.caseModule': 'Module',
   'system.orgTemplate.defectNameTip':
     'You can set a default value for the defect name, which is used uniformly when creating it',
   'system.orgTemplate.defectContentTip':

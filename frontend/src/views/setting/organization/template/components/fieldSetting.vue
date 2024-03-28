@@ -52,11 +52,7 @@
           />
           <a-tooltip :content="record.name">
             <div
-              class="ellipsis max-w-[200px]"
-              :class="{
-                'text-[rgb(var(--primary-5))]': props.mode === 'project',
-                'cursor-pointer': props.mode === 'project',
-              }"
+              class="ellipsis max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]"
               @click="showDetail(record)"
               >{{ record.name }}</div
             >
@@ -379,8 +375,6 @@
 
   // 详情
   const showDetail = (record: AddOrUpdateField) => {
-    if (props.mode === 'organization') return;
-
     showDetailVisible.value = true;
     let fieldType;
     if (record.type === 'MEMBER') {

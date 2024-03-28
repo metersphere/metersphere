@@ -28,6 +28,7 @@ export interface FieldOptions {
   value: any;
   text: string;
   internal?: boolean; // 是否是内置模板
+  pos: number; // 排序字段
 }
 
 // 自定义字段

@@ -6,6 +6,7 @@
     <id column="value" jdbcType="VARCHAR" property="value" />
     <result column="text" jdbcType="VARCHAR" property="text" />
     <result column="internal" jdbcType="BIT" property="internal" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -66,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    field_id, `value`, `text`, internal
+    field_id, `value`, `text`, internal, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.CustomFieldOptionExample" resultMap="BaseResultMap">
     select
@@ -102,9 +103,9 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.CustomFieldOption">
     insert into custom_field_option (field_id, `value`, `text`, 
-      internal)
+      internal, pos)
     values (#{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, 
-      #{internal,jdbcType=BIT})
+      #{internal,jdbcType=BIT}, #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.CustomFieldOption">
     insert into custom_field_option
@@ -121,6 +122,9 @@
       <if test="internal != null">
         internal,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="fieldId != null">
@@ -134,6 +138,9 @@
       </if>
       <if test="internal != null">
         #{internal,jdbcType=BIT},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -158,6 +165,9 @@
       <if test="record.internal != null">
         internal = #{record.internal,jdbcType=BIT},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -168,7 +178,8 @@
     set field_id = #{record.fieldId,jdbcType=VARCHAR},
       `value` = #{record.value,jdbcType=VARCHAR},
       `text` = #{record.text,jdbcType=VARCHAR},
-      internal = #{record.internal,jdbcType=BIT}
+      internal = #{record.internal,jdbcType=BIT},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -182,6 +193,9 @@
       <if test="internal != null">
         internal = #{internal,jdbcType=BIT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where field_id = #{fieldId,jdbcType=VARCHAR}
       and `value` = #{value,jdbcType=VARCHAR}
@@ -189,17 +203,18 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.CustomFieldOption">
     update custom_field_option
     set `text` = #{text,jdbcType=VARCHAR},
-      internal = #{internal,jdbcType=BIT}
+      internal = #{internal,jdbcType=BIT},
+      pos = #{pos,jdbcType=BIGINT}
     where field_id = #{fieldId,jdbcType=VARCHAR}
       and `value` = #{value,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into custom_field_option
-    (field_id, `value`, `text`, internal)
+    (field_id, `value`, `text`, internal, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}, #{item.text,jdbcType=VARCHAR}, 
-        #{item.internal,jdbcType=BIT})
+        #{item.internal,jdbcType=BIT}, #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -223,6 +238,9 @@
         </if>
         <if test="'internal'.toString() == column.value">
           #{item.internal,jdbcType=BIT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

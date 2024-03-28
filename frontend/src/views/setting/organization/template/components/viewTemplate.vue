@@ -5,6 +5,11 @@
       <CaseTemplateLeftContent v-else />
     </div>
     <div class="preview-right px-4">
+      <!-- 系统内置的字段 {处理人, 状态...} -->
+      <DefectTemplateRightSystemField v-if="props.templateType === 'BUG'" />
+      <CaseTemplateRightSystemField v-else />
+
+      <!-- 自定义字段开始 -->
       <MsFormCreate
         v-if="formRules.length"
         ref="formCreateRef"
@@ -12,7 +17,16 @@
         v-model:form-item="formItem"
         :form-rule="formRules"
       />
-      <a-empty v-else />
+
+      <!-- 标签字段开始 -->
+      <div class="tagWrapper">
+        <a-form ref="viewFormRef" layout="vertical" :model="viewForm">
+          <a-form-item field="tags" :label="t('system.orgTemplate.tags')" asterisk-position="end">
+            <a-input :disabled="true" :placeholder="t('system.orgTemplate.noDefaultPlaceholder')" />
+          </a-form-item>
+        </a-form>
+      </div>
+      <!-- 标签字段结束 -->
     </div>
   </div>
 </template>
@@ -27,8 +41,14 @@
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import CaseTemplateLeftContent from './caseTemplateLeftContent.vue';
   import DefectTemplateLeftContent from './defectTemplateLeftContent.vue';
+  import CaseTemplateRightSystemField from '@/views/setting/organization/template/components/caseTemplateRightSystemField.vue';
+  import DefectTemplateRightSystemField from '@/views/setting/organization/template/components/defectTemplateRightSystemField.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { DefinedFieldItem, SeneType } from '@/models/setting/template';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     templateType: SeneType; // 模板场景
@@ -41,6 +61,10 @@
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref(null);
   const formCreateRef = ref();
+
+  const viewForm = ref<Record<string, any>>({
+    tags: '',
+  });
 
   // 处理表单格式
   const getFormRules = () => {

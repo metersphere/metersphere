@@ -4,13 +4,13 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.CustomFieldMapper;
@@ -26,7 +26,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -92,6 +95,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
+        customFieldOptionRequest.setPos(5000L);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
 
@@ -169,6 +173,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("11112");
         customFieldOptionRequest.setText("test1");
+        customFieldOptionRequest.setPos(5000L);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
         this.requestPostWithOk(DEFAULT_UPDATE, request);

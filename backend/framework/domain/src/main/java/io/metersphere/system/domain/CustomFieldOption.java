@@ -1,12 +1,16 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class CustomFieldOption implements Serializable {
@@ -29,13 +33,18 @@ public class CustomFieldOption implements Serializable {
     @NotNull(message = "{custom_field_option.internal.not_blank}", groups = {Created.class})
     private Boolean internal;
 
+    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{custom_field_option.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         fieldId("field_id", "fieldId", "VARCHAR", false),
         value("value", "value", "VARCHAR", true),
         text("text", "text", "VARCHAR", true),
-        internal("internal", "internal", "BIT", false);
+        internal("internal", "internal", "BIT", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

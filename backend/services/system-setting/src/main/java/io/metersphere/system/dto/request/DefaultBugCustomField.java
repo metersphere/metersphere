@@ -18,10 +18,10 @@ public enum DefaultBugCustomField {
      */
     DEGREE("bug_degree", CustomFieldType.SELECT,
             Arrays.asList(
-                    getNewOption(IDGenerator.nextStr(), "提示"),
-                    getNewOption(IDGenerator.nextStr(), "一般"),
-                    getNewOption(IDGenerator.nextStr(), "严重"),
-                    getNewOption(IDGenerator.nextStr(), "致命")
+                    getNewOption(IDGenerator.nextStr(), "提示", 5000L),
+                    getNewOption(IDGenerator.nextStr(), "一般", 10000L),
+                    getNewOption(IDGenerator.nextStr(), "严重", 15000L),
+                    getNewOption(IDGenerator.nextStr(), "致命", 20000L)
             )
     );
 
@@ -47,10 +47,11 @@ public enum DefaultBugCustomField {
         return options;
     }
 
-    private static CustomFieldOption getNewOption(String value, String text) {
+    private static CustomFieldOption getNewOption(String value, String text, Long pos) {
         CustomFieldOption customFieldOption = new CustomFieldOption();
         customFieldOption.setValue(value);
         customFieldOption.setText(text);
+        customFieldOption.setPos(pos);
         customFieldOption.setInternal(true);
         return customFieldOption;
     }
