@@ -95,10 +95,10 @@
         }
 
         if (res) {
-          appStore.setCurrentMenuConfig(res?.moduleIds || []);
+          await appStore.setCurrentMenuConfig(res?.moduleIds || []);
         }
       } catch (err) {
-        appStore.setCurrentMenuConfig([]);
+        await appStore.setCurrentMenuConfig([]);
         // eslint-disable-next-line no-console
         console.log(err);
       }
