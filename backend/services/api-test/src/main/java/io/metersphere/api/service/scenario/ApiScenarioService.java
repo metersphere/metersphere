@@ -1568,7 +1568,7 @@ public class ApiScenarioService extends MoveNodeService {
 
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step,
-                    MapUtils.isNotEmpty(resourceDetailMap) ? resourceDetailMap.getOrDefault(step.getResourceId(),StringUtils.EMPTY) : StringUtils.EMPTY, stepDetailMap.get(step.getId()));
+                    MapUtils.isNotEmpty(resourceDetailMap) ? resourceDetailMap.getOrDefault(step.getResourceId(), StringUtils.EMPTY) : StringUtils.EMPTY, stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
                 if (msTestElement instanceof MsHTTPElement msHTTPElement) {
                     // 暂存http类型的步骤
@@ -1839,7 +1839,11 @@ public class ApiScenarioService extends MoveNodeService {
         }
 
         // 获取所有步骤
-        List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId));
+        List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId))
+                .stream()
+                .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
+                .collect(Collectors.toList());
+
         //获取所有步骤的csv的关联关系
         List<String> stepIds = allSteps.stream().map(ApiScenarioStepDTO::getId).toList();
         if (CollectionUtils.isNotEmpty(stepIds)) {
@@ -1864,10 +1868,13 @@ public class ApiScenarioService extends MoveNodeService {
         if (MapUtils.isEmpty(scenarioStepMap)) {
             return apiScenarioDetail;
         }
-        Map<String, List<ApiScenarioStepDTO>> parentStepMap = scenarioStepMap.get(scenarioId)
+
+        Map<String, List<ApiScenarioStepDTO>> currentScenarioParentStepMap = scenarioStepMap.get(scenarioId)
                 .stream()
                 .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY)));
-        List<ApiScenarioStepDTO> steps = buildStepTree(parentStepMap.get(StringUtils.EMPTY), parentStepMap, scenarioStepMap);
+
+        List<ApiScenarioStepDTO> steps = buildStepTree(currentScenarioParentStepMap.get(StringUtils.EMPTY), currentScenarioParentStepMap, scenarioStepMap);
+
         // 设置部分引用的步骤的启用状态
         setPartialRefStepsEnable(steps, stepDetailMap);
 
@@ -1922,17 +1929,31 @@ public class ApiScenarioService extends MoveNodeService {
         }
         steps.forEach(step -> {
             // 获取当前步骤的子步骤
-            List<ApiScenarioStepDTO> children = parentStepMap.get(step.getId());
-            if (CollectionUtils.isEmpty(children)) {
-                return;
-            }
+            List<ApiScenarioStepDTO> children = Optional.ofNullable(parentStepMap.get(step.getId())).orElse(new ArrayList<>(0));
             if (isRefOrPartialScenario(step)) {
+
+                List<ApiScenarioStepDTO> scenarioSteps = scenarioStepMap.get(step.getResourceId());
+                scenarioSteps.forEach(item -> {
+                    // 如果步骤的场景ID不等于当前场景的ID，说明是引用的步骤，如果 parentId 为空，说明是一级子步骤，重新挂载到对应的场景中
+                    if (StringUtils.isEmpty(item.getParentId())) {
+                        item.setParentId(step.getId());
+                        children.add(item);
+                    }
+                });
+
+                if (CollectionUtils.isEmpty(children)) {
+                    return;
+                }
+
                 // 如果当前步骤是引用的场景，获取该场景的子步骤
-                Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioStepMap.get(step.getResourceId())
+                Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioSteps
                         .stream()
                         .collect(Collectors.groupingBy(ApiScenarioStepDTO::getParentId));
                 step.setChildren(buildStepTree(children, childStepMap, scenarioStepMap));
             } else {
+                if (CollectionUtils.isEmpty(children)) {
+                    return;
+                }
                 step.setChildren(buildStepTree(children, parentStepMap, scenarioStepMap));
             }
         });
