@@ -100,7 +100,7 @@ CREATE INDEX idx_name ON api_definition(name);
 
 CREATE TABLE IF NOT EXISTS api_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口报告pk' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '接口报告名称' ,
+    `name` VARCHAR(300) NOT NULL   COMMENT '接口报告名称' ,
     `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
@@ -337,7 +337,7 @@ CREATE UNIQUE INDEX uq_name_project_parent_type ON api_scenario_module (project_
 
 CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
+    `name` VARCHAR(300) NOT NULL   COMMENT '报告名称' ,
     `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,

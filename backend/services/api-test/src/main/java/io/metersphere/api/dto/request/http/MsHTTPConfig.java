@@ -14,11 +14,11 @@ public class MsHTTPConfig {
     /**
      * 连接超时
      */
-    private Long connectTimeout = 6000L;
+    private Long connectTimeout = 60000L;
     /**
      * 响应超时
      */
-    private Long responseTimeout = 6000L;
+    private Long responseTimeout = 60000L;
     /**
      * 证书别名
      */

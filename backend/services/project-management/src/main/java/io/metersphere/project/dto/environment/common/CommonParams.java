@@ -11,7 +11,7 @@ public class CommonParams implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Schema(description = "链接超时时间")
-    private Long requestTimeout = 600000L;
+    private Long requestTimeout = 60000L;
     @Schema(description = "响应超时时间")
-    private Long responseTimeout = 600000L;
+    private Long responseTimeout = 60000L;
 }
