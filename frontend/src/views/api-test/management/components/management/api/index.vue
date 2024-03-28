@@ -10,6 +10,7 @@
         @open-copy-api-tab="openApiTab($event, true)"
         @add-api-tab="addApiTab"
         @import="emit('import')"
+        @open-edit-api-tab="openApiTab"
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
@@ -20,6 +21,34 @@
         class="ms-api-tab-nav"
         @change="changeDefinitionActiveKey"
       >
+        <template v-if="activeApiTab.definitionActiveKey === 'preview'" #extra>
+          <div class="flex gap-[12px] pr-[16px]">
+            <a-button
+              v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
+              type="primary"
+              @click="toExecuteDefinition"
+            >
+              {{ t('apiTestManagement.execute') }}
+            </a-button>
+            <a-dropdown-button type="outline" @click="toEditDefinition">
+              {{ t('common.edit') }}
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption
+                  v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
+                  value="delete"
+                  class="error-6 text-[rgb(var(--danger-6))]"
+                  @click="handleDelete"
+                >
+                  <MsIcon type="icon-icon_delete-trash_outlined" class="text-[rgb(var(--danger-6))]" />
+                  {{ t('common.delete') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
+          </div>
+        </template>
         <a-tab-pane
           v-if="!activeApiTab.isNew"
           key="preview"
@@ -36,6 +65,7 @@
         </a-tab-pane>
         <a-tab-pane key="definition" :title="t('apiTestManagement.definition')" class="ms-api-tab-pane">
           <requestComposition
+            ref="requestCompositionRef"
             v-model:detail-loading="loading"
             v-model:request="activeApiTab"
             :module-tree="props.moduleTree"
@@ -77,7 +107,6 @@
 <script setup lang="ts">
   import { cloneDeep } from 'lodash-es';
 
-  // import MsButton from '@/components/pure/ms-button/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import caseTable from '../case/caseTable.vue';
@@ -88,6 +117,7 @@
   import {
     addDefinition,
     debugDefinition,
+    deleteDefinition,
     getDefinitionDetail,
     getTransferOptions,
     transferFile,
@@ -95,6 +125,7 @@
     uploadTempFile,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -126,6 +157,7 @@
   }>();
 
   const emit = defineEmits<{
+    (e: 'deleteApi', id: string): void;
     (e: 'import'): void;
   }>();
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
@@ -134,6 +166,7 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const apiTabs = defineModel<RequestParam[]>('apiTabs', {
     required: true,
@@ -254,7 +287,12 @@
   );
 
   const loading = ref(false);
-  async function openApiTab(apiInfo: ModuleTreeNode | ApiDefinitionDetail | string, isCopy = false, isExecute = false) {
+  async function openApiTab(
+    apiInfo: ModuleTreeNode | ApiDefinitionDetail | string,
+    isCopy = false,
+    isExecute = false,
+    isEdit = false
+  ) {
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
@@ -262,6 +300,7 @@
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeApiTab.value = {
         ...(apiTabs.value[isLoadedTabIndex] as RequestParam),
+        definitionActiveKey: isCopy || isExecute || isEdit ? 'definition' : 'preview',
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
       };
@@ -289,7 +328,7 @@
         id: isCopy ? new Date().getTime() : res.id,
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
-        definitionActiveKey: isCopy || isExecute ? 'definition' : 'preview',
+        definitionActiveKey: isCopy || isExecute || isEdit ? 'definition' : 'preview',
         ...parseRequestBodyResult,
       });
       nextTick(() => {
@@ -320,6 +359,45 @@
     }
   }
 
+  // 跳转到接口定义tab
+  function toEditDefinition() {
+    activeApiTab.value.definitionActiveKey = 'definition';
+    activeApiTab.value.mode = 'definition';
+  }
+
+  // 跳转到接口定义tab，且执行
+  const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
+  function toExecuteDefinition() {
+    activeApiTab.value.definitionActiveKey = 'definition';
+    activeApiTab.value.isExecute = true;
+    activeApiTab.value.mode = 'debug';
+    requestCompositionRef.value?.execute(requestCompositionRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
+  }
+
+  function handleDelete() {
+    openModal({
+      type: 'error',
+      title: t('apiTestManagement.deleteApiTipTitle', { name: activeApiTab.value.name }),
+      content: t('apiTestManagement.deleteApiTip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await deleteDefinition(activeApiTab.value.id as string);
+          emit('deleteApi', activeApiTab.value.id as string);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
   defineExpose({
     openApiTab,
     addApiTab,
@@ -328,9 +406,15 @@
 </script>
 
 <style lang="less" scoped>
+  .error-6 {
+    color: rgb(var(--danger-6));
+    &:hover {
+      color: rgb(var(--danger-6));
+    }
+  }
   :deep(.ms-api-tab-nav) {
     @apply h-full;
-    .arco-tabs-nav-tab {
+    .arco-tabs-nav {
       border-bottom: 1px solid var(--color-text-n8);
     }
     .arco-tabs-content {

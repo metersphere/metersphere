@@ -17,15 +17,15 @@
       </MsEditableTab>
       <div v-show="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
         <environmentSelect v-model:current-env-config="currentEnvConfig" />
-        <a-button type="primary" :loading="saveLoading" @click="saveScenario">
-          {{ t('common.save') }}
-        </a-button>
         <executeButton
           ref="executeButtonRef"
           :execute-loading="activeScenarioTab.executeLoading"
           @execute="handleExecute"
           @stop-debug="handleStopExecute"
         />
+        <a-button type="primary" :loading="saveLoading" @click="saveScenario">
+          {{ t('common.save') }}
+        </a-button>
       </div>
     </div>
     <a-divider class="!my-0" />
@@ -75,7 +75,12 @@
       ></create>
     </div>
     <div v-else class="pageWrap">
-      <detail v-model:scenario="activeScenarioTab" @batch-debug="realExecute($event, false)"></detail>
+      <detail
+        ref="detailRef"
+        v-model:scenario="activeScenarioTab"
+        :module-tree="folderTree"
+        @batch-debug="realExecute($event, false)"
+      ></detail>
     </div>
   </MsCard>
 </template>
@@ -440,6 +445,7 @@
   }
 
   const createRef = ref<InstanceType<typeof create>>();
+  const detailRef = ref<InstanceType<typeof detail>>();
   const saveLoading = ref(false);
 
   async function realSaveScenario() {
@@ -500,7 +506,7 @@
     if (activeScenarioTab.value.isNew) {
       createRef.value?.validScenarioForm(realSaveScenario);
     } else {
-      realSaveScenario();
+      detailRef.value?.validScenarioForm(realSaveScenario);
     }
   }
 
