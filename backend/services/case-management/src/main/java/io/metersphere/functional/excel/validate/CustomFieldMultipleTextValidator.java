@@ -9,11 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author wx
  */
 public class CustomFieldMultipleTextValidator extends AbstractCustomFieldValidator {
+    protected static final int MULTIP_INPUT_COUNT = 15;
+    protected static final int MULTIP_INPUT_LENGTH = 64;
 
     public CustomFieldMultipleTextValidator() {
         this.isKVOption = true;
@@ -23,10 +26,18 @@ public class CustomFieldMultipleTextValidator extends AbstractCustomFieldValidat
     public void validate(TemplateCustomFieldDTO customField, String value) throws CustomFieldValidateException {
         validateRequired(customField, value);
         if (StringUtils.isNotBlank(value)) {
-            try {
-                parse2Array(customField.getFieldName(), value);
-            } catch (Exception e) {
-                CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_array_tip"), customField.getFieldName()));
+            List<String> multipTexts = parse2Array(customField.getFieldName(), value);
+            if (multipTexts.size() > MULTIP_INPUT_COUNT) {
+                CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_multip_input_tip"), customField.getFieldName()));
+            }
+            AtomicBoolean isOverLength = new AtomicBoolean(false);
+            multipTexts.forEach(multipText -> {
+                if (multipText.length() > MULTIP_INPUT_LENGTH) {
+                    isOverLength.set(true);
+                }
+            });
+            if (isOverLength.get()) {
+                CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_multip_input_length_tip"), customField.getFieldName()));
             }
         }
     }
