@@ -69,10 +69,7 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div
-                  v-if="element.id === currentId && element.scopeId !== 'global'"
-                  class="flex flex-row items-center gap-[8px]"
-                >
+                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"
@@ -84,7 +81,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    v-if="isSystemShowAll"
+                    v-if="isSystemShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="systemMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
                   >
@@ -160,10 +157,7 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div
-                  v-if="element.id === currentId && element.scopeId !== 'global'"
-                  class="flex flex-row items-center gap-[8px]"
-                >
+                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"
@@ -175,7 +169,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    v-if="isOrdShowAll"
+                    v-if="isOrdShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
@@ -251,10 +245,7 @@
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div
-                  v-if="element.id === currentId && element.scopeId !== 'global'"
-                  class="flex flex-row items-center gap-[8px]"
-                >
+                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
                     v-permission="props.updatePermission"
@@ -266,7 +257,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    v-if="isProjectShowAll"
+                    v-if="isProjectShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="projectMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
                   >
@@ -321,6 +312,7 @@
   const props = defineProps<{
     addPermission: string[];
     updatePermission: string[];
+    isGlobalDisable: boolean;
   }>();
 
   const appStore = useAppStore();
