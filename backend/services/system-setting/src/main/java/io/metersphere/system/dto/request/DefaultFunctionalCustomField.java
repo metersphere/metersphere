@@ -14,10 +14,10 @@ public enum DefaultFunctionalCustomField {
 
     PRIORITY("functional_priority", CustomFieldType.SELECT,
             Arrays.asList(
-                    getNewOption("P0", "P0"),
-                    getNewOption("P1", "P1"),
-                    getNewOption("P2", "P2"),
-                    getNewOption("P3", "P3")
+                    getNewOption("P0", "P0", 5000L),
+                    getNewOption("P1", "P1", 10000L),
+                    getNewOption("P2", "P2", 15000L),
+                    getNewOption("P3", "P3", 20000L)
             )
     );
 
@@ -43,10 +43,11 @@ public enum DefaultFunctionalCustomField {
         return options;
     }
 
-    private static CustomFieldOption getNewOption(String value, String text) {
+    private static CustomFieldOption getNewOption(String value, String text, Long pos) {
         CustomFieldOption customFieldOption = new CustomFieldOption();
         customFieldOption.setValue(value);
         customFieldOption.setText(text);
+        customFieldOption.setPos(pos);
         customFieldOption.setInternal(true);
         return customFieldOption;
     }

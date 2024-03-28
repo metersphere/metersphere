@@ -26,7 +26,7 @@
               <div>
                 <a-checkbox-group v-model="selectSystemIds" class="checkboxContainer">
                   <div v-for="field in systemField" :key="field.id" class="item checkbox">
-                    <a-checkbox :value="field.id" :disabled="field.internal"
+                    <a-checkbox :value="field.id" :disabled="field.internal && field.name == t('case.caseLevel')"
                       ><a-tooltip :content="field.name">
                         <div>{{ field.name }}</div></a-tooltip
                       ></a-checkbox

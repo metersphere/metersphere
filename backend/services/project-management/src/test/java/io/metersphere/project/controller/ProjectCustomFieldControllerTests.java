@@ -2,13 +2,13 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.service.ProjectCustomFieldLogService;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.CustomFieldMapper;
@@ -92,6 +92,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
+        customFieldOptionRequest.setPos(5000L);
         request.setEnableOptionKey(true);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
@@ -165,6 +166,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("11112");
         customFieldOptionRequest.setText("test1");
+        customFieldOptionRequest.setPos(5000L);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
         this.requestPostWithOk(DEFAULT_UPDATE, request);

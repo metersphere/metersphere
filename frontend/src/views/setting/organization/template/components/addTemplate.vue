@@ -60,21 +60,21 @@
         <CaseTemplateLeftContent v-else />
       </div>
       <div class="preview-right px-4">
+        <!-- 系统内置的字段 {处理人, 状态...} -->
+        <DefectTemplateRightSystemField v-if="route.query.type === 'BUG'" />
+        <CaseTemplateRightSystemField v-else />
+
         <!-- 自定义字段开始 -->
         <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
           <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
             <div class="action">
               <span class="required">
                 <a-checkbox
-                  v-if="!formItem.internal"
                   v-model="formItem.required"
                   class="mr-1"
                   @change="(value) => changeState(value, formItem)"
                   >{{ t('system.orgTemplate.required') }}</a-checkbox
                 >
-                <a-checkbox v-else v-model="formItem.required" class="mr-1" disabled>{{
-                  t('system.orgTemplate.required')
-                }}</a-checkbox>
               </span>
               <div class="actionList">
                 <a-tooltip :content="t('system.orgTemplate.toTop')">
@@ -94,7 +94,11 @@
                     @click="moveField(formItem as DefinedFieldItem, 'bottom')"
                   />
                 </a-tooltip>
-                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
+                <a-divider
+                  v-if="!formItem.internal || formItem.fieldName != t('case.caseLevel')"
+                  direction="vertical"
+                  class="!m-0 !mx-2"
+                />
                 <a-tooltip :content="t('common.edit')">
                   <MsIcon
                     v-if="!formItem.internal"
@@ -103,14 +107,10 @@
                     @click="editField(formItem as DefinedFieldItem)"
                   />
                 </a-tooltip>
-                <a-divider
-                  v-if="!formItem.required && formItem.name != t('case.caseLevel')"
-                  direction="vertical"
-                  class="!m-0 !mx-2"
-                />
+                <a-divider v-if="!formItem.internal" direction="vertical" class="!m-0 !mx-2" />
                 <a-tooltip :content="t('common.delete')">
                   <MsIcon
-                    v-if="!formItem.required && formItem.name != t('case.caseLevel')"
+                    v-if="formItem.fieldName != t('case.caseLevel')"
                     type="icon-icon_delete-trash_outlined"
                     size="16"
                     @click="deleteSelectedField(formItem as DefinedFieldItem)"
@@ -158,6 +158,17 @@
           </div>
         </VueDraggable>
         <!-- 自定义字段结束 -->
+
+        <!-- 标签字段开始 -->
+        <div class="tagWrapper">
+          <a-form layout="vertical" :model="defectForm">
+            <a-form-item field="tags" :label="t('system.orgTemplate.tags')" asterisk-position="end">
+              <a-input :disabled="true" :placeholder="t('system.orgTemplate.noDefaultPlaceholder')" />
+            </a-form-item>
+          </a-form>
+        </div>
+        <!-- 标签字段结束 -->
+
         <div class="flex items-center">
           <a-button class="mr-1 mt-1 px-0" type="text" @click="associatedField">
             <template #icon>
@@ -222,6 +233,8 @@
   import CaseTemplateLeftContent from './caseTemplateLeftContent.vue';
   import DefectTemplateLeftContent from './defectTemplateLeftContent.vue';
   import EditFieldDrawer from './editFieldDrawer.vue';
+  import CaseTemplateRightSystemField from '@/views/setting/organization/template/components/caseTemplateRightSystemField.vue';
+  import DefectTemplateRightSystemField from '@/views/setting/organization/template/components/defectTemplateRightSystemField.vue';
 
   import {
     createOrganizeTemplateInfo,
@@ -239,7 +252,7 @@
   import { sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { ActionTemplateManage, CustomField, DefinedFieldItem, SeneType } from '@/models/setting/template';
+  import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import { getTemplateName, getTotalFieldOptionList } from './fieldSetting';
@@ -274,6 +287,7 @@
   const initBugForm = {
     name: '',
     description: '',
+    tags: '',
   };
 
   const defectForm = ref({ ...initBugForm });
@@ -793,5 +807,31 @@
   }
   :deep(.apiFieldIdClass) {
     margin-bottom: 0;
+  }
+
+  :deep(.systemFieldWrapper) {
+    .arco-form-item {
+      margin-bottom: 0;
+    }
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    &:hover {
+      border: 1px solid var(--color-text-n8);
+      background: var(--color-text-n9);
+    }
+  }
+
+  .tagWrapper {
+    .arco-form-item {
+      margin-bottom: 0;
+    }
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    &:hover {
+      border: 1px solid var(--color-text-n8);
+      background: var(--color-text-n9);
+    }
   }
 </style>

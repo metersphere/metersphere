@@ -561,9 +561,11 @@ public class SystemProjectControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest1 = new CustomFieldOptionRequest();
         customFieldOptionRequest1.setValue("1");
         customFieldOptionRequest1.setText("test1");
+        customFieldOptionRequest1.setPos(5000L);
         CustomFieldOptionRequest customFieldOptionRequest2 = new CustomFieldOptionRequest();
         customFieldOptionRequest2.setValue("2");
         customFieldOptionRequest2.setText("test2");
+        customFieldOptionRequest2.setPos(10000L);
         customField.setCreateUser("admin");
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest1, customFieldOptionRequest2);
         organizationCustomFieldService.add(customField, optionRequests);

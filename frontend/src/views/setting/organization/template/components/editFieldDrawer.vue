@@ -163,7 +163,7 @@
     FieldOptions,
   } from '@/models/setting/template';
 
-  import { dateOptions, fieldIconAndName, getFieldRequestApi, getFieldType, numberTypeOptions } from './fieldSetting';
+  import { dateOptions, fieldIconAndName, getFieldRequestApi, numberTypeOptions } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -273,6 +273,7 @@
   const confirmHandler = async (isContinue = false) => {
     try {
       drawerLoading.value = true;
+      console.log(fieldForm.value);
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
@@ -334,18 +335,21 @@
             drawerLoading.value = true;
             fieldDefaultValues.value = [...list];
             if (showOptionsSelect.value) {
+              let startPos = 5000;
               fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
                 const currentItem: FieldOptions = {
                   text: item.text,
                   value: item.value ? item.value : getGenerateId(),
+                  pos: startPos,
                 };
                 if (item.fieldId) {
                   currentItem.fieldId = item.fieldId;
                 }
-
+                startPos += 5000;
                 return currentItem;
               });
             }
+            console.log(fieldForm.value.options);
             await cb();
           } catch (error) {
             // eslint-disable-next-line no-console
