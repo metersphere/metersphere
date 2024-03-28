@@ -22,11 +22,11 @@ export function reportDelete(moduleType: string, id: string) {
 }
 
 // 重命名
-export function reportRename(moduleType: string, id: string, reportName: string) {
+export function reportRename(moduleType: string, id: string, data: string) {
   if (moduleType === ReportEnum.API_SCENARIO_REPORT) {
-    return MSR.get({ url: `${reportUrl.ScenarioReportRenameUrl}/${id}/${reportName}` });
+    return MSR.post({ url: `${reportUrl.ScenarioReportRenameUrl}/${id}`, data });
   }
-  return MSR.get({ url: `${reportUrl.ApiReportRenameUrl}/${id}/${reportName}` });
+  return MSR.post({ url: `${reportUrl.ApiReportRenameUrl}/${id}`, data });
 }
 
 // 批量删除

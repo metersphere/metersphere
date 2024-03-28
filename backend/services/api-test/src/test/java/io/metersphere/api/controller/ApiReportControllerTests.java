@@ -202,15 +202,15 @@ public class ApiReportControllerTests extends BaseTest {
     public void testRename() throws Exception {
         // @@请求成功
         String newName = "api-report-new-name";
-        requestGetWithOk(RENAME + "api-report-id0" + "/" + newName);
+        requestPost(RENAME + "api-report-id0" , newName);
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey("api-report-id0");
         Assertions.assertNotNull(apiReport);
         Assertions.assertEquals(apiReport.getName(), newName);
-        mockMvc.perform(getRequestBuilder(RENAME + "api-report" + "/" + newName))
+        mockMvc.perform(getPostRequestBuilder(RENAME + "api-report" , newName))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "api-report-id0" + "/" + newName);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "api-report-id0" , newName);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class ApiReportControllerTests extends BaseTest {
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey("api-report-id0");
         Assertions.assertNotNull(apiReport);
         Assertions.assertTrue(apiReport.getDeleted());
-        mockMvc.perform(getRequestBuilder(RENAME + "api-report"))
+        mockMvc.perform(getRequestBuilder(DELETE + "api-report"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
         // @@校验权限

@@ -195,15 +195,15 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     public void testRename() throws Exception {
         // @@请求成功
         String newName = "scenario-report-new-name";
-        requestGetWithOk(RENAME + "scenario-report-id0" + "/" + newName);
+        requestPost(RENAME + "scenario-report-id0" , newName);
         ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey("scenario-report-id0");
         Assertions.assertNotNull(apiReport);
         Assertions.assertEquals(apiReport.getName(), newName);
-        mockMvc.perform(getRequestBuilder(RENAME + "api-report" + "/" + newName))
+        mockMvc.perform(getPostRequestBuilder(RENAME + "api-report", newName))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "scenario-report-id0" + "/" + newName);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "scenario-report-id0", newName);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey("scenario-report-id0");
         Assertions.assertNotNull(apiReport);
         Assertions.assertTrue(apiReport.getDeleted());
-        mockMvc.perform(getRequestBuilder(RENAME + "api-report"))
+        mockMvc.perform(getRequestBuilder(DETAIL + "api-report"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
         // @@校验权限
