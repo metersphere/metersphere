@@ -46,7 +46,7 @@ public class XPathAssertionConverter extends ResponseBodyTypeAssertionConverter<
         assertion.setEnabled(msAssertion.getEnable());
         assertion.setTolerant(true);
         assertion.setValidating(false);
-        assertion.setName("Response date expect xpath " + msAssertion.getExpression());
+        assertion.setName("Response data expect xpath " + msAssertion.getExpression());
         assertion.setProperty(TestElement.TEST_CLASS, XPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(XPATH_ASSERTION_GUI));
         assertion.setXPathString(msAssertion.getExpression());

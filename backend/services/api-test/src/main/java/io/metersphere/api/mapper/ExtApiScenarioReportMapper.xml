@@ -80,7 +80,8 @@
                api_scenario_report_detail.request_time,
                api_scenario_report_detail.code,
                api_scenario_report_detail.response_size,
-               api_scenario_report_detail.script_identifier
+               api_scenario_report_detail.script_identifier,
+               api_scenario_report_detail.sort as loopIndex
         from api_scenario_report_step
             left join api_scenario_report_detail
             on api_scenario_report_step.step_id = api_scenario_report_detail.step_id

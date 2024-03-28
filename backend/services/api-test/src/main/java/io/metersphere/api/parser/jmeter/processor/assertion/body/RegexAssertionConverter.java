@@ -32,7 +32,7 @@ public class RegexAssertionConverter extends ResponseBodyTypeAssertionConverter<
     private ResponseAssertion parse2RegexResponseAssertion(MsRegexAssertionItem msAssertion, Boolean globalEnable) {
         ResponseAssertion assertion = AssertionConverter.createResponseAssertion();
         assertion.setEnabled(msAssertion.getEnable());
-        assertion.setName("Response date expect regex " + msAssertion.getExpression());
+        assertion.setName("Response data expect regex " + msAssertion.getExpression());
         assertion.addTestString(msAssertion.getExpression());
         assertion.setTestFieldResponseData();
         if (BooleanUtils.isFalse(globalEnable)) {

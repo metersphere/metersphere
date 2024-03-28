@@ -68,6 +68,7 @@ public class ApiScenarioReportService {
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private UserMapper userMapper;
+    private static final String SPLITTER = "_";
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
@@ -245,6 +246,27 @@ public class ApiScenarioReportService {
             for (ApiScenarioReportStepDTO step : steps) {
                 List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(children)) {
+                    //如果是循环控制器 需要重新处理
+                    if (StringUtils.equals(ApiScenarioStepType.LOOP_CONTROLLER.name(), step.getStepType())) {
+                        //根据stepId进行分组
+                        Map<String, List<ApiScenarioReportStepDTO>> loopMap = children.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
+                        List<ApiScenarioReportStepDTO> newChildren = new ArrayList<>();
+                        loopMap.forEach((key, value) -> {
+                            ApiScenarioReportStepDTO loopStep = new ApiScenarioReportStepDTO();
+                            BeanUtils.copyBean(loopStep, value.getFirst());
+                            newChildren.add(loopStep);
+                            value.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
+                            for (int i = 0; i < value.size(); i++) {
+                                ApiScenarioReportStepDTO loop = value.get(i);
+                                loop.setSort((long) i+1);
+                                loop.setParentId(key);
+                                loop.setStepId(loopStep.getStepId() + SPLITTER + loop.getSort());
+                            }
+                            scenarioReportStepMap.put(key, value);
+                        });
+                        children = newChildren;
+                        scenarioReportStepMap.remove(step.getStepId());
+                    }
                     children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
                     step.setChildren(children);
                     getStepTree(children, scenarioReportStepMap);
@@ -282,7 +304,19 @@ public class ApiScenarioReportService {
     }
 
     public List<ApiScenarioReportDetailDTO> getDetail(String reportId, String stepId) {
+        //如果是循环控制器下的步骤id 会带着第几条  需要分割处理
+        String index = null;
+        if (StringUtils.isNotBlank(stepId) && StringUtils.contains(stepId, SPLITTER)) {
+            index = StringUtils.substringAfter(stepId, SPLITTER);
+            stepId = StringUtils.substringBefore(stepId, SPLITTER);
+        }
         List<ApiScenarioReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
+        apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetail::getSort));
+        
+        if (StringUtils.isNotBlank(index)) {
+            ApiScenarioReportDetail apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) -1);
+            apiReportDetails = Collections.singletonList(apiScenarioReportDetail);
+        }
         List<ApiScenarioReportDetailDTO> results = new ArrayList<>();
         apiReportDetails.forEach(apiReportDetail -> {
             ApiScenarioReportDetailDTO apiReportDetailDTO = new ApiScenarioReportDetailDTO();
