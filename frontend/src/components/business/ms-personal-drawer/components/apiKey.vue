@@ -126,7 +126,7 @@
       <a-form-item field="desc" :label="t('ms.personal.accessKeyDesc')">
         <a-input
           v-model:model-value="timeForm.desc"
-          :max-length="64"
+          :max-length="255"
           :placeholder="t('ms.personal.accessKeyDescPlaceholder')"
         />
       </a-form-item>
