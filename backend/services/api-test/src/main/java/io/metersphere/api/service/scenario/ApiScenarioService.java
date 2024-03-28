@@ -918,7 +918,7 @@ public class ApiScenarioService extends MoveNodeService {
         });
 
         // 处理新copy的步骤的步骤详情
-        putCopyStepDetails(stepDetails, isNewApiCaseResourceMap, (subIds, copyFromBlobMap) -> {
+        putCopyStepDetails(stepDetails, copyFromStepIdMap, (subIds, copyFromBlobMap) -> {
             ApiScenarioStepBlobExample example = new ApiScenarioStepBlobExample();
             example.createCriteria().andIdIn(subIds);
             apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example)
