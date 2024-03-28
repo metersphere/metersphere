@@ -51,6 +51,7 @@ public class XPathAssertionConverter extends ResponseBodyTypeAssertionConverter<
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(XPATH_ASSERTION_GUI));
         assertion.setXPathString(msAssertion.getExpression());
         assertion.setNegated(false);
+        assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {
             // 如果整体禁用，则禁用
             assertion.setEnabled(false);
@@ -66,6 +67,7 @@ public class XPathAssertionConverter extends ResponseBodyTypeAssertionConverter<
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH_2_ASSERTION_GUI));
         assertion.setXPathString(msAssertion.getExpression());
         assertion.setNegated(false);
+        assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {
             // 如果整体禁用，则禁用
             assertion.setEnabled(false);

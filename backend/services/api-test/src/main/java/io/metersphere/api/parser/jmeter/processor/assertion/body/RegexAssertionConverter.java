@@ -35,6 +35,7 @@ public class RegexAssertionConverter extends ResponseBodyTypeAssertionConverter<
         assertion.setName("Response data expect regex " + msAssertion.getExpression());
         assertion.addTestString(msAssertion.getExpression());
         assertion.setTestFieldResponseData();
+        assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {
             // 如果整体禁用，则禁用
             assertion.setEnabled(false);
