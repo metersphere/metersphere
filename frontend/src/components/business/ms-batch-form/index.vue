@@ -157,7 +157,7 @@
           </div>
         </VueDraggable>
       </a-scrollbar>
-      <div v-if="props.formMode === 'create'" v-xpack class="w-full">
+      <div v-if="props.formMode === 'create' && !props.hideAdd" class="w-full">
         <a-button class="px-0" type="text" @click="addField">
           <template #icon>
             <icon-plus class="text-[14px]" />
