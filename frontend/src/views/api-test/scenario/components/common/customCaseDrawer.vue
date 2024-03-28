@@ -219,7 +219,7 @@
                   <postcondition
                     v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
                     v-model:config="requestVModel.children[0].postProcessorConfig"
-                    :response="props.stepResponses?.[requestVModel.stepId].responseResult.body"
+                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
                     :layout="activeLayout"
                     :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
@@ -229,7 +229,7 @@
                   <assertion
                     v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                    :response="props.stepResponses?.[requestVModel.stepId].responseResult.body"
+                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
                     is-definition
                     :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
