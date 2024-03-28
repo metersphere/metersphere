@@ -261,6 +261,7 @@
                 ...node,
                 copyFromStepId: node.id,
                 config: {
+                  ...node.config,
                   isRefScenarioStep: true, // 默认是完全引用的
                 },
                 id: getGenerateId(),

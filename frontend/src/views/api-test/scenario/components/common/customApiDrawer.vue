@@ -82,14 +82,18 @@
               <a-input
                 v-model:model-value="requestVModel.url"
                 :max-length="255"
-                :placeholder="t('apiTestDebug.urlPlaceholder')"
+                :placeholder="showEnvPrefix ? t('apiScenario.pleaseInputUrl') : t('apiTestDebug.urlPlaceholder')"
                 allow-clear
                 class="hover:z-10"
                 :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
                 :disabled="_stepType.isQuoteApi"
                 @input="() => (isUrlError = false)"
                 @change="handleUrlChange"
-              />
+              >
+                <template v-if="showEnvPrefix" #prefix>
+                  {{ currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url }}
+                </template>
+              </a-input>
             </a-input-group>
           </div>
           <div>
@@ -128,6 +132,7 @@
       </div>
       <div class="px-[16px]">
         <MsTab
+          v-if="requestVModel.activeTab"
           v-model:active-key="requestVModel.activeTab"
           :content-tab-list="contentTabList"
           :get-text-func="getTabBadge"
@@ -472,6 +477,11 @@
     }
     return t('apiScenario.customApi');
   });
+  const showEnvPrefix = computed(
+    () =>
+      requestVModel.value.customizeRequestEnvEnable &&
+      currentEnvConfig?.value.httpConfig.find((e) => e.type === 'NONE')?.url
+  );
 
   watch(
     () => props.stepResponses,
@@ -1007,7 +1017,7 @@
       }
       requestVModel.value = {
         executeLoading: false,
-        activeTab: res.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
+        activeTab: contentTabList.value[0].value,
         unSaved: false,
         isNew: false,
         label: res.name,
@@ -1018,6 +1028,7 @@
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
         stepId: props.step?.id || '',
+        responseActiveTab: ResponseComposition.BODY,
         ...parseRequestBodyResult,
       };
       if (_stepType.value.isQuoteApi && props.request && isHttpProtocol.value) {
@@ -1050,8 +1061,8 @@
         }
       }
       nextTick(() => {
-        requestVModel.value.activeTab = contentTabList.value[0].value;
         // 等待内容渲染出来再隐藏loading
+        requestVModel.value.activeTab = contentTabList.value[0].value;
         loading.value = false;
       });
     } catch (error) {
@@ -1073,6 +1084,8 @@
           requestVModel.value = cloneDeep({
             ...defaultApiParams,
             ...props.request,
+            activeTab: contentTabList.value[0].value,
+            responseActiveTab: ResponseComposition.BODY,
             isNew: false,
           });
           if (_stepType.value.isQuoteApi) {

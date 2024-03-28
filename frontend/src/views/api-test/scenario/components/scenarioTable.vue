@@ -131,7 +131,7 @@
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           type="text"
           class="!mr-0"
-          @click="openScenarioTab(record)"
+          @click="openScenarioTab(record, 'execute')"
         >
           {{ t('apiScenario.execute') }}
         </MsButton>
@@ -140,7 +140,7 @@
           v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
           type="text"
           class="!mr-0"
-          @click="openScenarioTab(record, true)"
+          @click="openScenarioTab(record, 'copy')"
         >
           {{ t('common.copy') }}
         </MsButton>
@@ -353,7 +353,7 @@
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
-    (e: 'openScenario', record: ApiScenarioTableItem, isCopy?: boolean): void;
+    (e: 'openScenario', record: ApiScenarioTableItem, action?: 'copy' | 'execute'): void;
     (e: 'refreshModuleTree', params: any): void;
   }>();
 
@@ -943,8 +943,8 @@
     }
   }
 
-  function openScenarioTab(record: ApiScenarioTableItem, isCopy = false) {
-    emit('openScenario', record, isCopy);
+  function openScenarioTab(record: ApiScenarioTableItem, action?: 'copy' | 'execute') {
+    emit('openScenario', record, action);
   }
 
   defineExpose({

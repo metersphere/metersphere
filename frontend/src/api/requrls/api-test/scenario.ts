@@ -16,6 +16,7 @@ export const ScenarioTransferModuleOptionsUrl = '/api/scenario/transfer/options'
 export const DebugScenarioUrl = '/api/scenario/debug'; // 接口场景调试（不保存报告）
 export const ExecuteScenarioUrl = '/api/scenario/run'; // 接口场景执行（保存报告）
 export const GetSystemRequestUrl = '/api/scenario/get/system-request'; // 获取导入的系统请求数据
+export const FollowScenarioUrl = '/api/scenario/follow'; // 关注/取消关注接口场景
 export const BatchRecycleScenarioUrl = '/api/scenario/batch-operation/delete-gc'; // 批量删除接口场景
 export const BatchMoveScenarioUrl = '/api/scenario/batch-operation/move'; // 批量移动接口场景
 export const BatchCopyScenarioUrl = '/api/scenario/batch-operation/copy'; // 批量复制接口场景
