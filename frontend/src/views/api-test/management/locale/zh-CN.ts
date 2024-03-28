@@ -1,5 +1,5 @@
 export default {
-  'apiTestManagement.newApi': '新建接口',
+  'apiTestManagement.newApi': '新建请求',
   'apiTestManagement.importApi': '导入接口',
   'apiTestManagement.fileImport': '文件导入',
   'apiTestManagement.timeImport': '定时导入',
@@ -153,6 +153,8 @@ export default {
   'apiTestManagement.quoteSearchPlaceholder': '输入 ID 或名称搜索',
   'apiTestManagement.click': '点击',
   'apiTestManagement.getResponse': '获取响应内容',
+  'apiTestManagement.tableNoDataAndPlease': '暂无数据，请',
+  'apiTestManagement.or': '或',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',

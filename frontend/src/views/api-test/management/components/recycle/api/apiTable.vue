@@ -194,12 +194,6 @@
       showDrag: true,
     },
     {
-      title: 'apiTestManagement.version',
-      dataIndex: 'versionName',
-      width: 100,
-      showDrag: true,
-    },
-    {
       title: 'apiTestManagement.deleteTime',
       dataIndex: 'deleteTime',
       sortable: {

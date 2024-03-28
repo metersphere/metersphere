@@ -45,6 +45,8 @@ export default {
   'apiScenario.table.columns.createTime': 'Create time',
   'apiScenario.table.columns.updateUser': 'Update user',
   'apiScenario.table.columns.updateTime': 'Update time',
+  'api_scenario.table.tableNoDataAndPlease': 'No data yet, please',
+  'api_scenario.table.or': 'or',
   'apiScenario.execute': 'Execute',
   // 批量操作文案
   'api_scenario.batch_operation.success': 'Success {opt} to {name}',
