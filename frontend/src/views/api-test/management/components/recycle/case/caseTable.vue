@@ -366,7 +366,7 @@
   };
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const statusFilters = ref<string[]>([]);
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
@@ -375,7 +375,7 @@
   });
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = ['error', 'FakeError', 'success'];
-  const lastReportStatusFilters = ref<string[]>([...lastReportStatusList]);
+  const lastReportStatusFilters = ref<string[]>([]);
 
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];

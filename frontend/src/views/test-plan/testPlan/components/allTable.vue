@@ -218,7 +218,7 @@
   const keyword = ref<string>('');
   const scrollWidth = ref<number>(3400);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>(Object.keys(reviewStatusMap));
+  const statusFilters = ref<string[]>([]);
 
   const tableBatchActions = {
     baseAction: [

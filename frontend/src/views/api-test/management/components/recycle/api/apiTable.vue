@@ -256,9 +256,9 @@
   };
 
   const methodFilterVisible = ref(false);
-  const methodFilters = ref(Object.keys(RequestMethods));
+  const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const statusFilters = ref<string[]>([]);
   const moduleIds = computed(() => {
     if (props.activeModule === 'all') {
       return [];

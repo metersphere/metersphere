@@ -101,10 +101,10 @@
   import { ExecuteStatusFilters } from '@/enums/apiEnum';
   import { TriggerModeLabel } from '@/enums/reportEnum';
 
-  const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
+  const triggerModeListFilters = ref<string[]>([]);
   const triggerModeFilterVisible = ref(false);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref(Object.keys(ExecuteStatusFilters));
+  const statusFilters = ref<string[]>([]);
   const tableQueryParams = ref<any>();
 
   const keyword = ref('');

@@ -240,9 +240,8 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugListItem, BugOptionItem } from '@/models/bug-management';
+  import { BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
-  import { CommonList } from '@/models/common';
 
   const featureCaseStore = useFeatureCaseStore();
 

@@ -118,10 +118,10 @@
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
 
-  const triggerModeListFilters = ref<string[]>(Object.keys(TriggerModeLabel));
+  const triggerModeListFilters = ref<string[]>();
   const triggerModeFilterVisible = ref(false);
   const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
+  const statusFilters = ref<string[]>();
   const statusList = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
   });

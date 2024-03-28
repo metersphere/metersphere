@@ -112,7 +112,6 @@
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -135,16 +134,7 @@
   }>();
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
-  const statusListFilters = ref<string[]>(Object.keys(TaskStatus[props.moduleType]));
-  const { openNewPage } = useOpenNewPage();
-  const filterOptions = computed(() => {
-    return statusListFilters.value.map((item) => {
-      return {
-        label: item,
-        value: item,
-      };
-    });
-  });
+  const statusListFilters = ref<string[]>([]);
 
   const permissionsMap = {
     organization: {

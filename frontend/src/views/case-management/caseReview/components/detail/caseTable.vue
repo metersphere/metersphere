@@ -350,7 +350,7 @@
   const tableParams = ref<Record<string, any>>({});
 
   const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>(Object.keys(reviewResultMap));
+  const statusFilters = ref<string[]>([]);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])

@@ -168,18 +168,30 @@
     stepTreeRef.value?.checkAll(checkedAll.value);
   }
 
-  watch(checkedKeys, (val) => {
-    if (val.length === 0) {
-      checkedAll.value = false;
-      indeterminate.value = false;
-    } else if (val.length === totalStepCount.value) {
-      checkedAll.value = true;
-      indeterminate.value = false;
-    } else {
-      checkedAll.value = false;
-      indeterminate.value = true;
+  watch(
+    () => checkedKeys.value,
+    (val) => {
+      if (val.length === 0) {
+        checkedAll.value = false;
+        indeterminate.value = false;
+      } else if (val.length === totalStepCount.value) {
+        checkedAll.value = true;
+        indeterminate.value = false;
+      } else {
+        checkedAll.value = false;
+        indeterminate.value = true;
+      }
     }
-  });
+  );
+
+  watch(
+    () => scenario.value.steps.length,
+    () => {
+      checkedKeys.value = [];
+      checkedAll.value = false;
+      indeterminate.value = false;
+    }
+  );
 
   function expandAllStep() {
     isExpandAll.value = !isExpandAll.value;
@@ -259,14 +271,19 @@
         if (!node.enable) {
           // 如果步骤未开启，则删除已选 id，方便下面waitingDebugStepDetails详情判断是否携带
           checkedKeysSet.delete(node.id);
+          node.executeStatus = undefined;
         } else if (
           [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(node.stepType)
         ) {
           // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
           node.executeStatus = ScenarioExecuteStatus.EXECUTING;
+        } else {
+          // 其他类型步骤不显示执行状态
+          node.executeStatus = undefined;
         }
         return !!node.enable;
       }
+      node.executeStatus = undefined; // 未选中的步骤不显示执行状态
       return false;
     });
     const waitingDebugStepDetails = {};

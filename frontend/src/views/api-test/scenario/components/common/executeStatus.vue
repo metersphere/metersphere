@@ -38,8 +38,8 @@
       text: 'common.success',
     },
     [ScenarioExecuteStatus.UN_EXECUTE]: {
-      bgColor: 'var(--color-text-4)',
-      color: 'var(--color-text-n9)',
+      bgColor: 'var(--color-text-n8)',
+      color: 'var(--color-text-1)',
       text: 'apiScenario.unExecute',
     },
   };
