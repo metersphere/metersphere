@@ -10,7 +10,7 @@
           @toggle-menu="(val) => (activeMenu = val)"
         />
       </div>
-      <div class="flex-1 p-[24px]">
+      <div class="w-[752px] p-[24px]">
         <baseInfo v-if="activeMenu === 'baseInfo'" />
         <setPsw v-else-if="activeMenu === 'setPsw'" />
         <apiKey v-else-if="activeMenu === 'apiKey'" />
