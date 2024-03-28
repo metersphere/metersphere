@@ -69,12 +69,13 @@ export const defaultStepItemCommon = {
     id: '',
     name: '',
     enable: true,
-    isRefScenarioStep: false,
   },
   createActionsVisible: false,
   responsePopoverVisible: false,
   isExecuting: false,
   executeStatus: undefined,
+  isRefScenarioStep: false,
+  isQuoteScenarioStep: false,
 };
 
 export const defaultScenario: Scenario = {

@@ -257,15 +257,13 @@
     formalParameterVars,
     JMeterAllGroup,
     JMeterAllVars,
-    JMeterVariableGroup,
     mockAllGroup,
     mockAllParams,
     mockFunctions,
     sameFuncNameVars,
   } from './config';
   import type { MockParamInputGroupItem, MockParamItem } from './types';
-  import type { AutoComplete, CascaderOption, FormInstance } from '@arco-design/web-vue';
-  import { string } from 'fast-glob/out/utils';
+  import type { AutoComplete, FormInstance } from '@arco-design/web-vue';
 
   const props = defineProps<{
     value: string;

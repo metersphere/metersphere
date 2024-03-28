@@ -60,7 +60,7 @@
               <div class="mr-[8px] flex items-center gap-[8px]">
                 <!-- 步骤启用/禁用，完全引用的场景下的子孙步骤不可禁用 -->
                 <a-switch
-                  v-show="step.config.isRefScenarioStep !== true"
+                  v-show="step.isRefScenarioStep !== true"
                   v-model:model-value="step.enable"
                   size="small"
                   @click.stop="handleStepToggleEnable(step)"
@@ -174,6 +174,7 @@
             @click="setFocusNodeKey(step.id)"
             @other-create="handleOtherCreate"
             @close="setFocusNodeKey('')"
+            @add-done="scenario.unSaved = true"
           />
         </template>
         <template #extraEnd="step">
@@ -224,7 +225,12 @@
         </template>
       </MsTree>
     </a-spin>
-    <createStepActions v-model:selected-keys="selectedKeys" v-model:steps="steps" @other-create="handleOtherCreate">
+    <createStepActions
+      v-model:selected-keys="selectedKeys"
+      v-model:steps="steps"
+      @add-done="scenario.unSaved = true"
+      @other-create="handleOtherCreate"
+    >
       <a-button type="dashed" class="add-step-btn" long>
         <div class="flex items-center gap-[8px]">
           <icon-plus />
@@ -716,14 +722,15 @@
         realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
           // 更新子孙步骤是否完全引用
           if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
-            child.config.isRefScenarioStep = true;
+            child.isRefScenarioStep = true;
             child.enable = true;
           } else {
-            child.config.isRefScenarioStep = false;
+            child.isRefScenarioStep = false;
           }
           return child;
         });
         Message.success(t('apiScenario.setSuccess'));
+        scenario.value.unSaved = true;
         cancelScenarioConfig();
       }
     }
@@ -765,6 +772,7 @@
                 }
                 return {
                   ...cloneDeep(childNode),
+                  executeStatus: undefined,
                   copyFromStepId: childCopyFromStepId,
                   id: childId,
                 };
@@ -780,6 +788,7 @@
           checkedIfNeed,
           'id'
         );
+        scenario.value.unSaved = true;
         break;
       case 'config':
         activeStep.value = node as ScenarioStepItem;
@@ -791,6 +800,7 @@
         break;
       case 'delete':
         deleteNode(steps.value, node.id, 'id');
+        scenario.value.unSaved = true;
         break;
       default:
         break;
@@ -802,7 +812,7 @@
   }
 
   /**
-   * 处理步骤名称编辑
+   * 处理api、case、场景步骤名称编辑
    */
   const showStepNameEditInputStepId = ref<string | number>('');
   const tempStepName = ref('');
@@ -822,10 +832,11 @@
       realStep.name = tempStepName.value;
     }
     showStepNameEditInputStepId.value = '';
+    scenario.value.unSaved = true;
   }
 
   /**
-   * 处理步骤名称编辑
+   * 处理非 api、case、场景步骤名称编辑
    */
   const showStepDescEditInputStepId = ref<string | number>('');
   const tempStepDesc = ref('');
@@ -845,6 +856,7 @@
       realStep.name = tempStepDesc.value;
     }
     showStepDescEditInputStepId.value = '';
+    scenario.value.unSaved = true;
   }
 
   function handleStepContentChange($event, step: ScenarioStepItem) {
@@ -853,6 +865,7 @@
       Object.keys($event).forEach((key) => {
         realStep.config[key] = $event[key];
       });
+      scenario.value.unSaved = true;
     }
   }
 
@@ -870,6 +883,7 @@
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.id, 'id');
     if (realStep) {
       realStep.enable = !realStep.enable;
+      scenario.value.unSaved = true;
     }
   }
 
@@ -1218,6 +1232,7 @@
     } else {
       steps.value = steps.value.concat(insertSteps);
     }
+    scenario.value.unSaved = true;
   }
 
   /**
@@ -1260,12 +1275,16 @@
         projectId: appStore.currentProjectId,
       });
     }
+    scenario.value.unSaved = true;
   }
 
   /**
    * API 详情抽屉关闭时应用更改
    */
   function applyApiStep(request: RequestParam | CaseRequestParam) {
+    if (request.unSaved) {
+      scenario.value.unSaved = true;
+    }
     if (activeStep.value) {
       request.isNew = false;
       stepDetails.value[activeStep.value?.id] = request;
@@ -1282,6 +1301,7 @@
       customCaseDrawerVisible.value = false;
       deleteNode(steps.value, step.id, 'id');
       activeStep.value = undefined;
+      scenario.value.unSaved = true;
     }
   }
 
@@ -1314,6 +1334,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    scenario.value.unSaved = true;
   }
 
   /**
@@ -1383,6 +1404,7 @@
       const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'id');
       if (dragResult) {
         Message.success(t('common.moveSuccess'));
+        scenario.value.unSaved = true;
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -1432,6 +1454,7 @@
       }
       showQuickInput.value = false;
       clearQuickInput();
+      scenario.value.unSaved = true;
     }
   }
 

@@ -1,11 +1,16 @@
 <template>
   <div class="condition">
     <div>
-      <precondition v-model:config="preProcessorConfig" :is-definition="false" />
+      <precondition v-model:config="preProcessorConfig" :is-definition="false" @change="emit('change')" />
     </div>
     <a-divider class="my-[8px]" type="dashed" />
     <div>
-      <postcondition v-model:config="postProcessorConfig" :is-definition="false" :layout="activeLayout" />
+      <postcondition
+        v-model:config="postProcessorConfig"
+        :is-definition="false"
+        :layout="activeLayout"
+        @change="emit('change')"
+      />
     </div>
   </div>
 </template>
@@ -15,6 +20,10 @@
   import precondition from '@/views/api-test/components/requestComposition/precondition.vue';
 
   import { ExecuteConditionConfig } from '@/models/apiTest/common';
+
+  const emit = defineEmits<{
+    (e: 'change');
+  }>();
 
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const preProcessorConfig = defineModel<ExecuteConditionConfig>('preProcessorConfig', {

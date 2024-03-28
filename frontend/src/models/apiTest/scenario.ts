@@ -310,7 +310,6 @@ export type ScenarioStepDetail = Partial<
     ScenarioStepConfig & {
       protocol: string;
       method: RequestMethods;
-      isRefScenarioStep?: boolean; // 是否是完全引用的场景下的步骤，是的话不允许启用禁用
     }
 >;
 export interface ScenarioStepItem {
@@ -340,6 +339,8 @@ export interface ScenarioStepItem {
   executeStatus?: ScenarioExecuteStatus;
   isExecuting?: boolean; // 是否正在执行
   reportId?: string | number; // 步骤单个调试时的报告id
+  isQuoteScenarioStep?: boolean; // 是否是引用场景下的步骤(不分是不是完全引用，只要是引用类型就是)，不可修改引用 api 的参数值
+  isRefScenarioStep?: boolean; // 是否是完全引用的场景下的步骤，是的话不允许启用禁用
 }
 // 场景
 export interface Scenario {

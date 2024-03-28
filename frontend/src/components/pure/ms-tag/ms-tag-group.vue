@@ -1,6 +1,6 @@
 <template>
   <a-tooltip :content="tagsTooltip">
-    <div class="flex max-w-[440px] flex-row">
+    <div class="flex max-w-[440px] flex-row" @click="emit('click')">
       <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
         {{ props.isStringTag ? tag : tag[props.nameKey] }}
       </MsTag>
@@ -30,6 +30,9 @@
       size: 'medium',
     }
   );
+  const emit = defineEmits<{
+    (e: 'click'): void;
+  }>();
 
   const attrs = useAttrs();
 
