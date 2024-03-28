@@ -71,6 +71,7 @@
             class="w-[152px]"
             mode="button"
             :min="1"
+            :precision="0"
             :default-value="1"
           />
         </a-form-item>

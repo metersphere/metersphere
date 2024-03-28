@@ -234,8 +234,9 @@
    *   响应状态码对应颜色
    */
   const statusCodeColor = computed(() => {
-    if (activeStepDetail.value?.content?.requestResult) {
-      const code = Number(activeStepDetail.value?.content?.responseResult.responseCode);
+    debugger;
+    if (activeStepDetailCopy.value?.content) {
+      const code = Number(activeStepDetailCopy.value?.content?.responseResult.responseCode);
       if (code >= 200 && code < 300) {
         return 'rgb(var(--success-7)';
       }

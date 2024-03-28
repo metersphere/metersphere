@@ -699,6 +699,7 @@ if (!result){
     condition.value.dataSourceName = sqlSource.dataSource;
     condition.value.dataSourceId = sqlSource.id;
     emit('change');
+    Message.success(t('apiTestDebug.introduceSourceApplySuccess'));
   }
 
   function handleSqlSourceParamTableChange(resultArr: any[], isInit?: boolean) {

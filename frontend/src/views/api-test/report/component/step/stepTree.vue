@@ -92,7 +92,7 @@
                     <div>{{ step.scriptIdentifier }}</div>
                   </template>
                 </a-popover>
-                <div v-show="step.children && step.children.length > 0" class="flex">
+                <div v-show="showStatus(step)" class="flex">
                   <span class="statusCode mx-2">
                     <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
                     <a-popover position="left" content-class="response-popover-content">
@@ -281,6 +281,13 @@
       return showApiType.value.includes(item.stepType) && props.activeType === 'tab' && !item.fold;
     }
     return props.activeType === 'tab' && !item.fold;
+  }
+
+  function showStatus(item: ScenarioItemType) {
+    if (showApiType.value.includes(item.stepType)) {
+      return true;
+    }
+    return item.children && item.children.length > 0;
   }
 </script>
 

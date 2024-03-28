@@ -75,4 +75,6 @@ export default {
   'report.detail.api.executeEnv': 'Running environment',
   'report.detail.api.reportCreator': 'Report creator',
   'report.detail.api.runMode': 'Run mode',
+  'report.detail.api.copyLink': 'Copy link',
+  'report.detail.api.copyLinkTimeEnd': '(Valid 24 hours)',
 };

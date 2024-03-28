@@ -269,7 +269,7 @@
         x: '100%',
       },
       showSetting: true,
-      selectable: true,
+      selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE', 'PROJECT_API_REPORT:READ']),
       heightUsed: 330,
       showSelectorAll: true,
     },
@@ -297,7 +297,7 @@
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'report.batch.delete',
+        label: 'common.delete',
         eventTag: 'batchStop',
         permission: ['PROJECT_API_REPORT:READ+DELETE'],
       },

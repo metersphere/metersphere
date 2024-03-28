@@ -85,6 +85,7 @@ export default {
   'apiTestDebug.parameters': 'Pass parameters',
   'apiTestDebug.scriptContent': 'Script content',
   'apiTestDebug.introduceSource': 'Introduce data sources',
+  'apiTestDebug.introduceSourceApplySuccess': 'apply Success',
   'apiTestDebug.quoteSource': 'Reference data source',
   'apiTestDebug.sourceList': 'Data source list',
   'apiTestDebug.quoteSourcePlaceholder': 'Please select a data source',

@@ -110,7 +110,7 @@ export default {
   'project.environmental.postScriptBefore': '后置脚本前',
   'project.environmental.postScriptAfter': '后置脚本后',
   'project.environmental.http.preTextPreTip': '前置脚本前，环境中脚本在请求的前置脚本执行前执行；',
-  'project.environmental.http.preTextPostTip': '前置置脚本后，环境中脚本在请求的前置脚本执行后执行；',
+  'project.environmental.http.preTextPostTip': '前置脚本后，环境中脚本在请求的前置脚本执行后执行；',
   'project.environmental.http.postTextPreTip': '后置脚本前，环境中脚本在请求的后置脚本执行前执行；',
   'project.environmental.http.postTextPostTip': '后置脚本后，环境中脚本在请求的前置脚本执行后执行；',
   'project.environmental.preOrPost.ignoreProtocols': '忽略请求：',

@@ -17,17 +17,25 @@
   >
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
-        <MsButton
-          type="icon"
-          status="secondary"
-          class="mr-4 !rounded-[var(--border-radius-small)]"
-          :disabled="loading"
-          :loading="shareLoading"
-          @click="shareHandler"
-        >
-          <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
-          {{ t('common.share') }}
-        </MsButton>
+        <a-dropdown position="br" @select="shareHandler">
+          <MsButton
+            type="icon"
+            status="secondary"
+            class="mr-4 !rounded-[var(--border-radius-small)]"
+            :disabled="loading"
+            :loading="shareLoading"
+            @click="shareHandler"
+          >
+            <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
+            {{ t('common.share') }}
+          </MsButton>
+          <template #content>
+            <a-doption>
+              <span>{{ t('report.detail.api.copyLink') }}</span
+              ><span>{{ t('report.detail.api.copyLinkTimeEnd') }}</span>
+            </a-doption>
+          </template>
+        </a-dropdown>
         <!-- <MsButton
           type="icon"
           status="secondary"

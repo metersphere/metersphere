@@ -26,7 +26,7 @@
       </div>
     </div>
     <div v-if="showBody" class="ms-assertion-body w-full">
-      <div class="ms-assertion-body-left h-full w-[20%] min-w-[220px]">
+      <div class="ms-assertion-body-left h-full w-[25%] min-w-[220px]">
         <VueDraggable v-model="assertions" ghost-class="ghost" handle=".sort-handle">
           <div
             v-for="(item, index) in assertions"
@@ -40,14 +40,15 @@
           >
             <div class="ms-assertion-body-left-item-row">
               <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-              <span class="one-text-line">{{ item.name }}</span>
+              <div class="one-text-line">{{ item.name }}</div>
             </div>
             <div class="ms-assertion-body-left-item-switch">
               <div v-show="!props.disabled" class="ms-assertion-body-left-item-switch-action">
-                <MsIcon
+                <!-- <MsIcon
                   type="icon-icon_drag"
                   class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
-                />
+                /> -->
+                <icon-drag-dot-vertical class="ms-list-drag-icon" />
                 <MsTableMoreAction
                   :list="getItemMoreActions(item)"
                   trigger="click"
@@ -150,7 +151,7 @@
   import { ExecuteAssertionConfig } from '@/models/apiTest/common';
   import { ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
-  import { ExecuteAssertion, MsAssertionItem } from './type';
+  import { MsAssertionItem } from './type';
 
   defineOptions({
     name: 'MsAssertion',
@@ -191,6 +192,7 @@
     {
       label: 'project.fileManagement.delete',
       eventTag: 'delete',
+      danger: true,
     },
   ];
   function getItemMoreActions(item: any) {
@@ -454,6 +456,14 @@
               display: flex;
               align-items: center;
               gap: 4px;
+              .ms-list-drag-icon {
+                @apply invisible cursor-move;
+              }
+            }
+          }
+          &:hover {
+            .ms-list-drag-icon {
+              @apply visible;
             }
           }
         }

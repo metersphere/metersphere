@@ -3,6 +3,10 @@
     <!-- 报告参数开始 -->
     <div class="report-header flex items-center justify-between">
       <span>
+        <span v-if="route.query.shareId" class="font-medium"
+          >报告名称 <span>【{{ detail.name }}】</span>
+          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider
+        ></span>
         <a-popover position="left" content-class="response-popover-content">
           <span> {{ detail.environmentName || '-' }}</span>
           <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
@@ -62,11 +66,7 @@
       <div class="request-analyze min-h-[110px]">
         <div class="block-title mb-4">{{ t('report.detail.api.requestAnalysis') }}</div>
         <!-- 独立报告 -->
-        <SetReportChart
-          :legend-data="legendData"
-          :options="charOptions"
-          :request-total="getIndicators(detail.requestTotal)"
-        />
+        <SetReportChart :legend-data="legendData" :options="charOptions" :request-total="getIndicators(detail.total)" />
         <!-- 集合报告 -->
         <!-- </div> -->
       </div>
@@ -146,6 +146,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import dayjs from 'dayjs';
 
   import SetReportChart from './case/setReportChart.vue';
@@ -158,6 +159,8 @@
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
 
   import { getIndicators } from '../utils';
+
+  const route = useRoute();
 
   const { t } = useI18n();
   const props = defineProps<{
