@@ -47,14 +47,14 @@
               @select="handleNodeMoreSelect($event, _props)"
               @close="moreActionsClose"
             >
-              <MsButton
-                type="text"
-                :size="props.nodeMoreActionSize || 'mini'"
-                class="ms-tree-node-extra__more"
-                @click="focusNodeKey = _props[props.fieldNames.key]"
-              >
-                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
-              </MsButton>
+              <!--              <MsButton-->
+              <!--                type="text"-->
+              <!--                :size="props.nodeMoreActionSize || 'mini'"-->
+              <!--                class="ms-tree-node-extra__more"-->
+              <!--                @click="focusNodeKey = _props[props.fieldNames.key]"-->
+              <!--              >-->
+              <!--                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(&#45;&#45;color-text-4)]" />-->
+              <!--              </MsButton>-->
             </MsTableMoreAction>
           </div>
           <div class="ms-tree-node-extra-end">

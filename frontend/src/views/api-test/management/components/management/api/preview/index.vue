@@ -11,6 +11,7 @@
         </template>
         <template #titleRight>
           <a-button
+            v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
             type="outline"
             :loading="followLoading"
             size="mini"

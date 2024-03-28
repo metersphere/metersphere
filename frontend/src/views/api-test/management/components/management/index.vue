@@ -5,7 +5,7 @@
       v-model:active-tab="activeApiTab"
       v-model:tabs="apiTabs"
       class="flex-1 overflow-hidden"
-      :show-add="currentTab === 'api'"
+      :show-add="currentTab === 'api' && hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD'])"
       @add="newTab"
     >
       <template #label="{ tab }">
@@ -68,6 +68,7 @@
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
