@@ -62,7 +62,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
     }
 
     public boolean isValid(MsVariableAssertion.VariableAssertionItem variableAssertionItem) {
-        return StringUtils.isNotBlank(variableAssertionItem.getVariableName()) && StringUtils.isNotBlank(variableAssertionItem.getExpectedValue())
+        return StringUtils.isNotBlank(variableAssertionItem.getVariableName())
                 && StringUtils.isNotBlank(variableAssertionItem.getCondition());
     }
 

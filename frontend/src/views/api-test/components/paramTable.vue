@@ -784,7 +784,7 @@
       (paramsData.value[rowIndex].key ||
         paramsData.value[rowIndex].projectId ||
         paramsData.value[rowIndex].header ||
-        paramsData.value[rowIndex].header ||
+        paramsData.value[rowIndex].variableName ||
         paramsData.value[rowIndex].expression)
     ) {
       // 最后一行的更改才会触发添加新一行
