@@ -62,7 +62,14 @@
       <MsDescription :descriptions="descriptions">
         <template #tag>
           <div v-for="org of orgList" :key="org.orgId" class="mb-[16px]">
-            <MsTag class="h-[26px]" max-width="100%"> {{ org.orgName }} </MsTag>
+            <MsTag class="h-[26px]" max-width="100%">
+              <a-tooltip :content="org.orgName" position="right">
+                <template #content>
+                  <span>{{ org.orgName }}</span>
+                </template>
+                <span>{{ org.orgName }}</span>
+              </a-tooltip>
+            </MsTag>
             <br />
             <MsTag
               v-for="project of org.projectList"
@@ -70,7 +77,12 @@
               class="!mr-[8px] mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"
               max-width="100%"
             >
-              {{ project.projectName }}
+              <a-tooltip :content="project.projectName" position="right">
+                <template #content>
+                  <span>{{ project.projectName }}</span>
+                </template>
+                <span>{{ project.projectName }}</span>
+              </a-tooltip>
             </MsTag>
           </div>
         </template>
