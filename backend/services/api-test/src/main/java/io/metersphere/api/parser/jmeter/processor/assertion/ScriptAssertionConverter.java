@@ -1,5 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
+import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
+import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -9,6 +11,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.BeanShellAssertion;
 import org.apache.jmeter.assertions.JSR223Assertion;
+import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
@@ -25,12 +28,20 @@ public class ScriptAssertionConverter extends AssertionConverter<MsScriptAsserti
             return;
         }
 
-        TestElement assertion = new JSR223Assertion();
+        TestElement assertion;
         if (isJSR233(msAssertion)) {
+            assertion = new JSR223Assertion();
+        } else {
             assertion = new BeanShellAssertion();
         }
         ScriptProcessor scriptProcessor = BeanUtils.copyBean(new ScriptProcessor(), msAssertion);
         ScriptProcessorConverter.parse(assertion, scriptProcessor, config);
+
+        if (!isJSR233(msAssertion)) {
+            // beanshell 断言参数名有区别，替换一下
+            assertion.setProperty(JmeterProperty.BEAN_SHELL_ASSERTION_QUERY, assertion.getProperty(JmeterProperty.SCRIPT).getStringValue());
+            assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.BEAN_SHELL_ASSERTION_GUI));
+        }
 
         // 添加公共脚本的参数
         Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))

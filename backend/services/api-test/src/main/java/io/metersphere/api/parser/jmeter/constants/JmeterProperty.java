@@ -9,4 +9,5 @@ public class JmeterProperty {
     public static final String CACHE_KEY = "cacheKey";
     public static final String SCRIPT_LANGUAGE = "scriptLanguage";
     public final static String ASS_OPTION = "ASS_OPTION";
+    public final static String BEAN_SHELL_ASSERTION_QUERY = "BeanShellAssertion.query";
 }
