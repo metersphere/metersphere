@@ -1,5 +1,6 @@
 package io.metersphere.api.controller.scenario;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
@@ -48,13 +49,13 @@ public class ApiScenarioReportController {
         return PageUtils.setPageInfo(page, apiScenarioReportService.getPage(request));
     }
 
-    @GetMapping("/rename/{id}/{name}")
+    @PostMapping("/rename/{id}")
     @Operation(summary = "接口测试-接口报告-场景报告重命名")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioReportLogService.class)
-    public void rename(@PathVariable String id, @PathVariable String name) {
-        apiScenarioReportService.rename(id, name, SessionUtils.getUserId());
+    public void rename(@PathVariable String id, @RequestBody TextNode name) {
+        apiScenarioReportService.rename(id, name.asText(), SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")

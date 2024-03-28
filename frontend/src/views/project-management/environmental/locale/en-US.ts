@@ -124,4 +124,5 @@ export default {
   'project.environmental.env.deleteGroupTip':
     'Deleting it will cause scenes that reference this environment group to fail to execute properly!',
   'project.environmental.database.nameIsExist': 'Database name already exists',
+  'project.environmental.http.noneDataExist': 'There is already a domain name with an enabled range of none!',
 };

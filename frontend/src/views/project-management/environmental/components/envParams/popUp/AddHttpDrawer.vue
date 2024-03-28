@@ -167,6 +167,7 @@
 
 <script lang="ts" setup>
   import { defineModel } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -261,6 +262,12 @@
       });
     }
 
+    // 判断是否已存在type为NONE的数据 如果存在则不允许添加 数量大于1 则提示
+    const noneData = store.currentEnvDetailInfo.config.httpConfig.filter((item) => item.type === 'NONE');
+    if (noneData.length >= 1) {
+      Message.error(t('project.environmental.http.noneDataExist'));
+      return;
+    }
     // 编辑
     if (index > -1 && !props.isCopy) {
       const httpItem = {
