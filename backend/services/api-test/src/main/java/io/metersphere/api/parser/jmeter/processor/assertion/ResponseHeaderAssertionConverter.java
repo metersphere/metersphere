@@ -1,17 +1,13 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.project.api.assertion.MsResponseHeaderAssertion;
-import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.assertion.MsResponseHeaderAssertion;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.util.EnumValidator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @Author: jianxing
@@ -53,16 +49,15 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String condition = msAssertion.getCondition();
         assertion.setName(String.format("Response header %s %s", condition.toLowerCase().replace("_", ""), expectedValue));
         MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
-        Map<MsAssertionCondition, Function<String, String>> regexgenerateMap = new HashMap<>();
-        regexgenerateMap.put(MsAssertionCondition.EQUALS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": ",value, "\\b"));
-        regexgenerateMap.put(MsAssertionCondition.NOT_EQUALS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!", value,"\\b)\\d+"));
-        regexgenerateMap.put(MsAssertionCondition.CONTAINS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": .*", value, ".*\\b"));
-        regexgenerateMap.put(MsAssertionCondition.NOT_CONTAINS, value -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!.*", value, ").*\\b"));
-        if (msAssertionCondition != null && regexgenerateMap.get(msAssertionCondition) != null) {
-            assertion.addTestString(regexgenerateMap.get(msAssertionCondition).apply(expectedValue));
-        } else {
-            assertion.addTestString(expectedValue);
-        }
+        String header = msAssertion.getHeader();
+        String testString = switch (msAssertionCondition) {
+            case CONTAINS -> StringUtils.join("\\b", msAssertion.getHeader(),": .*", expectedValue, ".*\\b");
+            case NOT_CONTAINS -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!.*", expectedValue, ").*\\b");
+            case EQUALS -> StringUtils.join("\\b", header,": ",expectedValue, "\\b");
+            case NOT_EQUALS -> StringUtils.join("\\b", msAssertion.getHeader(),": (?!", expectedValue,"\\b)\\d+");
+            default -> expectedValue;
+        };
+        assertion.addTestString(testString);
         assertion.setToContainsType();
 
         assertion.setTestFieldResponseHeaders();
