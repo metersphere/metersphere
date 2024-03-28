@@ -21,4 +21,5 @@ public class JmeterAlias {
     public static final String HEADER_PANEL = "HeaderPanel";
     public static final String AUTH_PANEL = "AuthPanel";
     public static final String ARGUMENTS_PANEL = "ArgumentsPanel";
+    public static final String BEAN_SHELL_ASSERTION_GUI = "BeanShellAssertionGui";
 }
