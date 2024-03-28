@@ -50,7 +50,7 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/management/recycle.vue'),
       meta: {
         locale: 'common.recycle',
-        roles: ['FUNCTIONAL_CASE:READ'],
+        roles: ['PROJECT_API_DEFINITION:READ'],
         breadcrumbs: [
           {
             name: ApiTestRouteEnum.API_TEST_MANAGEMENT,
@@ -81,7 +81,7 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/scenario/recycle.vue'),
       meta: {
         locale: 'menu.apiTest.scenario',
-        roles: ['*'],
+        roles: ['PROJECT_API_SCENARIO:READ'],
         isTopMenu: false,
         breadcrumbs: [
           {
@@ -102,7 +102,7 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/report/index.vue'),
       meta: {
         locale: 'menu.apiTest.report',
-        roles: ['*'],
+        roles: ['PROJECT_API_REPORT:READ'],
         isTopMenu: true,
       },
     },
