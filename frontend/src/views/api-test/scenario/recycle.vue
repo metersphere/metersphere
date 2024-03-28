@@ -1,5 +1,5 @@
 <template>
-  <MsCard no-content-padding simple>
+  <MsCard has-breadcrumb no-content-padding simple>
     <div class="p-[24px_24px_8px_24px]">
       <MsEditableTab
         v-model:active-tab="activeApiTab"
