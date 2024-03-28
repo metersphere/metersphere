@@ -11,39 +11,44 @@
             @stop-debug="stopDebug"
             @execute="handleExecute"
           />
-          <a-dropdown position="br" :hide-on-select="false" @select="handleSelect">
-            <a-button v-if="!props.isDrawer" type="outline">{{ t('common.operation') }}</a-button>
+          <a-dropdown-button v-if="!props.isDrawer" type="outline" @click="editCase">
+            {{ t('common.edit') }}
+            <template #icon>
+              <icon-down />
+            </template>
             <template #content>
-              <a-doption v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']" value="edit">
-                <MsIcon type="icon-icon_edit_outlined" />
-                {{ t('common.edit') }}
-              </a-doption>
-              <a-doption value="share">
-                <MsIcon type="icon-icon_share1" />
-                {{ t('common.share') }}
-              </a-doption>
-              <a-doption v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']" value="fork">
-                <MsIcon
-                  :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-                  :class="`${caseDetail.follow ? 'text-[rgb(var(--warning-6))]' : ''}`"
-                />
-                {{ t('common.fork') }}
-              </a-doption>
-              <a-divider v-permission="['PROJECT_API_DEFINITION_CASE:READ+DELETE']" margin="4px" />
               <a-doption
                 v-permission="['PROJECT_API_DEFINITION_CASE:READ+DELETE']"
                 value="delete"
                 class="error-6 text-[rgb(var(--danger-6))]"
+                @click="handleDelete"
               >
                 <MsIcon type="icon-icon_delete-trash_outlined" class="text-[rgb(var(--danger-6))]" />
                 {{ t('common.delete') }}
               </a-doption>
             </template>
-          </a-dropdown>
+          </a-dropdown-button>
         </div>
       </template>
       <a-tab-pane key="detail" :title="t('case.detail')" class="px-[18px] py-[16px]">
         <MsDetailCard :title="`【${caseDetail.num}】${caseDetail.name}`" :description="description" class="mb-[8px]">
+          <template v-if="!props.isDrawer" #titleAppend>
+            <MsIcon
+              v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+              :loading="followLoading"
+              :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+              :class="`${caseDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+              class="cursor-pointer"
+              :size="16"
+              @click="follow"
+            />
+            <MsIcon
+              type="icon-icon_share1"
+              class="cursor-pointer text-[var(--color-text-4)]"
+              :size="16"
+              @click="share"
+            />
+          </template>
           <template #type="{ value }">
             <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
           </template>
@@ -159,6 +164,7 @@
       followLoading.value = true;
       await toggleFollowCase(caseDetail.value.id);
       Message.success(caseDetail.value.follow ? t('common.unFollowSuccess') : t('common.followSuccess'));
+      caseDetail.value.follow = !caseDetail.value.follow;
       emit('updateFollow');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -204,25 +210,6 @@
       },
       hideCancel: false,
     });
-  }
-
-  function handleSelect(val: string | number | Record<string, any> | undefined) {
-    switch (val) {
-      case 'edit':
-        editCase();
-        break;
-      case 'share':
-        share();
-        break;
-      case 'fork':
-        follow();
-        break;
-      case 'delete':
-        handleDelete();
-        break;
-      default:
-        break;
-    }
   }
 
   const protocols = inject<Ref<ProtocolItem[]>>('protocols');

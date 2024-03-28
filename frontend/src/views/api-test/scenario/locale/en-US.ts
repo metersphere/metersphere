@@ -51,6 +51,7 @@ export default {
   // 批量操作文案
   'api_scenario.batch_operation.success': 'Success {opt} to {name}',
   'api_scenario.table.batchMoveConfirm': 'Ready to {opt} {count} scenarios',
+  'apiScenario.descPlaceholder': 'Please describe the scenario',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
   'apiScenario.executeHistory.num': 'Number',

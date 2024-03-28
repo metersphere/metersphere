@@ -168,6 +168,19 @@
       </template>
       <template #operation="{ record }">
         <MsButton
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+          type="text"
+          class="!mr-0"
+          @click="editCase(record)"
+        >
+          {{ t('common.edit') }}
+        </MsButton>
+        <a-divider
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
+        <MsButton
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
           type="text"
           class="!mr-0"
@@ -335,7 +348,6 @@
     batchExecuteCase,
     deleteCase,
     dragSort,
-    executeCase,
     getCaseDetail,
     getCasePage,
     updateCasePriority,
@@ -516,7 +528,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 150 : 50,
+      width: hasOperationPermission.value ? 200 : 50,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
@@ -811,16 +823,6 @@
     }
   });
 
-  async function onExecute(id: string) {
-    try {
-      await executeCase(id);
-      Message.success(t('case.detail.execute.success'));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   function cancelBatchEdit() {
     showBatchEditModal.value = false;
     batchFormRef.value?.resetFields();
@@ -941,6 +943,11 @@
   function deleteCaseByDetail() {
     caseDetailDrawerVisible.value = false;
     loadCaseList();
+  }
+
+  async function editCase(record: ApiCaseDetail) {
+    await getCaseDetailInfo(record.id);
+    createAndEditCaseDrawerRef.value?.open(record.apiDefinitionId, caseDetail.value as RequestParam);
   }
 
   // 在api下的用例里打开用例详情抽屉，点击编辑，编辑后在此刷新数据

@@ -1592,6 +1592,8 @@
   });
 
   defineExpose({
+    execute,
+    isPriorityLocalExec,
     makeRequestParams,
     changeVerticalExpand,
   });

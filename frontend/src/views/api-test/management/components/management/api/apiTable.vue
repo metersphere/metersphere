@@ -130,6 +130,15 @@
       </template>
       <template #action="{ record }">
         <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
+          type="text"
+          class="!mr-0"
+          @click="editDefinition(record)"
+        >
+          {{ t('common.edit') }}
+        </MsButton>
+        <a-divider v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']" direction="vertical" :margin="8"></a-divider>
+        <MsButton
           v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
           type="text"
           class="!mr-0"
@@ -343,6 +352,7 @@
     (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
     (e: 'addApiTab'): void;
     (e: 'import'): void;
+    (e: 'openEditApiTab', record: ApiDefinitionDetail, isCopy: boolean, isExecute: boolean, isEdit: boolean): void;
   }>();
 
   const appStore = useAppStore();
@@ -445,7 +455,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 150 : 50,
+      width: hasOperationPermission.value ? 200 : 50,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -870,6 +880,10 @@
 
   function executeDefinition(record: ApiDefinitionDetail) {
     emit('openApiTab', record, true);
+  }
+
+  function editDefinition(record: ApiDefinitionDetail) {
+    emit('openEditApiTab', record, false, false, true);
   }
 
   // 拖拽排序

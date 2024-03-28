@@ -128,6 +128,15 @@
       </template>
       <template #operation="{ record }">
         <MsButton
+          v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']"
+          type="text"
+          class="!mr-0"
+          @click="openScenarioTab(record)"
+        >
+          {{ t('common.edit') }}
+        </MsButton>
+        <a-divider v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']" direction="vertical" :margin="8"></a-divider>
+        <MsButton
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           type="text"
           class="!mr-0"
@@ -522,7 +531,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 180,
+      width: 200,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(

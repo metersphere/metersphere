@@ -69,6 +69,7 @@ export default {
   'apiScenario.belongModule': '所属模块',
   'apiScenario.level': '场景等级',
   'apiScenario.status': '场景状态',
+  'apiScenario.descPlaceholder': '请对该场景进行描述',
   'apiScenario.addStep': '添加步骤',
   'apiScenario.requestScenario': '请求/场景',
   'apiScenario.importSystemApi': '导入系统请求',

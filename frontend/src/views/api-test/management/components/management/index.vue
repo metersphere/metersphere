@@ -40,6 +40,7 @@
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
     @import="emit('import')"
+    @delete-api="(id) => handleDeleteApiFromModuleTree(id)"
   />
   <apiCase
     v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
