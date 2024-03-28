@@ -310,7 +310,7 @@
           <a-input-number
             v-model:model-value="form.testResourceDTO.concurrentNumber"
             :min="1"
-            :max="9999999"
+            :max="isXpack ? '9999999' : '10'"
             :step="1"
             mode="button"
             class="w-[160px]"
@@ -429,6 +429,7 @@
   ]);
   const defaultGrid = 'http://selenium-hub:4444';
   const maxConcurrentNumber = computed(() => {
+    console.log(isXpack.value);
     if (isXpack.value) {
       return 9999999;
     }

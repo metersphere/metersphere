@@ -2,11 +2,13 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.utils.TaskRunnerClient;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +41,11 @@ public class NodeResourcePoolService {
             if (testResourceNodeDTO.getConcurrentNumber() == null) {
                 throw new MSException(Translator.get("concurrent_number_is_null"));
             }
+            if (!licenseValidate()) {
+                if (testResourceNodeDTO.getConcurrentNumber() > 10) {
+                    testResourceNodeDTO.setConcurrentNumber(10);
+                }
+            }
             if (!usedApiType) {
                 if (StringUtils.isBlank(testResourceNodeDTO.getMonitor())) {
                     throw new MSException(Translator.get("monitor_is_null"));
@@ -60,6 +67,16 @@ public class NodeResourcePoolService {
             throw new MSException(Translator.get("duplicate_node_ip_port"));
         }
         return isValid;
+    }
+
+    private boolean licenseValidate() {
+        LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
+        if (licenseService != null) {
+            LicenseDTO licenseDTO = licenseService.validate();
+            return (licenseDTO != null && StringUtils.equals(licenseDTO.getStatus(), "valid"));
+        } else {
+            return false;
+        }
     }
 
     private boolean validateNode(TestResourceNodeDTO node) {
