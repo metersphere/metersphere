@@ -19,7 +19,7 @@
     <template #title="{ item, index }">
       <div class="flex items-center gap-[4px]">
         <div
-          :class="`flex h-[16px] w-[16px] items-center justify-center rounded-full ${
+          :class="`flex h-[16px] w-[16px] flex-shrink-0 items-center justify-center rounded-full ${
             activeItem.id === item.id ? ' bg-white' : 'bg-[var(--color-text-n8)]'
           }`"
         >
@@ -32,12 +32,11 @@
         >
           {{ `${t('apiTestDebug.wait')}${item.delay}` }} ms
         </div>
-        <div v-else class="flex items-center">
-          {{ t(conditionTypeNameMap[item.processorType]) }}
-
+        <div v-else class="flex min-w-[42px] items-center justify-between">
+          <div class="one-line-text"> {{ t(conditionTypeNameMap[item.processorType]) }}</div>
           <a-badge
             v-if="item.processorType === RequestConditionProcessor.REQUEST_SCRIPT"
-            class="ml-1 mt-[2px]"
+            class="ml-1 mt-[2px] min-w-[48px]"
             :text="
               item.beforeStepScript
                 ? t('project.environmental.preOrPost.pre')
@@ -123,6 +122,7 @@
     {
       label: 'common.delete',
       eventTag: 'delete',
+      danger: true,
     },
   ];
 

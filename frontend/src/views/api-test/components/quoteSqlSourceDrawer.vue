@@ -4,6 +4,7 @@
     :width="960"
     :title="t('apiTestDebug.quoteSource')"
     :ok-disabled="selectedKey === ''"
+    :ok-text="t('common.apply')"
     @confirm="handleConfirm"
   >
     <div class="mb-[16px] flex items-center justify-between">

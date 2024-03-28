@@ -29,6 +29,17 @@
         />
       </div>
     </template>
+    <template v-if="(keyword || '').trim() === ''" #empty>
+      <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
+        <span v-if="hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE'])">{{
+          t('caseManagement.caseReview.tableNoData')
+        }}</span>
+        <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
+        <MsButton v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="ml-[8px]">
+          {{ t('project.environmental.database.addDatabase') }}
+        </MsButton>
+      </div>
+    </template>
   </MsBaseTable>
   <AddDatabaseModal
     v-model:visible="addVisible"
@@ -76,8 +87,8 @@
     },
     {
       title: 'project.environmental.database.driver',
-      dataIndex: 'driverId',
-      slotName: 'driverId',
+      dataIndex: 'driver',
+      slotName: 'driver',
       showDrag: true,
       showInTable: true,
       showTooltip: true,

@@ -81,6 +81,7 @@ export default {
   'apiTestDebug.parameters': '传递参数',
   'apiTestDebug.scriptContent': '脚本内容',
   'apiTestDebug.introduceSource': '引入数据源',
+  'apiTestDebug.introduceSourceApplySuccess': '应用成功',
   'apiTestDebug.quoteSource': '引用数据源',
   'apiTestDebug.sourceList': '数据源列表',
   'apiTestDebug.quoteSourcePlaceholder': '请选择数据源',

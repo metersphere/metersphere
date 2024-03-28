@@ -75,7 +75,7 @@
             :content-style="{ width: '480px' }"
           >
             <template #content>
-              <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" />
+              <!-- <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" /> -->
               <div class="flex items-center justify-end gap-[8px]">
                 <a-button type="secondary" size="mini" @click="record.moreSettingPopoverVisible = false">
                   {{ t('common.cancel') }}
@@ -169,7 +169,7 @@
             :content-style="{ width: '480px' }"
           >
             <template #content>
-              <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" />
+              <!-- <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" /> -->
               <div class="flex items-center justify-end gap-[8px]">
                 <a-button type="secondary" size="mini" @click="record.moreSettingPopoverVisible = false">
                   {{ t('common.cancel') }}
@@ -475,10 +475,10 @@
           eventTag: 'copy',
           label: 'common.copy',
         },
-        {
-          eventTag: 'setting',
-          label: 'common.setting',
-        },
+        // {
+        //   eventTag: 'setting',
+        //   label: 'common.setting',
+        // },
       ],
     },
   ];
@@ -550,10 +550,10 @@
           eventTag: 'copy',
           label: 'common.copy',
         },
-        {
-          eventTag: 'setting',
-          label: 'common.setting',
-        },
+        // {
+        //   eventTag: 'setting',
+        //   label: 'common.setting',
+        // },
       ],
     },
   ];

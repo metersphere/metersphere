@@ -74,4 +74,6 @@ export default {
   'report.detail.api.executeEnv': '运行环境',
   'report.detail.api.reportCreator': '报告创建人',
   'report.detail.api.runMode': '运行模式',
+  'report.detail.api.copyLink': '复制链接',
+  'report.detail.api.copyLinkTimeEnd': '(24小时有效)',
 };
