@@ -94,13 +94,20 @@
               <div class="flex items-center justify-center px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="lastReportStatusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of lastReportStatusList" :key="val" :value="val">
-                    <span>{{ val }}</span>
+                    <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
           </template>
         </a-trigger>
+      </template>
+      <template #lastReportStatus="{ record }">
+        <ExecutionStatus
+          :module-type="ReportEnum.API_REPORT"
+          :status="record.lastReportStatus"
+          :class="[!record.lastReportId ? '' : 'cursor-pointer']"
+        />
       </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
@@ -150,6 +157,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import {
     batchDeleteRecycleCase,
@@ -166,6 +174,7 @@
 
   import { ApiCaseBatchParams, ApiCaseDetail } from '@/models/apiTest/management';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
+  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
@@ -180,7 +189,6 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
-  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
   const columns: MsTableColumn = [
     {
@@ -247,9 +255,9 @@
     {
       title: 'case.lastReportStatus',
       dataIndex: 'lastReportStatus',
+      slotName: 'lastReportStatus',
       titleSlotName: 'lastReportStatusFilter',
       showInTable: false,
-      showTooltip: true,
       width: 150,
       showDrag: true,
     },
@@ -367,19 +375,25 @@
 
   const statusFilterVisible = ref(false);
   const statusFilters = ref(Object.keys(RequestDefinitionStatus));
+  const defaultStatusFiltersLength = ref(Object.keys(RequestDefinitionStatus)).value.length;
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
+  const defaultCaseFilters = ref<string[]>([]);
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
   const lastReportStatusFilterVisible = ref(false);
-  const lastReportStatusList = ['error', 'FakeError', 'success'];
-  const lastReportStatusFilters = ref<string[]>([...lastReportStatusList]);
+  const lastReportStatusList = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+  });
+  const defaultLastReportStatusLength = ref(Object.keys(ReportStatus[ReportEnum.API_REPORT])).value.length;
+  const lastReportStatusFilters = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
 
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
+
   function loadCaseList() {
     const params = {
       keyword: keyword.value,
@@ -387,9 +401,10 @@
       moduleIds: moduleIds.value,
       protocol: props.protocol,
       filter: {
-        status: statusFilters.value,
-        priority: caseFilters.value,
-        lastReportStatus: lastReportStatusFilters.value,
+        status: statusFilters.value.length === defaultStatusFiltersLength ? [] : statusFilters.value,
+        priority: caseFilters.value.length === defaultCaseFilters.value.length ? [] : caseFilters.value,
+        lastReportStatus:
+          lastReportStatusFilters.value.length === defaultLastReportStatusLength ? [] : lastReportStatusFilters.value,
       },
     };
     setLoadListParams(params);
@@ -405,6 +420,7 @@
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
     caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
+    defaultCaseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
   }
 
   onBeforeMount(() => {
