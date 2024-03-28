@@ -6,11 +6,10 @@ import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -556,6 +555,17 @@ public class CommonProjectService {
             projectMapper.deleteByPrimaryKey(project.getId());
             LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), project.getId(), Translator.get("scheduled_tasks"), OperationLogType.DELETE.name(), OperationLogModule.SETTING_ORGANIZATION_PROJECT, Translator.get("delete") + Translator.get("project") + ": " + project.getName());
             setLog(logDTO, StringUtils.EMPTY, StringUtils.EMPTY, logDTOList);
+
+            // 删除项目目录，避免资源删除有遗漏
+            String projectDir = DefaultRepositoryDir.getProjectDir(project.getId());
+            FileRequest request = new FileRequest();
+            request.setFolder(projectDir);
+            try {
+                FileCenter.getDefaultRepository().deleteFolder(request);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+
         });
         operationLogService.batchAdd(logDTOList);
     }

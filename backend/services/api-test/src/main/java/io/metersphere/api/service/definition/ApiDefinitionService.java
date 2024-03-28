@@ -806,6 +806,9 @@ public class ApiDefinitionService extends MoveNodeService {
         if (CollectionUtils.isNotEmpty(ids)) {
             handleTrashDelApiDefinition(ids, userId, request.getProjectId(), true);
         }
+
+        String apiDefinitionDirPrefix = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiDefinitionDirPrefix, ids, request.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
     }
 
     private void handleTrashDelApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch) {
@@ -817,10 +820,9 @@ public class ApiDefinitionService extends MoveNodeService {
     private void doTrashDel(List<String> ids, String userId, String projectId, boolean isBatch) {
         if (CollectionUtils.isNotEmpty(ids)) {
             // 删除上传的文件
-            ids.forEach(id -> {
-                String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
-            });
+            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, StringUtils.EMPTY);
+            apiFileResourceService.deleteByResourceIds(apiDefinitionDir, ids, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
+
             // 删除接口关注人
             ApiDefinitionFollowerExample apiDefinitionFollowerExample = new ApiDefinitionFollowerExample();
             apiDefinitionFollowerExample.createCriteria().andApiDefinitionIdIn(ids).andUserIdEqualTo(userId);
@@ -851,7 +853,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
         }
         // 删除 mock
-        apiDefinitionMockService.deleteByApiIds(apiIds, userId);
+        apiDefinitionMockService.deleteByApiIds(apiIds, userId, projectId);
     }
 
     // 获取批量操作选中的ID

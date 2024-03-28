@@ -234,6 +234,53 @@ public class ApiFileResourceService {
         fileAssociationService.deleteBySourceIds(List.of(resourceId), fileLogRecord);
     }
 
+    /**
+     * 删除资源下所有的文件或者关联关系
+     *
+     * @param dirPrefix 本地上传文件目录前缀
+     * @param resourceIds  资源ID
+     * @param projectId   项目ID
+     * @param operator    操作人
+     */
+    public void deleteByResourceIds(String dirPrefix, List<String> resourceIds, String projectId, String operator, String logModule) {
+        // 处理本地上传的文件
+        List<ApiFileResource> apiFileResources = getByResourceIds(resourceIds);
+
+        List<String> hasFileResourceIds = apiFileResources.stream()
+                .map(ApiFileResource::getResourceId)
+                .toList();
+
+        deleteByResourceIds(hasFileResourceIds);
+
+        for (String resourceId : hasFileResourceIds) {
+            // 删除文件
+            FileRequest request = new FileRequest();
+            request.setFolder(dirPrefix + resourceId);
+            try {
+                FileCenter.getDefaultRepository().deleteFolder(request);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+        }
+
+        // 处理关联文件
+        FileLogRecord fileLogRecord = FileLogRecord.builder()
+                .logModule(logModule)
+                .operator(operator)
+                .projectId(projectId)
+                .build();
+        fileAssociationService.deleteBySourceIds(resourceIds, fileLogRecord);
+    }
+
+    private void deleteByResourceIds(List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return;
+        }
+        ApiFileResourceExample example = new ApiFileResourceExample();
+        example.createCriteria().andResourceIdIn(resourceIds);
+        apiFileResourceMapper.deleteByExample(example);
+    }
+
     public List<ApiFileResource> getByResourceId(String resourceId) {
         ApiFileResourceExample example = new ApiFileResourceExample();
         example.createCriteria()
@@ -242,6 +289,9 @@ public class ApiFileResourceService {
     }
 
     public List<ApiFileResource> getByResourceIds(List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return List.of();
+        }
         ApiFileResourceExample example = new ApiFileResourceExample();
         example.createCriteria()
                 .andResourceIdIn(resourceIds);

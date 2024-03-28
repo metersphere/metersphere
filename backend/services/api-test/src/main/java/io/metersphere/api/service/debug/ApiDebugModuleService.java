@@ -211,10 +211,9 @@ public class ApiDebugModuleService extends ModuleTreeService {
             blobExample.createCriteria().andIdIn(apiDebugIds);
             apiDebugBlobMapper.deleteByExample(blobExample);
             //删除文件关联关系
-            apiDebugs.forEach(apiDebug -> {
-                String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId(), projectId, currentUser, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
-            });
+            String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(projectId, StringUtils.EMPTY);
+            apiFileResourceService.deleteByResourceIds(apiDebugDir, apiDebugIds, projectId, currentUser, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
+
             apiDebugModuleLogService.saveDeleteDataLog(apiDebugs, currentUser, projectId);
         }
 

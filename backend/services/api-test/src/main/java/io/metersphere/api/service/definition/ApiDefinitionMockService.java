@@ -30,6 +30,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -255,19 +256,16 @@ public class ApiDefinitionMockService {
         apiDefinitionMockMapper.updateByPrimaryKeySelective(update);
     }
 
-    public void deleteByApiIds(List<String> apiIds, String userId) {
+    public void deleteByApiIds(List<String> apiIds, String userId, String projectId) {
         ApiDefinitionMockExample apiDefinitionMockExample = new ApiDefinitionMockExample();
         apiDefinitionMockExample.createCriteria().andApiDefinitionIdIn(apiIds);
 
         List<ApiDefinitionMock> apiDefinitionMocks = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
 
         if (!apiDefinitionMocks.isEmpty()) {
-            apiDefinitionMocks.forEach(item -> {
-                String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(item.getProjectId(), item.getId());
-                apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, item.getId(), item.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
-            });
-
             List<String> mockIds = apiDefinitionMocks.stream().map(ApiDefinitionMock::getId).toList();
+            String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, StringUtils.EMPTY);
+            apiFileResourceService.deleteByResourceIds(apiDefinitionMockDir, mockIds, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
 
             ApiDefinitionMockConfigExample apiDefinitionMockConfigExample = new ApiDefinitionMockConfigExample();
             apiDefinitionMockConfigExample.createCriteria().andIdIn(mockIds);

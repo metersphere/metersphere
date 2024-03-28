@@ -434,17 +434,40 @@ public class ApiScenarioService extends MoveNodeService {
             saveStepCsv(steps, csvSteps);
         }
 
-        // 处理文件
+        // 处理步骤文件
+        handleStepFiles(request, creator, scenario);
+
+        // 处理场景文件，csv等
+        handScenarioFiles(request, creator, scenario);
+        return scenario;
+    }
+
+    private void handScenarioFiles(ApiScenarioAddRequest request, String creator, ApiScenario scenario) {
+        ResourceAddFileParam fileParam = request.getFileParam();
+        if (fileParam == null) {
+            return;
+        }
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), creator);
-        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
-        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
+        resourceUpdateRequest.setUploadFileIds(fileParam.getUploadFileIds());
+        resourceUpdateRequest.setLinkFileIds(fileParam.getLinkFileIds());
         apiFileResourceService.addFileResource(resourceUpdateRequest);
-        //处理csv变量
         if (request.getScenarioConfig() != null
                 && request.getScenarioConfig().getVariable() != null) {
             saveCsv(request.getScenarioConfig().getVariable().getCsvVariables(), resourceUpdateRequest);
         }
-        return scenario;
+    }
+
+    private void handleStepFiles(ApiScenarioAddRequest request, String creator, ApiScenario scenario) {
+        Map<String, ResourceAddFileParam> stepFileParam = request.getStepFileParam();
+        if (MapUtils.isNotEmpty(stepFileParam)) {
+            stepFileParam.forEach((stepId, fileParam) -> {
+                // 处理步骤文件
+                ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(stepId, scenario.getProjectId(), creator);
+                resourceUpdateRequest.setUploadFileIds(fileParam.getUploadFileIds());
+                resourceUpdateRequest.setLinkFileIds(fileParam.getLinkFileIds());
+                apiFileResourceService.addFileResource(resourceUpdateRequest);
+            });
+        }
     }
 
     private void saveStepCsv(List<ApiScenarioStep> steps, List<ApiScenarioCsvStep> csvSteps) {
@@ -639,17 +662,28 @@ public class ApiScenarioService extends MoveNodeService {
             apiScenarioBlobMapper.updateByPrimaryKeyWithBLOBs(apiScenarioBlob);
         }
 
-        // 更新场景步骤
-        updateApiScenarioStep(request, scenario);
-
         ApiScenario originScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
-        // 处理文件
-        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), originScenario.getProjectId(), updater);
-        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
-        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
-        resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
-        apiFileResourceService.updateFileResource(resourceUpdateRequest);
+
+        // 处理步骤文件
+        handleStepFiles(request, updater, originScenario);
+
+        // 处理场景文件
+        handleScenarioFiles(request, updater, originScenario);
+
+        // 更新场景步骤
+        updateApiScenarioStep(request, originScenario, updater);
+
+        return scenario;
+    }
+
+    private void handleScenarioFiles(ApiScenarioUpdateRequest request, String updater, ApiScenario scenario) {
+        // 处理场景文件
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), updater);
+        ResourceAddFileParam fileParam = request.getFileParam();
+        if (fileParam != null) {
+            resourceUpdateRequest = BeanUtils.copyBean(resourceUpdateRequest, fileParam);
+            apiFileResourceService.updateFileResource(resourceUpdateRequest);
+        }
 
         //处理csv变量
         if (request.getScenarioConfig() != null
@@ -658,13 +692,24 @@ public class ApiScenarioService extends MoveNodeService {
         } else {
             saveCsv(new ArrayList<>(), resourceUpdateRequest);
         }
-        return scenario;
+    }
+
+    private void handleStepFiles(ApiScenarioUpdateRequest request, String updater, ApiScenario scenario) {
+        Map<String, ResourceUpdateFileParam> stepFileParam = request.getStepFileParam();
+        if (MapUtils.isNotEmpty(stepFileParam)) {
+            stepFileParam.forEach((stepId, fileParam) -> {
+                // 处理步骤文件
+                ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(stepId, scenario.getProjectId(), updater);
+                resourceUpdateRequest = BeanUtils.copyBean(resourceUpdateRequest, fileParam);
+                apiFileResourceService.addFileResource(resourceUpdateRequest);
+            });
+        }
     }
 
     /**
      * 更新场景步骤
      */
-    private void updateApiScenarioStep(ApiScenarioUpdateRequest request, ApiScenario scenario) {
+    private void updateApiScenarioStep(ApiScenarioUpdateRequest request, ApiScenario scenario, String userId) {
         // steps 不为 null 则修改
         if (request.getSteps() != null) {
             if (CollectionUtils.isEmpty(request.getSteps())) {
@@ -697,6 +742,9 @@ public class ApiScenarioService extends MoveNodeService {
                 ApiScenarioStepBlobExample stepBlobExample = new ApiScenarioStepBlobExample();
                 stepBlobExample.createCriteria().andIdIn(subIds);
                 apiScenarioStepBlobMapper.deleteByExample(stepBlobExample);
+                // 批量删除关联文件
+                String scenarioStepDirPrefix = DefaultRepositoryDir.getApiScenarioStepDir(scenario.getProjectId(), scenario.getId(), StringUtils.EMPTY);
+                apiFileResourceService.deleteByResourceIds(scenarioStepDirPrefix, subIds, scenario.getProjectId(), userId, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
             });
 
             // 查询原有的步骤详情
@@ -1004,7 +1052,7 @@ public class ApiScenarioService extends MoveNodeService {
         return enableSteps;
     }
 
-    private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
+    private ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
         String apiScenarioDir = DefaultRepositoryDir.getApiScenarioDir(projectId, sourceId);
         ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
         resourceUpdateRequest.setProjectId(projectId);
@@ -1033,7 +1081,7 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioMapper.deleteByPrimaryKey(id);
     }
 
-    public ApiScenarioBatchOperationResponse delete(@NotEmpty List<String> idList, String operator) {
+    public ApiScenarioBatchOperationResponse delete(@NotEmpty List<String> idList, String projectId, String operator) {
         ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
 
         ApiScenarioExample example = new ApiScenarioExample();
@@ -1041,7 +1089,7 @@ public class ApiScenarioService extends MoveNodeService {
         List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(scenarioList)) {
             apiScenarioMapper.deleteByExample(example);
-            cascadeDelete(scenarioList, operator);
+            cascadeDelete(scenarioList, projectId, operator);
         }
 
         //构建返回值
@@ -1064,7 +1112,7 @@ public class ApiScenarioService extends MoveNodeService {
         //删除文件
         String scenarioDir = DefaultRepositoryDir.getApiScenarioDir(scenario.getProjectId(), scenario.getId());
         try {
-            apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
+            apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
         } catch (Exception ignore) {
         }
 
@@ -1088,7 +1136,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     //级联删除
-    public void cascadeDelete(@NotEmpty List<ApiScenario> scenarioList, String operator) {
+    public void cascadeDelete(@NotEmpty List<ApiScenario> scenarioList, String projectId, String operator) {
         List<String> scenarioIdList = scenarioList.stream().map(ApiScenario::getId).toList();
         ApiScenarioBlobExample example = new ApiScenarioBlobExample();
         example.createCriteria().andIdIn(scenarioIdList);
@@ -1106,17 +1154,12 @@ public class ApiScenarioService extends MoveNodeService {
         blobExample.createCriteria().andScenarioIdIn(scenarioIdList);
         apiScenarioStepBlobMapper.deleteByExample(blobExample);
 
-        scenarioList.forEach(scenario -> {
-            //删除文件
-            String scenarioDir = DefaultRepositoryDir.getApiScenarioDir(scenario.getProjectId(), scenario.getId());
-            try {
-                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
-                //删除定时任务
-                scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
-            } catch (Exception ignore) {
-            }
+        //删除文件
+        String scenarioDir = DefaultRepositoryDir.getApiScenarioDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(scenarioDir, scenarioIdList, projectId, operator, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
+        //删除定时任务
+        scheduleService.deleteByResourceIds(scenarioIdList, ApiScenarioScheduleJob.class.getName());
 
-        });
         //删除csv
         ApiScenarioCsvExample csvExample = new ApiScenarioCsvExample();
         csvExample.createCriteria().andScenarioIdIn(scenarioIdList);
@@ -2309,7 +2352,7 @@ public class ApiScenarioService extends MoveNodeService {
 
         ApiScenarioBatchOperationResponse response = ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(
                 scenarioIds,
-                sublist -> delete(sublist, logInsertModule.getOperator()));
+                sublist -> delete(sublist, request.getProjectId(), logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.DELETE.name(), logInsertModule);
         return response;
     }

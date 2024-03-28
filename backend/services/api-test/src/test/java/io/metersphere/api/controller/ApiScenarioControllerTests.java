@@ -5,6 +5,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.ReferenceRequest;
+import io.metersphere.api.dto.ResourceAddFileParam;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.*;
@@ -328,7 +329,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setStepDetails(steptDetailMap);
         request.setScenarioConfig(getScenarioConfig());
         String fileId = doUploadTempFile(getMockMultipartFile());
-        request.setUploadFileIds(List.of(fileId));
+        request.setFileParam(new ResourceAddFileParam());
+        request.getFileParam().setUploadFileIds(List.of(fileId));
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         ApiScenario resultData = getResultData(mvcResult, ApiScenario.class);
         this.addApiScenario = apiScenarioMapper.selectByPrimaryKey(resultData.getId());
@@ -336,7 +338,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         assertUpdateSteps(steps, steptDetailMap);
 
         request.setName("anOther name");
-        request.setUploadFileIds(List.of());
+        request.getFileParam().setUploadFileIds(List.of());
         request.setGrouped(true);
         request.setEnvironmentId(envGroupId);
         ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
