@@ -1292,7 +1292,7 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenarioReport scenarioReport = getScenarioReport(userId);
         scenarioReport.setId(reportId);
         scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        scenarioReport.setName(apiScenario.getName() + DateUtils.getTimeString(System.currentTimeMillis()));
+        scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(poolId);
         scenarioReport.setEnvironmentId(apiScenario.getEnvironmentId());

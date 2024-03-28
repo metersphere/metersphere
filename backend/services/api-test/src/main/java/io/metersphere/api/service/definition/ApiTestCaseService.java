@@ -724,7 +724,7 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiReport apiReport = getApiReport(userId);
         apiReport.setId(reportId);
         apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        apiReport.setName(apiTestCase.getName() + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         apiReport.setPoolId(poolId);
         apiReport.setEnvironmentId(apiTestCase.getEnvironmentId());
