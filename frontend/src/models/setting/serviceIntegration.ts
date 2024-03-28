@@ -36,4 +36,5 @@ export interface StepListType {
   skipTitle: SkipTitle[];
   step: string;
   description: string;
+  bg?: string;
 }

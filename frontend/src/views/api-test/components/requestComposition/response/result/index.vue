@@ -1,4 +1,13 @@
 <template>
+  <div v-if="isShowLoopControl?.stepType === ScenarioStepType.LOOP_CONTROLLER" class="my-4 flex justify-start">
+    <MsPagination
+      v-model:page-size="pageSize"
+      v-model:current="controlCurrent"
+      :total="controlTotal"
+      size="mini"
+      @change="loadControlLoop"
+    />
+  </div>
   <div class="mt-4 flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
     <div class="font-medium">
       <span
@@ -103,9 +112,10 @@
 
   import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import { findNodeByKey } from '@/utils';
 
   import type { ReportStepDetail, ReportStepDetailItem, ScenarioItemType } from '@/models/apiTest/report';
-  import { ResponseComposition } from '@/enums/apiEnum';
+  import { ResponseComposition, ScenarioStepType } from '@/enums/apiEnum';
 
   const props = defineProps<{
     mode: 'tiled' | 'tab'; // 平铺 | tab形式
@@ -119,6 +129,7 @@
     environmentName?: string; // 环境
     isResponseModel?: boolean;
     reportId?: string;
+    steps?: ScenarioItemType[]; // 步骤列表
   }>();
   const { t } = useI18n();
 
@@ -171,7 +182,7 @@
 
   const total = computed(() => (activeStepDetail.value?.content.subRequestResults || []).length);
   const current = ref(1);
-  const pageSize = ref(1);
+  const pageSize = ref(10);
 
   const activeType = ref<'ResContent' | 'SubRequest'>('ResContent');
   const subRequestResults = ref<any[]>([]);
@@ -238,13 +249,13 @@
 
   const loading = ref<boolean>(false);
   // 获取详情
-  async function getStepDetail() {
+  async function getStepDetail(stepId: string) {
     try {
       loading.value = true;
       if (props.stepItem) {
         const res = await reportDetailMap[props.showType].stepDetail(
           (props.stepItem?.reportId || props.reportId) as string,
-          props?.stepItem?.stepId,
+          stepId,
           route.query.shareId as string | undefined
         );
         stepDetailInfo.value = cloneDeep(res) as any;
@@ -279,11 +290,40 @@
     }
   }
 
+  /**
+   *  获取对应父是否为次数循环步骤
+   */
+
+  const isShowLoopControl = computed(() => {
+    if (props.steps && props.steps.length && props.stepItem) {
+      return findNodeByKey<ScenarioItemType>(props.steps, props.stepItem?.parentId, 'stepId');
+    }
+  });
+
+  const controlCurrent = ref(1);
+  const controlTotal = computed(() => (isShowLoopControl.value?.children || []).length);
+  /**
+   *  循环次数控制器
+   */
+  function loadControlLoop() {
+    if (
+      isShowLoopControl.value &&
+      isShowLoopControl.value?.stepType === ScenarioStepType.LOOP_CONTROLLER &&
+      isShowLoopControl.value.children &&
+      isShowLoopControl.value.children.length
+    ) {
+      const loopStepId = isShowLoopControl.value?.children[controlCurrent.value - 1].stepId;
+      if (loopStepId) {
+        getStepDetail(loopStepId);
+      }
+    }
+  }
+
   const originStepId = ref<string | undefined>('');
 
   watchEffect(() => {
     if (props?.stepItem?.stepId && props.stepItem.stepId !== originStepId.value) {
-      getStepDetail();
+      getStepDetail(props?.stepItem?.stepId);
     }
   });
 

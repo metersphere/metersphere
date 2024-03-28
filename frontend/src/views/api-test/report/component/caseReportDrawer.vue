@@ -89,7 +89,9 @@
       emit('update:visible', val);
     },
   });
+
   const innerReportId = ref(props.reportId);
+  const detailDrawerRef = ref();
 
   const reportStepDetail = ref<ReportDetail>({
     id: '',

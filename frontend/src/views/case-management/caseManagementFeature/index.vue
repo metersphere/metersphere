@@ -332,8 +332,8 @@
     isCover.value = cover;
     validateLoading.value = true;
     try {
-      start();
       validateModal.value = true;
+      start();
       const params = {
         projectId: appStore.currentProjectId,
         versionId: '',
@@ -345,6 +345,7 @@
         validateInfo.value = result.data;
       }
     } catch (error) {
+      validateModal.value = false;
       console.log(error);
     } finally {
       validateLoading.value = false;

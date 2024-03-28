@@ -39,6 +39,7 @@
               class="ms-params-input"
               :max-length="255"
               :disabled="props.disabled"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -132,6 +133,7 @@
               :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >

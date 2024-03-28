@@ -526,6 +526,7 @@
         span: 15,
       },
       contentClass: 'contentClass',
+      autoLabelWidth: true,
     },
     // 暂时默认
     row: {
@@ -697,11 +698,11 @@
       color: red !important;
     }
     :deep(.arco-form-item-label-col > .arco-form-item-label) {
-      color: var(--color-text-3) !important;
-      width: 84px;
       overflow: hidden;
+      width: 84px;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: var(--color-text-3) !important;
     }
     :deep(.arco-select-view-single) {
       border-color: transparent !important;

@@ -132,6 +132,7 @@
   import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
+  import { EQUAL } from '@/components/pure/ms-advance-filter/index';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -321,7 +322,7 @@
               id: '',
               name: '',
               script: '',
-              params: [{}],
+              params: [],
               scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
             },
           });

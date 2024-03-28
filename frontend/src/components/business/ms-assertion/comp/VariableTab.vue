@@ -13,7 +13,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
+  import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { responseHeaderOption } from '@/config/apiTest';
@@ -36,7 +36,7 @@
 
   const defaultParamItem = {
     variableName: '',
-    condition: '',
+    condition: EQUAL.value,
     expectedValue: '',
     enable: true,
   };

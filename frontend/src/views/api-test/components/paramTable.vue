@@ -100,7 +100,7 @@
           v-else
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam"
-          :placeholder="t('apiTestDebug.paramNamePlaceholder')"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="ms-form-table-input"
           :max-length="255"
           size="mini"
@@ -319,14 +319,8 @@
       />
     </template>
     <!-- 响应头 -->
-    <template #header="{ record, columnConfig, rowIndex }">
-      <a-select
-        v-model="record.header"
-        :disabled="props.disabledExceptParam"
-        class="ms-form-table-input"
-        size="mini"
-        @change="() => addTableLine(rowIndex)"
-      >
+    <template #header="{ record, columnConfig }">
+      <a-select v-model="record.header" :disabled="props.disabledExceptParam" class="ms-form-table-input" size="mini">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
@@ -368,7 +362,8 @@
         :disabled="props.disabledExceptParam"
         size="mini"
         class="ms-form-table-input"
-        @change="() => addTableLine(rowIndex)"
+        :placeholder="t('apiTestDebug.commonPlaceholder')"
+        @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
     <!-- 项目选择 -->
@@ -551,7 +546,7 @@
   import { groupCategoryEnvList, groupProjectEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { isArray, isEmptyObject, isNumber, isObject, isRegExp, isString, isUndefined } from '@/utils/is';
+  import { isArray, isEmptyObject, isObject, isString } from '@/utils/is';
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import { HttpForm, ProjectOptionItem } from '@/models/projectManagement/environmental';
@@ -770,32 +765,6 @@
       initProjectOptions();
     }
   });
-  /**
-   * 当表格输入框变化时，表格的每一个值存在的情况下才添加行
-   * @param 注意: 目前只做了数组&布尔&字符串类型的校验
-   * @param dataItem 当前编辑项
-   * @param
-   */
-  function validateAddLine(dataItem: Record<string, any>) {
-    return Object.keys(dataItem).every((key: any) => {
-      if (typeof dataItem[key] === 'boolean') {
-        return true;
-      }
-      if (dataItem[key] && typeof dataItem[key] !== 'boolean') {
-        if (isArray(dataItem[key])) {
-          return dataItem[key].length > 0;
-        }
-        if (isObject(dataItem[key]) && isEmptyObject(dataItem[key])) {
-          return true;
-        }
-        if (isString(dataItem[key])) {
-          return dataItem[key].trim().length > 0;
-        }
-        return true;
-      }
-      return false;
-    });
-  }
 
   /** 环境管理-环境组 end */
 
@@ -810,11 +779,15 @@
       emitChange('addTableLine addLineDisabled', isInit);
       return;
     }
-    // 判断每一个值是否存在才会加行
     if (
-      (rowIndex === paramsData.value.length - 1 && validateAddLine(paramsData.value[rowIndex])) ||
-      paramsData.value[rowIndex].projectId
+      rowIndex === paramsData.value.length - 1 &&
+      (paramsData.value[rowIndex].key ||
+        paramsData.value[rowIndex].projectId ||
+        paramsData.value[rowIndex].header ||
+        paramsData.value[rowIndex].header ||
+        paramsData.value[rowIndex].expression)
     ) {
+      // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
       paramsData.value.push({
         id,

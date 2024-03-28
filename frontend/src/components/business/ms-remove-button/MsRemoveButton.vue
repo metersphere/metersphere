@@ -10,7 +10,9 @@
       @confirm="handleOk"
       @cancel="handleCancel"
     >
-      <MsButton :disabled="props.disabled" @click="showPopover">{{ t(props.removeText) }}</MsButton>
+      <slot>
+        <MsButton :disabled="props.disabled" @click="showPopover">{{ t(props.removeText) }}</MsButton>
+      </slot>
     </MsPopconfirm>
   </span>
 </template>
