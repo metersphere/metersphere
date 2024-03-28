@@ -57,6 +57,8 @@ export default {
   'api_scenario.table.status.underway': '进行中',
   'api_scenario.table.status.completed': '已完成',
   'api_scenario.table.status.deprecate': '已废弃',
+  'api_scenario.table.tableNoDataAndPlease': '暂无数据，请',
+  'api_scenario.table.or': '或',
   'apiScenario.execute': '执行',
   // 批量操作文案
   'api_scenario.batch_operation.success': '成功{opt}至 {name}',

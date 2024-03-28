@@ -149,6 +149,19 @@
         <a-divider v-permission="['PROJECT_API_DEFINITION:READ+ADD']" direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
+
+      <template v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD', 'FUNCTIONAL_CASE:READ+IMPORT'])" #empty>
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          {{ t('apiTestManagement.tableNoDataAndPlease') }}
+          <MsButton class="ml-[8px]" @click="emit('addApiTab')">
+            {{ t('apiTestManagement.newApi') }}
+          </MsButton>
+          {{ t('apiTestManagement.or') }}
+          <MsButton class="ml-[8px]" @click="emit('import')">
+            {{ t('caseManagement.featureCase.importExcel') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
   </div>
   <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
@@ -328,6 +341,8 @@
   const emit = defineEmits<{
     (e: 'openApiTab', record: ApiDefinitionDetail, isExecute?: boolean): void;
     (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
+    (e: 'addApiTab'): void;
+    (e: 'import'): void;
   }>();
 
   const appStore = useAppStore();
@@ -397,12 +412,6 @@
       isTag: true,
       isStringTag: true,
       width: 150,
-      showDrag: true,
-    },
-    {
-      title: 'apiTestManagement.version',
-      dataIndex: 'versionName',
-      width: 100,
       showDrag: true,
     },
     {

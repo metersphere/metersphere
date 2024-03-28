@@ -147,6 +147,14 @@
         <a-divider v-permission="['PROJECT_API_SCENARIO:READ+ADD']" direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
+      <template v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])" #empty>
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          {{ t('api_scenario.table.tableNoDataAndPlease') }}
+          <MsButton class="float-right ml-[8px]" @click="emit('createScenario')">
+            {{ t('apiScenario.createScenario') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
   </div>
 
@@ -340,6 +348,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
@@ -355,6 +364,7 @@
   const emit = defineEmits<{
     (e: 'openScenario', record: ApiScenarioTableItem, action?: 'copy' | 'execute'): void;
     (e: 'refreshModuleTree', params: any): void;
+    (e: 'createScenario'): void;
   }>();
 
   const lastReportStatusFilterVisible = ref(false);

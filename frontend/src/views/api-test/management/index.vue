@@ -53,6 +53,7 @@
             :active-module="activeModule"
             :offspring-ids="offspringIds"
             :protocol="protocol"
+            @import="importDrawerVisible = true"
           />
         </div>
       </template>

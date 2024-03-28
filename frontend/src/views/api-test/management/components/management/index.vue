@@ -39,6 +39,7 @@
     :offspring-ids="props.offspringIds"
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
+    @import="emit('import')"
   />
   <apiCase
     v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
@@ -87,7 +88,9 @@
     protocol: string;
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
-
+  const emit = defineEmits<{
+    (e: 'import'): void;
+  }>();
   const appStore = useAppStore();
   const { t } = useI18n();
 

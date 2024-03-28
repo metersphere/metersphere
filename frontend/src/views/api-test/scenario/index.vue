@@ -61,6 +61,7 @@
             :offspring-ids="offspringIds"
             @refresh-module-tree="refreshTree"
             @open-scenario="openScenarioTab"
+            @create-scenario="() => newTab()"
           />
         </template>
       </MsSplitBox>

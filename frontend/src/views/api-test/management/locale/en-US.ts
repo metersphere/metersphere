@@ -1,5 +1,5 @@
 export default {
-  'apiTestManagement.newApi': 'Create api',
+  'apiTestManagement.newApi': 'Create request',
   'apiTestManagement.importApi': 'Import api',
   'apiTestManagement.fileImport': 'Import file',
   'apiTestManagement.timeImport': 'Scheduled import',
@@ -159,6 +159,8 @@ export default {
   'apiTestManagement.belongOrg': 'Organization',
   'apiTestManagement.belongProject': 'Project',
   'apiTestManagement.quoteSearchPlaceholder': 'Enter ID or name to search',
+  'apiTestManagement.tableNoDataAndPlease': 'No data yet, please',
+  'apiTestManagement.or': 'or',
   'case.execute.selectEnv': 'Environmental choice',
   'case.execute.defaultEnv': 'Default environment',
   'case.execute.newEnv': 'New environment',

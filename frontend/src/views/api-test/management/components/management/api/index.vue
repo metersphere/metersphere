@@ -8,6 +8,8 @@
         :protocol="props.protocol"
         @open-api-tab="(record, isExecute) => openApiTab(record, false, isExecute)"
         @open-copy-api-tab="openApiTab($event, true)"
+        @add-api-tab="addApiTab"
+        @import="emit('import')"
       />
     </div>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
@@ -77,6 +79,7 @@
 
   // import MsButton from '@/components/pure/ms-button/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import caseTable from '../case/caseTable.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
@@ -122,6 +125,9 @@
     protocol: string;
   }>();
 
+  const emit = defineEmits<{
+    (e: 'import'): void;
+  }>();
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
