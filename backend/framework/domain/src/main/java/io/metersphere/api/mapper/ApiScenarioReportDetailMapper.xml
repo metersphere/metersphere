@@ -12,6 +12,7 @@
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="response_size" jdbcType="BIGINT" property="responseSize" />
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
+    <result column="sort" jdbcType="BIGINT" property="sort" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioReportDetail">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, report_id, step_id, `status`, fake_code, request_name, request_time, code, response_size, 
-    script_identifier
+    script_identifier, sort
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -133,11 +134,13 @@
     insert into api_scenario_report_detail (id, report_id, step_id, 
       `status`, fake_code, request_name, 
       request_time, code, response_size, 
-      script_identifier, content)
+      script_identifier, sort, content
+      )
     values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{stepId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{fakeCode,jdbcType=VARCHAR}, #{requestName,jdbcType=VARCHAR}, 
       #{requestTime,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{responseSize,jdbcType=BIGINT}, 
-      #{scriptIdentifier,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
+      #{scriptIdentifier,jdbcType=VARCHAR}, #{sort,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
     insert into api_scenario_report_detail
@@ -171,6 +174,9 @@
       </if>
       <if test="scriptIdentifier != null">
         script_identifier,
+      </if>
+      <if test="sort != null">
+        sort,
       </if>
       <if test="content != null">
         content,
@@ -206,6 +212,9 @@
       </if>
       <if test="scriptIdentifier != null">
         #{scriptIdentifier,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=BIGINT},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -251,6 +260,9 @@
       <if test="record.scriptIdentifier != null">
         script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=BIGINT},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
@@ -271,6 +283,7 @@
       code = #{record.code,jdbcType=VARCHAR},
       response_size = #{record.responseSize,jdbcType=BIGINT},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=BIGINT},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -287,7 +300,8 @@
       request_time = #{record.requestTime,jdbcType=BIGINT},
       code = #{record.code,jdbcType=VARCHAR},
       response_size = #{record.responseSize,jdbcType=BIGINT},
-      script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR}
+      script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -322,6 +336,9 @@
       <if test="scriptIdentifier != null">
         script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=BIGINT},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
       </if>
@@ -339,6 +356,7 @@
       code = #{code,jdbcType=VARCHAR},
       response_size = #{responseSize,jdbcType=BIGINT},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=BIGINT},
       content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -352,19 +370,20 @@
       request_time = #{requestTime,jdbcType=BIGINT},
       code = #{code,jdbcType=VARCHAR},
       response_size = #{responseSize,jdbcType=BIGINT},
-      script_identifier = #{scriptIdentifier,jdbcType=VARCHAR}
+      script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report_detail
     (id, report_id, step_id, `status`, fake_code, request_name, request_time, code, response_size, 
-      script_identifier, content)
+      script_identifier, sort, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.stepId,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.fakeCode,jdbcType=VARCHAR}, #{item.requestName,jdbcType=VARCHAR}, 
         #{item.requestTime,jdbcType=BIGINT}, #{item.code,jdbcType=VARCHAR}, #{item.responseSize,jdbcType=BIGINT}, 
-        #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
+        #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.sort,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
         )
     </foreach>
   </insert>
@@ -407,6 +426,9 @@
         </if>
         <if test="'script_identifier'.toString() == column.value">
           #{item.scriptIdentifier,jdbcType=VARCHAR}
+        </if>
+        <if test="'sort'.toString() == column.value">
+          #{item.sort,jdbcType=BIGINT}
         </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARBINARY}

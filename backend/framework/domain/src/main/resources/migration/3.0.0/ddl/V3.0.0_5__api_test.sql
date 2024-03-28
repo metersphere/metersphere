@@ -396,6 +396,8 @@ CREATE TABLE IF NOT EXISTS api_scenario_report_detail(
     `response_size` BIGINT NOT NULL  DEFAULT 0 COMMENT '响应内容大小' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     `content` LONGBLOB    COMMENT '执行结果' ,
+    `sort` BIGINT NOT NULL   COMMENT '用于循环请求排序' ,
+
     PRIMARY KEY (id)
 )   ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
