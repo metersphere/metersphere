@@ -225,9 +225,9 @@
     },
   ];
 
-  async function handleCopy(val: string) {
+  function handleCopy(val: string) {
     if (isSupported) {
-      await copy(val);
+      copy(val);
       Message.success(t('ms.personal.copySuccess'));
     } else {
       Message.warning(t('common.copyNotSupport'));
