@@ -94,8 +94,10 @@
       <a-form-item
         v-if="form.type === 'MODULE'"
         class="mb-[16px]"
-        field="description"
+        field="moduleId"
         :label="t('project.environmental.http.selectApiModule')"
+        :rules="[{ required: true, message: t('project.environmental.http.selectModule') }]"
+        asterisk-position="end"
       >
         <!-- TODO 先做普通树 放在下一个版本 -->
         <!-- <ApiTree
@@ -161,7 +163,13 @@
         </a-input-group>
       </a-form-item>
     </a-form>
-    <RequestHeader v-model:params="form.headers" :no-param-type="true" />
+    <httpHeader
+      v-model:params="form.headers"
+      :layout="activeLayout"
+      :disabled-param-value="false"
+      :disabled-except-param="false"
+      :second-box-height="secondBoxHeight"
+    />
   </MsDrawer>
 </template>
 
@@ -170,13 +178,10 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import RequestHeader from '../../requestHeader/index.vue';
 
   import { getEnvModules } from '@/api/modules/api-test/management';
-  // import ApiTree from './apiTree.vue';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
@@ -185,6 +190,8 @@
   import type { EnvModule } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';
+
+  const httpHeader = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/header.vue'));
 
   const props = defineProps<{
     currentId: string;
@@ -236,6 +243,8 @@
 
   const form = ref<HttpForm>({ ...initForm });
   const hostType = ref<string>('http://');
+  const secondBoxHeight = ref(0);
+  const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
 
   const httpRef = ref();
 
@@ -307,21 +316,10 @@
       store.currentEnvDetailInfo.config.httpConfig.push(httpItem);
     }
     emit('close');
+    resetForm();
   };
 
   const envTree = ref<ModuleTreeNode[]>([]);
-
-  const moreActions: ActionsItem[] = [
-    {
-      label: 'caseManagement.featureCase.copyStep',
-      eventTag: 'copyStep',
-    },
-  ];
-
-  const selectedKeys = ref<string[]>([]);
-  const focusNodeKey = ref<string>('');
-
-  function handleMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {}
 
   const title = ref<string>('');
   watchEffect(() => {

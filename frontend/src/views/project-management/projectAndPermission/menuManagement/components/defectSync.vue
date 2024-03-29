@@ -200,6 +200,7 @@
     resetForm();
   };
   const handlePlatformChange = async (value: SelectValue) => {
+    platformRules.value = [];
     try {
       if (value) {
         const res = await getPlatformInfo(value as string, MenuEnum.bugManagement);

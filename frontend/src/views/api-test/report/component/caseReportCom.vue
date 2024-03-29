@@ -1,74 +1,14 @@
 <template>
   <div class="report-container h-full">
     <!-- 报告参数开始 -->
-    <div class="report-header flex items-center justify-between">
-      <span>
-        <span v-if="route.query.shareId" class="font-medium"
-          >报告名称 <span>【{{ detail.name }}】</span>
-          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider
-        ></span>
-        <a-popover position="left" content-class="response-popover-content">
-          <span> {{ detail.environmentName || t('report.detail.api.defaultEnv') }}</span>
-          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
-              <span class="mx-1"> {{ detail.environmentName || t('report.detail.api.caseSaveEnv') }}</span>
-            </div>
-          </template>
-        </a-popover>
-        <a-popover position="bottom" content-class="response-popover-content">
-          <span> {{ detail.poolName || '-' }}</span>
-          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
-              <span class="mx-1"> {{ detail.poolName || '-' }}</span>
-            </div>
-          </template>
-        </a-popover>
-        <a-popover position="left" content-class="response-popover-content">
-          <span v-if="detail.runMode">
-            {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
-          >
-          <a-divider v-if="detail.runMode" direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
-              <div class="mx-1 mt-1">
-                {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</div
-              >
-            </div>
-          </template>
-        </a-popover>
-
-        <a-popover position="bottom" content-class="response-popover-content">
-          <span> {{ detail.creatUserName || '-' }}</span>
-          <template #content>
-            <div class="items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.reportCreator') }}</div>
-              <div class="mt-1"> {{ detail.creatUserName || '-' }}</div>
-            </div>
-          </template>
-        </a-popover>
-      </span>
-      <span>
-        <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-        {{ detail.startTime ? dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-        <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
-        {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-      </span>
-    </div>
+    <ReportDetailHeader :detail="detail" show-type="CASE" />
     <!-- 报告参数结束 -->
     <!-- 报告分析开始 -->
     <div class="analyze mb-1">
       <!-- 请求分析 -->
       <div class="request-analyze min-h-[110px]">
         <div class="block-title mb-4">{{ t('report.detail.api.requestAnalysis') }}</div>
-        <!-- 独立报告 -->
         <SetReportChart :legend-data="legendData" :options="charOptions" :request-total="getIndicators(detail.total)" />
-        <!-- 集合报告 -->
-        <!-- </div> -->
       </div>
       <!-- 耗时分析 -->
       <div class="time-analyze">
@@ -76,15 +16,17 @@
           <div class="time-card-item flex h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title">{{ t('report.detail.api.totalTime') }}</span>
-            <span class="count">{{ getTotalTime.split('-')[0] || '-' }}</span
+            <span class="count">{{ getTotalTime.split('-')[0] || 0 }}</span
             ><span class="time-card-item-title">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
           </div>
           <div class="time-card-item h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title"> {{ t('report.detail.api.requestTotalTime') }}</span>
-            <span class="count">{{ formatDuration(detail.requestDuration).split('-')[0] || '-' }}</span
+            <span class="count">{{
+              detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+            }}</span
             ><span class="time-card-item-title">{{
-              formatDuration(detail.requestDuration).split('-')[1] || 'ms'
+              detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
             }}</span>
           </div>
         </div>
@@ -132,7 +74,7 @@
     <!-- 报告步骤分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" />
+      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" show-type="CASE" />
       <TiledList
         :key-words="cascaderKeywords"
         show-type="CASE"
@@ -147,9 +89,10 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
-  import dayjs from 'dayjs';
+  import { cloneDeep } from 'lodash-es';
 
   import SetReportChart from './case/setReportChart.vue';
+  import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';
   import TiledList from './tiledList.vue';
 
@@ -329,7 +272,12 @@
         rateKey: 'requestPendingRate',
       },
     ];
-    const validArr = props?.detailInfo?.integrated ? tempArr : tempArr.slice(0, 1);
+    let validArr;
+    if (props?.detailInfo?.integrated) {
+      validArr = cloneDeep(tempArr);
+    } else {
+      validArr = props?.detailInfo?.status === 'SUCCESS' ? [tempArr[0]] : [tempArr[2]];
+    }
     charOptions.value.series.data = validArr.map((item: any) => {
       return {
         value: detail.value[item.value] || 0,

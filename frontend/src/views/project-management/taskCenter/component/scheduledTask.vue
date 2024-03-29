@@ -78,6 +78,7 @@
       slotName: 'resourceNum',
       width: 300,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.resourceName',
@@ -85,6 +86,7 @@
       dataIndex: 'resourceName',
       width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.resourceClassification',
@@ -93,6 +95,7 @@
       showInTable: true,
       width: 150,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operationRule',
@@ -101,6 +104,7 @@
       showInTable: true,
       width: 150,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operator',
@@ -109,6 +113,7 @@
       showInTable: true,
       width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operating',

@@ -171,15 +171,17 @@
       title: 'project.taskCenter.resourceID',
       dataIndex: 'resourceId',
       slotName: 'resourceId',
-      width: 300,
+      width: 200,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.resourceName',
       slotName: 'resourceName',
       dataIndex: 'resourceName',
-      width: 200,
+      width: 300,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.executionResult',
@@ -203,16 +205,16 @@
       slotName: 'poolName',
       dataIndex: 'poolName',
       showInTable: true,
-      width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operator',
       slotName: 'operationName',
       dataIndex: 'operationName',
       showInTable: true,
-      width: 300,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operating',
@@ -367,7 +369,7 @@
       showDetailDrawer.value = true;
     }
     activeDetailId.value = id;
-    activeReportIndex.value = rowIndex;
+    activeReportIndex.value = rowIndex - 1;
   }
 
   watch(

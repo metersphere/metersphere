@@ -482,6 +482,7 @@
       isTag: true,
       isStringTag: true,
       showDrag: true,
+      width: 400,
     },
     {
       title: 'case.lastReportStatus',

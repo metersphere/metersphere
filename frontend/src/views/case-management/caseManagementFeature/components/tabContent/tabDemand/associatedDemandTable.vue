@@ -3,7 +3,7 @@
     <template #demandName="{ record }">
       <span :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']" @click="emit('open', record)">
         {{ characterLimit(record.demandName) }} </span
-      ><span class="one-text-line text-[rgb(var(--primary-5))]">({{ (record.children || []).length || 0 }})</span>
+      ><span class="one-line-text text-[rgb(var(--primary-5))]">({{ (record.children || []).length || 0 }})</span>
     </template>
     <template #operation="{ record }">
       <MsButton

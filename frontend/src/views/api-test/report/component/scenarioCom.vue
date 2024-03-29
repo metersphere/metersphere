@@ -1,78 +1,7 @@
 <template>
   <div class="report-container h-full">
     <!-- 报告参数开始 -->
-    <div class="report-header flex items-center justify-between">
-      <!-- TODO 虚拟数据替换接口后边 -->
-      <span>
-        <a-popover position="left" content-class="response-popover-content">
-          <span> {{ detail.environmentName || t('report.detail.api.defaultEnv') }}</span>
-          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
-              <span class="mx-1"> {{ detail.environmentName || t('report.detail.api.scenarioSavedEnv') }}</span>
-            </div>
-          </template>
-        </a-popover>
-        <a-popover position="bottom" content-class="response-popover-content">
-          <span> {{ detail.poolName || '-' }}</span>
-          <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
-              <span class="mx-1"> {{ detail.poolName || '-' }}</span>
-            </div>
-          </template>
-        </a-popover>
-
-        <a-popover position="left" content-class="response-popover-content">
-          <span v-if="!detail.integrated">
-            {{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[0] : '-' }}
-            <span>{{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[1] : 'ms' }}</span>
-            <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          </span>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.globalWaitingTime') }}</div>
-              {{ detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[0] : '-' }}
-              <span class="mx-1">{{
-                detail.waitingTime ? formatDuration(detail.waitingTime).split('-')[1] : 'ms'
-              }}</span>
-            </div>
-          </template>
-        </a-popover>
-        <a-popover position="left" content-class="response-popover-content">
-          <span v-if="detail.runMode">
-            {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
-          >
-          <a-divider v-if="detail.runMode" direction="vertical" :margin="4" class="!mx-2"></a-divider>
-          <template #content>
-            <div class="items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
-              <div class="mt-1">
-                {{ detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</div
-              >
-            </div>
-          </template>
-        </a-popover>
-
-        <a-popover position="bottom" content-class="response-popover-content">
-          <span> {{ detail.creatUserName || '-' }}</span>
-          <template #content>
-            <div class="items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.reportCreator') }}</div>
-              <div class="mx-1 mt-1"> {{ detail.creatUserName || '-' }}</div>
-            </div>
-          </template>
-        </a-popover>
-      </span>
-      <span>
-        <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-        {{ detail.startTime ? dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-        <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
-        {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-      </span>
-    </div>
+    <ReportDetailHeader :detail="detail" show-type="API" />
     <!-- 报告参数结束 -->
     <!-- 报告步骤分析和请求分析开始 -->
     <div class="analyze mb-1">
@@ -128,10 +57,10 @@
             </div>
             <div>
               <span class="ml-4 text-[18px] font-medium">{{
-                formatDuration(detail.requestDuration).split('-')[0] || '-'
+                detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
               }}</span>
               <span class="ml-1 text-[var(--color-text-4)]">{{
-                formatDuration(detail.requestDuration).split('-')[1] || 'ms'
+                detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
               }}</span>
             </div>
           </div>
@@ -188,7 +117,7 @@
     <!-- 报告步骤分析和请求分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" />
+      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" show-type="API" />
       <TiledList :key-words="cascaderKeywords" show-type="API" :active-type="activeTab" :report-detail="detail || []" />
     </div>
     <!-- 报告明细结束 -->
@@ -197,9 +126,11 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';
   import StepProgress from './stepProgress.vue';
   import TiledList from './tiledList.vue';
@@ -210,6 +141,8 @@
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
 
   import { getIndicators } from '../utils';
+
+  const route = useRoute();
 
   const { t } = useI18n();
   const props = defineProps<{

@@ -1,4 +1,4 @@
-import { ExecuteConditionProcessor } from '../apiTest/common';
+import { EnableKeyValueParam, ExecuteConditionProcessor } from '@/models/apiTest/common';
 
 export interface EnvListItem {
   mock?: boolean;
@@ -140,7 +140,7 @@ export interface HttpForm {
   description?: string;
   hostname: string;
   type: string;
-  headers: Record<string, any>[];
+  headers: EnableKeyValueParam[];
   // pathMatchRule: {
   path: string;
   condition: string;

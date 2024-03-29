@@ -145,7 +145,7 @@
     type: Boolean,
   });
 
-  const form = ref<DataSourceItem>({
+  const initForm = {
     id: '',
     dataSource: '',
     driverId: '',
@@ -154,6 +154,10 @@
     password: '',
     poolMax: 1,
     timeout: 1000,
+  };
+
+  const form = ref<DataSourceItem>({
+    ...initForm,
   });
 
   const getDriverOption = async () => {
@@ -195,10 +199,6 @@
       }
     );
   };
-
-  const isXpack = computed(() => {
-    return licenseStore.hasLicense();
-  });
 
   const formReset = () => {
     form.value = {
@@ -250,6 +250,7 @@
           };
           store.currentEnvDetailInfo.config.dataSources.push(dataSourceItem);
         }
+        formReset();
         currentVisible.value = false;
       } catch (error) {
         // eslint-disable-next-line no-console

@@ -61,7 +61,16 @@
           </div>
         </template>
       </a-popover>
-      <span v-if="props.showType && props.showType !== 'CASE'">{{ props.environmentName }}</span>
+      <a-popover position="left" content-class="response-popover-content">
+        <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
+          props.environmentName
+        }}</div>
+        <template #content>
+          <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
+            props.environmentName
+          }}</div>
+        </template>
+      </a-popover>
     </div>
   </div>
   <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
@@ -112,7 +121,7 @@
 
   import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
-  import { findNodeByKey } from '@/utils';
+  import { findNodeByKey, formatDuration } from '@/utils';
 
   import type { ReportStepDetail, ReportStepDetailItem, ScenarioItemType } from '@/models/apiTest/report';
   import { ResponseComposition, ScenarioStepType } from '@/enums/apiEnum';

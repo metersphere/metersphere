@@ -39,6 +39,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { ScenarioItemType } from '@/models/apiTest/report';
+  import { ScenarioStepType } from '@/enums/apiEnum';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -65,12 +66,12 @@
   });
 
   const showCondition = ref<string[]>([
-    'API',
-    'API_CASE',
-    ' CUSTOM_REQUEST',
-    ' LOOP_CONTROLLER',
-    'IF_CONTROLLER',
-    'ONCE_ONLY_CONTROLLER',
+    ScenarioStepType.API,
+    ScenarioStepType.API_CASE,
+    ScenarioStepType.CUSTOM_REQUEST,
+    ScenarioStepType.LOOP_CONTROLLER,
+    ScenarioStepType.IF_CONTROLLER,
+    ScenarioStepType.ONCE_ONLY_CONTROLLER,
   ]);
 </script>
 

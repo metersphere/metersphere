@@ -40,15 +40,13 @@
           >
             <div class="ms-assertion-body-left-item-row">
               <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-              <div class="one-text-line">{{ item.name }}</div>
+              <div class="one-line-text" :class="{ 'text-[rgb(var(--primary-5))]': activeKey === item.id }">{{
+                item.name
+              }}</div>
             </div>
             <div class="ms-assertion-body-left-item-switch">
               <div v-show="!props.disabled" class="ms-assertion-body-left-item-switch-action">
-                <!-- <MsIcon
-                  type="icon-icon_drag"
-                  class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
-                /> -->
-                <icon-drag-dot-vertical class="ms-list-drag-icon" />
+                <icon-drag-dot-vertical class="ms-list-drag-icon sort-handle" />
                 <MsTableMoreAction
                   :list="getItemMoreActions(item)"
                   trigger="click"
@@ -267,14 +265,21 @@
         case ResponseAssertionType.RESPONSE_HEADER:
           assertions.value.push({
             ...tmpObj,
-            assertions: [],
+            assertions: [
+              {
+                header: '',
+                condition: EQUAL.value,
+                expectedValue: '',
+                enable: true,
+              },
+            ],
           });
           break;
         // 状态码
         case ResponseAssertionType.RESPONSE_CODE:
           assertions.value.push({
             ...tmpObj,
-            condition: 'EQUALS',
+            condition: EQUAL.value,
             expectedValue: '200',
           });
           break;
