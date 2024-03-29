@@ -208,7 +208,16 @@ public class ApiCommonService {
         for (ScriptProcessor processor : scriptsProcessors) {
             CommonScriptInfo commonScriptInfo = processor.getCommonScriptInfo();
             CustomFunctionBlob customFunctionBlob = customFunctionBlobMap.get(commonScriptInfo.getId());
+
             CustomFunction customFunction = customFunctionMap.get(commonScriptInfo.getId());
+
+            if (customFunction == null || customFunctionBlob == null) {
+                if (customFunction == null) {
+                    // 公共脚本被删除，就改成非公共脚本
+                    processor.getCommonScriptInfo().setDeleted(true);
+                }
+                continue;
+            }
 
             // 设置公共脚本信息
             Optional.ofNullable(customFunctionBlob.getParams()).ifPresent(paramsBlob -> {

@@ -19,6 +19,10 @@ public class CommonScriptInfo {
     @Size(min = 1, max = 50)
     private String id;
     /**
+     * 脚本是否删除
+     */
+    private Boolean deleted = false;
+    /**
      * 公共脚本的名字
      * 页面展示需要
      */

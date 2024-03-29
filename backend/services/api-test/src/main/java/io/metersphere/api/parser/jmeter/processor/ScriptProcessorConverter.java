@@ -57,6 +57,10 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         String scriptLanguage = scriptProcessor.getScriptLanguage();
         String script = scriptProcessor.getScript();
         if (scriptProcessor.isEnableCommonScript()) {
+            if (BooleanUtils.isTrue(scriptProcessor.getCommonScriptInfo().getDeleted())) {
+                // 如果公共脚本被删除则不处理
+                return;
+            }
             scriptLanguage = scriptProcessor.getCommonScriptInfo().getScriptLanguage();
             script = scriptProcessor.getCommonScriptInfo().getScript();
         }
