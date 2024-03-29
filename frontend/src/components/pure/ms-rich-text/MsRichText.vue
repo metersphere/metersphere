@@ -337,7 +337,7 @@
           renderHTML({ options, node }) {
             return [
               'span',
-              { style: 'color: #783887' },
+              { class: 'mention-people' },
               `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
             ];
             // return `${options.suggestion.char}${userMap[node.attrs.id]}`;
@@ -569,5 +569,8 @@
     .command-items {
       .ms-scroll-bar();
     }
+  }
+  .mention-people {
+    color: rgb(var(--primary-5)) !important;
   }
 </style>
