@@ -41,7 +41,7 @@
     enable: true,
   };
 
-  const columns: ParamTableColumn[] = [
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'ms.assertion.variableName', // 变量名
       dataIndex: 'variableName',
@@ -65,15 +65,20 @@
       showInTable: true,
       showDrag: true,
     },
-    {
-      title: '',
-      columnTitle: 'common.operation',
-      slotName: 'operation',
-      width: 50,
-      showInTable: true,
-      showDrag: true,
-    },
-  ];
+    ...(props.disabled
+      ? []
+      : [
+          {
+            title: '',
+            columnTitle: 'common.operation',
+            slotName: 'operation',
+            width: 50,
+            showInTable: true,
+            showDrag: true,
+          },
+        ]),
+  ]);
+
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     condition.value.variableAssertionItems = [...resultArr];
     if (!isInit) {
