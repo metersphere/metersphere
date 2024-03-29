@@ -599,17 +599,12 @@
       return httpContentTabList;
     }
     if (!isEditableApi.value) {
-      return [
-        ...pluginContentTab,
-        ...httpContentTabList
-          .filter((e) => commonContentTabKey.includes(e.value))
-          .filter(
-            (item) =>
-              !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
-              !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
-              !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
-          ),
-      ];
+      return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))].filter(
+        (item) =>
+          !(!preProcessorNum.value && item.value === RequestComposition.PRECONDITION) &&
+          !(!postProcessorNum.value && item.value === RequestComposition.POST_CONDITION) &&
+          !(!assertionsNum.value && item.value === RequestComposition.ASSERTION)
+      );
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -634,7 +629,7 @@
       case RequestComposition.ASSERTION:
         return `${assertionsNum.value > 99 ? '99+' : assertionsNum.value || ''}`;
       case RequestComposition.AUTH:
-        return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
+        return requestVModel.value.authConfig?.authType !== RequestAuthType.NONE ? '1' : '';
       default:
         return '';
     }
@@ -1045,11 +1040,8 @@
           props.request?.[type]?.forEach((item) => {
             if (!item.key.length) return;
             const index = requestVModel.value[type]?.findIndex((itemReq) => itemReq.key === item.key);
-            // 相同key的进行替换值;key不同的取交集
             if (index > -1) {
               requestVModel.value[type][index].value = item.value;
-            } else {
-              requestVModel.value[type].push(item);
             }
           });
         });
@@ -1059,8 +1051,6 @@
             const index = requestVModel.value.body[type].formValues.findIndex((itemReq) => itemReq.key === item.key);
             if (index > -1) {
               requestVModel.value.body[type].formValues[index].value = item.value;
-            } else {
-              requestVModel.value.body[type].formValues.push(item);
             }
           });
         });
