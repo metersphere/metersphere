@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
+  import { TableColumnData } from '@arco-design/web-vue';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
@@ -247,13 +248,17 @@
         dataIndex: 'description',
         slotName: 'description',
       },
-      {
-        title: '',
-        slotName: 'operation',
-        fixed: 'right',
-        format: innerParams.value.bodyType,
-        width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 65 : 35,
-      },
+      ...(props.disabledExceptParam
+        ? []
+        : [
+            {
+              title: '',
+              slotName: 'operation',
+              fixed: 'right' as TableColumnData['fixed'],
+              format: innerParams.value.bodyType,
+              width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 65 : 35,
+            },
+          ]),
     ];
   });
 

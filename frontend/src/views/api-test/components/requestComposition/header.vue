@@ -16,7 +16,7 @@
     :height-used="heightUsed"
     :scroll="scroll"
     :default-param-item="defaultHeaderParamsItem"
-    draggable
+    :draggable="!props.disabledExceptParam"
     @change="handleParamTableChange"
   />
 </template>
@@ -49,7 +49,7 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: ParamTableColumn[] = [
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
@@ -67,12 +67,16 @@
       dataIndex: 'description',
       slotName: 'description',
     },
-    {
-      title: '',
-      slotName: 'operation',
-      width: 50,
-    },
-  ];
+    ...(props.disabledExceptParam
+      ? []
+      : [
+          {
+            title: '',
+            slotName: 'operation',
+            width: 50,
+          },
+        ]),
+  ]);
 
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {

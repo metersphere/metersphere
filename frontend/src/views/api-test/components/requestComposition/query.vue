@@ -11,7 +11,7 @@
     </div>
     <batchAddKeyVal
       :params="innerParams"
-      :disabled="props.disabledParamValue"
+      :disabled="props.disabledExceptParam"
       :default-param-item="defaultRequestParamsItem"
       @apply="handleBatchParamApply"
     />
@@ -23,7 +23,7 @@
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
-    draggable
+    :draggable="!props.disabledExceptParam"
     :default-param-item="defaultRequestParamsItem"
     @change="handleParamTableChange"
   />
@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
+  import { TableColumnData } from '@arco-design/web-vue';
 
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
@@ -58,7 +59,7 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const columns: ParamTableColumn[] = [
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
@@ -101,13 +102,17 @@
       dataIndex: 'description',
       slotName: 'description',
     },
-    {
-      title: '',
-      slotName: 'operation',
-      fixed: 'right',
-      width: 50,
-    },
-  ];
+    ...(props.disabledExceptParam
+      ? []
+      : [
+          {
+            title: '',
+            slotName: 'operation',
+            fixed: 'right' as TableColumnData['fixed'],
+            width: 50,
+          },
+        ]),
+  ]);
 
   const heightUsed = ref<number | undefined>(undefined);
 

@@ -46,7 +46,7 @@
     enable: true,
   };
 
-  const columns: ParamTableColumn[] = [
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'ms.assertion.responseHeader', // 响应头
       dataIndex: 'header',
@@ -71,15 +71,19 @@
       showInTable: true,
       showDrag: true,
     },
-    {
-      title: '',
-      columnTitle: 'common.operation',
-      slotName: 'operation',
-      width: 50,
-      showInTable: true,
-      showDrag: true,
-    },
-  ];
+    ...(props.disabled
+      ? []
+      : [
+          {
+            title: '',
+            columnTitle: 'common.operation',
+            slotName: 'operation',
+            width: 50,
+            showInTable: true,
+            showDrag: true,
+          },
+        ]),
+  ]);
 
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     condition.value.assertions = [...resultArr];

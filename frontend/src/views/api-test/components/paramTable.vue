@@ -424,7 +424,7 @@
       <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
     <!-- 操作 -->
-    <template #operation="{ record, rowIndex, columnConfig }">
+    <template v-if="!props.disabledExceptParam" #operation="{ record, rowIndex, columnConfig }">
       <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
@@ -829,6 +829,7 @@
           addTableLine(arr.length - 1, false, true);
         }
       } else {
+        if (props.disabledExceptParam) return;
         const id = new Date().getTime().toString();
         paramsData.value = [
           {
