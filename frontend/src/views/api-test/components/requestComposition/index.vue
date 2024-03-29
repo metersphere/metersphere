@@ -1481,6 +1481,9 @@
         } finally {
           saveCaseLoading.value = false;
         }
+      } else {
+        saveCaseLoading.value = false;
+        done(false);
       }
     });
   }
