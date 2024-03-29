@@ -58,7 +58,7 @@ export default {
       project: 'Project',
       organization: 'Organization',
       save: 'Save',
-      reset: 'Restore default',
+      reset: 'Undo',
       name: 'Name',
       email: 'Email',
       operation: 'Operation',

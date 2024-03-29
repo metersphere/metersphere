@@ -57,7 +57,7 @@ export default {
       project: '项目',
       organization: '组织',
       save: '保存',
-      reset: '恢复默认',
+      reset: '撤销修改',
       name: '姓名',
       email: '邮箱',
       operation: '操作',

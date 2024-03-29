@@ -335,7 +335,7 @@
             drawerLoading.value = true;
             fieldDefaultValues.value = [...list];
             if (showOptionsSelect.value) {
-              let startPos = 5000;
+              let startPos = 1;
               fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
                 const currentItem: FieldOptions = {
                   text: item.text,
@@ -345,11 +345,10 @@
                 if (item.fieldId) {
                   currentItem.fieldId = item.fieldId;
                 }
-                startPos += 5000;
+                startPos += 1;
                 return currentItem;
               });
             }
-            console.log(fieldForm.value.options);
             await cb();
           } catch (error) {
             // eslint-disable-next-line no-console

@@ -336,7 +336,6 @@
       scroll: { x: scrollWidth.value },
       selectable: true,
       showSetting: true,
-      showJumpMethod: true,
       heightUsed: 380,
       enableDrag: true,
     },

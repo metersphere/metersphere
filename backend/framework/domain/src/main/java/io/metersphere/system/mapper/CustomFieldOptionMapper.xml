@@ -6,7 +6,7 @@
     <id column="value" jdbcType="VARCHAR" property="value" />
     <result column="text" jdbcType="VARCHAR" property="text" />
     <result column="internal" jdbcType="BIT" property="internal" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="pos" jdbcType="INTEGER" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -105,7 +105,7 @@
     insert into custom_field_option (field_id, `value`, `text`, 
       internal, pos)
     values (#{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, 
-      #{internal,jdbcType=BIT}, #{pos,jdbcType=BIGINT})
+      #{internal,jdbcType=BIT}, #{pos,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.CustomFieldOption">
     insert into custom_field_option
@@ -140,7 +140,7 @@
         #{internal,jdbcType=BIT},
       </if>
       <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
+        #{pos,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -166,7 +166,7 @@
         internal = #{record.internal,jdbcType=BIT},
       </if>
       <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
+        pos = #{record.pos,jdbcType=INTEGER},
       </if>
     </set>
     <if test="_parameter != null">
@@ -179,7 +179,7 @@
       `value` = #{record.value,jdbcType=VARCHAR},
       `text` = #{record.text,jdbcType=VARCHAR},
       internal = #{record.internal,jdbcType=BIT},
-      pos = #{record.pos,jdbcType=BIGINT}
+      pos = #{record.pos,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -194,7 +194,7 @@
         internal = #{internal,jdbcType=BIT},
       </if>
       <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
+        pos = #{pos,jdbcType=INTEGER},
       </if>
     </set>
     where field_id = #{fieldId,jdbcType=VARCHAR}
@@ -204,7 +204,7 @@
     update custom_field_option
     set `text` = #{text,jdbcType=VARCHAR},
       internal = #{internal,jdbcType=BIT},
-      pos = #{pos,jdbcType=BIGINT}
+      pos = #{pos,jdbcType=INTEGER}
     where field_id = #{fieldId,jdbcType=VARCHAR}
       and `value` = #{value,jdbcType=VARCHAR}
   </update>
@@ -214,7 +214,7 @@
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}, #{item.text,jdbcType=VARCHAR}, 
-        #{item.internal,jdbcType=BIT}, #{item.pos,jdbcType=BIGINT})
+        #{item.internal,jdbcType=BIT}, #{item.pos,jdbcType=INTEGER})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -240,7 +240,7 @@
           #{item.internal,jdbcType=BIT}
         </if>
         <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
+          #{item.pos,jdbcType=INTEGER}
         </if>
       </foreach>
       )

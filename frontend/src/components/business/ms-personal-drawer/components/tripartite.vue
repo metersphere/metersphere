@@ -21,7 +21,13 @@
               size="16"
             />
           </a-tooltip>
-          <MsTag theme="light" :type="tagMap[config.status].type" size="small" class="px-[4px]">
+          <MsTag
+            theme="light"
+            :type="tagMap[config.status].type"
+            :self-style="tagMap[config.status].style"
+            size="small"
+            class="px-[4px]"
+          >
             {{ tagMap[config.status].text }}
           </MsTag>
         </div>
@@ -59,19 +65,32 @@
   interface TagMapItem {
     type: TagType;
     text: string;
+    style: Record<string, any>;
   }
   const tagMap: Record<Status, TagMapItem> = {
     0: {
       type: 'default',
       text: t('ms.personal.unValid'),
+      style: {
+        backgroundColor: '',
+        color: '',
+      },
     },
     1: {
       type: 'success',
       text: t('ms.personal.validPass'),
+      style: {
+        backgroundColor: 'rgb(var(--success-2))',
+        color: 'rgb(var(--success-6))',
+      },
     },
     2: {
       type: 'danger',
       text: t('ms.personal.validFail'),
+      style: {
+        backgroundColor: 'rgb(var(--danger-2))',
+        color: 'rgb(var(--danger-6))',
+      },
     },
   };
 
@@ -164,27 +183,31 @@
   }
 
   async function validate(config: any) {
-    try {
-      config.validateLoading = true;
-      const configForms: Record<string, any> = {};
-      Object.keys(dynamicForm.value).forEach((key) => {
-        configForms[key] = {
-          ...dynamicForm.value[key].formModel.form,
-        };
-      });
-      await validatePlatform(config.key, currentOrg.value, config.formModel.form);
-      await savePlatform({
-        [currentOrg.value]: configForms,
-      });
-      Message.success(t('ms.personal.validPass'));
-      config.status = 1;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      config.status = 2;
-    } finally {
-      config.validateLoading = false;
-    }
+    config.formModel.validate(async (valid: any) => {
+      if (valid === true) {
+        try {
+          config.validateLoading = true;
+          const configForms: Record<string, any> = {};
+          Object.keys(dynamicForm.value).forEach((key) => {
+            configForms[key] = {
+              ...dynamicForm.value[key].formModel.form,
+            };
+          });
+          await validatePlatform(config.key, currentOrg.value, config.formModel.form);
+          await savePlatform({
+            [currentOrg.value]: configForms,
+          });
+          Message.success(t('ms.personal.validPass'));
+          config.status = 1;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+          config.status = 2;
+        } finally {
+          config.validateLoading = false;
+        }
+      }
+    });
   }
 
   async function handleOrgChange() {
