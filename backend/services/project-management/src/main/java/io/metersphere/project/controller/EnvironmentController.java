@@ -132,7 +132,6 @@ public class EnvironmentController {
 
     @GetMapping("/get-options/{projectId}")
     @Operation(summary = "项目管理-环境-环境目录-列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<EnvironmentOptionsDTO> list(@PathVariable String projectId) {
         return environmentService.listOption(projectId);

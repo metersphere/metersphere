@@ -264,7 +264,7 @@
 
     // 判断是否已存在type为NONE的数据 如果存在则不允许添加 数量大于1 则提示
     const noneData = store.currentEnvDetailInfo.config.httpConfig.filter((item) => item.type === 'NONE');
-    if (noneData.length >= 1) {
+    if (noneData.length >= 1 && (props.isCopy || !props.currentId)) {
       Message.error(t('project.environmental.http.noneDataExist'));
       return;
     }
@@ -326,6 +326,9 @@
   const title = ref<string>('');
   watchEffect(() => {
     title.value = props.currentId ? t('project.environmental.http.edit') : t('project.environmental.http.add');
+    if (props.isCopy) {
+      title.value = t('project.environmental.http.copy');
+    }
     if (props.currentId) {
       const currentItem = store.currentEnvDetailInfo.config.httpConfig.find(
         (item) => item.id === props.currentId

@@ -103,7 +103,7 @@ const useProjectEnvStore = defineStore(
           currentEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
             name: '',
-            config: envParamsDefaultConfig,
+            config: cloneDeep(envParamsDefaultConfig),
           };
           backupEnvDetailInfo.value = {
             projectId: appStore.currentProjectId,
