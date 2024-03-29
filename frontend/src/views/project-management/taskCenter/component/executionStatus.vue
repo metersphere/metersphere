@@ -48,11 +48,11 @@
         label: 'project.taskCenter.inExecution',
         color: '!text-[rgb(var(--link-6))]',
       },
-      RERUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'project.taskCenter.rerun',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+      // RERUNNING: {
+      //   icon: 'icon-icon_testing',
+      //   label: 'project.taskCenter.rerun',
+      //   color: '!text-[rgb(var(--link-6))]',
+      // },
       PENDING: {
         icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
@@ -82,11 +82,11 @@
         label: 'project.taskCenter.inExecution',
         color: '!text-[rgb(var(--link-6))]',
       },
-      RERUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'project.taskCenter.rerun',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+      // RERUNNING: {
+      //   icon: 'icon-icon_testing',
+      //   label: 'project.taskCenter.rerun',
+      //   color: '!text-[rgb(var(--link-6))]',
+      // },
       PENDING: {
         icon: 'icon-icon_block_filled',
         label: 'project.taskCenter.queuing',
@@ -133,11 +133,11 @@
         label: 'project.taskCenter.inExecution',
         color: '!text-[rgb(var(--link-6))]',
       },
-      RERUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'project.taskCenter.rerun',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+      // RERUNNING: {
+      //   icon: 'icon-icon_testing',
+      //   label: 'project.taskCenter.rerun',
+      //   color: '!text-[rgb(var(--link-6))]',
+      // },
       ERROR: {
         icon: 'icon-icon_close_colorful',
         label: 'project.taskCenter.failure',

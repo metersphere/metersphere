@@ -173,6 +173,19 @@
     showBatchExecute.value = false;
   }
 
+  function resetBatchExecuteForm() {
+    batchExecuteForm.value = {
+      defaultEnv: 'true',
+      runMode: 'SERIAL',
+      integratedReport: 'false',
+      integratedReportName: '',
+      stopOnFailure: false,
+      poolId: '',
+      grouped: false,
+      environmentId: '',
+    };
+  }
+
   function handleBatchExecuteCase() {
     batchExecuteFormRef.value?.validate(async (errors) => {
       const { batchParams } = props;
@@ -201,11 +214,13 @@
           });
           Message.success(t('case.detail.execute.success'));
           cancelBatchExecute();
+          resetBatchExecuteForm();
           emit('finished');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
         } finally {
+          resetBatchExecuteForm();
           batchExecuteLoading.value = false;
         }
       }

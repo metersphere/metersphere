@@ -282,7 +282,7 @@ export enum ScenarioAddStepActionType {
 export enum ExecuteStatusFilters {
   PENDING = 'PENDING',
   RUNNING = 'RUNNING',
-  RERUNNING = 'RERUNNING',
+  // RERUNNING = 'RERUNNING',
   ERROR = 'ERROR',
   SUCCESS = 'SUCCESS',
   FAKE_ERROR = 'FAKE_ERROR',

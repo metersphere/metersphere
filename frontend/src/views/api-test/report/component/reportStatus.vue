@@ -63,11 +63,11 @@
         label: 'report.status.running',
         color: '!text-[rgb(var(--link-6))]',
       },
-      RERUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'report.status.rerunning',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+      // RERUNNING: {
+      //   icon: 'icon-icon_testing',
+      //   label: 'report.status.rerunning',
+      //   color: '!text-[rgb(var(--link-6))]',
+      // },
       PENDING: {
         icon: 'icon-icon_block_filled',
         label: 'report.status.pending',
@@ -102,11 +102,11 @@
         label: 'report.status.running',
         color: '!text-[rgb(var(--link-6))]',
       },
-      RERUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'report.status.rerunning',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+      // RERUNNING: {
+      //   icon: 'icon-icon_testing',
+      //   label: 'report.status.rerunning',
+      //   color: '!text-[rgb(var(--link-6))]',
+      // },
       PENDING: {
         icon: 'icon-icon_wait',
         label: 'report.status.pending',

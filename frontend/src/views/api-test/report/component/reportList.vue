@@ -225,6 +225,10 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -234,6 +238,10 @@
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
       showInTable: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 150,
       showDrag: true,
       titleSlotName: 'triggerModeFilter',
