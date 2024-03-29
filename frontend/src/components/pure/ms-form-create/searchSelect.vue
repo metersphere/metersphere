@@ -83,16 +83,6 @@
   }, 300);
 
   watch(
-    () => props.modelValue,
-    (val) => {
-      if (val) {
-        selectValue.value = val as any;
-      }
-    },
-    { immediate: true }
-  );
-
-  watch(
     () => props.keyword,
     (val) => {
       if (val) {
@@ -115,6 +105,9 @@
   watchEffect(() => {
     if (props.options) {
       optionsList.value = props.options;
+    }
+    if (props.modelValue) {
+      selectValue.value = props.modelValue;
     }
   });
 

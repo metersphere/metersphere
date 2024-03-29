@@ -3,47 +3,30 @@
     ref="popoverRef"
     :popup-visible="currentVisible"
     position="bottom"
-    trigger="click"
     class="ms-pop-confirm--hidden-icon"
-    :content-class="props.id ? 'move-left' : ''"
     :ok-loading="loading"
+    :on-before-ok="handleBeforeOk"
     :cancel-button-props="{ disabled: loading }"
     @popup-visible-change="reset"
   >
     <template #content>
-      <div class="mb-[1px] text-[14px] font-medium text-[var(--color-text-1)]">{{
+      <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{
         props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
       }}</div>
       <div v-outer="handleOutsideClick">
-        <div class="form">
-          <a-form ref="formRef" :model="form" layout="vertical">
-            <a-form-item field="name" :rules="[{ validator: validateName }]">
-              <a-input
-                v-model="form.name"
-                class="w-[245px]"
-                :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
-                allow-clear
-                :max-length="255"
-                @press-enter="handleBeforeOk"
-                @keyup.esc="handleCancel"
-              />
-            </a-form-item>
-          </a-form>
-        </div>
-        <!-- <div class="mb-1 mt-4 flex flex-row flex-nowrap justify-end gap-2">
-          <a-button type="secondary" size="mini" :disabled="loading" @click="handleCancel">
-            {{ t('common.cancel') }}
-          </a-button>
-          <a-button
-            type="primary"
-            size="mini"
-            :loading="loading"
-            :disabled="form.name.length === 0"
-            @click="handleBeforeOk"
-          >
-            {{ t('common.confirm') }}
-          </a-button>
-        </div> -->
+        <a-form ref="formRef" :model="form" layout="vertical">
+          <a-form-item class="hidden-item" field="name" :rules="[{ validator: validateName }]">
+            <a-input
+              v-model="form.name"
+              class="w-[245px]"
+              :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
+              allow-clear
+              :max-length="255"
+              @press-enter="handleBeforeOk(undefined)"
+              @keyup.esc="handleCancel"
+            />
+          </a-form-item>
+        </a-form>
       </div>
     </template>
     <slot></slot>
@@ -118,43 +101,43 @@
     emit('cancel', false);
   };
 
-  const handleBeforeOk = () => {
+  const handleBeforeOk = (done?: (closed: boolean) => void) => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      if (errors) {
-        return false;
-      }
-      // let res: EnvListItem;
-      try {
-        loading.value = true;
+      if (!errors) {
+        try {
+          loading.value = true;
 
-        if (props.type === EnvAuthScopeEnum.PROJECT) {
-          await updateOrAddEnv({ fileList: [], request: { ...store.currentEnvDetailInfo, name: form.name } });
-        } else {
-          const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
-          if (id) {
-            const detail: Record<string, any> = await getGroupDetailEnv(id);
-            const envGroupProject = detail?.environmentGroupInfo.filter(
-              (item: any) => item.projectId && item.environmentId
-            );
-            const params = {
-              id,
-              name: form.name,
-              description: detail.description,
-              projectId: appStore.currentProjectId,
-              envGroupProject,
-            };
+          if (props.type === EnvAuthScopeEnum.PROJECT) {
+            await updateOrAddEnv({ fileList: [], request: { ...store.currentEnvDetailInfo, name: form.name } });
+          } else {
+            const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
+            if (id) {
+              const detail: Record<string, any> = await getGroupDetailEnv(id);
+              const envGroupProject = detail?.environmentGroupInfo.filter(
+                (item: any) => item.projectId && item.environmentId
+              );
+              const params = {
+                id,
+                name: form.name,
+                description: detail.description,
+                projectId: appStore.currentProjectId,
+                envGroupProject,
+              };
 
-            await groupUpdateEnv(params);
+              await groupUpdateEnv(params);
+            }
           }
+          Message.success(t('project.fileManagement.renameSuccess'));
+          emit('success');
+          handleCancel();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error);
+        } finally {
+          loading.value = false;
         }
-        Message.success(t('project.fileManagement.renameSuccess'));
-        emit('success');
-        handleCancel();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      } finally {
-        loading.value = false;
+      } else if (done) {
+        done(false);
       }
     });
   };

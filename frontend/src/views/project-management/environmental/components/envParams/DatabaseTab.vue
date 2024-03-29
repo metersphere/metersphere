@@ -7,6 +7,7 @@
       v-model="keyword"
       class="w-[240px]"
       allow-clear
+      :placeholder="t('project.menu.nameSearch')"
       @press-enter="fetchData"
       @search="fetchData"
     ></a-input-search>

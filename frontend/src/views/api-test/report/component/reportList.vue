@@ -27,7 +27,7 @@
       <template #name="{ record, rowIndex }">
         <div
           type="text"
-          class="one-text-line flex w-full text-[rgb(var(--primary-5))]"
+          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showReportDetail(record.id, rowIndex, record.integrated)"
           >{{ characterLimit(record.name) }}</div
         >
@@ -87,8 +87,12 @@
           </a-button>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusListFilters" direction="vertical" size="small">
+              <div class="flex items-center justify-center px-[6px] py-[2px]">
+                <a-checkbox-group
+                  v-model:model-value="statusListFiltersMap[showType]"
+                  direction="vertical"
+                  size="small"
+                >
                   <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
                     <ExecutionStatus :module-type="props.moduleType" :status="key" />
                   </a-checkbox>
@@ -153,6 +157,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -190,7 +195,6 @@
   const statusFilterVisible = ref(false);
   const triggerModeFilterVisible = ref(false);
 
-  const statusListFilters = ref<string[]>([]);
   const triggerModeListFilters = ref<string[]>([]);
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
@@ -251,8 +255,9 @@
       slotName: 'createUserName',
       dataIndex: 'createUserName',
       showInTable: true,
-      width: 200,
+      width: 300,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'report.operating',
@@ -303,6 +308,15 @@
     }),
     rename
   );
+  // 全部过滤条件
+  const allListFilters = ref<string[]>([]);
+  const independentListFilters = ref<string[]>([]);
+  const integratedListFilters = ref<string[]>([]);
+  const statusListFiltersMap = ref<Record<string, string[]>>({
+    all: allListFilters.value,
+    INDEPENDENT: independentListFilters.value,
+    INTEGRATED: integratedListFilters.value,
+  });
 
   function initData() {
     setLoadListParams({
@@ -310,7 +324,7 @@
       projectId: appStore.currentProjectId,
       moduleType: props.moduleType,
       filter: {
-        status: statusListFilters.value,
+        status: statusListFiltersMap.value[showType.value],
         integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
         triggerMode: triggerModeListFilters.value,
       },
@@ -342,7 +356,7 @@
       selectIds: params?.selectedIds || [],
       condition: {
         filter: {
-          status: statusListFilters.value,
+          status: statusListFiltersMap.value[showType.value],
           integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
           triggerMode: triggerModeListFilters.value,
         },
@@ -429,7 +443,7 @@
 
   function resetStatusFilter() {
     statusFilterVisible.value = false;
-    statusListFilters.value = [];
+    statusListFiltersMap.value[showType.value] = [];
     initData();
   }
 

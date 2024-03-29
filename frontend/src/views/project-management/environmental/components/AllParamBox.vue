@@ -30,7 +30,6 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { EnvConfigItem } from '@/models/projectManagement/environmental';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const projectEnvStore = useProjectEnvStore();
   const appStore = useAppStore();

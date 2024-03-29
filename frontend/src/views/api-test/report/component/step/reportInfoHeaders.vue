@@ -15,7 +15,7 @@
         option-size="small"
         class="w-full"
         :multiple="false"
-        :options="cascaderOptions || []"
+        :options="filterOptions || []"
         :virtual-list-props="{ height: 200 }"
         :placeholder="t('report.detail.api.filterPlaceholder')"
       >
@@ -49,6 +49,7 @@
   const props = defineProps<{
     activeTab: 'tiled' | 'tab';
     keyword: string;
+    showType: 'API' | 'CASE';
   }>();
 
   const emit = defineEmits(['update:activeTab', 'update:keyword']);
@@ -101,6 +102,9 @@
       children: createChildOption(ScenarioStepType.CUSTOM_REQUEST),
     },
   ]);
+  const filterOptions = computed(() =>
+    props.showType === 'API' ? cascaderOptions.value : cascaderOptions.value.slice(-1)
+  );
 </script>
 
 <style scoped lang="less"></style>

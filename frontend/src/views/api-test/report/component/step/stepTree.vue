@@ -71,7 +71,7 @@
                 </a-tooltip>
               </div>
               <div class="flex">
-                <stepStatus v-if="step.status" :status="step.status" />
+                <stepStatus :status="step.status || 'PENDING'" />
                 <!-- 脚本报错 -->
                 <a-popover position="left" content-class="response-popover-content">
                   <MsTag
@@ -94,9 +94,13 @@
                 </a-popover>
                 <div v-show="showStatus(step)" class="flex">
                   <span class="statusCode mx-2">
-                    <div class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
+                    <div v-if="step.code" class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
                     <a-popover position="left" content-class="response-popover-content">
-                      <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor(step.code) }">
+                      <div
+                        v-if="step.code"
+                        class="one-line-text max-w-[200px]"
+                        :style="{ color: statusCodeColor(step.code) }"
+                      >
                         {{ step.code || '-' }}
                       </div>
                       <template #content>
@@ -109,25 +113,39 @@
                       </template>
                     </a-popover>
                   </span>
-                  <span class="resTime">
+
+                  <span v-if="step.requestTime !== null" class="resTime">
                     {{ t('report.detail.api.responseTime') }}
-                    <span class="resTimeCount ml-2"
-                      >{{ step.requestTime ? formatDuration(step.requestTime).split('-')[0] : '-'
-                      }}{{ step.requestTime ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
-                    ></span
-                  >
-                  <a-popover position="left" content-class="response-popover-content">
-                    <span class="resSize">
-                      {{ t('report.detail.api.responseSize') }}
-                      <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
-                    >
-                    <template #content>
-                      <span class="resSize">
-                        {{ t('report.detail.api.responseSize') }}
-                        <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                    <a-popover position="left" content-class="response-popover-content">
+                      <span class="resTimeCount ml-2"
+                        >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
+                        }}{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
                       >
-                    </template>
-                  </a-popover>
+                      <template #content>
+                        <span v-if="step.requestTime !== null" class="resTime">
+                          {{ t('report.detail.api.responseTime') }}
+                          <span class="resTimeCount ml-2"
+                            >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
+                            }}{{
+                              step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
+                            }}</span
+                          ></span
+                        >
+                      </template>
+                    </a-popover></span
+                  >
+                  <span v-if="step.responseSize !== null" class="resSize">
+                    {{ t('report.detail.api.responseSize') }}
+                    <a-popover position="left" content-class="response-popover-content">
+                      <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span>
+                      <template #content>
+                        <span class="resSize">
+                          {{ t('report.detail.api.responseSize') }}
+                          <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                        >
+                      </template>
+                    </a-popover></span
+                  >
                 </div>
               </div>
             </div>

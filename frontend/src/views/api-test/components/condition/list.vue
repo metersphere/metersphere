@@ -113,6 +113,12 @@
     return data.value.filter((item: any) => item.processorType === RequestConditionProcessor.EXTRACT).length > 0;
   });
 
+  const hasSql = computed(
+    () =>
+      data.value.filter((item: any) => item.processorType === RequestConditionProcessor.SQL).length > 0 &&
+      props.showPrePostRequest
+  );
+
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -131,7 +137,7 @@
   watchEffect(() => {
     activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
     emit('activeChange', activeItem.value);
-    if (hasPreAndPost.value || hasEXTRACT.value) {
+    if (hasPreAndPost.value || hasEXTRACT.value || hasSql.value) {
       moreActions = itemMoreActions.slice(-1);
     } else {
       moreActions = itemMoreActions;

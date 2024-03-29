@@ -51,13 +51,13 @@
           <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
             <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
-              <span v-if="item.deleted" class="one-text-line ml-[16px] max-w-[300px] break-words break-all">
+              <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
                 {{ characterLimit(item.reviewName) }}
               </span>
 
               <span
                 v-else
-                class="one-text-line ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
                 @click="review(item)"
               >
                 {{ characterLimit(item.reviewName) }}

@@ -38,6 +38,7 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
+              size="mini"
               :disabled="props.disabled"
               :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
@@ -133,6 +134,7 @@
               :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
+              size="mini"
               :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
@@ -281,6 +283,7 @@
               :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
+              size="mini"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -457,7 +460,6 @@
       dataIndex: 'condition',
       slotName: 'condition',
       options: statusCodeOptions,
-      width: 120,
     },
     {
       title: 'ms.assertion.matchValue',
