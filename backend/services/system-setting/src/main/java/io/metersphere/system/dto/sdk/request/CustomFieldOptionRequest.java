@@ -22,5 +22,5 @@ public class CustomFieldOptionRequest {
 
     @Schema(title = "选项值顺序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{custom_field_option.pos.not_blank}", groups = {Created.class})
-    private Long pos;
+    private Integer pos;
 }

@@ -384,52 +384,52 @@ public class CustomFieldOptionExample {
             return (Criteria) this;
         }
 
-        public Criteria andPosEqualTo(Long value) {
+        public Criteria andPosEqualTo(Integer value) {
             addCriterion("pos =", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotEqualTo(Long value) {
+        public Criteria andPosNotEqualTo(Integer value) {
             addCriterion("pos <>", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThan(Long value) {
+        public Criteria andPosGreaterThan(Integer value) {
             addCriterion("pos >", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThanOrEqualTo(Long value) {
+        public Criteria andPosGreaterThanOrEqualTo(Integer value) {
             addCriterion("pos >=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThan(Long value) {
+        public Criteria andPosLessThan(Integer value) {
             addCriterion("pos <", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThanOrEqualTo(Long value) {
+        public Criteria andPosLessThanOrEqualTo(Integer value) {
             addCriterion("pos <=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosIn(List<Long> values) {
+        public Criteria andPosIn(List<Integer> values) {
             addCriterion("pos in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotIn(List<Long> values) {
+        public Criteria andPosNotIn(List<Integer> values) {
             addCriterion("pos not in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosBetween(Long value1, Long value2) {
+        public Criteria andPosBetween(Integer value1, Integer value2) {
             addCriterion("pos between", value1, value2, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotBetween(Long value1, Long value2) {
+        public Criteria andPosNotBetween(Integer value1, Integer value2) {
             addCriterion("pos not between", value1, value2, "pos");
             return (Criteria) this;
         }

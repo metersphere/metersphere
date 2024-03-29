@@ -92,7 +92,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
-        customFieldOptionRequest.setPos(5000L);
+        customFieldOptionRequest.setPos(1);
         request.setEnableOptionKey(true);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
@@ -166,7 +166,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("11112");
         customFieldOptionRequest.setText("test1");
-        customFieldOptionRequest.setPos(5000L);
+        customFieldOptionRequest.setPos(1);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
         this.requestPostWithOk(DEFAULT_UPDATE, request);

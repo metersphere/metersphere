@@ -242,7 +242,6 @@
       selectable: hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       heightUsed: 288,
       showSetting: true,
-      showJumpMethod: true,
       size: 'default',
     },
     (record) => {

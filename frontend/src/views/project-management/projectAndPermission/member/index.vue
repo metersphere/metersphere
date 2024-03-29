@@ -92,7 +92,7 @@
   /**
    * @description 项目管理-项目与权限-成员
    */
-  import { onMounted, ref } from 'vue';
+  import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { isEqual } from 'lodash-es';
 
@@ -115,7 +115,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit, formatPhoneNumber, sleep } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -205,7 +205,6 @@
       selectable: !!hasAnyPermission(['PROJECT_USER:READ+DELETE', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       showSetting: true,
       heightUsed: 288,
-      showJumpMethod: true,
       scroll: {
         x: 1200,
       },
@@ -399,7 +398,7 @@
     initData();
   });
 
-  tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
 
 <style scoped></style>

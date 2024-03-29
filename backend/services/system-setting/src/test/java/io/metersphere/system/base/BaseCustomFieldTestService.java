@@ -48,7 +48,7 @@ public class BaseCustomFieldTestService {
             CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
             customFieldOptionRequest.setValue(OPTION_VALUE);
             customFieldOptionRequest.setText("test");
-            customFieldOptionRequest.setPos(5000L);
+            customFieldOptionRequest.setPos(1);
             List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
             CustomField customField = new CustomField();
             customField.setType(customFieldType.name());

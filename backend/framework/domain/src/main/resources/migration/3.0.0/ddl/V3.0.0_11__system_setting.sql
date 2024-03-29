@@ -373,7 +373,7 @@ CREATE TABLE IF NOT EXISTS custom_field_option(
     `value` VARCHAR(50) NOT NULL   COMMENT '选项值' ,
     `text` VARCHAR(255) NOT NULL   COMMENT '选项值名称' ,
     `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否内置' ,
-    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
+    `pos` INT NOT NULL   COMMENT '自定义排序，间隔1' ,
     PRIMARY KEY (field_id,value)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

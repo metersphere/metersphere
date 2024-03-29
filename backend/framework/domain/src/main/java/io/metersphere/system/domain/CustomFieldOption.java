@@ -35,7 +35,7 @@ public class CustomFieldOption implements Serializable {
 
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{custom_field_option.pos.not_blank}", groups = {Created.class})
-    private Long pos;
+    private Integer pos;
 
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +44,7 @@ public class CustomFieldOption implements Serializable {
         value("value", "value", "VARCHAR", true),
         text("text", "text", "VARCHAR", true),
         internal("internal", "internal", "BIT", false),
-        pos("pos", "pos", "BIGINT", false);
+        pos("pos", "pos", "INTEGER", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
