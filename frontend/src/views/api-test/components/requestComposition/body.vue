@@ -98,6 +98,7 @@
       height="100%"
       :show-full-screen="false"
       :show-theme-change="false"
+      :show-code-format="true"
       :language="currentCodeLanguage"
     >
     </MsCodeEditor>
