@@ -61,11 +61,15 @@ public class MockServerService {
 
     public Object execute(String method, Map<String, String> requestHeaderMap, String projectNum, String apiNumInfo, HttpServletRequest request, HttpServletResponse response) {
         ApiDefinition apiDefinition = extApiDefinitionMapper.selectByProjectNumAndApiNum(projectNum, apiNumInfo);
-        if (apiDefinition == null) {
-            return this.requestNotFound(response);
-        }
         String url = request.getRequestURL().toString();
         String requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNumInfo), request);
+        if (apiDefinition == null) {
+            requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum), request);
+            apiDefinition = this.selectByProjectNumAndUrl(projectNum, method, requestUrlSuffix);
+            if (apiDefinition == null) {
+                return this.requestNotFound(response);
+            }
+        }
 
         if (StringUtils.equalsIgnoreCase(method, apiDefinition.getMethod()) && !MockServerUtils.checkUrlMatch(apiDefinition.getPath(), requestUrlSuffix)) {
             return this.requestNotFound(response);
@@ -79,6 +83,19 @@ public class MockServerService {
         } catch (Exception e) {
             return this.requestNotFound(response);
         }
+    }
+
+    private ApiDefinition selectByProjectNumAndUrl(String projectNum, String method, String requestUrlSuffix) {
+        List<ApiDefinition> apiDefinitionList = extApiDefinitionMapper.selectByProjectNum(projectNum);
+
+        ApiDefinition apiDefinition = null;
+        for (ApiDefinition checkDefinition : apiDefinitionList) {
+            if (StringUtils.equalsIgnoreCase(method, checkDefinition.getMethod()) && MockServerUtils.checkUrlMatch(checkDefinition.getPath(), requestUrlSuffix)) {
+                apiDefinition = checkDefinition;
+                break;
+            }
+        }
+        return apiDefinition;
     }
 
     private ApiDefinitionMockConfig match(String apiId, Map<String, String> requestHeaderMap, HttpRequestParam requestMockParams) {
