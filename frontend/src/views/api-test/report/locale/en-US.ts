@@ -76,7 +76,7 @@ export default {
   'report.detail.api.reportCreator': 'Report creator',
   'report.detail.api.runMode': 'Run mode',
   'report.detail.api.copyLink': 'Copy link',
-  'report.detail.api.copyLinkTimeEnd': '(Valid 24 hours)',
+  'report.detail.api.copyLinkTimeEnd': '(Valid {time})',
   'report.detail.api.defaultEnv': 'Default environment',
   'report.detail.api.caseSaveEnv': 'Case saved environment',
   'report.detail.api.scenarioSavedEnv': 'Scenario saved environment',

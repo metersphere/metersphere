@@ -19,4 +19,7 @@ public class ApiReportShareDTO {
     
     @Schema(description = "分享扩展数据 资源的id" ,requiredMode = Schema.RequiredMode.REQUIRED)
     private String reportId;
+
+    @Schema(description = "分享链接是否被删")
+    private Boolean deleted;
 }

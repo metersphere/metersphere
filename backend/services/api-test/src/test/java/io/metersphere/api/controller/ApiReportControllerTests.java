@@ -463,6 +463,14 @@ public class ApiReportControllerTests extends BaseTest {
         this.requestGetWithOk("/api/report/share/get/" + shareId)
                 .andReturn();
 
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey("test-report-id");
+        apiReport.setDeleted(true);
+        apiReportMapper.updateByPrimaryKey(apiReport);
+        this.requestGetWithOk("/api/report/share/get/" + shareId)
+                .andReturn();
+        apiReport.setDeleted(false);
+        apiReportMapper.updateByPrimaryKey(apiReport);
+
         mockMvc.perform(getRequestBuilder("/api/report/share/get/" + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());

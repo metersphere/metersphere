@@ -19,6 +19,7 @@
       <div class="rightButtons flex items-center">
         <a-dropdown position="br" @select="shareHandler">
           <MsButton
+            v-permission="['PROJECT_API_REPORT:READ+SHARE']"
             type="icon"
             status="secondary"
             class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -32,7 +33,7 @@
           <template #content>
             <a-doption>
               <span>{{ t('report.detail.api.copyLink') }}</span
-              ><span>{{ t('report.detail.api.copyLinkTimeEnd') }}</span>
+              ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: shareTime }) }}</span>
             </a-doption>
           </template>
         </a-dropdown>
@@ -66,12 +67,14 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import ScenarioCom from './scenarioCom.vue';
 
-  import { getShareInfo, reportScenarioDetail } from '@/api/modules/api-test/report';
+  import { getShareInfo, getShareTime, reportScenarioDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
   import type { ReportDetail } from '@/models/apiTest/report';
   import { RouteEnum } from '@/enums/routeEnum';
+
+  import * as constants from 'constants';
 
   const appStore = useAppStore();
 
@@ -186,6 +189,35 @@
       console.log(error);
     }
   }
+  const shareTime = ref<string>('');
+  async function getTime() {
+    const res = await getShareTime(appStore.currentProjectId);
+    const match = res.match(/^(\d+)([MYHD])$/);
+    if (match) {
+      const value = parseInt(match[1], 10); // 提取值并将其转换为整数
+      const type = match[2]; // 提取类型
+      switch (type) {
+        case 'M':
+          shareTime.value = value + t('msTimeSelector.month');
+          break;
+        case 'Y':
+          shareTime.value = value + t('msTimeSelector.year');
+          break;
+        case 'H':
+          shareTime.value = value + t('msTimeSelector.hour');
+          break;
+        case 'D':
+          shareTime.value = value + t('msTimeSelector.day');
+          break;
+        default:
+          shareTime.value = 24 + t('msTimeSelector.hour');
+          break;
+      }
+    }
+  }
+  onMounted(() => {
+    getTime();
+  });
 
   /**
    * 导出

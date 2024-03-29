@@ -446,6 +446,14 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         this.requestGetWithOk("/api/report/share/get/" + shareId)
                 .andReturn();
 
+        ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey("test-scenario-report-id");
+        scenarioReport.setDeleted(true);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
+        this.requestGetWithOk("/api/report/share/get/" + shareId)
+                .andReturn();
+        scenarioReport.setDeleted(false);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
+
         mockMvc.perform(getRequestBuilder("/api/report/share/get/" + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
@@ -475,6 +483,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertNotNull(shareInfoDTO.getId());
         shareId = shareInfoDTO.getId();
 
+        this.requestGetWithOk("/api/report/share/get-share-time/" + DEFAULT_PROJECT_ID)
+                .andReturn();
         ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
         projectApplicationExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andTypeEqualTo(ShareInfoType.API_SHARE_REPORT.name());
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(projectApplicationExample);
@@ -485,6 +495,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             projectApplication.setTypeValue("1D");
             projectApplicationMapper.insert(projectApplication);
         }
+        this.requestGetWithOk("/api/report/share/get-share-time/" + DEFAULT_PROJECT_ID)
+                .andReturn();
 
         mvcResult1 = this.requestGetWithOk(BASIC + "/share/" + shareId + "/" + "test-scenario-report-id")
                 .andReturn();

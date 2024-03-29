@@ -153,6 +153,10 @@
           },
           {
             "id": "PROJECT_API_REPORT:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_API_REPORT:READ+SHARE",
+            "name": "permission.api_doc.share"
           }
         ]
       }
