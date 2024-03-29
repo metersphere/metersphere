@@ -581,11 +581,11 @@ if (!result){
   AssertionResult.setFailureMessage(msg);
   AssertionResult.setFailure(true);
 }`);
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
-  async function copyScriptEx() {
+  function copyScriptEx() {
     if (isSupported) {
-      await copy(scriptEx.value);
+      copy(scriptEx.value);
       Message.success(t('apiTestDebug.scriptExCopySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));

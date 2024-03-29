@@ -216,10 +216,10 @@
     }
   }
 
-  const { copy, isSupported } = useClipboard();
-  async function copyVersion() {
+  const { copy, isSupported } = useClipboard({ legacy: true });
+  function copyVersion() {
     if (isSupported) {
-      await copy(appStore.version);
+      copy(appStore.version);
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('common.copyNotSupport'));

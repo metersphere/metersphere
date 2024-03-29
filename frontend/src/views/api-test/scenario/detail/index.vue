@@ -156,7 +156,7 @@
     (e: 'updateFollow'): void;
   }>();
 
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
 
   const scenario = defineModel<Scenario>('scenario', {

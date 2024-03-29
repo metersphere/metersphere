@@ -91,10 +91,10 @@
       expandIds.value.push(value);
     }
   }
-  const { copy, isSupported } = useClipboard();
-  async function copyScript() {
+  const { copy, isSupported } = useClipboard({ legacy: true });
+  function copyScript() {
     if (isSupported) {
-      await copy(props.requestResult?.responseResult.body || '');
+      copy(props.requestResult?.responseResult.body || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));

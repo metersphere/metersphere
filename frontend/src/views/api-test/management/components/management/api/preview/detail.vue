@@ -367,7 +367,7 @@
   }>();
 
   const { t } = useI18n();
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   const previewDetail = ref<RequestParam>(props.detail);
   const activeResponse = ref<TabItem & ResponseItem>();
@@ -458,9 +458,9 @@
 
   const activeDetailKey = ref(['request', 'response']);
 
-  async function copyScript(val: string) {
+  function copyScript(val: string) {
     if (isSupported) {
-      await copy(val);
+      copy(val);
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
