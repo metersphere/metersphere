@@ -14,12 +14,24 @@
       >{{ t('project.environmental.addHttp') }}</a-button
     >
     <div class="flex flex-row gap-[8px]">
-      <a-input-number v-model:model-value="form.requestTimeout" :min="0" class="w-[180px]" :disabled="isDisabled">
+      <a-input-number
+        v-model:model-value="form.requestTimeout"
+        :min="0"
+        :step="100"
+        class="w-[180px]"
+        :disabled="isDisabled"
+      >
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
         </template>
       </a-input-number>
-      <a-input-number v-model:model-value="form.responseTimeout" :min="0" class="w-[180px]" :disabled="isDisabled">
+      <a-input-number
+        v-model:model-value="form.responseTimeout"
+        :min="0"
+        :step="100"
+        class="w-[180px]"
+        :disabled="isDisabled"
+      >
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.resTimeOut') }}</span>
         </template>

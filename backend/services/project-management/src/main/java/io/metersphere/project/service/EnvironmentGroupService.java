@@ -21,7 +21,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -39,7 +38,10 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,7 +74,6 @@ public class EnvironmentGroupService extends MoveNodeService{
         environmentGroup.setId(IDGenerator.nextStr());
         this.checkEnvironmentGroup(environmentGroup);
 
-        environmentGroup.setId(UUID.randomUUID().toString());
         environmentGroup.setCreateTime(System.currentTimeMillis());
         environmentGroup.setUpdateTime(System.currentTimeMillis());
         environmentGroup.setCreateUser(userId);
