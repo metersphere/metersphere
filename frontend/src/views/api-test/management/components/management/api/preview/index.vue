@@ -74,7 +74,7 @@
   }>();
   const emit = defineEmits(['updateFollow']);
 
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
 
   const previewDetail = ref<RequestParam>(cloneDeep(props.detail));

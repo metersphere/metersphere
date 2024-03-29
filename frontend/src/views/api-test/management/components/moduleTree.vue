@@ -236,7 +236,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   const moduleProtocol = ref('HTTP');
   const moduleProtocolOptions = ref<SelectOptionData[]>([]);

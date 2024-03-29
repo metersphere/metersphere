@@ -111,11 +111,11 @@
     default: ResponseComposition.BODY,
   });
 
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
-  async function copyScript() {
+  function copyScript() {
     if (isSupported) {
-      await copy(props.requestResult?.responseResult.body || '');
+      copy(props.requestResult?.responseResult.body || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
