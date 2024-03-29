@@ -529,6 +529,7 @@
     try {
       appStore.showLoading();
       const res = await getScenarioDetail(typeof record === 'string' ? record : record.id);
+      res.stepFileParam = {};
       res.stepDetails = {};
       if (!res.steps) {
         res.steps = [];
@@ -551,11 +552,15 @@
     }
   });
 
+  const hasLocalExec = computed(() => executeButtonRef.value?.hasLocalExec);
+  const localExecuteUrl = computed(() => executeButtonRef.value?.localExecuteUrl);
   const isPriorityLocalExec = computed(() => executeButtonRef.value?.isPriorityLocalExec);
   const scenarioId = computed(() => activeScenarioTab.value.id);
   const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);
   // 为子孙组件提供属性
   provide('isPriorityLocalExec', readonly(isPriorityLocalExec));
+  provide('hasLocalExec', readonly(hasLocalExec));
+  provide('localExecuteUrl', readonly(localExecuteUrl));
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);

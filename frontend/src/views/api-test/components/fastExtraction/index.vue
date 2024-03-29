@@ -279,6 +279,9 @@
     gap: 12px;
   }
   .code-container {
+    @apply overflow-y-auto;
+    .ms-scroll-bar();
+
     padding: 12px;
     max-height: 400px;
     border-radius: var(--border-radius-small);

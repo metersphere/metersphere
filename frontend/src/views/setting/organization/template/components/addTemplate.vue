@@ -808,11 +808,11 @@
   :deep(.apiFieldIdClass) {
     margin-bottom: 0;
   }
-
   :deep(.systemFieldWrapper) {
     .arco-form-item {
       margin-bottom: 0;
     }
+
     padding: 8px;
     border: 1px solid transparent;
     border-radius: 6px;
@@ -821,11 +821,11 @@
       background: var(--color-text-n9);
     }
   }
-
   .tagWrapper {
     .arco-form-item {
       margin-bottom: 0;
     }
+
     padding: 8px;
     border: 1px solid transparent;
     border-radius: 6px;

@@ -86,7 +86,7 @@
         </div>
         <div class="flex items-center justify-between px-[12px] pt-[12px]">
           <div class="flex items-center">
-            <a-tooltip :content="condition.name">
+            <a-tooltip v-if="condition.name" :content="condition.name">
               <div class="script-name-container">
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
                   {{ condition.name }}

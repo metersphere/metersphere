@@ -1,4 +1,3 @@
-import { useAppStore } from '@/store';
 import { clearToken, hasToken, isLoginExpires } from '@/utils/auth';
 
 import NProgress from 'nprogress'; // progress bar

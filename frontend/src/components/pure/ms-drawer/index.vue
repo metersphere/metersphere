@@ -90,6 +90,7 @@
               v-permission="props.okPermission || []"
               type="secondary"
               :loading="props.okLoading"
+              :disabled="okDisabled"
               @click="handleContinue"
             >
               {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}

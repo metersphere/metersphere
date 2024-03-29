@@ -108,7 +108,6 @@
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import caseTable from '../case/caseTable.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
@@ -230,15 +229,15 @@
       {
         polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
         assertionConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           assertions: [],
         },
         postProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
         preProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
       },

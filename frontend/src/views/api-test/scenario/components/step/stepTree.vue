@@ -88,7 +88,7 @@
                 <!-- 步骤差异内容，按步骤类型展示不同组件 -->
                 <component
                   :is="getStepContent(step)"
-                  :data="step.config"
+                  :data="checkStepIsApi(step) || step.stepType === ScenarioStepType.API_SCENARIO ? step : step.config"
                   :step-id="step.id"
                   @quick-input="setQuickInput(step, $event)"
                   @change="handleStepContentChange($event, step)"
@@ -240,7 +240,8 @@
     </createStepActions>
     <customApiDrawer
       v-model:visible="customApiDrawerVisible"
-      :request="currentStepDetail"
+      :request="currentStepDetail as unknown as RequestParam"
+      :file-params="currentStepFileParams"
       :step="activeStep"
       :step-responses="scenario.stepResponses"
       @add-step="addCustomApiStep"
@@ -251,7 +252,8 @@
     <customCaseDrawer
       v-model:visible="customCaseDrawerVisible"
       :active-step="activeStep"
-      :request="currentStepDetail"
+      :request="currentStepDetail as unknown as RequestParam"
+      :file-params="currentStepFileParams"
       :step-responses="scenario.stepResponses"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep(activeStep)"
@@ -265,11 +267,12 @@
       @quote="handleImportApiApply('quote', $event)"
     />
     <scriptOperationDrawer
-      v-if="scriptOperationDrawerVisible"
       v-model:visible="scriptOperationDrawerVisible"
-      :script="currentStepDetail"
+      :detail="currentStepDetail as unknown as ExecuteConditionProcessor"
+      :step="activeStep"
       :name="activeStep?.name"
-      @save="addScriptStep"
+      @add="addScriptStep"
+      @save="saveScriptStep"
     />
     <a-modal
       v-model:visible="showQuickInput"
@@ -406,7 +409,6 @@
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
-  import responseResult from '@/views/api-test/components/requestComposition/response/index.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
@@ -429,6 +431,8 @@
     CreateStepAction,
     Scenario,
     ScenarioStepConfig,
+    ScenarioStepDetails,
+    ScenarioStepFileParams,
     ScenarioStepItem,
   } from '@/models/apiTest/scenario';
   import { EnvConfig } from '@/models/projectManagement/environmental';
@@ -442,6 +446,7 @@
 
   import type { RequestParam } from '../common/customApiDrawer.vue';
   import useCreateActions from './createAction/useCreateActions';
+  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
 
@@ -451,6 +456,9 @@
   const customCaseDrawer = defineAsyncComponent(() => import('../common/customCaseDrawer.vue'));
   const importApiDrawer = defineAsyncComponent(() => import('../common/importApiDrawer/index.vue'));
   const scriptOperationDrawer = defineAsyncComponent(() => import('../common/scriptOperationDrawer.vue'));
+  const responseResult = defineAsyncComponent(
+    () => import('@/views/api-test/components/requestComposition/response/index.vue')
+  );
 
   const props = defineProps<{
     stepKeyword: string;
@@ -470,13 +478,14 @@
     required: true,
   });
   // 步骤详情映射，存储部分抽屉展示详情的数据
-  const stepDetails = defineModel<Record<string, any>>('stepDetails', {
+  const stepDetails = defineModel<Record<string, ScenarioStepDetails>>('stepDetails', {
     required: true,
   });
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
   });
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
+  const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
   const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
@@ -510,11 +519,10 @@
    * 根据步骤类型获取步骤内容组件
    */
   function getStepContent(step: ScenarioStepItem) {
-    const _stepType = getStepType(step);
-    if (_stepType.isQuoteApi || _stepType.isQuoteCase || _stepType.isQuoteScenario) {
-      return quoteContent;
-    }
     switch (step.stepType) {
+      case ScenarioStepType.API:
+      case ScenarioStepType.API_CASE:
+      case ScenarioStepType.API_SCENARIO:
       case ScenarioStepType.CUSTOM_REQUEST:
         return quoteContent;
       case ScenarioStepType.LOOP_CONTROLLER:
@@ -741,10 +749,15 @@
       case 'copy':
         const id = getGenerateId();
         const stepDetail = stepDetails.value[node.id];
+        const stepFileParam = scenario.value.stepFileParam[node.id];
         const { isQuoteScenario } = getStepType(node as ScenarioStepItem);
         if (stepDetail) {
           // 如果复制的步骤还有详情数据，则也复制详情数据
           stepDetails.value[id] = cloneDeep(stepDetail);
+        }
+        if (stepFileParam) {
+          // 如果复制的步骤还有详情数据，则也复制详情数据
+          scenario.value.stepFileParam[id] = cloneDeep(stepFileParam);
         }
         insertNodes<ScenarioStepItem>(
           steps.value,
@@ -754,10 +767,15 @@
               mapTree<ScenarioStepItem>(node, (childNode) => {
                 const childId = getGenerateId();
                 const childStepDetail = stepDetails.value[node.id];
+                const childStepFileParam = scenario.value.stepFileParam[node.id];
                 let childCopyFromStepId = childNode.id;
                 if (childStepDetail) {
                   // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
                   stepDetails.value[childId] = cloneDeep(childStepDetail);
+                }
+                if (childStepFileParam) {
+                  // 如果复制的步骤还有详情数据，则也复制详情数据
+                  scenario.value.stepFileParam[id] = cloneDeep(childStepFileParam);
                 }
                 if (!isQuoteScenario) {
                   // 非引用场景才处理复制来源 id
@@ -892,24 +910,33 @@
   const customApiDrawerVisible = ref(false);
   const scriptOperationDrawerVisible = ref(false);
   const activeCreateAction = ref<CreateStepAction>(); // 用于抽屉操作创建步骤时记录当前插入类型
-  const currentStepDetail = computed<any>(() => {
-    // TODO: 步骤详情类型
+  const currentStepDetail = computed<ScenarioStepDetails | undefined>(() => {
     if (activeStep.value) {
       return stepDetails.value[activeStep.value.id];
     }
-    return undefined;
+  });
+  const currentStepFileParams = computed<ScenarioStepFileParams | undefined>(() => {
+    if (activeStep.value) {
+      return scenario.value.stepFileParam[activeStep.value.id];
+    }
   });
 
   async function getStepDetail(step: ScenarioStepItem) {
     try {
       appStore.showLoading();
       const res = await getScenarioStep(step.copyFromStepId || step.id);
+      let parseRequestBodyResult;
+      if (step.config.protocol === 'HTTP' && res.body) {
+        parseRequestBodyResult = parseRequestBodyFiles(res.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
       stepDetails.value[step.id] = {
         ...res,
         stepId: step.id,
         protocol: step.config.protocol,
         method: step.config.method,
+        ...parseRequestBodyResult,
       };
+      scenario.value.stepFileParam[step.id] = parseRequestBodyResult;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -947,6 +974,13 @@
       customCaseDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.SCRIPT) {
       activeStep.value = step;
+      if (
+        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+        (stepDetails.value[step.id] === undefined && !step.isNew)
+      ) {
+        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+        await getStepDetail(step);
+      }
       scriptOperationDrawerVisible.value = true;
     }
   }
@@ -971,16 +1005,11 @@
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(
-    step: ScenarioStepItem,
-    reportId: string | number,
-    executeType?: 'localExec' | 'serverExec',
-    localExecuteUrl?: string
-  ) {
+  function debugSocket(step: ScenarioStepItem, reportId: string | number, executeType?: 'localExec' | 'serverExec') {
     websocketMap[reportId] = getSocket(
       reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl : ''
+      executeType === 'localExec' ? localExecuteUrl?.value : ''
     );
     websocketMap[reportId].addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
@@ -1022,13 +1051,12 @@
       ApiScenarioDebugRequest,
       'steps' | 'stepDetails' | 'reportId' | 'uploadFileIds' | 'linkFileIds'
     >,
-    executeType?: 'localExec' | 'serverExec',
-    localExecuteUrl?: string
+    executeType?: 'localExec' | 'serverExec'
   ) {
     const [currentStep] = executeParams.steps;
     try {
       currentStep.isExecuting = true;
-      debugSocket(currentStep, executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
+      debugSocket(currentStep, executeParams.reportId, executeType); // 开启websocket
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
@@ -1044,8 +1072,8 @@
           };
         }),
       });
-      if (executeType === 'localExec' && localExecuteUrl) {
-        await localExecuteApiDebug(localExecuteUrl, res);
+      if (executeType === 'localExec' && localExecuteUrl?.value) {
+        await localExecuteApiDebug(localExecuteUrl.value, res);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -1073,15 +1101,16 @@
       }
       const stepDetail = stepDetails.value[realStep.id];
       delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
+      const stepFileParam = scenario.value.stepFileParam[realStep.id];
       realExecute(
         {
           steps: [realStep as ScenarioStepItem],
           stepDetails: {
-            [realStep.id]: stepDetails.value[realStep.id],
+            [realStep.id]: stepDetail,
           },
           reportId: realStep.reportId,
-          uploadFileIds: stepDetail?.uploadFileIds || [],
-          linkFileIds: stepDetail?.linkFileIds || [],
+          uploadFileIds: stepFileParam?.uploadFileIds || [],
+          linkFileIds: stepFileParam?.linkFileIds || [],
         },
         isPriorityLocalExec?.value ? 'localExec' : 'serverExec'
       );
@@ -1245,6 +1274,12 @@
       customizeRequest: true,
       customizeRequestEnvEnable: request.customizeRequestEnvEnable,
     };
+    scenario.value.stepFileParam[request.stepId] = {
+      linkFileIds: request.linkFileIds,
+      uploadFileIds: request.uploadFileIds,
+      deleteFileIds: request.deleteFileIds,
+      unLinkFileIds: request.unLinkFileIds,
+    };
     emit('updateResource', request.uploadFileIds, request.linkFileIds);
     if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
@@ -1287,7 +1322,13 @@
     }
     if (activeStep.value) {
       request.isNew = false;
-      stepDetails.value[activeStep.value?.id] = request;
+      stepDetails.value[activeStep.value.id] = request;
+      scenario.value.stepFileParam[activeStep.value?.id] = {
+        linkFileIds: request.linkFileIds,
+        uploadFileIds: request.uploadFileIds,
+        deleteFileIds: request.deleteFileIds,
+        unLinkFileIds: request.unLinkFileIds,
+      };
       emit('updateResource', request.uploadFileIds, request.linkFileIds);
       activeStep.value = undefined;
     }
@@ -1335,6 +1376,14 @@
       });
     }
     scenario.value.unSaved = true;
+  }
+
+  function saveScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
+    if (activeStep.value) {
+      stepDetails.value[activeStep.value.id] = cloneDeep(scriptProcessor);
+      activeStep.value.name = name;
+      activeStep.value = undefined;
+    }
   }
 
   /**

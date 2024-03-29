@@ -23,12 +23,12 @@
     <div class="relative w-full">
       <MsCodeEditor
         ref="codeEditorRef"
-        v-model:model-value="innerCodeValue"
+        v-model:model-value="code"
         title=""
         :width="expandMenu ? '100%' : '68%'"
         height="460px"
         theme="vs"
-        :language="innerLanguagesType"
+        :language="language"
         :read-only="props.disabled"
         :show-full-screen="false"
         :show-theme-change="false"
@@ -36,7 +36,7 @@
         <template #rightBox>
           <MsScriptMenu
             v-model:expand="expandMenu"
-            v-model:languagesType="innerLanguagesType"
+            v-model:languagesType="language"
             :disabled="props.disabled"
             @insert="insertHandler"
             @form-api-import="formApiImport"
@@ -48,7 +48,7 @@
   </div>
   <MsCodeEditor
     v-else
-    v-model:model-value="executionResultValue"
+    v-model:model-value="executionResult"
     title=""
     width="100%"
     height="calc(100vh - 155px)"
@@ -60,7 +60,7 @@
   />
   <InsertCommonScript
     v-model:visible="showInsertDrawer"
-    :script-language="innerLanguagesType"
+    :script-language="language"
     :enable-radio-selected="props.enableRadioSelected"
     @save="saveHandler"
   />
@@ -73,7 +73,6 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
@@ -93,43 +92,27 @@
     defineProps<{
       showType: 'commonScript' | 'executionResult'; // 执行类型
       disabled?: boolean;
-      language: Language;
-      code: string;
       enableRadioSelected?: boolean;
-      executionResult?: string; // 执行结果
       showHeader?: boolean;
     }>(),
     {
       showHeader: true,
     }
   );
-  const emit = defineEmits<{
-    (e: 'update:language', value: Language): void;
-    (e: 'update:code', value: string): void;
-  }>();
 
   const { t } = useI18n();
 
   const projectId = ref<string>(appStore.currentProjectId);
 
-  const innerLanguagesType = useVModel(props, 'language', emit);
-  const executionResultValue = useVModel(props, 'executionResult', emit);
-
-  watch(
-    () => innerLanguagesType.value,
-    (val) => {
-      emit('update:language', val);
-    }
-  );
-
-  const innerCodeValue = useVModel(props, 'code', emit);
-
-  watch(
-    () => props.code,
-    (val) => {
-      innerCodeValue.value = val;
-    }
-  );
+  const language = defineModel<Language>('language', {
+    required: true,
+  });
+  const executionResult = defineModel<string>('executionResult', {
+    default: '',
+  });
+  const code = defineModel<string>('code', {
+    required: true,
+  });
 
   const expandMenu = ref<boolean>(false);
 
@@ -153,8 +136,8 @@
 
   const confirmLoading = ref<boolean>(false);
 
-  function insertHandler(code: string) {
-    codeEditorRef.value?.insertContent(code);
+  function insertHandler(_code: string) {
+    codeEditorRef.value?.insertContent(_code);
   }
 
   function saveHandler(data: CommonScriptItem[]) {
@@ -185,7 +168,7 @@ ${item.script}
   }
 
   function clearCode() {
-    innerCodeValue.value = '';
+    code.value = '';
   }
 
   defineExpose({
@@ -193,7 +176,7 @@ ${item.script}
     insertHandler,
     undoHandler,
     clearCode,
-    executionResultValue,
+    executionResult,
   });
 </script>
 

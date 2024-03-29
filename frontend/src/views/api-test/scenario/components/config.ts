@@ -94,11 +94,11 @@ export const defaultScenario: Scenario = {
       csvVariables: [],
     },
     preProcessorConfig: {
-      enableGlobal: false,
+      enableGlobal: true,
       processors: [],
     },
     postProcessorConfig: {
-      enableGlobal: false,
+      enableGlobal: true,
       processors: [],
     },
     assertionConfig: {
@@ -114,6 +114,7 @@ export const defaultScenario: Scenario = {
   },
   steps: [],
   stepDetails: {},
+  stepFileParam: {},
   executeTime: 0,
   executeSuccessCount: 0,
   executeFailCount: 0,

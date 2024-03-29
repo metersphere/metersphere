@@ -5,6 +5,7 @@
     no-content-padding
     :show-continue="true"
     :footer="requestVModel.isNew === true"
+    :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
     @confirm="handleSave"
     @continue="handleContinue"
     @close="handleClose"
@@ -20,7 +21,7 @@
       </div>
       <div
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
-        class="ml-auto flex items-center gap-[16px]"
+        class="customApiDrawer-title-right ml-auto flex items-center gap-[16px]"
       >
         <div class="text-[14px] font-normal text-[var(--color-text-4)]">
           {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
@@ -28,6 +29,7 @@
         <a-select
           v-model:model-value="requestVModel.customizeRequestEnvEnable"
           class="w-[150px]"
+          popup-container=".customApiDrawer-title-right"
           @change="handleUseEnvChange"
         >
           <template #prefix>
@@ -318,7 +320,7 @@
     RequestResult,
     RequestTaskResult,
   } from '@/models/apiTest/common';
-  import { ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioStepFileParams, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
@@ -366,6 +368,8 @@
     unSaved: boolean;
     uploadFileIds: string[];
     linkFileIds: string[];
+    deleteFileIds?: string[];
+    unLinkFileIds?: string[];
   }
 
   export type RequestParam = ExecuteApiRequestFullParams & {
@@ -384,6 +388,7 @@
       update: string;
     };
     stepResponses?: Record<string | number, RequestResult>;
+    fileParams?: ScenarioStepFileParams;
   }>();
 
   const emit = defineEmits<{
@@ -399,6 +404,7 @@
   // 注入祖先组件提供的属性
   const scenarioId = inject<string | number>('scenarioId');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
+  const hasLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
 
   const visible = defineModel<boolean>('visible', { required: true });
@@ -439,15 +445,15 @@
       {
         polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
         assertionConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           assertions: [],
         },
         postProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
         preProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
       },
@@ -655,8 +661,6 @@
       protocolLoading.value = false;
     }
   }
-
-  const hasLocalExec = ref(false); // 是否配置了api本地执行
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
   const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换传入的 API 数据导致动态表单数据丢失
@@ -909,8 +913,8 @@
       ).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
-        requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
-        requestVModel.value.linkFileIds // 外面解析详情的时候传入
+        props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
+        props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
       );
       requestParams = {
         authConfig: requestVModel.value.authConfig,

@@ -72,6 +72,7 @@
     isPriorityLocalExec,
     execute,
     localExecuteUrl,
+    hasLocalExec,
   });
 </script>
 

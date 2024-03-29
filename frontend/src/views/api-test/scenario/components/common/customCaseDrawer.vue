@@ -266,7 +266,7 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import { ExecuteConditionConfig, PluginConfig, RequestResult } from '@/models/apiTest/common';
-  import { ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioStepFileParams, ScenarioStepItem } from '@/models/apiTest/scenario';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -298,6 +298,7 @@
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
     stepResponses?: Record<string | number, RequestResult>;
+    fileParams?: ScenarioStepFileParams;
   }>();
   const emit = defineEmits<{
     (e: 'applyStep', request: RequestParam): void;
@@ -351,15 +352,15 @@
       {
         polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
         assertionConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           assertions: [],
         },
         postProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
         preProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
       },
@@ -797,11 +798,14 @@
         defaultBodyParamsItem,
         isExecute
       ).validParams;
-      parseRequestBodyResult = parseRequestBodyFiles(
-        requestVModel.value.body,
-        requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
-        requestVModel.value.linkFileIds // 外面解析详情的时候传入
-      );
+      if (activeStep.value?.refType === ScenarioStepRefType.COPY) {
+        // 复制 case 才能编辑，才需要计算
+        parseRequestBodyResult = parseRequestBodyFiles(
+          requestVModel.value.body,
+          props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
+          props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
+        );
+      }
       requestParams = {
         authConfig: requestVModel.value.authConfig,
         body: {
@@ -878,8 +882,8 @@
   }
 
   function handleClose() {
-    // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep
-    if (!requestVModel.value.isNew) {
+    // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep，引用 case 不能更改不需要触发
+    if (!requestVModel.value.isNew && activeStep.value?.refType === ScenarioStepRefType.COPY) {
       emit('applyStep', cloneDeep(makeRequestParams()));
     }
   }

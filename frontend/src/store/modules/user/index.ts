@@ -59,8 +59,8 @@ const useUserStore = defineStore('user', {
     } {
       const appStore = useAppStore();
 
-      state.userRoleRelations?.forEach(ug => {
-        state.userRolePermissions?.forEach(gp => {
+      state.userRoleRelations?.forEach((ug) => {
+        state.userRolePermissions?.forEach((gp) => {
           if (gp.userRole.id === ug.roleId) {
             ug.userRolePermissions = gp.userRolePermissions;
             ug.userRole = gp.userRole;
@@ -151,13 +151,8 @@ const useUserStore = defineStore('user', {
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
         const { orgId, pId } = getHashParameters();
-        // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
-        if (!orgId || forceSet) {
-          appStore.setCurrentOrgId(res.lastOrganizationId || '');
-        }
-        if (!pId || forceSet) {
-          appStore.setCurrentProjectId(res.lastProjectId || '');
-        }
+        appStore.setCurrentOrgId(forceSet ? res.lastOrganizationId || '' : orgId || '');
+        appStore.setCurrentProjectId(forceSet ? res.lastProjectId || '' : pId || '');
         return true;
       } catch (err) {
         // eslint-disable-next-line no-console

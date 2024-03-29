@@ -35,6 +35,7 @@ import {
   UpdateScenarioUrl,
 } from '@/api/requrls/api-test/scenario';
 
+import { ExecuteConditionProcessor } from '@/models/apiTest/common';
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
@@ -54,6 +55,9 @@ import {
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
 import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
+
+import type { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+import type { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
 
 // 更新模块
 export function updateModule(data: ApiScenarioModuleUpdateParams) {
@@ -207,7 +211,10 @@ export function getScenarioDetail(id: string) {
 
 // 获取场景步骤详情
 export function getScenarioStep(stepId: string | number) {
-  return MSR.get({ url: GetScenarioStepUrl, params: stepId });
+  return MSR.get<Partial<RequestParam & CaseRequestParam & ExecuteConditionProcessor>>({
+    url: GetScenarioStepUrl,
+    params: stepId,
+  });
 }
 
 // 文件转存
