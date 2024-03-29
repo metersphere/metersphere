@@ -8,12 +8,12 @@
           <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider
         ></span>
         <a-popover position="left" content-class="response-popover-content">
-          <span> {{ detail.environmentName || '-' }}</span>
+          <span> {{ detail.environmentName || t('report.detail.api.defaultEnv') }}</span>
           <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
-              <span class="mx-1"> {{ detail.environmentName || '-' }}</span>
+              <span class="mx-1"> {{ detail.environmentName || t('report.detail.api.caseSaveEnv') }}</span>
             </div>
           </template>
         </a-popover>

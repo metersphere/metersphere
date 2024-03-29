@@ -287,7 +287,7 @@
       moduleType: props.moduleType,
       filter: {
         status: statusListFilters.value,
-        integrated: Array.of((showType.value === 'INTEGRATED').toString()),
+        integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
         triggerMode: triggerModeListFilters.value,
       },
     });

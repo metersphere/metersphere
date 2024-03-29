@@ -197,6 +197,44 @@ public class ApiScenarioReportService {
                 scenarioReportDTO.setWaitingTime(scenarioConfig.getOtherConfig().getStepWaitTime());
             }
         }
+        //查询所有步骤的detail
+        List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDeatilByReportId(id);
+        //根据stepId进行分组
+        Map<String, List<ApiScenarioReportStepDTO>> detailMap = deatilList.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
+        scenarioReportSteps.forEach(step -> {
+            List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
+            if (CollectionUtils.isNotEmpty(details)) {
+                details.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
+                //需要重新处理sort
+                for (int i = 0; i < details.size(); i++) {
+                    ApiScenarioReportStepDTO detail = details.get(i);
+                    detail.setSort((long) i + 1);
+                    detail.setStepId(step.getStepId() + SPLITTER + detail.getSort());
+                    detail.setStepType(step.getStepType());
+                    detail.setName(detail.getRequestName());
+                }
+                step.setChildren(details);
+                //只处理请求的
+                List<String> stepTypes = Arrays.asList(ApiScenarioStepType.API_CASE.name(),
+                        ApiScenarioStepType.API.name(),
+                        ApiScenarioStepType.CUSTOM_REQUEST.name());
+                if (stepTypes.contains(step.getStepType())) {
+                    step.setRequestTime(details.stream().mapToLong(ApiScenarioReportStepDTO::getRequestTime).sum());
+                    step.setResponseSize(details.stream().mapToLong(ApiScenarioReportStepDTO::getResponseSize).sum());
+                    List<String> requestStatus = details.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
+                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
+                    if (requestStatus.contains(ApiReportStatus.ERROR.name())) {
+                        step.setStatus(ApiReportStatus.ERROR.name());
+                    } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
+                        step.setStatus(ApiReportStatus.FAKE_ERROR.name());
+                    } else if (successStatus.size() == details.size()) {
+                        step.setStatus(ApiReportStatus.SUCCESS.name());
+                    } else {
+                        step.setStatus(ApiReportStatus.PENDING.name());
+                    }
+                }
+            }
+        });
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
         // TODO 查询修改
@@ -221,7 +259,7 @@ public class ApiScenarioReportService {
         //查询资源池名称
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
         //查询环境名称
-        String environmentName = Translator.get("api_report_default_env");
+        String environmentName = null;
         if (StringUtils.isNotBlank(scenarioReport.getEnvironmentId())) {
             Environment environment = environmentMapper.selectByPrimaryKey(scenarioReport.getEnvironmentId());
             if (environment != null) {
@@ -247,7 +285,7 @@ public class ApiScenarioReportService {
                 List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(children)) {
                     //如果是循环控制器 需要重新处理
-                    if (StringUtils.equals(ApiScenarioStepType.LOOP_CONTROLLER.name(), step.getStepType())) {
+                    /*if (StringUtils.equals(ApiScenarioStepType.LOOP_CONTROLLER.name(), step.getStepType())) {
                         //根据stepId进行分组
                         Map<String, List<ApiScenarioReportStepDTO>> loopMap = children.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
                         List<ApiScenarioReportStepDTO> newChildren = new ArrayList<>();
@@ -266,7 +304,7 @@ public class ApiScenarioReportService {
                         });
                         children = newChildren;
                         scenarioReportStepMap.remove(step.getStepId());
-                    }
+                    }*/
                     children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
                     step.setChildren(children);
                     getStepTree(children, scenarioReportStepMap);
