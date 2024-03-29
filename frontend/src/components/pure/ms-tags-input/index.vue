@@ -12,6 +12,7 @@
       :readonly="props.readonly"
       :class="props.inputClass"
       :size="props.size"
+      :disabled="props.disabled"
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
       @clear="emit('clear')"
@@ -53,6 +54,7 @@
       class?: string;
       inputClass?: string;
       size?: 'small' | 'large' | 'medium' | 'mini';
+      disabled?: boolean;
     }>(),
     {
       retainInputValue: true,
