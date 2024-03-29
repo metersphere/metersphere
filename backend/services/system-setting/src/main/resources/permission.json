@@ -332,8 +332,8 @@
     "type": "SYSTEM",
     "children": [
       {
-        "id": "API_KEYS",
-        "name": "permission.api_keys",
+        "id": "API_KEY",
+        "name": "permission.api_key",
         "permissions": [
           {
             "id": "SYSTEM_PERSONAL_API_KEY:READ"
