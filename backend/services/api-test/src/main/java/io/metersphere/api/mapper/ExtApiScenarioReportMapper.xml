@@ -73,19 +73,9 @@
                api_scenario_report_step.`name`,
                api_scenario_report_step.sort,
                api_scenario_report_step.step_type,
-               api_scenario_report_step.parent_id,
-               api_scenario_report_detail.status,
-               api_scenario_report_detail.fake_code,
-               api_scenario_report_detail.request_name,
-               api_scenario_report_detail.request_time,
-               api_scenario_report_detail.code,
-               api_scenario_report_detail.response_size,
-               api_scenario_report_detail.script_identifier,
-               api_scenario_report_detail.sort as loopIndex
+               api_scenario_report_step.parent_id
         from api_scenario_report_step
-            left join api_scenario_report_detail
-            on api_scenario_report_step.step_id = api_scenario_report_detail.step_id
-            and api_scenario_report_detail.report_id = api_scenario_report_step.report_id
+
         where api_scenario_report_step.report_id = #{reportId}
     </select>
 
@@ -220,6 +210,21 @@
         from api_scenario_blob inner join api_scenario_record on api_scenario_blob.id = api_scenario_record.api_scenario_id
         where api_scenario_record.api_scenario_report_id = #{id}
 
+    </select>
+    <select id="selectStepDeatilByReportId"
+            resultType="io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO">
+        select api_scenario_report_detail.step_id,
+               api_scenario_report_detail.report_id,
+               api_scenario_report_detail.status,
+               api_scenario_report_detail.fake_code,
+               api_scenario_report_detail.request_name,
+               api_scenario_report_detail.request_time,
+               api_scenario_report_detail.code,
+               api_scenario_report_detail.response_size,
+               api_scenario_report_detail.script_identifier,
+               api_scenario_report_detail.sort as loopIndex
+        from api_scenario_report_detail
+        where api_scenario_report_detail.report_id = #{reportId}
     </select>
 
     <sql id="filters">

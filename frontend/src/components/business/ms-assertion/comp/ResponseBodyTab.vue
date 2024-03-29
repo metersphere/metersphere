@@ -469,7 +469,6 @@
       slotName: 'operation',
       fixed: 'right',
       width: 130,
-      hasDisable: true,
       moreAction: [
         {
           eventTag: 'copy',
@@ -544,7 +543,6 @@
       slotName: 'operation',
       fixed: 'right',
       width: 130,
-      hasDisable: true,
       moreAction: [
         {
           eventTag: 'copy',

@@ -76,4 +76,7 @@ export default {
   'report.detail.api.runMode': '运行模式',
   'report.detail.api.copyLink': '复制链接',
   'report.detail.api.copyLinkTimeEnd': '(24小时有效)',
+  'report.detail.api.defaultEnv': '默认环境',
+  'report.detail.api.caseSaveEnv': '用例保存的环境',
+  'report.detail.api.scenarioSavedEnv': '场景保存的环境',
 };

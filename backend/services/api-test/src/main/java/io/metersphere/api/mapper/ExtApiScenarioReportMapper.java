@@ -49,4 +49,6 @@ public interface ExtApiScenarioReportMapper {
     ApiScenarioBlob getScenarioBlob(String id);
 
     void updateApiScenario(List<String> subList);
+
+    List<ApiScenarioReportStepDTO> selectStepDeatilByReportId(String id);
 }

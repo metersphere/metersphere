@@ -191,7 +191,7 @@ public class ApiReportService {
         //查询资源池名称
         apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
         //查询环境名称
-        String environmentName = Translator.get("api_report_default_env");
+        String environmentName = null;
         if (StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId())) {
             Environment environment = environmentMapper.selectByPrimaryKey(apiReportDTO.getEnvironmentId());
             if (environment != null) {

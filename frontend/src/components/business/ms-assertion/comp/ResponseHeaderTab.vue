@@ -2,7 +2,7 @@
   <div>
     <paramsTable
       v-model:params="condition.assertions"
-      :selectable="true"
+      :selectable="false"
       :columns="columns"
       :scroll="{ minWidth: '700px' }"
       :default-param-item="defaultParamItem"
