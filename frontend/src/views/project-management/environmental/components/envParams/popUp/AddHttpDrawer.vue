@@ -4,6 +4,7 @@
     :visible="visible"
     unmount-on-close
     :mask="false"
+    destroy-on-close
     @confirm="handleAddOrUpdate"
     @cancel="emit('close')"
   >
@@ -175,7 +176,7 @@
 
 <script lang="ts" setup>
   import { defineModel } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -259,64 +260,68 @@
   }
 
   const handleAddOrUpdate = () => {
-    const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
-    let modules: { moduleId: string; containChildModule: boolean }[] = [];
-    const { protocol, hostname, condition, path } = form.value;
-    if (form.value.type === 'MODULE') {
-      modules = form.value.moduleId.map((item) => {
-        return {
-          moduleId: item,
-          containChildModule: false,
-        };
-      });
-    }
+    httpRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        const index = store.currentEnvDetailInfo.config.httpConfig.findIndex((item) => item.id === form.value.id);
+        let modules: { moduleId: string; containChildModule: boolean }[] = [];
+        const { protocol, hostname, condition, path } = form.value;
+        if (form.value.type === 'MODULE') {
+          modules = form.value.moduleId.map((item) => {
+            return {
+              moduleId: item,
+              containChildModule: false,
+            };
+          });
+        }
 
-    // 判断是否已存在type为NONE的数据 如果存在则不允许添加 数量大于1 则提示
-    const noneData = store.currentEnvDetailInfo.config.httpConfig.filter((item) => item.type === 'NONE');
-    if (noneData.length >= 1 && (props.isCopy || !props.currentId)) {
-      Message.error(t('project.environmental.http.noneDataExist'));
-      return;
-    }
-    // 编辑
-    if (index > -1 && !props.isCopy) {
-      const httpItem = {
-        ...form.value,
-        url: `${protocol}://${hostname}`,
-        pathMatchRule: {
-          path,
-          condition,
-        },
-        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
-        moduleMatchRule: { modules },
-      };
-      store.currentEnvDetailInfo.config.httpConfig.splice(index, 1, httpItem);
-      // 复制
-    } else if (index > -1 && props.isCopy) {
-      const insertItem = {
-        ...form.value,
-        id: getGenerateId(),
-        url: `${protocol}://${hostname}`,
-        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
-        moduleMatchRule: { modules },
-      };
-      store.currentEnvDetailInfo.config.httpConfig.splice(index + 1, 0, insertItem);
-      // 添加
-    } else {
-      const httpItem = {
-        ...form.value,
-        url: `${protocol}://${hostname}`,
-        pathMatchRule: {
-          path,
-          condition,
-        },
-        id: getGenerateId(),
-        order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
-        moduleMatchRule: { modules },
-      };
-      store.currentEnvDetailInfo.config.httpConfig.push(httpItem);
-    }
-    emit('close');
-    resetForm();
+        // 判断是否已存在type为NONE的数据 如果存在则不允许添加 数量大于1 则提示
+        const noneData = store.currentEnvDetailInfo.config.httpConfig.filter((item) => item.type === 'NONE');
+        if (noneData.length >= 1 && (props.isCopy || !props.currentId) && form.value.type === 'NONE') {
+          Message.error(t('project.environmental.http.noneDataExist'));
+          return;
+        }
+        // 编辑
+        if (index > -1 && !props.isCopy) {
+          const httpItem = {
+            ...form.value,
+            url: `${protocol}://${hostname}`,
+            pathMatchRule: {
+              path,
+              condition,
+            },
+            order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+            moduleMatchRule: { modules },
+          };
+          store.currentEnvDetailInfo.config.httpConfig.splice(index, 1, httpItem);
+          // 复制
+        } else if (index > -1 && props.isCopy) {
+          const insertItem = {
+            ...form.value,
+            id: getGenerateId(),
+            url: `${protocol}://${hostname}`,
+            order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+            moduleMatchRule: { modules },
+          };
+          store.currentEnvDetailInfo.config.httpConfig.splice(index + 1, 0, insertItem);
+          // 添加
+        } else {
+          const httpItem = {
+            ...form.value,
+            url: `${protocol}://${hostname}`,
+            pathMatchRule: {
+              path,
+              condition,
+            },
+            id: getGenerateId(),
+            order: store.currentEnvDetailInfo.config.httpConfig.length + 1,
+            moduleMatchRule: { modules },
+          };
+          store.currentEnvDetailInfo.config.httpConfig.push(httpItem);
+        }
+        emit('close');
+        resetForm();
+      }
+    });
   };
 
   const envTree = ref<ModuleTreeNode[]>([]);
