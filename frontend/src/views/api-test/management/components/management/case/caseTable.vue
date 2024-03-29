@@ -54,8 +54,8 @@
           <template #label>
             <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
           </template>
-          <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
-            <caseLevel :case-level="item.text" />
+          <a-option v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+            <caseLevel :case-level="item.label as CaseLevel" />
           </a-option>
         </a-select>
         <span v-else class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
@@ -70,8 +70,8 @@
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="caseFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="item of caseLevelList" :key="item.text" :value="item.text">
-                    <caseLevel :case-level="item.text" />
+                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                    <caseLevel :case-level="item.label as CaseLevel" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -287,7 +287,7 @@
       >
         <a-select v-model="batchForm.value" :placeholder="t('common.pleaseSelect')" :disabled="batchForm.attr === ''">
           <a-option v-for="item of valueOptions" :key="item.value" :value="item.value">
-            {{ t(item.text) }}
+            {{ t(item.label) }}
           </a-option>
         </a-select>
       </a-form-item>
@@ -359,6 +359,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseDetailDrawer from './caseDetailDrawer.vue';
   import caseReportDrawer from './caseReportDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
@@ -377,7 +378,6 @@
     updateCasePriority,
     updateCaseStatus,
   } from '@/api/modules/api-test/management';
-  import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -390,6 +390,7 @@
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { casePriorityOptions } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
@@ -552,7 +553,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 200 : 50,
+      width: hasOperationPermission.value ? 220 : 50,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
@@ -597,12 +598,8 @@
 
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
-  const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
-  const caseLevelList = computed(() => {
-    return caseLevelFields.value?.options || [];
-  });
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
@@ -643,15 +640,8 @@
     loadCaseList();
   }
 
-  // 获取用例等级数据
-  async function getCaseLevelFields() {
-    const result = await getCaseDefaultFields(appStore.currentProjectId);
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-  }
-
   onBeforeMount(() => {
     loadCaseList();
-    getCaseLevelFields();
   });
 
   function handleFilterHidden(val: boolean) {
@@ -842,23 +832,23 @@
     batchForm.value.value = '';
     switch (batchForm.value.attr) {
       case 'priority':
-        return caseLevelList.value;
+        return casePriorityOptions;
       case 'status':
         return [
           {
-            text: 'apiTestManagement.processing',
+            label: 'apiTestManagement.processing',
             value: RequestDefinitionStatus.PROCESSING,
           },
           {
-            text: 'apiTestManagement.done',
+            label: 'apiTestManagement.done',
             value: RequestDefinitionStatus.DONE,
           },
           {
-            text: 'apiTestManagement.deprecate',
+            label: 'apiTestManagement.deprecate',
             value: RequestDefinitionStatus.DEPRECATED,
           },
           {
-            text: 'apiTestManagement.debugging',
+            label: 'apiTestManagement.debugging',
             value: RequestDefinitionStatus.DEBUGGING,
           },
         ];
