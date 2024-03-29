@@ -30,10 +30,12 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.*;
@@ -57,6 +59,7 @@ import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -97,6 +100,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
     protected static final String STEP_GET = "step/get/{0}";
+    protected static final String STEP_PROJECT_INFO = "step/project-ifo/{0}";
     protected static final String DEBUG = "debug";
     protected static final String RUN = "run/{0}";
     protected static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
@@ -164,6 +168,10 @@ public class ApiScenarioControllerTests extends BaseTest {
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private UserMapper userMapper;
 
     private static String fileMetadataId;
     private static String localFileId;
@@ -1174,12 +1182,18 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(7)
     public void get() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, addApiScenario.getId());
-        ApiScenarioDetail apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetail.class);
+        ApiScenarioDetailDTO apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetailDTO.class);
+        Assertions.assertEquals(apiScenarioDetail.getCreateUserName(), userMapper.selectByPrimaryKey(apiScenarioDetail.getCreateUser()).getName());
+        Assertions.assertEquals(apiScenarioDetail.getUpdateUserName(), userMapper.selectByPrimaryKey(apiScenarioDetail.getUpdateUser()).getName());
+        Assertions.assertFalse(apiScenarioDetail.getFollow());
         // 验证数据
         asserGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
 
+        apiScenarioService.follow(anOtherAddApiScenario.getId(), "admin");
         mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, anOtherAddApiScenario.getId());
-        apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetail.class);
+        apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetailDTO.class);
+        Assertions.assertTrue(apiScenarioDetail.getFollow());
+
         // 验证数据
         Assertions.assertEquals(this.anOtherAddApiScenarioSteps.size(), apiScenarioDetail.getSteps().size());
         // @@校验权限
@@ -1199,6 +1213,21 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, addApiScenario.getId());
+    }
+
+    @Test
+    @Order(7)
+    public void getStepResourceProjectInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetAndReturn(STEP_PROJECT_INFO, DEFAULT_PROJECT_ID);
+        Project project = getResultData(mvcResult, Project.class);
+        Assertions.assertEquals(project.getName(), projectMapper.selectByPrimaryKey(project.getId()).getName());
+
+        mvcResult = this.requestGetAndReturn(STEP_PROJECT_INFO, "tyuio");
+        project = getResultData(mvcResult, Project.class);
+        Assertions.assertNull(project);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_PROJECT_INFO, DEFAULT_PROJECT_ID);
     }
 
     private void requestGetStepDetail(List<? extends ApiScenarioStepCommonDTO> steps) throws Exception {

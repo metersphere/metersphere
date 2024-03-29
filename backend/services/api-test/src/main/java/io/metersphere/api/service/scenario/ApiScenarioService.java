@@ -1868,6 +1868,22 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioMapper.updateByPrimaryKeySelective(update);
     }
 
+    public ApiScenarioDetailDTO getApiScenarioDetailDTO(String scenarioId, String userId) {
+        ApiScenarioDetail apiScenarioDetail = get(scenarioId);
+        ApiScenarioDetailDTO apiScenarioDetailDTO = BeanUtils.copyBean(new ApiScenarioDetailDTO(), apiScenarioDetail);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(List.of(apiScenarioDetail.getCreateUser(), apiScenarioDetail.getUpdateUser()));
+        apiScenarioDetailDTO.setCreateUserName(userNameMap.get(apiScenarioDetail.getCreateUser()));
+        apiScenarioDetailDTO.setUpdateUserName(userNameMap.get(apiScenarioDetail.getUpdateUser()));
+
+        // 设置是否关注
+        ApiScenarioFollowerExample followerExample = new ApiScenarioFollowerExample();
+        followerExample.createCriteria().andApiScenarioIdEqualTo(scenarioId);
+        followerExample.createCriteria().andUserIdEqualTo(userId);
+        List<ApiScenarioFollower> followers = apiScenarioFollowerMapper.selectByExample(followerExample);
+        apiScenarioDetailDTO.setFollow(CollectionUtils.isNotEmpty(followers));
+        return apiScenarioDetailDTO;
+    }
+
     public ApiScenarioDetail get(String scenarioId) {
         ApiScenario apiScenario = checkResourceExist(scenarioId);
         ApiScenarioDetail apiScenarioDetail = BeanUtils.copyBean(new ApiScenarioDetail(), apiScenario);
@@ -2558,5 +2574,16 @@ public class ApiScenarioService extends MoveNodeService {
 
     public List<ReferenceDTO> getReference(ReferenceRequest request) {
         return extApiDefinitionMapper.getReference(request);
+    }
+
+    public Project getStepResourceProjectInfo(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return null;
+        }
+        Project projectInfo = new Project();
+        projectInfo.setId(project.getId());
+        projectInfo.setName(project.getName());
+        return projectInfo;
     }
 }
