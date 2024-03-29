@@ -46,7 +46,7 @@
           </a-button>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of Object.keys(reviewResultMap)" :key="key" :value="key">
                     <a-tag
@@ -58,6 +58,14 @@
                     </a-tag>
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetReviewStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -488,7 +496,14 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       searchCase();
+      statusFilterVisible.value = false;
     }
+  }
+
+  function resetReviewStatusFilter() {
+    statusFilters.value = [];
+    statusFilterVisible.value = false;
+    searchCase();
   }
 
   onBeforeMount(() => {

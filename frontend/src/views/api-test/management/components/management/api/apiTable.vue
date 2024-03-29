@@ -41,7 +41,7 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="methodFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
                     <apiMethodName :method="key" />
@@ -49,10 +49,10 @@
                 </a-checkbox-group>
               </div>
               <div class="filter-button">
-                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetMethodFilter">
+                <a-button size="mini" class="mr-[8px]" @click="resetMethodFilter">
                   {{ t('common.reset') }}
                 </a-button>
-                <a-button size="mini" @click="handleFilterHidden(false)">
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
                   {{ t('system.orgTemplate.confirm') }}
                 </a-button>
               </div>
@@ -72,7 +72,7 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
@@ -80,10 +80,10 @@
                 </a-checkbox-group>
               </div>
               <div class="filter-button">
-                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
                   {{ t('common.reset') }}
                 </a-button>
-                <a-button size="mini" @click="handleFilterHidden(false)">
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
                   {{ t('system.orgTemplate.confirm') }}
                 </a-button>
               </div>
@@ -829,13 +829,13 @@
   }
 
   function resetMethodFilter() {
-    methodFilters.value = Object.keys(RequestMethods);
+    methodFilters.value = [];
     methodFilterVisible.value = false;
     loadApiList();
   }
 
   function resetStatusFilter() {
-    statusFilters.value = Object.keys(RequestDefinitionStatus);
+    statusFilters.value = [];
     statusFilterVisible.value = false;
     loadApiList();
   }
@@ -926,11 +926,5 @@
         color: var(--color-text-brand);
       }
     }
-  }
-  .filter-button {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    margin: 12px;
   }
 </style>

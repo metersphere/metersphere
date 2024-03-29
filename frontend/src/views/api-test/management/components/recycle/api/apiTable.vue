@@ -39,12 +39,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="methodFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
                     <apiMethodName :method="key" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetMethodFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -62,12 +70,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -304,7 +320,21 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadApiList();
+      methodFilterVisible.value = false;
+      statusFilterVisible.value = false;
     }
+  }
+
+  function resetMethodFilter() {
+    methodFilters.value = [];
+    methodFilterVisible.value = false;
+    loadApiList();
+  }
+
+  function resetStatusFilter() {
+    statusFilters.value = [];
+    statusFilterVisible.value = false;
+    loadApiList();
   }
 
   onBeforeMount(() => {

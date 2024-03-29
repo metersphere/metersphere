@@ -42,6 +42,14 @@
                 </a-checkbox>
               </a-checkbox-group>
             </div>
+            <div class="filter-button">
+              <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                {{ t('common.reset') }}
+              </a-button>
+              <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                {{ t('system.orgTemplate.confirm') }}
+              </a-button>
+            </div>
           </div>
         </template>
       </a-trigger>
@@ -391,8 +399,15 @@
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
+      statusFilterVisible.value = false;
       searchPlan();
     }
+  }
+
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    searchPlan();
   }
 
   onMounted(() => {

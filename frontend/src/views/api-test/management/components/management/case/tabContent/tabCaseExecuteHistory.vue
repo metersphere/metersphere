@@ -26,7 +26,7 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="triggerModeListFilters" direction="vertical" size="small">
                   <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
                     <div class="font-medium">{{ t(key) }}</div>
@@ -34,10 +34,10 @@
                 </a-checkbox-group>
               </div>
               <div class="filter-button">
-                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetModeFilter">
+                <a-button size="mini" class="mr-[8px]" @click="resetModeFilter">
                   {{ t('common.reset') }}
                 </a-button>
-                <a-button size="mini" @click="handleFilterHidden(false)">
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
                   {{ t('system.orgTemplate.confirm') }}
                 </a-button>
               </div>
@@ -57,7 +57,7 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of statusList" :key="val" :value="val">
                     <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
@@ -65,10 +65,10 @@
                 </a-checkbox-group>
               </div>
               <div class="filter-button">
-                <a-button type="primary" size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
                   {{ t('common.reset') }}
                 </a-button>
-                <a-button size="mini" @click="handleFilterHidden(false)">
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
                   {{ t('system.orgTemplate.confirm') }}
                 </a-button>
               </div>
@@ -232,13 +232,13 @@
   }
 
   function resetModeFilter() {
-    triggerModeListFilters.value = Object.keys(TriggerModeLabel);
+    triggerModeListFilters.value = [];
     triggerModeFilterVisible.value = false;
     loadExecuteList();
   }
 
   function resetStatusFilter() {
-    statusFilters.value = Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+    statusFilters.value = [];
     statusFilterVisible.value = false;
     loadExecuteList();
   }
@@ -272,11 +272,5 @@
     align-items: center;
     flex-direction: row;
     margin-bottom: 21px;
-  }
-  .filter-button {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    margin: 12px;
   }
 </style>

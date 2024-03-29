@@ -53,12 +53,20 @@
           </a-button>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="triggerModeListFilters" direction="vertical" size="small">
                   <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
                     <div class="font-medium">{{ t(key) }}</div>
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetTriggerModeFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -79,12 +87,20 @@
           </a-button>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusListFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
                     <ExecutionStatus :module-type="props.moduleType" :status="key" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -384,8 +400,22 @@
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
+      triggerModeFilterVisible.value = false;
+      statusFilterVisible.value = false;
       initData();
     }
+  }
+
+  function resetTriggerModeFilter() {
+    triggerModeFilterVisible.value = false;
+    triggerModeListFilters.value = [];
+    initData();
+  }
+
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusListFilters.value = [];
+    initData();
   }
 
   function changeShowType(val: string | number | boolean) {

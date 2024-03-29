@@ -42,12 +42,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of Object.values(ApiScenarioStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -114,6 +122,14 @@
                     <ExecutionStatus :module-type="ReportEnum.API_SCENARIO_REPORT" :status="key" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetLastReportStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -642,8 +658,22 @@
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
+      lastReportStatusFilterVisible.value = false;
+      statusFilterVisible.value = false;
       loadScenarioList(false);
     }
+  }
+
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    loadScenarioList();
+  }
+
+  function resetLastReportStatusFilter() {
+    lastReportStatusFilterVisible.value = false;
+    lastReportStatusListFilters.value = [];
+    loadScenarioList();
   }
 
   async function handleStatusChange(record: ApiScenarioUpdateDTO) {

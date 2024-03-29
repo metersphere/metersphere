@@ -19,12 +19,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="typeFilter" direction="vertical" size="small">
                   <a-checkbox v-for="val of typeOptions" :key="val.value" :value="val.value">
                     <span>{{ t(val.label) }}</span>
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetTypeFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -49,10 +57,9 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ChangeHistoryStatusFilters } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  const typeFilter = ref(Object.keys(ChangeHistoryStatusFilters));
+  const typeFilter = ref<string[]>([]);
 
   const statusFilterVisible = ref(false);
 
@@ -141,15 +148,22 @@
       projectId: appStore.currentProjectId,
       sourceId: props.sourceId,
       modules: ['API_TEST_MANAGEMENT_CASE'],
-      types: typeFilter.value.length === Object.keys(ChangeHistoryStatusFilters).length ? undefined : typeFilter.value,
+      types: typeFilter.value,
     });
     loadList();
   }
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
+      statusFilterVisible.value = false;
       loadHistory();
     }
+  }
+
+  function resetTypeFilter() {
+    typeFilter.value = [];
+    statusFilterVisible.value = false;
+    loadHistory();
   }
 
   onBeforeMount(() => {

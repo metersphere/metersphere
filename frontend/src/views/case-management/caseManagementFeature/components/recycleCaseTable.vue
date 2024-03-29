@@ -194,7 +194,7 @@
                 </a-button>
                 <template #content>
                   <div class="arco-table-filters-content">
-                    <div class="flex items-center justify-center px-[6px] py-[2px]">
+                    <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                       <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                         <a-checkbox v-for="key of Object.keys(statusIconMap)" :key="key" :value="key">
                           <MsIcon
@@ -205,6 +205,14 @@
                           <span>{{ statusIconMap[key]?.statusText || '' }} </span>
                         </a-checkbox>
                       </a-checkbox-group>
+                    </div>
+                    <div class="filter-button">
+                      <a-button size="mini" class="mr-[8px]" @click="resetReviewStatusFilter">
+                        {{ t('common.reset') }}
+                      </a-button>
+                      <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                        {{ t('system.orgTemplate.confirm') }}
+                      </a-button>
                     </div>
                   </div>
                 </template>
@@ -302,7 +310,7 @@
   import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { BatchMoveOrCopyType, CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
+  import type { CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -896,7 +904,6 @@
       };
     });
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-    caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
       ...customFieldsColumns,
@@ -1041,13 +1048,20 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       initRecycleList();
+      statusFilterVisible.value = false;
     }
   }
 
-  onMounted(async () => {
-    getRecycleModules();
-    await initFilter();
+  function resetReviewStatusFilter() {
+    statusFilters.value = [];
+    statusFilterVisible.value = false;
     initRecycleList();
+  }
+
+  onMounted(async () => {
+    await getRecycleModules();
+    await initFilter();
+    await initRecycleList();
   });
   await getDefaultFields();
 </script>

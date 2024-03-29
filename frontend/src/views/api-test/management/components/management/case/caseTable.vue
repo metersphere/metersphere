@@ -68,12 +68,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="caseFilters" direction="vertical" size="small">
                   <a-checkbox v-for="item of caseLevelList" :key="item.text" :value="item.text">
                     <caseLevel :case-level="item.text" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetCaseFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -109,12 +117,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -136,12 +152,20 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="lastReportStatusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="val of lastReportStatusList" :key="val" :value="val">
                     <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetLastReportStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -623,7 +647,6 @@
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-    caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
   }
 
   onBeforeMount(() => {
@@ -633,8 +656,29 @@
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
+      caseFilterVisible.value = false;
+      statusFilterVisible.value = false;
+      lastReportStatusFilterVisible.value = false;
       loadCaseList();
     }
+  }
+
+  function resetCaseFilter() {
+    caseFilters.value = [];
+    caseFilterVisible.value = false;
+    loadCaseList();
+  }
+
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    loadCaseList();
+  }
+
+  function resetLastReportStatusFilter() {
+    lastReportStatusFilterVisible.value = false;
+    lastReportStatusFilters.value = [];
+    loadCaseList();
   }
 
   watch(
