@@ -208,7 +208,19 @@ public class ApiCommonService {
         for (ScriptProcessor processor : scriptsProcessors) {
             CommonScriptInfo commonScriptInfo = processor.getCommonScriptInfo();
             CustomFunctionBlob customFunctionBlob = customFunctionBlobMap.get(commonScriptInfo.getId());
+
             CustomFunction customFunction = customFunctionMap.get(commonScriptInfo.getId());
+
+            if (customFunction == null) {
+                // 公共脚本被删除，就改成非公共脚本
+                processor.getCommonScriptInfo().setDeleted(true);
+                break;
+            }
+
+            if (customFunctionBlob == null) {
+                // 如果存在没有详情，那就不处理
+                break;
+            }
 
             // 设置公共脚本信息
             Optional.ofNullable(customFunctionBlob.getParams()).ifPresent(paramsBlob -> {
@@ -230,6 +242,63 @@ public class ApiCommonService {
             commonScriptInfo.setName(customFunction.getName());
         }
     }
+
+//    /**
+//     * 设置使用脚本前后置的公共脚本信息
+//     *
+//     * @param commonElements
+//     */
+//    public void setEnableCommonScriptProcessorInfo(List<Mssc> commonElements) {
+//        List<ScriptProcessor> scriptsProcessors = getEnableCommonScriptProcessors(commonElements);
+//
+//        List<String> commonScriptIds = scriptsProcessors.stream()
+//                .map(processor -> processor.getCommonScriptInfo().getId())
+//                .toList();
+//
+//        Map<String, CustomFunctionBlob> customFunctionBlobMap = customFunctionService.getBlobByIds(commonScriptIds).stream()
+//                .collect(Collectors.toMap(CustomFunctionBlob::getId, Function.identity()));
+//
+//        Map<String, CustomFunction> customFunctionMap = customFunctionService.getByIds(commonScriptIds).stream()
+//                .collect(Collectors.toMap(CustomFunction::getId, Function.identity()));
+//
+//        for (ScriptProcessor processor : scriptsProcessors) {
+//            CommonScriptInfo commonScriptInfo = processor.getCommonScriptInfo();
+//            CustomFunctionBlob customFunctionBlob = customFunctionBlobMap.get(commonScriptInfo.getId());
+//
+//            CustomFunction customFunction = customFunctionMap.get(commonScriptInfo.getId());
+//
+//            if (customFunction == null) {
+//                // 公共脚本被删除，就改成非公共脚本
+//                processor.getCommonScriptInfo().setDeleted(true);
+//                break;
+//            }
+//
+//            if (customFunctionBlob == null) {
+//                // 如果存在没有详情，那就不处理
+//                break;
+//            }
+//
+//            // 设置公共脚本信息
+//            Optional.ofNullable(customFunctionBlob.getParams()).ifPresent(paramsBlob -> {
+//                List<KeyValueParam> commonParams = JSON.parseArray(new String(paramsBlob), KeyValueParam.class);
+//                // 替换用户输入值
+//                commonParams.forEach(commonParam ->
+//                        Optional.ofNullable(commonScriptInfo.getParams()).ifPresent(params ->
+//                                params.stream()
+//                                        .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
+//                                        .findFirst()
+//                                        .ifPresent(param -> commonParam.setValue(param.getValue()))
+//                        )
+//                );
+//                commonScriptInfo.setParams(commonParams);
+//            });
+//            Optional.ofNullable(customFunctionBlob.getScript()).ifPresent(script ->
+//                    commonScriptInfo.setScript(new String(script)));
+//            commonScriptInfo.setScriptLanguage(customFunction.getType());
+//            commonScriptInfo.setName(customFunction.getName());
+//        }
+//    }
+
 
     /**
      * 获取使用公共脚本的前后置
