@@ -80,4 +80,6 @@ public interface ExtApiDefinitionMapper {
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     List<ReferenceDTO> getReference(@Param("request") ReferenceRequest request);
+
+    List<ApiDefinition> selectByProjectNum(String projectNum);
 }

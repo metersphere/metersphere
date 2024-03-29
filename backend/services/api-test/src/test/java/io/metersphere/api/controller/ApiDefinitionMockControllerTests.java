@@ -13,8 +13,8 @@ import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
 import io.metersphere.api.dto.mockserver.KeyValueInfo;
 import io.metersphere.api.dto.mockserver.MockMatchRule;
 import io.metersphere.api.dto.mockserver.MockResponse;
-import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -520,12 +520,14 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
     public void mockServerTest() throws Exception {
         this.initMockConfigTestData();
 
+        String mockServerDomain = "mock-server";
+
         //测试匹配不到任何一个api
         mockServerTestService.testNoMatchApi();
         //测试匹配到了api但是路径不一样
-        mockServerTestService.testApiNoMockConfigAndNoResponse("/mock-server/100001/" + NO_MOCK_NO_RESPONSE_API_NUM + "/mock/api/testStr/");
+        mockServerTestService.testApiNoMockConfigAndNoResponse("/" + mockServerDomain + "/100001/" + NO_MOCK_NO_RESPONSE_API_NUM + "/mock/api/testStr/");
         //测试匹配到的api没用配置mockConfig以及没有定义默认返回项
-        mockServerTestService.testApiNoMockConfigAndNoResponse("/mock-server/100001/" + NO_MOCK_NO_RESPONSE_API_NUM + "/mock/api/notMatch/");
+        mockServerTestService.testApiNoMockConfigAndNoResponse("/" + mockServerDomain + "/100001/" + NO_MOCK_NO_RESPONSE_API_NUM + "/mock/api/notMatch/");
 
         /*
         测试用例：
@@ -545,13 +547,22 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 //这种不测试
                 continue;
             }
-            String url = "/mock-server/100001/" + apiDefinition.getNum() + apiDefinition.getPath();
+
+            String url = "/" + mockServerDomain + "/100001/" + apiDefinition.getNum() + apiDefinition.getPath();
+
+            //临时方法的测试  后续随着mockServerV2Domain删除而删除
+            String tmpUrl = "/" + mockServerDomain + "/100001" + apiDefinition.getPath();
+
             //先做一个没有匹配到任何的mock期望的测试
             mockServerTestService.testNoMatchMockConfig(method, url, apiDefinition.getPath());
+            mockServerTestService.testNoMatchMockConfig(method, tmpUrl, apiDefinition.getPath());
 
             for (ApiDefinitionMock mock : apiDefinitionMockList) {
                 //重置url
-                url = "/mock-server/100001/" + apiDefinition.getNum() + apiDefinition.getPath();
+                url = "/" + mockServerDomain + "/100001/" + apiDefinition.getNum() + apiDefinition.getPath();
+
+                //临时方法的测试  后续随着mockServerV2Domain删除而删除
+                tmpUrl = "/" + mockServerDomain + "/100001/" + apiDefinition.getPath();
 
                 ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
                 ApiDefinitionMockConfig mockConfig = apiDefinitionMockConfigMapper.selectByPrimaryKey(mock.getId());
@@ -571,6 +582,8 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 //替换rest参数
                 for (KeyValueInfo keyValueInfo : mockMatchRule.getRest().getMatchRules()) {
                     url = StringUtils.replace(url, "{" + keyValueInfo.getKey() + "}", keyValueInfo.getValue());
+                    //临时方法的测试  后续随着mockServerV2Domain删除而删除
+                    tmpUrl = StringUtils.replace(tmpUrl, "{" + keyValueInfo.getKey() + "}", keyValueInfo.getValue());
                 }
 
                 //设置query参数
@@ -588,11 +601,13 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                         }
                     }
                     url = url + "?" + queryParamBuilder;
+
+                    //临时方法的测试  后续随着mockServerV2Domain删除而删除
+                    tmpUrl = tmpUrl + "?" + queryParamBuilder;
                 }
 
                 //开始创建请求
                 MockHttpServletRequestBuilder requestBuilder = mockServerTestService.getRequestBuilder(method, url);
-
                 //设置请求头   如果匹配类型是body-json或者body-xml，需要设置content-type
                 if (StringUtils.equalsIgnoreCase(conditionType, "body-json")) {
                     requestBuilder.header("content-type", "application/json");
@@ -603,7 +618,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 } else if (StringUtils.equalsIgnoreCase(conditionType, "Body-raw")) {
                     requestBuilder.header("content-type", "text/plain");
                 }
-
                 if (CollectionUtils.isNotEmpty(mockMatchRule.getHeader().getMatchRules())) {
                     for (KeyValueInfo keyValueInfo : mockMatchRule.getHeader().getMatchRules()) {
                         requestBuilder.header(keyValueInfo.getKey(), keyValueInfo.getValue());
@@ -612,7 +626,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                         }
                     }
                 }
-
                 //设置body参数 (get类型的请求不设置）
                 if (this.isNotGetTypeMethod(methodType) && StringUtils.equalsIgnoreCase(mockMatchRule.getBody().getParamType(), Body.BodyType.FORM_DATA.name())) {
                     for (KeyValueInfo keyValueInfo : mockMatchRule.getBody().getFormDataMatch().getMatchRules()) {
@@ -624,10 +637,8 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 } else if (StringUtils.isNotBlank(mockMatchRule.getBody().getRaw())) {
                     requestBuilder.content(mockMatchRule.getBody().getRaw());
                 }
-
                 //发送请求
                 ResultActions action = mockMvc.perform(requestBuilder);
-
                 //判断响应
                 List<MsHeader> headers;
                 int statusCode;
@@ -641,7 +652,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                     statusCode = mockResponse.getStatusCode();
                     responseBody = mockResponse.getBody();
                 }
-
                 MockHttpServletResponse mockServerResponse = action.andReturn().getResponse();
                 //判断响应码
                 Assertions.assertEquals(mockServerResponse.getStatus(), statusCode);
@@ -696,6 +706,99 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                             break;
                     }
                     Assertions.assertEquals(returnStr, compareStr);
+                }
+
+
+                //临时方法的测试  后续随着mockServerV2Domain删除而删除
+                {
+                    requestBuilder = mockServerTestService.getRequestBuilder(method, tmpUrl);
+                    if (StringUtils.equalsIgnoreCase(conditionType, "body-json")) {
+                        requestBuilder.header("content-type", "application/json");
+                    } else if (StringUtils.equalsIgnoreCase(conditionType, "body-xml")) {
+                        requestBuilder.header("content-type", "application/xml");
+                    } else if (StringUtils.equalsIgnoreCase(conditionType, "body-kv-x-www")) {
+                        requestBuilder.header("content-type", "application/x-www-form-urlencoded");
+                    } else if (StringUtils.equalsIgnoreCase(conditionType, "Body-raw")) {
+                        requestBuilder.header("content-type", "text/plain");
+                    }
+                    if (CollectionUtils.isNotEmpty(mockMatchRule.getHeader().getMatchRules())) {
+                        for (KeyValueInfo keyValueInfo : mockMatchRule.getHeader().getMatchRules()) {
+                            requestBuilder.header(keyValueInfo.getKey(), keyValueInfo.getValue());
+                            if (!mockMatchRule.getHeader().isMatchAll()) {
+                                break;
+                            }
+                        }
+                    }
+                    if (this.isNotGetTypeMethod(methodType) && StringUtils.equalsIgnoreCase(mockMatchRule.getBody().getParamType(), Body.BodyType.FORM_DATA.name())) {
+                        for (KeyValueInfo keyValueInfo : mockMatchRule.getBody().getFormDataMatch().getMatchRules()) {
+                            requestBuilder.param(keyValueInfo.getKey(), keyValueInfo.getValue());
+                            if (!mockMatchRule.getBody().getFormDataMatch().isMatchAll()) {
+                                break;
+                            }
+                        }
+                    } else if (StringUtils.isNotBlank(mockMatchRule.getBody().getRaw())) {
+                        requestBuilder.content(mockMatchRule.getBody().getRaw());
+                    }
+                    action = mockMvc.perform(requestBuilder);
+                    if (mockResponse.isUseApiResponse()) {
+                        headers = MockUseApiRsponse.getHeaders();
+                        statusCode = Integer.parseInt(MockUseApiRsponse.getStatusCode());
+                        responseBody = MockUseApiRsponse.getBody();
+                    } else {
+                        headers = mockResponse.getHeaders();
+                        statusCode = mockResponse.getStatusCode();
+                        responseBody = mockResponse.getBody();
+                    }
+                    mockServerResponse = action.andReturn().getResponse();
+                    Assertions.assertEquals(mockServerResponse.getStatus(), statusCode);
+                    for (MsHeader header : headers) {
+                        if (header.getEnable()) {
+                            Assertions.assertEquals(mockServerResponse.getHeader(header.getKey()), header.getValue());
+                        }
+                    }
+                    if (StringUtils.equals(responseBody.getBodyType(), Body.BodyType.BINARY.name())) {
+                        byte[] returnFileBytes = mockServerResponse.getContentAsByteArray();
+                        String fileId = responseBody.getBinaryBody().getFile().getFileId();
+                        byte[] bytes = new byte[0];
+                        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+                        if (fileMetadata != null) {
+                            String filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), fileManagementService.getFile(fileMetadata));
+                            bytes = TempFileUtils.getFile(filePath);
+                        } else {
+                            ApiFileResource apiFileResource = apiFileResourceMapper.selectByPrimaryKey(mock.getId(), fileId);
+                            if (apiFileResource != null) {
+                                FileRepository defaultRepository = FileCenter.getDefaultRepository();
+                                FileRequest fileRequest = new FileRequest();
+                                fileRequest.setFileName(apiFileResource.getFileName());
+                                fileRequest.setFolder(DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), mock.getId()) + "/" + fileId);
+                                try {
+                                    bytes = defaultRepository.getFile(fileRequest);
+                                } catch (Exception ignore) {
+                                }
+                            }
+                        }
+                        String fileMD5 = this.getFileMD5(bytes);
+                        String downloadMD5 = this.getFileMD5(returnFileBytes);
+                        Assertions.assertEquals(fileMD5, downloadMD5);
+
+                    } else {
+                        String returnStr = mockServerResponse.getContentAsString(StandardCharsets.UTF_8);
+                        String compareStr = "";
+                        switch (responseBody.getBodyType()) {
+                            case "JSON":
+                                compareStr = responseBody.getJsonBody().getJsonValue();
+                                break;
+                            case "XML":
+                                compareStr = responseBody.getXmlBody().getValue();
+                                break;
+                            case "RAW":
+                                compareStr = responseBody.getRawBody().getValue();
+                                break;
+                            default:
+                                break;
+                        }
+                        Assertions.assertEquals(returnStr, compareStr);
+                    }
                 }
             }
 
