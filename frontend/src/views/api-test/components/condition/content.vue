@@ -206,7 +206,7 @@
       </div>
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
         <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
-          <div class="text-[var(--color-text-2)]">
+          <div class="break-word max-w-[70%] break-all text-[var(--color-text-2)]">
             {{ condition.commonScriptInfo?.name || '-' }}
           </div>
           <a-divider margin="8px" direction="vertical" />
@@ -307,7 +307,7 @@
           v-model:model-value="condition.variableNames"
           :max-length="255"
           :disabled="props.disabled"
-          :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
+          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: 'id,username' })"
           @input="() => emit('change')"
         />
       </div>
