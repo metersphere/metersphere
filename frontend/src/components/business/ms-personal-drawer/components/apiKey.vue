@@ -160,7 +160,7 @@
 
   import { APIKEY } from '@/models/user';
 
-  const { copy, isSupported } = useClipboard();
+  const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
   const { openModal } = useModal();
 
