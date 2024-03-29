@@ -286,6 +286,7 @@ public class PermissionConstants {
     public static final String PROJECT_API_REPORT_READ = "PROJECT_API_REPORT:READ";
     public static final String PROJECT_API_REPORT_UPDATE = "PROJECT_API_REPORT:READ+UPDATE";
     public static final String PROJECT_API_REPORT_DELETE = "PROJECT_API_REPORT:READ+DELETE";
+    public static final String PROJECT_API_REPORT_SHARE = "PROJECT_API_REPORT:READ+SHARE";
     /*------ end: API_REPORT ------*/
 
     //个人中心

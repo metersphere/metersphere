@@ -44,3 +44,4 @@ export const reportCaseShareUrl = '/api/report/case/share';
 // 获取分享id
 export const getShareIdUrl = '/api/report/share/gen';
 export const getShareReportInfoUrl = '/api/report/share/get';
+export const getShareTimeUrl = '/api/report/share/get-share-time';

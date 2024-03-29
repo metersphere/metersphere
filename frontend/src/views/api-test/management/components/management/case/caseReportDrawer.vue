@@ -9,10 +9,24 @@
     show-full-screen
   >
     <template #tbutton>
-      <MsButton type="icon" status="secondary" class="mr-4 !rounded-[var(--border-radius-small)]" @click="shareHandler">
-        <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
-        {{ t('common.share') }}
-      </MsButton>
+      <a-dropdown position="br" @select="shareHandler">
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          type="icon"
+          status="secondary"
+          class="mr-4 !rounded-[var(--border-radius-small)]"
+          @click="shareHandler"
+        >
+          <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
+          {{ t('common.share') }}
+        </MsButton>
+        <template #content>
+          <a-doption>
+            <span>{{ t('report.detail.api.copyLink') }}</span
+            ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: shareTime }) }}</span>
+          </a-doption>
+        </template>
+      </a-dropdown>
     </template>
     <CaseReportCom :detail-info="reportStepDetail" />
   </MsDrawer>
@@ -26,7 +40,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import CaseReportCom from '@/views/api-test/report/component/caseReportCom.vue';
 
-  import { getShareInfo, reportCaseDetail } from '@/api/modules/api-test/report';
+  import { getShareInfo, getShareTime, reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -136,4 +150,34 @@
       console.log(error);
     }
   }
+
+  const shareTime = ref<string>('');
+  async function getTime() {
+    const res = await getShareTime(appStore.currentProjectId);
+    const match = res.match(/^(\d+)([MYHD])$/);
+    if (match) {
+      const value = parseInt(match[1], 10); // 提取值并将其转换为整数
+      const type = match[2]; // 提取类型
+      switch (type) {
+        case 'M':
+          shareTime.value = value + t('msTimeSelector.month');
+          break;
+        case 'Y':
+          shareTime.value = value + t('msTimeSelector.year');
+          break;
+        case 'H':
+          shareTime.value = value + t('msTimeSelector.hour');
+          break;
+        case 'D':
+          shareTime.value = value + t('msTimeSelector.day');
+          break;
+        default:
+          shareTime.value = 24 + t('msTimeSelector.hour');
+          break;
+      }
+    }
+  }
+  onMounted(() => {
+    getTime();
+  });
 </script>

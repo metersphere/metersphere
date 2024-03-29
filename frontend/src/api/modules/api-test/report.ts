@@ -101,4 +101,8 @@ export function getShareReportInfo(shareId: string) {
   return MSR.get<ReportDetail>({ url: `${reportUrl.getShareReportInfoUrl}/${shareId}` });
 }
 
+// 获取分享时间
+export function getShareTime(projectId: string) {
+  return MSR.get<string>({ url: `${reportUrl.getShareTimeUrl}/${projectId}` });
+}
 export default {};

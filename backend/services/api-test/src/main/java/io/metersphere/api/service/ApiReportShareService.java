@@ -127,6 +127,28 @@ public class ApiReportShareService {
         ApiReportShareDTO dto = new ApiReportShareDTO();
         BeanUtils.copyBean(dto, shareInfo);
         dto.setReportId(new String(shareInfo.getCustomData()));
+        //检查id是否存在
+        dto.setDeleted(false);
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(dto.getReportId());
+        if (apiReport != null && BooleanUtils.isTrue(apiReport.getDeleted())) {
+            dto.setDeleted(true);
+        } else {
+            ApiScenarioReport result = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
+            if (result != null && BooleanUtils.isTrue(result.getDeleted())) {
+                dto.setDeleted(true);
+            }
+        }
         return dto;
+    }
+
+    public String getShareTime(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ShareInfoType.API_SHARE_REPORT.name());
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(projectApplications)) {
+            return "1D";
+        } else {
+            return projectApplications.getFirst().getTypeValue();
+        }
     }
 }
