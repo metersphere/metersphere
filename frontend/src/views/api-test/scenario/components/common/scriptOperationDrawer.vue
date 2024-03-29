@@ -5,9 +5,12 @@
     :width="960"
     no-content-padding
     disabled-width-drag
+    :footer="!props.detail"
+    @close="handleClose"
     @cancel="handleDrawerCancel"
   >
     <div class="ml-[16px] mt-[10px]">
+      <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
       {{ t('apiScenario.scriptOperationName') }}
     </div>
     <div class="ml-[16px] mt-[3px] max-w-[70%]">
@@ -19,9 +22,9 @@
       />
     </div>
     <div class="mt-[10px] flex h-[calc(100%-40px)] gap-[8px]">
-      <conditionContent v-model:data="activeItem" :is-build-in="true" :is-format="true" />
+      <conditionContent v-if="visible" v-model:data="activeItem" :is-build-in="true" :is-format="true" />
     </div>
-    <template #footer>
+    <template v-if="!props.detail" #footer>
       <a-button type="secondary" @click="handleDrawerCancel">
         {{ t('common.cancel') }}
       </a-button>
@@ -36,18 +39,28 @@
 </template>
 
 <script setup lang="ts">
+  import { cloneDeep } from 'lodash-es';
+
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import conditionContent from '@/views/api-test/components/condition/content.vue';
 
+  // import stepTypeVue from './stepType/stepType.vue';
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
+  const conditionContent = defineAsyncComponent(() => import('@/views/api-test/components/condition/content.vue'));
+
   const props = defineProps<{
-    script?: ExecuteConditionProcessor;
+    detail?: ExecuteConditionProcessor;
+    step?: ScenarioStepItem;
     name?: string;
+  }>();
+  const emit = defineEmits<{
+    (e: 'add', name: string, scriptProcessor: ExecuteConditionProcessor): void;
+    (e: 'save', name: string, scriptProcessor: ExecuteConditionProcessor): void;
   }>();
 
   const defaultScript = {
@@ -56,43 +69,44 @@
     script: '',
     scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
     commonScriptInfo: {},
-  } as ExecuteConditionProcessor;
-  const scriptName = ref(props.name || '');
-  const activeItem = ref(props.script || defaultScript);
+    polymorphicName: 'MsScriptElement',
+  } as unknown as ExecuteConditionProcessor;
+  const scriptName = ref('');
+  const activeItem = ref<ExecuteConditionProcessor>(cloneDeep(defaultScript));
 
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', { required: true });
 
-  const emit = defineEmits<{
-    (e: 'save', name: string, scriptProcessor: ExecuteConditionProcessor): void;
-  }>();
-
-  function resetField() {
-    scriptName.value = '';
-    activeItem.value = {
-      processorType: RequestConditionProcessor.SCRIPT,
-      enableCommonScript: false,
-      script: '',
-      scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
-      commonScriptInfo: {},
-    } as ExecuteConditionProcessor;
-  }
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        scriptName.value = props.name || '';
+        activeItem.value = cloneDeep(props.detail || defaultScript);
+      }
+    }
+  );
 
   function handleDrawerCancel() {
-    resetField();
     visible.value = false;
   }
 
   function saveAndContinue() {
-    emit('save', scriptName.value, activeItem.value);
-    resetField();
+    emit('add', scriptName.value, activeItem.value);
   }
 
   function save() {
-    emit('save', scriptName.value, activeItem.value);
-    resetField();
+    emit('add', scriptName.value, activeItem.value);
     visible.value = false;
+  }
+
+  function handleClose() {
+    if (props.detail) {
+      emit('save', scriptName.value, activeItem.value);
+    }
+    scriptName.value = '';
+    activeItem.value = defaultScript as unknown as ExecuteConditionProcessor;
   }
 </script>
 

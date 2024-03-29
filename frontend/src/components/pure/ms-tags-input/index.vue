@@ -16,6 +16,7 @@
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
       @clear="emit('clear')"
+      @click="emit('click')"
     >
       <template v-if="$slots.prefix" #prefix>
         <slot name="prefix"></slot>
@@ -66,7 +67,7 @@
       size: 'medium',
     }
   );
-  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear', 'blur']);
+  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear', 'blur', 'click']);
 
   const { t } = useI18n();
 

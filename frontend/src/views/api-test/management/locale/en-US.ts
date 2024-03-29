@@ -63,15 +63,14 @@ export default {
   'apiTestManagement.importMode': 'Import mode',
   'apiTestManagement.importModeTip1': 'Cover:',
   'apiTestManagement.importModeTip2':
-    '1.If the request type + path is the same for the same interface, if the request parameter content is inconsistent, it will be overwritten.',
+    '1.The same interface already exists in the system (the request type + path are consistent). If the request parameter content is inconsistent, the original interface of the system will be overwritten.',
   'apiTestManagement.importModeTip3':
-    '2.The same interface request type + path are the same, and the request parameter content is the same and does not change.',
-  'apiTestManagement.importModeTip4':
-    '3.If the interface is not the same and the request type + path is the same, add it',
+    '2.The same interface already exists in the system (request type + path are consistent), if the content of the request parameters is consistent, no changes will be made.',
+  'apiTestManagement.importModeTip4': '3.Interfaces that do not exist in the system are added.',
   'apiTestManagement.importModeTip5': 'Not covered:',
   'apiTestManagement.importModeTip6':
-    '1.If the same interface request type + path are the same, no changes will be made.',
-  'apiTestManagement.importModeTip7': '2.If the request type + path are not the same for the same interface, add a new',
+    '1.If the same interface already exists in the system (the request type + path is the same), no changes will be made.',
+  'apiTestManagement.importModeTip7': '2.Interfaces that do not exist in the system are added.',
   'apiTestManagement.cover': 'Cover',
   'apiTestManagement.uncover': 'Not covered',
   'apiTestManagement.moreSetting': 'More settings',

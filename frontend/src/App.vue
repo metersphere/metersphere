@@ -53,7 +53,7 @@
 
   onBeforeMount(async () => {
     try {
-      await appStore.initSystemVersion(); // 初始化系统版本
+      appStore.initSystemVersion(); // 初始化系统版本
       // 企业版才校验license
       if (appStore.packageType === 'enterprise') {
         licenseStore.getValidateLicense();
@@ -115,7 +115,7 @@
     setLocalStorage('salt', publicKey);
   };
 
-  onMounted(async () => {
+  onBeforeMount(async () => {
     await getPublicKey();
     if (WHITE_LIST.find((el) => el.path === window.location.hash.split('#')[1]) === undefined) {
       await checkIsLogin();

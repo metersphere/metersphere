@@ -169,15 +169,15 @@
       {
         polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
         assertionConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           assertions: [],
         },
         postProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
         preProcessorConfig: {
-          enableGlobal: false,
+          enableGlobal: true,
           processors: [],
         },
       },

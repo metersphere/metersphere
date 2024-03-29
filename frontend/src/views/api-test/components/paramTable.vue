@@ -778,21 +778,24 @@
       emitChange('addTableLine addLineDisabled', isInit);
       return;
     }
-    if (
-      rowIndex === paramsData.value.length - 1 &&
-      (paramsData.value[rowIndex].key ||
-        paramsData.value[rowIndex].projectId ||
-        paramsData.value[rowIndex].header ||
-        paramsData.value[rowIndex].variableName ||
-        paramsData.value[rowIndex].expression)
-    ) {
+    if (rowIndex === paramsData.value.length - 1) {
+      // Don't change this!!!
       // 最后一行的更改才会触发添加新一行
       const id = new Date().getTime().toString();
-      paramsData.value.push({
+      const lastLineData = paramsData.value[rowIndex]; // 上一行数据
+      const selectColumnKeys = props.columns.filter((e) => e.typeOptions).map((e) => e.dataIndex); // 找到下拉框选项的列
+      const nextLine = {
         id,
         ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
-      } as any);
+      } as any;
+      selectColumnKeys.forEach((key) => {
+        // 如果是更改了下拉框导致添加新的一列，需要将更改后的下拉框的值应用到下一行（产品为了方便统一输入参数类型）
+        if (key) {
+          nextLine[key] = lastLineData[key];
+        }
+      });
+      paramsData.value.push(nextLine);
     }
     emitChange('addTableLine', isInit);
     handleMustContainColChange(true);

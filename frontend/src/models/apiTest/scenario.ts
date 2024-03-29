@@ -21,9 +21,12 @@ import {
   ExecuteApiRequestFullParams,
   ExecuteAssertionItem,
   ExecuteConditionConfig,
+  ExecuteConditionProcessor,
   RequestResult,
   ResponseDefinition,
 } from './common';
+import type { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+import type { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
 
 // 场景-更新模块参数
 export interface ApiScenarioModuleUpdateParams {
@@ -190,7 +193,7 @@ export interface ScenarioHistoryItem {
   createUserName: string;
   versionName: string;
 }
-
+// 场景步骤-自定义请求
 export type CustomApiStep = ExecuteApiRequestFullParams & {
   protocol: string;
   activeTab: RequestComposition;
@@ -241,6 +244,7 @@ export interface Variable {
   commonVariables: CommonVariable[];
   csvVariables: CsvVariable[];
 }
+// 场景配置
 export interface ScenarioConfig {
   variable: Variable;
   preProcessorConfig: ExecuteConditionConfig;
@@ -298,11 +302,13 @@ export interface LoopStepDetail extends StepDetailsCommon {
   msCountController: CountController;
   whileController: WhileController;
 }
+// 场景引用配置
 export interface ScenarioStepConfig {
   useCurrentScenarioParam: boolean; // 是否优先使用当前场景参数
   useBothScenarioParam: boolean; // 是否当前场景参数和源场景参数都应用（勾选非空值时为 true）
   enableScenarioEnv: boolean; // 是否应用源场景环境
 }
+// 场景步骤详情
 export type ScenarioStepDetail = Partial<
   CustomApiStepDetail &
     ConditionStepDetail &
@@ -312,14 +318,16 @@ export type ScenarioStepDetail = Partial<
       method: RequestMethods;
     }
 >;
+// 场景步骤项
 export interface ScenarioStepItem {
   id: string | number;
   sort: number;
   name: string;
   enable: boolean; // 是否启用
   copyFromStepId?: string; // 如果步骤是复制的，这个字段是复制的步骤id；如果复制的步骤也是复制的，并且没有加载过详情，则这个 id 是最原始的 被复制的步骤 id
-  resourceId?: string; // 详情或者引用的类型才有
-  resourceNum?: string; // 详情或者引用的类型才有
+  resourceId?: string; // 详情或者引用、复制的类型才有
+  resourceNum?: string; // 详情或者引用、复制的类型才有
+  originProjectId?: string; // 如果步骤是复制的，这个字段是复制的资源的所在的项目id
   stepType: ScenarioStepType;
   refType: ScenarioStepRefType;
   config: ScenarioStepDetail; // 存储步骤列表需要展示的信息
@@ -342,6 +350,15 @@ export interface ScenarioStepItem {
   isQuoteScenarioStep?: boolean; // 是否是引用场景下的步骤(不分是不是完全引用，只要是引用类型就是)，不可修改引用 api 的参数值
   isRefScenarioStep?: boolean; // 是否是完全引用的场景下的步骤，是的话不允许启用禁用
 }
+// 场景步骤文件参数
+export interface ScenarioStepFileParams {
+  uploadFileIds: string[];
+  linkFileIds: string[];
+  deleteFileIds?: string[];
+  unLinkFileIds?: string[];
+}
+// 场景步骤详情
+export type ScenarioStepDetails = RequestParam | CaseRequestParam | ExecuteConditionProcessor;
 // 场景
 export interface Scenario {
   id?: string | number;
@@ -357,7 +374,8 @@ export interface Scenario {
   environmentId?: string;
   scenarioConfig: ScenarioConfig;
   steps: ScenarioStepItem[];
-  stepDetails: Record<string, ScenarioStepDetail>;
+  stepDetails: Record<string, ScenarioStepDetails>; // case、api、脚本操作抽屉的详情结构
+  stepFileParam: Record<string, ScenarioStepFileParams>;
   follow?: boolean;
   uploadFileIds: string[];
   linkFileIds: string[];
@@ -375,6 +393,7 @@ export interface Scenario {
   isExecute?: boolean; // 是否从列表执行进去场景详情
   isDebug?: boolean; // 是否调试，区分执行场景和批量调试步骤
 }
+// 场景详情
 export interface ScenarioDetail extends Scenario {
   stepTotal: number;
   requestPassRate: string;
@@ -390,7 +409,7 @@ export interface ScenarioDetail extends Scenario {
   updateTime: number;
   updateUser: string;
 }
-
+// 场景-执行请求参数
 export interface ApiScenarioDebugRequest {
   id: string | number; // 场景 id
   grouped: boolean;
@@ -420,7 +439,7 @@ export interface ApiScenarioUpdateDTO extends Partial<Scenario> {
   deleteFileIds?: string[];
   unLinkFileIds?: string[];
 }
-
+// 导入系统请求时获取步骤列表的分组入参
 export interface GetSystemRequestTypeParams {
   moduleIds?: (string | number)[];
   selectedIds: (string | number)[];
@@ -429,7 +448,7 @@ export interface GetSystemRequestTypeParams {
   protocol?: string;
   versionId?: string;
 }
-
+// 导入系统请求时获取步骤列表的入参
 export interface GetSystemRequestParams {
   apiRequest?: GetSystemRequestTypeParams;
   caseRequest?: GetSystemRequestTypeParams;

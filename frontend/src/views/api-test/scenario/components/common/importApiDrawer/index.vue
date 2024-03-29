@@ -198,7 +198,13 @@
    * 获取复制或引用的步骤数据
    * @param refType 复制或引用
    */
-  async function getScenarioSteps(refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF) {
+  async function getScenarioSteps(
+    refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF,
+    other: {
+      api: MsTableDataItem<ApiDefinitionDetail>[];
+      case: MsTableDataItem<ApiCaseDetail>[];
+    }
+  ) {
     const scenarioMap: Record<string, MsTableDataItem<ApiScenarioTableItem>[]> = {};
     // 可以跨项目选择，但是接口的项目 id 是单个，所以需要按项目分组
     selectedScenarios.value.forEach((e) => {
@@ -236,18 +242,19 @@
               return {
                 ...node,
                 copyFromStepId: node.id,
+                originProjectId: node.projectId,
                 id: getGenerateId(),
               };
             }),
-            name: `copy-${e.name}`,
             copyFromStepId: e.resourceId,
+            originProjectId: e.projectId,
           };
         });
         emit(
           'copy',
           cloneDeep({
-            api: selectedApis.value,
-            case: selectedCases.value,
+            api: other.api,
+            case: other.case,
             scenario: fullScenarioArr,
           })
         );
@@ -260,18 +267,20 @@
               return {
                 ...node,
                 copyFromStepId: node.id,
+                originProjectId: node.projectId,
                 id: getGenerateId(),
                 isQuoteScenarioStep: true,
                 isRefScenarioStep: true, // 默认是完全引用的
               };
             }),
+            originProjectId: e.projectId,
           };
         });
         emit(
           'quote',
           cloneDeep({
-            api: selectedApis.value,
-            case: selectedCases.value,
+            api: other.api,
+            case: other.case,
             scenario: fullScenarioArr,
           })
         );
@@ -286,14 +295,25 @@
   }
 
   async function handleCopy() {
+    const copyApis = selectedApis.value.map((e) => ({
+      ...e,
+      originProjectId: e.projectId,
+    }));
+    const copyCases = selectedCases.value.map((e) => ({
+      ...e,
+      originProjectId: e.projectId,
+    }));
     if (selectedScenarios.value.length > 0) {
-      await getScenarioSteps(ScenarioStepRefType.COPY);
+      await getScenarioSteps(ScenarioStepRefType.COPY, {
+        api: copyApis,
+        case: copyCases,
+      });
     } else {
       emit(
         'copy',
         cloneDeep({
-          api: selectedApis.value,
-          case: selectedCases.value,
+          api: copyApis,
+          case: copyCases,
           scenario: selectedScenarios.value,
         })
       );
@@ -302,14 +322,25 @@
   }
 
   async function handleQuote() {
+    const quoteApis = selectedApis.value.map((e) => ({
+      ...e,
+      originProjectId: e.projectId,
+    }));
+    const quoteCases = selectedCases.value.map((e) => ({
+      ...e,
+      originProjectId: e.projectId,
+    }));
     if (selectedScenarios.value.length > 0) {
-      await getScenarioSteps(ScenarioStepRefType.REF);
+      await getScenarioSteps(ScenarioStepRefType.REF, {
+        api: quoteApis,
+        case: quoteCases,
+      });
     } else {
       emit(
         'quote',
         cloneDeep({
-          api: selectedApis.value,
-          case: selectedCases.value,
+          api: quoteApis,
+          case: quoteCases,
           scenario: selectedScenarios.value,
         })
       );

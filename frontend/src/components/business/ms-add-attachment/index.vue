@@ -68,31 +68,31 @@
         arrow-class="hidden"
         :popup-offset="0"
       >
-        <MsTagsInput
-          v-model:model-value="inputFiles"
-          :disabled="props.disabled"
-          :input-class="props.inputClass"
-          placeholder=" "
-          :max-tag-count="1"
-          :size="props.inputSize"
-          readonly
-          class="!w-[calc(100%-28px)]"
-        >
-          <template v-if="alreadyDeleteFiles.length > 0" #prefix>
-            <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
-          </template>
-          <template #tag="{ data }">
-            <MsTag
-              :size="props.tagSize"
-              class="m-0 border-none p-0"
-              :self-style="{ backgroundColor: 'transparent !important' }"
-              :closable="data.value !== '__arco__more'"
-              @close="handleClose(data)"
-            >
-              {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}
-            </MsTag>
-          </template>
-        </MsTagsInput>
+        <div class="!w-[calc(100%-28px)]">
+          <MsTagsInput
+            v-model:model-value="inputFiles"
+            :input-class="props.inputClass"
+            placeholder=" "
+            :max-tag-count="1"
+            :size="props.inputSize"
+            readonly
+          >
+            <template v-if="alreadyDeleteFiles.length > 0" #prefix>
+              <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+            </template>
+            <template #tag="{ data }">
+              <MsTag
+                :size="props.tagSize"
+                class="m-0 border-none p-0"
+                :self-style="{ backgroundColor: 'transparent !important' }"
+                :closable="data.value !== '__arco__more'"
+                @close="handleClose(data)"
+              >
+                {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}
+              </MsTag>
+            </template>
+          </MsTagsInput>
+        </div>
         <template #content>
           <div class="flex w-[200px] flex-col gap-[8px]">
             <template v-if="alreadyDeleteFiles.length > 0">
@@ -379,6 +379,14 @@
 
   function handleSaveFileFinish(fileId: string) {
     if (savingFile.value) {
+      inputFiles.value = inputFiles.value.map((e) => {
+        if (e.value === savingFile.value?.fileId || e.value === savingFile.value?.uid) {
+          // 被存储过的文件没有 uid，只有fileId；刚上传还未保存的文件只有 uid，没有fileId
+          e.value = fileId;
+          e.local = false;
+        }
+        return e;
+      });
       savingFile.value.fileId = fileId;
       savingFile.value.local = false;
     }

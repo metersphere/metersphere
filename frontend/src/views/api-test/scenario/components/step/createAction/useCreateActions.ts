@@ -116,9 +116,9 @@ export default function useCreateActions() {
       if (item.id || item.resourceId) {
         // 引用复制接口、用例、场景时的源资源信息
         resourceField = {
-          resourceId: item.id || item.resourceId,
-          resourceNum: item.num,
-          resourceName: item.name,
+          resourceId: item.id || item.resourceId, // 场景会调接口获取信息，所以有resourceId，接口、用例没有，下同
+          resourceNum: item.num || item.resourceNum,
+          resourceName: item.name || item.resourceName,
         };
       }
       if (item.protocol) {
@@ -141,6 +141,7 @@ export default function useCreateActions() {
         children: item.children || [],
         stepType,
         refType,
+        originProjectId: item.originProjectId,
         copyFromStepId: item.copyFromStepId,
         ...resourceField,
         name: name || item.name,

@@ -49,7 +49,7 @@
     "@tiptap/vue-3": "^2.1.13",
     "@types/color": "^3.0.4",
     "@types/node": "^20.11.16",
-    "@vueuse/core": "^10.7.2",
+    "@vueuse/core": "^10.9.0",
     "@xmldom/xmldom": "^0.8.10",
     "ace-builds": "^1.24.2",
     "ahooks-vue": "^0.15.1",
