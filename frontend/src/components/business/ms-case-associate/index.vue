@@ -536,6 +536,7 @@
       sourceType: caseType.value,
       projectId: innerProject.value,
       sourceId: props.caseId,
+      totalCount: propsRes.value.msPagination?.total,
     };
 
     emit('save', params);

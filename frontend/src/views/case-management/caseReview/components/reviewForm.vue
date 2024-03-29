@@ -12,13 +12,13 @@
             {{ t('caseManagement.caseReview.pass') }}
           </div>
         </a-radio>
-        <a-radio value="UN_PASS">
+        <a-radio value="UN_PASS" @click="modalVisible = true">
           <div class="inline-flex items-center">
             <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
             {{ t('caseManagement.caseReview.fail') }}
           </div>
         </a-radio>
-        <a-radio value="UNDER_REVIEWED">
+        <a-radio value="UNDER_REVIEWED" @click="modalVisible = true">
           <div class="inline-flex items-center">
             <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
             {{ t('caseManagement.caseReview.suggestion') }}

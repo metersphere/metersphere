@@ -41,7 +41,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useVisit from '@/hooks/useVisit';
-  import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -99,16 +98,17 @@
         if (isContinue) {
           Message.success(t('caseManagement.featureCase.addSuccess'));
           caseModuleDetailRef.value.resetForm();
-
           return;
         }
         createSuccessId.value = res.data.id;
-        Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
         isShowTip.value = !getIsVisited();
         if (isReview) {
+          Message.success(t('caseManagement.featureCase.createAndLinkSuccess'));
+          setState(true);
           router.back();
           return;
         }
+        Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
         if (isShowTip.value && !route.query.id) {
           router.push({
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,

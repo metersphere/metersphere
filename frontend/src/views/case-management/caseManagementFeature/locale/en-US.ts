@@ -207,6 +207,7 @@ export default {
   'caseManagement.featureCase.platformDemandState': 'Status',
   'caseManagement.featureCase.platformDemandHandler': 'handler',
   'caseManagement.featureCase.createAndLink': 'Create & Associate',
+  'caseManagement.featureCase.createAndLinkSuccess': 'Created and associated successfully',
   'caseManagement.featureCase.commentList': 'Comment list',
   'caseManagement.featureCase.caseComment': 'Use case comment',
   'caseManagement.featureCase.reviewComment': 'Review Comments',
