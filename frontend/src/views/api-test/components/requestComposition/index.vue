@@ -712,7 +712,6 @@
     // HTTP 协议 tabs
     if (isHttpProtocol.value) {
       if (props.isCase) {
-        // 定义没有参数BODY/QUERY/REST的，用例对应tab不显示
         return httpContentTabList;
       }
       if (props.isDefinition) {

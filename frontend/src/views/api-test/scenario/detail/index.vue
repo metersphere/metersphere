@@ -210,6 +210,10 @@
 
   const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
   function validScenarioForm(cb: () => Promise<void>) {
+    if (!baseInfoRef.value) {
+      cb();
+      return;
+    }
     baseInfoRef.value?.createFormRef?.validate(async (errors) => {
       if (errors) {
         activeKey.value = ScenarioDetailComposition.BASE_INFO;
