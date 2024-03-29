@@ -53,6 +53,7 @@
           <params
             v-if="activeKey === ScenarioDetailComposition.PARAMS"
             v-model:params="scenario.scenarioConfig.variable.commonVariables"
+            @change="scenario.unSaved = true"
           />
         </a-tab-pane>
         <a-tab-pane
@@ -64,6 +65,7 @@
             v-if="activeKey === ScenarioDetailComposition.PRE_POST"
             v-model:post-processor-config="scenario.scenarioConfig.postProcessorConfig"
             v-model:pre-processor-config="scenario.scenarioConfig.preProcessorConfig"
+            @change="scenario.unSaved = true"
           />
         </a-tab-pane>
         <a-tab-pane
@@ -74,6 +76,7 @@
           <assertion
             v-if="activeKey === ScenarioDetailComposition.ASSERTION"
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
+            @change="scenario.unSaved = true"
           />
         </a-tab-pane>
         <a-tab-pane
@@ -108,6 +111,7 @@
           <setting
             v-if="activeKey === ScenarioDetailComposition.SETTING"
             v-model:other-config="scenario.scenarioConfig.otherConfig"
+            @change="scenario.unSaved = true"
           />
         </a-tab-pane>
       </a-tabs>

@@ -129,7 +129,7 @@
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultScenario } from './components/config';
@@ -371,7 +371,22 @@
           };
         });
       } else {
-        copySteps = mapTree(defaultScenarioInfo.steps);
+        copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
+          if (
+            node.parent &&
+            node.parent.stepType === ScenarioStepType.API_SCENARIO &&
+            [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
+          ) {
+            // 如果父节点是引用场景
+            node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+            node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为引用场景下的子步骤
+          } else if (node.parent) {
+            // 如果有父节点
+            node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
+            node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+          }
+          return node;
+        });
       }
       scenarioTabs.value.push({
         ...defaultScenarioInfo,

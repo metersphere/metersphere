@@ -332,14 +332,14 @@
       </paramsTable>
     </div>
     <!-- 正则结束 -->
+    <fastExtraction
+      v-model:visible="fastExtractionVisible"
+      :config="activeRecord"
+      :response="props.response"
+      :is-show-more-setting="false"
+      @apply="handleFastExtractionApply"
+    />
   </div>
-  <fastExtraction
-    v-model:visible="fastExtractionVisible"
-    :config="activeRecord"
-    :response="props.response"
-    :is-show-more-setting="false"
-    @apply="handleFastExtractionApply"
-  />
 </template>
 
 <script setup lang="ts">

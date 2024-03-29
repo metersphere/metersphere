@@ -12,11 +12,11 @@
       </a-tooltip>
     </div>
     <div class="mb-[16px] mt-[10px] flex items-center gap-[8px]">
-      <a-switch v-model:model-value="form.enableGlobalCookie" type="line" size="small" />
+      <a-switch v-model:model-value="form.enableGlobalCookie" type="line" size="small" @change="emit('change')" />
       {{ t('apiScenario.setting.environment.cookie') }}
     </div>
     <div class="mb-[16px] flex items-center gap-[8px]">
-      <a-switch v-model:model-value="form.enableCookieShare" type="line" size="small" />
+      <a-switch v-model:model-value="form.enableCookieShare" type="line" size="small" @change="emit('change')" />
       {{ t('apiScenario.setting.share.cookie') }}
       <a-tooltip :content="t('apiScenario.setting.share.cookie.tip')" position="right">
         <div>
@@ -31,7 +31,7 @@
       {{ t('apiScenario.setting.run.config') }}
     </div>
     <div class="mb-[16px] mt-[10px] flex items-center gap-[8px]">
-      <a-switch v-model:model-value="form.enableStepWait" type="line" size="small" />
+      <a-switch v-model:model-value="form.enableStepWait" type="line" size="small" @change="emit('change')" />
       {{ t('apiScenario.setting.step.waitTime') }}
       <a-tooltip :content="t('apiScenario.setting.waitTime.tip')">
         <div>
@@ -50,7 +50,14 @@
           <div class="text-[var(--color-text-brand)]">(ms)</div>
         </div>
       </template>
-      <a-input-number v-model:model-value="form.stepWaitTime" mode="button" :step="100" :min="0" class="w-[160px]" />
+      <a-input-number
+        v-model:model-value="form.stepWaitTime"
+        mode="button"
+        :step="100"
+        :min="0"
+        class="w-[160px]"
+        @change="emit('change')"
+      />
     </a-form-item>
 
     <a-form-item class="flex-1">
@@ -59,7 +66,7 @@
           {{ t('apiScenario.setting.step.rule') }}
         </div>
       </template>
-      <a-radio-group v-model:model-value="form.failureStrategy">
+      <a-radio-group v-model:model-value="form.failureStrategy" @change="emit('change')">
         <a-radio :value="ScenarioFailureStrategy.CONTINUE">{{ t('apiScenario.setting.step.rule.ignore') }}</a-radio>
         <a-radio :value="ScenarioFailureStrategy.STOP">{{ t('apiScenario.setting.step.rule.stop') }}</a-radio>
       </a-radio-group>
@@ -72,6 +79,10 @@
 
   import { OtherConfig } from '@/models/apiTest/scenario';
   import { ScenarioFailureStrategy } from '@/enums/apiEnum';
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
 
   const { t } = useI18n();
 
