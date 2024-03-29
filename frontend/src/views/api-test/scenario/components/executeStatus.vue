@@ -27,11 +27,11 @@
       color: 'rgb(var(--link-5))',
       text: 'apiScenario.executeHistory.status.running',
     },
-    [ExecuteStatusFilters.RERUNNING]: {
-      bgColor: 'rgb(var(--link-2))',
-      color: 'rgb(var(--link-6))',
-      text: 'apiScenario.executeHistory.status.rerunning',
-    },
+    // [ExecuteStatusFilters.RERUNNING]: {
+    //   bgColor: 'rgb(var(--link-2))',
+    //   color: 'rgb(var(--link-6))',
+    //   text: 'apiScenario.executeHistory.status.rerunning',
+    // },
     [ExecuteStatusFilters.ERROR]: {
       bgColor: 'rgb(var(--danger-2))',
       color: 'rgb(var(--danger-5))',

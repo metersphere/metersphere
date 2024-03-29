@@ -35,11 +35,11 @@ export const ReportStatus = {
       label: 'report.inExecution',
       color: '!text-[rgb(var(--link-6))]',
     },
-    RERUNNING: {
-      icon: 'icon-icon_testing',
-      label: 'report.rerun',
-      color: '!text-[rgb(var(--link-6))]',
-    },
+    // RERUNNING: {
+    //   icon: 'icon-icon_testing',
+    //   label: 'report.rerun',
+    //   color: '!text-[rgb(var(--link-6))]',
+    // },
     PENDING: {
       icon: 'icon-icon_wait',
       label: 'report.queuing',
@@ -69,11 +69,11 @@ export const ReportStatus = {
       label: 'report.inExecution',
       color: '!text-[rgb(var(--link-6))]',
     },
-    RERUNNING: {
-      icon: 'icon-icon_testing',
-      label: 'report.rerun',
-      color: '!text-[rgb(var(--link-6))]',
-    },
+    // RERUNNING: {
+    //   icon: 'icon-icon_testing',
+    //   label: 'report.rerun',
+    //   color: '!text-[rgb(var(--link-6))]',
+    // },
     PENDING: {
       icon: 'icon-icon_wait',
       label: 'report.queuing',
