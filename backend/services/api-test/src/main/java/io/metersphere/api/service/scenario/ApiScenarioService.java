@@ -1621,6 +1621,7 @@ public class ApiScenarioService extends MoveNodeService {
                 msTestElement.setProjectId(step.getProjectId());
                 msTestElement.setResourceId(step.getResourceId());
                 msTestElement.setStepId(step.getId());
+                msTestElement.setName(step.getName());
 
                 // 记录引用的资源ID和项目ID，下载执行文件时需要使用
                 parseParam.getRefProjectIds().add(step.getProjectId());
