@@ -8,7 +8,7 @@
     </a-button>
     <template #content>
       <div class="arco-table-filters-content">
-        <div class="flex items-center justify-center px-[6px] py-[2px]">
+        <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
           <a-checkbox-group v-model:model-value="innerStatusFilters" direction="vertical" size="small">
             <a-checkbox
               v-for="(item, index) of props.list"
@@ -19,13 +19,20 @@
             </a-checkbox>
           </a-checkbox-group>
         </div>
+        <div class="filter-button">
+          <a-button size="mini" class="mr-[8px]" @click="resetFilter">
+            {{ t('common.reset') }}
+          </a-button>
+          <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+            {{ t('system.orgTemplate.confirm') }}
+          </a-button>
+        </div>
       </div>
     </template>
   </a-trigger>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -53,6 +60,11 @@
     if (!val) {
       emit('search');
     }
+  }
+  function resetFilter() {
+    innerStatusFilters.value = [];
+    innerVisible.value = false;
+    emit('search');
   }
 </script>
 
