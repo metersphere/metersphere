@@ -332,7 +332,14 @@
     batchParams.value = {
       ...params,
       selectIds: params?.selectedIds || [],
-      condition: {},
+      condition: {
+        filter: {
+          status: statusListFilters.value,
+          integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
+          triggerMode: triggerModeListFilters.value,
+        },
+        keyword: keyword.value,
+      },
       projectId: appStore.currentProjectId,
     };
 
