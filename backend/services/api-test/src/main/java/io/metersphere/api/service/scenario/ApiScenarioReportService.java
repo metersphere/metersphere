@@ -284,27 +284,6 @@ public class ApiScenarioReportService {
             for (ApiScenarioReportStepDTO step : steps) {
                 List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(children)) {
-                    //如果是循环控制器 需要重新处理
-                    /*if (StringUtils.equals(ApiScenarioStepType.LOOP_CONTROLLER.name(), step.getStepType())) {
-                        //根据stepId进行分组
-                        Map<String, List<ApiScenarioReportStepDTO>> loopMap = children.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
-                        List<ApiScenarioReportStepDTO> newChildren = new ArrayList<>();
-                        loopMap.forEach((key, value) -> {
-                            ApiScenarioReportStepDTO loopStep = new ApiScenarioReportStepDTO();
-                            BeanUtils.copyBean(loopStep, value.getFirst());
-                            newChildren.add(loopStep);
-                            value.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
-                            for (int i = 0; i < value.size(); i++) {
-                                ApiScenarioReportStepDTO loop = value.get(i);
-                                loop.setSort((long) i+1);
-                                loop.setParentId(key);
-                                loop.setStepId(loopStep.getStepId() + SPLITTER + loop.getSort());
-                            }
-                            scenarioReportStepMap.put(key, value);
-                        });
-                        children = newChildren;
-                        scenarioReportStepMap.remove(step.getStepId());
-                    }*/
                     children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
                     step.setChildren(children);
                     getStepTree(children, scenarioReportStepMap);
