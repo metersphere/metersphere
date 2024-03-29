@@ -52,7 +52,11 @@
           />
           <a-tooltip :content="record.name">
             <div
-              class="ellipsis max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]"
+              class="ellipsis max-w-[200px]"
+              :class="{
+                'text-[rgb(var(--primary-5))]': isEnableTemplate,
+                'cursor-pointer': isEnableTemplate,
+              }"
               @click="showDetail(record)"
               >{{ record.name }}</div
             >
@@ -61,7 +65,7 @@
         >
       </template>
       <template #updateTime="{ record }"> {{ dayjs(record.updateTime).format('YYYY-MM-DD HH:mm:ss') }} </template>
-      <template #operation="{ record }">
+      <template v-if="isEnableTemplate" #operation="{ record }">
         <div class="flex flex-row flex-nowrap items-center">
           <MsPopConfirm
             type="error"
@@ -221,6 +225,14 @@
     }
   });
 
+  // 是否开启模板(项目/组织)
+  const isEnableTemplate = computed(() => {
+    if (props.mode === 'organization') {
+      return templateStore.ordStatus[route.query.type as string];
+    }
+    return templateStore.projectStatus[route.query.type as string];
+  });
+
   const hasOperationPermission = computed(() =>
     hasAnyPermission([...props.updatePermission, ...props.deletePermission])
   );
@@ -375,6 +387,8 @@
 
   // 详情
   const showDetail = (record: AddOrUpdateField) => {
+    if (!isEnableTemplate.value) return;
+
     showDetailVisible.value = true;
     let fieldType;
     if (record.type === 'MEMBER') {
