@@ -206,6 +206,7 @@ export default {
   'caseManagement.featureCase.platformDemandState': '状态',
   'caseManagement.featureCase.platformDemandHandler': '处理人',
   'caseManagement.featureCase.createAndLink': '创建并关联',
+  'caseManagement.featureCase.createAndLinkSuccess': '创建并关联成功',
   'caseManagement.featureCase.commentList': '评论列表',
   'caseManagement.featureCase.caseComment': '用例评论',
   'caseManagement.featureCase.reviewComment': '评审评论',

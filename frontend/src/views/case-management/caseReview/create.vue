@@ -132,7 +132,11 @@
             <div class="text-[var(--color-text-2)]">
               {{
                 t('caseManagement.caseReview.selectedCases', {
-                  count: isCopy ? reviewForm.caseCount : selectedAssociateCasesParams.selectIds.length,
+                  count: isCopy
+                    ? reviewForm.caseCount
+                    : selectedAssociateCasesParams.selectAll
+                    ? selectedAssociateCasesParams.totalCount
+                    : selectedAssociateCasesParams.selectIds.length,
                 })
               }}
             </div>

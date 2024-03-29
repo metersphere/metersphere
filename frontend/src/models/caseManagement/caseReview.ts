@@ -36,6 +36,7 @@ export interface BaseAssociateCaseRequest {
   versionId: string;
   refId: string;
   projectId: string;
+  totalCount?: number;
 }
 // 评审
 export interface Review {
