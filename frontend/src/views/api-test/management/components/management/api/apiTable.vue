@@ -282,13 +282,13 @@
           class="one-line-text ml-[4px] max-w-[70%] text-[var(--color-text-4)]"
           :title="
             isBatchMove
-              ? t('apiTestManagement.batchModalSubTitle', { count: tableSelected.length })
+              ? t('apiTestManagement.batchModalSubTitle', { count: batchParams.currentSelectCount })
               : `(${activeApi?.name})`
           "
         >
           {{
             isBatchMove
-              ? t('apiTestManagement.batchModalSubTitle', { count: tableSelected.length })
+              ? t('apiTestManagement.batchModalSubTitle', { count: batchParams.currentSelectCount })
               : `(${activeApi?.name})`
           }}
         </div>
