@@ -298,13 +298,13 @@ public class ApiDefinitionImportUtilService {
         List<LogDTO> operationLogs = new ArrayList<>();
         List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
         updateRequestData.forEach(t -> {
+            ApiDefinition apiDefinition = new ApiDefinition();
             if (CollectionUtils.isNotEmpty(updateModuleLists) && updateModuleLists.contains(t.getId())) {
-                ApiDefinition apiDefinition = new ApiDefinition();
                 apiDefinition.setId(t.getId());
                 apiDefinition.setUpdateUser(request.getUserId());
-                apiDefinition.setUpdateTime(System.currentTimeMillis());
-                apiMapper.updateByPrimaryKeySelective(apiDefinition);
             }
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiMapper.updateByPrimaryKeySelective(apiDefinition);
             //更新blob数据
             ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
             apiDefinitionBlob.setId(t.getId());
