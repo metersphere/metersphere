@@ -141,6 +141,7 @@
       :page-change="propsEvent.pageChange"
       :pagination="propsRes.msPagination!"
       :show-type="showType"
+      :share-time="shareTime"
     />
     <CaseReportDrawer
       v-model:visible="showCaseDetailDrawer"
@@ -150,6 +151,7 @@
       :page-change="propsEvent.pageChange"
       :pagination="propsRes.msPagination!"
       :show-type="activeCaseReportType"
+      :share-time="shareTime"
     />
   </div>
 </template>
@@ -169,7 +171,13 @@
   import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
-  import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/api-test/report';
+  import {
+    getShareTime,
+    reportBathDelete,
+    reportDelete,
+    reportList,
+    reportRename,
+  } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
@@ -471,6 +479,30 @@
       activeCaseReportType.value = integrated ? 'INTEGRATED' : 'INDEPENDENT';
     }
   }
+
+  const shareTime = ref<string>('');
+  async function getTime() {
+    try {
+      const res = await getShareTime(appStore.currentProjectId);
+      const match = res.match(/^(\d+)([MYHD])$/);
+      if (match) {
+        const value = parseInt(match[1], 10);
+        const type = match[2];
+        const translations = {
+          M: t('msTimeSelector.month'),
+          Y: t('msTimeSelector.year'),
+          H: t('msTimeSelector.hour'),
+          D: t('msTimeSelector.day'),
+        };
+        shareTime.value = value + (translations[type] || translations.D);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  onMounted(() => {
+    getTime();
+  });
 
   watch(
     () => props.moduleType,

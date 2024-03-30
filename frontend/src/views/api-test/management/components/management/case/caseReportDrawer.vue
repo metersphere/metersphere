@@ -153,28 +153,22 @@
 
   const shareTime = ref<string>('');
   async function getTime() {
-    const res = await getShareTime(appStore.currentProjectId);
-    const match = res.match(/^(\d+)([MYHD])$/);
-    if (match) {
-      const value = parseInt(match[1], 10); // 提取值并将其转换为整数
-      const type = match[2]; // 提取类型
-      switch (type) {
-        case 'M':
-          shareTime.value = value + t('msTimeSelector.month');
-          break;
-        case 'Y':
-          shareTime.value = value + t('msTimeSelector.year');
-          break;
-        case 'H':
-          shareTime.value = value + t('msTimeSelector.hour');
-          break;
-        case 'D':
-          shareTime.value = value + t('msTimeSelector.day');
-          break;
-        default:
-          shareTime.value = 24 + t('msTimeSelector.hour');
-          break;
+    try {
+      const res = await getShareTime(appStore.currentProjectId);
+      const match = res.match(/^(\d+)([MYHD])$/);
+      if (match) {
+        const value = parseInt(match[1], 10);
+        const type = match[2];
+        const translations = {
+          M: t('msTimeSelector.month'),
+          Y: t('msTimeSelector.year'),
+          H: t('msTimeSelector.hour'),
+          D: t('msTimeSelector.day'),
+        };
+        shareTime.value = value + (translations[type] || translations.D);
       }
+    } catch (error) {
+      console.log(error);
     }
   }
   onMounted(() => {

@@ -96,7 +96,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import ExecutionStatus from './executionStatus.vue';
-  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
+  import CaseReportDrawer from '@/views/api-test/management/components/management/case/caseReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 
   import {

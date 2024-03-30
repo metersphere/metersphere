@@ -1577,8 +1577,9 @@
   }
 
   onBeforeMount(() => {
-    if (props.isCase) return;
-    initLocalConfig();
+    if (!props.isCase) {
+      initLocalConfig();
+    }
   });
 
   onMounted(() => {
