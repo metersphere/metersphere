@@ -3,22 +3,20 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ParamConstants;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.domain.SystemParameterExample;
 import io.metersphere.system.dto.sdk.BaseCleanConfigDTO;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.EMailInfoDto;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.job.CleanHistoryJob;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.BaseSystemParameterMapper;
-import io.metersphere.system.notice.sender.impl.MailNoticeSender;
-import io.metersphere.sdk.util.EncryptUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.SystemParameter;
-import io.metersphere.system.domain.SystemParameterExample;
 import io.metersphere.system.mapper.SystemParameterMapper;
+import io.metersphere.system.notice.sender.impl.MailNoticeSender;
 import jakarta.annotation.Resource;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -284,6 +282,13 @@ public class SystemParameterService {
                 systemParameterMapper.updateByPrimaryKey(parameter);
             } else {
                 systemParameterMapper.insert(parameter);
+            }
+            if (StringUtils.equals(parameter.getParamKey(), ParamConstants.CleanConfig.OPERATION_HISTORY.getValue())) {
+                // 清理历史记录
+                CleanHistoryJob bean = CommonBeanFactory.getBean(CleanHistoryJob.class);
+                if (bean != null) {
+                    bean.cleanupLog();
+                }
             }
         });
     }
