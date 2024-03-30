@@ -327,7 +327,7 @@ public class ApiDefinitionImportUtilService {
                         project.getOrganizationId(),
                         v.getId(),
                         request.getUserId(),
-                        OperationLogType.IMPORT.name(),
+                        OperationLogType.UPDATE.name(),
                         OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                         v.getName());
                 dto.setHistory(true);
@@ -376,6 +376,7 @@ public class ApiDefinitionImportUtilService {
             dto.setPath("/api/definition/import");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
+            operationLogs.add(dto);
 
             ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
             BeanUtils.copyBean(apiDefinitionCaseDTO, t);

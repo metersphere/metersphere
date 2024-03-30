@@ -33,7 +33,7 @@
           <template #content>
             <a-doption>
               <span>{{ t('report.detail.api.copyLink') }}</span
-              ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: shareTime }) }}</span>
+              ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: props.shareTime }) }}</span>
             </a-doption>
           </template>
         </a-dropdown>
@@ -87,6 +87,7 @@
     pagination: MsPaginationI;
     pageChange: (page: number) => Promise<void>;
     isShare?: boolean;
+    shareTime?: string;
   }>();
 
   const emit = defineEmits<{
@@ -189,36 +190,6 @@
       console.log(error);
     }
   }
-  const shareTime = ref<string>('');
-  async function getTime() {
-    const res = await getShareTime(appStore.currentProjectId);
-    const match = res.match(/^(\d+)([MYHD])$/);
-    if (match) {
-      const value = parseInt(match[1], 10); // 提取值并将其转换为整数
-      const type = match[2]; // 提取类型
-      switch (type) {
-        case 'M':
-          shareTime.value = value + t('msTimeSelector.month');
-          break;
-        case 'Y':
-          shareTime.value = value + t('msTimeSelector.year');
-          break;
-        case 'H':
-          shareTime.value = value + t('msTimeSelector.hour');
-          break;
-        case 'D':
-          shareTime.value = value + t('msTimeSelector.day');
-          break;
-        default:
-          shareTime.value = 24 + t('msTimeSelector.hour');
-          break;
-      }
-    }
-  }
-  onMounted(() => {
-    getTime();
-  });
-
   /**
    * 导出
    */

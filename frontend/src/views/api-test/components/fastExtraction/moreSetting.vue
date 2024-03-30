@@ -46,7 +46,7 @@
           </div>
         </a-radio>
         <a-radio :value="RequestExtractResultMatchingRule.SPECIFIC">
-          <div class="flex items-center">
+          <div class="flex items-center text-[14px]">
             {{ t('apiTestDebug.specifyMatch') }}
             <a-tooltip :content="t('apiTestDebug.specifyMatchTip')" :content-style="{ maxWidth: '400px' }">
               <icon-question-circle

@@ -108,7 +108,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
+  import CaseReportDrawer from '@/views/api-test/management/components/management/case/caseReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
