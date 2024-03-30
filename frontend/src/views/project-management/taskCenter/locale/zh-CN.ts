@@ -40,4 +40,7 @@ export default {
   'project.taskCenter.realTimeTask': '实时任务',
   'project.taskCenter.createTask': '创建定时任务',
   'project.taskCenter.apiCaseList': '{type}列表',
+  'project.taskCenter.delSchedule': '确定删除定时任务吗？',
+  'project.taskCenter.delScheduleSuccess': '删除定时任务成功',
+  'project.taskCenter.delSchedule.tip': '删除定时任务会导致任务停止，是否继续？',
 };

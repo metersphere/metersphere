@@ -29,6 +29,8 @@
       </template>
       <template #operation="{ record }">
         <a-switch v-model="record.enable" size="small" type="line" />
+        <a-divider direction="vertical" />
+        <MsButton class="!mr-0" @click="delSchedule(record)">{{ t('common.delete') }}</MsButton>
         <!-- TODO这一版不上 -->
         <!-- <a-divider direction="vertical" />
         <MsButton class="!mr-0" @click="edit(record)">{{ t('common.edit') }}</MsButton>
@@ -41,27 +43,32 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
+  import { switchDefinitionSchedule } from '@/api/modules/api-test/management';
   import {
+    deleteScheduleSysTask,
     getScheduleOrgApiCaseList,
     getScheduleProApiCaseList,
     getScheduleSysApiCaseList,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
 
+  import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   const tableStore = useTableStore();
-
+  const { openModal } = useModal();
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -128,14 +135,14 @@
       slotName: 'nextTime',
       dataIndex: 'nextTime',
       showInTable: true,
-      width: 300,
+      width: 200,
       showDrag: true,
     },
     {
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 120,
+      width: 180,
       fixed: 'right',
       showDrag: false,
     },
@@ -159,7 +166,12 @@
       heightUsed: 300,
       enableDrag: false,
       showSelectorAll: true,
-    }
+    },
+    // eslint-disable-next-line no-return-assign
+    (item) => ({
+      ...item,
+      nextTime: dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss'),
+    })
   );
 
   function initData() {
@@ -191,6 +203,45 @@
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {}
 
   function edit(record: any) {}
+
+  function delSchedule(record: any) {
+    openModal({
+      type: 'error',
+      title: t('project.taskCenter.delSchedule'),
+      content: t('project.taskCenter.delSchedule.tip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await deleteScheduleSysTask(record?.id as string);
+          Message.success(t('project.taskCenter.delScheduleSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  async function handleBeforeEnableChange(record: TimingTaskCenterApiCaseItem) {
+    try {
+      await switchDefinitionSchedule(record.id);
+      Message.success(
+        t(record.enable ? 'apiTestManagement.disableTaskSuccess' : 'apiTestManagement.enableTaskSuccess')
+      );
+      return true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return false;
+    }
+  }
 
   const moreActions: ActionsItem[] = [
     {
