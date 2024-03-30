@@ -9,7 +9,11 @@
         @change="() => handleProtocolChange()"
       />
       <div class="mb-[8px] flex items-center gap-[8px]">
-        <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
+        <a-input
+          v-model:model-value="moduleKeyword"
+          :placeholder="props.isModal ? t('apiTestManagement.moveSearchTip') : t('apiTestManagement.searchTip')"
+          allow-clear
+        />
         <a-dropdown
           v-if="
             !props.readOnly &&
@@ -89,7 +93,7 @@
     <a-input
       v-else
       v-model:model-value="moduleKeyword"
-      :placeholder="t('apiTestManagement.searchTip')"
+      :placeholder="props.isModal ? t('apiTestManagement.moveSearchTip') : t('apiTestManagement.searchTip')"
       class="mb-[16px]"
       allow-clear
     />
@@ -102,7 +106,7 @@
         :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
-        :empty-text="t('apiTestManagement.noMatchModule')"
+        :empty-text="props.isModal ? t('apiTestManagement.noMatchModule') : t('apiTestManagement.noMatchModule')"
         :virtual-list-props="virtualListProps"
         :field-names="{
           title: 'name',

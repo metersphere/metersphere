@@ -758,7 +758,13 @@
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            condition: { keyword: keyword.value },
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                status: statusFilters.value,
+                method: methodFilters.value,
+              },
+            },
             projectId: appStore.currentProjectId,
             moduleIds: await getModuleIds(),
             protocol: props.protocol,
@@ -796,7 +802,13 @@
         selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeApi.value?.id || ''],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value },
+        condition: {
+          keyword: keyword.value,
+          filter: {
+            status: statusFilters.value,
+            method: methodFilters.value,
+          },
+        },
         projectId: appStore.currentProjectId,
         moduleIds: await getModuleIds(),
         moduleId: selectedModuleKeys.value[0],
