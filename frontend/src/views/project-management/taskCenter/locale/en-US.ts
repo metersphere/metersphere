@@ -41,4 +41,8 @@ export default {
   'project.taskCenter.realTimeTask': 'Real Time Task',
   'project.taskCenter.createTask': 'create',
   'project.taskCenter.apiCaseList': '{type} list',
+  'project.taskCenter.delSchedule': 'Are you sure to delete the scheduled task?',
+  'project.taskCenter.delScheduleSuccess': 'Delete scheduled task successfully',
+  'project.taskCenter.delSchedule.tip':
+    'Deleting the scheduled task will cause the task to stop. Do you want to continue?',
 };
