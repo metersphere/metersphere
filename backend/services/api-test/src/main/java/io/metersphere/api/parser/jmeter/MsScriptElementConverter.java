@@ -29,6 +29,9 @@ public class MsScriptElementConverter extends AbstractJmeterElementConverter<MsS
             scriptElement = new BeanShellSampler();
         }
         ScriptProcessorConverter.parse(scriptElement, scriptProcessor, config);
+
+        setStepIdentification(msScriptElement, config, scriptElement);
+
         hashTree.add(scriptElement);
     }
 }
