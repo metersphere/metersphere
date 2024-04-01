@@ -1,7 +1,6 @@
 package io.metersphere.api.service.scenario;
 
 import io.metersphere.api.constants.ApiScenarioStepRefType;
-import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
@@ -209,16 +208,12 @@ public class ApiScenarioBatchRunService {
     private Long getRequestCount(List<ApiScenarioStepDTO> steps) {
         AtomicLong requestCount = new AtomicLong();
         apiScenarioService.traversalStepTree(steps, step -> {
-            if (BooleanUtils.isTrue(step.getEnable()) && isRequestStep(step)) {
+            if (BooleanUtils.isTrue(step.getEnable()) && apiScenarioService.isRequestStep(step)) {
                 requestCount.getAndIncrement();
             }
             return true;
         });
         return requestCount.get();
-    }
-
-    private boolean isRequestStep(ApiScenarioStepCommonDTO step) {
-        return StringUtils.equalsAny(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name(), ApiScenarioStepType.CUSTOM_REQUEST.name());
     }
 
     /**

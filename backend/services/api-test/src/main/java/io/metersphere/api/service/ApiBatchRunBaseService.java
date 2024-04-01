@@ -26,6 +26,7 @@ public class ApiBatchRunBaseService {
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, Map<String, String> caseReportMap, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        queue.setRequestCount(runModeConfig.isIntegratedReport() ? resourceIds.size() : 1L);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, caseReportMap);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;
@@ -57,6 +58,7 @@ public class ApiBatchRunBaseService {
             ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
             queueDetail.setResourceId(resourceId);
             queueDetail.setSort(sort.getAndIncrement());
+            queueDetail.setRequestCount(1L);
             // caseReportMap 为 null ，说明是集合报告，生成一个虚拟的报告ID
             queueDetail.setReportId(caseReportMap == null ? UUID.randomUUID().toString() : caseReportMap.get(resourceId));
             queueDetails.add(queueDetail);

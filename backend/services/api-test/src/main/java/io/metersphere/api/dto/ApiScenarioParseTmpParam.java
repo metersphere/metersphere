@@ -5,6 +5,7 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import lombok.Data;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 执行场景解析参数时的临时参数
@@ -50,4 +51,8 @@ public class ApiScenarioParseTmpParam {
      * 环境相关信息
      */
     private ApiScenarioParseEnvInfo scenarioParseEnvInfo;
+    /**
+     * 场景中的待执行的请求总数
+     */
+    private AtomicLong requestCount = new AtomicLong(0);
 }

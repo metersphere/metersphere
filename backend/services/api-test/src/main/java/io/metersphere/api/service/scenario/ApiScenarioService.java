@@ -1251,6 +1251,7 @@ public class ApiScenarioService extends MoveNodeService {
                 apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         taskRequest.setSaveResult(false);
         taskRequest.setRealTime(true);
+        taskRequest.setRequestCount(tmpParam.getRequestCount().get());
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(request, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(request.getReportId());
@@ -1305,6 +1306,7 @@ public class ApiScenarioService extends MoveNodeService {
         taskRequest.getRunModeConfig().setPoolId(poolId);
         taskRequest.setSaveResult(true);
         taskRequest.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
+        taskRequest.setRequestCount(tmpParam.getRequestCount().get());
 
         if (StringUtils.isEmpty(taskRequest.getReportId())) {
             taskRequest.setRealTime(false);
@@ -1325,6 +1327,10 @@ public class ApiScenarioService extends MoveNodeService {
         initScenarioReportSteps(steps, taskRequest.getReportId());
 
         return apiExecuteService.execute(runRequest, taskRequest, parseConfig);
+    }
+
+    public boolean isRequestStep(ApiScenarioStepCommonDTO step) {
+        return StringUtils.equalsAny(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name(), ApiScenarioStepType.CUSTOM_REQUEST.name());
     }
 
     /**
@@ -1613,6 +1619,11 @@ public class ApiScenarioService extends MoveNodeService {
                 continue;
             }
             setPartialRefStepEnable(step, stepDetailMap);
+
+            if (isRequestStep(step) && BooleanUtils.isTrue(step.getEnable())) {
+                // 记录待执行的请求总数
+                parseParam.getRequestCount().getAndIncrement();
+            }
 
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step,
