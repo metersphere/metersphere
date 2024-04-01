@@ -80,6 +80,10 @@
     openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT);
   }
 
+  onBeforeMount(() => {
+    initEnvList();
+  });
+
   defineExpose({
     currentEnvConfig,
   });
