@@ -31,6 +31,9 @@ public class ApiScenarioStepCommonDTO<T extends ApiScenarioStepCommonDTO> {
     @Schema(description = "资源id")
     private String resourceId;
 
+    @Schema(description = "记录跨项目复制的步骤的原项目ID")
+    private String originProjectId;
+
     /**
      * @see ApiScenarioStepType
      */
