@@ -78,6 +78,7 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import TabSettingDrawer from './common/TabSettingDrawer.vue';
   import AssertTab from './envParams/AssertTab.vue';
@@ -96,6 +97,9 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
+
+  import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
+  import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const { setState } = useLeaveUnSaveTip();
   setState(false);
@@ -194,13 +198,32 @@
     emit('resetEnv');
   };
 
+  function getParameters() {
+    const paramsConfig = cloneDeep(store.currentEnvDetailInfo.config);
+
+    const httpConfigList = paramsConfig.httpConfig.map((e) => {
+      return {
+        ...e,
+        headers: filterKeyValParams(e.headers, defaultHeaderParamsItem, true).validParams,
+      };
+    });
+    return {
+      ...cloneDeep(store.currentEnvDetailInfo),
+      config: {
+        ...paramsConfig,
+        httpConfig: httpConfigList,
+      },
+    };
+  }
+
   const handleSave = async () => {
     await envForm.value?.validate(async (valid) => {
       if (!valid) {
         try {
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
-          await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
+          getParameters();
+          await updateOrAddEnv({ fileList: [], request: getParameters() });
           setState(true);
 
           Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));

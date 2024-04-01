@@ -51,7 +51,7 @@
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
-                  <MsIcon
+                  <!-- <MsIcon
                     :disabled="props.disabled"
                     type="icon-icon_flashlamp"
                     :size="15"
@@ -61,7 +61,7 @@
                         : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
-                  />
+                  /> -->
                 </a-tooltip>
               </template>
             </a-input>
@@ -146,7 +146,7 @@
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
-                  <MsIcon
+                  <!-- <MsIcon
                     type="icon-icon_flashlamp"
                     :disabled="props.disabled"
                     :size="15"
@@ -156,7 +156,7 @@
                         : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.X_PATH)"
-                  />
+                  /> -->
                 </a-tooltip>
               </template>
             </a-input>

@@ -4,11 +4,12 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import caseReportCom from './component/caseReportCom.vue';
 
   import { getShareReportInfo, reportCaseDetail } from '@/api/modules/api-test/report';
+  import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
 
   import type { ReportDetail } from '@/models/apiTest/report';
 
@@ -16,10 +17,17 @@
 
   const route = useRoute();
 
+  const router = useRouter();
   async function getDetail() {
     try {
       const res = await getShareReportInfo(route.query.shareId as string);
-      detail.value = await reportCaseDetail(res.reportId, route.query.shareId as string);
+      if (res.deleted) {
+        router.push({
+          name: NO_RESOURCE_ROUTE_NAME,
+        });
+      } else {
+        detail.value = await reportCaseDetail(res.reportId, route.query.shareId as string);
+      }
     } catch (error) {
       console.log(error);
     }

@@ -36,7 +36,7 @@
           t('caseManagement.caseReview.tableNoData')
         }}</span>
         <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
-        <MsButton v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="ml-[8px]">
+        <MsButton v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="ml-[8px]" @click="handleAdd">
           {{ t('project.environmental.database.addDatabase') }}
         </MsButton>
       </div>

@@ -325,7 +325,7 @@
    */
   function loadControlLoop() {
     if (isShowLoopControl.value) {
-      const loopStepId = props?.stepItem?.children[controlCurrent.value - 1].stepId;
+      const loopStepId = props.stepItem?.children[controlCurrent.value - 1].stepId;
       if (loopStepId) {
         getStepDetail(loopStepId);
       }
@@ -335,11 +335,11 @@
   const originStepId = ref<string | undefined>('');
 
   watch(
-    () => props?.stepItem?.stepId,
+    () => props.stepItem?.stepId,
     (val) => {
       if (val) {
         if (isShowLoopControl.value) {
-          getStepDetail(props?.stepItem?.children[controlCurrent.value - 1].stepId as string);
+          getStepDetail(props.stepItem?.children[controlCurrent.value - 1].stepId as string);
         } else {
           getStepDetail(val);
         }

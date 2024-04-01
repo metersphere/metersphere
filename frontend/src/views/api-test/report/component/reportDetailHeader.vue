@@ -4,7 +4,8 @@
       <div v-if="route.query.shareId" class="flex items-center font-medium"
         >{{ t('report.name') }}
         <a-tooltip :content="props.detail.name" :mouse-enter-delay="300"
-          ><div class="one-line-text max-w-[300px]">【{{ props.detail.name }}】</div>
+          ><div class="one-line-text max-w-[300px]">【{{ props.detail.name }}</div
+          >】
         </a-tooltip>
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider
       ></div>
@@ -13,9 +14,11 @@
         <div class="one-line-text max-w-[150px]"> {{ props.detail.environmentName || '-' }}</div>
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
         <template #content>
-          <div class="flex items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
-            <div class="mx-1"> {{ props.detail.environmentName || '-' }}</div>
+          <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
+            <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
+            <div>
+              {{ props.detail.environmentName || '-' }}
+            </div>
           </div>
         </template>
       </a-popover>
@@ -23,9 +26,9 @@
         <div class="one-line-text max-w-[150px]"> {{ props.detail.poolName || '-' }}</div>
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
         <template #content>
-          <div class="flex items-center gap-[8px] text-[14px]">
+          <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
             <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
-            <span class="mx-1"> {{ props.detail.poolName || '-' }}</span>
+            <div> {{ props.detail.poolName || '-' }}</div>
           </div>
         </template>
       </a-popover>
@@ -64,9 +67,9 @@
       <a-popover position="bottom" content-class="response-popover-content">
         <div class="one-line-text max-w-[150px]"> {{ props.detail.creatUserName || '-' }}</div>
         <template #content>
-          <div class="items-center gap-[8px] text-[14px]">
+          <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
             <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.reportCreator') }}</div>
-            <div class="mx-1 mt-1"> {{ props.detail.creatUserName || '-' }}</div>
+            <div class="mt-1"> {{ props.detail.creatUserName || '-' }}</div>
           </div>
         </template>
       </a-popover>
