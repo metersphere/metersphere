@@ -38,6 +38,7 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
+  import { getEnvironment } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
 
   import { EnvConfig } from '@/models/projectManagement/environmental';
@@ -109,14 +110,24 @@
   watch(
     () => currentEnvConfig?.value,
     (config) => {
-      if (config) {
-        propsRes.value.data = cloneDeep(config.dataSources) as any[];
+      if (config && config.id) {
+        // eslint-disable-next-line no-use-before-define
+        initEnvironment(config.id);
       }
     },
     {
       immediate: true,
     }
   );
+  async function initEnvironment(envId: string) {
+    try {
+      const res = await getEnvironment(envId);
+      propsRes.value.data = cloneDeep(res.dataSources) as any[];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   function searchDataSource() {
     if (keyword.value.trim() !== '') {

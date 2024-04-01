@@ -33,7 +33,13 @@
             :placeholder="t('project.environmental.database.namePlaceholder')"
           />
         </a-form-item>
-        <a-form-item field="driver" asterisk-position="end" :label="t('project.environmental.database.driver')">
+        <a-form-item
+          field="driver"
+          required
+          asterisk-position="end"
+          :label="t('project.environmental.database.driver')"
+          :rules="[{ required: true, message: t('project.environmental.database.urlIsRequire') }]"
+        >
           <a-select v-model="form.driverId" :options="driverOption" />
         </a-form-item>
         <a-form-item
