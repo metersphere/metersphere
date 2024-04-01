@@ -561,7 +561,10 @@
 
   function share(id: string) {
     if (isSupported) {
-      copy(`${window.location.href}&dId=${id}`);
+      const url = window.location.href;
+      const dIdParam = `&dId=${id}`;
+      const copyUrl = url.includes('dId') ? url.split('&dId')[0] : url;
+      copy(`${copyUrl}${dIdParam}`);
       Message.success(t('apiTestManagement.shareUrlCopied'));
     } else {
       Message.error(t('common.copyNotSupport'));
