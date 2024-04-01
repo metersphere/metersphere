@@ -23,7 +23,7 @@ export default function useCreateActions() {
    * @param steps 需要判断的步骤
    * @param parent 需要判断的父节点
    */
-  function checkedIfNeed(
+  function selectedIfNeed(
     selectedKeys: (string | number)[],
     steps: (ScenarioStepItem | TreeNode<ScenarioStepItem>)[],
     parent?: TreeNode<ScenarioStepItem>
@@ -59,7 +59,7 @@ export default function useCreateActions() {
       step.id,
       newStep,
       createStepAction,
-      (newNode, parent) => checkedIfNeed(selectedKeys, [newNode], parent),
+      (newNode, parent) => selectedIfNeed(selectedKeys, [newNode], parent),
       'id'
     );
   }
@@ -174,13 +174,13 @@ export default function useCreateActions() {
       undefined,
       'id'
     );
-    checkedIfNeed(selectedKeys, readyInsertSteps, step);
+    selectedIfNeed(selectedKeys, readyInsertSteps, step);
   }
 
   return {
     handleCreateStep,
     buildInsertStepInfos,
     handleCreateSteps,
-    checkedIfNeed,
+    selectedIfNeed,
   };
 }

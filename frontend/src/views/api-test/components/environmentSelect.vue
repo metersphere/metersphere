@@ -61,7 +61,9 @@
         value: item.id,
       }));
       currentEnv.value = currentEnv.value.length ? currentEnv.value : res[0]?.id;
-      await initEnvironment();
+      if (currentEnv.value) {
+        await initEnvironment();
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

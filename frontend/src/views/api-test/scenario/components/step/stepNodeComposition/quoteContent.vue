@@ -1,13 +1,11 @@
 <template>
-  <div class="flex items-center gap-[4px]">
-    <a-popover
-      v-if="
-        [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.API_SCENARIO].includes(props.data.stepType)
-      "
-      position="bl"
-      content-class="detail-popover"
-      arrow-class="hidden"
-    >
+  <div
+    v-if="
+      [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.API_SCENARIO].includes(props.data.stepType)
+    "
+    class="flex items-center gap-[4px]"
+  >
+    <a-popover position="bl" content-class="detail-popover" arrow-class="hidden">
       <MsIcon type="icon-icon-draft" class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
       <template #content>
         <div class="flex flex-col gap-[16px]">

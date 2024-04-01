@@ -161,13 +161,6 @@
 
   function setStepExecuteStatus() {
     updateStepStatus(activeScenarioTab.value.steps, activeScenarioTab.value.stepResponses);
-    // activeScenarioTab.value.steps = mapTree<ScenarioStepItem>(activeScenarioTab.value.steps, (step) => {
-    //   if (step.executeStatus === ScenarioExecuteStatus.EXECUTING) {
-    //     // 如果结束执行时还有步骤是执行中状态，则设置为未执行
-    //     step.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
-    //   }
-    //   return step;
-    // });
   }
 
   /**
@@ -185,10 +178,13 @@
         if (activeScenarioTab.value.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
-            activeScenarioTab.value.stepResponses[result.stepId] = {
+            if (activeScenarioTab.value.stepResponses[result.stepId] === undefined) {
+              activeScenarioTab.value.stepResponses[result.stepId] = [];
+            }
+            activeScenarioTab.value.stepResponses[result.stepId].push({
               ...result,
               console: data.taskResult.console,
-            };
+            });
             if (result.isSuccessful) {
               activeScenarioTab.value.executeSuccessCount += 1;
             } else {
@@ -202,10 +198,13 @@
               if (temporaryScenarioReportMap[activeScenarioTab.value.reportId] === undefined) {
                 temporaryScenarioReportMap[activeScenarioTab.value.reportId] = {};
               }
-              temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId] = {
+              if (temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId]) {
+                temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId] = [];
+              }
+              temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId].push({
                 ...result,
                 console: data.taskResult.console,
-              };
+              });
             }
           });
         }

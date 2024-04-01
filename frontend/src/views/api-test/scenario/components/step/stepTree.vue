@@ -178,7 +178,7 @@
           />
         </template>
         <template #extraEnd="step">
-          <a-popover
+          <responsePopover
             v-if="
               ![
                 ScenarioStepType.LOOP_CONTROLLER,
@@ -189,32 +189,16 @@
               (getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
                 getExecuteStatus(step) === ScenarioExecuteStatus.FAILED)
             "
-            position="br"
-            content-class="scenario-step-response-popover"
-            @popup-visible-change="handleResponsePopoverVisibleChange($event, step)"
-          >
-            <executeStatus :status="getExecuteStatus(step)" size="small" />
-            <template #content>
-              <responseResult
-                :active-tab="ResponseComposition.BODY"
-                :request-result="scenario.stepResponses?.[step.id]"
-                :console="scenario.stepResponses?.[step.id]?.console"
-                :show-empty="false"
-                :is-edit="false"
-                is-definition
-              >
-                <template #titleLeft>
-                  <div class="flex items-center text-[14px]">
-                    <div class="font-medium text-[var(--color-text-1)]">{{ t('apiScenario.response') }}</div>
-                    <a-tooltip :content="step.name">
-                      <div class="one-line-text">({{ step.name }})</div>
-                    </a-tooltip>
-                  </div>
-                </template>
-              </responseResult>
-            </template>
-          </a-popover>
-          <executeStatus v-else-if="step.executeStatus" :status="getExecuteStatus(step)" size="small" />
+            :step="step"
+            :step-responses="scenario.stepResponses"
+            @visible-change="handleResponsePopoverVisibleChange"
+          />
+          <executeStatus
+            v-else-if="step.executeStatus"
+            :status="getExecuteStatus(step)"
+            size="small"
+            class="ml-[4px]"
+          />
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
           <div
@@ -422,6 +406,7 @@
     handleTreeDragDrop,
     insertNodes,
     mapTree,
+    traverseTree,
     TreeNode,
   } from '@/utils';
 
@@ -437,7 +422,6 @@
   } from '@/models/apiTest/scenario';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
-    ResponseComposition,
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
     ScenarioStepRefType,
@@ -445,6 +429,7 @@
   } from '@/enums/apiEnum';
 
   import type { RequestParam } from '../common/customApiDrawer.vue';
+  import updateStepStatus from '../utils';
   import useCreateActions from './createAction/useCreateActions';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
@@ -456,9 +441,7 @@
   const customCaseDrawer = defineAsyncComponent(() => import('../common/customCaseDrawer.vue'));
   const importApiDrawer = defineAsyncComponent(() => import('../common/importApiDrawer/index.vue'));
   const scriptOperationDrawer = defineAsyncComponent(() => import('../common/scriptOperationDrawer.vue'));
-  const responseResult = defineAsyncComponent(
-    () => import('@/views/api-test/components/requestComposition/response/index.vue')
-  );
+  const responsePopover = defineAsyncComponent(() => import('../common/responsePopover.vue'));
 
   const props = defineProps<{
     stepKeyword: string;
@@ -500,9 +483,10 @@
 
   function getExecuteStatus(step: ScenarioStepItem) {
     if (scenario.value.stepResponses && scenario.value.stepResponses[step.id]) {
-      return scenario.value.stepResponses[step.id].isSuccessful
-        ? ScenarioExecuteStatus.SUCCESS
-        : ScenarioExecuteStatus.FAILED;
+      // 有一次失败就是失败
+      return scenario.value.stepResponses[step.id].some((report) => !report.isSuccessful)
+        ? ScenarioExecuteStatus.FAILED
+        : ScenarioExecuteStatus.SUCCESS;
     }
     return step.executeStatus;
   }
@@ -552,7 +536,7 @@
   /**
    * 增加步骤时判断父节点是否选中，如果选中则需要把新节点也选中
    */
-  function checkedIfNeed(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
+  function selectedIfNeed(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
     if (parent && selectedKeys.value.includes(parent.id)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
       selectedKeys.value.push(step.id);
@@ -803,7 +787,7 @@
             id,
           },
           'after',
-          checkedIfNeed,
+          selectedIfNeed,
           'id'
         );
         scenario.value.unSaved = true;
@@ -971,6 +955,15 @@
       customApiDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.API_CASE) {
       activeStep.value = step;
+      if (
+        _stepType.isCopyCase &&
+        ((stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+          (stepDetails.value[step.id] === undefined && !step.isNew))
+      ) {
+        // 只有复制的 case 需要查看步骤详情，引用的无法更改所以不需要在此初始化详情
+        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+        await getStepDetail(step);
+      }
       customCaseDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.SCRIPT) {
       activeStep.value = step;
@@ -998,6 +991,7 @@
           scenario.value.stepResponses[report.stepId] = temporaryStepReportMap[key];
         });
         temporaryStepReportMap = {};
+        updateStepStatus(steps.value, scenario.value.stepResponses);
       }
     }
   );
@@ -1017,22 +1011,25 @@
         if (step.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
-            scenario.value.stepResponses[result.stepId] = {
+            if (scenario.value.stepResponses[result.stepId] === undefined) {
+              scenario.value.stepResponses[result.stepId] = [];
+            }
+            scenario.value.stepResponses[result.stepId].push({
               ...result,
               console: data.taskResult.console,
-            };
+            });
           });
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
           data.taskResult.requestResults.forEach((result) => {
             if (step.reportId) {
               if (temporaryStepReportMap[step.reportId] === undefined) {
-                temporaryStepReportMap[step.reportId] = {};
+                temporaryStepReportMap[step.reportId] = [];
               }
-              temporaryStepReportMap[step.reportId] = {
+              temporaryStepReportMap[step.reportId].push({
                 ...result,
                 console: data.taskResult.console,
-              };
+              });
             }
           });
         }
@@ -1041,6 +1038,7 @@
         websocketMap[reportId].close();
         if (step.reportId === data.reportId) {
           step.isExecuting = false;
+          updateStepStatus([step], scenario.value.stepResponses);
         }
       }
     });
@@ -1056,6 +1054,7 @@
     const [currentStep] = executeParams.steps;
     try {
       currentStep.isExecuting = true;
+      currentStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
       debugSocket(currentStep, executeParams.reportId, executeType); // 开启websocket
       const res = await debugScenario({
         id: scenario.value.id || '',
@@ -1093,21 +1092,18 @@
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.id, 'id');
     if (realStep) {
       realStep.reportId = getGenerateId();
-      if (
-        [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(realStep.stepType)
-      ) {
-        // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
-        realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      }
-      const stepDetail = stepDetails.value[realStep.id];
-      delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
+      const _stepDetails = {};
       const stepFileParam = scenario.value.stepFileParam[realStep.id];
+      traverseTree(realStep, (step) => {
+        _stepDetails[step.id] = stepDetails.value[step.id];
+        step.executeStatus = ScenarioExecuteStatus.EXECUTING;
+        delete scenario.value.stepResponses[step.id]; // 先移除上一次的执行结果
+        return step;
+      });
       realExecute(
         {
           steps: [realStep as ScenarioStepItem],
-          stepDetails: {
-            [realStep.id]: stepDetail,
-          },
+          stepDetails: _stepDetails,
           reportId: realStep.reportId,
           uploadFileIds: stepFileParam?.uploadFileIds || [],
           linkFileIds: stepFileParam?.linkFileIds || [],
@@ -1286,7 +1282,10 @@
         {
           stepType: ScenarioStepType.CUSTOM_REQUEST,
           name: t('apiScenario.customApi'),
-          method: request.method,
+          config: {
+            protocol: request.protocol,
+            method: request.method,
+          },
           id: request.stepId,
           projectId: appStore.currentProjectId,
         },
@@ -1355,6 +1354,8 @@
     if (activeStep.value && activeCreateAction.value) {
       handleCreateStep(
         {
+          id,
+          refType: ScenarioStepRefType.DIRECT,
           stepType: ScenarioStepType.SCRIPT,
           name,
           projectId: appStore.currentProjectId,
@@ -1531,27 +1532,6 @@
   .step-tree-active-action {
     color: rgb(var(--primary-5));
     background-color: rgb(var(--primary-1));
-  }
-  .scenario-step-response-popover {
-    width: 500px;
-    height: 450px;
-    .arco-popover-content {
-      @apply h-full;
-      .response {
-        .response-head {
-          background-color: var(--color-text-n9);
-        }
-
-        border: 1px solid var(--color-text-n8);
-        border-radius: var(--border-radius-small);
-        .arco-spin {
-          padding: 0;
-          .response-container {
-            padding: 0 16px 14px;
-          }
-        }
-      }
-    }
   }
 </style>
 

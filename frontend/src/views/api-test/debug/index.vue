@@ -20,7 +20,6 @@
             <MsEditableTab
               v-model:active-tab="activeDebug"
               v-model:tabs="debugTabs"
-              :limit="10"
               :readonly="!hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD'])"
               at-least-one
               @add="addDebugTab"
