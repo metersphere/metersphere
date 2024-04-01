@@ -7,6 +7,7 @@
       :loading="envLoading"
       allow-search
       @change="initEnvironment"
+      @popup-visible-change="popupVisibleChange"
     >
       <template #prefix>
         <div class="flex cursor-pointer p-[8px]" @click.stop="goEnv">
@@ -69,13 +70,15 @@
     }
   }
 
+  async function popupVisibleChange(visible: boolean) {
+    if (visible) {
+      await initEnvList();
+    }
+  }
+
   function goEnv() {
     openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT);
   }
-
-  onBeforeMount(() => {
-    initEnvList();
-  });
 
   defineExpose({
     currentEnvConfig,

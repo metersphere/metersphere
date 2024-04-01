@@ -65,7 +65,7 @@
     <template #label="{ data }">
       <slot name="label" :data="{ ...data, [props.labelKey]: getInputLabel(data) }">
         <a-tooltip :content="getInputLabelTooltip(data)" position="top" :mouse-enter-delay="500" mini>
-          <div class="one-line-text inline translate-y-[15%]">
+          <div class="one-line-text inline">
             {{ getInputLabel(data) }}
           </div>
         </a-tooltip>
