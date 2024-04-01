@@ -199,7 +199,10 @@
 
   function share() {
     if (isSupported) {
-      copy(`${window.location.href}&sId=${scenario.value.id}`);
+      const url = window.location.href;
+      const dIdParam = `&sId=${scenario.value.id}`;
+      const copyUrl = url.includes('sId') ? url.split('&sId')[0] : url;
+      copy(`${copyUrl}${dIdParam}`);
       Message.success(t('common.copySuccess'));
     } else {
       Message.error(t('common.copyNotSupport'));

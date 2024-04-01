@@ -176,7 +176,10 @@
 
   function share() {
     if (isSupported) {
-      copy(`${window.location.href}&cId=${caseDetail.value.id}`);
+      const url = window.location.href;
+      const dIdParam = `&cId=${caseDetail.value.id}`;
+      const copyUrl = url.includes('cId') ? url.split('&cId')[0] : url;
+      copy(`${copyUrl}${dIdParam}`);
       Message.success(t('apiTestManagement.shareUrlCopied'));
     } else {
       Message.error(t('common.copyNotSupport'));

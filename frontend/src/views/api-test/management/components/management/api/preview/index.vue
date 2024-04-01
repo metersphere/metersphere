@@ -168,7 +168,11 @@
 
   function share() {
     if (isSupported) {
-      copy(`${window.location.href}&dId=${previewDetail.value.id}`);
+      // 判断路由中是不是有dId参数，有的话只是修改当前的值就可以了
+      const url = window.location.href;
+      const dIdParam = `&dId=${previewDetail.value.id}`;
+      const copyUrl = url.includes('dId') ? url.split('&dId')[0] : url;
+      copy(`${copyUrl}${dIdParam}`);
       Message.success(t('apiTestManagement.shareUrlCopied'));
     } else {
       Message.error(t('common.copyNotSupport'));
