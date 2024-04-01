@@ -217,4 +217,17 @@ export default {
   'apiScenario.setting.share.cookie.tip':
     '系统只要从某个步骤的结果内提取到返回的cookie信息，则后续步骤都会使用此 cookie ，如果请求添加了Cookie 变量也会被覆盖',
   'apiScenario.setting.waitTime.tip': '运行场景时，场景的每一个步骤执行后都会等待相应的时间再触发下一个步骤开始执行',
+  // 定时任务
+  'apiScenario.schedule.create': '创建定时任务',
+  'apiScenario.schedule.update': '更新定时任务',
+  'apiScenario.schedule.delete': '删除定时任务',
+  'apiScenario.schedule.config.resource_pool': '运行资源池',
+  'apiScenario.schedule.task.status': '任务状态',
+  'apiScenario.schedule.task.schedule': '任务触发时间',
+  'apiScenario.schedule.abbreviation': '定时',
+  'apiScenario.schedule.task.status.tooltip.one': '开启：执行定时任务',
+  'apiScenario.schedule.task.status.tooltip.two': '关闭：停止定时任务',
+  'apiScenario.schedule.table.tooltip.enable.one': '定时任务已开启',
+  'apiScenario.schedule.table.tooltip.enable.two': '下次运行时间：{time}',
+  'apiScenario.schedule.table.tooltip.disable': '定时任务未开启',
 };

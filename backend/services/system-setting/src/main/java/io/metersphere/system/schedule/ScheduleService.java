@@ -53,6 +53,14 @@ public class ScheduleService {
         return null;
     }
 
+    public int deleteByResourceId(String scenarioId, JobKey jobKey, TriggerKey triggerKey) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(scenarioId);
+
+        scheduleManager.removeJob(jobKey, triggerKey);
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
     public int deleteByResourceId(String resourceId, String group) {
         ScheduleExample scheduleExample = new ScheduleExample();
         scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);

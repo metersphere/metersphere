@@ -44,6 +44,7 @@ import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.EnvironmentGroupExample;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -236,10 +237,17 @@ public class ApiScenarioService extends MoveNodeService {
             }
             if (MapUtils.isNotEmpty(scheduleMap) && scheduleMap.containsKey(item.getId())) {
                 Schedule schedule = scheduleMap.get(item.getId());
-                item.setScheduleId(schedule.getId());
-                item.setScheduleEnable(schedule.getEnable());
-                item.setScheduleCorn(schedule.getValue());
-                item.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
+                ApiScenarioScheduleConfigRequest request = new ApiScenarioScheduleConfigRequest();
+                request.setEnable(schedule.getEnable());
+                request.setCron(schedule.getValue());
+                request.setScenarioId(item.getId());
+                if (schedule.getConfig() != null) {
+                    request.setConfig(JSON.parseObject(schedule.getConfig(), ApiRunModeConfigDTO.class));
+                }
+                item.setScheduleConfig(request);
+                if (schedule.getEnable()) {
+                    item.setNextTriggerTime(getNextTriggerTime(schedule.getValue()));
+                }
             }
         });
     }
@@ -2375,6 +2383,9 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
 
+    public void deleteScheduleConfig(String scenarioId) {
+        scheduleService.deleteByResourceId(scenarioId, ApiScenarioScheduleJob.getJobKey(scenarioId), ApiScenarioScheduleJob.getTriggerKey(scenarioId));
+    }
     public String scheduleConfig(ApiScenarioScheduleConfigRequest scheduleRequest, String operator) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scheduleRequest.getScenarioId());
         ScheduleConfig scheduleConfig = ScheduleConfig.builder()
