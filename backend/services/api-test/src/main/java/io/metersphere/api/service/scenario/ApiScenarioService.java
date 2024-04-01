@@ -1240,6 +1240,9 @@ public class ApiScenarioService extends MoveNodeService {
         msScenario.setScenarioConfig(getScenarioConfig(request, hasSave));
         msScenario.setProjectId(request.getProjectId());
 
+        // 处理特殊的步骤详情
+        addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+
         ApiScenarioParseTmpParam tmpParam = parse(msScenario, request.getSteps(), request);
 
         ApiResourceRunRequest runRequest = getApiResourceRunRequest(msScenario, tmpParam);
@@ -1750,7 +1753,7 @@ public class ApiScenarioService extends MoveNodeService {
                 .collect(Collectors.toMap(ApiScenarioStepBlob::getId, blob -> new String(blob.getContent())));
         // 前端有传，就用前端传的
         if (stepDetailsParam != null) {
-            stepDetailsParam.forEach((stepId, detail) -> stepDetails.put(stepId, JSON.toJSONString(detail)));
+            stepDetailsParam.forEach((stepId, detail) -> stepDetails.put(stepId, detail instanceof byte[] bytes ? new String(bytes) : JSON.toJSONString(detail)));
         }
         return stepDetails;
     }
