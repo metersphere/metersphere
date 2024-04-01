@@ -365,7 +365,7 @@
     validateResultModal.value = false;
     caseTreeRef.value.initModules();
   }
-
+  const caseTableRef = ref();
   const importLoading = ref<boolean>(false);
   // 确定导入
   async function conFirmImport() {
@@ -380,15 +380,13 @@
       Message.success(t('caseManagement.featureCase.importSuccess'));
       validateResultModal.value = false;
       showExcelModal.value = false;
-      caseTreeRef.value.initModules();
+      caseTableRef.value.initData();
     } catch (error) {
       console.log(error);
     } finally {
       importLoading.value = false;
     }
   }
-
-  const caseTableRef = ref();
 
   function dragUpdate() {
     caseTableRef.value.emitTableParams();

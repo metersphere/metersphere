@@ -1602,6 +1602,7 @@
 
   defineExpose({
     emitTableParams,
+    initData,
   });
   await getDefaultFields();
 </script>
