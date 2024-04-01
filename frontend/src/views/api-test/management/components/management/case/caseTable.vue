@@ -1021,13 +1021,4 @@
       }
     }
   }
-  :deep(.arco-radio-group) {
-    margin-left: -5px;
-  }
-  .ms-switch {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    margin-bottom: 16px;
-  }
 </style>

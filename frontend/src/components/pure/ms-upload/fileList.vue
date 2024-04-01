@@ -281,7 +281,7 @@
     }
   }
 
-  function getTextWidth(text) {
+  function getTextWidth(text: string) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (context != null) {
