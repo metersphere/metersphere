@@ -111,20 +111,21 @@
             "
           >
             <!-- 接口定义-调试模式，可保存或保存为新用例 -->
-            <a-dropdown
+            <a-dropdown-button
               v-if="requestVModel.mode === 'debug'"
-              :loading="saveLoading"
-              :disabled="isHttpProtocol && !requestVModel.url"
-              @select="handleSelect"
+              :disabled="(isHttpProtocol && !requestVModel.url) || saveLoading"
+              @click="() => handleSelect('save')"
             >
-              <a-button type="secondary">
-                {{ t('common.save') }}
-              </a-button>
-              <template #content>
-                <a-doption value="save">{{ t('common.save') }}</a-doption>
-                <a-doption value="saveAsCase">{{ t('apiTestManagement.saveAsCase') }}</a-doption>
+              {{ t('common.save') }}
+              <template #icon>
+                <icon-down />
               </template>
-            </a-dropdown>
+              <template #content>
+                <a-doption value="saveAsCase" @click="() => handleSelect('saveAsCase')">
+                  {{ t('apiTestManagement.saveAsCase') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
             <!-- 接口定义-定义模式，直接保存接口定义 -->
             <a-button v-else type="primary" :loading="saveLoading" @click="() => handleSelect('save')">
               {{ t('common.save') }}
