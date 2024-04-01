@@ -8,10 +8,11 @@ import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
  */
 export default function updateStepStatus(
   steps: ScenarioStepItem[],
-  stepResponses: Record<string | number, RequestResult>
+  stepResponses: Record<string | number, RequestResult[]>
 ) {
   for (let i = 0; i < steps.length; i++) {
     const node = steps[i];
+    console.log('node', node.stepType, node.executeStatus);
     if (
       [
         ScenarioStepType.LOOP_CONTROLLER,
@@ -54,10 +55,11 @@ export default function updateStepStatus(
       node.executeStatus = ScenarioExecuteStatus.SUCCESS;
     } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
       // 非逻辑控制器直接更改本身状态
-      if (stepResponses[node.id]) {
-        node.executeStatus = stepResponses[node.id].isSuccessful
-          ? ScenarioExecuteStatus.SUCCESS
-          : ScenarioExecuteStatus.FAILED;
+      if (stepResponses[node.id] && stepResponses[node.id].length > 0) {
+        console.log('stepResponses[node.id]', stepResponses[node.id]);
+        node.executeStatus = stepResponses[node.id].some((report) => !report.isSuccessful)
+          ? ScenarioExecuteStatus.FAILED
+          : ScenarioExecuteStatus.SUCCESS;
       } else {
         node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
       }

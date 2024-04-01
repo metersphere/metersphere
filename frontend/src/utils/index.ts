@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, each } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
@@ -191,6 +191,31 @@ export interface TreeNode<T> {
 
 /**
  * 递归遍历树形数组或树
+ * @param tree 树形数组或树
+ * @param customNodeFn 自定义节点函数
+ * @param customChildrenKey 自定义子节点的key
+ */
+export function traverseTree<T>(
+  tree: TreeNode<T> | TreeNode<T>[] | T | T[],
+  customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
+  customChildrenKey = 'children'
+) {
+  if (!Array.isArray(tree)) {
+    tree = [tree];
+  }
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (typeof customNodeFn === 'function') {
+      customNodeFn(node);
+    }
+    if (node[customChildrenKey] && Array.isArray(node[customChildrenKey]) && node[customChildrenKey].length > 0) {
+      traverseTree(node[customChildrenKey], customNodeFn, customChildrenKey);
+    }
+  }
+}
+
+/**
+ * 递归遍历树形数组或树，返回新的树
  * @param tree 树形数组或树
  * @param customNodeFn 自定义节点函数
  * @param customChildrenKey 自定义子节点的key

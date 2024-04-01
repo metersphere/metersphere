@@ -82,8 +82,16 @@
     () => visible.value,
     (val) => {
       if (val) {
-        scriptName.value = props.name || '';
-        activeItem.value = cloneDeep(props.detail || defaultScript);
+        scriptName.value = props.detail ? props.name || '' : '';
+        activeItem.value = cloneDeep(
+          props.detail
+            ? {
+                ...props.detail,
+                processorType: RequestConditionProcessor.SCRIPT,
+                polymorphicName: 'MsScriptElement',
+              }
+            : defaultScript
+        );
       }
     }
   );

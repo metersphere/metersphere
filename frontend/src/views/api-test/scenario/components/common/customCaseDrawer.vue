@@ -178,7 +178,7 @@
                   <postcondition
                     v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
                     v-model:config="requestVModel.children[0].postProcessorConfig"
-                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
+                    :response="responseResultBody"
                     :layout="activeLayout"
                     :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
@@ -188,7 +188,7 @@
                   <assertion
                     v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
+                    :response="responseResultBody"
                     is-definition
                     :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
@@ -219,8 +219,8 @@
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
-              :request-result="props.stepResponses?.[requestVModel.stepId]"
-              :console="props.stepResponses?.[requestVModel.stepId]?.console"
+              :request-result="requestResult"
+              :console="requestResult?.console"
               :is-edit="false"
               is-definition
               :loading="requestVModel.executeLoading || loading"
@@ -297,7 +297,7 @@
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
-    stepResponses?: Record<string | number, RequestResult>;
+    stepResponses?: Record<string | number, RequestResult[]>;
     fileParams?: ScenarioStepFileParams;
   }>();
   const emit = defineEmits<{
@@ -396,6 +396,20 @@
     () =>
       activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.REF
   );
+  const responseResultBody = computed(() => {
+    const length = props.stepResponses?.[requestVModel.value.stepId]
+      ? props.stepResponses?.[requestVModel.value.stepId]?.length
+      : 0;
+    // 取最后一次执行的结果
+    return props.stepResponses?.[requestVModel.value.stepId]?.[length].responseResult.body;
+  });
+  const requestResult = computed(() => {
+    const length = props.stepResponses?.[requestVModel.value.stepId]
+      ? props.stepResponses?.[requestVModel.value.stepId]?.length
+      : 0;
+    // 取最后一次执行的结果
+    return props.stepResponses?.[requestVModel.value.stepId]?.[length];
+  });
 
   watch(
     () => props.stepResponses,

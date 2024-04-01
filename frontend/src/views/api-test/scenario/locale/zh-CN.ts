@@ -60,6 +60,10 @@ export default {
   'api_scenario.table.tableNoDataAndPlease': '暂无数据，请',
   'api_scenario.table.or': '或',
   'apiScenario.execute': '执行',
+  'apiScenario.prev': '上一次',
+  'apiScenario.next': '下一次',
+  'apiScenario.sumLoop': '共{count}次循环',
+  'apiScenario.times': '次',
   // 批量操作文案
   'api_scenario.batch_operation.success': '成功{opt}至 {name}',
   'api_scenario.table.batchMoveConfirm': '{opt}{count}个场景至已选模块',

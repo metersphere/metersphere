@@ -12,7 +12,10 @@
   >
     <template #title>
       <div class="flex max-w-[60%] items-center gap-[8px]">
-        <stepTypeVue v-if="props.step" :step="props.step" />
+        <stepTypeVue
+          v-if="props.step && [ScenarioStepType.API, ScenarioStepType.CUSTOM_REQUEST].includes(props.step?.stepType)"
+          :step="props.step"
+        />
         <a-tooltip :content="title" position="bottom">
           <div class="one-line-text">
             {{ title }}
@@ -228,7 +231,7 @@
                   <postcondition
                     v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
                     v-model:config="requestVModel.children[0].postProcessorConfig"
-                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
+                    :response="responseResultBody"
                     :layout="activeLayout"
                     :disabled="!isEditableApi || isQuoteScenarioStep"
                     :second-box-height="secondBoxHeight"
@@ -238,7 +241,7 @@
                   <assertion
                     v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                    :response="props.stepResponses?.[requestVModel.stepId]?.responseResult.body"
+                    :response="responseResultBody"
                     is-definition
                     :disabled="!isEditableApi || isQuoteScenarioStep"
                     :assertion-config="requestVModel.children[0].assertionConfig"
@@ -269,8 +272,8 @@
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
-              :request-result="props.stepResponses?.[requestVModel.stepId]"
-              :console="props.stepResponses?.[requestVModel.stepId]?.console"
+              :request-result="requestResult"
+              :console="requestResult?.console"
               :is-edit="false"
               is-definition
               :loading="requestVModel.executeLoading || loading"
@@ -387,7 +390,7 @@
       create: string;
       update: string;
     };
-    stepResponses?: Record<string | number, RequestResult>;
+    stepResponses?: Record<string | number, RequestResult[]>;
     fileParams?: ScenarioStepFileParams;
   }>();
 
@@ -485,13 +488,27 @@
     if (_stepType.value.isCopyApi || _stepType.value.isQuoteApi) {
       return props.step?.name;
     }
-    return props.step?.name || t('apiScenario.customApi');
+    return t('apiScenario.customApi');
   });
   const showEnvPrefix = computed(
     () =>
       requestVModel.value.customizeRequestEnvEnable &&
       currentEnvConfig?.value.httpConfig.find((e) => e.type === 'NONE')?.url
   );
+  const responseResultBody = computed(() => {
+    const length = props.stepResponses?.[requestVModel.value.stepId]
+      ? props.stepResponses?.[requestVModel.value.stepId]?.length
+      : 0;
+    // 取最后一次执行的结果
+    return props.stepResponses?.[requestVModel.value.stepId]?.[length].responseResult.body;
+  });
+  const requestResult = computed(() => {
+    const length = props.stepResponses?.[requestVModel.value.stepId]
+      ? props.stepResponses?.[requestVModel.value.stepId]?.length
+      : 0;
+    // 取最后一次执行的结果
+    return props.stepResponses?.[requestVModel.value.stepId]?.[length];
+  });
 
   watch(
     () => props.stepResponses,
@@ -1086,6 +1103,7 @@
           requestVModel.value = cloneDeep({
             ...defaultApiParams,
             ...props.request,
+            url: props.request.path, // 后台字段是 path
             activeTab: contentTabList.value[0].value,
             responseActiveTab: ResponseComposition.BODY,
             isNew: false,
