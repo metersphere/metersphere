@@ -1,5 +1,10 @@
 <template>
-  <MsTag v-if="status" :self-style="status.style" :size="props.size"> {{ status.text }}</MsTag>
+  <MsTag v-if="status" :self-style="status.style" :size="props.size">
+    <div class="flex items-center justify-between gap-[4px]">
+      <span>{{ status.text }}</span>
+      <span v-if="props.extraText">{{ props.extraText }}</span>
+    </div>
+  </MsTag>
 </template>
 
 <script setup lang="ts">
@@ -12,6 +17,7 @@
   const props = defineProps<{
     status?: ScenarioExecuteStatus;
     size?: Size;
+    extraText?: string;
   }>();
 
   const { t } = useI18n();

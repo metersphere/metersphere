@@ -196,6 +196,7 @@
           <executeStatus
             v-else-if="step.executeStatus"
             :status="getExecuteStatus(step)"
+            :extra-text="getExecuteStatusExtraText(step)"
             size="small"
             class="ml-[4px]"
           />
@@ -255,6 +256,7 @@
       :detail="currentStepDetail as unknown as ExecuteConditionProcessor"
       :step="activeStep"
       :name="activeStep?.name"
+      :step-responses="scenario.stepResponses"
       @add="addScriptStep"
       @save="saveScriptStep"
     />
@@ -424,6 +426,7 @@
   import {
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
+    ScenarioStepLoopTypeEnum,
     ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
@@ -481,6 +484,10 @@
     focusStepKey.value = id || '';
   }
 
+  function checkStepIsApi(step: ScenarioStepItem) {
+    return [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(step.stepType);
+  }
+
   function getExecuteStatus(step: ScenarioStepItem) {
     if (scenario.value.stepResponses && scenario.value.stepResponses[step.id]) {
       // 有一次失败就是失败
@@ -489,6 +496,24 @@
         : ScenarioExecuteStatus.SUCCESS;
     }
     return step.executeStatus;
+  }
+
+  function getExecuteStatusExtraText(step: ScenarioStepItem) {
+    if (
+      step.stepType === ScenarioStepType.LOOP_CONTROLLER &&
+      step.config.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT &&
+      step.config.msCountController &&
+      step.config.msCountController.loops > 0
+    ) {
+      // 循环控制器展示当前执行次数/总次数
+      const firstHasResultChild = step.children?.find((child) => {
+        return checkStepIsApi(child) || child.stepType === ScenarioStepType.SCRIPT;
+      });
+      return firstHasResultChild && scenario.value.stepResponses[firstHasResultChild.id]
+        ? `${scenario.value.stepResponses[firstHasResultChild.id].length}/${step.config.msCountController.loops}`
+        : undefined;
+    }
+    return undefined;
   }
 
   function handleResponsePopoverVisibleChange(visible: boolean, step: ScenarioStepItem) {
@@ -518,10 +543,6 @@
       default:
         return () => null;
     }
-  }
-
-  function checkStepIsApi(step: ScenarioStepItem) {
-    return [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(step.stepType);
   }
 
   function checkStepShowMethod(step: ScenarioStepItem) {
@@ -1094,12 +1115,22 @@
       realStep.reportId = getGenerateId();
       const _stepDetails = {};
       const stepFileParam = scenario.value.stepFileParam[realStep.id];
-      traverseTree(realStep, (step) => {
-        _stepDetails[step.id] = stepDetails.value[step.id];
-        step.executeStatus = ScenarioExecuteStatus.EXECUTING;
-        delete scenario.value.stepResponses[step.id]; // 先移除上一次的执行结果
-        return step;
-      });
+      traverseTree(
+        realStep,
+        (step) => {
+          // 当前步骤是启用的情况，才需要继续递归子孙步骤；否则无需向下递归
+          return step.enable;
+        },
+        (step) => {
+          if (step.enable) {
+            // 启用的步骤才执行
+            _stepDetails[step.id] = stepDetails.value[step.id];
+            step.executeStatus = ScenarioExecuteStatus.EXECUTING;
+          }
+          delete scenario.value.stepResponses[step.id]; // 先移除上一次的执行结果
+          return step;
+        }
+      );
       realExecute(
         {
           steps: [realStep as ScenarioStepItem],

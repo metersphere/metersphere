@@ -194,9 +194,11 @@ export interface TreeNode<T> {
  * @param tree 树形数组或树
  * @param customNodeFn 自定义节点函数
  * @param customChildrenKey 自定义子节点的key
+ * @param continueCondition 继续递归的条件，某些情况下需要无需递归某些节点的子孙节点，可传入该条件
  */
 export function traverseTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
+  continueCondition?: (node: TreeNode<T>) => boolean,
   customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children'
 ) {
@@ -209,7 +211,11 @@ export function traverseTree<T>(
       customNodeFn(node);
     }
     if (node[customChildrenKey] && Array.isArray(node[customChildrenKey]) && node[customChildrenKey].length > 0) {
-      traverseTree(node[customChildrenKey], customNodeFn, customChildrenKey);
+      if (typeof continueCondition === 'function' && !continueCondition(node)) {
+        // 如果有继续递归的条件，则判断是否继续递归
+        break;
+      }
+      traverseTree(node[customChildrenKey], continueCondition, customNodeFn, customChildrenKey);
     }
   }
 }

@@ -100,106 +100,62 @@
   function handleCreateActionSelect(val: ScenarioAddStepActionType) {
     switch (val) {
       case ScenarioAddStepActionType.LOOP_CONTROL:
+        const defaultLoopStep = buildInsertStepInfos(
+          [cloneDeep(defaultStepItemCommon)],
+          ScenarioStepType.LOOP_CONTROLLER,
+          ScenarioStepRefType.DIRECT,
+          steps.value.length + 1,
+          appStore.currentProjectId
+        )[0];
         if (step.value && props.createStepAction) {
-          handleCreateStep(
-            {
-              stepType: ScenarioStepType.LOOP_CONTROLLER,
-              name: t('apiScenario.loopControl'),
-              projectId: appStore.currentProjectId,
-            },
-            step.value,
-            steps.value,
-            props.createStepAction,
-            selectedKeys.value
-          );
+          handleCreateStep(defaultLoopStep, step.value, steps.value, props.createStepAction, selectedKeys.value);
         } else {
-          steps.value.push(
-            buildInsertStepInfos(
-              [cloneDeep(defaultStepItemCommon)],
-              ScenarioStepType.LOOP_CONTROLLER,
-              ScenarioStepRefType.DIRECT,
-              steps.value.length + 1,
-              appStore.currentProjectId
-            )[0]
-          );
+          steps.value.push(defaultLoopStep);
         }
         emit('addDone');
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
+        const defaultConditionStep = buildInsertStepInfos(
+          [cloneDeep(defaultStepItemCommon)],
+          ScenarioStepType.IF_CONTROLLER,
+          ScenarioStepRefType.DIRECT,
+          steps.value.length + 1,
+          appStore.currentProjectId
+        )[0];
         if (step.value && props.createStepAction) {
-          handleCreateStep(
-            {
-              stepType: ScenarioStepType.IF_CONTROLLER,
-              name: t('apiScenario.conditionControl'),
-              projectId: appStore.currentProjectId,
-            },
-            step.value,
-            steps.value,
-            props.createStepAction,
-            selectedKeys.value
-          );
+          handleCreateStep(defaultConditionStep, step.value, steps.value, props.createStepAction, selectedKeys.value);
         } else {
-          steps.value.push(
-            buildInsertStepInfos(
-              [cloneDeep(defaultStepItemCommon)],
-              ScenarioStepType.IF_CONTROLLER,
-              ScenarioStepRefType.DIRECT,
-              steps.value.length + 1,
-              appStore.currentProjectId
-            )[0]
-          );
+          steps.value.push(defaultConditionStep);
         }
         emit('addDone');
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
+        const defaultOnlyOnceStep = buildInsertStepInfos(
+          [cloneDeep(defaultStepItemCommon)],
+          ScenarioStepType.ONCE_ONLY_CONTROLLER,
+          ScenarioStepRefType.DIRECT,
+          steps.value.length + 1,
+          appStore.currentProjectId
+        )[0];
         if (step.value && props.createStepAction) {
-          handleCreateStep(
-            {
-              stepType: ScenarioStepType.ONCE_ONLY_CONTROLLER,
-              name: t('apiScenario.onlyOnceControl'),
-              projectId: appStore.currentProjectId,
-            },
-            step.value,
-            steps.value,
-            props.createStepAction,
-            selectedKeys.value
-          );
+          handleCreateStep(defaultOnlyOnceStep, step.value, steps.value, props.createStepAction, selectedKeys.value);
         } else {
-          steps.value.push(
-            buildInsertStepInfos(
-              [cloneDeep(defaultStepItemCommon)],
-              ScenarioStepType.ONCE_ONLY_CONTROLLER,
-              ScenarioStepRefType.DIRECT,
-              steps.value.length + 1,
-              appStore.currentProjectId
-            )[0]
-          );
+          steps.value.push(defaultOnlyOnceStep);
         }
         emit('addDone');
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
+        const defaultWaitTimeStep = buildInsertStepInfos(
+          [cloneDeep(defaultStepItemCommon)],
+          ScenarioStepType.CONSTANT_TIMER,
+          ScenarioStepRefType.DIRECT,
+          steps.value.length + 1,
+          appStore.currentProjectId
+        )[0];
         if (step.value && props.createStepAction) {
-          handleCreateStep(
-            {
-              stepType: ScenarioStepType.CONSTANT_TIMER,
-              name: t('apiScenario.waitTime'),
-              projectId: appStore.currentProjectId,
-            },
-            step.value,
-            steps.value,
-            props.createStepAction,
-            selectedKeys.value
-          );
+          handleCreateStep(defaultWaitTimeStep, step.value, steps.value, props.createStepAction, selectedKeys.value);
         } else {
-          steps.value.push(
-            buildInsertStepInfos(
-              [cloneDeep(defaultStepItemCommon)],
-              ScenarioStepType.CONSTANT_TIMER,
-              ScenarioStepRefType.DIRECT,
-              steps.value.length + 1,
-              appStore.currentProjectId
-            )[0]
-          );
+          steps.value.push(defaultWaitTimeStep);
         }
         emit('addDone');
         break;

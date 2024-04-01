@@ -39,7 +39,8 @@
 </script>
 
 <style lang="less">
-  .arco-popover {
+  .arco-popover,
+  .arco-drawer {
     .loop-pagination {
       @apply justify-start;
 

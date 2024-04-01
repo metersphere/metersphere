@@ -57,6 +57,7 @@
           </a-radio-group>
         </div>
       </slot>
+      <slot name="titleRight"></slot>
       <div
         v-if="props.requestResult?.responseResult?.responseCode"
         class="flex items-center justify-between gap-[24px] text-[14px]"

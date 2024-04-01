@@ -12,7 +12,6 @@ export default function updateStepStatus(
 ) {
   for (let i = 0; i < steps.length; i++) {
     const node = steps[i];
-    console.log('node', node.stepType, node.executeStatus);
     if (
       [
         ScenarioStepType.LOOP_CONTROLLER,
@@ -56,7 +55,6 @@ export default function updateStepStatus(
     } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
       // 非逻辑控制器直接更改本身状态
       if (stepResponses[node.id] && stepResponses[node.id].length > 0) {
-        console.log('stepResponses[node.id]', stepResponses[node.id]);
         node.executeStatus = stepResponses[node.id].some((report) => !report.isSuccessful)
           ? ScenarioExecuteStatus.FAILED
           : ScenarioExecuteStatus.SUCCESS;

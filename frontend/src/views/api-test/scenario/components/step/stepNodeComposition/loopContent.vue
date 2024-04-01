@@ -227,6 +227,7 @@
 
   watchEffect(() => {
     innerData.value = props.data;
+    console.log('watchEffect', props.data);
   });
 
   // 接收全局双击时间戳
