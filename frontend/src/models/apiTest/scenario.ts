@@ -430,6 +430,7 @@ export interface ApiScenarioUpdateDTO extends Partial<Scenario> {
   name?: string;
   status?: ApiScenarioStatus;
   moduleId?: string | number;
+  projectId?: string;
   description?: string;
   tags?: string[];
   grouped?: boolean;

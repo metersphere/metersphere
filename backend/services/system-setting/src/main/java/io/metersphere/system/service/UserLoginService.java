@@ -364,7 +364,8 @@ public class UserLoginService {
         // 变更前
         User userFromDB = userMapper.selectByPrimaryKey(user.getId());
         // last organization id 变了
-        if (user.getLastOrganizationId() != null && !StringUtils.equals(user.getLastOrganizationId(), userFromDB.getLastOrganizationId())) {
+        if (user.getLastOrganizationId() != null && !StringUtils.equals(user.getLastOrganizationId(), userFromDB.getLastOrganizationId())
+                && !baseUserMapper.isSuperUser(user.getId())) {
             List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastOrganizationId());
             if (!projects.isEmpty()) {
                 // 如果传入的 last_project_id 是 last_organization_id 下面的

@@ -582,6 +582,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         // @@请求成功
         ApiScenarioUpdateRequest request = new ApiScenarioUpdateRequest();
         request.setId(addApiScenario.getId());
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setDescription("desc update");
         request.setName("test name update");
         request.setModuleId("default");
