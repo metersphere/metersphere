@@ -42,7 +42,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
+import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -87,7 +87,7 @@ public class ApiDefinitionImportUtilService {
     @Resource
     private OperationLogService operationLogService;
     @Resource
-    private AfterReturningNoticeSendService afterReturningNoticeSendService;
+    private CommonNoticeSendService commonNoticeSendService;
 
     private static final String FILE_JMX = "jmx";
     private static final String FILE_HAR = "har";
@@ -389,10 +389,10 @@ public class ApiDefinitionImportUtilService {
         //发送通知
         List<Map> createResources = new ArrayList<>();
         createResources.addAll(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
-        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
         List<Map> updateResources = new ArrayList<>();
         updateResources.addAll(JSON.parseArray(JSON.toJSONString(updateResources), Map.class));
-        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
     }
 
     private void getNeedUpdateData(ImportRequest request, ApiDetailWithData apiDetailWithData, ApiDetailWithDataUpdate apiDetailWithDataUpdate) {

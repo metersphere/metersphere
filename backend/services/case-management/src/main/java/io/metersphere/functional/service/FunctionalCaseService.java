@@ -46,7 +46,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
+import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.OperationHistoryService;
@@ -156,7 +156,7 @@ public class FunctionalCaseService {
     @Resource
     private FileAssociationMapper fileAssociationMapper;
     @Resource
-    private AfterReturningNoticeSendService afterReturningNoticeSendService;
+    private CommonNoticeSendService commonNoticeSendService;
     @Resource
     private OperationHistoryService operationHistoryService;
     @Resource
@@ -993,7 +993,7 @@ public class FunctionalCaseService {
 
         List<Map> resources = new ArrayList<>();
         resources.addAll(JSON.parseArray(JSON.toJSONString(noticeList), Map.class));
-        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.CREATE, resources, user, request.getProjectId());
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.CREATE, resources, user, request.getProjectId());
     }
 
     /**
@@ -1158,7 +1158,7 @@ public class FunctionalCaseService {
 
         List<Map> resources = new ArrayList<>();
         resources.addAll(JSON.parseArray(JSON.toJSONString(noticeList), Map.class));
-        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.UPDATE, resources, user, request.getProjectId());
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.UPDATE, resources, user, request.getProjectId());
     }
 
 
