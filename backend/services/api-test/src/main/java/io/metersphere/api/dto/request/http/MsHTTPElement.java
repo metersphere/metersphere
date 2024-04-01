@@ -7,7 +7,6 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,22 +23,14 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class MsHTTPElement extends AbstractMsProtocolTestElement {
     /**
-     * 完整请求地址
-     * 自定义请求时，使用该字段
+     * 接口定义和用例的请求路径，或者完整路径
      */
-    @Size(max = 500)
-    private String url;
-    /**
-     * 接口定义和用例的请求路径
-     */
-    @Size(max = 500)
     private String path;
     /**
      * 请求方法
      * 取值参考：{@link HttpMethodConstants}
      */
     @NotBlank
-    @Size(max = 10)
     @EnumValue(enumClass = HttpMethodConstants.class)
     private String method;
     /**

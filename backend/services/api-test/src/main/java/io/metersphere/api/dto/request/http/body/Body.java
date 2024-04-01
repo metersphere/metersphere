@@ -2,7 +2,6 @@ package io.metersphere.api.dto.request.http.body;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -21,7 +20,6 @@ public class Body {
      * 同时持久化多个类型的请求体
      */
     @NotBlank
-    @Size(max = 20)
     private String bodyType;
     /**
      * None 请求体

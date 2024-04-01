@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.dto.ApiBatchRunInitReportResult;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -8,10 +9,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -28,6 +26,31 @@ public class ApiBatchRunBaseService {
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, Map<String, String> caseReportMap, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, caseReportMap);
+        apiExecutionQueueService.insertQueue(queue, queueDetails);
+        return queue;
+    }
+
+    /**
+     * 初始化执行队列
+     *
+     * @param resourceIds
+     * @param runModeConfig
+     * @return
+     */
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, ApiBatchRunInitReportResult reportResult, String userId) {
+        Map<String, Long> scenarioCountMap = reportResult.getScenarioCountMap();
+        ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        queue.setRequestCount(reportResult.getRequestCount());
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, reportResult.getScenarioReportMap());
+        for (ExecutionQueueDetail queueDetail : queueDetails) {
+            queueDetail.setRequestCount(scenarioCountMap.get(queueDetail.getResourceId()));
+        }
+        apiExecutionQueueService.insertQueue(queue, queueDetails);
+        return queue;
+    }
+
+    public List<ExecutionQueueDetail> getExecutionQueueDetails(List<String> resourceIds, Map<String, String> caseReportMap) {
         List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
         AtomicInteger sort = new AtomicInteger(1);
         for (String resourceId : resourceIds) {
@@ -38,8 +61,7 @@ public class ApiBatchRunBaseService {
             queueDetail.setReportId(caseReportMap == null ? UUID.randomUUID().toString() : caseReportMap.get(resourceId));
             queueDetails.add(queueDetail);
         }
-        apiExecutionQueueService.insertQueue(queue, queueDetails);
-        return queue;
+        return queueDetails;
     }
 
     private ExecutionQueue getExecutionQueue(ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
@@ -51,4 +73,5 @@ public class ApiBatchRunBaseService {
         queue.setUserId(userId);
         return queue;
     }
+
 }

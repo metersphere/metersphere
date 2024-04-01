@@ -1019,7 +1019,7 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 遍历步骤树
      */
-    private void traversalStepTree(List<? extends ApiScenarioStepCommonDTO> steps, Function<ApiScenarioStepCommonDTO, Boolean> handleStepFunc) {
+    public void traversalStepTree(List<? extends ApiScenarioStepCommonDTO> steps, Function<ApiScenarioStepCommonDTO, Boolean> handleStepFunc) {
         if (CollectionUtils.isEmpty(steps)) {
             return;
         }
@@ -1996,7 +1996,6 @@ public class ApiScenarioService extends MoveNodeService {
                 scenarioSteps.forEach(item -> {
                     // 如果步骤的场景ID不等于当前场景的ID，说明是引用的步骤，如果 parentId 为空，说明是一级子步骤，重新挂载到对应的场景中
                     if (StringUtils.isEmpty(item.getParentId())) {
-                        item.setParentId(step.getId());
                         children.add(item);
                     }
                 });
@@ -2008,7 +2007,7 @@ public class ApiScenarioService extends MoveNodeService {
                 // 如果当前步骤是引用的场景，获取该场景的子步骤
                 Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioSteps
                         .stream()
-                        .collect(Collectors.groupingBy(ApiScenarioStepDTO::getParentId));
+                        .collect(Collectors.groupingBy(item -> Optional.ofNullable(item.getParentId()).orElse(StringUtils.EMPTY)));
                 step.setChildren(buildStepTree(children, childStepMap, scenarioStepMap));
             } else {
                 if (CollectionUtils.isEmpty(children)) {

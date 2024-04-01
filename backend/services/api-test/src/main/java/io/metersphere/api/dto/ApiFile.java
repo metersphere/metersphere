@@ -1,7 +1,6 @@
 package io.metersphere.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -14,13 +13,11 @@ public class ApiFile {
      * 生成脚本时，通过 fileId + fileName(文件名) 获取文件路径
      */
     @NotBlank
-    @Size(max = 50)
     private String fileId;
     /**
      * 文件名
      */
     @NotBlank
-    @Size(max = 255)
     private String fileName;
     /**
      * 是否是本地上传的文件
@@ -30,7 +27,6 @@ public class ApiFile {
      * 文件别名，引用的文件需要展示别名，
      * 查询时，获取最新的
      */
-    @Size(max = 255)
     private String fileAlias;
     /**
      * 文件是否别删除

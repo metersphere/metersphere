@@ -431,7 +431,6 @@ public class MsHTTPElementTest {
 
     public static MsHTTPElement getMsHttpElement() {
         MsHTTPElement msHTTPElement = new MsHTTPElement();
-        msHTTPElement.setUrl("http://www.test.com");
         msHTTPElement.setPath("/test");
         msHTTPElement.setMethod("GET");
         msHTTPElement.setName("name");

@@ -6,7 +6,6 @@ import io.metersphere.sdk.constants.ValueEnum;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,12 +30,10 @@ public class JsonSchemaItem {
      * 参数ID
      */
     @NotBlank
-    @Size(max = 50)
     private String id;
     /**
      * 参数名称
      */
-    @Size(max = 200)
     private String title;
     /**
      * 参数类型
