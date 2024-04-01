@@ -219,15 +219,20 @@
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
-              :request-result="requestResult"
-              :console="requestResult?.console"
+              :request-result="currentResponse"
+              :console="currentResponse?.console"
               :is-edit="false"
               is-definition
+              hide-layout-switch
               :loading="requestVModel.executeLoading || loading"
               @change-expand="changeVerticalExpand"
               @change-layout="handleActiveLayoutChange"
               @execute="execute"
-            />
+            >
+              <template #titleRight>
+                <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" class="!mb-0" />
+              </template>
+            </response>
           </template>
         </MsSplitBox>
       </div>
@@ -246,6 +251,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
+  import loopPagination from './loopPagination.vue';
   import stepType from './stepType/stepType.vue';
   import auth from '@/views/api-test/components/requestComposition/auth.vue';
   import postcondition from '@/views/api-test/components/requestComposition/postcondition.vue';
@@ -396,19 +402,16 @@
     () =>
       activeStep.value?.stepType === ScenarioStepType.API_CASE && activeStep.value?.refType === ScenarioStepRefType.REF
   );
-  const responseResultBody = computed(() => {
-    const length = props.stepResponses?.[requestVModel.value.stepId]
-      ? props.stepResponses?.[requestVModel.value.stepId]?.length
-      : 0;
-    // 取最后一次执行的结果
-    return props.stepResponses?.[requestVModel.value.stepId]?.[length].responseResult.body;
+  const currentLoop = ref(1);
+  const currentResponse = computed(() => {
+    if (activeStep.value?.id) {
+      return props.stepResponses?.[activeStep.value?.id]?.[currentLoop.value - 1];
+    }
   });
-  const requestResult = computed(() => {
-    const length = props.stepResponses?.[requestVModel.value.stepId]
-      ? props.stepResponses?.[requestVModel.value.stepId]?.length
-      : 0;
-    // 取最后一次执行的结果
-    return props.stepResponses?.[requestVModel.value.stepId]?.[length];
+  const loopTotal = computed(() => (activeStep.value?.id && props.stepResponses?.[activeStep.value?.id]?.length) || 0);
+  // 执行响应结果 body 部分
+  const responseResultBody = computed(() => {
+    return currentResponse.value?.responseResult.body;
   });
 
   watch(

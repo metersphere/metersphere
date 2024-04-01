@@ -21,8 +21,15 @@
         size="small"
       />
     </div>
-    <div class="mt-[10px] flex h-[calc(100%-40px)] gap-[8px]">
+    <div class="mt-[10px] flex flex-1 gap-[8px]">
       <conditionContent v-if="visible" v-model:data="activeItem" :is-build-in="true" :is-format="true" />
+    </div>
+    <div v-if="currentResponse?.console" class="p-[8px]">
+      <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
+      <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+      <div class="h-[300px] bg-[var(--color-text-n9)] p-[12px]">
+        <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+      </div>
     </div>
     <template v-if="!props.detail" #footer>
       <a-button type="secondary" @click="handleDrawerCancel">
@@ -43,11 +50,12 @@
 
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import loopPagination from './loopPagination.vue';
 
   // import stepTypeVue from './stepType/stepType.vue';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import { ExecuteConditionProcessor, RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
@@ -57,6 +65,7 @@
     detail?: ExecuteConditionProcessor;
     step?: ScenarioStepItem;
     name?: string;
+    stepResponses?: Record<string | number, RequestResult[]>;
   }>();
   const emit = defineEmits<{
     (e: 'add', name: string, scriptProcessor: ExecuteConditionProcessor): void;
@@ -77,6 +86,13 @@
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', { required: true });
+  const currentLoop = ref(1);
+  const currentResponse = computed(() => {
+    if (props.step?.id) {
+      return props.stepResponses?.[props.step?.id]?.[currentLoop.value - 1];
+    }
+  });
+  const loopTotal = computed(() => (props.step?.id && props.stepResponses?.[props.step?.id]?.length) || 0);
 
   watch(
     () => visible.value,
@@ -118,4 +134,12 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .response-header-pre {
+    @apply h-full overflow-auto bg-white;
+    .ms-scroll-bar();
+
+    padding: 8px 12px;
+    border-radius: var(--border-radius-small);
+  }
+</style>

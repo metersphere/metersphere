@@ -272,15 +272,20 @@
               :is-priority-local-exec="isPriorityLocalExec"
               :request-url="requestVModel.url"
               :is-expanded="isVerticalExpanded"
-              :request-result="requestResult"
-              :console="requestResult?.console"
+              :request-result="currentResponse"
+              :console="currentResponse?.console"
               :is-edit="false"
               is-definition
+              hide-layout-switch
               :loading="requestVModel.executeLoading || loading"
               @change-expand="changeVerticalExpand"
               @change-layout="handleActiveLayoutChange"
               @execute="execute"
-            />
+            >
+              <template #titleRight>
+                <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+              </template>
+            </response>
           </template>
         </MsSplitBox>
       </div>
@@ -299,6 +304,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
+  import loopPagination from './loopPagination.vue';
   import stepTypeVue from './stepType/stepType.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
@@ -475,6 +481,7 @@
   };
 
   const requestVModel = ref<RequestParam>(defaultApiParams);
+  // 步骤类型判断
   const _stepType = computed(() => {
     if (props.step) {
       return getStepType(props.step);
@@ -484,30 +491,29 @@
       isQuoteApi: false,
     };
   });
+  // 抽屉标题
   const title = computed(() => {
     if (_stepType.value.isCopyApi || _stepType.value.isQuoteApi) {
       return props.step?.name;
     }
     return t('apiScenario.customApi');
   });
+  // 是否显示环境域名前缀
   const showEnvPrefix = computed(
     () =>
       requestVModel.value.customizeRequestEnvEnable &&
       currentEnvConfig?.value.httpConfig.find((e) => e.type === 'NONE')?.url
   );
-  const responseResultBody = computed(() => {
-    const length = props.stepResponses?.[requestVModel.value.stepId]
-      ? props.stepResponses?.[requestVModel.value.stepId]?.length
-      : 0;
-    // 取最后一次执行的结果
-    return props.stepResponses?.[requestVModel.value.stepId]?.[length].responseResult.body;
+  const currentLoop = ref(1);
+  const currentResponse = computed(() => {
+    if (props.step?.id) {
+      return props.stepResponses?.[props.step?.id]?.[currentLoop.value - 1];
+    }
   });
-  const requestResult = computed(() => {
-    const length = props.stepResponses?.[requestVModel.value.stepId]
-      ? props.stepResponses?.[requestVModel.value.stepId]?.length
-      : 0;
-    // 取最后一次执行的结果
-    return props.stepResponses?.[requestVModel.value.stepId]?.[length];
+  const loopTotal = computed(() => (props.step?.id && props.stepResponses?.[props.step?.id]?.length) || 0);
+  // 执行响应结果 body 部分
+  const responseResultBody = computed(() => {
+    return currentResponse.value?.responseResult.body;
   });
 
   watch(

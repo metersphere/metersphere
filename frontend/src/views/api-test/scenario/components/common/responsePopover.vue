@@ -4,7 +4,7 @@
     content-class="scenario-step-response-popover"
     @popup-visible-change="emit('visibleChange', $event, props.step)"
   >
-    <executeStatus :status="lastExecuteStatus" size="small" class="ml-[4px]" />
+    <executeStatus :status="finalExecuteStatus" size="small" class="ml-[4px]" />
     <template #content>
       <div class="flex h-full flex-col">
         <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
@@ -57,7 +57,7 @@
   const currentLoop = ref(1);
   const currentResponse = computed(() => props.stepResponses?.[props.step.id]?.[currentLoop.value - 1]);
   const loopTotal = computed(() => props.stepResponses?.[props.step.id]?.length || 0);
-  const lastExecuteStatus = computed(() => {
+  const finalExecuteStatus = computed(() => {
     if (props.stepResponses[props.step.id] && props.stepResponses[props.step.id].length > 0) {
       // 有一次失败就是失败
       return props.stepResponses[props.step.id].some((report) => !report.isSuccessful)
