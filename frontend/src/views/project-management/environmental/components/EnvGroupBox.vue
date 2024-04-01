@@ -65,11 +65,13 @@
 
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { getGroupDetailEnv, groupUpdateEnv } from '@/api/modules/project-management/envManagement';
+  import { getGroupDetailEnv, groupAddEnv, groupUpdateEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';
   import { hasAnyPermission } from '@/utils/permission';
+
+  import { EnvListItem } from '@/models/projectManagement/environmental';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -159,8 +161,15 @@
           projectId: appStore.currentProjectId,
           envGroupProject,
         };
-        await groupUpdateEnv(params);
-        Message.success(t('common.saveSuccess'));
+        let res: EnvListItem;
+        if (id) {
+          res = await groupUpdateEnv(params);
+          Message.success(t('common.saveSuccess'));
+          initDetail(res.id);
+        } else {
+          res = await groupAddEnv(params);
+        }
+        emit('saveOrUpdate', res.id);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
