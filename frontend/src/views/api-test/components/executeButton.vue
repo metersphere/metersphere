@@ -26,7 +26,7 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
 
-  import { getLocalConfig } from '@/api/modules/user/index';
+  import { useUserStore } from '@/store';
 
   const props = defineProps<{
     executeLoading?: boolean;
@@ -38,31 +38,11 @@
   }>();
 
   const { t } = useI18n();
+  const userStore = useUserStore();
 
-  const hasLocalExec = ref(false); // 是否配置了api本地执行
-  const isPriorityLocalExec = ref(false); // 是否优先本地执行
-  const localExecuteUrl = ref('');
-
-  async function initLocalConfig() {
-    if (hasLocalExec.value) {
-      return;
-    }
-    try {
-      const res = await getLocalConfig();
-      const apiLocalExec = res.find((e) => e.type === 'API');
-      if (apiLocalExec) {
-        hasLocalExec.value = true;
-        isPriorityLocalExec.value = apiLocalExec.enable || false;
-        localExecuteUrl.value = apiLocalExec.userUrl || '';
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-  onBeforeMount(() => {
-    initLocalConfig();
-  });
+  const hasLocalExec = computed(() => userStore.hasLocalExec); // 是否配置了api本地执行
+  const isPriorityLocalExec = computed(() => userStore.isPriorityLocalExec); // 是否优先本地执行
+  const localExecuteUrl = computed(() => userStore.localExecuteUrl);
 
   async function execute(executeType?: 'localExec' | 'serverExec') {
     emit('execute', executeType, localExecuteUrl.value);

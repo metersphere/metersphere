@@ -122,6 +122,7 @@
     }
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
+    await userStore.initLocalConfig(); // 获取本地执行配置
   });
   /** 屏幕大小改变时重新赋值innerHeight */
   useEventListener(window, 'resize', () => {
