@@ -1,13 +1,11 @@
-package io.metersphere.system.notice.sender;
+package io.metersphere.system.service;
 
 
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
-import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
-import io.metersphere.system.service.NoticeSendService;
-import io.metersphere.system.service.SystemParameterService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -17,22 +15,22 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class AfterReturningNoticeSendService {
+public class CommonNoticeSendService {
     @Resource
     private SystemParameterService systemParameterService;
     @Resource
     private NoticeSendService noticeSendService;
 
     @Async
-    public void sendNotice(String taskType, String event, List<Map> resources, SessionUser sessionUser, String currentProjectId) {
-        setLanguage(sessionUser.getLanguage());
+    public void sendNotice(String taskType, String event, List<Map> resources, User operator, String currentProjectId) {
+        setLanguage(operator.getLanguage());
         // 有批量操作发送多次
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         for (Map resource : resources) {
             Map paramMap = new HashMap<>();
             paramMap.put("url", baseSystemConfigDTO.getUrl());
-            paramMap.put(NoticeConstants.RelatedUser.OPERATOR, sessionUser.getName());
-            paramMap.put("Language",sessionUser.getLanguage());
+            paramMap.put(NoticeConstants.RelatedUser.OPERATOR, operator.getName());
+            paramMap.put("Language", operator.getLanguage());
             paramMap.putAll(resource);
             paramMap.putIfAbsent("projectId", currentProjectId);
             //TODO: 加来源处理
@@ -47,7 +45,7 @@ public class AfterReturningNoticeSendService {
             List<String> relatedUsers = getRelatedUsers(resource.get("relatedUsers"));
 
             NoticeModel noticeModel = NoticeModel.builder()
-                    .operator(sessionUser.getId())
+                    .operator(operator.getId())
                     .context(context)
                     .subject(subject)
                     .paramMap(paramMap)
@@ -76,9 +74,9 @@ public class AfterReturningNoticeSendService {
 
     private static void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.containsIgnoreCase("US",language)) {
+        if (StringUtils.containsIgnoreCase("US", language)) {
             locale = Locale.US;
-        } else if (StringUtils.containsIgnoreCase("TW",language)){
+        } else if (StringUtils.containsIgnoreCase("TW", language)) {
             locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);

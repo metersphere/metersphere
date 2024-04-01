@@ -6,6 +6,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
@@ -35,7 +36,7 @@ import java.util.Map;
 @Component
 public class SendNoticeAspect {
     @Resource
-    private AfterReturningNoticeSendService afterReturningNoticeSendService;
+    private CommonNoticeSendService commonNoticeSendService;
 
     private ExpressionParser parser = new SpelExpressionParser();
     private StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
@@ -166,7 +167,7 @@ public class SendNoticeAspect {
                     }
                 }
             }
-            afterReturningNoticeSendService.sendNotice(taskType, event, resources, sessionUser, currentProjectId);
+            commonNoticeSendService.sendNotice(taskType, event, resources, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
         } finally {

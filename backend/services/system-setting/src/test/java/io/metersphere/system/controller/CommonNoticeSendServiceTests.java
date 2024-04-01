@@ -24,7 +24,7 @@ import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
+import io.metersphere.system.service.CommonNoticeSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.MethodOrderer;
@@ -44,11 +44,11 @@ import java.util.Map;
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class AfterReturningNoticeSendServiceTests extends BaseTest {
+public class CommonNoticeSendServiceTests extends BaseTest {
 
 
     @Resource
-    private AfterReturningNoticeSendService afterReturningNoticeSendService;
+    private CommonNoticeSendService commonNoticeSendService;
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
@@ -117,7 +117,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
         user.setLanguage("zh-CN");
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(functionalCaseTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(functionalCaseTask, event,resources, user, "100001100001");
         }
 
     }
@@ -156,7 +156,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
 
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(apiDefinitionTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(apiDefinitionTask, event,resources, user, "100001100001");
         }
 
     }
@@ -195,7 +195,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
 
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(apiScenarioTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(apiScenarioTask, event,resources, user, "100001100001");
         }
 
     }
@@ -234,7 +234,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
 
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(testPlanTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(testPlanTask, event,resources, user, "100001100001");
         }
 
     }
@@ -273,7 +273,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
 
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(caseReviewTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(caseReviewTask, event,resources, user, "100001100001");
         }
 
     }
@@ -325,7 +325,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
 
         for (String event : eventList) {
-            afterReturningNoticeSendService.sendNotice(loadTestTask, event,resources, user, "100001100001");
+            commonNoticeSendService.sendNotice(loadTestTask, event,resources, user, "100001100001");
         }
 
     }
