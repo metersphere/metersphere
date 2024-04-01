@@ -126,10 +126,13 @@
     validLocalConfig,
   } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
+  import { UserState } from '@/store/modules/user/types';
 
   import { LocalConfig } from '@/models/user';
 
   const { t } = useI18n();
+  const userStore = useUserStore();
 
   type Status = 0 | 1 | 2 | 'none'; // 0 未配置 1 测试通过 2 测试失败
   interface TagMapItem {
@@ -167,6 +170,10 @@
     status: 0,
   });
 
+  function updateLocalConfigStore(partial: Partial<UserState>) {
+    userStore.updateLocalConfig(partial);
+  }
+
   function clearApi() {
     apiConfig.value.userUrl = '';
     if (apiConfig.value.id) {
@@ -177,6 +184,11 @@
       });
       disableLocalConfig(apiConfig.value.id);
       apiConfig.value.enable = false;
+      updateLocalConfigStore({
+        hasLocalExec: false,
+        isPriorityLocalExec: false,
+        localExecuteUrl: apiConfig.value.userUrl.trim(),
+      });
       Message.success(t('common.updateSuccess'));
     }
   }
@@ -204,6 +216,7 @@
           });
           apiConfig.value.id = result.id;
         }
+        updateLocalConfigStore({ hasLocalExec: true, localExecuteUrl: apiConfig.value.userUrl.trim() });
         Message.success(t('ms.personal.testPass'));
       } else {
         Message.error(t('ms.personal.testFail'));
@@ -223,6 +236,7 @@
       } else {
         await disableLocalConfig(apiConfig.value.id);
       }
+      updateLocalConfigStore({ isPriorityLocalExec: val as boolean });
       Message.success(val ? t('ms.personal.apiLocalExecutionOpen') : t('ms.personal.apiLocalExecutionClose'));
       return true;
     } catch (error) {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import {
   getAuthenticationList,
+  getLocalConfig,
   isLogin as userIsLogin,
   login as userLogin,
   logout as userLogout,
@@ -42,6 +43,9 @@ const useUserStore = defineStore('user', {
     userRoles: [],
     userRoleRelations: [],
     loginType: [],
+    hasLocalExec: false, // 是否配置了api本地执行
+    isPriorityLocalExec: false, // 是否优先本地执行
+    localExecuteUrl: '',
   }),
 
   getters: {
@@ -158,6 +162,25 @@ const useUserStore = defineStore('user', {
         // eslint-disable-next-line no-console
         console.log(err);
         return false;
+      }
+    },
+    // 更新本地设置
+    updateLocalConfig(partial: Partial<UserState>) {
+      this.$patch(partial);
+    },
+    // 获取本地执行配置
+    async initLocalConfig() {
+      try {
+        const res = await getLocalConfig();
+        const apiLocalExec = res.find((e) => e.type === 'API');
+        if (apiLocalExec) {
+          this.hasLocalExec = true;
+          this.isPriorityLocalExec = apiLocalExec.enable || false;
+          this.localExecuteUrl = apiLocalExec.userUrl || '';
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
       }
     },
   },

@@ -12,6 +12,11 @@ export interface UserRole {
   type: SystemScopeType;
 }
 
+export interface permissionsItem {
+  id: string;
+  permissionId: string;
+  roleId: string;
+}
 export interface UserRoleRelation {
   id: string;
   userId: string;
@@ -24,11 +29,6 @@ export interface UserRoleRelation {
   userRole: UserRole;
 }
 
-export interface permissionsItem {
-  id: string;
-  permissionId: string;
-  roleId: string;
-}
 export interface UserRolePermissions {
   userRole: UserRole;
   userRolePermissions: permissionsItem[];
@@ -56,4 +56,7 @@ export interface UserState {
   userRoles?: UserRole[];
   userRoleRelations?: UserRoleRelation[];
   loginType: string[];
+  hasLocalExec?: boolean; // 是否配置了api本地执行
+  isPriorityLocalExec?: boolean; // 是否优先本地执行
+  localExecuteUrl?: string;
 }
