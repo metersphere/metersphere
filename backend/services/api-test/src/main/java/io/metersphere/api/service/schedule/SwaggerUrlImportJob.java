@@ -8,11 +8,8 @@ import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.service.UserService;
-import io.metersphere.system.utils.SessionUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -40,10 +37,7 @@ public class SwaggerUrlImportJob extends BaseScheduleJob {
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("SCHEDULE");
         request.setResourceId(resourceId);
-
-        UserDTO userDTO = userService.getUserDTOByKeyword(request.getUserId());
-        SessionUser user = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
-        apiDefinitionService.apiTestImport(null, request, user, request.getProjectId());
+        apiDefinitionService.apiTestImport(null, request, request.getProjectId());
     }
 
     public static JobKey getJobKey(String resourceId) {

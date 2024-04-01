@@ -385,6 +385,9 @@
           local: false,
         };
       }
+      if (activeResponse.value.body.binaryBody.file && !activeResponse.value.body.binaryBody.file.fileId) {
+        activeResponse.value.body.binaryBody.file = undefined;
+      }
       emit('change');
     } catch (error) {
       // eslint-disable-next-line no-console

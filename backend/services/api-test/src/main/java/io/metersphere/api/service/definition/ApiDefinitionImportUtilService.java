@@ -14,8 +14,8 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionPageRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.request.ImportRequest;
-import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
@@ -34,13 +34,14 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
-import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
@@ -88,6 +89,8 @@ public class ApiDefinitionImportUtilService {
     private OperationLogService operationLogService;
     @Resource
     private CommonNoticeSendService commonNoticeSendService;
+    @Resource
+    private UserMapper userMapper;
 
     private static final String FILE_JMX = "jmx";
     private static final String FILE_HAR = "har";
@@ -111,7 +114,7 @@ public class ApiDefinitionImportUtilService {
         }
     }
 
-    public void importApi(ImportRequest request, ApiDefinitionImport apiImport, SessionUser user) {
+    public void importApi(ImportRequest request, ApiDefinitionImport apiImport) {
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
         if (request.getVersionId() == null) {
@@ -133,11 +136,11 @@ public class ApiDefinitionImportUtilService {
         }
 
         //处理数据，判断数据是否重复
-        dealWithData(request, filterData, user);
+        dealWithData(request, filterData);
 
     }
 
-    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDetail> importData, SessionUser user) {
+    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDetail> importData) {
         //查询数据库中所有的数据， 用于判断是否重复
         ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
         pageRequest.setProjectId(request.getProjectId());
@@ -176,7 +179,7 @@ public class ApiDefinitionImportUtilService {
         getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
 
         //数据入库
-        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, user);
+        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request);
 
     }
 
@@ -219,7 +222,7 @@ public class ApiDefinitionImportUtilService {
     public void insertData(Map<String, BaseTreeNode> modulePathMap,
                            Map<String, BaseTreeNode> idModuleMap,
                            ApiDetailWithDataUpdate apiDetailWithDataUpdate,
-                           ImportRequest request, SessionUser user) {
+                           ImportRequest request) {
         //先判断是否需要新增模块
         List<ApiDefinitionImportDetail> addModuleData = apiDetailWithDataUpdate.getAddModuleData();
         List<ApiDefinitionImportDetail> updateModuleData = apiDetailWithDataUpdate.getUpdateModuleData();
@@ -387,11 +390,10 @@ public class ApiDefinitionImportUtilService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         operationLogService.batchAdd(operationLogs);
         //发送通知
-        List<Map> createResources = new ArrayList<>();
-        createResources.addAll(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
+        List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
+        User user = userMapper.selectByPrimaryKey(request.getUserId());
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
-        List<Map> updateResources = new ArrayList<>();
-        updateResources.addAll(JSON.parseArray(JSON.toJSONString(updateResources), Map.class));
+        List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
     }
 

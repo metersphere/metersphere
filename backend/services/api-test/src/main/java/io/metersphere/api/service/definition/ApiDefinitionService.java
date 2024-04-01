@@ -952,7 +952,7 @@ public class ApiDefinitionService extends MoveNodeService {
         return apiDefinitionDocDTO;
     }
 
-    public void apiTestImport(MultipartFile file, ImportRequest request, SessionUser user, String projectId) {
+    public void apiTestImport(MultipartFile file, ImportRequest request, String projectId) {
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
@@ -977,7 +977,7 @@ public class ApiDefinitionService extends MoveNodeService {
         }
 
         try {
-            apiDefinitionImportUtilService.importApi(request, apiImport, user);
+            apiDefinitionImportUtilService.importApi(request, apiImport);
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException(Translator.get("user_import_format_wrong"));

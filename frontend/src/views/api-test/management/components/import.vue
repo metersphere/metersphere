@@ -569,6 +569,7 @@
     (item) => ({
       ...item,
       operationTime: dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss'),
+      nextTime: dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
   function loadTaskList() {
