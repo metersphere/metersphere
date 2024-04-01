@@ -40,11 +40,11 @@
               <div class="m-b[2px] flex items-center">
                 <a-tooltip :content="item.file.name">
                   <div class="show-file-name">
-                    <div class="one-line-text max-w-[421px] font-normal">
-                      {{ item.file.name }}
+                    <div class="one-line-text max-w-[421px] pl-[4px] font-normal">
+                      {{ item.file.name.slice(0, item.file.name.indexOf('.')) }}
                     </div>
-                    <span v-if="getTextWidth(item.file.name) > 421" class="font-normal text-[var(--color-text-1)]">{{
-                      item.file.name.slice(item.file.name.indexOf('.') + 1)
+                    <span class="font-normal text-[var(--color-text-1)]">{{
+                      item.file.name.slice(item.file.name.indexOf('.'))
                     }}</span>
                   </div>
                 </a-tooltip>
@@ -60,19 +60,26 @@
               </div>
               <div
                 v-else-if="item.status === UploadStatus.done"
-                class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
+                class="flex items-center gap-[8px] pl-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
-                <div class="one-line-text max-w-[421px]">
-                  {{
-                    `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(item)} ${dayjs(
-                      item.createTime
-                    ).format('YYYY-MM-DD HH:mm:ss')}`
-                  }}
-                </div>
-
-                <div v-if="showUploadSuccess(item)" class="flex items-center">
-                  <MsIcon type="icon-icon_succeed_colorful" />
-                  {{ t('ms.upload.uploadSuccess') }}
+                <div class="one-line-text max-w-[421px]" style="display: flex">
+                  <a-tooltip
+                    :content="`${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(
+                      item
+                    )} ${dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss')}`"
+                  >
+                    <div class="one-line-text">
+                      {{
+                        `${formatFileSize(item.file.size)}  ${item.createUserName || ''}  ${getUploadDesc(
+                          item
+                        )} ${dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss')}`
+                      }}
+                    </div>
+                  </a-tooltip>
+                  <div v-if="showUploadSuccess(item)" class="flex items-center">
+                    <MsIcon type="icon-icon_succeed_colorful" />
+                    {{ t('ms.upload.uploadSuccess') }}
+                  </div>
                 </div>
               </div>
               <a-progress
@@ -98,6 +105,7 @@
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <a-divider v-if="item.file.type.includes('image/')" direction="vertical" />
               <MsButton
                 v-if="item.status === UploadStatus.error"
                 type="button"
@@ -107,6 +115,7 @@
               >
                 {{ t('ms.upload.reUpload') }}
               </MsButton>
+              <a-divider v-if="item.status === UploadStatus.error" direction="vertical" />
               <MsButton
                 v-if="props.showDelete && item.status !== 'uploading'"
                 type="button"
@@ -279,16 +288,6 @@
       // 开启后台上传时，如果队列为空，则说明是直接触发后台上传，并不是先startUpload然后再进行后台上传，需要触发一下上传任务开启
       startUpload();
     }
-  }
-
-  function getTextWidth(text: string) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (context != null) {
-      const metrics = context.measureText(text);
-      return metrics.width;
-    }
-    return 0;
   }
 
   watch(
