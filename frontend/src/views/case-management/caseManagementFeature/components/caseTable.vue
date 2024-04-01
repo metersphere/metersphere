@@ -593,7 +593,7 @@
       dataIndex: 'tags',
       showInTable: true,
       isTag: true,
-      width: 456,
+      width: 300,
       showDrag: true,
     },
     {
@@ -629,7 +629,6 @@
       titleSlotName: 'createUserFilter',
       showInTable: true,
       showTooltip: true,
-      width: 200,
       showDrag: true,
     },
     {
