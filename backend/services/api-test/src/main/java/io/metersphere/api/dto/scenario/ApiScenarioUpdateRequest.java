@@ -42,6 +42,11 @@ public class ApiScenarioUpdateRequest {
     @Size(max = 50, message = "{api_scenario.module_id.length_range}")
     private String moduleId;
 
+    @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario.project_id.not_blank}")
+    @Size(min = 1, max = 50, message = "{api_scenario.project_id.length_range}")
+    private String projectId;
+
     @Schema(description = "描述信息")
     @Size(max = 1000, message = "{api_definition.description.length_range}")
     private String description;

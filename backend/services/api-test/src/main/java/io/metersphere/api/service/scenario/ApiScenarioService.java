@@ -1199,7 +1199,8 @@ public class ApiScenarioService extends MoveNodeService {
         // 统一模块下名称不能重复
         example.createCriteria()
                 .andNameEqualTo(apiScenario.getName())
-                .andModuleIdEqualTo(apiScenario.getModuleId());
+                .andModuleIdEqualTo(apiScenario.getModuleId())
+                .andProjectIdEqualTo(apiScenario.getProjectId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             throw new MSException(API_SCENARIO_EXIST);
         }
@@ -1214,7 +1215,8 @@ public class ApiScenarioService extends MoveNodeService {
         example.createCriteria()
                 .andIdNotEqualTo(request.getId())
                 .andModuleIdEqualTo(request.getModuleId())
-                .andNameEqualTo(request.getName());
+                .andNameEqualTo(request.getName())
+                .andProjectIdEqualTo(request.getProjectId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             throw new MSException(API_SCENARIO_EXIST);
         }
