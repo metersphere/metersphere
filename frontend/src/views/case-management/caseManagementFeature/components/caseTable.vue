@@ -1231,7 +1231,9 @@
 
   // 抽屉详情
   function showCaseDetail(id: string, index: number) {
-    activeCaseIndex.value = index;
+    showDetailDrawer.value = true;
+    activeDetailId.value = id;
+    activeCaseIndex.value = index - 1;
   }
 
   // 创建详情
