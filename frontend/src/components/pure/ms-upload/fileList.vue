@@ -56,7 +56,7 @@
                 v-if="item.status === UploadStatus.init"
                 class="text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
-                {{ t('ms.upload.waiting') }}
+                {{ t('ms.upload.waiting_save') }}
               </div>
               <div
                 v-else-if="item.status === UploadStatus.done"

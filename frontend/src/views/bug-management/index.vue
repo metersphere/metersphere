@@ -423,7 +423,7 @@
       title: 'bugManagement.tag',
       showDrag: true,
       isStringTag: true,
-      width: 200,
+      width: 456,
       dataIndex: 'tags',
       showInTable: true,
     },

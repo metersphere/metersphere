@@ -228,7 +228,7 @@
   const roleIds = ref<string>('');
   const initData = async () => {
     setLoadListParams({ ...searchParams.value });
-    loadList();
+    await loadList();
   };
 
   const searchHandler = () => {
@@ -397,8 +397,6 @@
   onBeforeMount(() => {
     initData();
   });
-
-  await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
 
 <style scoped></style>

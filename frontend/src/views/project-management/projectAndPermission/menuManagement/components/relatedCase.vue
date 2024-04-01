@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { FormInstance } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
@@ -134,6 +134,7 @@
     fApi.value.clearValidateState();
   };
   const handlePlatformChange = async (value: SelectValue) => {
+    platformRules.value = [];
     try {
       if (value) {
         const res = await getPlatformInfo(value as string, MenuEnum.caseManagement);

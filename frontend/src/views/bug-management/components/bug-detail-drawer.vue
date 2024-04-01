@@ -305,7 +305,12 @@
         let initValue = valueObj[item.fieldId];
         const initOptions = item.options ? item.options : JSON.parse(item.platformOptionJson);
         if (memberType.includes(item.type)) {
-          if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
+          // 详情为空, 默认值为当前
+          if (
+            initValue == null &&
+            initValue === '' &&
+            (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER'))
+          ) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
           }
         }

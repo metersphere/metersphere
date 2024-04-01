@@ -56,6 +56,17 @@
         <div class="ml-[4px] text-[var(--color-text-3)]">{{ t('ms.assertion.typeChecking') }}</div>
       </div>
     </template>
+    <template #extractValueTitle>
+      <div class="flex items-center text-[var(--color-text-3)]">
+        {{ t('apiTestDebug.extractValueByColumn') }}
+        <a-tooltip :content="t('caseManagement.caseReview.passRateTip')" position="right">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </a-tooltip>
+      </div>
+    </template>
     <!-- 表格列 slot -->
     <!-- 参数名 or 请求/响应头联想输入 -->
     <template #key="{ record, columnConfig, rowIndex }">
