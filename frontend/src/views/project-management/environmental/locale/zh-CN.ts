@@ -88,6 +88,7 @@ export default {
   'project.environmental.database.url': '数据库连接 URL',
   'project.environmental.database.urlExtra': '执行多条 SQL 语句需配置 allowMultiQueries=true',
   'project.environmental.database.urlIsRequire': '数据库连接 URL 必填',
+  'project.environmental.database.driverIsRequire': '驱动必填',
   'project.environmental.database.testConnection': '测试连接',
   'project.environmental.database.testConnectionSuccess': '连接成功',
   'project.environmental.host.config': 'Host 配置',

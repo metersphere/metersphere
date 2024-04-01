@@ -87,6 +87,7 @@ export default {
   'project.environmental.host.ipNotRepeat': 'IP address cannot be repeated',
   'project.environmental.host.hostName': 'Host Name',
   'project.environmental.host.hostNameIsRequire': 'Host name cannot be empty',
+  'project.environmental.database.driverIsRequire': 'Driver is required',
   'project.environmental.host.hostNamePlaceholder': 'Please enter the host name',
   'project.environmental.host.desc': 'Description',
   'project.environmental.host.descPlaceholder': 'Please enter the description',
