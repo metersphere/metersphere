@@ -993,6 +993,76 @@ public class ApiScenarioStepExample {
             addCriterion("config not between", value1, value2, "config");
             return (Criteria) this;
         }
+
+        public Criteria andOriginProjectIdIsNull() {
+            addCriterion("origin_project_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdIsNotNull() {
+            addCriterion("origin_project_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdEqualTo(String value) {
+            addCriterion("origin_project_id =", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdNotEqualTo(String value) {
+            addCriterion("origin_project_id <>", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdGreaterThan(String value) {
+            addCriterion("origin_project_id >", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("origin_project_id >=", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdLessThan(String value) {
+            addCriterion("origin_project_id <", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("origin_project_id <=", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdLike(String value) {
+            addCriterion("origin_project_id like", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdNotLike(String value) {
+            addCriterion("origin_project_id not like", value, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdIn(List<String> values) {
+            addCriterion("origin_project_id in", values, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdNotIn(List<String> values) {
+            addCriterion("origin_project_id not in", values, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdBetween(String value1, String value2) {
+            addCriterion("origin_project_id between", value1, value2, "originProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginProjectIdNotBetween(String value1, String value2) {
+            addCriterion("origin_project_id not between", value1, value2, "originProjectId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -15,6 +15,7 @@
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="ref_type" jdbcType="VARCHAR" property="refType" />
     <result column="config" jdbcType="VARCHAR" property="config" />
+    <result column="origin_project_id" jdbcType="VARCHAR" property="originProjectId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, scenario_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
-    parent_id, version_id, ref_type, config
+    parent_id, version_id, ref_type, config, origin_project_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioStepExample" resultMap="BaseResultMap">
     select
@@ -113,12 +114,12 @@
       sort, `enable`, resource_id, 
       resource_num, step_type, project_id, 
       parent_id, version_id, ref_type, 
-      config)
+      config, origin_project_id)
     values (#{id,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{sort,jdbcType=BIGINT}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceNum,jdbcType=VARCHAR}, #{stepType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{parentId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refType,jdbcType=VARCHAR}, 
-      #{config,jdbcType=VARCHAR})
+      #{config,jdbcType=VARCHAR}, #{originProjectId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioStep">
     insert into api_scenario_step
@@ -162,6 +163,9 @@
       <if test="config != null">
         config,
       </if>
+      <if test="originProjectId != null">
+        origin_project_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +206,9 @@
       </if>
       <if test="config != null">
         #{config,jdbcType=VARCHAR},
+      </if>
+      <if test="originProjectId != null">
+        #{originProjectId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.config != null">
         config = #{record.config,jdbcType=VARCHAR},
       </if>
+      <if test="record.originProjectId != null">
+        origin_project_id = #{record.originProjectId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_type = #{record.refType,jdbcType=VARCHAR},
-      config = #{record.config,jdbcType=VARCHAR}
+      config = #{record.config,jdbcType=VARCHAR},
+      origin_project_id = #{record.originProjectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="config != null">
         config = #{config,jdbcType=VARCHAR},
       </if>
+      <if test="originProjectId != null">
+        origin_project_id = #{originProjectId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,20 +346,21 @@
       parent_id = #{parentId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_type = #{refType,jdbcType=VARCHAR},
-      config = #{config,jdbcType=VARCHAR}
+      config = #{config,jdbcType=VARCHAR},
+      origin_project_id = #{originProjectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_step
     (id, scenario_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
-      parent_id, version_id, ref_type, config)
+      parent_id, version_id, ref_type, config, origin_project_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
         #{item.sort,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=VARCHAR}, 
         #{item.resourceNum,jdbcType=VARCHAR}, #{item.stepType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.parentId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.refType,jdbcType=VARCHAR}, 
-        #{item.config,jdbcType=VARCHAR})
+        #{item.config,jdbcType=VARCHAR}, #{item.originProjectId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -396,6 +411,9 @@
         </if>
         <if test="'config'.toString() == column.value">
           #{item.config,jdbcType=VARCHAR}
+        </if>
+        <if test="'origin_project_id'.toString() == column.value">
+          #{item.originProjectId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

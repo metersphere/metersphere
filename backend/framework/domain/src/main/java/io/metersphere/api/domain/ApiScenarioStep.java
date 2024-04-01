@@ -54,6 +54,9 @@ public class ApiScenarioStep implements Serializable {
     @Schema(description = "循环等组件基础数据")
     private String config;
 
+    @Schema(description = "记录跨项目复制的步骤的原项目ID")
+    private String originProjectId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -69,7 +72,8 @@ public class ApiScenarioStep implements Serializable {
         parentId("parent_id", "parentId", "VARCHAR", false),
         versionId("version_id", "versionId", "VARCHAR", false),
         refType("ref_type", "refType", "VARCHAR", false),
-        config("config", "config", "VARCHAR", false);
+        config("config", "config", "VARCHAR", false),
+        originProjectId("origin_project_id", "originProjectId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
