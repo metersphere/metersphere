@@ -599,6 +599,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUserName',
+      showTooltip: true,
       dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
       sortable: {
@@ -627,6 +628,7 @@
       dataIndex: 'createUserName',
       titleSlotName: 'createUserFilter',
       showInTable: true,
+      showTooltip: true,
       width: 200,
       showDrag: true,
     },
