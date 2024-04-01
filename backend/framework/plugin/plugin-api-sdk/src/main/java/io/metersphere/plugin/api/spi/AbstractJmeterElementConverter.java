@@ -1,8 +1,10 @@
 package io.metersphere.plugin.api.spi;
 
 
+import io.metersphere.plugin.api.constants.ElementProperty;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import lombok.Setter;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.lang.reflect.ParameterizedType;
@@ -48,5 +50,20 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
                     getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config);
             });
         }
+    }
+
+    /**
+     * 设置步骤标识
+     * 当前步骤唯一标识，结果和步骤匹配的关键
+     *
+     * @param msHTTPElement
+     * @param config
+     * @param sampler
+     */
+    public void setStepIdentification(AbstractMsTestElement msHTTPElement, ParameterConfig config, TestElement sampler) {
+        sampler.setProperty(ElementProperty.MS_RESOURCE_ID.name(), msHTTPElement.getResourceId());
+        sampler.setProperty(ElementProperty.MS_STEP_ID.name(), msHTTPElement.getStepId());
+        sampler.setProperty(ElementProperty.MS_REPORT_ID.name(), config.getReportId());
+        sampler.setProperty(ElementProperty.PROJECT_ID.name(), msHTTPElement.getProjectId());
     }
 }

@@ -13,7 +13,6 @@ import io.metersphere.api.parser.jmeter.body.MsBodyConverterFactory;
 import io.metersphere.api.parser.jmeter.body.MsFormDataBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsWWWFormBodyConverter;
 import io.metersphere.jmeter.mock.Mock;
-import io.metersphere.plugin.api.constants.ElementProperty;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.project.api.KeyValueEnableParam;
@@ -199,21 +198,6 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         }
 
         return JmeterTestElementParserHelper.getArguments(msHTTPElement.getName(), envVariables);
-    }
-
-    /**
-     * 设置步骤标识
-     * 当前步骤唯一标识，结果和步骤匹配的关键
-     *
-     * @param msHTTPElement
-     * @param config
-     * @param sampler
-     */
-    private void setStepIdentification(MsHTTPElement msHTTPElement, ParameterConfig config, HTTPSamplerProxy sampler) {
-        sampler.setProperty(ElementProperty.MS_RESOURCE_ID.name(), msHTTPElement.getResourceId());
-        sampler.setProperty(ElementProperty.MS_STEP_ID.name(), msHTTPElement.getStepId());
-        sampler.setProperty(ElementProperty.MS_REPORT_ID.name(), config.getReportId());
-        sampler.setProperty(ElementProperty.PROJECT_ID.name(), msHTTPElement.getProjectId());
     }
 
     private String getPath(MsHTTPElement msHTTPElement, HttpConfig httpConfig) {
