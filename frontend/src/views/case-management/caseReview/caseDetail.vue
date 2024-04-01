@@ -527,8 +527,8 @@
   function goCaseDetail() {
     window.open(
       `${window.location.origin}#${
-        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL }).fullPath
-      }?id=${activeCaseId.value}`
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
+      }?id=${activeCaseId.value}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
     );
   }
 
