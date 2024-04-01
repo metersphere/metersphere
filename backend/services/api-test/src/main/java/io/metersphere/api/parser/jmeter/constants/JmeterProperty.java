@@ -10,4 +10,5 @@ public class JmeterProperty {
     public static final String SCRIPT_LANGUAGE = "scriptLanguage";
     public final static String ASS_OPTION = "ASS_OPTION";
     public final static String BEAN_SHELL_ASSERTION_QUERY = "BeanShellAssertion.query";
+    public final static String BEAN_SHELL_SAMPLER_QUERY = "BeanShellSampler.query";
 }
