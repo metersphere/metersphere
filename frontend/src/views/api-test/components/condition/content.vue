@@ -307,7 +307,7 @@
           v-model:model-value="condition.variableNames"
           :max-length="255"
           :disabled="props.disabled"
-          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: 'id,username' })"
+          :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: 'id', b: 'email', c: '{id_1}', d: '{email_1}' })"
           @input="() => emit('change')"
         />
       </div>
@@ -336,7 +336,7 @@
           v-model:model-value="condition.resultVariable"
           :disabled="props.disabled"
           :max-length="255"
-          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
+          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: 'result', b: '${result}' })"
           @input="() => emit('change')"
         />
       </div>
@@ -683,7 +683,8 @@ if (!result){
       slotName: 'key',
     },
     {
-      title: 'apiTestDebug.paramValue',
+      title: 'apiTestDebug.extractValueByColumn',
+      titleSlotName: 'extractValueTitle',
       dataIndex: 'value',
       slotName: 'value',
       isNormal: true,

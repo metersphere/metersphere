@@ -4,6 +4,7 @@ export default {
   'ms.upload.importModalDragText': '拖拽或点击此区域选择文件',
   'ms.upload.importModalFileTip': '只支持 {type} 格式文件，文件大小不超过 {size} MB',
   'ms.upload.waiting': '等待上传',
+  'ms.upload.waiting_save': '等待保存',
   'ms.upload.reUpload': '重新上传',
   'ms.upload.preview': '预览',
   'ms.upload.uploadAt': '上传于',
