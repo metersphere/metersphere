@@ -37,12 +37,7 @@
   import { reactive, ref, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import {
-    getGroupDetailEnv,
-    groupAddEnv,
-    groupUpdateEnv,
-    updateOrAddEnv,
-  } from '@/api/modules/project-management/envManagement';
+  import { getGroupDetailEnv, groupUpdateEnv, updateOrAddEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';

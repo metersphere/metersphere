@@ -138,13 +138,11 @@
     { label: 'Response Code', value: 'RESPONSE_CODE' },
   ]);
   const relationOptions = computed(() => [
-    { label: '包含', value: 'contain' },
-    { label: '不包含', value: 'notContain' },
-    { label: '等于', value: 'equal' },
-    { label: '不等于', value: 'notEqual' },
-    { label: '正则匹配', value: 'regex' },
-    { label: '以...开始', value: 'startWith' },
-    { label: '以...结束', value: 'endWith' },
+    { label: t('advanceFilter.operator.contains'), value: 'CONTAINS' },
+    { label: t('advanceFilter.operator.not_contains'), value: 'NOT_CONTAINS' },
+    { label: t('advanceFilter.operator.equal'), value: 'EQUALS' },
+    { label: t('advanceFilter.operator.start_with'), value: 'START_WITH' },
+    { label: t('advanceFilter.operator.end_with'), value: 'END_WITH' },
   ]);
 
   const tableBatchActions = {
@@ -207,7 +205,6 @@
           type: 'select',
           options: relationOptions.value,
           className: 'w-[120px]',
-          defaultValue: 'equal',
         },
         {
           filed: 'expression', // 匹配规则-表达式

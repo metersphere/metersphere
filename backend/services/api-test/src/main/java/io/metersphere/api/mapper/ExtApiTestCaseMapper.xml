@@ -58,6 +58,8 @@
         atc.tags,
         a.module_id,
         a.path,
+        a.method,
+        a.protocol,
         atc.pos
         FROM
         api_test_case atc
