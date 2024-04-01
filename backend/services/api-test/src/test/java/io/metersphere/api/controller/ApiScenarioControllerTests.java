@@ -12,8 +12,8 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.controller.*;
 import io.metersphere.api.dto.request.controller.loop.*;
-import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
@@ -1945,6 +1945,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(23)
     void scheduleTest() throws Exception {
         String testUrl = "/schedule-config";
+        String deleteUrl = "/schedule-config-delete/";
 
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
             this.batchCreateScenarios();
@@ -1952,6 +1953,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         //使用最后一个场景ID用于做定时任务的测试
         String scenarioId = BATCH_OPERATION_SCENARIO_ID.getLast();
+        deleteUrl += scenarioId;
         ApiScenarioScheduleConfigRequest request = new ApiScenarioScheduleConfigRequest();
 
         request.setScenarioId(scenarioId);
@@ -1961,6 +1963,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         //先测试一下没有开启模块时接口能否使用
         apiScenarioBatchOperationTestService.removeApiModule(DEFAULT_PROJECT_ID);
         this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        this.requestGet(deleteUrl, request).andExpect(status().is5xxServerError());
         //恢复
         apiScenarioBatchOperationTestService.resetProjectModule(DEFAULT_PROJECT_ID);
         MvcResult result = this.requestPostAndReturn(testUrl, request);
@@ -2061,6 +2064,10 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setEnable(true);
         request.setCron(IDGenerator.nextStr());
         this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+
+        //测试删除
+        this.requestGetWithOk(deleteUrl, request);
+        apiScenarioBatchOperationTestService.checkScheduleIsRemove(scenarioId);
 
     }
 

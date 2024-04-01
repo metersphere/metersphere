@@ -62,7 +62,46 @@
         </a-trigger>
       </template>
       <template #num="{ record }">
-        <MsButton type="text" @click="openScenarioTab(record)">{{ record.num }}</MsButton>
+        <div>
+          <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">{{
+            record.num
+          }}</MsButton>
+          <div v-if="record.scheduleConfig && record.scheduleConfig.enable" class="float-right">
+            <a-tooltip position="top">
+              <template #content>
+                <span>
+                  {{ t('apiScenario.schedule.table.tooltip.enable.one') }}
+                </span>
+                <br />
+                <span>
+                  {{
+                    t('apiScenario.schedule.table.tooltip.enable.two', {
+                      time: dayjs(record.nextTriggerTime).format('YYYY-MM-DD HH:mm:ss'),
+                    })
+                  }}
+                </span>
+              </template>
+              <a-tag
+                size="small"
+                style="border-color: #00c261; color: #00c261; background-color: transparent"
+                bordered
+                @click="openScheduleModal(record)"
+                >{{ t('apiScenario.schedule.abbreviation') }}</a-tag
+              >
+            </a-tooltip>
+          </div>
+          <div v-if="record.scheduleConfig && !record.scheduleConfig.enable" class="float-right">
+            <a-tooltip :content="t('apiScenario.schedule.table.tooltip.disable')" position="top">
+              <a-tag
+                size="small"
+                style="border-color: #d4d4d8; color: #323233; background-color: transparent"
+                bordered
+                @click="openScheduleModal(record)"
+                >{{ t('apiScenario.schedule.abbreviation') }}</a-tag
+              >
+            </a-tooltip>
+          </div>
+        </div>
       </template>
       <template #status="{ record }">
         <a-select
@@ -170,7 +209,10 @@
           {{ t('common.copy') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_API_SCENARIO:READ+ADD']" direction="vertical" :margin="8"></a-divider>
-        <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
+        <MsTableMoreAction
+          :list="getTableMoreActionList(record)"
+          @select="handleTableMoreActionSelect($event, record)"
+        />
       </template>
       <template v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
@@ -182,7 +224,117 @@
       </template>
     </ms-base-table>
   </div>
+  <!--  定时任务配置-->
+  <a-modal v-model:visible="showScheduleModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="600">
+    <template #title>
+      <div>
+        {{ scheduleModalTitle }}
+        <div class="text-[var(--color-text-4)]">
+          {{ '（' + tableRecord?.name + '）' }}
+        </div>
+      </div>
+    </template>
+    <a-form ref="scheduleConfigRef" class="rounded-[4px]" :model="scheduleConfig" layout="vertical">
+      <!--      触发时间-->
+      <a-form-item :label="t('apiScenario.schedule.task.schedule')">
+        <a-select v-model:model-value="scheduleConfig.cron">
+          <template #label="{ data }">
+            <div class="flex items-center">
+              {{ data.value }}
+              <div class="ml-[4px] text-[var(--color-text-4)]">{{ data.label.split('?')[1] }}</div>
+            </div>
+          </template>
+          <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value" class="block">
+            <div class="flex w-full items-center justify-between">
+              {{ item.value }}
+              <div class="ml-[4px] text-[var(--color-text-4)]">{{ item.label }}</div>
+            </div>
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <!--      环境选择-->
+      <a-form-item :label="t('case.execute.selectEnv')">
+        <a-radio-group v-model:model-value="scheduleUseNewEnv" type="radio">
+          <a-radio :value="false"
+            >{{ t('case.execute.defaultEnv') }}
+            <a-tooltip :content="t('case.execute.defaultEnvTip')" position="top">
+              <icon-question-circle
+                class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </a-radio>
+          <a-radio :value="true">{{ t('case.execute.newEnv') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <!--    新环境 -->
+      <a-form-item
+        v-if="scheduleUseNewEnv"
+        field="config.environmentId"
+        :label="t('case.execute.newEnv')"
+        :rules="[{ required: true, message: t('apiTestManagement.envRequired') }]"
+        asterisk-position="end"
+        required
+      >
+        <a-select v-model="scheduleConfig.config.environmentId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <!--      运行资源池   设计稿中最后一行取消margin-bottom-->
+      <a-form-item
+        field="config.poolId"
+        :label="t('apiScenario.schedule.config.resource_pool')"
+        :rules="[{ required: true, message: t('apiTestManagement.poolRequired') }]"
+        asterisk-position="end"
+        required
+        class="mb-0"
+      >
+        <a-select v-model="scheduleConfig.config.poolId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <div class="flex" :class="['justify-between']">
+        <div class="flex flex-row items-center justify-center">
+          <a-switch v-model="scheduleConfig.enable" class="mr-1" size="small" type="line" />
+          <a-tooltip>
+            <template #content>
+              <span>
+                {{ t('apiScenario.schedule.task.status.tooltip.one') }}
+              </span>
+              <br />
+              <span>
+                {{ t('apiScenario.schedule.task.status.tooltip.two') }}
+              </span>
+            </template>
 
+            <span class="flex items-center">
+              <span class="mr-1">{{ t('apiScenario.schedule.task.status') }}</span>
+              <span class="mt-[2px]">
+                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+              </span>
+            </span>
+          </a-tooltip>
+        </div>
+
+        <div class="flex justify-end">
+          <a-button type="secondary" :disabled="scheduleModalLoading" @click="cancelScheduleModal">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button class="ml-3" type="primary" :loading="scheduleModalLoading" @click="saveScheduleModal">
+            {{ t('common.save') }}
+          </a-button>
+        </div>
+      </div>
+    </template>
+  </a-modal>
+
+  <!--   表格批量操作-->
   <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
     <template #title>
       {{ t('common.batchEdit') }}
@@ -341,8 +493,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { FormInstance, Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -356,17 +509,19 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
-  import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
+  import { getEnvList } from '@/api/modules/api-test/management';
   import {
     batchEditScenario,
     batchOptionScenario,
     batchRecycleScenario,
     batchRunScenario,
+    deleteScheduleConfig,
     getScenarioPage,
     recycleScenario,
+    scenarioScheduleConfig,
     updateScenario,
   } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
@@ -375,7 +530,8 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
+  import { Environment } from '@/models/apiTest/management';
+  import { ApiScenarioScheduleConfig, ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -400,6 +556,27 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+  const tableRecord = ref<ApiScenarioTableItem>();
+  const scheduleModalTitle = ref('');
+
+  const scheduleConfig = ref<ApiScenarioScheduleConfig>({
+    scenarioId: '',
+    enable: false,
+    cron: '',
+    config: {
+      poolId: '',
+      grouped: false,
+    },
+  });
+
+  const scheduleUseNewEnv = ref(false);
+
+  const environmentList = ref<Environment[]>();
+  // 初始化环境列表
+  async function initEnvList() {
+    environmentList.value = await getEnvList(appStore.currentProjectId);
+  }
+
   const scenarioPriorityList = ref([
     {
       value: 'P0',
@@ -435,8 +612,8 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
-      showTooltip: true,
+      width: 140,
+      showTooltip: false,
       columnSelectorDisabled: true,
     },
     {
@@ -601,14 +778,40 @@
       },
     ],
   };
-  const tableMoreActionList = [
-    {
-      eventTag: 'delete',
-      label: t('common.delete'),
-      permission: ['PROJECT_API_SCENARIO:READ+DELETE'],
-      danger: true,
-    },
-  ];
+
+  function getTableMoreActionList(tableRow: ApiScenarioTableItem) {
+    if (tableRow.scheduleConfig) {
+      // 删除定时任务
+      return [
+        {
+          eventTag: 'deleteSchedule',
+          label: t('apiScenario.schedule.delete'),
+          permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+          danger: true,
+        },
+        {
+          eventTag: 'delete',
+          label: t('common.delete'),
+          permission: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          danger: true,
+        },
+      ];
+    }
+    return [
+      {
+        eventTag: 'schedule',
+        label: t('apiScenario.schedule.create'),
+        permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+        danger: false,
+      },
+      {
+        eventTag: 'delete',
+        label: t('common.delete'),
+        permission: ['PROJECT_API_SCENARIO:READ+DELETE'],
+        danger: true,
+      },
+    ];
+  }
 
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
@@ -760,6 +963,56 @@
     });
   }
 
+  const showScheduleModal = ref(false);
+  const syncFrequencyOptions = [
+    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ? ' },
+    { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
+    { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
+    { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
+  ];
+
+  function resetScheduleConfig(record: ApiScenarioTableItem) {
+    // 初始化已选择的表格数据
+    tableRecord.value = record;
+    if (record.scheduleConfig) {
+      scheduleConfig.value = cloneDeep(record.scheduleConfig);
+    } else {
+      // 初始化定时任务配置
+      scheduleConfig.value = {
+        scenarioId: record.id,
+        enable: false,
+        cron: '0 0 0/1 * * ? ',
+        config: {
+          poolId: '',
+          grouped: false,
+        },
+      };
+    }
+    scheduleUseNewEnv.value = !!scheduleConfig.value.config.environmentId;
+    // 初始化环境
+    initEnvList();
+    // 初始化弹窗标题
+    if (tableRecord.value.scheduleConfig) {
+      scheduleModalTitle.value = t('apiScenario.schedule.update');
+    } else {
+      scheduleModalTitle.value = t('apiScenario.schedule.create');
+    }
+  }
+
+  function openScheduleModal(record: ApiScenarioTableItem) {
+    resetScheduleConfig(record);
+    showScheduleModal.value = true;
+  }
+  async function deleteScenarioSchedule(scenarioId: string) {
+    try {
+      await deleteScheduleConfig(scenarioId);
+      Message.success(t('common.deleteSuccess'));
+      loadScenarioList(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   /**
    * 处理表格更多按钮事件
    * @param item
@@ -769,9 +1022,46 @@
       case 'delete':
         deleteScenario(record);
         break;
+      case 'schedule':
+        openScheduleModal(record);
+        break;
+      case 'deleteSchedule':
+        deleteScenarioSchedule(record.id);
+        break;
       default:
         break;
     }
+  }
+
+  const scheduleConfigRef = ref<FormInstance>();
+  const scheduleModalLoading = ref(false);
+
+  function cancelScheduleModal() {
+    showScheduleModal.value = false;
+  }
+  function saveScheduleModal() {
+    scheduleConfigRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          scheduleModalLoading.value = true;
+          await scenarioScheduleConfig({ ...scheduleConfig.value });
+          // 初始化弹窗标题
+          if (tableRecord.value?.scheduleConfig) {
+            Message.success(t('common.updateSuccess'));
+          } else {
+            Message.success(t('common.createSuccess'));
+          }
+          cancelScheduleModal();
+          resetSelector();
+          loadScenarioList(true);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          scheduleModalLoading.value = false;
+        }
+      }
+    });
   }
 
   /**
@@ -783,7 +1073,9 @@
 
   const showBatchModal = ref(false);
   const batchUpdateLoading = ref(false);
+
   const batchFormRef = ref<FormInstance>();
+
   const batchForm = ref({
     attr: '',
     value: '',

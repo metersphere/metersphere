@@ -46,6 +46,18 @@ export interface ApiScenarioGetModuleParams {
   refId?: string;
 }
 
+// 场景定时任务配置
+export interface ApiScenarioScheduleConfig {
+  scenarioId: string;
+  enable: boolean;
+  cron: string;
+  config: {
+    poolId: string;
+    grouped: false;
+    environmentId?: string;
+  };
+}
+
 // 场景详情
 export interface ApiScenarioTableItem {
   id: string;
@@ -79,6 +91,7 @@ export interface ApiScenarioTableItem {
   description: string;
   status: RequestDefinitionStatus;
   customFields: ApiDefinitionCustomField[];
+  scheduleConfig?: ApiScenarioScheduleConfig;
 }
 
 // 场景列表查询参数

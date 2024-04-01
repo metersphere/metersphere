@@ -99,4 +99,17 @@ export default {
     'As long as the system extracts the returned cookie information from the result of a certain step, the subsequent steps will use this cookie. If a cookie variable is added to the request, it will also be overwritten',
   'apiScenario.setting.waitTime.tip':
     'When running a scenario, each step of the scenario will wait for a certain time after execution before triggering the next step to start execution',
+  // 定时任务
+  'apiScenario.schedule.create': 'Create schedule',
+  'apiScenario.schedule.update': 'Update schedule',
+  'apiScenario.schedule.delete': 'Delete schedule',
+  'apiScenario.schedule.config.resource_pool': 'Resource pool',
+  'apiScenario.schedule.task.status': 'Task status',
+  'apiScenario.schedule.task.schedule': 'Trigger time',
+  'apiScenario.schedule.abbreviation': 'SCHEDULE',
+  'apiScenario.schedule.task.status.tooltip.one': 'Open: execute schedule task',
+  'apiScenario.schedule.task.status.tooltip.two': 'Close: stop executing schedule task',
+  'apiScenario.schedule.table.tooltip.enable.one': 'Schedule is open',
+  'apiScenario.schedule.table.tooltip.enable.two': 'Next trigger time：{time}',
+  'apiScenario.schedule.table.tooltip.disable': 'Schedule is close',
 };

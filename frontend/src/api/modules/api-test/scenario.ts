@@ -27,6 +27,8 @@ import {
   RecycleScenarioUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
+  ScenarioScheduleConfigDeleteUrl,
+  ScenarioScheduleConfigUrl,
   ScenarioTransferFileUrl,
   ScenarioTransferModuleOptionsUrl,
   ScenarioTrashPageUrl,
@@ -44,6 +46,7 @@ import {
   ApiScenarioGetModuleParams,
   ApiScenarioModuleUpdateParams,
   ApiScenarioPageParams,
+  ApiScenarioScheduleConfig,
   ApiScenarioTableItem,
   ApiScenarioUpdateDTO,
   ExecuteHistoryItem,
@@ -153,6 +156,16 @@ export function batchEditScenario(params: ApiScenarioBatchEditParams) {
 // 批量编辑场景
 export function batchRunScenario(params: ApiScenarioBatchRunParams) {
   return MSR.post({ url: BatchRunScenarioUrl, params });
+}
+
+// 批量编辑场景
+export function scenarioScheduleConfig(params: ApiScenarioScheduleConfig) {
+  return MSR.post({ url: ScenarioScheduleConfigUrl, params });
+}
+
+// 删除定时任务配置
+export function deleteScheduleConfig(id: string) {
+  return MSR.get({ url: ScenarioScheduleConfigDeleteUrl, params: id });
 }
 
 // 场景执行历史接口
