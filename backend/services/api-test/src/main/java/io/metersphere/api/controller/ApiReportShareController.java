@@ -28,7 +28,7 @@ public class ApiReportShareController {
     @Operation(summary = "接口测试-接口报告-生成分享链接")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_SHARE)
     public ShareInfoDTO generateShareInfo(@Validated(Created.class) @RequestBody ApiReportShareRequest request) {
-        return apiReportShareService.gen(request, Objects.requireNonNull(SessionUtils.getUser()));
+        return apiReportShareService.gen(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/{id}")

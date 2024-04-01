@@ -4,6 +4,8 @@ import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.share.ApiReportShareRequest;
+import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
@@ -51,23 +53,32 @@ public class ApiReportSendNoticeService {
     @Resource
     private ProjectMapper projectMapper;
     private static final String API_SCENARIO = "API_SCENARIO";
+    private static final String API_CASE = "API_CASE";
 
     public void sendNotice(ApiNoticeDTO noticeDTO) {
         String noticeType;
-        String reportUrl;
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         assert systemParameterService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         BeanMap beanMap;
         String event;
         String status;
+        ApiReportShareService shareService = CommonBeanFactory.getBean(ApiReportShareService.class);
+        ApiReportShareRequest shareRequest = new ApiReportShareRequest();
+        shareRequest.setReportId(noticeDTO.getReportId());
+        shareRequest.setProjectId(noticeDTO.getProjectId());
+        assert shareService != null;
+        ShareInfoDTO url = shareService.gen(shareRequest, noticeDTO.getUserId());
+        Project project = projectMapper.selectByPrimaryKey(noticeDTO.getProjectId());
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api-test/report?orgId=%s&pId=%s&type=%s&reportId=%s";
+        String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId();
         ApiScenarioReport report = new ApiScenarioReport();
         if (API_SCENARIO.equals(noticeDTO.getResourceType())) {
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(scenario);
             noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
-            reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + noticeDTO.getReportId();
             report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
+            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_SCENARIO, report.getId());
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
                 status = "成功";
@@ -78,13 +89,14 @@ public class ApiReportSendNoticeService {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAILED;
                 status = "失败";
             }
+            shareUrl = String.format(shareUrl, "shareReportScenario");
         } else {
             ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(testCase);
 
             // TODO 是否需要区分场景和用例
             noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + noticeDTO.getReportId();
+            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_CASE, report.getId());
 
             ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
             BeanUtils.copyBean(report, apiReport);
@@ -98,6 +110,7 @@ public class ApiReportSendNoticeService {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAILED;
                 status = "失败";
             }
+            shareUrl = String.format(shareUrl, "shareReportCase");
         }
 
         String userId = noticeDTO.getUserId();
@@ -137,15 +150,10 @@ public class ApiReportSendNoticeService {
         }
         paramMap.put("reportUrl", reportUrl);
 
-
-        // TODO: 缺少生成分享链接
-        String shareUrl = null;
-        paramMap.put("scenarioShareUrl", baseSystemConfigDTO.getUrl() + "/api/share-api-report" + shareUrl);
+        paramMap.put("scenarioShareUrl", shareUrl);
         String context = "${operator}执行接口测试" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder().operator(userId)
                 .context(context).subject("执行通知").paramMap(paramMap).event(event).build();
-
-        Project project = projectMapper.selectByPrimaryKey(noticeDTO.getProjectId());
 
         noticeSendService.send(project, noticeType, noticeModel);
     }

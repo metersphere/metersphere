@@ -16,7 +16,8 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,6 +43,8 @@ public class ApiReportShareService {
     private ProjectApplicationMapper projectApplicationMapper;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private BaseUserMapper baseUserMapper;
 
     private static final Long DEFAULT = 1000L * 60 * 60 * 24;
 
@@ -102,12 +105,13 @@ public class ApiReportShareService {
         return returnDTO;
     }
 
-    public ShareInfoDTO gen(ApiReportShareRequest shareRequest, SessionUser user) {
-        String lang = user.getLanguage() == null ? LocaleContextHolder.getLocale().toString() : user.getLanguage();
+    public ShareInfoDTO gen(ApiReportShareRequest shareRequest, String userId) {
+        UserDTO userDTO = baseUserMapper.selectById(userId);
+        String lang = userDTO.getLanguage() == null ? LocaleContextHolder.getLocale().toString() : userDTO.getLanguage();
         ShareInfo request = new ShareInfo();
         BeanUtils.copyBean(request, shareRequest);
         request.setLang(lang);
-        request.setCreateUser(user.getId());
+        request.setCreateUser(userId);
         request.setCustomData(shareRequest.getReportId().getBytes());
         request.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         ShareInfo shareInfo = createShareInfo(request);
