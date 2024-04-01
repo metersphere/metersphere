@@ -1169,7 +1169,7 @@
     }
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
-    if (isExecute) {
+    if (isExecute && !props.isCase) {
       debugSocket(executeType); // 开启websocket
     }
     let requestName = '';
