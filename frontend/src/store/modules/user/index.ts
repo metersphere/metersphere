@@ -155,8 +155,18 @@ const useUserStore = defineStore('user', {
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
         const { orgId, pId } = getHashParameters();
-        appStore.setCurrentOrgId(forceSet ? res.lastOrganizationId || '' : orgId || '');
-        appStore.setCurrentProjectId(forceSet ? res.lastProjectId || '' : pId || '');
+        // 1. forceSet是强制设置，需要设置res的，2.非force且地址栏有，则也设置 3.地址栏参数为空就不设置
+        // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
+        if (!forceSet && orgId) {
+          appStore.setCurrentOrgId(orgId);
+        }
+        if (!forceSet && pId) {
+          appStore.setCurrentProjectId(pId);
+        }
+        if (forceSet) {
+          appStore.setCurrentOrgId(res.lastOrganizationId || '');
+          appStore.setCurrentProjectId(res.lastProjectId || '');
+        }
         return true;
       } catch (err) {
         // eslint-disable-next-line no-console
