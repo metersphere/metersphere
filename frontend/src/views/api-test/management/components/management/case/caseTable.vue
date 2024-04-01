@@ -195,7 +195,7 @@
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
           type="text"
           class="!mr-0"
-          @click="editCase(record)"
+          @click="editOrCopyCase(record, false)"
         >
           {{ t('common.edit') }}
         </MsButton>
@@ -221,7 +221,7 @@
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
           type="text"
           class="!mr-0"
-          @click="copyCase(record)"
+          @click="editOrCopyCase(record, true)"
         >
           {{ t('common.copy') }}
         </MsButton>
@@ -925,9 +925,6 @@
   function createCase() {
     createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string);
   }
-  function copyCase(record: ApiCaseDetail) {
-    createAndEditCaseDrawerRef.value?.open(record.apiDefinitionId, record, true);
-  }
 
   function openCaseTab(record: ApiCaseDetail) {
     emit('openCaseTab', record);
@@ -980,9 +977,9 @@
     loadCaseList();
   }
 
-  async function editCase(record: ApiCaseDetail) {
+  async function editOrCopyCase(record: ApiCaseDetail, isCopy: boolean) {
     await getCaseDetailInfo(record.id);
-    createAndEditCaseDrawerRef.value?.open(record.apiDefinitionId, caseDetail.value as RequestParam);
+    createAndEditCaseDrawerRef.value?.open(record.apiDefinitionId, caseDetail.value as RequestParam, isCopy);
   }
 
   // 在api下的用例里打开用例详情抽屉，点击编辑，编辑后在此刷新数据

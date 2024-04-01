@@ -205,6 +205,7 @@
     };
     // 复制
     if (isCopy) {
+      detailForm.value = cloneDeep(record as RequestParam);
       detailForm.value.name = `copy_${record?.name}`;
     }
     environmentId.value = currentEnvConfig?.value?.id;
