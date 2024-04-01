@@ -44,6 +44,11 @@ public class ExecutionQueue implements Serializable {
      */
     private ApiRunModeConfigDTO runModeConfig;
 
+    /**
+     * 全部场景的请求请求总量，用于计算执行各种指标
+     */
+    private Long requestCount;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

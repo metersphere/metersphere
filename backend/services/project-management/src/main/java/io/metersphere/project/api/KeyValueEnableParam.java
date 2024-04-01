@@ -1,6 +1,5 @@
 package io.metersphere.project.api;
 
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -18,6 +17,5 @@ public class KeyValueEnableParam extends KeyValueParam {
     /**
      * 描述
      */
-    @Size(max = 500)
     private String description;
 }
