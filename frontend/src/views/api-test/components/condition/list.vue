@@ -176,9 +176,12 @@
       id: new Date().getTime(),
     };
 
-    data.value.push(copyItem);
-    activeItem.value = copyItem;
-    emit('activeChange', activeItem.value);
+    const copyIndex = data.value.findIndex((e: ExecuteConditionProcessor) => e.id === item.id);
+    if (copyIndex > -1) {
+      data.value.splice(copyIndex, 0, copyItem);
+      activeItem.value = copyItem;
+      emit('activeChange', activeItem.value);
+    }
   }
 
   /**

@@ -89,7 +89,7 @@
                     </template>
                   </MsTag>
                   <template #content>
-                    <div>{{ step.scriptIdentifier }}</div>
+                    <div class="max-w-[400px]">{{ step.scriptIdentifier }}</div>
                   </template>
                 </a-popover>
                 <div v-show="showStatus(step)" class="flex">
@@ -223,7 +223,7 @@
    * 处理步骤展开折叠
    */
   function handleStepExpand(data: MsTreeExpandedData) {
-    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.id, 'id');
+    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
     if (realStep) {
       realStep.expanded = !realStep.expanded;
     }

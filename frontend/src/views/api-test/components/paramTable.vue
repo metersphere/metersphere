@@ -173,7 +173,7 @@
     <template #extractScope="{ record, columnConfig, rowIndex }">
       <a-select
         v-model:model-value="record.extractScope"
-        :disabled="props.disabledExceptParam"
+        :disabled="props.disabledExceptParam || record.extractType !== RequestExtractExpressionEnum.REGEX"
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-[180px]"
         size="mini"
@@ -370,10 +370,10 @@
       </a-tooltip>
       <a-input
         v-model="record.expectedValue"
-        :disabled="props.disabledExceptParam"
         size="mini"
         class="ms-form-table-input"
         :placeholder="t('apiTestDebug.commonPlaceholder')"
+        :disabled="isDisabledCondition.includes(record.condition) || props.disabledExceptParam"
         @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
@@ -542,6 +542,7 @@
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import { NO_CHECK } from '@/components/pure/ms-advance-filter/index';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
@@ -560,7 +561,12 @@
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import { HttpForm, ProjectOptionItem } from '@/models/projectManagement/environmental';
-  import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
+  import {
+    RequestBodyFormat,
+    RequestContentTypeEnum,
+    RequestExtractExpressionEnum,
+    RequestParamsType,
+  } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { filterKeyValParams } from './utils';
@@ -1039,6 +1045,8 @@
   function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {
     record[item.dataIndex as string] = val;
   }
+
+  const isDisabledCondition = ref([NO_CHECK.value]);
 
   defineExpose({
     addTableLine,

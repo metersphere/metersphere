@@ -6,7 +6,7 @@
     :mask="false"
     destroy-on-close
     @confirm="handleAddOrUpdate"
-    @cancel="emit('close')"
+    @cancel="handleCancel"
   >
     <template #title>
       <div>{{ title }}</div>
@@ -135,6 +135,7 @@
             key: 'id',
             children: 'children',
           }"
+          tree-checked-strategy="child"
           :tree-props="{
             virtualListProps: {
               height: 200,
@@ -188,7 +189,6 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
   import { getGenerateId } from '@/utils';
 
-  import type { EnvModule } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';
 
@@ -229,12 +229,7 @@
     protocol: 'http',
     moduleId: [],
     moduleMatchRule: {
-      modules: [
-        // {
-        //   moduleId: '',
-        //   containChildModule: false,
-        // },
-      ],
+      modules: [],
     },
     pathMatchRule: {
       path: '',
@@ -327,7 +322,8 @@
   const envTree = ref<ModuleTreeNode[]>([]);
 
   const title = ref<string>('');
-  watchEffect(() => {
+
+  function initHttpDetail() {
     title.value = props.currentId ? t('project.environmental.http.edit') : t('project.environmental.http.add');
     if (props.isCopy) {
       title.value = t('project.environmental.http.copy');
@@ -350,7 +346,7 @@
     } else {
       resetForm();
     }
-  });
+  }
 
   async function initModuleTree() {
     try {
@@ -362,6 +358,20 @@
       console.log(error);
     }
   }
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        initHttpDetail();
+      }
+    }
+  );
+
+  const handleCancel = () => {
+    visible.value = false;
+    resetForm();
+  };
 
   onBeforeMount(() => {
     initModuleTree();

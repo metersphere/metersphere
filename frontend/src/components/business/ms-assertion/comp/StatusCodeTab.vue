@@ -3,7 +3,7 @@
     <div>
       <div class="mb-[8px]">{{ t('ms.assertion.statusCode') }}</div>
       <a-select v-model="condition.condition" :disabled="props.disabled" class="w-[157px]" @change="clearExpectedValue">
-        <a-option v-for="item in statusCodeOptions" :key="item.value" :value="item.value">
+        <a-option v-for="item in codeOptions" :key="item.value" :value="item.value">
           {{ t(item.label) }}
         </a-option>
       </a-select>
@@ -34,7 +34,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { statusCodeOptions } from './utils';
+  import { codeOptions } from './utils';
 
   const { t } = useI18n();
   interface Param {

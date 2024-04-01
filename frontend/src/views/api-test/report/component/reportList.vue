@@ -28,7 +28,7 @@
         <div
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
-          @click="showReportDetail(record.id, rowIndex, record.integrated)"
+          @click="showReportDetail(record.id, rowIndex)"
           >{{ characterLimit(record.name) }}</div
         >
       </template>
@@ -150,7 +150,6 @@
       :table-data="propsRes.data"
       :page-change="propsEvent.pageChange"
       :pagination="propsRes.msPagination!"
-      :show-type="activeCaseReportType"
       :share-time="shareTime"
     />
   </div>
@@ -158,6 +157,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -193,6 +193,7 @@
 
   const appStore = useAppStore();
   const tableStore = useTableStore();
+  const route = useRoute();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -467,16 +468,14 @@
   const activeReportIndex = ref<number>(0);
   const showDetailDrawer = ref<boolean>(false);
   const showCaseDetailDrawer = ref<boolean>(false);
-  const activeCaseReportType = ref('');
 
-  function showReportDetail(id: string, rowIndex: number, integrated: boolean) {
+  function showReportDetail(id: string, rowIndex: number) {
     activeDetailId.value = id;
     activeReportIndex.value = rowIndex - 1;
     if (props.moduleType === ReportEnum.API_SCENARIO_REPORT) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
-      activeCaseReportType.value = integrated ? 'INTEGRATED' : 'INDEPENDENT';
     }
   }
 
@@ -500,7 +499,21 @@
       console.log(error);
     }
   }
+
+  function showDetail() {
+    if (route.query.reportId && route.query.type) {
+      activeDetailId.value = route.query.reportId as string;
+      activeReportIndex.value = 0;
+      if (route.query.type === 'API_SCENARIO') {
+        showDetailDrawer.value = true;
+      } else {
+        showCaseDetailDrawer.value = true;
+      }
+    }
+  }
+
   onMounted(() => {
+    showDetail();
     getTime();
   });
 

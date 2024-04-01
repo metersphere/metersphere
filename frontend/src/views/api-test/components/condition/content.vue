@@ -469,6 +469,7 @@
 <script setup lang="ts">
   import { useClipboard, useVModel } from '@vueuse/core';
   import { InputInstance, Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -857,13 +858,31 @@ if (!result){
     extractParamsTableRef.value?.addTableLine(rowIndex);
   }
 
+  function copyItem(record: ExpressionConfig) {
+    if (condition.value.extractors) {
+      const currentIndex = condition.value.extractors.findIndex((item: ExpressionConfig) => item.id === record.id);
+
+      const currentExtractorsItem = cloneDeep(record);
+      if (currentIndex > -1) {
+        condition.value.extractors.splice(currentIndex, 0, {
+          ...currentExtractorsItem,
+          id: new Date().getTime().toString(),
+        });
+        const temList = cloneDeep(condition.value?.extractors);
+        condition.value.extractors = temList;
+      }
+    }
+  }
+
   /**
    * 处理提取参数表格更多操作
    */
   function handleExtractParamMoreActionSelect(event: ActionsItem, record: ExpressionConfig) {
     activeRecord.value = { ...record };
     if (event.eventTag === 'copy') {
-      emit('copy');
+      // emit('copy');
+      // 复制提取行
+      copyItem(record);
     } else if (event.eventTag === 'setting') {
       record.moreSettingPopoverVisible = true;
     }

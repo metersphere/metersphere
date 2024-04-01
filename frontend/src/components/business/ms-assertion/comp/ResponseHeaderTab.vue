@@ -15,6 +15,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import { EQUAL } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { responseHeaderOption } from '@/config/apiTest';
@@ -41,7 +42,7 @@
 
   const defaultParamItem = {
     header: '',
-    condition: '',
+    condition: EQUAL.value,
     expectedValue: '',
     enable: true,
   };
