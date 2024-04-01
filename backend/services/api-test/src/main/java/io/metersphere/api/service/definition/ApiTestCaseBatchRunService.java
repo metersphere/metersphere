@@ -123,6 +123,7 @@ public class ApiTestCaseBatchRunService {
 
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.API_CASE.name(), caseReportMap, userId);
+
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
 
@@ -192,7 +193,9 @@ public class ApiTestCaseBatchRunService {
 
                     // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
                     reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
+                    Long requestCount = runModeConfig.isIntegratedReport() ? ids.size() : 1L;
                     TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
+                    taskRequest.setRequestCount(requestCount);
                     execute(taskRequest, apiTestCase, apiTestCaseBlob, definitionExecuteInfoMap.get(apiTestCase.getId()));
                 } catch (Exception e) {
                     LogUtils.error("执行用例失败 {}-{}", reportId, id);
@@ -312,6 +315,7 @@ public class ApiTestCaseBatchRunService {
 
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
         taskRequest.setQueueId(queue.getQueueId());
+        taskRequest.setRequestCount(queue.getRequestCount());
         execute(taskRequest, apiTestCase, apiTestCaseBlob, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
     }
 
