@@ -1,10 +1,12 @@
 <template>
-  <div v-if="isShowLoopControl?.stepType === ScenarioStepType.LOOP_CONTROLLER" class="my-4 flex justify-start">
-    <MsPagination
-      v-model:page-size="pageSize"
+  <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
+    <a-pagination
+      v-model:page-size="controlPageSize"
       v-model:current="controlCurrent"
       :total="controlTotal"
       size="mini"
+      show-total
+      :show-jumper="controlTotal > 5"
       @change="loadControlLoop"
     />
   </div>
@@ -191,7 +193,7 @@
 
   const total = computed(() => (activeStepDetail.value?.content.subRequestResults || []).length);
   const current = ref(1);
-  const pageSize = ref(10);
+  const pageSize = ref(1);
 
   const activeType = ref<'ResContent' | 'SubRequest'>('ResContent');
   const subRequestResults = ref<any[]>([]);
@@ -257,6 +259,7 @@
   });
 
   const loading = ref<boolean>(false);
+  const showApiType = ref<string[]>([ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST]);
   // 获取详情
   async function getStepDetail(stepId: string) {
     try {
@@ -304,24 +307,25 @@
    */
 
   const isShowLoopControl = computed(() => {
-    if (props.steps && props.steps.length && props.stepItem) {
-      return findNodeByKey<ScenarioItemType>(props.steps, props.stepItem?.parentId, 'stepId');
-    }
+    return (
+      props.stepItem?.children && props.stepItem.children.length && showApiType.value.includes(props.stepItem.stepType)
+    );
   });
 
   const controlCurrent = ref(1);
-  const controlTotal = computed(() => (isShowLoopControl.value?.children || []).length);
+  const controlTotal = computed(() => {
+    if (props.stepItem?.children) {
+      return props.stepItem.children.length;
+    }
+    return 0;
+  });
+  const controlPageSize = ref(1);
   /**
    *  循环次数控制器
    */
   function loadControlLoop() {
-    if (
-      isShowLoopControl.value &&
-      isShowLoopControl.value?.stepType === ScenarioStepType.LOOP_CONTROLLER &&
-      isShowLoopControl.value.children &&
-      isShowLoopControl.value.children.length
-    ) {
-      const loopStepId = isShowLoopControl.value?.children[controlCurrent.value - 1].stepId;
+    if (isShowLoopControl.value) {
+      const loopStepId = props?.stepItem?.children[controlCurrent.value - 1].stepId;
       if (loopStepId) {
         getStepDetail(loopStepId);
       }
@@ -330,11 +334,21 @@
 
   const originStepId = ref<string | undefined>('');
 
-  watchEffect(() => {
-    if (props?.stepItem?.stepId && props.stepItem.stepId !== originStepId.value) {
-      getStepDetail(props?.stepItem?.stepId);
+  watch(
+    () => props?.stepItem?.stepId,
+    (val) => {
+      if (val) {
+        if (isShowLoopControl.value) {
+          getStepDetail(props?.stepItem?.children[controlCurrent.value - 1].stepId as string);
+        } else {
+          getStepDetail(val);
+        }
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 
   onMounted(() => {
     originStepId.value = props.stepItem?.stepId;

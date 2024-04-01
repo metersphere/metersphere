@@ -1,11 +1,13 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
-    <template #status="{ record }">
-      <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
-        {{ record.pass === true ? t('common.success') : t('common.fail') }}
-      </MsTag>
-    </template>
-  </MsBaseTable>
+  <a-scrollbar class="overflow-y-auto" :style="{ height: '300px' }">
+    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+      <template #status="{ record }">
+        <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
+          {{ record.pass === true ? t('common.success') : t('common.fail') }}
+        </MsTag>
+      </template>
+    </MsBaseTable>
+  </a-scrollbar>
 </template>
 
 <script setup lang="ts">

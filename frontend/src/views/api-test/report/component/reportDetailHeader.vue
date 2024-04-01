@@ -1,11 +1,14 @@
 <template>
   <div class="report-header flex items-center justify-between">
     <div class="flex items-center">
-      <div v-if="route.query.shareId" class="font-medium"
+      <div v-if="route.query.shareId" class="flex items-center font-medium"
         >{{ t('report.name') }}
-        <div class="one-line-text max-w-[150px]">【{{ props.detail.name }}】</div>
+        <a-tooltip :content="props.detail.name" :mouse-enter-delay="300"
+          ><div class="one-line-text max-w-[300px]">【{{ props.detail.name }}】</div>
+        </a-tooltip>
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider
       ></div>
+
       <a-popover position="left" content-class="response-popover-content">
         <div class="one-line-text max-w-[150px]"> {{ props.detail.environmentName || '-' }}</div>
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>

@@ -202,7 +202,7 @@
     getProjectMemberList,
     {
       tableKey: TableKeyEnum.PROJECT_MEMBER,
-      selectable: !!hasAnyPermission(['PROJECT_USER:READ+DELETE', 'ORGANIZATION_MEMBER:READ+UPDATE']),
+      selectable: hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE']),
       showSetting: true,
       heightUsed: 288,
       scroll: {

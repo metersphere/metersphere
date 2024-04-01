@@ -331,7 +331,7 @@
         :disabled="props.disabledExceptParam"
         size="mini"
         class="ms-form-table-input"
-        @change="() => addTableLine(rowIndex)"
+        @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       >
         <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">{{
           t(item.label)
@@ -1012,7 +1012,6 @@
   function handleFormTableChange(data: any[]) {
     paramsData.value = [...data];
     emitChange('handleFormTableChange');
-    addTableLine(data.length - 1);
   }
 
   /**

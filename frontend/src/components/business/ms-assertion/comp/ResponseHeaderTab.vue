@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-full">
     <paramsTable
       v-model:params="condition.assertions"
       :selectable="true"
@@ -63,6 +63,7 @@
       showInTable: true,
       showDrag: true,
       options: statusCodeOptions,
+      addLineDisabled: true,
     },
     {
       title: 'ms.assertion.matchValue', // 匹配值
