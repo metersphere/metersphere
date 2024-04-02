@@ -18,10 +18,7 @@ import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
@@ -201,7 +198,7 @@ public class ApiScenarioReportService {
         List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDeatilByReportId(id);
         //根据stepId进行分组
         Map<String, List<ApiScenarioReportStepDTO>> detailMap = deatilList.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
-        scenarioReportSteps.forEach(step -> {
+        scenarioReportSteps.parallelStream().forEach(step -> {
             List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
             if (CollectionUtils.isNotEmpty(details)) {
                 details.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
@@ -235,12 +232,14 @@ public class ApiScenarioReportService {
                 }
             }
         });
+
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
         // TODO 查询修改
         List<ApiScenarioReportStepDTO> steps = scenarioReportStepMap.get("NONE");
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
         getStepTree(steps, scenarioReportStepMap);
+
         scenarioReportDTO.setStepTotal(steps.size());
         scenarioReportDTO.setRequestTotal(scenarioReportDTO.getErrorCount() + scenarioReportDTO.getPendingCount() + scenarioReportDTO.getSuccessCount() + scenarioReportDTO.getFakeErrorCount());
         scenarioReportDTO.setChildren(steps);
@@ -281,7 +280,7 @@ public class ApiScenarioReportService {
                     ApiScenarioStepType.LOOP_CONTROLLER.name(),
                     ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name(),
                     ApiScenarioStepType.CONSTANT_TIMER.name());
-            for (ApiScenarioReportStepDTO step : steps) {
+            steps.parallelStream().forEach(step -> {
                 List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(children)) {
                     children.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
@@ -299,13 +298,13 @@ public class ApiScenarioReportService {
                     //获取所有的子请求的状态
                     List<String> requestStatus = children.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
                     //过滤出来SUCCESS的状态
-                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(),status)).toList();
+                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
                     //只要包含ERROR 就是ERROR
                     if (requestStatus.contains(ApiReportStatus.ERROR.name())) {
                         step.setStatus(ApiReportStatus.ERROR.name());
                     } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
                         step.setStatus(ApiReportStatus.FAKE_ERROR.name());
-                    } else if (successStatus.size() == children.size()- noControllerIds.size()) {
+                    } else if (successStatus.size() == children.size() - noControllerIds.size()) {
                         step.setStatus(ApiReportStatus.SUCCESS.name());
                     } else {
                         step.setStatus(ApiReportStatus.PENDING.name());
@@ -316,7 +315,7 @@ public class ApiScenarioReportService {
                         step.setStatus(ApiReportStatus.SUCCESS.name());
                     }
                 }
-            }
+            });
         }
     }
 
@@ -329,9 +328,9 @@ public class ApiScenarioReportService {
         }
         List<ApiScenarioReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
         apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetail::getSort));
-        
+
         if (StringUtils.isNotBlank(index)) {
-            ApiScenarioReportDetail apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) -1);
+            ApiScenarioReportDetail apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
             apiReportDetails = Collections.singletonList(apiScenarioReportDetail);
         }
         List<ApiScenarioReportDetailDTO> results = new ArrayList<>();
@@ -356,6 +355,7 @@ public class ApiScenarioReportService {
 
     /**
      * 更新执行中的场景报告
+     *
      * @param reportId
      */
     public void updateReportStatus(String reportId, String status) {

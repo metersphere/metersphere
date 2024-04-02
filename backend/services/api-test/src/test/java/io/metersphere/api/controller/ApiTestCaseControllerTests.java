@@ -929,6 +929,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //标签为空  报错
         request.setTags(new LinkedHashSet<>());
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
+        //标签超出10个报错
+        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11")));
+        this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
         //ids为空的时候
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
         request.setSelectAll(true);
