@@ -96,9 +96,8 @@ public class ApiReportSendNoticeService {
 
             // TODO 是否需要区分场景和用例
             noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_CASE, report.getId());
-
             ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
+            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_CASE, apiReport.getId());
             BeanUtils.copyBean(report, apiReport);
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;

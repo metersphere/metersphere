@@ -396,7 +396,7 @@
         currentList.value = record;
       } else {
         // 单个编辑
-        if (typeof record.type === 'string') {
+        if (typeof record.type === 'string' && record.type) {
           record.type = record.type.split(',');
         }
         currentList.value = [record];
@@ -412,8 +412,6 @@
       fetchData();
     }
     addVisible.value = false;
-    batchFormRef.value.resetForm();
-    currentList.value = [];
   };
 
   const handleConfirm = () => {
