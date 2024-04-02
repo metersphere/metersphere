@@ -173,6 +173,8 @@ public class FunctionalCaseService {
     @Resource
     private ProjectService projectService;
 
+    private static final int MAX_TAG_SIZE = 10;
+
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
@@ -470,7 +472,8 @@ public class FunctionalCaseService {
             customFields.forEach(item -> {
                 if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                     item.setOptions(memberCustomOption);
-                };
+                }
+                ;
                 FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
                 Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
                     item.setDefaultValue(customField.getValue());
@@ -901,6 +904,7 @@ public class FunctionalCaseService {
                     if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
                         List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
+                        checkTagsLength(tags);
                         List<String> newTags = tags.stream().distinct().collect(Collectors.toList());
                         functionalCase.setTags(newTags);
                     } else {
@@ -924,6 +928,17 @@ public class FunctionalCaseService {
             }
         }
 
+    }
+
+    /**
+     * 校验追加标签长度
+     *
+     * @param tags
+     */
+    private void checkTagsLength(List<String> tags) {
+        if (tags.size() > MAX_TAG_SIZE) {
+            throw new MSException(Translator.getWithArgs("tags_length_large_than", String.valueOf(MAX_TAG_SIZE)));
+        }
     }
 
     public Map<String, Long> moduleCount(FunctionalCasePageRequest request, boolean delete) {

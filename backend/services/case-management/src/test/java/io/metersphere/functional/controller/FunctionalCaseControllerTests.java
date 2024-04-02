@@ -590,6 +590,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setAppend(true);
         request.setTags(Arrays.asList("追加标签_1", "追加标签_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        request.setTags(Arrays.asList("追加标签_1", "追加标签_2","追加标签_3","追加标签_4","追加标签_5","追加标签_6","追加标签_7","追加标签_8","追加标签_9","追加标签_10","追加标签_11"));
+        this.requestPost(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setAppend(false);
         request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
         request.setSelectAll(true);
