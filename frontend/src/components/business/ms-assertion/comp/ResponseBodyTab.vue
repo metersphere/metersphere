@@ -288,7 +288,7 @@
               @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
-                <a-tooltip :disabled="!disabledExpressionSuffix">
+                <a-tooltip :disabled="disabledExpressionSuffix || props.disabled">
                   <template #content>
                     <div>{{ t('apiTestDebug.expressionTip1') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
@@ -297,11 +297,10 @@
                   <MsIcon
                     type="icon-icon_flashlamp"
                     :size="15"
-                    :disabled="props.disabled"
                     :class="
                       disabledExpressionSuffix || props.disabled
-                        ? 'ms-params-input-suffix-icon--disabled'
-                        : 'ms-params-input-suffix-icon'
+                        ? 'ms-params-input-suffix-icon'
+                        : 'ms-params-input-suffix-icon--disabled'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.REGEX)"
                   />
@@ -774,7 +773,7 @@
   function deleteListItem(id: string | number) {}
 
   function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
-    if (props.disabled) return;
+    if (!props.disabled) return;
     activeRecord.value = { ...record, extractType: type };
     fastExtractionVisible.value = true;
   }

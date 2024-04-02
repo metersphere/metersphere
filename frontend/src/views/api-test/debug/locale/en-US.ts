@@ -188,6 +188,7 @@ export default {
   'apiTestDebug.requestNamePlaceholder': 'Please enter a request name',
   'apiTestDebug.requestUrl': 'Request URL',
   'apiTestDebug.requestUrlRequired': 'Request URL cannot be empty',
+  'apiTestDebug.apiUrlRequired': 'URL cannot be empty',
   'apiTestDebug.requestModule': 'Belonging module',
   'apiTestDebug.closeOther': 'Close other',
   'apiTestDebug.importByCURL': 'Import cURL',
