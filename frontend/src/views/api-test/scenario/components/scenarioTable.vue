@@ -61,6 +61,37 @@
           </template>
         </a-trigger>
       </template>
+      <template #priorityFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="priorityFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="priorityFilterVisible = true">
+            {{ t(columnConfig.title as string) }}
+            <icon-down :class="priorityFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </MsButton>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="priorityFilters" direction="vertical" size="small">
+                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                    <caseLevel :case-level="item.label as CaseLevel" />
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetPriorityFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
+      </template>
       <template #num="{ record }">
         <div>
           <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">{{
@@ -105,7 +136,9 @@
       </template>
       <template #status="{ record }">
         <a-select
+          v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
           v-model:model-value="record.status"
+          v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']"
           class="param-input w-full"
           size="mini"
           @change="() => handleStatusChange(record)"
@@ -117,9 +150,11 @@
             <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
+        <apiStatus v-else :status="record.status" size="small" />
       </template>
       <template #priority="{ record }">
         <a-select
+          v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
@@ -135,6 +170,7 @@
             <caseLevel :case-level="item.text as CaseLevel" />
           </a-option>
         </a-select>
+        <span v-else class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
       </template>
       <!-- 报告结果筛选 -->
       <template #lastReportStatusFilter="{ columnConfig }">
@@ -536,7 +572,8 @@
     getScenarioPage,
     recycleScenario,
     scenarioScheduleConfig,
-    updateScenario,
+    updateScenarioPro,
+    updateScenarioStatus,
   } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -549,6 +586,8 @@
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { casePriorityOptions } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     class?: string;
@@ -572,7 +611,8 @@
   const { openModal } = useModal();
   const tableRecord = ref<ApiScenarioTableItem>();
   const scheduleModalTitle = ref('');
-
+  const priorityFilterVisible = ref(false);
+  const priorityFilters = ref<string[]>([]);
   const scheduleConfig = ref<ApiScenarioScheduleConfig>({
     scenarioId: '',
     enable: false,
@@ -647,7 +687,12 @@
       dataIndex: 'priority',
       slotName: 'priority',
       showDrag: true,
-      width: 100,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      titleSlotName: 'priorityFilter',
+      width: 140,
     },
     {
       title: 'apiScenario.table.columns.status',
@@ -748,9 +793,13 @@
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.API_SCENARIO,
       showSetting: !props.readOnly,
-      selectable: true,
+      selectable: hasAnyPermission([
+        'PROJECT_API_SCENARIO:READ+UPDATE',
+        'PROJECT_API_SCENARIO:READ+EXECUTE',
+        'PROJECT_API_SCENARIO:READ+DELETE',
+      ]),
       showSelectAll: !props.readOnly,
-      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+      draggable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
       heightUsed: 374,
       showSubdirectory: true,
     },
@@ -864,6 +913,7 @@
       filter: {
         lastReportStatus: lastReportStatusListFilters.value,
         status: statusFilters.value,
+        priority: priorityFilters.value,
       },
     };
     setLoadListParams(params);
@@ -877,6 +927,7 @@
     if (!val) {
       lastReportStatusFilterVisible.value = false;
       statusFilterVisible.value = false;
+      priorityFilterVisible.value = false;
       loadScenarioList(false);
     }
   }
@@ -884,6 +935,12 @@
   function resetStatusFilter() {
     statusFilterVisible.value = false;
     statusFilters.value = [];
+    loadScenarioList();
+  }
+
+  function resetPriorityFilter() {
+    priorityFilterVisible.value = false;
+    priorityFilters.value = [];
     loadScenarioList();
   }
 
@@ -895,10 +952,7 @@
 
   async function handleStatusChange(record: ApiScenarioUpdateDTO) {
     try {
-      await updateScenario({
-        id: record.id,
-        status: record.status,
-      });
+      await updateScenarioStatus(record.id, record.status);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -908,10 +962,7 @@
 
   async function handlePriorityStatusChange(record: ApiScenarioUpdateDTO) {
     try {
-      await updateScenario({
-        id: record.id,
-        priority: record.priority,
-      });
+      await updateScenarioPro(record.id, record.priority);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console

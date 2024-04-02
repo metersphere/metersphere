@@ -562,9 +562,15 @@
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.API_TEST_MANAGEMENT_CASE,
     showSetting: true,
-    selectable: true,
+    selectable: hasAnyPermission([
+      'PROJECT_API_DEFINITION_CASE:READ+DELETE',
+      'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
+      'PROJECT_API_DEFINITION_CASE:READ+UPDATE',
+    ]),
     showSelectAll: true,
-    draggable: { type: 'handle', width: 32 },
+    draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
+      ? { type: 'handle', width: 32 }
+      : undefined,
     heightUsed: props.isApi ? 356 : 308,
     showSubdirectory: true,
   });

@@ -4,6 +4,7 @@
       <MsEditableTab
         v-model:active-tab="activeScenarioTab"
         v-model:tabs="scenarioTabs"
+        v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
         class="flex-1 overflow-hidden"
         @add="() => newTab()"
       >

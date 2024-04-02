@@ -101,7 +101,7 @@
   const currentTab = ref('api');
   const tabOptions = [
     { label: 'API', value: 'api' },
-    { label: 'CASE', value: 'case' },
+    ...(hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ']) ? [{ label: 'CASE', value: 'case' }] : []),
   ];
 
   const apiRef = ref<InstanceType<typeof api>>();
