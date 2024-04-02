@@ -198,6 +198,9 @@
   :deep(.ms-list-item--focus) {
     background: none !important;
   }
+  :deep(.ms-list-item) {
+    cursor: default !important;
+  }
   .errorMessages {
     font-size: 14px;
     line-height: 21px;
