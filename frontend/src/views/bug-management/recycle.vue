@@ -285,7 +285,7 @@
     {
       title: 'bugManagement.tag',
       showDrag: true,
-      width: 200,
+      width: 456,
       isStringTag: true,
       dataIndex: 'tags',
     },

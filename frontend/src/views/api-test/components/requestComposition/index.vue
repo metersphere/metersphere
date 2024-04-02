@@ -332,8 +332,19 @@
                     },
                   }"
                   allow-search
+                  :filter-tree-node="filterTreeNode"
                   @change="handleActiveApiChange"
-                />
+                >
+                  <template #tree-slot-title="node">
+                    <a-tooltip :content="`${node.name}`" position="tl">
+                      <div class="inline-flex w-full">
+                        <div class="one-line-text w-[240px] text-[var(--color-text-1)]">
+                          {{ node.name }}
+                        </div>
+                      </div>
+                    </a-tooltip>
+                  </template>
+                </a-tree-select>
               </a-form-item>
               <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px]">
                 <a-select
@@ -1039,6 +1050,10 @@
     if (requestVModel.value) {
       requestVModel.value.unSaved = true;
     }
+  }
+
+  function filterTreeNode(searchValue, nodeData) {
+    return nodeData.name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const saveModalVisible = ref(false);
