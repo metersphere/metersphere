@@ -629,6 +629,7 @@
       titleSlotName: 'createUserFilter',
       showInTable: true,
       showTooltip: true,
+      width: 200,
       showDrag: true,
     },
     {
