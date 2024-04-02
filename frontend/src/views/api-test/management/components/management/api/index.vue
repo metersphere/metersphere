@@ -297,6 +297,9 @@
       if (id === 'all') {
         apiTableRef.value?.loadApiList();
       }
+      if (activeApiTab.value.definitionActiveKey === 'case') {
+        caseTableRef.value?.loadCaseList();
+      }
     }
   );
 
