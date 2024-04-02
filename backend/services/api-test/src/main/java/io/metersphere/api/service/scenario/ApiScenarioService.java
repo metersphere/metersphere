@@ -1379,7 +1379,11 @@ public class ApiScenarioService extends MoveNodeService {
      * @param reportId
      */
     public void initScenarioReportSteps(List<? extends ApiScenarioStepCommonDTO> steps, String reportId) {
-        List<ApiScenarioReportStep> scenarioReportSteps = getScenarioReportSteps(null, steps, reportId);
+        initScenarioReportSteps(null, steps, reportId);
+    }
+
+    public void initScenarioReportSteps(String parentId, List<? extends ApiScenarioStepCommonDTO> steps, String reportId) {
+        List<ApiScenarioReportStep> scenarioReportSteps = getScenarioReportSteps(parentId, steps, reportId);
         apiScenarioReportService.insertApiScenarioReportStep(scenarioReportSteps);
     }
 
@@ -1393,12 +1397,16 @@ public class ApiScenarioService extends MoveNodeService {
         AtomicLong sort = new AtomicLong(1);
         List<ApiScenarioReportStep> scenarioReportSteps = new ArrayList<>();
         for (ApiScenarioStepCommonDTO step : steps) {
+            if (StringUtils.isBlank(step.getUniqueId())) {
+                // 如果没有步骤唯一ID，则生成唯一ID
+                step.setUniqueId(IDGenerator.nextStr());
+            }
             ApiScenarioReportStep scenarioReportStep = getScenarioReportStep(step, reportId, sort.getAndIncrement());
             scenarioReportStep.setParentId(parentId);
             scenarioReportSteps.add(scenarioReportStep);
             List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
             if (CollectionUtils.isNotEmpty(children)) {
-                scenarioReportSteps.addAll(getScenarioReportSteps(step.getId(), children, reportId));
+                scenarioReportSteps.addAll(getScenarioReportSteps(step.getUniqueId(), children, reportId));
             }
         }
         return scenarioReportSteps;
@@ -1407,7 +1415,7 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenarioReportStep getScenarioReportStep(ApiScenarioStepCommonDTO step, String reportId, long sort) {
         ApiScenarioReportStep scenarioReportStep = new ApiScenarioReportStep();
         scenarioReportStep.setReportId(reportId);
-        scenarioReportStep.setStepId(step.getId());
+        scenarioReportStep.setStepId(step.getUniqueId());
         scenarioReportStep.setSort(sort);
         scenarioReportStep.setName(step.getName());
         scenarioReportStep.setStepType(step.getStepType());
@@ -1637,6 +1645,11 @@ public class ApiScenarioService extends MoveNodeService {
                 parseParam.getRequestCount().getAndIncrement();
             }
 
+            if (StringUtils.isBlank(step.getUniqueId())) {
+                // 如果调试的时候前端没有传步骤唯一ID，则生成唯一ID
+                step.setUniqueId(IDGenerator.nextStr());
+            }
+
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step,
                     MapUtils.isNotEmpty(resourceDetailMap) ? resourceDetailMap.getOrDefault(step.getResourceId(), StringUtils.EMPTY) : StringUtils.EMPTY, stepDetailMap.get(step.getId()));
@@ -1648,8 +1661,9 @@ public class ApiScenarioService extends MoveNodeService {
                 }
                 msTestElement.setProjectId(step.getProjectId());
                 msTestElement.setResourceId(step.getResourceId());
-                msTestElement.setStepId(step.getId());
                 msTestElement.setName(step.getName());
+                // 步骤ID，设置为唯一ID
+                msTestElement.setStepId(step.getUniqueId());
 
                 // 记录引用的资源ID和项目ID，下载执行文件时需要使用
                 parseParam.getRefProjectIds().add(step.getProjectId());
@@ -1961,7 +1975,7 @@ public class ApiScenarioService extends MoveNodeService {
                 .stream()
                 .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY)));
 
-        List<ApiScenarioStepDTO> steps = buildStepTree(currentScenarioParentStepMap.get(StringUtils.EMPTY), currentScenarioParentStepMap, scenarioStepMap);
+        List<ApiScenarioStepDTO> steps = buildStepTree(currentScenarioParentStepMap.get(StringUtils.EMPTY), currentScenarioParentStepMap, scenarioStepMap, new HashSet<>());
 
         // 设置部分引用的步骤的启用状态
         setPartialRefStepsEnable(steps, stepDetailMap);
@@ -2011,11 +2025,22 @@ public class ApiScenarioService extends MoveNodeService {
      */
     private List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
                                                    Map<String, List<ApiScenarioStepDTO>> parentStepMap,
-                                                   Map<String, List<ApiScenarioStepDTO>> scenarioStepMap) {
+                                                   Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
+                                                   Set<String> stepIdSet) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
-        steps.forEach(step -> {
+
+        for (int i = 0; i < steps.size(); i++) {
+            ApiScenarioStepDTO step = steps.get(i);
+            if (stepIdSet.contains(step.getId())) {
+                // 如果步骤ID已存在，说明引用了两个相同的场景，其子步骤ID可能会重复，导致引用的同一个对象
+                // 这里重新new一个对象，避免执行时，处理为同一个步骤
+                step = BeanUtils.copyBean(new ApiScenarioStepDTO(), step);
+                steps.set(i, step);
+            }
+            stepIdSet.add(step.getId());
+
             // 获取当前步骤的子步骤
             List<ApiScenarioStepDTO> children = Optional.ofNullable(parentStepMap.get(step.getId())).orElse(new ArrayList<>(0));
             if (isRefOrPartialScenario(step)) {
@@ -2029,21 +2054,22 @@ public class ApiScenarioService extends MoveNodeService {
                 });
 
                 if (CollectionUtils.isEmpty(children)) {
-                    return;
+                    continue;
                 }
 
                 // 如果当前步骤是引用的场景，获取该场景的子步骤
                 Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioSteps
                         .stream()
                         .collect(Collectors.groupingBy(item -> Optional.ofNullable(item.getParentId()).orElse(StringUtils.EMPTY)));
-                step.setChildren(buildStepTree(children, childStepMap, scenarioStepMap));
+                step.setChildren(buildStepTree(children, childStepMap, scenarioStepMap, stepIdSet));
             } else {
                 if (CollectionUtils.isEmpty(children)) {
-                    return;
+                    continue;
                 }
-                step.setChildren(buildStepTree(children, parentStepMap, scenarioStepMap));
+                step.setChildren(buildStepTree(children, parentStepMap, scenarioStepMap, stepIdSet));
             }
-        });
+        }
+
         // 排序
         return steps.stream()
                 .sorted(Comparator.comparing(ApiScenarioStepDTO::getSort))
