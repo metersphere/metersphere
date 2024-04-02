@@ -244,14 +244,17 @@
       key="response"
     >
       <template #header>
-        <div class="flex items-center gap-[4px]">
-          <div v-if="activeDetailKey.includes('response')" class="down-icon">
-            <icon-down :size="10" class="block" />
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[4px]">
+            <div v-if="activeDetailKey.includes('response')" class="down-icon">
+              <icon-down :size="10" class="block" />
+            </div>
+            <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
+              <icon-right :size="10" class="block" />
+            </div>
+            <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
           </div>
-          <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
-            <icon-right :size="10" class="block" />
-          </div>
-          <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
+          <responseCodeTimeSize v-if="props.isCase" :request-result="previewDetail.response?.requestResults[0]" />
         </div>
       </template>
       <template v-if="!props.isCase">
@@ -346,6 +349,7 @@
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
+  import responseCodeTimeSize from '@/views/api-test/components/requestComposition/response/responseCodeTimeSize.vue';
   import result from '@/views/api-test/components/requestComposition/response/result.vue';
 
   import { getPluginScript } from '@/api/modules/api-test/common';
