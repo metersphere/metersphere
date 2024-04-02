@@ -93,12 +93,14 @@
       }
     }
   );
-
+  const isInit = ref<boolean>(true);
   watch(
     () => selectValue.value,
     (val) => {
       selectValue.value = val;
-      emit('update:model-value', val);
+      if (!isInit.value) {
+        emit('update:model-value', val);
+      }
     }
   );
 
@@ -115,6 +117,7 @@
     if (props.inputSearch && props.optionMethod) {
       getLinksItem();
     }
+    isInit.value = false;
   });
 </script>
 

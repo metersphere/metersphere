@@ -105,6 +105,7 @@
             v-model:data="getCurrentItemState"
             :disabled="props.disabled"
             :response="props.response"
+            :show-extraction="props.showExtraction"
             @change="handleChange"
           />
           <!-- 响应时间 -->
@@ -176,6 +177,7 @@
     assertionConfig?: ExecuteAssertionConfig; // 是否开启全局
     response?: string; // 响应内容
     disabled?: boolean;
+    showExtraction?: boolean; // 是否显示提取
   }>();
 
   const emit = defineEmits<{

@@ -198,8 +198,8 @@ export interface ResponseDocumentAssertion {
 }
 // 断言-断言列表的断言子项
 export interface ResponseAssertionItem {
-  condition: RequestAssertionConditionType;
-  expectedValue: string;
+  condition?: RequestAssertionConditionType;
+  expectedValue?: string;
   expression: string;
   enable?: boolean;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-[110px] items-center">
     <div class="relative mr-4">
-      <div class="absolute bottom-0 left-[30%] top-[35%] text-center">
+      <div class="charts absolute text-center">
         <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
         <div class="text-[18px] font-medium">{{ props.requestTotal }}</div>
       </div>
@@ -52,5 +52,12 @@
         color: var(--color-text-1);
       }
     }
+  }
+  .charts {
+    top: 30%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
   }
 </style>

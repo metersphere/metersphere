@@ -1,114 +1,115 @@
 <template>
-  <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
-    <a-pagination
-      v-model:page-size="controlPageSize"
-      v-model:current="controlCurrent"
-      :total="controlTotal"
-      size="mini"
-      show-total
-      :show-jumper="controlTotal > 5"
-      @change="loadControlLoop"
-    />
-  </div>
-  <div class="mt-4 flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
-    <div class="font-medium">
-      <span
-        :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
-        @click.stop="setActiveType('ResContent')"
-        >{{ t('report.detail.api.resContent') }}</span
-      >
-      <span
-        v-if="total > 0"
-        :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'SubRequest' }"
-        @click.stop="setActiveType('SubRequest')"
-      >
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        {{ t('report.detail.api.subRequest') }}</span
-      >
+  <div class="flex h-[calc(100%-8px)] flex-col" @click.stop="() => {}">
+    <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
+      <a-pagination
+        v-model:page-size="controlPageSize"
+        v-model:current="controlCurrent"
+        :total="controlTotal"
+        size="mini"
+        show-total
+        :show-jumper="controlTotal > 5"
+        @change="loadControlLoop"
+      />
+      <!-- <loopPagination v-model:current-loop="controlCurrent" :loop-total="controlTotal" /> -->
     </div>
-    <div class="flex flex-row gap-6 text-center">
-      <a-popover position="left" content-class="response-popover-content">
-        <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
-          {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
-        </div>
-        <template #content>
-          <div class="flex items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
-            <div :style="{ color: statusCodeColor }">
-              {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+    <div class="mt-4 flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
+      <div class="font-medium">
+        <span
+          :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
+          @click.stop="setActiveType('ResContent')"
+          >{{ t('report.detail.api.resContent') }}</span
+        >
+        <span
+          v-if="total > 0"
+          :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'SubRequest' }"
+          @click.stop="setActiveType('SubRequest')"
+        >
+          <a-divider direction="vertical" :margin="8"></a-divider>
+          {{ t('report.detail.api.subRequest') }}</span
+        >
+      </div>
+      <div class="flex flex-row gap-6 text-center">
+        <a-popover position="left" content-class="response-popover-content">
+          <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
+            {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+          </div>
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+              <div :style="{ color: statusCodeColor }">
+                {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+              </div>
             </div>
-          </div>
-        </template>
-      </a-popover>
-      <a-popover position="left" content-class="w-[400px]">
-        <div class="one-line-text text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime || 0 }} ms </div>
-        <template #content>
-          <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
-            <div class="text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
-          </div>
-          <responseTimeLine v-if="timingInfo" :response-timing="timingInfo" />
-        </template>
-      </a-popover>
-      <a-popover position="left" content-class="response-popover-content">
-        <div class="one-line-text text-[rgb(var(--success-7))]">
-          {{ activeStepDetail?.content?.responseResult.responseSize || '-' }} bytes
-        </div>
-        <template #content>
-          <div class="flex items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
-            <div class="one-line-text text-[rgb(var(--success-7))]">
-              {{ activeStepDetail?.content?.responseResult.responseSize }} bytes
+          </template>
+        </a-popover>
+        <a-popover position="left" content-class="w-[400px]">
+          <div class="one-line-text text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime || 0 }} ms </div>
+          <template #content>
+            <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
+              <div class="text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
             </div>
+            <responseTimeLine v-if="timingInfo" :response-timing="timingInfo" />
+          </template>
+        </a-popover>
+        <a-popover position="left" content-class="response-popover-content">
+          <div class="one-line-text text-[rgb(var(--success-7))]">
+            {{ activeStepDetail?.content?.responseResult.responseSize || '-' }} bytes
           </div>
-        </template>
-      </a-popover>
-      <a-popover position="left" content-class="response-popover-content">
-        <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
-          props.environmentName
-        }}</div>
-        <template #content>
-          <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
+          <template #content>
+            <div class="flex items-center gap-[8px] text-[14px]">
+              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
+              <div class="one-line-text text-[rgb(var(--success-7))]">
+                {{ activeStepDetail?.content?.responseResult.responseSize }} bytes
+              </div>
+            </div>
+          </template>
+        </a-popover>
+        <a-popover position="left" content-class="response-popover-content">
+          <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
             props.environmentName
           }}</div>
-        </template>
-      </a-popover>
+          <template #content>
+            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
+              props.environmentName
+            }}</div>
+          </template>
+        </a-popover>
+      </div>
     </div>
-  </div>
-  <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
-    <MsPagination
-      v-model:page-size="pageSize"
-      v-model:current="current"
-      :total="total"
-      size="mini"
-      @change="loadLoop"
-    />
-  </div>
-  <!-- 平铺 -->
-  <TiledDisplay
-    v-if="props.mode === 'tiled'"
-    :menu-list="responseCompositionTabList"
-    :request-result="activeStepDetailCopy?.content"
-    :console="props.console"
-    :is-definition="props.isDefinition"
-    :report-id="props.reportId"
-  />
-  <!-- 响应内容tab -->
-  <a-spin
-    v-else
-    :loading="loading"
-    :class="[props.isResponseModel ? 'h-full w-full' : 'h-[calc(100%-35px)] w-full px-[18px] pb-[18px]']"
-  >
-    <result
-      v-model:active-tab="activeTab"
+    <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
+      <MsPagination
+        v-model:page-size="pageSize"
+        v-model:current="current"
+        :total="total"
+        size="mini"
+        @change="loadLoop"
+      />
+    </div>
+    <!-- 平铺 -->
+    <TiledDisplay
+      v-if="props.mode === 'tiled'"
+      :menu-list="responseCompositionTabList"
       :request-result="activeStepDetailCopy?.content"
       :console="props.console"
-      :is-http-protocol="false"
-      :request-url="activeStepDetail?.content.url"
-      is-definition
-      :is-priority-local-exec="false"
+      :is-definition="props.isDefinition"
+      :report-id="props.reportId"
     />
-  </a-spin>
+    <!-- 响应内容tab -->
+    <div v-else class="h-[calc(100%-8px)]">
+      <a-spin :loading="loading" class="h-[calc(100%-8px)] w-full pb-1">
+        <result
+          v-model:active-tab="activeTab"
+          :request-result="activeStepDetailCopy?.content"
+          :console="props.console"
+          :is-http-protocol="false"
+          :request-url="activeStepDetail?.content.url"
+          is-definition
+          :is-priority-local-exec="false"
+        />
+      </a-spin>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -116,17 +117,18 @@
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
-  import MsPagination from '@/components/pure/ms-pagination/index';
-  import TiledDisplay from './tiledDisplay.vue';
   import result from '@/views/api-test/components/requestComposition/response/result.vue';
-  import responseTimeLine from '@/views/api-test/components/responseTimeLine.vue';
+  import loopPagination from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
 
   import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
-  import { findNodeByKey, formatDuration } from '@/utils';
 
   import type { ReportStepDetail, ReportStepDetailItem, ScenarioItemType } from '@/models/apiTest/report';
   import { ResponseComposition, ScenarioStepType } from '@/enums/apiEnum';
+
+  const TiledDisplay = defineAsyncComponent(() => import('./tiledDisplay.vue'));
+  const responseTimeLine = defineAsyncComponent(() => import('@/views/api-test/components/responseTimeLine.vue'));
+  const MsPagination = defineAsyncComponent(() => import('@/components/pure/ms-pagination/index'));
 
   const props = defineProps<{
     mode: 'tiled' | 'tab'; // 平铺 | tab形式
@@ -312,10 +314,10 @@
     );
   });
 
-  const controlCurrent = ref(1);
+  const controlCurrent = ref<number>(1);
   const controlTotal = computed(() => {
     if (props.stepItem?.children) {
-      return props.stepItem.children.length;
+      return props.stepItem.children.length || 0;
     }
     return 0;
   });

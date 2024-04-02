@@ -51,7 +51,8 @@
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
-                  <!-- <MsIcon
+                  <MsIcon
+                    v-if="props.showExtraction"
                     :disabled="props.disabled"
                     type="icon-icon_flashlamp"
                     :size="15"
@@ -61,7 +62,7 @@
                         : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
-                  /> -->
+                  />
                 </a-tooltip>
               </template>
             </a-input>
@@ -146,7 +147,8 @@
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
-                  <!-- <MsIcon
+                  <MsIcon
+                    v-if="props.showExtraction"
                     type="icon-icon_flashlamp"
                     :disabled="props.disabled"
                     :size="15"
@@ -156,7 +158,7 @@
                         : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.X_PATH)"
-                  /> -->
+                  />
                 </a-tooltip>
               </template>
             </a-input>
@@ -295,6 +297,7 @@
                     <div>{{ t('apiTestDebug.expressionTip3') }}</div>
                   </template>
                   <MsIcon
+                    v-if="props.showExtraction"
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="
@@ -349,7 +352,7 @@
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
+  import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TableOperationColumn } from '../../ms-user-group-comp/authTable.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
@@ -389,11 +392,17 @@
     [key: string]: any;
   }
 
-  const props = defineProps<{
-    data: Param;
-    response?: string;
-    disabled?: boolean;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      data: Param;
+      response?: string;
+      disabled?: boolean;
+      showExtraction?: boolean;
+    }>(),
+    {
+      showExtraction: false,
+    }
+  );
 
   const emit = defineEmits<{
     (e: 'update:data', data: ExecuteConditionProcessor): void;
@@ -486,11 +495,9 @@
   // json默认值
   const jsonPathDefaultParamItem = {
     expression: '',
-    condition: '',
+    condition: EQUAL.value,
     expectedValue: '',
     enable: true,
-    moreSettingPopoverVisible: false,
-    disable: true,
   };
   // xpath默认值
   const xPathDefaultParamItem = {

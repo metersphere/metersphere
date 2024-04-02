@@ -9,6 +9,7 @@
       :disabled="props.disabled"
       :step="100"
       :min="0"
+      :precision="0"
       mode="button"
       @blur="
         emit('change', {

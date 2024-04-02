@@ -249,6 +249,7 @@
         color: '#00C261',
         class: 'bg-[rgb(var(--success-6))]',
         rateKey: 'requestPassRate',
+        key: 'SUCCESS',
       },
       {
         label: 'report.detail.api.misstatement',
@@ -256,6 +257,7 @@
         color: '#FFC14E',
         class: 'bg-[rgb(var(--warning-6))]',
         rateKey: 'requestFakeErrorRate',
+        key: 'FAKE_ERROR',
       },
       {
         label: 'report.detail.api.error',
@@ -263,6 +265,7 @@
         color: '#ED0303',
         class: 'bg-[rgb(var(--danger-6))]',
         rateKey: 'requestErrorRate',
+        key: 'ERROR',
       },
       {
         label: 'report.detail.api.pending',
@@ -270,14 +273,16 @@
         color: '#D4D4D8',
         class: 'bg-[var(--color-text-input-border)]',
         rateKey: 'requestPendingRate',
+        key: 'PENDING',
       },
     ];
     let validArr;
     if (props?.detailInfo?.integrated) {
       validArr = cloneDeep(tempArr);
     } else {
-      validArr = props?.detailInfo?.status === 'SUCCESS' ? [tempArr[0]] : [tempArr[2]];
+      validArr = tempArr.filter((e) => e.key === props?.detailInfo?.status);
     }
+
     charOptions.value.series.data = validArr.map((item: any) => {
       return {
         value: detail.value[item.value] || 0,
@@ -287,6 +292,7 @@
         },
       };
     });
+
     legendData.value = validArr.map((item: any) => {
       return {
         ...item,

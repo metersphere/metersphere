@@ -264,6 +264,7 @@
                       :is-definition="props.isDefinition"
                       :response="requestVModel.response?.requestResults[0]?.responseResult.body"
                       :assertion-config="requestVModel.children[0].assertionConfig"
+                      :show-extraction="true"
                     />
                     <auth
                       v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
@@ -580,6 +581,8 @@
   import {
     casePriorityOptions,
     caseStatusOptions,
+    defaultAssertParamsItem,
+    defaultAssertXpathParamsItem,
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
@@ -1210,6 +1213,39 @@
       requestName = requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name;
       requestModuleId = requestVModel.value.isNew ? saveModalForm.value.moduleId : requestVModel.value.moduleId;
     }
+
+    // 处理断言参数
+    const { assertionConfig } = requestVModel.value.children[0];
+    const assertionList = assertionConfig.assertions.map((assertItem: any) => {
+      const bodyAssertionDataByTypeList = filterKeyValParams(
+        assertItem.bodyAssertionDataByType.assertions,
+        defaultAssertParamsItem,
+        isExecute
+      ).validParams;
+      return {
+        ...assertItem,
+        bodyAssertionDataByType: {
+          ...assertItem.bodyAssertionDataByType,
+          assertions: bodyAssertionDataByTypeList,
+        },
+        regexAssertion: {
+          ...assertItem.regexAssertion,
+          assertions: filterKeyValParams(assertItem.regexAssertion.assertions, defaultAssertXpathParamsItem, isExecute)
+            .validParams,
+        },
+        xpathAssertion: {
+          ...assertItem.xpathAssertion,
+          assertions: filterKeyValParams(assertItem.xpathAssertion.assertions, defaultAssertXpathParamsItem, isExecute)
+            .validParams,
+        },
+        jsonPathAssertion: {
+          ...assertItem.jsonPathAssertion,
+          assertions: filterKeyValParams(assertItem.jsonPathAssertion.assertions, defaultAssertParamsItem, isExecute)
+            .validParams,
+        },
+      };
+    });
+
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
@@ -1226,7 +1262,10 @@
         children: [
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-            assertionConfig: requestVModel.value.children[0].assertionConfig,
+            assertionConfig: {
+              ...assertionConfig,
+              assertions: assertionList,
+            },
             postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
             preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
           },
@@ -1658,15 +1697,10 @@
     }
   }
   .url-input-tip {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    margin-left: 250px;
-    color: rgb(var(--danger-6));
+    margin-top: 2px 0 250px;
     font-size: 12px;
+    color: rgb(var(--danger-6));
     line-height: 16px;
-    margin-top: 2px;
+    @apply flex flex-col flex-nowrap items-center justify-start;
   }
 </style>

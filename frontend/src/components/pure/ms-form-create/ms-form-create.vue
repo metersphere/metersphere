@@ -8,6 +8,7 @@
    * @description 用于自己扩展功能的form-create
    */
   import { ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import JiraKey from './comp/jiraKey.vue';
@@ -36,7 +37,7 @@
     api: any; // 表单对象
   }>();
 
-  const emit = defineEmits(['update:api', 'update', 'update:form-item']);
+  const emit = defineEmits(['update:api', 'update', 'update:formItem', 'change']);
 
   const fApi = computed({
     get() {
@@ -46,6 +47,8 @@
       emit('update:api', val);
     },
   });
+
+  const innerFormItem = useVModel(props, 'formItem', emit);
 
   // 规定好的字段格式
   const formItems = ref<FormItem[]>([...props.formRule]);
@@ -281,15 +284,16 @@
     },
   };
 
-  function changeHandler(value: any) {
+  function changeHandler(value: any, defaultValue: any, formRuleItem: FormRuleItem, api: any) {
     fApi.value.validateField(value);
+    emit('change', defaultValue, formRuleItem, api);
   }
 
   watch(
     () => formRuleList.value,
     (val) => {
       if (val) {
-        emit('update:form-item', formRuleList.value);
+        innerFormItem.value = val;
       }
     },
     {

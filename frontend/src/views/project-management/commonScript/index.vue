@@ -200,6 +200,7 @@
       showInTable: true,
       width: 200,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.createTime',
