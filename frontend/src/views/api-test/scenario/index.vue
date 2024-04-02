@@ -38,6 +38,7 @@
               <scenarioModuleTree
                 ref="scenarioModuleTreeRef"
                 :is-show-scenario="isShowScenario"
+                @count-recycle-scenario="selectRecycleCount"
                 @folder-node-select="handleNodeSelect"
                 @init="handleModuleInit"
                 @new-scenario="() => newTab()"

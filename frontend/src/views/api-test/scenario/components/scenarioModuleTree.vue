@@ -171,7 +171,14 @@
       readOnly: false,
     }
   );
-  const emit = defineEmits(['init', 'newScenario', 'import', 'folderNodeSelect', 'changeProtocol']);
+  const emit = defineEmits([
+    'init',
+    'countRecycleScenario',
+    'newScenario',
+    'import',
+    'folderNodeSelect',
+    'changeProtocol',
+  ]);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -353,6 +360,7 @@
           await deleteModule(node.id);
           Message.success(t('apiScenario.deleteSuccess'));
           await initModules();
+          emit('countRecycleScenario');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
