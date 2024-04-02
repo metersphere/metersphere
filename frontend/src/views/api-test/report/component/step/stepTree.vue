@@ -1,12 +1,6 @@
 <template>
   <div class="flex h-full flex-col gap-[16px]">
     <a-spin class="w-full" :loading="loading">
-      <!--  不做虚拟滚动  :virtual-list-props="{
-          height: `calc(100vh - 454px)`,
-          threshold: 20,
-          fixedSize: true,
-          buffer: 15,
-        }" -->
       <MsTree
         ref="treeRef"
         v-model:selected-keys="selectedKeys"
@@ -16,6 +10,14 @@
         :field-names="{ title: 'name', key: 'stepId', children: 'children' }"
         title-class="step-tree-node-title"
         node-highlight-class="step-tree-node-focus"
+        :virtual-list-props="{
+          height: 'calc(100vh - 200px)',
+          threshold: 200,
+          fixedSize: true,
+          buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
+          isStaticItemHeight: true,
+          estimatedSize: 48,
+        }"
         action-on-node-click="expand"
         disabled-title-tooltip
         block-node
@@ -24,142 +26,138 @@
         @more-actions-close="() => setFocusNodeKey('')"
       >
         <template #title="step">
-          <div class="flex w-full items-center gap-[8px]">
-            <div
-              class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
-            >
-              {{ step.sort }}
-            </div>
-            <div class="step-node-content flex justify-between">
-              <div class="flex flex-1 items-center">
-                <!-- 步骤展开折叠按钮 -->
-                <a-tooltip
-                  v-if="step.children?.length > 0"
-                  :content="
-                    t(step.expanded ? 'apiScenario.collapseStepTip' : 'apiScenario.expandStepTip', {
-                      count: step.children.length,
-                    })
-                  "
-                >
-                  <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]">
-                    <MsIcon
-                      :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
-                      :size="14"
-                    />
-                    <span class="mx-1"> {{ step.children?.length || 0 }}</span>
-                  </div>
-                </a-tooltip>
-                <!-- 展开折叠控制器 -->
-                <div v-if="getShowExpand(step)" class="mx-1" @click.stop="expandHandler(step)">
-                  <span v-if="step.fold" class="collapsebtn flex items-center justify-center">
-                    <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
-                  </span>
-                  <span v-else class="expand flex items-center justify-center">
-                    <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
-                  </span>
-                </div>
-                <div v-if="props.showType === 'API' && showCondition.includes(step.stepType)" class="flex-shrink-0">
-                  <ConditionStatus class="mx-1" :status="step.stepType || ''" />
-                </div>
-
-                <a-tooltip :content="step.name" position="tl">
-                  <div class="step-name-container w-full flex-grow" @click.stop="showDetail(step)">
-                    <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
-                      {{ step.name }}
+          <div class="flex flex-col">
+            <div class="flex w-full items-center gap-[8px]">
+              <div
+                class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
+              >
+                {{ step.sort }}
+              </div>
+              <div class="step-node-content flex justify-between">
+                <div class="flex flex-1 items-center">
+                  <!-- 步骤展开折叠按钮 -->
+                  <a-tooltip
+                    v-if="step.children?.length > 0"
+                    :content="
+                      t(step.expanded ? 'apiScenario.collapseStepTip' : 'apiScenario.expandStepTip', {
+                        count: step.children.length,
+                      })
+                    "
+                  >
+                    <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]">
+                      <MsIcon
+                        :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
+                        :size="14"
+                      />
+                      <span class="mx-1"> {{ step.children?.length || 0 }}</span>
                     </div>
+                  </a-tooltip>
+                  <!-- 展开折叠控制器 -->
+                  <div v-show="getShowExpand(step)" class="mx-1" @click.stop="expandHandler(step)">
+                    <span v-if="step.fold" class="collapsebtn flex items-center justify-center">
+                      <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
+                    </span>
+                    <span v-else class="expand flex items-center justify-center">
+                      <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
+                    </span>
                   </div>
-                </a-tooltip>
-              </div>
-              <div class="flex">
-                <stepStatus :status="step.status || 'PENDING'" />
-                <!-- 脚本报错 -->
-                <a-popover position="left" content-class="response-popover-content">
-                  <MsTag
-                    v-if="step.scriptIdentifier"
-                    type="primary"
-                    theme="light"
-                    :self-style="{
-                      color: 'rgb(var(--primary-3))',
-                      background: 'rgb(var(--primary-1))',
-                    }"
-                  >
-                    <template #icon>
-                      <MsIcon type="icon-icon_info_outlined" class="mx-1 !text-[rgb(var(--primary-3))]" size="16" />
-                      <span class="!text-[rgb(var(--primary-3))]">{{ t('report.detail.api.scriptErrorTip') }}</span>
-                    </template>
-                  </MsTag>
-                  <template #content>
-                    <div class="max-w-[400px]">{{ step.scriptIdentifier }}</div>
-                  </template>
-                </a-popover>
-                <div v-show="showStatus(step)" class="flex">
-                  <span class="statusCode mx-2">
-                    <div v-if="step.code" class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
-                    <a-popover position="left" content-class="response-popover-content">
-                      <div
-                        v-if="step.code"
-                        class="one-line-text max-w-[200px]"
-                        :style="{ color: statusCodeColor(step.code) }"
-                      >
-                        {{ step.code || '-' }}
-                      </div>
-                      <template #content>
-                        <div class="flex items-center gap-[8px] text-[14px]">
-                          <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
-                          <div :style="{ color: statusCodeColor(step.code) }">
-                            {{ step.code || '-' }}
-                          </div>
-                        </div>
-                      </template>
-                    </a-popover>
-                  </span>
+                  <div v-if="props.showType === 'API' && showCondition.includes(step.stepType)" class="flex-shrink-0">
+                    <ConditionStatus class="mx-1" :status="step.stepType || ''" />
+                  </div>
 
-                  <span v-if="step.requestTime !== null" class="resTime">
-                    {{ t('report.detail.api.responseTime') }}
-                    <a-popover position="left" content-class="response-popover-content">
-                      <span class="resTimeCount ml-2"
-                        >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
-                        }}{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}</span
-                      >
-                      <template #content>
-                        <span v-if="step.requestTime !== null" class="resTime">
-                          {{ t('report.detail.api.responseTime') }}
-                          <span class="resTimeCount ml-2"
-                            >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
-                            }}{{
-                              step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
-                            }}</span
-                          ></span
-                        >
+                  <a-tooltip :content="step.name" position="tl">
+                    <div class="step-name-container w-full flex-grow" @click.stop="showDetail(step)">
+                      <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
+                        {{ step.name }}
+                      </div>
+                    </div>
+                  </a-tooltip>
+                </div>
+                <div class="flex">
+                  <stepStatus :status="step.status || 'PENDING'" />
+                  <!-- 脚本报错 -->
+                  <a-popover position="left" content-class="response-popover-content">
+                    <MsTag
+                      v-if="step.scriptIdentifier"
+                      type="primary"
+                      theme="light"
+                      :self-style="{
+                        color: 'rgb(var(--primary-3))',
+                        background: 'rgb(var(--primary-1))',
+                      }"
+                    >
+                      <template #icon>
+                        <MsIcon type="icon-icon_info_outlined" class="mx-1 !text-[rgb(var(--primary-3))]" size="16" />
+                        <span class="!text-[rgb(var(--primary-3))]">{{ t('report.detail.api.scriptErrorTip') }}</span>
                       </template>
-                    </a-popover></span
-                  >
-                  <span v-if="step.responseSize !== null" class="resSize">
-                    {{ t('report.detail.api.responseSize') }}
-                    <a-popover position="left" content-class="response-popover-content">
-                      <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span>
-                      <template #content>
-                        <span class="resSize">
-                          {{ t('report.detail.api.responseSize') }}
-                          <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                    </MsTag>
+                    <template #content>
+                      <div class="max-w-[400px] break-words">{{ step.scriptIdentifier }}</div>
+                    </template>
+                  </a-popover>
+                  <div v-show="showStatus(step)" class="flex">
+                    <span class="statusCode mx-2">
+                      <div v-show="step.code" class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
+                      <a-popover position="left" content-class="response-popover-content">
+                        <div
+                          v-show="step.code"
+                          class="one-line-text max-w-[200px]"
+                          :style="{ color: statusCodeColor(step.code) }"
                         >
-                      </template>
-                    </a-popover></span
-                  >
+                          {{ step.code || '-' }}
+                        </div>
+                        <template #content>
+                          <div class="flex items-center gap-[8px] text-[14px]">
+                            <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+                            <div :style="{ color: statusCodeColor(step.code) }">
+                              {{ step.code || '-' }}
+                            </div>
+                          </div>
+                        </template>
+                      </a-popover>
+                    </span>
+
+                    <span v-show="step.requestTime !== null" class="resTime">
+                      {{ t('report.detail.api.responseTime') }}
+                      <a-popover position="left" content-class="response-popover-content">
+                        <span class="resTimeCount ml-2"
+                          >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
+                          }}{{
+                            step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
+                          }}</span
+                        >
+                        <template #content>
+                          <span v-show="step.requestTime !== null" class="resTime">
+                            {{ t('report.detail.api.responseTime') }}
+                            <span class="resTimeCount ml-2"
+                              >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
+                              }}{{
+                                step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
+                              }}</span
+                            ></span
+                          >
+                        </template>
+                      </a-popover></span
+                    >
+                    <span v-show="step.responseSize !== null" class="resSize">
+                      {{ t('report.detail.api.responseSize') }}
+                      <a-popover position="left" content-class="response-popover-content">
+                        <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span>
+                        <template #content>
+                          <span class="resSize">
+                            {{ t('report.detail.api.responseSize') }}
+                            <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
+                          >
+                        </template>
+                      </a-popover></span
+                    >
+                  </div>
                 </div>
               </div>
+              <div v-if="!step.fold" class="line"></div>
             </div>
-            <div v-if="!step.fold" class="line"></div>
-          </div>
-          <!-- 折叠展开内容 v-if="showResContent(step)" -->
-          <div v-if="showResContent(step)" class="foldContent mt-4 pl-2">
-            <a-scrollbar
-              :style="{
-                overflow: 'auto',
-                height: 'calc(100vh - 540px)',
-                width: '100%',
-              }"
-            >
+            <!-- 折叠展开内容 -->
+            <div v-show="showResContent(step)" class="foldContent mt-4 pl-2">
               <StepDetailContent
                 :mode="props.activeType"
                 :step-item="step"
@@ -171,7 +169,14 @@
                 :report-id="props?.reportId"
                 :steps="steps"
               />
-            </a-scrollbar>
+            </div>
+          </div>
+        </template>
+        <template v-if="steps.length === 0" #empty>
+          <div
+            class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-center text-[12px] leading-[16px] text-[var(--color-text-4)]"
+          >
+            {{ t('common.noData') }}
           </div>
         </template>
       </MsTree>
@@ -182,18 +187,21 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData } from '@/components/business/ms-tree/types';
-  import stepStatus from './stepStatus.vue';
-  import StepDetailContent from '@/views/api-test/components/requestComposition/response/result/index.vue';
-  import ConditionStatus from '@/views/api-test/report/component/conditionStatus.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { findNodeByKey, formatDuration, mapTree } from '@/utils';
 
   import type { ScenarioItemType } from '@/models/apiTest/report';
   import { ScenarioStepType } from '@/enums/apiEnum';
+
+  const StepDetailContent = defineAsyncComponent(
+    () => import('@/views/api-test/components/requestComposition/response/result/index.vue')
+  );
+  const stepStatus = defineAsyncComponent(() => import('./stepStatus.vue'));
+  const ConditionStatus = defineAsyncComponent(() => import('@/views/api-test/report/component/conditionStatus.vue'));
+  const MsTag = defineAsyncComponent(() => import('@/components/pure/ms-tag/ms-tag.vue'));
+  const MsTree = defineAsyncComponent(() => import('@/components/business/ms-tree/index.vue'));
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -430,7 +438,6 @@
     background: var(--color-text-n8) !important;
   }
   .resContentWrapper {
-    border-top: 1px solid red;
     border-radius: 0 0 6px 6px;
     @apply mb-4 bg-white p-4;
     .resContent {
@@ -450,5 +457,9 @@
     width: 100%;
     height: 1px;
     background: var(--color-text-n8);
+  }
+  .foldContent {
+    height: 100%;
+    height: calc(100vh);
   }
 </style>

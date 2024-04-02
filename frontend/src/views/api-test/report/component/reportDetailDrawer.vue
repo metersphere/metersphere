@@ -12,7 +12,7 @@
     :table-data="props.tableData"
     :page-change="props.pageChange"
     show-full-screen
-    :unmount-on-close="true"
+    unmount-on-close
     @loaded="loadedReport"
   >
     <template #titleRight="{ loading }">
@@ -51,8 +51,10 @@
         </MsButton> -->
       </div>
     </template>
-    <template #default="{ detail }">
-      <ScenarioCom :detail-info="detail" />
+    <template #default="{ loading }">
+      <a-spin class="h-full w-full" :loading="loading">
+        <ScenarioCom :detail-info="reportStepDetail" />
+      </a-spin>
     </template>
   </MsDetailDrawer>
 </template>
@@ -67,14 +69,12 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import ScenarioCom from './scenarioCom.vue';
 
-  import { getShareInfo, getShareTime, reportScenarioDetail } from '@/api/modules/api-test/report';
+  import { getShareInfo, reportScenarioDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
   import type { ReportDetail } from '@/models/apiTest/report';
   import { RouteEnum } from '@/enums/routeEnum';
-
-  import * as constants from 'constants';
 
   const appStore = useAppStore();
 
@@ -105,7 +105,7 @@
 
   const innerReportId = ref(props.reportId);
 
-  const reportStepDetail = ref<ReportDetail>({
+  const initReportStepDetail = {
     id: '',
     name: '', // 报告名称
     testPlanId: '',
@@ -143,6 +143,10 @@
     children: [], // 步骤列表
     stepTotal: 0, // 步骤总数
     console: '',
+  };
+
+  const reportStepDetail = ref<ReportDetail>({
+    ...initReportStepDetail,
   });
 
   /**
@@ -150,6 +154,7 @@
    */
   function loadedReport(detail: ReportDetail) {
     innerReportId.value = detail.id;
+    reportStepDetail.value = { ...initReportStepDetail };
     reportStepDetail.value = cloneDeep(detail);
   }
 
@@ -195,6 +200,21 @@
    */
   const exportLoading = ref<boolean>(false);
   function exportHandler() {}
+
+  const detailDrawerRef = ref();
+
+  onBeforeUnmount(() => {
+    detailDrawerRef.value?.destroy();
+  });
+
+  watch(
+    () => showDrawer.value,
+    (val) => {
+      if (!val) {
+        reportStepDetail.value = { ...initReportStepDetail };
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

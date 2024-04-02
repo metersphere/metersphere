@@ -11,13 +11,19 @@
       ></div>
 
       <a-popover position="left" content-class="response-popover-content">
-        <div class="one-line-text max-w-[150px]"> {{ props.detail.environmentName || '-' }}</div>
+        <div class="one-line-text max-w-[150px]">
+          {{ props.detail.environmentName || t('report.detail.api.defaultEnv') }}</div
+        >
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
         <template #content>
           <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
             <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
             <div>
-              {{ props.detail.environmentName || '-' }}
+              {{
+                props.detail.environmentName || props.showType === 'CASE'
+                  ? t('report.detail.api.caseSaveEnv')
+                  : t('report.detail.api.scenarioSavedEnv')
+              }}
             </div>
           </div>
         </template>
@@ -50,10 +56,10 @@
         </template>
       </a-popover>
       <a-popover position="left" content-class="response-popover-content">
-        <span v-if="showRunMode">
+        <span v-if="props.detail.integrated">
           {{ props.detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
         >
-        <a-divider v-if="showRunMode" direction="vertical" :margin="4" class="!mx-2"></a-divider>
+        <a-divider v-if="props.detail.integrated" direction="vertical" :margin="4" class="!mx-2"></a-divider>
         <template #content>
           <div class="items-center gap-[8px] text-[14px]">
             <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
@@ -99,10 +105,6 @@
     detail: ReportDetail;
     showType: 'API' | 'CASE';
   }>();
-
-  const showRunMode = computed(() => {
-    return props.showType === 'API' ? props.detail.runMode : props.detail.runMode && props.detail.integrated;
-  });
 </script>
 
 <style scoped></style>

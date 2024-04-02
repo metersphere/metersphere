@@ -192,6 +192,7 @@
                     is-definition
                     :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
+                    :show-extraction="true"
                   />
                   <auth
                     v-else-if="requestVModel.activeTab === RequestComposition.AUTH"

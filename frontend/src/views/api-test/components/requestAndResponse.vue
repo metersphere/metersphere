@@ -88,6 +88,7 @@
         v-model:params="requestVModel.children[0].assertionConfig.assertions"
         :disabled="props.disabledExceptParam"
         :is-definition="false"
+        :show-extraction="true"
         :assertion-config="requestVModel.children[0].assertionConfig"
       />
       <auth

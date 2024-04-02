@@ -1,5 +1,5 @@
 <template>
-  <MsAssertion v-model:params="params" />
+  <MsAssertion v-model:params="params" :show-extraction="false" />
 </template>
 
 <script lang="ts" setup>

@@ -5,9 +5,11 @@ import {
   ExecuteRequestFormBodyFormValue,
   KeyValueParam,
   RequestTaskResult,
+  ResponseAssertionItem,
   ResponseDefinition,
 } from '@/models/apiTest/common';
 import {
+  RequestAssertionCondition,
   RequestBodyFormat,
   RequestCaseStatus,
   RequestContentTypeEnum,
@@ -157,3 +159,17 @@ export const caseStatusOptions = [
   { label: 'apiTestManagement.deprecate', value: RequestCaseStatus.DEPRECATED },
   { label: 'apiTestManagement.done', value: RequestCaseStatus.DONE },
 ];
+
+// 断言 参数表格默认行的值
+export const defaultAssertParamsItem: ResponseAssertionItem = {
+  expression: '',
+  condition: RequestAssertionCondition.EQUALS,
+  expectedValue: '',
+  enable: true,
+};
+
+// 断言xpath & reg
+export const defaultAssertXpathParamsItem: ResponseAssertionItem = {
+  expression: '',
+  enable: true,
+};

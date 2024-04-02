@@ -199,7 +199,7 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
         currentDefaultValue = item.type === 'MEMBER' ? item.defaultValue : JSON.parse(item.defaultValue);
       }
     } else if (multipleInputType.includes(item.type)) {
-      currentDefaultValue = JSON.parse(item.defaultValue);
+      currentDefaultValue = Array.isArray(item.defaultValue) ? item.defaultValue : JSON.parse(item.defaultValue);
     } else if (singleType.includes(item.type)) {
       const optionsIds = optionsValue.map((e: any) => e.value);
       currentDefaultValue = (optionsIds || []).find((e: any) => item.defaultValue === e) || '';

@@ -18,6 +18,7 @@
         v-model:model-value="form.requestTimeout"
         :min="0"
         :step="100"
+        :precision="0"
         class="w-[180px]"
         :disabled="isDisabled"
       >
@@ -29,6 +30,7 @@
         v-model:model-value="form.responseTimeout"
         :min="0"
         :step="100"
+        :precision="0"
         class="w-[180px]"
         :disabled="isDisabled"
       >

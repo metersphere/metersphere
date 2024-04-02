@@ -50,8 +50,10 @@
         </MsButton> -->
       </div>
     </template>
-    <template #default="{ detail }">
-      <CaseReportCom :detail-info="detail" />
+    <template #default="{ loading }">
+      <a-spin class="h-full w-full" :loading="loading">
+        <CaseReportCom :detail-info="reportStepDetail" />
+      </a-spin>
     </template>
   </MsDetailDrawer>
 </template>
@@ -103,7 +105,7 @@
   const innerReportId = ref(props.reportId);
   const detailDrawerRef = ref();
 
-  const reportStepDetail = ref<ReportDetail>({
+  const initReportDetail = {
     id: '',
     name: '', // 报告名称
     testPlanId: '',
@@ -141,6 +143,10 @@
     children: [], // 步骤列表
     stepTotal: 0, // 步骤总数
     console: '',
+  };
+
+  const reportStepDetail = ref<ReportDetail>({
+    ...initReportDetail,
   });
 
   /**
@@ -185,8 +191,22 @@
   // 详情
   function loadedReport(detail: ReportDetail) {
     innerReportId.value = detail.id;
+    reportStepDetail.value = { ...initReportDetail };
     reportStepDetail.value = cloneDeep(detail);
   }
+
+  onBeforeUnmount(() => {
+    detailDrawerRef.value?.destroy();
+  });
+
+  watch(
+    () => showDrawer.value,
+    (val) => {
+      if (!val) {
+        reportStepDetail.value = { ...initReportDetail };
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

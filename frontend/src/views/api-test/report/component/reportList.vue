@@ -38,6 +38,21 @@
           {{ record.integrated ? t('report.collection') : t('report.independent') }}
         </MsTag>
       </template>
+      <template #integratedFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="reportTypeVisible"
+          v-model:status-filters="integratedFiltersMap[showType]"
+          :title="(columnConfig.title as string)"
+          :list="reportTypeList"
+          @search="initData()"
+        >
+          <template #item="{ item }">
+            <MsTag theme="light" :type="item.value === 'INTEGRATED' ? 'primary' : undefined">
+              {{ item.value === 'INTEGRATED' ? t('report.collection') : t('report.independent') }}
+            </MsTag>
+          </template>
+        </TableFilter>
+      </template>
       <!-- 报告触发方式筛选 -->
       <template #triggerModeFilter="{ columnConfig }">
         <a-trigger
@@ -45,7 +60,11 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="triggerModeFilterVisible = true">
+          <a-button
+            type="text"
+            class="arco-btn-text--secondary p-[8px_4px]"
+            @click.stop="triggerModeFilterVisible = true"
+          >
             <div class="font-medium">
               {{ t(columnConfig.title as string) }}
             </div>
@@ -79,7 +98,7 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
+          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="statusFilterVisible = true">
             <div class="font-medium">
               {{ t(columnConfig.title as string) }}
             </div>
@@ -170,6 +189,7 @@
   import CaseReportDrawer from './caseReportDrawer.vue';
   import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     getShareTime,
@@ -230,6 +250,7 @@
       title: 'report.type',
       slotName: 'integrated',
       dataIndex: 'integrated',
+      titleSlotName: 'integratedFilter',
       width: 150,
       showDrag: true,
     },
@@ -321,10 +342,47 @@
   const allListFilters = ref<string[]>([]);
   const independentListFilters = ref<string[]>([]);
   const integratedListFilters = ref<string[]>([]);
+
   const statusListFiltersMap = ref<Record<string, string[]>>({
-    all: allListFilters.value,
+    All: allListFilters.value,
     INDEPENDENT: independentListFilters.value,
     INTEGRATED: integratedListFilters.value,
+  });
+  // 全部过滤条件
+  const allIntegratedFilters = ref<string[]>([]);
+  const independentIntegratedFilters = ref<string[]>([]);
+  const integratedIntegratedFilters = ref<string[]>([]);
+
+  const reportTypeVisible = ref<boolean>(false);
+
+  const integratedFiltersMap = ref<Record<string, string[]>>({
+    All: allIntegratedFilters.value,
+    INDEPENDENT: independentIntegratedFilters.value,
+    INTEGRATED: integratedIntegratedFilters.value,
+  });
+
+  const reportTypeList = ref([
+    {
+      value: 'INDEPENDENT',
+      label: t('report.independent'),
+    },
+    {
+      value: 'INTEGRATED',
+      label: t('report.collection'),
+    },
+  ]);
+
+  const integratedFilters = computed(() => {
+    if (showType.value === 'All') {
+      if (integratedFiltersMap.value[showType.value].length === 1) {
+        return integratedFiltersMap.value[showType.value].includes('INDEPENDENT') ? [false] : [true];
+      }
+      return undefined;
+    }
+    if (showType.value === 'INTEGRATED') {
+      return [true];
+    }
+    return [false];
   });
 
   function initData() {
@@ -334,7 +392,7 @@
       moduleType: props.moduleType,
       filter: {
         status: statusListFiltersMap.value[showType.value],
-        integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
+        integrated: integratedFilters.value,
         triggerMode: triggerModeListFilters.value,
       },
     });
@@ -366,7 +424,7 @@
       condition: {
         filter: {
           status: statusListFiltersMap.value[showType.value],
-          integrated: showType.value === 'All' ? undefined : Array.of((showType.value === 'INTEGRATED').toString()),
+          integrated: integratedFilters.value,
           triggerMode: triggerModeListFilters.value,
         },
         keyword: keyword.value,
@@ -433,7 +491,7 @@
   });
 
   const statusFilters = computed(() => {
-    return Object.keys(ReportStatus[props.moduleType]);
+    return Object.keys(ReportStatus[props.moduleType]) || [];
   });
 
   function handleFilterHidden(val: boolean) {
@@ -470,13 +528,13 @@
   const showCaseDetailDrawer = ref<boolean>(false);
 
   function showReportDetail(id: string, rowIndex: number) {
-    activeDetailId.value = id;
-    activeReportIndex.value = rowIndex - 1;
     if (props.moduleType === ReportEnum.API_SCENARIO_REPORT) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
     }
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex - 1;
   }
 
   const shareTime = ref<string>('');

@@ -3,6 +3,7 @@
     v-model:params="assertionConfig.assertions"
     :is-definition="false"
     :assertion-config="assertionConfig"
+    :show-extraction="true"
     @change="emit('change')"
   />
 </template>
