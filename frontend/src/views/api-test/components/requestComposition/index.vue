@@ -48,7 +48,7 @@
               "
               allow-clear
               class="hover:z-10"
-              :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
+              :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6));z-index: 10' : ''"
               @input="() => (isUrlError = false)"
               @change="handleUrlChange"
             />
@@ -150,6 +150,9 @@
           </a-button>
         </div>
       </div>
+    </div>
+    <div v-if="isUrlError" class="url-input-tip">
+      <span>{{ t('apiTestDebug.apiUrlRequired') }}</span>
     </div>
     <div class="px-[16px]">
       <MsTab
@@ -1653,5 +1656,17 @@
     :deep(.arco-split-trigger) {
       @apply block;
     }
+  }
+  .url-input-tip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin-left: 250px;
+    color: rgb(var(--danger-6));
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 2px;
   }
 </style>

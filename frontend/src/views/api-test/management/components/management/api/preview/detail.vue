@@ -1,6 +1,6 @@
 <template>
   <a-collapse v-model:active-key="activeDetailKey" :bordered="false">
-    <a-collapse-item key="request">
+    <a-collapse-item v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE" key="request">
       <template #header>
         <div class="flex items-center gap-[4px]">
           <div v-if="activeDetailKey.includes('request')" class="down-icon">
@@ -146,14 +146,14 @@
                     <a-radio value="code">Code</a-radio>
                   </a-radio-group> -->
             </div>
-            <div
+            <!--            <div
               v-if="previewDetail.body.bodyType === RequestBodyFormat.NONE"
-              class="flex h-[100px] items-center justify-center rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] text-[var(--color-text-4)]"
+              class="flex h-[100px] items-center justify-center rounded-[var(&#45;&#45;border-radius-small)] bg-[var(&#45;&#45;color-text-n9)] text-[var(&#45;&#45;color-text-4)]"
             >
               {{ t('apiTestDebug.noneBody') }}
-            </div>
+            </div>-->
             <MsFormTable
-              v-else-if="
+              v-if="
                 previewDetail.body.bodyType === RequestBodyFormat.FORM_DATA ||
                 previewDetail.body.bodyType === RequestBodyFormat.WWW_FORM ||
                 previewDetail.body.bodyType === RequestBodyFormat.BINARY

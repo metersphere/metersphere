@@ -177,6 +177,7 @@ export default {
   'apiTestDebug.requestNamePlaceholder': '请输入请求名称',
   'apiTestDebug.requestUrl': '请求 URL',
   'apiTestDebug.requestUrlRequired': '请求 URL不能为空',
+  'apiTestDebug.apiUrlRequired': 'URL 不能为空',
   'apiTestDebug.requestModule': '请求所属模块',
   'apiTestDebug.closeOther': '关闭其他请求',
   'apiTestDebug.importByCURL': '导入 cURL',
