@@ -41,7 +41,6 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
-import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
@@ -135,6 +134,7 @@ public class ApiDefinitionService extends MoveNodeService {
     private OperationLogBlobMapper operationLogBlobMapper;
     @Resource
     private ApiExecuteService apiExecuteService;
+    private static final int MAX_TAG_SIZE = 10;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
@@ -200,6 +200,7 @@ public class ApiDefinitionService extends MoveNodeService {
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         apiDefinition.setRefId(apiDefinition.getId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
+            apiTestCaseService.checkTagLength(request.getTags());
             apiDefinition.setTags(request.getTags());
         }
         apiDefinitionMapper.insertSelective(apiDefinition);
@@ -253,6 +254,7 @@ public class ApiDefinitionService extends MoveNodeService {
     public ApiDefinition update(ApiDefinitionUpdateRequest request, String userId) {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
+        apiTestCaseService.checkTagLength(request.getTags());
         BeanUtils.copyBean(apiDefinition, request);
         checkResponseNameCode(request.getResponse());
         if (originApiDefinition.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
@@ -587,6 +589,7 @@ public class ApiDefinitionService extends MoveNodeService {
                     if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
                         List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
+                        apiTestCaseService.checkTagLength(tags);
                         apiDefinition.setTags(tags);
                     } else {
                         apiDefinition.setTags(request.getTags());
