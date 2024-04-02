@@ -83,9 +83,11 @@
   import { useStorage } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
+  import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import { encrypted } from '@/utils';
   import { setLoginExpires } from '@/utils/auth';
@@ -161,6 +163,15 @@
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         const redirectHasPermission = redirect && routerNameHasPermission(redirect as string, router.getRoutes());
         const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        const res = await getProjectInfo(appStore.currentProjectId);
+        if (!res || res.deleted) {
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+        }
+        if (res) {
+          appStore.setCurrentMenuConfig(res?.moduleIds || []);
+        }
         setLoginExpires();
         router.push({
           name: redirectHasPermission ? (redirect as string) : currentRouteName,
