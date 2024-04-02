@@ -167,7 +167,7 @@
           </MsButton>
           {{ t('apiTestManagement.or') }}
           <MsButton class="ml-[8px]" @click="emit('import')">
-            {{ t('caseManagement.featureCase.importExcel') }}
+            {{ t('common.import') }}
           </MsButton>
         </div>
       </template>

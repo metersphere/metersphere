@@ -14,6 +14,7 @@
             :disabled="props.disabled"
             mode="button"
             :step="100"
+            :precision="0"
             :min="0"
             class="w-[160px]"
           />
@@ -30,6 +31,7 @@
             :disabled="props.disabled"
             mode="button"
             :step="100"
+            :precision="0"
             :min="0"
             class="w-[160px]"
           />
