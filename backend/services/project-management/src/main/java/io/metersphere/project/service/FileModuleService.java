@@ -109,7 +109,11 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
                 example.clear();
             }
         }
-        example.createCriteria().andParentIdEqualTo(fileModule.getParentId()).andNameEqualTo(fileModule.getName()).andModuleTypeEqualTo(fileModule.getModuleType()).andIdNotEqualTo(fileModule.getId());
+        example.createCriteria().andParentIdEqualTo(fileModule.getParentId())
+                .andNameEqualTo(fileModule.getName())
+                .andModuleTypeEqualTo(fileModule.getModuleType())
+                .andProjectIdEqualTo(fileModule.getProjectId())
+                .andIdNotEqualTo(fileModule.getId());
         if (fileModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }

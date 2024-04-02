@@ -197,6 +197,15 @@
           AND fgit.branch = #{branch}
           AND f.project_id = #{projectId}
     </select>
+    <select id="selectLatestById" resultType="io.metersphere.project.domain.FileMetadata">
+        select *
+        from file_metadata
+        where latest = true
+          and ref_id IN (select ref_id
+                         from file_metadata
+                         where id = #{0})
+        limit 1
+    </select>
 
 
 </mapper>
