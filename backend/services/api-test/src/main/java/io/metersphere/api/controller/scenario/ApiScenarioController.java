@@ -124,7 +124,7 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioDTO(#id)", targetClass = ApiScenarioNoticeService.class)
     public void deleteToGc(@PathVariable String id) {
-        apiScenarioService.deleteToGc(id);
+        apiScenarioService.deleteToGc(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/{scenarioId}")

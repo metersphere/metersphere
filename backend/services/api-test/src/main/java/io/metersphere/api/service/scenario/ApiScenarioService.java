@@ -84,6 +84,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
@@ -1195,11 +1196,13 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
     }
 
-    public void deleteToGc(String id) {
+    public void deleteToGc(String id, String operator) {
         checkResourceExist(id);
         ApiScenario apiScenario = new ApiScenario();
         apiScenario.setId(id);
         apiScenario.setDeleted(true);
+        apiScenario.setDeleteUser(operator);
+        apiScenario.setDeleteTime(System.currentTimeMillis());
         apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
 
         //删除定时任务
@@ -1926,8 +1929,18 @@ public class ApiScenarioService extends MoveNodeService {
         return apiScenarioDetailDTO;
     }
 
+    private ApiScenario checkResourceIsNoDeleted(String id) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiScenarios)) {
+            throw new MSException(Translator.get("api_scenario_is_not_exist"));
+        }
+        return apiScenarios.getFirst();
+    }
+
     public ApiScenarioDetail get(String scenarioId) {
-        ApiScenario apiScenario = checkResourceExist(scenarioId);
+        ApiScenario apiScenario = checkResourceIsNoDeleted(scenarioId);
         ApiScenarioDetail apiScenarioDetail = BeanUtils.copyBean(new ApiScenarioDetail(), apiScenario);
         ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(scenarioId);
         if (apiScenarioBlob != null) {

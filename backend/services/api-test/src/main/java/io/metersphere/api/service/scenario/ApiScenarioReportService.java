@@ -306,8 +306,6 @@ public class ApiScenarioReportService {
                         step.setStatus(ApiReportStatus.FAKE_ERROR.name());
                     } else if (successStatus.size() == children.size() - noControllerIds.size()) {
                         step.setStatus(ApiReportStatus.SUCCESS.name());
-                    } else {
-                        step.setStatus(ApiReportStatus.PENDING.name());
                     }
                 } else if (stepTypes.contains(step.getStepType())) {
                     step.setStatus(ApiReportStatus.PENDING.name());
