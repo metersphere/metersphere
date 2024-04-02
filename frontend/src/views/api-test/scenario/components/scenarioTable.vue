@@ -495,7 +495,7 @@
       @folder-node-select="folderNodeSelect"
     />
   </a-modal>
-  <batchRunModal
+  <batch-run-modal
     v-model:visible="showBatchExecute"
     :batch-condition-params="batchConditionParams"
     :batch-params="batchParams"
@@ -522,6 +522,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
