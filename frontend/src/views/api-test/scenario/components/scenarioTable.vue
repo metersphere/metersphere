@@ -391,7 +391,20 @@
           </a-option>
         </a-select>
       </a-form-item>
-
+      <a-form-item
+        v-else-if="batchForm.attr === 'Environment'"
+        field="value"
+        :label="t('api_scenario.table.batchUpdate')"
+        :rules="[{ required: true, message: t('api_scenario.table.valueRequired') }]"
+        asterisk-position="end"
+        class="mb-0"
+      >
+        <a-select v-model="batchForm.value" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
       <a-form-item
         v-else
         field="value"
@@ -787,7 +800,7 @@
           eventTag: 'deleteSchedule',
           label: t('apiScenario.schedule.delete'),
           permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
-          danger: true,
+          danger: false,
         },
         {
           eventTag: 'delete',
@@ -1092,11 +1105,11 @@
       value: 'Status',
     },
     {
-      name: '标签',
+      name: 'apiScenario.params.tag',
       value: 'Tags',
     },
     {
-      name: '环境（待定）',
+      name: 'project.environmental.env',
       value: 'Environment',
     },
   ];
@@ -1154,6 +1167,8 @@
             status: '',
             tags: [],
             append: batchForm.value.append,
+            grouped: false,
+            envId: '',
           };
 
           if (batchForm.value.attr === 'Priority') {
@@ -1162,6 +1177,8 @@
             batchEditParam.status = batchForm.value.value;
           } else if (batchForm.value.attr === 'Tags') {
             batchEditParam.tags = batchForm.value.values;
+          } else if (batchForm.value.attr === 'Environment') {
+            batchEditParam.envId = batchForm.value.value;
           }
 
           await batchEditScenario(batchEditParam);
@@ -1258,6 +1275,7 @@
         deleteScenario(undefined, true, batchParams.value);
         break;
       case 'edit':
+        initEnvList();
         showBatchModal.value = true;
         break;
       case 'moveTo':
