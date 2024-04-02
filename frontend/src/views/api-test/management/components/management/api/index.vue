@@ -30,7 +30,11 @@
             >
               {{ t('apiTestManagement.execute') }}
             </a-button>
-            <a-dropdown-button type="outline" @click="toEditDefinition">
+            <a-dropdown-button
+              v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
+              type="outline"
+              @click="toEditDefinition"
+            >
               {{ t('common.edit') }}
               <template #icon>
                 <icon-down />
@@ -63,7 +67,12 @@
             @update-follow="activeApiTab.follow = !activeApiTab.follow"
           />
         </a-tab-pane>
-        <a-tab-pane key="definition" :title="t('apiTestManagement.definition')" class="ms-api-tab-pane">
+        <a-tab-pane
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE', 'PROJECT_API_DEFINITION:READ+ADD'])"
+          key="definition"
+          :title="t('apiTestManagement.definition')"
+          class="ms-api-tab-pane"
+        >
           <requestComposition
             ref="requestCompositionRef"
             v-model:detail-loading="loading"
@@ -88,7 +97,12 @@
             @add-done="handleAddDone"
           />
         </a-tab-pane>
-        <a-tab-pane v-if="!activeApiTab.isNew" key="case" :title="t('apiTestManagement.case')" class="ms-api-tab-pane">
+        <a-tab-pane
+          v-if="!activeApiTab.isNew && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ'])"
+          key="case"
+          :title="t('apiTestManagement.case')"
+          class="ms-api-tab-pane"
+        >
           <caseTable
             ref="caseTableRef"
             :is-api="true"
@@ -126,6 +140,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';

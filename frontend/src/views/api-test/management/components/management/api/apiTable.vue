@@ -368,6 +368,7 @@
       'PROJECT_API_DEFINITION:READ+DELETE',
       'PROJECT_API_DEFINITION:READ+ADD',
       'PROJECT_API_DEFINITION:READ+EXECUTE',
+      'PROJECT_API_DEFINITION:READ+UPDATE',
     ])
   );
   let columns: MsTableColumn = [
@@ -465,9 +466,13 @@
       scroll: { x: '100%' },
       tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
       showSetting: !props.readOnly,
-      selectable: true,
+      selectable: hasAnyPermission([
+        'PROJECT_API_DEFINITION:READ+DELETE',
+        'PROJECT_API_DEFINITION:READ+EXECUTE',
+        'PROJECT_API_DEFINITION:READ+UPDATE',
+      ]),
       showSelectAll: !props.readOnly,
-      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+      draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
       heightUsed: 308,
       showSubdirectory: true,
     },

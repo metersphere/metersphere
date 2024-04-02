@@ -1,3 +1,5 @@
+import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+
 import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
@@ -34,6 +36,8 @@ import {
   ScenarioTrashPageUrl,
   ScenarioUploadTempFileUrl,
   UpdateModuleUrl,
+  UpdateScenarioPriorityUrl,
+  UpdateScenarioStatusUrl,
   UpdateScenarioUrl,
 } from '@/api/requrls/api-test/scenario';
 
@@ -58,6 +62,7 @@ import {
   ScenarioHistoryPageParams,
 } from '@/models/apiTest/scenario';
 import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
+import { ApiScenarioStatus } from '@/enums/apiEnum';
 
 import type { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 import type { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
@@ -263,4 +268,13 @@ export function getSystemRequest(data: GetSystemRequestParams) {
 // 关注/取消关注接口场景
 export function followScenario(id: string | number) {
   return MSR.get({ url: FollowScenarioUrl, params: id });
+}
+
+// 更新场景状态
+export function updateScenarioStatus(id: string | number, status: ApiScenarioStatus | undefined) {
+  return MSR.get({ url: `${UpdateScenarioStatusUrl}/${id}/${status}` });
+}
+
+export function updateScenarioPro(id: string | number, priority: CaseLevel | undefined) {
+  return MSR.get({ url: `${UpdateScenarioPriorityUrl}/${id}/${priority}` });
 }
