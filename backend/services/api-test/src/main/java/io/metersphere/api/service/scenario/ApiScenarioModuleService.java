@@ -170,7 +170,7 @@ public class ApiScenarioModuleService extends ModuleTreeService {
 
     public void batchDeleteData(List<String> ids, String userId, String projectId) {
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andModuleIdIn(ids).andDeletedEqualTo(false);
+        example.createCriteria().andModuleIdIn(ids);
         long apiCount = apiScenarioMapper.countByExample(example);
         while (apiCount > 0) {
             PageHelper.startPage(1, 500);
