@@ -1,7 +1,8 @@
 <template>
   <div :class="['p-[16px_16px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center gap-[8px]">
+      <div class="flex items-center"> </div>
+      <div class="items-right flex gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('api_scenario.table.searchPlaceholder')"
@@ -48,6 +49,45 @@
                       <apiStatus :status="val" />
                     </a-checkbox>
                   </a-checkbox-group>
+                </div>
+                <div class="filter-button">
+                  <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                    {{ t('common.reset') }}
+                  </a-button>
+                  <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                    {{ t('system.orgTemplate.confirm') }}
+                  </a-button>
+                </div>
+              </div>
+            </template>
+          </a-trigger>
+        </template>
+        <template #priorityFilter="{ columnConfig }">
+          <a-trigger
+            v-model:popup-visible="priorityFilterVisible"
+            trigger="click"
+            @popup-visible-change="handleFilterHidden"
+          >
+            <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="priorityFilterVisible = true">
+              {{ t(columnConfig.title as string) }}
+              <icon-down :class="priorityFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+            </MsButton>
+            <template #content>
+              <div class="arco-table-filters-content">
+                <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+                  <a-checkbox-group v-model:model-value="priorityFilters" direction="vertical" size="small">
+                    <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                      <caseLevel :case-level="item.label as CaseLevel" />
+                    </a-checkbox>
+                  </a-checkbox-group>
+                </div>
+                <div class="filter-button">
+                  <a-button size="mini" class="mr-[8px]" @click="resetPriorityFilter">
+                    {{ t('common.reset') }}
+                  </a-button>
+                  <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                    {{ t('system.orgTemplate.confirm') }}
+                  </a-button>
                 </div>
               </div>
             </template>
@@ -154,6 +194,8 @@
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { casePriorityOptions } from '@/views/api-test/components/config';
+
   const props = defineProps<{
     class?: string;
     activeModule: string;
@@ -172,6 +214,8 @@
   const emit = defineEmits(['refreshModuleTree']);
   const keyword = ref('');
   const recoverLoading = ref(false);
+  const priorityFilterVisible = ref(false);
+  const priorityFilters = ref<string[]>([]);
 
   const columns: MsTableColumn = [
     {
@@ -205,7 +249,12 @@
       title: 'apiScenario.table.columns.level',
       dataIndex: 'priority',
       slotName: 'priority',
-      width: 100,
+      titleSlotName: 'priorityFilter',
+      width: 140,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showDrag: true,
     },
     {
@@ -292,6 +341,23 @@
       showDrag: true,
     },
     {
+      title: 'apiScenario.table.columns.operation',
+      dataIndex: 'deleteUserName',
+      titleSlotName: 'deleteUser',
+      width: 109,
+      showDrag: true,
+    },
+    {
+      title: 'apiScenario.table.columns.deleteTime',
+      dataIndex: 'deleteTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      width: 189,
+      showDrag: true,
+    },
+    {
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
@@ -302,13 +368,13 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getTrashScenarioPage,
     {
-      columns: props.readOnly ? columns : [],
+      // columns: props.readOnly ? columns : [],
       scroll: { x: '100%' },
       tableKey: props.readOnly ? undefined : TableKeyEnum.API_SCENARIO,
       showSetting: !props.readOnly,
       selectable: true,
       showSelectAll: !props.readOnly,
-      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+      draggable: undefined,
       heightUsed: 374,
       showSubdirectory: true,
     },
@@ -316,6 +382,7 @@
       ...item,
       createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+      deleteTime: dayjs(item.deleteTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
 
@@ -337,7 +404,6 @@
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
   const tableStore = useTableStore();
-
   async function loadScenarioList(refreshTreeCount?: boolean) {
     let moduleIds: string[] = [];
     if (props.activeModule && props.activeModule !== 'all') {
@@ -355,6 +421,7 @@
       filter: {
         lastReportStatus: lastReportStatusListFilters.value,
         status: statusFilters.value,
+        priority: priorityFilters.value,
       },
     };
     setLoadListParams(params);
@@ -368,6 +435,18 @@
     if (!val) {
       loadScenarioList(false);
     }
+  }
+
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    loadScenarioList();
+  }
+
+  function resetPriorityFilter() {
+    priorityFilterVisible.value = false;
+    priorityFilters.value = [];
+    loadScenarioList();
   }
 
   const tableSelected = ref<(string | number)[]>([]);
@@ -396,7 +475,7 @@
         await recoverScenario(record?.id as string);
       }
 
-      Message.success(t('common.deleteSuccess'));
+      Message.success(t('common.revokeSuccess'));
       tableSelected.value = [];
       resetSelector();
       loadScenarioList(true);
@@ -505,6 +584,7 @@
       batchForm.value.value = '';
     }
   );
+  await tableStore.initColumn(TableKeyEnum.API_SCENARIO, columns, 'drawer', true);
 </script>
 
 <style lang="less" scoped>

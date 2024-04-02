@@ -307,7 +307,7 @@
         x: '100%',
       },
       showSetting: true,
-      selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE', 'PROJECT_API_REPORT:READ']),
+      selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
       heightUsed: 330,
       showSelectorAll: true,
     },

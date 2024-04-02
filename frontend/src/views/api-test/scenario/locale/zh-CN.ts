@@ -44,6 +44,8 @@ export default {
   'apiScenario.table.columns.createTime': '创建时间',
   'apiScenario.table.columns.updateUser': '更新人',
   'apiScenario.table.columns.updateTime': '更新时间',
+  'apiScenario.table.columns.operation': '操作人',
+  'apiScenario.table.columns.deleteTime': '删除时间',
   'api_scenario.table.searchPlaceholder': '通过 ID/名称/标签搜索',
   'api_scenario.table.batchModalSubTitle': '（已选 {count} 个场景）',
   'api_scenario.table.chooseAttr': '选择属性',

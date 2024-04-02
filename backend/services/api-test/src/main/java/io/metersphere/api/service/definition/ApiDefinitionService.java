@@ -178,7 +178,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
     public ApiDefinitionDTO get(String id, String userId) {
         // 1. 避免重复查询数据库，将查询结果传递给get方法
-        ApiDefinition apiDefinition = checkApiDefinition(id);
+        ApiDefinition apiDefinition = checkApiDefinitionDeleted(id);
         return getApiDefinitionInfo(id, userId, apiDefinition);
     }
 
@@ -506,6 +506,16 @@ public class ApiDefinitionService extends MoveNodeService {
             throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
         }
         return apiDefinition;
+    }
+
+    public ApiDefinition checkApiDefinitionDeleted(String apiId) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdEqualTo(apiId).andDeletedEqualTo(false);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiDefinitions)) {
+            throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
+        }
+        return apiDefinitions.getFirst();
     }
 
     private void checkAddExist(ApiDefinition apiDefinition) {

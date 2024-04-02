@@ -204,9 +204,19 @@ public class ApiTestCaseService extends MoveNodeService {
         return testCase;
     }
 
+    private ApiTestCase checkResourceNoDeleted(String id) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        List<ApiTestCase> testCase = apiTestCaseMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(testCase)) {
+            throw new MSException(Translator.get("api_test_case_not_exist"));
+        }
+        return testCase.getFirst();
+    }
+
     public ApiTestCaseDTO get(String id, String userId) {
         ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
-        ApiTestCase testCase = checkResourceExist(id);
+        ApiTestCase testCase = checkResourceNoDeleted(id);
         ApiTestCaseBlob testCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
         BeanUtils.copyBean(apiTestCaseDTO, testCase);
         if (CollectionUtils.isNotEmpty(testCase.getTags())) {
