@@ -178,7 +178,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
 
     public void batchDeleteData(List<String> ids, String userId, String projectId) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andModuleIdIn(ids).andDeletedEqualTo(false);
+        example.createCriteria().andModuleIdIn(ids);
         long apiCount = apiDefinitionMapper.countByExample(example);
         while (apiCount > 0) {
             PageHelper.startPage(1, 500);
