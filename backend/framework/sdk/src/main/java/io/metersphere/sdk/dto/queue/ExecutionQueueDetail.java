@@ -24,9 +24,4 @@ public class ExecutionQueueDetail implements Serializable {
      * 当前资源产生的执行报告id
      */
     private String reportId;
-
-    /**
-     * 单个场景要执行的请求总量，用于计算执行各种指标
-     */
-    private Long requestCount;
 }

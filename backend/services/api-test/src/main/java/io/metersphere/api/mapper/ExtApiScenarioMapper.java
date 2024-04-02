@@ -57,5 +57,5 @@ public interface ExtApiScenarioMapper {
 
     Long getPos(String projectId);
 
-    List<ApiScenario> getApiCaseExecuteInfoByIds(List<String> subIds);
+    List<ApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
 }

@@ -79,4 +79,11 @@ public class ApiScenarioStepCommonDTO<T extends ApiScenarioStepCommonDTO> {
     @Valid
     @Schema(description = "子步骤")
     private List<T> children;
+
+    /**
+     * 步骤的唯一ID
+     * 引用相同场景的情况原步骤ID可能会重复
+     */
+    @Schema(description = "执行时需要的步骤唯一ID，引用相同场景的情况原步骤ID可能会重复")
+    private String uniqueId;
 }

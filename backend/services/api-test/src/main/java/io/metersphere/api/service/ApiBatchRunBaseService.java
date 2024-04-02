@@ -1,6 +1,5 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.ApiBatchRunInitReportResult;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -26,27 +25,7 @@ public class ApiBatchRunBaseService {
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, Map<String, String> caseReportMap, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
-        queue.setRequestCount(runModeConfig.isIntegratedReport() ? resourceIds.size() : 1L);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, caseReportMap);
-        apiExecutionQueueService.insertQueue(queue, queueDetails);
-        return queue;
-    }
-
-    /**
-     * 初始化执行队列
-     *
-     * @param resourceIds
-     * @param runModeConfig
-     * @return
-     */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, ApiBatchRunInitReportResult reportResult, String userId) {
-        Map<String, Long> scenarioCountMap = reportResult.getScenarioCountMap();
-        ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
-        queue.setRequestCount(reportResult.getRequestCount());
-        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, reportResult.getScenarioReportMap());
-        for (ExecutionQueueDetail queueDetail : queueDetails) {
-            queueDetail.setRequestCount(scenarioCountMap.get(queueDetail.getResourceId()));
-        }
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;
     }
@@ -58,7 +37,6 @@ public class ApiBatchRunBaseService {
             ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
             queueDetail.setResourceId(resourceId);
             queueDetail.setSort(sort.getAndIncrement());
-            queueDetail.setRequestCount(1L);
             // caseReportMap 为 null ，说明是集合报告，生成一个虚拟的报告ID
             queueDetail.setReportId(caseReportMap == null ? UUID.randomUUID().toString() : caseReportMap.get(resourceId));
             queueDetails.add(queueDetail);
