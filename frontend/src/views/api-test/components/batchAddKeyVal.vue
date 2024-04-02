@@ -91,14 +91,27 @@
     const arr = batchParamsCode.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
     const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
     for (let i = 0; i < arr.length; i++) {
-      const [key, value] = arr[i].split(':');
-      if (key || value) {
-        tempObj[key.trim()] = {
-          id: new Date().getTime() + i,
-          ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
-          key: key.trim(),
-          value: value?.trim(),
-        };
+      if (arr[i] !== '') {
+        // 只截取第一个`:`
+        const index = arr[i].indexOf(':');
+        if (index === -1) {
+          tempObj[arr[i].trim()] = {
+            id: new Date().getTime() + i,
+            ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
+            key: arr[i].trim(),
+            value: '',
+          };
+        } else {
+          const [key, value] = [arr[i].substring(0, index).trim(), arr[i].substring(index + 1).trim()];
+          if (key || value) {
+            tempObj[key.trim()] = {
+              id: new Date().getTime() + i,
+              ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
+              key: key.trim(),
+              value: value?.trim(),
+            };
+          }
+        }
       }
     }
     showBatchAddParamDrawer.value = false;
