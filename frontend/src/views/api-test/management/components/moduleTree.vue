@@ -14,28 +14,39 @@
           :placeholder="props.isModal ? t('apiTestManagement.moveSearchTip') : t('apiTestManagement.searchTip')"
           allow-clear
         />
-        <a-dropdown
-          v-if="
-            !props.readOnly &&
-            !props.trash &&
-            hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])
-          "
-          @select="handleSelect"
-        >
-          <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
-          <template #content>
-            <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="newApi">{{
-              t('apiTestManagement.newApi')
-            }}</a-doption>
-            <a-doption
-              v-if="moduleProtocol === 'HTTP'"
-              v-permission="['PROJECT_API_DEFINITION:READ+IMPORT']"
-              value="import"
-            >
-              {{ t('apiTestManagement.importApi') }}
-            </a-doption>
-          </template>
-        </a-dropdown>
+        <template v-if="!props.readOnly && !props.trash">
+          <a-dropdown-button
+            v-if="
+              moduleProtocol === 'HTTP' &&
+              hasAllPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])
+            "
+            type="primary"
+            @click="handleSelect('newApi')"
+          >
+            {{ t('apiTestManagement.newApi') }}
+            <template #icon>
+              <icon-down />
+            </template>
+            <template #content>
+              <a-doption value="import" @click="handleSelect('import')">
+                {{ t('apiTestManagement.importApi') }}
+              </a-doption>
+            </template>
+          </a-dropdown-button>
+          <a-button
+            v-else-if="
+              moduleProtocol === 'HTTP' &&
+              !hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) &&
+              hasAnyPermission(['PROJECT_API_DEFINITION:READ+IMPORT'])
+            "
+            type="primary"
+          >
+            {{ t('apiTestManagement.importApi') }}
+          </a-button>
+          <a-button v-else v-permission="['PROJECT_API_DEFINITION:READ+ADD']" type="primary">
+            {{ t('apiTestManagement.newApi') }}
+          </a-button>
+        </template>
       </div>
       <div class="folder" @click="setActiveFolder('all')">
         <div :class="allFolderClass">
@@ -205,7 +216,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 

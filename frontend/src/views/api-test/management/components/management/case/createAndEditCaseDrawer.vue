@@ -190,7 +190,7 @@
     } else {
       await getApiDetail();
     }
-    // 创建或者复制的时候，请求参数为接口定义的请求参数
+    // 创建的时候，请求参数为接口定义的请求参数
     detailForm.value = {
       ...cloneDeep(defaultDetail.value),
       ...(apiDetailInfo.value.protocol === 'HTTP'
@@ -199,8 +199,11 @@
             body: apiDetailInfo.value?.body ?? apiDetailInfo.value.request.body,
             rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
             query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
+            authConfig: apiDetailInfo.value.authConfig ?? apiDetailInfo.value.request.authConfig,
+            otherConfig: apiDetailInfo.value.otherConfig ?? apiDetailInfo.value.request.otherConfig,
           }
         : {}),
+      children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
       url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
     };
     // 复制
@@ -268,16 +271,9 @@
         if (!isContinue) {
           handleSaveCaseCancel();
         }
-        // 继续创建
-        detailForm.value = {
-          ...cloneDeep(defaultDetail.value),
-          id: `case-${Date.now()}`,
-          headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
-          body: apiDetailInfo.value.body ?? apiDetailInfo.value.request.body,
-          rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
-          query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
-          url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
-        };
+        // 保存并继续创建都以当前页面内容为基础,不需要还原
+        detailForm.value.id = `case-${Date.now()}`;
+        detailForm.value.name = '';
         drawerLoading.value = false;
       }
     });

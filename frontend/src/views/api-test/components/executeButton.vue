@@ -1,7 +1,7 @@
 <template>
   <a-dropdown-button
     v-if="hasLocalExec && !props.executeLoading"
-    class="exec-btn"
+    type="primary"
     @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
     @select="execute"
   >
@@ -55,13 +55,3 @@
     hasLocalExec,
   });
 </script>
-
-<style lang="less" scoped>
-  .exec-btn :deep(.arco-btn) {
-    color: white !important;
-    background-color: rgb(var(--primary-5)) !important;
-    .btn-base-primary-hover();
-    .btn-base-primary-active();
-    .btn-base-primary-disabled();
-  }
-</style>

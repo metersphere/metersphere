@@ -2,19 +2,32 @@
   <div class="flex h-full flex-col p-[12px_16px]">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
-      <a-dropdown @select="handleSelect">
-        <a-button v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+IMPORT']" type="primary">
-          {{ t('apiTestDebug.newApi') }}
-        </a-button>
+      <a-dropdown-button
+        v-if="hasAllPermission(['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+IMPORT'])"
+        type="primary"
+        @click="handleSelect('newApi')"
+      >
+        {{ t('apiTestDebug.newApi') }}
+        <template #icon>
+          <icon-down />
+        </template>
         <template #content>
-          <a-doption v-permission="['PROJECT_API_DEBUG:READ+ADD']" value="newApi">
-            {{ t('apiTestDebug.newApi') }}
-          </a-doption>
-          <a-doption v-permission="['PROJECT_API_DEBUG:READ+IMPORT']" value="import">
+          <a-doption value="import" @click="handleSelect('import')">
             {{ t('apiTestDebug.importApi') }}
           </a-doption>
         </template>
-      </a-dropdown>
+      </a-dropdown-button>
+      <a-button
+        v-else-if="
+          !hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD']) && hasAnyPermission(['PROJECT_API_DEBUG:READ+IMPORT'])
+        "
+        type="primary"
+      >
+        {{ t('apiTestDebug.importApi') }}
+      </a-button>
+      <a-button v-else v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="primary">
+        {{ t('apiTestDebug.newApi') }}
+      </a-button>
     </div>
     <div class="folder">
       <div class="folder-text">
@@ -159,7 +172,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { characterLimit, mapTree } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 

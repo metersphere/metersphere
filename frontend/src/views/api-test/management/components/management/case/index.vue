@@ -87,7 +87,7 @@
       } else {
         // 更新数据
         const index = apiTabs.value.findIndex((item) => item.id === id);
-        apiTabs.value[index] = tabItemInfo;
+        apiTabs.value[index] = cloneDeep(tabItemInfo);
         activeApiTab.value = tabItemInfo;
       }
 
