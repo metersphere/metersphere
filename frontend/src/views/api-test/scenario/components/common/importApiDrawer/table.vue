@@ -113,6 +113,7 @@
     selectedApis: MsTableDataItem<ApiDefinitionDetail>[]; // 已选中的接口
     selectedCases: MsTableDataItem<ApiCaseDetail>[]; // 已选中的用例
     selectedScenarios: MsTableDataItem<ApiScenarioTableItem>[]; // 已选中的场景
+    scenarioId?: string | number;
   }>();
   const emit = defineEmits<{
     (e: 'select', data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]): void;
@@ -335,6 +336,7 @@
           status: statusFilters.value,
           method: methodFilters.value,
         },
+        excludeIds: [props.scenarioId || ''],
       });
       currentTable.value.loadList();
     });

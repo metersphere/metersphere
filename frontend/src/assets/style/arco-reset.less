@@ -739,8 +739,11 @@
 .arco-switch-type-circle {
   background-color: var(--color-text-brand) !important;
 }
-.arco-switch-type-circle.arco-switch-checked {
+.arco-switch-type-circle.arco-switch-checked:not(:disabled) {
   background-color: rgb(var(--primary-5)) !important;
+}
+.arco-switch-disabled {
+  background-color: rgb(var(--primary-3)) !important;
 }
 .arco-switch-type-line.arco-switch-small {
   .arco-switch-handle {

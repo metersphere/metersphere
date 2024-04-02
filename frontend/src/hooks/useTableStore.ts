@@ -4,7 +4,7 @@ import localforage from 'localforage';
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { useAppStore } from '@/store';
-import { PageSizeMap, SelectorColumnMap, TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
+import { MsTableSelectorItem, PageSizeMap, TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
 import { SpecialColumnEnum } from '@/enums/tableEnum';
@@ -15,19 +15,6 @@ export default function useTableStore() {
     operationBaseIndex: 100,
   });
 
-  const getSelectorColumnMap = async () => {
-    try {
-      const selectorColumnMap = await localforage.getItem<SelectorColumnMap>('selectorColumnMap');
-      if (!selectorColumnMap) {
-        return {};
-      }
-      return selectorColumnMap;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
-      return {};
-    }
-  };
   const getPageSizeMap = async () => {
     try {
       const pageSizeMap = await localforage.getItem<PageSizeMap>('pageSizeMap');
@@ -77,32 +64,30 @@ export default function useTableStore() {
     showSubdirectory?: boolean
   ) {
     try {
-      const selectorColumnMap = await getSelectorColumnMap();
-      if (!selectorColumnMap[tableKey]) {
+      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(tableKey);
+      if (!tableColumnsMap) {
         // 如果没有在indexDB里初始化
         column = columnsTransform(column);
-        selectorColumnMap[tableKey] = {
+        localforage.setItem(tableKey, {
           mode,
           showSubdirectory,
           column,
           columnBackup: JSON.parse(JSON.stringify(column)),
-        };
-        await localforage.setItem('selectorColumnMap', selectorColumnMap);
+        });
       } else {
         // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
         column = columnsTransform(column);
-        const { columnBackup: oldColumn } = selectorColumnMap[tableKey];
+        const { columnBackup: oldColumn } = tableColumnsMap;
         // 比较页面上定义的 column 和 浏览器备份的column 是否相同
-        const isEqual = isArraysEqualWithOrder<MsTableColumnData>(oldColumn, column);
+        const isEqual = isArraysEqualWithOrder(oldColumn, column);
         if (!isEqual) {
           // 如果不相等，说明有变动将新的column存入indexDB
-          selectorColumnMap[tableKey] = {
+          localforage.setItem(tableKey, {
             mode,
             showSubdirectory,
             column,
             columnBackup: JSON.parse(JSON.stringify(column)),
-          };
-          await localforage.setItem('selectorColumnMap', selectorColumnMap);
+          });
         }
       }
     } catch (e) {
@@ -112,13 +97,10 @@ export default function useTableStore() {
   }
   async function setMode(key: string, mode: TableOpenDetailMode) {
     try {
-      const selectorColumnMap = await getSelectorColumnMap();
-      if (selectorColumnMap[key]) {
-        const item = selectorColumnMap[key];
-        if (item) {
-          item.mode = mode;
-        }
-        await localforage.setItem('selectorColumnMap', selectorColumnMap);
+      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+      if (tableColumnsMap) {
+        tableColumnsMap.mode = mode;
+        await localforage.setItem(key, tableColumnsMap);
       }
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -128,13 +110,10 @@ export default function useTableStore() {
 
   async function setSubdirectory(key: string, val: boolean) {
     try {
-      const selectorColumnMap = await getSelectorColumnMap();
-      if (selectorColumnMap[key]) {
-        const item = selectorColumnMap[key];
-        if (item) {
-          item.showSubdirectory = val;
-        }
-        await localforage.setItem('selectorColumnMap', selectorColumnMap);
+      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+      if (tableColumnsMap) {
+        tableColumnsMap.showSubdirectory = val;
+        await localforage.setItem(key, tableColumnsMap);
       }
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -155,23 +134,22 @@ export default function useTableStore() {
           item.sortIndex = state.baseSortIndex + idx;
         }
       });
-      const selectorColumnMap = await getSelectorColumnMap();
-      if (!selectorColumnMap) {
+      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+      if (!tableColumnsMap) {
         return;
       }
       if (isSimple) {
-        const oldColumns = selectorColumnMap[key].column;
+        const oldColumns = tableColumnsMap.column;
         const operationColumn = oldColumns.find((i) => i.dataIndex === SpecialColumnEnum.OPERATION);
         if (operationColumn) columns.push(operationColumn);
       }
 
-      selectorColumnMap[key] = {
+      await localforage.setItem(key, {
         mode,
         showSubdirectory,
         column: JSON.parse(JSON.stringify(columns)),
-        columnBackup: selectorColumnMap[key].columnBackup,
-      };
-      await localforage.setItem('selectorColumnMap', selectorColumnMap);
+        columnBackup: tableColumnsMap.columnBackup,
+      });
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('tableStore.setColumns', e);
@@ -184,25 +162,25 @@ export default function useTableStore() {
   }
 
   async function getMode(key: string) {
-    const selectorColumnMap = await getSelectorColumnMap();
-    if (selectorColumnMap[key]) {
-      return selectorColumnMap[key].mode;
+    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+    if (tableColumnsMap) {
+      return tableColumnsMap.mode;
     }
     return 'drawer';
   }
 
   async function getSubShow(key: string) {
-    const selectorColumnMap = await getSelectorColumnMap();
-    if (selectorColumnMap[key]) {
-      return selectorColumnMap[key].showSubdirectory;
+    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+    if (tableColumnsMap) {
+      return tableColumnsMap.showSubdirectory;
     }
     return true as boolean;
   }
 
   async function getColumns(key: string, isSimple?: boolean) {
-    const selectorColumnMap = await getSelectorColumnMap();
-    if (selectorColumnMap[key]) {
-      const tmpArr = selectorColumnMap[key].column;
+    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+    if (tableColumnsMap) {
+      const tmpArr = tableColumnsMap.column;
       const { nonSortableColumns, couldSortableColumns } = tmpArr.reduce(
         (result: { nonSortableColumns: MsTableColumnData[]; couldSortableColumns: MsTableColumnData[] }, item) => {
           if (isSimple && item.dataIndex === SpecialColumnEnum.OPERATION) {
@@ -222,9 +200,9 @@ export default function useTableStore() {
     return { nonSort: [], couldSort: [] };
   }
   async function getShowInTableColumns(key: string) {
-    const selectorColumnMap = await getSelectorColumnMap();
-    if (selectorColumnMap[key]) {
-      const tmpArr: MsTableColumn = selectorColumnMap[key].column;
+    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+    if (tableColumnsMap) {
+      const tmpArr: MsTableColumn = tableColumnsMap.column;
       return orderBy(
         filter(tmpArr, (i) => i.showInTable),
         ['sortIndex'],

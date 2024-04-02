@@ -558,7 +558,6 @@
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
-    columns,
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.API_TEST_MANAGEMENT_CASE,
     showSetting: true,

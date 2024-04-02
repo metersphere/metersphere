@@ -346,6 +346,7 @@
     offspringIds: string[];
     protocol: string; // 查看的协议类型
     readOnly?: boolean; // 是否是只读模式
+    refreshTimeStamp?: number;
   }>();
   const emit = defineEmits<{
     (e: 'openApiTab', record: ApiDefinitionDetail, isExecute?: boolean): void;
@@ -358,6 +359,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+  const tableStore = useTableStore();
 
   const folderTreePathMap = inject('folderTreePathMap');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
@@ -459,6 +461,14 @@
       width: hasOperationPermission.value ? 220 : 50,
     },
   ];
+
+  await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
+  if (props.readOnly) {
+    columns = columns.filter(
+      (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
+    );
+  }
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getDefinitionPage,
     {
@@ -523,7 +533,6 @@
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
 
-  const tableStore = useTableStore();
   async function getModuleIds() {
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
@@ -551,6 +560,15 @@
     setLoadListParams(params);
     loadList();
   }
+
+  watch(
+    () => props.refreshTimeStamp,
+    (val) => {
+      if (val) {
+        loadApiList();
+      }
+    }
+  );
 
   watch(
     () => props.activeModule,
@@ -914,18 +932,6 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-
-  defineExpose({
-    loadApiList,
-  });
-
-  if (!props.readOnly) {
-    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
-  } else {
-    columns = columns.filter(
-      (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
-    );
   }
 </script>
 

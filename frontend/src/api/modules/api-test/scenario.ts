@@ -21,6 +21,7 @@ import {
   GetModuleTreeUrl,
   GetScenarioStepUrl,
   GetScenarioUrl,
+  GetStepProjectInfoUrl,
   GetSystemRequestUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
@@ -223,7 +224,7 @@ export function addScenario(params: Scenario) {
 }
 
 // 获取场景详情
-export function getScenarioDetail(id: string) {
+export function getScenarioDetail(id: string | number) {
   return MSR.get<ScenarioDetail>({ url: GetScenarioUrl, params: id });
 }
 
@@ -277,4 +278,9 @@ export function updateScenarioStatus(id: string | number, status: ApiScenarioSta
 
 export function updateScenarioPro(id: string | number, priority: CaseLevel | undefined) {
   return MSR.get({ url: `${UpdateScenarioPriorityUrl}/${id}/${priority}` });
+}
+
+// 获取跨项目信息
+export function getStepProjectInfo(id: string | number) {
+  return MSR.get({ url: GetStepProjectInfoUrl, params: id });
 }

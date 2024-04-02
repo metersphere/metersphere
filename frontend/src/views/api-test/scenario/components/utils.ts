@@ -17,9 +17,14 @@ export default function updateStepStatus(
         ScenarioStepType.LOOP_CONTROLLER,
         ScenarioStepType.IF_CONTROLLER,
         ScenarioStepType.ONCE_ONLY_CONTROLLER,
+        ScenarioStepType.API_SCENARIO,
       ].includes(node.stepType)
     ) {
-      // 逻辑控制器内部可以放入任意步骤，所以它的最终执行结果是根据内部步骤的执行结果来判断的
+      if (!node.executeStatus) {
+        // 没有执行状态，说明未参与执行，直接跳过
+        break;
+      }
+      // 逻辑控制器和场景内部可以放入任意步骤，所以它的最终执行结果是根据内部步骤的执行结果来判断的
       let hasNotExecuted = false;
       let hasFailure = false;
       if (!node.children || node.children.length === 0) {
@@ -54,8 +59,8 @@ export default function updateStepStatus(
       node.executeStatus = ScenarioExecuteStatus.SUCCESS;
     } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
       // 非逻辑控制器直接更改本身状态
-      if (stepResponses[node.id] && stepResponses[node.id].length > 0) {
-        node.executeStatus = stepResponses[node.id].some((report) => !report.isSuccessful)
+      if (stepResponses[node.uniqueId] && stepResponses[node.uniqueId].length > 0) {
+        node.executeStatus = stepResponses[node.uniqueId].some((report) => !report.isSuccessful)
           ? ScenarioExecuteStatus.FAILED
           : ScenarioExecuteStatus.SUCCESS;
       } else {

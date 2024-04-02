@@ -404,11 +404,13 @@
   );
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
-    if (activeStep.value?.id) {
-      return props.stepResponses?.[activeStep.value?.id]?.[currentLoop.value - 1];
+    if (activeStep.value?.uniqueId) {
+      return props.stepResponses?.[activeStep.value?.uniqueId]?.[currentLoop.value - 1];
     }
   });
-  const loopTotal = computed(() => (activeStep.value?.id && props.stepResponses?.[activeStep.value?.id]?.length) || 0);
+  const loopTotal = computed(
+    () => (activeStep.value?.uniqueId && props.stepResponses?.[activeStep.value?.uniqueId]?.length) || 0
+  );
   // 执行响应结果 body 部分
   const responseResultBody = computed(() => {
     return currentResponse.value?.responseResult.body;

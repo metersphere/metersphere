@@ -32,6 +32,7 @@
         <a-select
           v-model:model-value="requestVModel.customizeRequestEnvEnable"
           class="w-[150px]"
+          :disabled="props.step?.isQuoteScenarioStep"
           popup-container=".customApiDrawer-title-right"
           @change="handleUseEnvChange"
         >
@@ -61,7 +62,7 @@
               v-model:model-value="requestVModel.protocol"
               :options="protocolOptions"
               :loading="protocolLoading"
-              :disabled="_stepType.isQuoteApi"
+              :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
               class="w-[90px]"
               @change="(val) => handleActiveDebugProtocolChange(val as string)"
             />
@@ -81,7 +82,7 @@
               <apiMethodSelect
                 v-model:model-value="requestVModel.method"
                 class="w-[140px]"
-                :disabled="_stepType.isQuoteApi"
+                :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
                 @change="handleActiveDebugChange"
               />
               <a-input
@@ -91,7 +92,7 @@
                 allow-clear
                 class="hover:z-10"
                 :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
-                :disabled="_stepType.isQuoteApi"
+                :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
                 @input="() => (isUrlError = false)"
                 @change="handleUrlChange"
               >
@@ -130,7 +131,7 @@
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :placeholder="t('apiTestManagement.apiNamePlaceholder')"
-          :disabled="!isEditableApi || isQuoteScenarioStep"
+          :disabled="!isEditableApi"
           allow-clear
           class="mt-[8px]"
         />
@@ -184,7 +185,7 @@
                   <httpHeader
                     v-if="requestVModel.activeTab === RequestComposition.HEADER"
                     v-model:params="requestVModel.headers"
-                    :disabled-param-value="isQuoteScenarioStep"
+                    :disabled-param-value="!isEditableApi"
                     :disabled-except-param="!isEditableApi"
                     :layout="activeLayout"
                     :second-box-height="secondBoxHeight"
@@ -194,7 +195,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.BODY"
                     v-model:params="requestVModel.body"
                     :layout="activeLayout"
-                    :disabled-param-value="isQuoteScenarioStep"
+                    :disabled-param-value="!isEditableApi"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     :upload-temp-file-api="uploadTempFile"
@@ -207,7 +208,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
                     v-model:params="requestVModel.query"
                     :layout="activeLayout"
-                    :disabled-param-value="isQuoteScenarioStep"
+                    :disabled-param-value="!isEditableApi"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
@@ -216,7 +217,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.REST"
                     v-model:params="requestVModel.rest"
                     :layout="activeLayout"
-                    :disabled-param-value="isQuoteScenarioStep"
+                    :disabled-param-value="!isEditableApi"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
@@ -225,7 +226,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
                     v-model:config="requestVModel.children[0].preProcessorConfig"
                     is-definition
-                    :disabled="!isEditableApi || isQuoteScenarioStep"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                   <postcondition
@@ -233,7 +234,7 @@
                     v-model:config="requestVModel.children[0].postProcessorConfig"
                     :response="responseResultBody"
                     :layout="activeLayout"
-                    :disabled="!isEditableApi || isQuoteScenarioStep"
+                    :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     is-definition
                     @change="handleActiveDebugChange"
@@ -243,19 +244,19 @@
                     v-model:params="requestVModel.children[0].assertionConfig.assertions"
                     :response="responseResultBody"
                     is-definition
-                    :disabled="!isEditableApi || isQuoteScenarioStep"
+                    :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
                   />
                   <auth
                     v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
                     v-model:params="requestVModel.authConfig"
-                    :disabled="!isEditableApi || isQuoteScenarioStep"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                   <setting
                     v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
                     v-model:params="requestVModel.otherConfig"
-                    :disabled="!isEditableApi || isQuoteScenarioStep"
+                    :disabled="!isEditableApi"
                     @change="handleActiveDebugChange"
                   />
                 </div>
@@ -506,11 +507,11 @@
   );
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
-    if (props.step?.id) {
-      return props.stepResponses?.[props.step?.id]?.[currentLoop.value - 1];
+    if (props.step?.uniqueId) {
+      return props.stepResponses?.[props.step?.uniqueId]?.[currentLoop.value - 1];
     }
   });
-  const loopTotal = computed(() => (props.step?.id && props.stepResponses?.[props.step?.id]?.length) || 0);
+  const loopTotal = computed(() => (props.step?.uniqueId && props.stepResponses?.[props.step?.uniqueId]?.length) || 0);
   // 执行响应结果 body 部分
   const responseResultBody = computed(() => {
     return currentResponse.value?.responseResult.body;
@@ -531,10 +532,11 @@
   // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
   const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
   const isEditableApi = computed(
-    () => _stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step
+    () =>
+      !props.step?.isQuoteScenarioStep &&
+      (_stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step)
   );
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
-  const isQuoteScenarioStep = computed(() => props.step?.isQuoteScenarioStep);
 
   const isInitPluginForm = ref(false);
 
@@ -1087,7 +1089,6 @@
       }
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
-        requestVModel.value.activeTab = contentTabList.value[0].value;
         loading.value = false;
       });
     } catch (error) {
@@ -1130,6 +1131,7 @@
             stepId: getGenerateId(),
           });
         }
+        requestVModel.value.activeTab = contentTabList.value[0].value;
       }
     },
     {
