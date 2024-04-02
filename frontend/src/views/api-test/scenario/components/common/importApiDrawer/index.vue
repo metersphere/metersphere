@@ -46,6 +46,7 @@
             :selected-apis="selectedApis"
             :selected-cases="selectedCases"
             :selected-scenarios="selectedScenarios"
+            :scenario-id="props.scenarioId"
             @select="handleTableSelect"
           />
         </div>
@@ -112,6 +113,9 @@
     scenario: MsTableDataItem<ApiScenarioTableItem>[];
   }
 
+  const props = defineProps<{
+    scenarioId?: string | number;
+  }>();
   const emit = defineEmits<{
     (e: 'copy', data: ImportData): void;
     (e: 'quote', data: ImportData): void;
@@ -235,19 +239,12 @@
         fullScenarioArr.push(...res);
       });
       if (refType === ScenarioStepRefType.COPY) {
-        fullScenarioArr = fullScenarioArr.map((e) => {
+        fullScenarioArr = mapTree<MsTableDataItem<ApiScenarioTableItem>>(fullScenarioArr, (node) => {
           return {
-            ...e,
-            children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
-              return {
-                ...node,
-                copyFromStepId: node.id,
-                originProjectId: node.projectId,
-                id: getGenerateId(),
-              };
-            }),
-            copyFromStepId: e.resourceId,
-            originProjectId: e.projectId,
+            ...node,
+            copyFromStepId: node.id,
+            originProjectId: node.projectId,
+            id: getGenerateId(),
           };
         });
         emit(
@@ -266,13 +263,12 @@
             children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
               return {
                 ...node,
-                copyFromStepId: node.id,
                 originProjectId: node.projectId,
-                id: getGenerateId(),
                 isQuoteScenarioStep: true,
                 isRefScenarioStep: true, // 默认是完全引用的
               };
             }),
+            id: getGenerateId(),
             originProjectId: e.projectId,
           };
         });

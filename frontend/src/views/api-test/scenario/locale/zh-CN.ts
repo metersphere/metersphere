@@ -65,6 +65,8 @@ export default {
   'apiScenario.sumLoop': '共{count}次循环',
   'apiScenario.times': '次',
   'apiScenario.executionResult': '执行结果',
+  'apiScenario.refreshRefScenario': '刷新引用场景数据',
+  'apiScenario.updateRefScenarioSuccess': '引用场景数据已更新',
   // 批量操作文案
   'api_scenario.batch_operation.success': '成功{opt}至 {name}',
   'api_scenario.table.batchMoveConfirm': '{opt}{count}个场景至已选模块',

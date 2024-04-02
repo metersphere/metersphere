@@ -198,8 +198,8 @@ export interface TreeNode<T> {
  */
 export function traverseTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
+  customNodeFn: (node: TreeNode<T>) => void,
   continueCondition?: (node: TreeNode<T>) => boolean,
-  customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children'
 ) {
   if (!Array.isArray(tree)) {
@@ -215,7 +215,7 @@ export function traverseTree<T>(
         // 如果有继续递归的条件，则判断是否继续递归
         break;
       }
-      traverseTree(node[customChildrenKey], continueCondition, customNodeFn, customChildrenKey);
+      traverseTree(node[customChildrenKey], customNodeFn, continueCondition, customChildrenKey);
     }
   }
 }
@@ -488,6 +488,7 @@ export function handleTreeDragDrop<T>(
     return false;
   }
   const index = parentChildren.findIndex((node: TreeNode<T>) => node[customKey] === dragNode[customKey]);
+  console.log('index', parentChildren, dragNode, index);
   if (index !== -1) {
     parentChildren.splice(index, 1);
 

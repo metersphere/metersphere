@@ -6,6 +6,7 @@
         :options="loopOptions"
         size="mini"
         class="w-[85px] px-[8px]"
+        :disabled="props.disabled"
         @change="handleInputChange"
       />
       <a-tooltip
@@ -22,6 +23,7 @@
           hide-button
           :precision="0"
           model-event="input"
+          :disabled="props.disabled"
           @blur="handleInputChange"
         >
           <template #prefix>
@@ -38,6 +40,7 @@
           class="w-[110px] px-[8px]"
           :max-length="255"
           :placeholder="t('apiScenario.variable')"
+          :disabled="props.disabled"
           @change="handleInputChange"
         >
         </a-input>
@@ -50,6 +53,7 @@
           class="w-[110px] px-[8px]"
           :placeholder="t('apiScenario.valuePrefix')"
           :max-length="255"
+          :disabled="props.disabled"
           @change="handleInputChange"
         >
         </a-input>
@@ -61,6 +65,7 @@
         :options="whileOptions"
         size="mini"
         class="w-[75px] px-[8px]"
+        :disabled="props.disabled"
         @change="handleInputChange"
       />
       <template v-if="innerData.whileController.conditionType === WhileConditionType.CONDITION">
@@ -74,6 +79,7 @@
             class="w-[100px] px-[8px]"
             :max-length="255"
             :placeholder="t('apiScenario.variable', { suffix: '${var}' })"
+            :disabled="props.disabled"
             @change="handleInputChange"
           >
           </a-input>
@@ -82,6 +88,7 @@
           v-model:model-value="innerData.whileController.msWhileVariable.condition"
           size="mini"
           class="w-[90px] px-[8px]"
+          :disabled="props.disabled"
           @change="handleInputChange"
         >
           <a-option v-for="opt of conditionOptions" :key="opt.value" :value="opt.value">
@@ -98,6 +105,7 @@
             size="mini"
             class="w-[110px] px-[8px]"
             :placeholder="t('apiScenario.value')"
+            :disabled="props.disabled"
             @change="handleInputChange"
           >
           </a-input>
@@ -114,6 +122,7 @@
           size="mini"
           class="w-[200px] px-[8px]"
           :placeholder="t('apiScenario.expression')"
+          :disabled="props.disabled"
           @change="handleInputChange"
         >
         </a-input>
@@ -131,6 +140,7 @@
           hide-button
           :precision="0"
           model-event="input"
+          :disabled="props.disabled"
           @blur="handleInputChange"
         >
           <template #prefix>
@@ -154,6 +164,7 @@
         hide-button
         class="w-[110px] px-[8px]"
         model-event="input"
+        :disabled="props.disabled"
         @blur="handleInputChange"
       >
         <template #prefix>
@@ -170,6 +181,7 @@
         hide-button
         class="w-[110px] px-[8px]"
         model-event="input"
+        :disabled="props.disabled"
         @blur="handleInputChange"
       >
         <template #prefix>
@@ -191,6 +203,7 @@
   const props = defineProps<{
     data: LoopStepDetail;
     stepId: string | number;
+    disabled: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'change', innerData: LoopStepDetail): void;
@@ -227,7 +240,6 @@
 
   watchEffect(() => {
     innerData.value = props.data;
-    console.log('watchEffect', props.data);
   });
 
   // 接收全局双击时间戳

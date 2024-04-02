@@ -7,6 +7,7 @@
         class="w-[100px] px-[8px]"
         :max-length="255"
         :placeholder="t('apiScenario.variable', { suffix: '${var}' })"
+        :disabled="props.disabled"
         @change="handleInputChange"
       >
       </a-input>
@@ -15,6 +16,7 @@
       v-model:model-value="innerData.condition"
       size="mini"
       class="w-[90px] px-[8px]"
+      :disabled="props.disabled"
       @change="handleInputChange"
     >
       <a-option v-for="opt of conditionOptions" :key="opt.value" :value="opt.value">
@@ -28,6 +30,7 @@
         size="mini"
         class="w-[110px] px-[8px]"
         :placeholder="t('apiScenario.value')"
+        :disabled="props.disabled"
         @change="handleInputChange"
       >
       </a-input>
@@ -45,6 +48,7 @@
   const props = defineProps<{
     data: ConditionStepDetail;
     stepId: string | number;
+    disabled: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'change', innerData: ConditionStepDetail): void;

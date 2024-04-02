@@ -132,10 +132,12 @@ export default function useCreateActions() {
       return {
         ...cloneDeep(defaultStepItemCommon),
         id,
+        uniqueId: getGenerateId(), // 生成唯一 ID，避免重复引用的步骤无法读取正确的执行结果
         config: {
           ...defaultStepItemCommon.config,
           ...config,
         },
+        draggable: stepType !== ScenarioStepType.API_SCENARIO ? !item.config?.isQuoteScenarioStep : true, // 引用场景下的任何子步骤不可拖拽，除了场景本身
         isQuoteScenarioStep: item.config?.isQuoteScenarioStep || false,
         isRefScenarioStep: item.config?.isRefScenarioStep || false,
         children: item.children || [],

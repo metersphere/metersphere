@@ -60,8 +60,8 @@
               <div class="mr-[8px] flex items-center gap-[8px]">
                 <!-- 步骤启用/禁用，完全引用的场景下的子孙步骤不可禁用 -->
                 <a-switch
-                  v-show="step.isRefScenarioStep !== true"
                   v-model:model-value="step.enable"
+                  :disabled="step.isRefScenarioStep"
                   size="small"
                   @click.stop="handleStepToggleEnable(step)"
                 ></a-switch>
@@ -90,6 +90,7 @@
                   :is="getStepContent(step)"
                   :data="checkStepIsApi(step) || step.stepType === ScenarioStepType.API_SCENARIO ? step : step.config"
                   :step-id="step.id"
+                  :disabled="!!step.isQuoteScenarioStep"
                   @quick-input="setQuickInput(step, $event)"
                   @change="handleStepContentChange($event, step)"
                   @click.stop
@@ -117,6 +118,7 @@
                         {{ step.name }}
                       </div>
                       <MsIcon
+                        v-if="!step.isQuoteScenarioStep"
                         type="icon-icon_edit_outlined"
                         class="edit-script-name-icon"
                         @click.stop="handleStepNameClick(step)"
@@ -155,6 +157,7 @@
                         {{ step.name || t('apiScenario.pleaseInputStepDesc') }}
                       </div>
                       <MsIcon
+                        v-if="!step.isQuoteScenarioStep"
                         type="icon-icon_edit_outlined"
                         class="edit-script-name-icon"
                         @click.stop="handleStepDescClick(step)"
@@ -174,17 +177,17 @@
             @click="setFocusNodeKey(step.id)"
             @other-create="handleOtherCreate"
             @close="setFocusNodeKey('')"
-            @add-done="scenario.unSaved = true"
+            @add-done="handleAddStepDone"
           />
         </template>
         <template #extraEnd="step">
           <responsePopover
             v-if="
-              ![
-                ScenarioStepType.LOOP_CONTROLLER,
-                ScenarioStepType.IF_CONTROLLER,
-                ScenarioStepType.ONCE_ONLY_CONTROLLER,
-                ScenarioStepType.CONSTANT_TIMER,
+              [
+                ScenarioStepType.API,
+                ScenarioStepType.API_CASE,
+                ScenarioStepType.SCRIPT,
+                ScenarioStepType.CUSTOM_REQUEST,
               ].includes(step.stepType) &&
               (getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
                 getExecuteStatus(step) === ScenarioExecuteStatus.FAILED)
@@ -213,7 +216,7 @@
     <createStepActions
       v-model:selected-keys="selectedKeys"
       v-model:steps="steps"
-      @add-done="scenario.unSaved = true"
+      @add-done="handleAddStepDone"
       @other-create="handleOtherCreate"
     >
       <a-button type="dashed" class="add-step-btn" long>
@@ -248,6 +251,7 @@
     <importApiDrawer
       v-if="importApiDrawerVisible"
       v-model:visible="importApiDrawerVisible"
+      :scenario-id="scenario.id"
       @copy="handleImportApiApply('copy', $event)"
       @quote="handleImportApiApply('quote', $event)"
     />
@@ -452,6 +456,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'updateResource', uploadFileIds: string[], linkFileIds: string[]): void;
+    (e: 'stepAdd'): void;
   }>();
 
   const appStore = useAppStore();
@@ -470,11 +475,13 @@
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
   });
+  const selectedKeys = defineModel<(string | number)[]>('selectedKeys', {
+    required: true,
+  }); // 没啥用，目前用来展示选中样式
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
-  const selectedKeys = ref<(string | number)[]>([]); // 没啥用，目前用来展示选中样式
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string | number>(''); // 聚焦的key
@@ -489,9 +496,9 @@
   }
 
   function getExecuteStatus(step: ScenarioStepItem) {
-    if (scenario.value.stepResponses && scenario.value.stepResponses[step.id]) {
+    if (scenario.value.stepResponses && scenario.value.stepResponses[step.uniqueId]) {
       // 有一次失败就是失败
-      return scenario.value.stepResponses[step.id].some((report) => !report.isSuccessful)
+      return scenario.value.stepResponses[step.uniqueId].some((report) => !report.isSuccessful)
         ? ScenarioExecuteStatus.FAILED
         : ScenarioExecuteStatus.SUCCESS;
     }
@@ -509,8 +516,8 @@
       const firstHasResultChild = step.children?.find((child) => {
         return checkStepIsApi(child) || child.stepType === ScenarioStepType.SCRIPT;
       });
-      return firstHasResultChild && scenario.value.stepResponses[firstHasResultChild.id]
-        ? `${scenario.value.stepResponses[firstHasResultChild.id].length}/${step.config.msCountController.loops}`
+      return firstHasResultChild && scenario.value.stepResponses[firstHasResultChild.uniqueId]
+        ? `${scenario.value.stepResponses[firstHasResultChild.uniqueId].length}/${step.config.msCountController.loops}`
         : undefined;
     }
     return undefined;
@@ -798,6 +805,7 @@
                   executeStatus: undefined,
                   copyFromStepId: childCopyFromStepId,
                   id: childId,
+                  uniqueId: childId,
                 };
               })[0]
             ),
@@ -806,6 +814,7 @@
             sort: node.sort + 1,
             isNew: true,
             id,
+            uniqueId: id,
           },
           'after',
           selectedIfNeed,
@@ -950,6 +959,11 @@
     }
   }
 
+  function handleAddStepDone() {
+    emit('stepAdd');
+    scenario.value.unSaved = true;
+  }
+
   /**
    * 处理步骤选中事件
    * @param _selectedKeys 选中的 key集合
@@ -1000,27 +1014,16 @@
   }
 
   const websocketMap: Record<string | number, WebSocket> = {};
-  let temporaryStepReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换场景tab导致报告丢失
-
-  watch(
-    () => scenario.value.id,
-    () => {
-      const stepKeys = Object.keys(temporaryStepReportMap);
-      if (stepKeys.length > 0) {
-        stepKeys.forEach((key) => {
-          const report = temporaryStepReportMap[key];
-          scenario.value.stepResponses[report.stepId] = temporaryStepReportMap[key];
-        });
-        temporaryStepReportMap = {};
-        updateStepStatus(steps.value, scenario.value.stepResponses);
-      }
-    }
-  );
 
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(step: ScenarioStepItem, reportId: string | number, executeType?: 'localExec' | 'serverExec') {
+  function debugSocket(
+    step: ScenarioStepItem,
+    _scenario: Scenario,
+    reportId: string | number,
+    executeType?: 'localExec' | 'serverExec'
+  ) {
     websocketMap[reportId] = getSocket(
       reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
@@ -1032,34 +1035,21 @@
         if (step.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
-            if (scenario.value.stepResponses[result.stepId] === undefined) {
-              scenario.value.stepResponses[result.stepId] = [];
+            if (_scenario.stepResponses[result.stepId] === undefined) {
+              _scenario.stepResponses[result.stepId] = [];
             }
-            scenario.value.stepResponses[result.stepId].push({
+            _scenario.stepResponses[result.stepId].push({
               ...result,
               console: data.taskResult.console,
             });
           });
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          data.taskResult.requestResults.forEach((result) => {
-            if (step.reportId) {
-              if (temporaryStepReportMap[step.reportId] === undefined) {
-                temporaryStepReportMap[step.reportId] = [];
-              }
-              temporaryStepReportMap[step.reportId].push({
-                ...result,
-                console: data.taskResult.console,
-              });
-            }
-          });
         }
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
-        websocketMap[reportId].close();
+        websocketMap[reportId]?.close();
         if (step.reportId === data.reportId) {
           step.isExecuting = false;
-          updateStepStatus([step], scenario.value.stepResponses);
+          updateStepStatus([step], _scenario.stepResponses);
         }
       }
     });
@@ -1076,7 +1066,7 @@
     try {
       currentStep.isExecuting = true;
       currentStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      debugSocket(currentStep, executeParams.reportId, executeType); // 开启websocket
+      debugSocket(currentStep, scenario.value, executeParams.reportId, executeType); // 开启websocket
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
@@ -1100,6 +1090,7 @@
       console.log(error);
       websocketMap[executeParams.reportId].close();
       currentStep.isExecuting = false;
+      updateStepStatus([currentStep], scenario.value.stepResponses);
     }
   }
 
@@ -1110,7 +1101,7 @@
     if (node.isExecuting) {
       return;
     }
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.reportId = getGenerateId();
       const _stepDetails = {};
@@ -1118,17 +1109,16 @@
       traverseTree(
         realStep,
         (step) => {
-          // 当前步骤是启用的情况，才需要继续递归子孙步骤；否则无需向下递归
-          return step.enable;
-        },
-        (step) => {
           if (step.enable) {
             // 启用的步骤才执行
             _stepDetails[step.id] = stepDetails.value[step.id];
             step.executeStatus = ScenarioExecuteStatus.EXECUTING;
           }
-          delete scenario.value.stepResponses[step.id]; // 先移除上一次的执行结果
-          return step;
+          delete scenario.value.stepResponses[step.uniqueId]; // 先移除上一次的执行结果
+        },
+        (step) => {
+          // 当前步骤是启用的情况，才需要继续递归子孙步骤；否则无需向下递归
+          return step.enable;
         }
       );
       realExecute(
@@ -1152,7 +1142,7 @@
   function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'id');
     if (realStep) {
-      delete scenario.value.stepResponses[realStep.id]; // 先移除上一次的执行结果
+      delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
       realStep.reportId = getGenerateId();
       realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
       request.executeLoading = true;
@@ -1184,6 +1174,7 @@
         projectId: appStore.currentProjectId,
         isExecuting: false,
         reportId,
+        uniqueId: request.stepId,
       };
       realExecute(
         {
@@ -1288,6 +1279,7 @@
     } else {
       steps.value = steps.value.concat(insertSteps);
     }
+    emit('stepAdd');
     scenario.value.unSaved = true;
   }
 
@@ -1318,6 +1310,7 @@
             method: request.method,
           },
           id: request.stepId,
+          uniqueId: request.stepId,
           projectId: appStore.currentProjectId,
         },
         activeStep.value,
@@ -1333,6 +1326,7 @@
           method: request.method,
         },
         id: request.stepId,
+        uniqueId: request.stepId,
         sort: steps.value.length + 1,
         stepType: ScenarioStepType.CUSTOM_REQUEST,
         refType: ScenarioStepRefType.DIRECT,
@@ -1340,6 +1334,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    emit('stepAdd');
     scenario.value.unSaved = true;
   }
 
@@ -1347,6 +1342,14 @@
    * API 详情抽屉关闭时应用更改
    */
   function applyApiStep(request: RequestParam | CaseRequestParam) {
+    if (activeStep.value) {
+      const _stepType = getStepType(activeStep.value);
+      if (_stepType.isQuoteCase || activeStep.value.isQuoteScenarioStep) {
+        // 引用的 case 和引用的场景步骤都不可更改
+        stepDetails.value[activeStep.value.id] = request; // 为了设置一次正确的polymorphicName
+        return;
+      }
+    }
     if (request.unSaved) {
       scenario.value.unSaved = true;
     }
@@ -1400,6 +1403,7 @@
       steps.value.push({
         ...cloneDeep(defaultStepItemCommon),
         id,
+        uniqueId: id,
         sort: steps.value.length + 1,
         stepType: ScenarioStepType.SCRIPT,
         refType: ScenarioStepRefType.DIRECT,
@@ -1407,6 +1411,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    emit('stepAdd');
     scenario.value.unSaved = true;
   }
 
@@ -1482,6 +1487,7 @@
           return true;
         });
       }
+      console.log(dragNode, dropNode);
       const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'id');
       if (dragResult) {
         Message.success(t('common.moveSuccess'));

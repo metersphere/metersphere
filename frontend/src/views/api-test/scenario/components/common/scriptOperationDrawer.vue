@@ -88,11 +88,11 @@
   const visible = defineModel<boolean>('visible', { required: true });
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
-    if (props.step?.id) {
-      return props.stepResponses?.[props.step?.id]?.[currentLoop.value - 1];
+    if (props.step?.uniqueId) {
+      return props.stepResponses?.[props.step?.uniqueId]?.[currentLoop.value - 1];
     }
   });
-  const loopTotal = computed(() => (props.step?.id && props.stepResponses?.[props.step?.id]?.length) || 0);
+  const loopTotal = computed(() => (props.step?.uniqueId && props.stepResponses?.[props.step?.uniqueId]?.length) || 0);
 
   watch(
     () => visible.value,

@@ -120,6 +120,7 @@ export const defaultScenario: Scenario = {
   executeFailCount: 0,
   uploadFileIds: [],
   linkFileIds: [],
+  reportId: '',
   // 前端渲染字段
   label: '',
   closable: true,

@@ -5,14 +5,19 @@
     "
     class="flex items-center gap-[4px]"
   >
-    <a-popover position="bl" content-class="detail-popover" arrow-class="hidden">
+    <a-popover
+      position="bl"
+      content-class="quote-content-detail-popover"
+      arrow-class="hidden"
+      @popup-visible-change="handleVisibleChange"
+    >
       <MsIcon type="icon-icon-draft" class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
       <template #content>
         <div class="flex flex-col gap-[16px]">
           <div>
             <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.belongProject') }}</div>
             <div class="text-[14px] text-[var(--color-text-1)]">
-              <!-- {{ props.data.belongProjectName }} -->
+              {{ originProjectName }}
             </div>
           </div>
           <div>
@@ -43,6 +48,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
+  import { getStepProjectInfo } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -60,6 +66,15 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
+
+  const originProjectName = ref('');
+
+  async function handleVisibleChange(val: boolean) {
+    if (val && props.data.originProjectId) {
+      const res = await getStepProjectInfo(props.data.originProjectId);
+      originProjectName.value = res.name;
+    }
+  }
 
   function goDetail() {
     const _stepType = getStepType(props.data);
@@ -91,8 +106,8 @@
   }
 </script>
 
-<style lang="less" scoped>
-  .detail-popover {
-    width: 350px;
+<style lang="less">
+  .quote-content-detail-popover {
+    width: 300px;
   }
 </style>

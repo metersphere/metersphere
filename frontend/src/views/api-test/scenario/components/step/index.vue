@@ -1,101 +1,102 @@
 <template>
   <div class="flex h-full flex-col gap-[8px]">
-    <div class="action-line">
-      <div class="action-group">
-        <a-checkbox
-          v-show="scenario.steps.length > 0"
-          v-model:model-value="checkedAll"
-          :indeterminate="indeterminate"
-          :disabled="scenarioExecuteLoading"
-          @change="handleChangeAll"
-        />
-        <div class="flex items-center gap-[4px]">
-          {{ t('apiScenario.sum') }}
-          <div class="text-[rgb(var(--primary-5))]">{{ totalStepCount }}</div>
-          {{ t('apiScenario.steps') }}
-        </div>
-      </div>
-      <div class="action-group">
-        <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAllStep') : t('apiScenario.expandAllStep')">
-          <a-button
+    <a-spin class="h-full w-full" :loading="loading">
+      <div class="action-line">
+        <div class="action-group">
+          <a-checkbox
             v-show="scenario.steps.length > 0"
-            type="outline"
-            class="expand-step-btn arco-btn-outline--secondary"
-            size="mini"
-            @click="expandAllStep"
-          >
-            <MsIcon v-if="isExpandAll" type="icon-icon_comment_collapse_text_input" />
-            <MsIcon v-else type="icon-icon_comment_expand_text_input" />
-          </a-button>
-        </a-tooltip>
-        <template v-if="checkedAll || indeterminate">
-          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchEnable">
-            {{ t('common.batchEnable') }}
-          </a-button>
-          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDisable">
-            {{ t('common.batchDisable') }}
-          </a-button>
-          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDebug">
-            {{ t('common.batchDebug') }}
-          </a-button>
-          <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDelete">
-            {{ t('common.batchDelete') }}
-          </a-button>
-        </template>
-      </div>
-      <div class="action-group ml-auto">
-        <template v-if="scenario.executeTime">
-          <div class="action-group">
-            <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
-            <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
-          </div>
-          <div class="action-group">
-            <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
-            <div class="flex items-center gap-[4px]">
-              <div class="text-[var(--color-text-1)]">{{ t('common.success') }}</div>
-              <div class="text-[rgb(var(--success-6))]">{{ scenario.executeSuccessCount }}</div>
-            </div>
-            <div class="flex items-center gap-[4px]">
-              <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
-              <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
-            </div>
-            <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
-              {{ t('apiScenario.checkReport') }}
-            </MsButton>
-          </div>
-        </template>
-        <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
-          <a-input
-            v-model:model-value="keyword"
-            :placeholder="t('apiScenario.searchByName')"
-            allow-clear
-            class="w-[200px]"
+            v-model:model-value="checkedAll"
+            :indeterminate="indeterminate"
+            :disabled="scenarioExecuteLoading"
+            @change="handleChangeAll"
           />
-          <a-button
-            v-if="!props.isNew"
-            type="outline"
-            class="arco-btn-outline--secondary !mr-0 !p-[8px]"
-            @click="refreshStepInfo"
-          >
-            <template #icon>
-              <icon-refresh class="text-[var(--color-text-4)]" />
-            </template>
-          </a-button>
+          <div class="flex items-center gap-[4px]">
+            {{ t('apiScenario.sum') }}
+            <div class="text-[rgb(var(--primary-5))]">{{ totalStepCount }}</div>
+            {{ t('apiScenario.steps') }}
+          </div>
+        </div>
+        <div class="action-group">
+          <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAllStep') : t('apiScenario.expandAllStep')">
+            <a-button
+              v-show="scenario.steps.length > 0"
+              type="outline"
+              class="expand-step-btn arco-btn-outline--secondary"
+              size="mini"
+              @click="expandAllStep"
+            >
+              <MsIcon v-if="isExpandAll" type="icon-icon_comment_collapse_text_input" />
+              <MsIcon v-else type="icon-icon_comment_expand_text_input" />
+            </a-button>
+          </a-tooltip>
+          <template v-if="checkedAll || indeterminate">
+            <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchEnable">
+              {{ t('common.batchEnable') }}
+            </a-button>
+            <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDisable">
+              {{ t('common.batchDisable') }}
+            </a-button>
+            <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDebug">
+              {{ t('common.batchDebug') }}
+            </a-button>
+            <a-button type="outline" size="mini" :disabled="scenarioExecuteLoading" @click="batchDelete">
+              {{ t('common.batchDelete') }}
+            </a-button>
+          </template>
+        </div>
+        <div class="action-group ml-auto">
+          <template v-if="scenario.executeTime">
+            <div class="action-group">
+              <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
+              <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
+            </div>
+            <div class="action-group">
+              <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="text-[var(--color-text-1)]">{{ t('common.success') }}</div>
+                <div class="text-[rgb(var(--success-6))]">{{ scenario.executeSuccessCount }}</div>
+              </div>
+              <div class="flex items-center gap-[4px]">
+                <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
+                <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
+              </div>
+              <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
+                {{ t('apiScenario.checkReport') }}
+              </MsButton>
+            </div>
+          </template>
+          <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
+            <a-input
+              v-model:model-value="keyword"
+              :placeholder="t('apiScenario.searchByName')"
+              allow-clear
+              class="w-[200px]"
+            />
+            <a-tooltip v-if="!props.isNew" position="left" :content="t('apiScenario.refreshRefScenario')">
+              <a-button type="outline" class="arco-btn-outline--secondary !mr-0 !p-[8px]" @click="refreshStepInfo">
+                <template #icon>
+                  <icon-refresh class="text-[var(--color-text-4)]" />
+                </template>
+              </a-button>
+            </a-tooltip>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="h-[calc(100%-30px)]">
-      <stepTree
-        ref="stepTreeRef"
-        v-model:steps="scenario.steps"
-        v-model:checked-keys="checkedKeys"
-        v-model:stepKeyword="keyword"
-        v-model:scenario="scenario"
-        :expand-all="isExpandAll"
-        :step-details="scenario.stepDetails"
-        @update-resource="handleUpdateResource"
-      />
-    </div>
+      <div class="h-[calc(100%-30px)]">
+        <stepTree
+          ref="stepTreeRef"
+          v-model:selected-keys="selectedKeys"
+          v-model:steps="scenario.steps"
+          v-model:checked-keys="checkedKeys"
+          v-model:stepKeyword="keyword"
+          v-model:scenario="scenario"
+          :expand-all="isExpandAll"
+          :step-details="scenario.stepDetails"
+          @step-add="handleAddStepDone"
+          @update-resource="handleUpdateResource"
+        />
+      </div>
+    </a-spin>
   </div>
   <a-modal
     v-model:visible="batchToggleVisible"
@@ -120,18 +121,20 @@
   // import dayjs from 'dayjs';
 
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import stepTree from './stepTree.vue';
 
+  import { getScenarioDetail } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { deleteNodes, filterTree, getGenerateId, mapTree } from '@/utils';
+  import { deleteNodes, filterTree, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
-  import { ApiScenarioDebugRequest, Scenario } from '@/models/apiTest/scenario';
-  import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -148,11 +151,13 @@
     required: true,
   });
   const scenarioExecuteLoading = inject<Ref<boolean>>('scenarioExecuteLoading');
+  const loading = ref(false);
 
   const checkedAll = ref(false); // 是否全选
   const indeterminate = ref(false); // 是否半选
   const isExpandAll = ref(false); // 是否展开全部
   const checkedKeys = ref<(string | number)[]>([]); // 选中的key
+  const selectedKeys = ref<(string | number)[]>([]); // 没啥用，现在用来展示选中样式
   const stepTreeRef = ref<InstanceType<typeof stepTree>>();
   const keyword = ref('');
 
@@ -184,10 +189,17 @@
     }
   );
 
+  function handleAddStepDone() {
+    checkedKeys.value = [];
+    checkedAll.value = false;
+    indeterminate.value = false;
+  }
+
   watch(
-    () => scenario.value.steps.length,
+    () => scenario.value.id,
     () => {
       checkedKeys.value = [];
+      selectedKeys.value = [];
       checkedAll.value = false;
       indeterminate.value = false;
     }
@@ -259,8 +271,73 @@
     });
   }
 
-  function refreshStepInfo() {
-    console.log('刷新步骤信息');
+  /**
+   * 刷新引用场景的步骤数据
+   */
+  async function refreshStepInfo() {
+    try {
+      loading.value = true;
+      if (scenario.value.id) {
+        const res = await getScenarioDetail(scenario.value.id);
+        const refScenarioMap = new Map<string, ScenarioStepItem>();
+        traverseTree(
+          res.steps,
+          (node) => {
+            if (
+              node.stepType === ScenarioStepType.API_SCENARIO &&
+              [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.refType)
+            ) {
+              // 是引用的场景就存储起来
+              refScenarioMap.set(node.id, node as ScenarioStepItem);
+            }
+          },
+          (node) => {
+            // 是引用的场景就没必要再递归子孙节点了
+            return (
+              node.stepType !== ScenarioStepType.API_SCENARIO &&
+              [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.refType)
+            );
+          }
+        );
+        scenario.value.steps = mapTree(scenario.value.steps, (node) => {
+          const newStep = refScenarioMap.get(node.id);
+          if (newStep) {
+            node = {
+              ...cloneDeep(node), // 避免前端初始化的东西被丢弃
+              ...newStep,
+            };
+            node.children = mapTree(newStep.children || [], (child) => {
+              if (
+                child.parent &&
+                child.parent.stepType === ScenarioStepType.API_SCENARIO &&
+                [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(child.parent.refType)
+              ) {
+                // 如果根节点是引用场景
+                child.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+                child.isRefScenarioStep = child.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+                child.draggable = false; // 引用场景下的任何步骤不可拖拽
+              } else if (child.parent) {
+                // 如果有父节点
+                child.isQuoteScenarioStep = child.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
+                child.isRefScenarioStep = child.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+              }
+              if (selectedKeys.value.includes(node.id) && !selectedKeys.value.includes(child.id)) {
+                // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
+                selectedKeys.value.push(child.id);
+              }
+              return child;
+            }) as ScenarioStepItem[];
+          }
+          return node;
+        });
+        Message.success(t('apiScenario.updateRefScenarioSuccess'));
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   function batchDebug() {
@@ -272,14 +349,8 @@
           // 如果步骤未开启，则删除已选 id，方便下面waitingDebugStepDetails详情判断是否携带
           checkedKeysSet.delete(node.id);
           node.executeStatus = undefined;
-        } else if (
-          [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(node.stepType)
-        ) {
-          // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
-          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         } else {
-          // 其他类型步骤不显示执行状态
-          node.executeStatus = undefined;
+          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         }
         return !!node.enable;
       }
@@ -329,8 +400,9 @@
   .action-line {
     @apply flex items-center;
 
-    gap: 16px;
+    margin-bottom: 8px;
     height: 32px;
+    gap: 16px;
     .action-group {
       @apply flex items-center;
 

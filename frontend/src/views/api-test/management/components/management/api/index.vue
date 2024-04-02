@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-show="activeApiTab.id === 'all'" class="flex-1 pt-[16px]">
+    <div v-if="activeApiTab.id === 'all'" class="flex-1 pt-[16px]">
       <apiTable
-        ref="apiTableRef"
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
         :protocol="props.protocol"
+        :refresh-time-stamp="refreshTableTimeStamp"
         @open-api-tab="(record, isExecute) => openApiTab(record, false, isExecute)"
         @open-copy-api-tab="openApiTab($event, true)"
         @add-api-tab="addApiTab"
@@ -288,14 +288,14 @@
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];
   }
 
-  const apiTableRef = ref<InstanceType<typeof apiTable>>();
   const caseTableRef = ref<InstanceType<typeof caseTable>>();
+  const refreshTableTimeStamp = ref(0);
 
   watch(
     () => activeApiTab.value.id,
     (id) => {
       if (id === 'all') {
-        apiTableRef.value?.loadApiList();
+        refreshTableTimeStamp.value = Date.now();
       }
     }
   );
@@ -363,7 +363,7 @@
   }
 
   function refreshTable() {
-    apiTableRef.value?.loadApiList();
+    refreshTableTimeStamp.value = Date.now();
   }
 
   function changeDefinitionActiveKey(val: string | number) {

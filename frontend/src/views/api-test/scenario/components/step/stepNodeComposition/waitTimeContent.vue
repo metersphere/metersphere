@@ -10,6 +10,7 @@
         hide-button
         :precision="0"
         model-event="input"
+        :disabled="props.disabled"
         @blur="handleInputChange"
       >
         <template #prefix>
@@ -30,6 +31,7 @@
 
   const props = defineProps<{
     data: WaitTimeContentProps;
+    disabled: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'change', innerData: WaitTimeContentProps): void;

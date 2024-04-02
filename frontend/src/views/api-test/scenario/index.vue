@@ -157,65 +157,48 @@
   const currentEnvConfig = ref<EnvConfig>();
   const executeButtonRef = ref<InstanceType<typeof executeButton>>();
 
-  const websocket = ref<WebSocket>();
-  const temporaryScenarioReportMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const websocketMap: Record<string | number, WebSocket> = {};
 
-  function setStepExecuteStatus() {
-    updateStepStatus(activeScenarioTab.value.steps, activeScenarioTab.value.stepResponses);
+  function setStepExecuteStatus(scenario: Scenario) {
+    updateStepStatus(scenario.steps, scenario.stepResponses);
   }
 
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(reportId?: string | number, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
-    websocket.value = getSocket(
-      reportId || '',
+  function debugSocket(scenario: Scenario, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+    websocketMap[scenario.reportId] = getSocket(
+      scenario.reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
       executeType === 'localExec' ? localExecuteUrl : ''
     );
-    websocket.value.addEventListener('message', (event) => {
+    websocketMap[scenario.reportId].addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
-        if (activeScenarioTab.value.reportId === data.reportId) {
+        if (scenario.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
-            if (activeScenarioTab.value.stepResponses[result.stepId] === undefined) {
-              activeScenarioTab.value.stepResponses[result.stepId] = [];
+            if (scenario.stepResponses[result.stepId] === undefined) {
+              scenario.stepResponses[result.stepId] = [];
             }
-            activeScenarioTab.value.stepResponses[result.stepId].push({
+            scenario.stepResponses[result.stepId].push({
               ...result,
               console: data.taskResult.console,
             });
             if (result.isSuccessful) {
-              activeScenarioTab.value.executeSuccessCount += 1;
+              scenario.executeSuccessCount += 1;
             } else {
-              activeScenarioTab.value.executeFailCount += 1;
-            }
-          });
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          data.taskResult.requestResults.forEach((result) => {
-            if (activeScenarioTab.value.reportId) {
-              if (temporaryScenarioReportMap[activeScenarioTab.value.reportId] === undefined) {
-                temporaryScenarioReportMap[activeScenarioTab.value.reportId] = {};
-              }
-              if (temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId]) {
-                temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId] = [];
-              }
-              temporaryScenarioReportMap[activeScenarioTab.value.reportId][result.stepId].push({
-                ...result,
-                console: data.taskResult.console,
-              });
+              scenario.executeFailCount += 1;
             }
           });
         }
       } else if (data.msgType === 'EXEC_END') {
         // 执行结束，关闭websocket
-        websocket.value?.close();
-        if (activeScenarioTab.value.reportId === data.reportId) {
-          activeScenarioTab.value.executeLoading = false;
-          activeScenarioTab.value.isExecute = false;
-          setStepExecuteStatus();
+        websocketMap[scenario.reportId]?.close();
+        if (scenario.reportId === data.reportId) {
+          scenario.executeLoading = false;
+          scenario.isExecute = false;
+          setStepExecuteStatus(scenario);
         }
       }
     });
@@ -236,7 +219,6 @@
   ) {
     try {
       activeScenarioTab.value.executeLoading = true;
-      debugSocket(executeParams.reportId, executeType, localExecuteUrl); // 开启websocket
       // 重置执行结果
       activeScenarioTab.value.executeTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
       activeScenarioTab.value.executeSuccessCount = 0;
@@ -244,6 +226,7 @@
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
       activeScenarioTab.value.isDebug = !isExecute;
+      debugSocket(activeScenarioTab.value, executeType, localExecuteUrl); // 开启websocket
       let res;
       if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
         // 执行场景且非本地执行且非未保存场景
@@ -289,9 +272,9 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      websocket.value?.close();
+      websocketMap[activeScenarioTab.value.reportId]?.close();
       activeScenarioTab.value.executeLoading = false;
-      setStepExecuteStatus();
+      setStepExecuteStatus(activeScenarioTab.value);
     }
   }
 
@@ -306,12 +289,6 @@
       if (node.enable) {
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
-        if (
-          [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(node.stepType)
-        ) {
-          // 请求和场景类型才直接显示执行中，其他控制器需要等待执行完毕才结算执行结果
-          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
-        }
       }
       return !!node.enable;
     });
@@ -328,63 +305,59 @@
   }
 
   function handleStopExecute() {
-    websocket.value?.close();
+    websocketMap[activeScenarioTab.value.reportId]?.close();
     activeScenarioTab.value.executeLoading = false;
-    setStepExecuteStatus();
+    setStepExecuteStatus(activeScenarioTab.value);
   }
-
-  watch(
-    () => activeScenarioTab.value.id,
-    (val) => {
-      if (val !== 'all' && activeScenarioTab.value.reportId && !activeScenarioTab.value.executeLoading) {
-        // 当前查看的 tab 非全部场景 tab 页，且当前场景有报告ID，且不是正在执行中，则读取缓存报告
-        const cacheReport = temporaryScenarioReportMap[activeScenarioTab.value.reportId];
-        if (cacheReport) {
-          // 如果有缓存的报告未读取，则直接赋值
-          Object.keys(cacheReport).forEach((stepId) => {
-            const result = cacheReport[stepId];
-            activeScenarioTab.value.stepResponses[stepId] = result;
-            if (result.isSuccessful) {
-              activeScenarioTab.value.executeSuccessCount += 1;
-            } else {
-              activeScenarioTab.value.executeFailCount += 1;
-            }
-          });
-          activeScenarioTab.value.executeLoading = false;
-          delete temporaryScenarioReportMap[activeScenarioTab.value.reportId]; // 取完释放缓存
-          setStepExecuteStatus();
-        }
-      }
-    }
-  );
 
   function newTab(defaultScenarioInfo?: Scenario, action?: 'copy' | 'execute') {
     if (defaultScenarioInfo) {
       const isCopy = action === 'copy';
       let copySteps: ScenarioStepItem[] = [];
       if (isCopy) {
-        copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
-          return {
-            ...node,
-            copyFromStepId: node.id,
-            id: getGenerateId(),
-          };
-        });
-      } else {
+        // 场景被复制，递归处理节点，增加copyFromStepId
         copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
           if (
             node.parent &&
             node.parent.stepType === ScenarioStepType.API_SCENARIO &&
             [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
           ) {
-            // 如果父节点是引用场景
+            // 如果根节点是引用场景
             node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
-            node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为引用场景下的子步骤
+            node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+            node.draggable = false; // 引用场景下的任何步骤不可拖拽
+            node.id = getGenerateId(); // 重新生成 ID
           } else if (node.parent) {
             // 如果有父节点
             node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
             node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
           }
+          if (!node.isQuoteScenarioStep && !node.isRefScenarioStep) {
+            // 非引用场景步骤
+            node.id = getGenerateId(); // 重新生成 ID
+          }
+          node.copyFromStepId = node.id;
+          node.uniqueId = getGenerateId();
+          return node;
+        });
+      } else {
+        // 正常打开场景详情，递归处理节点，标记引用场景下的子步骤
+        copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
+          if (
+            node.parent &&
+            node.parent.stepType === ScenarioStepType.API_SCENARIO &&
+            [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
+          ) {
+            // 如果根节点是引用场景
+            node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+            node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+            node.draggable = false; // 引用场景下的任何步骤不可拖拽
+          } else if (node.parent) {
+            // 如果有父节点
+            node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
+            node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+          }
+          node.uniqueId = getGenerateId();
           return node;
         });
       }
@@ -392,6 +365,7 @@
         ...defaultScenarioInfo,
         steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
+        uniqueId: getGenerateId(),
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         name: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         isNew: isCopy,

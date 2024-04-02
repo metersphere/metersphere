@@ -1,6 +1,6 @@
 <template>
   <a-popover
-    position="br"
+    position="lt"
     content-class="scenario-step-response-popover"
     @popup-visible-change="emit('visibleChange', $event, props.step)"
   >
@@ -8,8 +8,18 @@
     <template #content>
       <div class="flex h-full flex-col">
         <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
-        <div class="flex-1">
+        <div class="flex-1 overflow-y-hidden">
+          <div v-if="step.stepType === ScenarioStepType.SCRIPT" class="flex h-full flex-col p-[8px]">
+            <div class="mb-[8px] flex gap-[8px] text-[14px] font-medium text-[var(--color-text-1)]">
+              {{ t('apiScenario.executionResult') }}
+              <div class="one-line-text text-[var(--color-text-4)]">({{ step.name }})</div>
+            </div>
+            <div class="flex-1 bg-[var(--color-text-n9)] p-[12px]">
+              <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+            </div>
+          </div>
           <responseResult
+            v-else
             :active-tab="ResponseComposition.BODY"
             :request-result="currentResponse"
             :console="currentResponse?.console"
@@ -40,7 +50,7 @@
 
   import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { ResponseComposition, ScenarioExecuteStatus } from '@/enums/apiEnum';
+  import { ResponseComposition, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
   const responseResult = defineAsyncComponent(
     () => import('@/views/api-test/components/requestComposition/response/index.vue')
@@ -55,12 +65,12 @@
   const { t } = useI18n();
 
   const currentLoop = ref(1);
-  const currentResponse = computed(() => props.stepResponses?.[props.step.id]?.[currentLoop.value - 1]);
-  const loopTotal = computed(() => props.stepResponses?.[props.step.id]?.length || 0);
+  const currentResponse = computed(() => props.stepResponses?.[props.step.uniqueId]?.[currentLoop.value - 1]);
+  const loopTotal = computed(() => props.stepResponses?.[props.step.uniqueId]?.length || 0);
   const finalExecuteStatus = computed(() => {
-    if (props.stepResponses[props.step.id] && props.stepResponses[props.step.id].length > 0) {
+    if (props.stepResponses[props.step.uniqueId] && props.stepResponses[props.step.uniqueId].length > 0) {
       // 有一次失败就是失败
-      return props.stepResponses[props.step.id].some((report) => !report.isSuccessful)
+      return props.stepResponses[props.step.uniqueId].some((report) => !report.isSuccessful)
         ? ScenarioExecuteStatus.FAILED
         : ScenarioExecuteStatus.SUCCESS;
     }
@@ -74,6 +84,13 @@
     height: 500px;
     .arco-popover-content {
       @apply h-full;
+      .response-header-pre {
+        @apply h-full overflow-auto bg-white;
+        .ms-scroll-bar();
+
+        padding: 8px 12px;
+        border-radius: var(--border-radius-small);
+      }
       .response {
         .response-head {
           background-color: var(--color-text-n9);
