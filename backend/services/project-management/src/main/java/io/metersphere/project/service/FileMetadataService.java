@@ -529,6 +529,7 @@ public class FileMetadataService {
         fileMetadata.setProjectId(oldFile.getProjectId());
         fileMetadata.setModuleId(oldFile.getModuleId());
         fileMetadata.setName(oldFile.getName());
+        fileMetadata.setOriginalName(oldFile.getOriginalName());
         fileMetadata.setCreateTime(oldFile.getCreateTime());
         fileMetadata.setCreateUser(oldFile.getCreateUser());
         fileMetadata.setUpdateTime(operationTime);
@@ -539,11 +540,11 @@ public class FileMetadataService {
         fileMetadata.setLatest(true);
     }
 
-    public String pullFile(String fileId, String operator) {
-        FileMetadata oldFile = fileMetadataMapper.selectByPrimaryKey(fileId);
-        String returnFileId = fileId;
+    public String pullFile(String paramFileId, String operator) {
+        FileMetadata oldFile = extFileMetadataMapper.selectLatestById(paramFileId);
+        String returnFileId = oldFile.getId();
         if (StringUtils.equals(oldFile.getStorage(), StorageType.GIT.name())) {
-            FileMetadataRepository metadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
+            FileMetadataRepository metadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(oldFile.getId());
             FileModuleRepository moduleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(oldFile.getModuleId());
             if (metadataRepository != null && moduleRepository != null) {
 
@@ -606,7 +607,7 @@ public class FileMetadataService {
         List<String> fileIdList = fileMetadataList.stream().map(FileMetadata::getId).toList();
         FileMetadataRepositoryExample repositoryExample = new FileMetadataRepositoryExample();
         repositoryExample.createCriteria().andFileMetadataIdIn(fileIdList);
-        List<FileMetadataRepository> fileMetadataRepositoryList = fileMetadataRepositoryMapper.selectByExample(repositoryExample);
+        List<FileMetadataRepository> fileMetadataRepositoryList = fileMetadataRepositoryMapper.selectByExampleWithBLOBs(repositoryExample);
         Map<String, FileMetadataRepository> fileIdMap = fileMetadataRepositoryList.stream().collect(Collectors.toMap(FileMetadataRepository::getFileMetadataId, Function.identity()));
 
         //用户ID-用户名的映射
