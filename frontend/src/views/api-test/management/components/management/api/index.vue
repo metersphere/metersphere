@@ -296,8 +296,7 @@
     (id) => {
       if (id === 'all') {
         refreshTableTimeStamp.value = Date.now();
-      }
-      if (activeApiTab.value.definitionActiveKey === 'case') {
+      } else if (activeApiTab.value.definitionActiveKey === 'case') {
         caseTableRef.value?.loadCaseList();
       }
     }
