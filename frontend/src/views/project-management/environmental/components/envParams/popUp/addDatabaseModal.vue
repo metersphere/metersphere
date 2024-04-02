@@ -34,11 +34,11 @@
           />
         </a-form-item>
         <a-form-item
-          field="driver"
+          field="driverId"
           required
           asterisk-position="end"
           :label="t('project.environmental.database.driver')"
-          :rules="[{ required: true, message: t('project.environmental.database.urlIsRequire') }]"
+          :rules="[{ required: true, message: t('project.environmental.database.driverIsRequire') }]"
         >
           <a-select v-model="form.driverId" :options="driverOption" />
         </a-form-item>
