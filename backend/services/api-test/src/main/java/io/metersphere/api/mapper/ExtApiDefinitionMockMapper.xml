@@ -35,7 +35,7 @@
             m.expect_num like concat('%', #{request.keyword},'%')
             or m.name like concat('%', #{request.keyword},'%')
             or d.path like concat('%', #{request.keyword},'%')
-            or m.tags like JSON_CONTAINS(m.tags, concat('["',#{request.keyword},'"]'))
+            or m.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">

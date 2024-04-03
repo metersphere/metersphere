@@ -734,7 +734,7 @@ public class TestPlanTests extends BaseTest {
 
             //测试根据名称模糊查询： Plan_2  预期结果： a1Node下有11条（testPlan_2,testPlan_20~testPlan_29), a1b1Node下有100条（testPlan_200~testPlan_299）
             testPlanTableRequest.setModuleIds(null);
-            testPlanTableRequest.setKeyword("Plan_2");
+            testPlanTableRequest.initKeyword("Plan_2");
             moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
             moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
@@ -752,7 +752,7 @@ public class TestPlanTests extends BaseTest {
 
 
             //测试根据名称模糊查询（包含测试组的）： Plan_7  预期结果： a1Node下有1条（testPlan_7), a2Node下有10条（testPlan_70~testPlan_79）,a1b1Node下有100条（testPlan_700~testPlan_799）
-            testPlanTableRequest.setKeyword("Plan_7");
+            testPlanTableRequest.initKeyword("Plan_7");
             testPlanTableRequest.setSort(new HashMap<>() {{
                 this.put("num", "asc");
             }});
@@ -1775,7 +1775,7 @@ public class TestPlanTests extends BaseTest {
         request = new TestPlanBatchProcessRequest();
         request.setProjectId(project.getId());
         request.setSelectAll(true);
-        request.getCondition().setKeyword("plan_2");
+        request.getCondition().initKeyword("plan_2");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         allDataInDB = allDataInDB - (1 + 10 + 100);
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
@@ -1806,7 +1806,7 @@ public class TestPlanTests extends BaseTest {
         request = new TestPlanBatchProcessRequest();
         request.setSelectAll(true);
         request.setModuleIds(Arrays.asList(a1b1Node.getId()));
-        request.getCondition().setKeyword("planSty");
+        request.getCondition().initKeyword("planSty");
         request.setProjectId(project.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));

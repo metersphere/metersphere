@@ -75,7 +75,7 @@
             and (
             functional_case.name like concat('%', #{request.keyword},'%')
             or functional_case.num like concat('%', #{request.keyword},'%')
-            or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or functional_case.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="filters">
@@ -348,7 +348,7 @@
             and (
             functional_case.name like concat('%', #{request.keyword},'%')
             or functional_case.num like concat('%', #{request.keyword},'%')
-            or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or functional_case.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="filters">

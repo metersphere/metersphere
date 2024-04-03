@@ -368,7 +368,7 @@
             and (
             atc.name like concat('%', #{request.condition.keyword},'%')
             or atc.num like concat('%', #{request.condition.keyword},'%')
-            or atc.tags like JSON_CONTAINS(atc.tags, concat('["',#{request.condition.keyword},'"]'))
+            or atc.tags like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
@@ -400,7 +400,7 @@
             atc.name like concat('%', #{request.keyword},'%')
             or atc.num like concat('%', #{request.keyword},'%')
             or a.path like concat('%', #{request.keyword},'%')
-            or atc.tags like JSON_CONTAINS(atc.tags, concat('["',#{request.keyword},'"]'))
+            or atc.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">

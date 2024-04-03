@@ -19,7 +19,7 @@
         <if test="request.keyword != null and request.keyword != ''">
             and (
             c.name like concat('%', #{request.keyword},'%')
-            or c.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or c.tags like concat('%', #{request.keyword},'%')
             )
         </if>
 
