@@ -113,7 +113,6 @@
           :disabled="props.disabledExceptParam"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="ms-form-table-input"
-          :max-length="255"
           size="mini"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         />
@@ -205,7 +204,6 @@
           :disabled="props.disabledParamValue"
           class="ms-form-table-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
-          :max-length="255"
           size="mini"
           @input="() => addTableLine(rowIndex)"
         />

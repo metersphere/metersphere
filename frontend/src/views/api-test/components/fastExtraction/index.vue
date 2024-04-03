@@ -115,7 +115,7 @@
       </div>
       <div class="match-result">
         <div v-if="isMatched && matchResult.length === 0">{{ t('apiTestDebug.noMatchResult') }}</div>
-        <pre v-for="(e, i) of matchResult" :key="i">{{ e }}</pre>
+        <pre v-for="(e, i) of matchResult" :key="i">{{ `${e}` }}</pre>
       </div>
     </div>
     <a-collapse
@@ -184,6 +184,7 @@
   const innerVisible = useVModel(props, 'visible', emit);
   const expressionForm = ref({ ...props.config });
   const expressionFormRef = ref<typeof FormInstance>();
+  const parseJson = ref<string | Record<string, any>>({});
   const matchResult = ref<any[]>([]); // 当前匹配结果
   const isMatched = ref(false); // 是否执行过匹配
 
@@ -198,8 +199,9 @@
     }
   );
 
-  function handlePathPick(xpath: string) {
-    expressionForm.value.expression = xpath;
+  function handlePathPick(path: string, _parseJson: string | Record<string, any>) {
+    expressionForm.value.expression = path;
+    parseJson.value = _parseJson;
   }
 
   /*
@@ -231,9 +233,9 @@
         try {
           matchResult.value =
             JSONPath({
-              json: props.response ? JSON.parse(props.response) : '',
+              json: parseJson.value,
               path: expressionForm.value.expression,
-            }) || [];
+            })?.map((e) => e.toString().replace(/Number\(([^)]+)\)/g, '$1')) || [];
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
         }

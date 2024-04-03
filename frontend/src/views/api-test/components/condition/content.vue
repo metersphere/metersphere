@@ -48,9 +48,9 @@
       <div class="flex items-center justify-between">
         <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]" @change="emit('change')">
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
-          <a-radio v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ'])" :value="true">{{
-            t('apiTestDebug.quote')
-          }}</a-radio>
+          <a-radio v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ'])" :value="true">
+            {{ t('apiTestDebug.quote') }}
+          </a-radio>
         </a-radio-group>
         <div v-if="props.showAssociatedScene" class="flex items-center">
           <a-switch
@@ -134,7 +134,6 @@
           </div>
           <div class="flex items-center gap-[8px]">
             <a-button
-              v-if="props.isFormat"
               :disabled="props.disabled"
               type="outline"
               class="arco-btn-outline--secondary p-[0_8px]"
@@ -146,18 +145,6 @@
               </template>
               {{ t('project.commonScript.formatting') }}
             </a-button>
-            <!--            <a-button-->
-            <!--              :disabled="props.disabled"-->
-            <!--              type="outline"-->
-            <!--              class="arco-btn-outline&#45;&#45;secondary p-[0_8px]"-->
-            <!--              size="mini"-->
-            <!--              @click="undoScript"-->
-            <!--            >-->
-            <!--              <template #icon>-->
-            <!--                <MsIcon type="icon-icon_undo_outlined" class="text-var(&#45;&#45;color-text-4)" size="12" />-->
-            <!--              </template>-->
-            <!--              {{ t('common.revoke') }}-->
-            <!--            </a-button>-->
             <a-button
               :disabled="props.disabled"
               type="outline"
@@ -312,14 +299,8 @@
         />
       </div>
       <div class="sql-table-container">
-        <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
+        <div class="mb-[8px] text-[var(--color-text-1)]">
           {{ t('apiTestDebug.extractParameter') }}
-          <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
         </div>
         <paramTable
           :params="condition.extractParams"
@@ -331,7 +312,15 @@
         />
       </div>
       <div class="mt-[16px]">
-        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
+        <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
+          {{ t('apiTestDebug.storageByResult') }}
+          <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
         <a-input
           v-model:model-value="condition.resultVariable"
           :disabled="props.disabled"
@@ -398,7 +387,7 @@
               @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
-                <a-tooltip :disabled="!disabledExpressionSuffix">
+                <a-tooltip v-if="!props.disabled" :disabled="!!props.response">
                   <template #content>
                     <div>{{ t('apiTestDebug.expressionTip1') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
@@ -407,11 +396,7 @@
                   <MsIcon
                     type="icon-icon_flashlamp"
                     :size="15"
-                    :class="
-                      disabledExpressionSuffix || props.disabled
-                        ? 'ms-params-input-suffix-icon--disabled'
-                        : 'ms-params-input-suffix-icon'
-                    "
+                    :class="!props.response ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'"
                     @click.stop="() => showFastExtraction(record)"
                   />
                 </a-tooltip>
@@ -522,7 +507,6 @@
       requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略
       totalList?: ExecuteConditionProcessor[]; // 总列表
-      isFormat?: boolean;
     }>(),
     {
       showAssociatedScene: false,
@@ -745,16 +729,16 @@ if (!result){
       slotName: 'extractType',
       typeOptions: [
         {
-          label: t('apiTestDebug.regular'),
-          value: RequestExtractExpressionEnum.REGEX,
-        },
-        {
           label: 'JSONPath',
           value: RequestExtractExpressionEnum.JSON_PATH,
         },
         {
           label: 'XPath',
           value: RequestExtractExpressionEnum.X_PATH,
+        },
+        {
+          label: t('apiTestDebug.regular'),
+          value: RequestExtractExpressionEnum.REGEX,
         },
       ],
       width: 120,
@@ -822,7 +806,6 @@ if (!result){
       width: 80,
     },
   ];
-  const disabledExpressionSuffix = ref(false);
 
   function handleExtractParamTableChange(resultArr: any[], isInit?: boolean) {
     condition.value.extractors = [...resultArr];
@@ -838,7 +821,7 @@ if (!result){
     variableType: RequestExtractEnvType.TEMPORARY,
     extractScope: RequestExtractScope.BODY,
     expression: '',
-    extractType: RequestExtractExpressionEnum.REGEX,
+    extractType: RequestExtractExpressionEnum.JSON_PATH,
     expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
     resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
     resultMatchingRuleNum: 1,
@@ -849,7 +832,7 @@ if (!result){
   const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
   function showFastExtraction(record: ExpressionConfig) {
-    if (props.disabled) return;
+    if (props.disabled || !props.response) return;
     activeRecord.value = { ...record };
     fastExtractionVisible.value = true;
   }

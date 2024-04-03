@@ -9,26 +9,28 @@
     @close="handleClose"
     @cancel="handleDrawerCancel"
   >
-    <div class="ml-[16px] mt-[10px]">
-      <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
-      {{ t('apiScenario.scriptOperationName') }}
-    </div>
-    <div class="ml-[16px] mt-[3px] max-w-[70%]">
-      <a-input
-        v-model="scriptName"
-        :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
-        :max-length="255"
-        size="small"
-      />
-    </div>
-    <div class="mt-[10px] flex flex-1 gap-[8px]">
-      <conditionContent v-if="visible" v-model:data="activeItem" :is-build-in="true" :is-format="true" />
-    </div>
-    <div v-if="currentResponse?.console" class="p-[8px]">
-      <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
-      <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
-      <div class="h-[300px] bg-[var(--color-text-n9)] p-[12px]">
-        <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+    <div class="flex h-full flex-col">
+      <div class="ml-[16px] mt-[10px]">
+        <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
+        {{ t('apiScenario.scriptOperationName') }}
+      </div>
+      <div class="ml-[16px] mt-[3px] max-w-[70%]">
+        <a-input
+          v-model="scriptName"
+          :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
+          :max-length="255"
+          size="small"
+        />
+      </div>
+      <div class="mt-[10px] flex flex-1 gap-[8px]">
+        <conditionContent v-if="visible" v-model:data="activeItem" :is-build-in="true" />
+      </div>
+      <div v-if="currentResponse?.console" class="p-[8px]">
+        <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
+        <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+        <div class="h-[300px] bg-[var(--color-text-n9)] p-[12px]">
+          <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+        </div>
       </div>
     </div>
     <template v-if="!props.detail" #footer>

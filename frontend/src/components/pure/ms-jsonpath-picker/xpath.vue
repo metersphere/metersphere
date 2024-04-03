@@ -48,21 +48,27 @@
       const sameNodesIndex = document.evaluate(
         `count(ancestor-or-self::*/preceding-sibling::${node.nodeName}) + 1`,
         node,
-        null,
+        (prefix) => {
+          // 获取 XML 文档的根元素
+          const root = node.ownerDocument.documentElement;
+          // 从根元素获取命名空间的 URI
+          const nsUri = root.getAttributeNS('http://www.w3.org/2000/xmlns/', prefix || '');
+          return nsUri || null;
+        },
         XPathResult.NUMBER_TYPE,
         null
       ).numberValue; // 这里是执行 XPATH 表达式，获取当前节点在同级节点中的下标
 
-      const xpath = `${currentPath}/${node.tagName}[${sameNodesIndex}]`; // 拼接规则：当前路径/当前节点名[当前节点在同级同名节点中的下标]
-      tempXmls.value.push({ content: node.tagName, xpath });
+      const xpath = `${currentPath}/${node.nodeName}[${sameNodesIndex}]`; // 拼接规则：当前路径/当前节点名[当前节点在同级同名节点中的下标]
+      tempXmls.value.push({ content: node.nodeName, xpath });
       const children = Array.from(node.children);
       children.forEach((child) => {
         flattenXml(child, xpath); // 递归处理子节点
       });
     } else {
       // 同级的同名节点数量等于 1 时，不需要给当前节点名的 xpath 添加下标，因为这个标签是唯一的
-      const xpath = `${currentPath}/${node.tagName}`;
-      tempXmls.value.push({ content: node.tagName, xpath });
+      const xpath = `${currentPath}/${node.nodeName}`;
+      tempXmls.value.push({ content: node.nodeName, xpath });
       const children = Array.from(node.children);
       children.forEach((child) => {
         flattenXml(child, xpath);

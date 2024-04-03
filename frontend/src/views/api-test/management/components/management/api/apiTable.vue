@@ -9,6 +9,7 @@
           class="mr-[8px] w-[240px]"
           @search="loadApiList"
           @press-enter="loadApiList"
+          @clear="loadApiList"
         />
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList">
           <template #icon>

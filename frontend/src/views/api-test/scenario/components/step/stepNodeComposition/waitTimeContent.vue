@@ -5,9 +5,8 @@
         v-model:model-value="innerData.delay"
         class="max-w-[500px] px-[8px]"
         size="mini"
-        :step="1"
+        :step="1000"
         :min="0"
-        hide-button
         :precision="0"
         model-event="input"
         :disabled="props.disabled"
