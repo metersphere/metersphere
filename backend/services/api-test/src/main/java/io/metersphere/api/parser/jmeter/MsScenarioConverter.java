@@ -263,12 +263,12 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
     }
 
     private void addScenarioProcessor(HashTree tree, MsScenario msScenario, ParameterConfig config, boolean isPre) {
-        if (isCopy(msScenario.getRefType())) {
+        // 获取场景前后置
+        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
+        if (isCopy(msScenario.getRefType()) || scenarioConfig == null) {
             // 复制的场景，没有前后置
             return;
         }
-        // 获取场景前后置
-        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         MsProcessorConfig processorConfig = isPre ? scenarioConfig.getPreProcessorConfig() : scenarioConfig.getPostProcessorConfig();
 
         if (processorConfig == null || CollectionUtils.isEmpty(processorConfig.getProcessors())) {

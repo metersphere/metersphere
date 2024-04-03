@@ -184,9 +184,6 @@ public class ApiScenarioReportService {
         BeanUtils.copyBean(scenarioReportDTO, scenarioReport);
         //需要查询出所有的步骤
         List<ApiScenarioReportStepDTO> scenarioReportSteps = extApiScenarioReportMapper.selectStepByReportId(id);
-        if (CollectionUtils.isEmpty(scenarioReportSteps)) {
-            throw new MSException(Translator.get("api_scenario_report_not_exist"));
-        }
         if (BooleanUtils.isFalse(scenarioReport.getIntegrated())) {
             ApiScenarioBlob apiScenarioBlob = extApiScenarioReportMapper.getScenarioBlob(id);
             if (apiScenarioBlob != null) {
@@ -236,12 +233,12 @@ public class ApiScenarioReportService {
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
         // TODO 查询修改
-        List<ApiScenarioReportStepDTO> steps = scenarioReportStepMap.get("NONE");
+        List<ApiScenarioReportStepDTO> steps = Optional.ofNullable(scenarioReportStepMap.get("NONE")).orElse(new ArrayList<>(0));
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
         getStepTree(steps, scenarioReportStepMap);
 
         scenarioReportDTO.setStepTotal(steps.size());
-        scenarioReportDTO.setRequestTotal(scenarioReportDTO.getErrorCount() + scenarioReportDTO.getPendingCount() + scenarioReportDTO.getSuccessCount() + scenarioReportDTO.getFakeErrorCount());
+        scenarioReportDTO.setRequestTotal(getRequestTotal(scenarioReportDTO));
         scenarioReportDTO.setChildren(steps);
 
         scenarioReportDTO.setStepErrorCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.ERROR.name(), step.getStatus())).count());
@@ -272,6 +269,10 @@ public class ApiScenarioReportService {
         scenarioReportDTO.setEnvironmentName(environmentName);
         scenarioReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(scenarioReport.getCreateUser()).getName());
         return scenarioReportDTO;
+    }
+
+    public long getRequestTotal(ApiScenarioReport report) {
+        return report.getErrorCount() + report.getPendingCount() + report.getSuccessCount() + report.getFakeErrorCount();
     }
 
     private static void getStepTree(List<ApiScenarioReportStepDTO> steps, Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap) {

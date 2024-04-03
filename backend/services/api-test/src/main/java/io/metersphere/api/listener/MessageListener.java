@@ -2,9 +2,11 @@ package io.metersphere.api.listener;
 
 import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.api.service.ApiReportSendNoticeService;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationScope;
@@ -38,6 +40,10 @@ public class MessageListener {
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
     @Resource
     private ApiScenarioBatchRunService apiScenarioBatchRunService;
+    @Resource
+    private ApiReportService apiReportService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
 
     @KafkaListener(id = MESSAGE_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TASK_TOPIC, groupId = MESSAGE_CONSUME_ID)
     public void messageConsume(ConsumerRecord<?, String> record) {
@@ -78,9 +84,8 @@ public class MessageListener {
             }
             ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
 
-            if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ApiReportStatus.ERROR.name())) {
-                // 如果是失败停止，清空队列，不继续执行
-                apiExecutionQueueService.deleteQueue(queue.getQueueId());
+            if (isStopOnFailure(dto, queue, resourceType)) {
+                // 失败停止，不执行后续任务
                 return;
             }
 
@@ -94,5 +99,31 @@ public class MessageListener {
         } catch (Exception e) {
             LogUtils.error("执行任务失败：", e);
         }
+    }
+
+    /**
+     * 处理失败停止后的报告处理
+     * @param dto
+     * @param queue
+     * @param resourceType
+     * @return
+     */
+    private boolean isStopOnFailure(ApiNoticeDTO dto, ExecutionQueue queue, ApiExecuteResourceType resourceType) {
+        if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ApiReportStatus.ERROR.name())) {
+            String reportId = queue.getRunModeConfig().isIntegratedReport() ? queue.getRunModeConfig().getCollectionReport().getReportId() : dto.getReportId();
+            if (resourceType.equals(ApiExecuteResourceType.API_SCENARIO)) {
+                apiScenarioBatchRunService.UpdateStopOnFailureReport(queue);
+            }
+            switch (resourceType) {
+                case API_CASE -> apiReportService.updateReportStatus(reportId, ApiReportStatus.ERROR.name());
+                case API_SCENARIO -> apiScenarioReportService.updateReportStatus(reportId, ApiReportStatus.ERROR.name());
+                default -> {
+                }
+            }
+            // 如果是失败停止，清空队列，不继续执行
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+            return true;
+        }
+        return false;
     }
 }
