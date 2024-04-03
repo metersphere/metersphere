@@ -25,6 +25,7 @@
     v-model:params="innerParams"
     :table-key="props.tableKey"
     :columns="columns"
+    :draggable="true"
     show-setting
     :selectable="true"
     :default-param-item="defaultParamItem"

@@ -19,6 +19,7 @@
   <paramTable
     :params="innerParams"
     :columns="columns"
+    :draggable="!props.disabledExceptParam"
     :disabled-param-value="props.disabledParamValue"
     :disabled-except-param="props.disabledExceptParam"
     :height-used="heightUsed"
