@@ -210,10 +210,15 @@
     }
   );
 
+  // 切换到第一个tab
+  function changeActiveApiTabTofirst() {
+    activeApiTab.value = apiTabs.value[0] as RequestParam;
+  }
+
   // 下拉框切换
   function currentTabChange(val: any) {
     apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
-    activeApiTab.value = apiTabs.value[0] as RequestParam;
+    changeActiveApiTabTofirst();
   }
 
   watch(
@@ -305,6 +310,7 @@
     refreshApiTable,
     handleApiUpdateFromModuleTree,
     handleDeleteApiFromModuleTree,
+    changeActiveApiTabTofirst,
   });
 </script>
 

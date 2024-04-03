@@ -18,7 +18,7 @@
             size="16"
           />
           <template #content>
-            <div>{{ props?.addTypeText || t('apiTestDebug.batchAddParamsTip1') }}</div>
+            <div v-if="props?.addTypeText">{{ props?.addTypeText }}</div>
             <div v-if="!props.noParamType">{{ t('apiTestDebug.batchAddParamsTip2') }}</div>
             <div>{{ t('apiTestDebug.batchAddParamsTip3') }}</div>
           </template>
@@ -35,6 +35,11 @@
         :show-full-screen="false"
         :show-theme-change="false"
       >
+        <template v-if="!props?.addTypeText" #rightTitle>
+          <div class="text-xs text-[var(--color-text-4)]">
+            {{ t('apiTestDebug.batchAddParamsTip1') }}
+          </div>
+        </template>
       </MsCodeEditor>
     </div>
   </MsDrawer>

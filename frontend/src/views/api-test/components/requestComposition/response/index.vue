@@ -24,10 +24,7 @@
               <icon-right :size="8" />
             </MsButton>
           </template>
-          <div
-            v-if="props.isEdit && props.requestResult?.responseResult?.responseCode"
-            class="ml-[4px] flex items-center"
-          >
+          <div v-if="props.isEdit && props.showResponseResultButton" class="ml-[4px] flex items-center">
             <MsButton
               type="text"
               :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]', '!mr-0']"
@@ -116,6 +113,7 @@
       isDefinition?: boolean;
       isResponseModel?: boolean;
       showEmpty?: boolean;
+      showResponseResultButton?: boolean; // 展示执行结果按钮
     }>(),
     {
       isExpanded: true,
@@ -212,6 +210,10 @@
       }
     }
   );
+
+  defineExpose({
+    setActiveResponse,
+  });
 </script>
 
 <style lang="less" scoped>

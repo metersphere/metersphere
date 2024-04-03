@@ -62,8 +62,8 @@
       />
     </a-form-item>
     <template v-if="props.isEdit">
-      <a-form-item field="createUser" :label="t('apiScenario.table.columns.createUser')" class="mb-[16px]">
-        <a-input :model-value="(scenario as ScenarioDetail).createUser" disabled />
+      <a-form-item field="createUserName" :label="t('apiScenario.table.columns.createUser')" class="mb-[16px]">
+        <a-input :model-value="(scenario as ScenarioDetail).createUserName" disabled />
       </a-form-item>
       <a-form-item field="createTime" :label="t('apiScenario.table.columns.createTime')" class="mb-[16px]">
         <a-input :model-value="dayjs((scenario as ScenarioDetail).createTime).format('YYYY-MM-DD HH:mm:ss')" disabled />
