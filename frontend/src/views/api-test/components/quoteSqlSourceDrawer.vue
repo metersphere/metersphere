@@ -130,10 +130,9 @@
   }
 
   function searchDataSource() {
+    propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];
     if (keyword.value.trim() !== '') {
       propsRes.value.data = propsRes.value.data.filter((e) => e.dataSource.includes(keyword.value));
-    } else {
-      propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];
     }
   }
 
