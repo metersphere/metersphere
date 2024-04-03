@@ -131,6 +131,7 @@
                         :form="detailInfo"
                         :allow-edit="true"
                         :form-rules="formItem"
+                        :form-api="fApi"
                         @update-success="updateSuccess"
                       />
                     </template>

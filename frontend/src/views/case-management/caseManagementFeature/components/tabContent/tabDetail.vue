@@ -326,6 +326,7 @@
       form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
       formRules?: FormRuleItem[]; // 编辑表单
+      formApi?: any;
     }>(),
     {
       allowEdit: true, // 是否允许编辑
@@ -504,13 +505,17 @@
     caseFormRef.value?.validate().then(async (res: any) => {
       if (!res) {
         try {
-          confirmLoading.value = true;
-          await updateCaseRequest(getParams());
-          Message.success(t('caseManagement.featureCase.editSuccess'));
-          isEditPreposition.value = false;
-          emit('updateSuccess');
+          props.formApi?.validate().then(async (valid: any) => {
+            if (valid === true) {
+              confirmLoading.value = true;
+              await updateCaseRequest(getParams());
+              Message.success(t('caseManagement.featureCase.editSuccess'));
+              isEditPreposition.value = false;
+              emit('updateSuccess');
+            }
+          });
         } catch (error) {
-          console.log(error);
+          // console.log(error);
         } finally {
           confirmLoading.value = false;
         }
