@@ -19,6 +19,7 @@
         :min="0"
         :step="100"
         :precision="0"
+        :max="600000"
         class="w-[180px]"
         :disabled="isDisabled"
       >
@@ -30,6 +31,7 @@
         v-model:model-value="form.responseTimeout"
         :min="0"
         :step="100"
+        :max="600000"
         :precision="0"
         class="w-[180px]"
         :disabled="isDisabled"

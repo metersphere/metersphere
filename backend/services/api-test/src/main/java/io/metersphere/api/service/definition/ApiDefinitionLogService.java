@@ -18,6 +18,7 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,7 +112,7 @@ public class ApiDefinitionLogService {
                 id,
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_RECYCLE,
                 apiDefinition.getName());
 
         dto.setMethod(HttpMethodConstants.GET.name());
@@ -128,7 +129,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchDelLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false, null);
     }
 
     /**
@@ -137,7 +138,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchUpdateLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), true);
+        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), true, null);
     }
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
@@ -160,7 +161,7 @@ public class ApiDefinitionLogService {
     }
 
     public void batchMoveLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), false, null);
     }
 
     public LogDTO followLog(String id) {
@@ -198,7 +199,7 @@ public class ApiDefinitionLogService {
                     request.getId(),
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_RECYCLE,
                     apiDefinition.getName());
             dto.setHistory(false);
             dto.setMethod(HttpMethodConstants.POST.name());
@@ -216,14 +217,14 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchRecoverLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.RECOVER.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.RECOVER.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
     /**
      * 删除回收站接口定义接口日志
      */
     public void batchTrashDelLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, ids, userId, OperationLogType.DELETE.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
     private ApiDefinitionDTO getOriginalValue(String id) {
@@ -239,13 +240,17 @@ public class ApiDefinitionLogService {
 
 
 
-    private void saveBatchLog(String projectId, List<String> ids, String userId, String operationType, boolean isHistory) {
+    private void saveBatchLog(String projectId, List<String> ids, String userId, String operationType, boolean isHistory, String logModule) {
+        if (StringUtils.isBlank(logModule)) {
+            logModule = OperationLogModule.API_TEST_MANAGEMENT_DEFINITION;
+        }
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             Project project = projectMapper.selectByPrimaryKey(projectId);
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(ids);
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            String finalLogModule = logModule;
             apiDefinitions.forEach(item -> {
                 ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
                 CommonBeanFactory.getBean(ApiDefinitionService.class).handleBlob(item.getId(), apiDefinitionDTO);
@@ -256,7 +261,7 @@ public class ApiDefinitionLogService {
                         item.getId(),
                         userId,
                         operationType,
-                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                        finalLogModule,
                         item.getName());
 
                 dto.setHistory(isHistory);

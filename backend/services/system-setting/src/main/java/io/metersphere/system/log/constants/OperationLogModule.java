@@ -24,8 +24,10 @@ public class OperationLogModule {
     public static final String API_TEST_MANAGEMENT_MOCK = "API_TEST_MANAGEMENT_MOCK";
     public static final String API_TEST_MANAGEMENT_CASE = "API_TEST_MANAGEMENT_CASE";
     // 场景管理
-    public static final String API_SCENARIO_MANAGEMENT_SCENARIO = "API_TEST_SCENARIO";
+    public static final String API_SCENARIO_MANAGEMENT_SCENARIO = "API_SCENARIO_MANAGEMENT_SCENARIO";
     public static final String API_SCENARIO_MANAGEMENT_MODULE = "API_SCENARIO_MANAGEMENT_MODULE";
+    public static final String API_TEST_SCENARIO_RECYCLE = "API_TEST_SCENARIO_RECYCLE";
+    public static final String API_TEST_MANAGEMENT_RECYCLE = "API_TEST_MANAGEMENT_RECYCLE";
 
     public static final String API_REPORT = "API_TEST_REPORT";
     public static final String AUTH_TITLE = "AUTH_TITLE";

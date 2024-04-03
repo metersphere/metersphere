@@ -204,4 +204,6 @@ export default {
   'system.config.memoryCleanup.saveCount': 'Reserved quantity',
   'system.config.memoryCleanup.saveCountTip':
     'Effective for all projects in the system, the system will clear unset change history in the early morning',
+  'system.config.memoryCleanup.numberTip':
+    'The system defaults to a maximum of 100,000 records, and will keep all records if exceeded',
 };

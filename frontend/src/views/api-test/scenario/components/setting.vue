@@ -55,6 +55,7 @@
         mode="button"
         :step="100"
         :min="0"
+        :max="600000"
         class="w-[160px]"
         @change="emit('change')"
       />

@@ -242,6 +242,24 @@ public class SystemParameterControllerTests extends BaseTest {
         cleanHistoryJob.cleanupLog();
         cleanLogJob.cleanupLog();
 
+        updateSystemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.log");
+                setParamValue("2D");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.history");
+                setParamValue("100001");
+                setType("text");
+            }});
+        }};
+        this.requestPost(LOG_CONFIG_URL, updateSystemParameters);
+        this.requestGet(GET_LOG_CONFIG_URL);
+
+        cleanHistoryJob.cleanupLog();
+        cleanLogJob.cleanupLog();
+
         //覆盖代码
         List<SystemParameter> updateConfigMonth = new ArrayList<>() {{
             add(new SystemParameter() {{

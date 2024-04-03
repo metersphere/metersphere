@@ -7,6 +7,7 @@
         size="mini"
         :step="1000"
         :min="0"
+        :max="600000"
         :precision="0"
         model-event="input"
         :disabled="props.disabled"

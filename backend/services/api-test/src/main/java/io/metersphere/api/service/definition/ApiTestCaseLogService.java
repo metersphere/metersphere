@@ -24,6 +24,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_TEST_MANAGEMENT_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_RECYCLE,
                 apiTestCase.getName());
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
@@ -179,7 +180,7 @@ public class ApiTestCaseLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(OperationLogType.DELETE.name())
-                            .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
+                            .module(OperationLogModule.API_TEST_MANAGEMENT_RECYCLE)
                             .method(HttpMethodConstants.POST.name())
                             .sourceId(item.getId())
                             .content(item.getName())
@@ -193,18 +194,18 @@ public class ApiTestCaseLogService {
     }
 
     public void batchToGcLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.DELETE.name(), false);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.DELETE.name(), false, null);
     }
 
     public void batchEditLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.UPDATE.name(), true);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.UPDATE.name(), true, null);
     }
 
     public void batchRecoverLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false);
+        saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
-    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String operator, String operationType, boolean isHistory) {
+    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String operator, String operationType, boolean isHistory, String logModule) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<String> caseId = apiTestCases.stream().map(ApiTestCase::getId).distinct().toList();
@@ -219,6 +220,10 @@ public class ApiTestCaseLogService {
         //blobList按id生成新的map key为id value为ApiTestCaseBlob
         Map<String, ApiTestCaseBlob> blobMap = blobList.stream().collect(Collectors.toMap(ApiTestCaseBlob::getId, a -> a));
         List<LogDTO> logs = new ArrayList<>();
+        if (StringUtils.isBlank(logModule)) {
+            logModule = OperationLogModule.API_TEST_MANAGEMENT_CASE;
+        }
+        String finalLogModule = logModule;
         apiTestCases.forEach(item -> {
                     ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
                     BeanUtils.copyBean(apiTestCaseDTO, caseMap.get(item.getId()));
@@ -229,7 +234,7 @@ public class ApiTestCaseLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(operationType)
-                            .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
+                            .module(finalLogModule)
                             .method(HttpMethodConstants.POST.name())
                             .path(OperationLogAspect.getPath())
                             .sourceId(item.getId())

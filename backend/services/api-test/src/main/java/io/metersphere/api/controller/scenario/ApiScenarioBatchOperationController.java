@@ -58,7 +58,6 @@ public class ApiScenarioBatchOperationController {
         return apiScenarioService.batchGCOperation(request, true, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/delete-gc", HttpMethodConstants.POST.name()));
     }
 
-    //需求补充：回收站里的相关操作都不需要发通知
     @PostMapping("/batch-operation/recover-gc")
     @Operation(summary = "接口测试-接口场景批量操作-回收站列表-批量恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
@@ -68,7 +67,6 @@ public class ApiScenarioBatchOperationController {
         return apiScenarioService.batchGCOperation(request, false, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/recover-gc", HttpMethodConstants.POST.name()));
     }
 
-    //需求补充：回收站里的相关操作都不需要发通知
     @PostMapping("/batch-operation/delete")
     @Operation(summary = "接口测试-接口场景批量操作-场景列表操作-批量删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)

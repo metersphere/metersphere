@@ -18,6 +18,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -171,7 +172,7 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
+                OperationLogModule.API_TEST_SCENARIO_RECYCLE,
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
         return dto;
@@ -185,23 +186,27 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.RESTORE.name(),
-                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
+                OperationLogModule.API_TEST_SCENARIO_RECYCLE,
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
         return dto;
     }
 
-    public void saveBatchOperationLog(ApiScenarioBatchOperationResponse response, String projectId, String operationType, LogInsertModule logInsertModule) {
+    public void saveBatchOperationLog(ApiScenarioBatchOperationResponse response, String projectId, String operationType, LogInsertModule logInsertModule, String logModule) {
 
+        if (StringUtils.isBlank(logModule)) {
+            logModule = OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO;
+        }
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<LogDTO> logs = new ArrayList<>();
+        String finalLogModule = logModule;
         response.getSuccessData().forEach(item -> {
                     LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(operationType)
-                            .module(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO)
+                            .module(finalLogModule)
                             .method(logInsertModule.getRequestMethod())
                             .path(logInsertModule.getRequestUrl())
                             .sourceId(item.getId())

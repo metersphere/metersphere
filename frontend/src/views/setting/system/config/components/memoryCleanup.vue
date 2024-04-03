@@ -40,7 +40,11 @@
       <template v-else>
         <div class="mb-[8px] mt-[16px] flex items-center">
           <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.saveCount') }}</div>
-          <a-tooltip :content="t('system.config.memoryCleanup.saveCountTip')" position="right">
+          <a-tooltip position="right">
+            <template #content>
+              <div>{{ t('system.config.memoryCleanup.saveCountTip') }}</div>
+              <div>{{ t('system.config.memoryCleanup.numberTip') }}</div>
+            </template>
             <icon-question-circle
               class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
               size="16"
@@ -52,6 +56,7 @@
           class="w-[130px]"
           :disabled="saveLoading || !hasPermission"
           :min="0"
+          :max="100001"
           @blur="() => saveConfig()"
         />
       </template>

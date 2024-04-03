@@ -31,6 +31,7 @@ public class CleanHistoryJob {
     private OperationLogBlobMapper operationLogBlobMapper;
 
     private static final int DEFAULT_LIMIT = 10;
+    private static final int DEFAULT_LIMIT_MAX = 100001;
 
     /**
      * 清理变更历史 每天凌晨两点执行
@@ -42,6 +43,9 @@ public class CleanHistoryJob {
         Optional.ofNullable(parameter).ifPresentOrElse(
                 p -> {
                     int limit = Integer.parseInt(p.getParamValue());
+                    if (limit == DEFAULT_LIMIT_MAX) {
+                        return;
+                    }
                     doCleanupHistory(limit);
                 },
                 () -> {
