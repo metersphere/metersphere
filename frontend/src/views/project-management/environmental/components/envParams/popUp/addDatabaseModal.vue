@@ -78,6 +78,7 @@
             mode="button"
             :min="1"
             :precision="0"
+            :max="10000"
             :default-value="1"
           />
         </a-form-item>
@@ -89,6 +90,7 @@
             :step="100"
             :min="0"
             :default-value="1000"
+            :max="600000"
           />
         </a-form-item>
         <a-button type="outline" class="w-[88px]" @click="testConnection">

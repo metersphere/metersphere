@@ -198,4 +198,5 @@ export default {
   'system.config.memoryCleanup.setSuccess': '设置成功',
   'system.config.memoryCleanup.saveCount': '保留条数',
   'system.config.memoryCleanup.saveCountTip': '对系统内所有的项目生效，系统会在凌晨清除超出设置的变更历史记录',
+  'system.config.memoryCleanup.numberTip': '系统默认最大保留条数为100000条，超过则为您保留全部记录',
 };

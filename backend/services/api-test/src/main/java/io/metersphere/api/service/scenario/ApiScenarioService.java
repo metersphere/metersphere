@@ -2202,7 +2202,7 @@ public class ApiScenarioService extends MoveNodeService {
         long moveTime = System.currentTimeMillis();
         ApiScenarioBatchOperationResponse response =
                 ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> move(sublist, request, moveTime, logInsertModule.getOperator()));
-        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.UPDATE.name(), logInsertModule);
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.UPDATE.name(), logInsertModule, null);
         return response;
     }
 
@@ -2216,7 +2216,7 @@ public class ApiScenarioService extends MoveNodeService {
         request.setSelectIds(scenarioIds);
         ApiScenarioBatchOperationResponse response =
                 ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, request, logInsertModule.getOperator()));
-        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.COPY.name(), logInsertModule);
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.COPY.name(), logInsertModule, null);
         return response;
     }
 
@@ -2429,7 +2429,7 @@ public class ApiScenarioService extends MoveNodeService {
                 scenarioIds,
                 sublist -> operationGC(sublist, isDeleteOperation, deleteTime, logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(),
-                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule);
+                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule,OperationLogModule.API_TEST_SCENARIO_RECYCLE );
         return response;
     }
 
@@ -2464,7 +2464,7 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenarioBatchOperationResponse response = ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(
                 scenarioIds,
                 sublist -> delete(sublist, request.getProjectId(), logInsertModule.getOperator()));
-        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.DELETE.name(), logInsertModule);
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.DELETE.name(), logInsertModule, OperationLogModule.API_TEST_SCENARIO_RECYCLE);
         return response;
     }
 
