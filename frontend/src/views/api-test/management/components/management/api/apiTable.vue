@@ -452,6 +452,7 @@
       dataIndex: 'createUserName',
       width: 180,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',

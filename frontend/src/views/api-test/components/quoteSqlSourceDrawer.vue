@@ -107,11 +107,19 @@
     showPagination: false,
   });
 
+  async function initEnvironment(envId: string) {
+    try {
+      const res = await getEnvironment(envId);
+      propsRes.value.data = cloneDeep(res.dataSources) as any[];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   watch(
     () => currentEnvConfig?.value,
     (config) => {
       if (config && config.id) {
-        // eslint-disable-next-line no-use-before-define
         initEnvironment(config.id);
       }
     },
@@ -119,15 +127,15 @@
       immediate: true,
     }
   );
-  async function initEnvironment(envId: string) {
-    try {
-      const res = await getEnvironment(envId);
-      propsRes.value.data = cloneDeep(res.dataSources) as any[];
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val && currentEnvConfig?.value.id) {
+        initEnvironment(currentEnvConfig.value.id);
+      }
     }
-  }
+  );
 
   function searchDataSource() {
     propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];

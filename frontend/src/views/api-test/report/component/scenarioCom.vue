@@ -91,27 +91,28 @@
               </a-popover>
             </div>
           </div>
-          <div class="timer-card min-w-[200px]">
+          <div class="timer-card min-w-[40%]">
             <div class="text-[var(--color-text-4)]">
               <MsIcon type="icon-icon_yes_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
               {{ t('report.detail.api.assertPass') }}
             </div>
             <a-popover position="bottom" content-class="response-popover-content">
-              <div class="flex items-center">
-                <span class="text-[18px] font-medium text-[var(--color-text-1)]"
-                  >{{ getIndicators(detail.assertionPassRate) }} <span>%</span></span
-                >
+              <div class="flex flex-nowrap items-center">
+                <div class="one-line-text max-w-[80px] text-[18px] font-medium text-[var(--color-text-1)]"
+                  >{{ getIndicators(detail.assertionPassRate) }}
+                </div>
+                <span>%</span>
                 <a-divider direction="vertical" :margin="0" class="!mx-2 h-[16px]"></a-divider>
-                <span class="text-[var(--color-text-1)]">{{
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{
                   getIndicators(detail.assertionSuccessCount) === '-'
                     ? '-'
                     : addCommasToNumber(detail.assertionSuccessCount || 0)
-                }}</span>
-                <span class="text-[var(--color-text-4)]"
-                  ><span class="mx-1">/</span>
+                }}</div>
+                <span class="mx-1">/</span>
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-4)]">
                   {{
                     getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
-                  }}</span
+                  }}</div
                 >
               </div>
               <template #content>

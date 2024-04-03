@@ -45,7 +45,7 @@
               @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
-                <a-tooltip :disabled="!disabledExpressionSuffix">
+                <a-tooltip :disabled="props.disabled || !!props.response">
                   <template #content>
                     <div>{{ t('apiTestDebug.expressionTip1') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
@@ -57,7 +57,7 @@
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix || props.disabled
+                      props.disabled || !props.response
                         ? 'ms-params-input-suffix-icon--disabled'
                         : 'ms-params-input-suffix-icon'
                     "
@@ -141,7 +141,7 @@
               @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
-                <a-tooltip :disabled="!disabledExpressionSuffix">
+                <a-tooltip :disabled="props.disabled || !!props.response">
                   <template #content>
                     <div>{{ t('apiTestDebug.expressionTip1') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
@@ -150,10 +150,9 @@
                   <MsIcon
                     v-if="props.showExtraction"
                     type="icon-icon_flashlamp"
-                    :disabled="props.disabled"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix || props.disabled
+                      props.disabled || !props.response
                         ? 'ms-params-input-suffix-icon--disabled'
                         : 'ms-params-input-suffix-icon'
                     "
@@ -290,7 +289,7 @@
               @change="() => handleExpressionChange(rowIndex)"
             >
               <template #suffix>
-                <a-tooltip :disabled="disabledExpressionSuffix || props.disabled">
+                <a-tooltip :disabled="props.disabled || !!props.response">
                   <template #content>
                     <div>{{ t('apiTestDebug.expressionTip1') }}</div>
                     <div>{{ t('apiTestDebug.expressionTip2') }}</div>
@@ -301,9 +300,9 @@
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="
-                      disabledExpressionSuffix || props.disabled
-                        ? 'ms-params-input-suffix-icon'
-                        : 'ms-params-input-suffix-icon--disabled'
+                      props.disabled || !props.response
+                        ? 'ms-params-input-suffix-icon--disabled'
+                        : 'ms-params-input-suffix-icon'
                     "
                     @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.REGEX)"
                   />
@@ -430,7 +429,7 @@
 
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
-  const disabledExpressionSuffix = ref(false);
+  // const disabledExpressionSuffix = ref(false);
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
   const defaultExtractParamItem: ExpressionConfig = {
@@ -780,7 +779,7 @@
   function deleteListItem(id: string | number) {}
 
   function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
-    if (!props.disabled) return;
+    if (props.disabled || !props.response) return;
     activeRecord.value = { ...record, extractType: type };
     fastExtractionVisible.value = true;
   }
