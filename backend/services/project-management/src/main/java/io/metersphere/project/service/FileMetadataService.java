@@ -513,12 +513,8 @@ public class FileMetadataService {
         //通过refId批量更新
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andRefIdEqualTo(oldFile.getRefId()).andLatestEqualTo(true);
-
         FileMetadata updateModel = new FileMetadata();
         updateModel.setLatest(false);
-        updateModel.setUpdateTime(System.currentTimeMillis());
-        updateModel.setUpdateUser(operator);
-
         fileMetadataMapper.updateByExampleSelective(updateModel, example);
     }
 
