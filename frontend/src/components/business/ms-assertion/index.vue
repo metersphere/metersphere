@@ -315,7 +315,7 @@
         case ResponseAssertionType.RESPONSE_TIME:
           assertions.value.push({
             ...tmpObj,
-            expectedValue: 100,
+            expectedValue: 200,
           });
           break;
         case ResponseAssertionType.VARIABLE:

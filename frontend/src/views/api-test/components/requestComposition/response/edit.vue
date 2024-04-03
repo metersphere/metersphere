@@ -10,7 +10,15 @@
       <template #label="{ tab }">
         <div class="response-tab">
           <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
-          {{ t(tab.name || tab.label) }}({{ tab.statusCode }})
+          <a-tooltip
+            v-if="getTextWidth(t(tab.name || tab.label)) > 200"
+            :content="t(tab.name || tab.label) + '(' + tab.statusCode + ')'"
+          >
+            <span class="one-line-text" style="max-width: 200px"
+              >{{ t(tab.name || tab.label) }}({{ tab.statusCode }})</span
+            >
+          </a-tooltip>
+          <span v-else>{{ t(tab.name || tab.label) }}({{ tab.statusCode }})</span>
           <MsMoreAction
             :list="
               tab.defaultFlag
@@ -307,6 +315,16 @@
   function changeBodyFormat(val: ResponseBodyFormat) {
     activeResponse.value.body.bodyType = val;
     emit('change');
+  }
+
+  function getTextWidth(text: string) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (context != null) {
+      const metrics = context.measureText(text);
+      return metrics.width;
+    }
+    return 0;
   }
 
   // const jsonSchemaColumns: FormTableColumn[] = [
