@@ -15,10 +15,12 @@ import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.dto.api.result.RequestResult;
-import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
@@ -195,37 +197,47 @@ public class ApiScenarioReportService {
         List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDeatilByReportId(id);
         //根据stepId进行分组
         Map<String, List<ApiScenarioReportStepDTO>> detailMap = deatilList.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
+        //只处理请求的
+        List<String> stepTypes = Arrays.asList(ApiScenarioStepType.API_CASE.name(),
+                ApiScenarioStepType.API.name(),
+                ApiScenarioStepType.CUSTOM_REQUEST.name());
         scenarioReportSteps.parallelStream().forEach(step -> {
-            List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
-            if (CollectionUtils.isNotEmpty(details)) {
-                details.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
-                //需要重新处理sort
-                for (int i = 0; i < details.size(); i++) {
-                    ApiScenarioReportStepDTO detail = details.get(i);
-                    detail.setSort((long) i + 1);
-                    detail.setStepId(step.getStepId() + SPLITTER + detail.getSort());
-                    detail.setStepType(step.getStepType());
-                    detail.setName(detail.getRequestName());
-                }
-                step.setChildren(details);
-                //只处理请求的
-                List<String> stepTypes = Arrays.asList(ApiScenarioStepType.API_CASE.name(),
-                        ApiScenarioStepType.API.name(),
-                        ApiScenarioStepType.CUSTOM_REQUEST.name());
-                if (stepTypes.contains(step.getStepType())) {
-                    step.setRequestTime(details.stream().mapToLong(ApiScenarioReportStepDTO::getRequestTime).sum());
-                    step.setResponseSize(details.stream().mapToLong(ApiScenarioReportStepDTO::getResponseSize).sum());
-                    List<String> requestStatus = details.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
-                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
-                    if (requestStatus.contains(ApiReportStatus.ERROR.name())) {
-                        step.setStatus(ApiReportStatus.ERROR.name());
-                    } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
-                        step.setStatus(ApiReportStatus.FAKE_ERROR.name());
-                    } else if (successStatus.size() == details.size()) {
-                        step.setStatus(ApiReportStatus.SUCCESS.name());
-                    } else {
-                        step.setStatus(ApiReportStatus.PENDING.name());
+            if (stepTypes.contains(step.getStepType())) {
+                List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
+                if (CollectionUtils.isNotEmpty(details) && details.size() > 1) {
+                    details.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getLoopIndex));
+                    if (details.size() > 1) {
+                        //需要重新处理sort
+                        for (int i = 0; i < details.size(); i++) {
+                            ApiScenarioReportStepDTO detail = details.get(i);
+                            detail.setSort((long) i + 1);
+                            detail.setStepId(step.getStepId() + SPLITTER + detail.getSort());
+                            detail.setStepType(step.getStepType());
+                            detail.setName(detail.getRequestName());
+                        }
+
+                        step.setRequestTime(details.stream().mapToLong(ApiScenarioReportStepDTO::getRequestTime).sum());
+                        step.setResponseSize(details.stream().mapToLong(ApiScenarioReportStepDTO::getResponseSize).sum());
+                        List<String> requestStatus = details.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
+                        List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
+                        if (requestStatus.contains(ApiReportStatus.ERROR.name())) {
+                            step.setStatus(ApiReportStatus.ERROR.name());
+                        } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
+                            step.setStatus(ApiReportStatus.FAKE_ERROR.name());
+                        } else if (successStatus.size() == details.size()) {
+                            step.setStatus(ApiReportStatus.SUCCESS.name());
+                        } else {
+                            step.setStatus(ApiReportStatus.PENDING.name());
+                        }
                     }
+                    step.setChildren(details);
+                } else if (CollectionUtils.isNotEmpty(details)){
+                    step.setName(details.getFirst().getRequestName());
+                    step.setReportId(details.getFirst().getReportId());
+                    step.setRequestTime(details.getFirst().getRequestTime());
+                    step.setResponseSize(details.getFirst().getResponseSize());
+                    step.setStatus(details.getFirst().getStatus());
+                    step.setScriptIdentifier(details.getFirst().getScriptIdentifier());
                 }
             }
         });
@@ -235,6 +247,7 @@ public class ApiScenarioReportService {
         // TODO 查询修改
         List<ApiScenarioReportStepDTO> steps = Optional.ofNullable(scenarioReportStepMap.get("NONE")).orElse(new ArrayList<>(0));
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
+
         getStepTree(steps, scenarioReportStepMap);
 
         scenarioReportDTO.setStepTotal(steps.size());
