@@ -81,7 +81,7 @@
   import MsCodeEditorTheme from './themes';
   import { CustomTheme, editorProps, Language, LanguageEnum, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-  import * as XmlBeautify from 'xml-beautify';
+  import XmlBeautify from 'xml-beautify';
 
   export default defineComponent({
     name: 'MonacoEditor',
@@ -235,7 +235,7 @@
           } else if (currentLanguage.value === LanguageEnum.XML) {
             // XML需要手动格式化
             const value = editor.getValue();
-            const formattedCode = new XmlBeautify({ parser: DOMParser }).beautify(value);
+            const formattedCode = new XmlBeautify().beautify(value);
             editor.setValue(formattedCode);
             emit('update:modelValue', formattedCode);
             emit('change', formattedCode);

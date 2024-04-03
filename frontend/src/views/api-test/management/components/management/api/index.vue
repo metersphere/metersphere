@@ -140,6 +140,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -174,14 +175,14 @@
     (e: 'deleteApi', id: string): void;
     (e: 'import'): void;
   }>();
-  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
 
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-
+  const userStore = useUserStore();
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
+  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
+  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const apiTabs = defineModel<RequestParam[]>('apiTabs', {
     required: true,
   });
@@ -387,7 +388,7 @@
     activeApiTab.value.definitionActiveKey = 'definition';
     activeApiTab.value.isExecute = true;
     activeApiTab.value.mode = 'debug';
-    requestCompositionRef.value?.execute(requestCompositionRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
+    requestCompositionRef.value?.execute(userStore.localExecuteUrl ? 'localExec' : 'serverExec');
   }
 
   function handleDelete() {

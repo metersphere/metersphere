@@ -66,12 +66,12 @@
             </div>
           </template>
           <div v-if="!checkedAll && !indeterminate" class="action-group ml-auto">
-            <a-input
+            <!-- <a-input
               v-model:model-value="keyword"
               :placeholder="t('apiScenario.searchByName')"
               allow-clear
               class="w-[200px]"
-            />
+            /> -->
             <a-tooltip v-if="!props.isNew" position="left" :content="t('apiScenario.refreshRefScenario')">
               <a-button type="outline" class="arco-btn-outline--secondary !mr-0 !p-[8px]" @click="refreshStepInfo">
                 <template #icon>

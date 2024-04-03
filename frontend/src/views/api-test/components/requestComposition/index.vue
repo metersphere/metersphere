@@ -72,23 +72,28 @@
               hasAnyPermission([props.permissionMap.execute])
             "
           >
-            <a-dropdown-button
-              v-if="hasLocalExec"
-              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-              class="exec-btn"
-              @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-              @select="execute"
-            >
-              {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-              <template #icon>
-                <icon-down />
-              </template>
-              <template #content>
-                <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-                  {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-                </a-doption>
-              </template>
-            </a-dropdown-button>
+            <template v-if="hasLocalExec">
+              <a-dropdown-button
+                v-if="!requestVModel.executeLoading"
+                :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+                class="exec-btn"
+                @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+                @select="execute"
+              >
+                {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+                <template #icon>
+                  <icon-down />
+                </template>
+                <template #content>
+                  <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                    {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+                  </a-doption>
+                </template>
+              </a-dropdown-button>
+              <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+                {{ t('common.stop') }}
+              </a-button>
+            </template>
             <a-button
               v-else-if="!requestVModel.executeLoading"
               class="mr-[12px]"
@@ -162,7 +167,7 @@
         class="no-content relative mt-[8px] border-b"
       />
     </div>
-    <div ref="splitContainerRef" class="request-and-response h-[calc(100%-87px)]">
+    <div ref="splitContainerRef" class="request-and-response h-[calc(100%-100px)]">
       <MsSplitBox
         ref="horizontalSplitBoxRef"
         :size="!props.isCase && props.isDefinition ? 0.7 : 1"
@@ -551,9 +556,9 @@
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { addCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
-  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
   import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
@@ -646,6 +651,7 @@
   const emit = defineEmits(['addDone', 'execute']);
 
   const appStore = useAppStore();
+  const userStore = useUserStore();
   const { t } = useI18n();
 
   const loading = defineModel<boolean>('detailLoading', { default: false });
@@ -814,26 +820,9 @@
     }
   }
 
-  const hasLocalExec = ref(false); // 是否配置了api本地执行
-  const isPriorityLocalExec = ref(false); // 是否优先本地执行
-  const localExecuteUrl = ref('');
-  async function initLocalConfig() {
-    if (hasLocalExec.value) {
-      return;
-    }
-    try {
-      const res = await getLocalConfig();
-      const apiLocalExec = res.find((e) => e.type === 'API');
-      if (apiLocalExec) {
-        hasLocalExec.value = true;
-        isPriorityLocalExec.value = apiLocalExec.enable || false;
-        localExecuteUrl.value = apiLocalExec.userUrl || '';
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
+  const hasLocalExec = computed(() => userStore.hasLocalExec); // 是否配置了api本地执行
+  const isPriorityLocalExec = computed(() => userStore.isPriorityLocalExec); // 是否优先本地执行
+  const localExecuteUrl = computed(() => userStore.localExecuteUrl); // 本地执行地址
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
   const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换tab导致动态表单数据丢失
@@ -1300,7 +1289,7 @@
         requestVModel.value.executeLoading = true;
         requestVModel.value.response = cloneDeep(defaultResponse);
         const res = await props.executeApi(makeRequestParams(executeType));
-        if (executeType === 'localExec' && props.localExecuteApi) {
+        if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
           await props.localExecuteApi(localExecuteUrl.value, res);
         }
       } catch (error) {
@@ -1318,7 +1307,7 @@
             requestVModel.value.executeLoading = true;
             requestVModel.value.response = cloneDeep(defaultResponse);
             const res = await props.executeApi(makeRequestParams(executeType));
-            if (executeType === 'localExec' && props.localExecuteApi) {
+            if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
               await props.localExecuteApi(localExecuteUrl.value, res);
             }
           } catch (error) {
@@ -1661,12 +1650,6 @@
     saveModalFormRef.value?.resetFields();
   }
 
-  onBeforeMount(() => {
-    if (!props.isCase) {
-      initLocalConfig();
-    }
-  });
-
   onMounted(() => {
     if (!props.isDefinition) {
       registerCatchSaveShortcut(handleSaveShortcut);
@@ -1681,7 +1664,6 @@
 
   defineExpose({
     execute,
-    isPriorityLocalExec,
     makeRequestParams,
     changeVerticalExpand,
   });

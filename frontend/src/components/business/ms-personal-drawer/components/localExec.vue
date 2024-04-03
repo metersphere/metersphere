@@ -26,14 +26,7 @@
         ></a-input>
         <div class="config-card-footer">
           <div>
-            <a-button
-              type="outline"
-              class="px-[8px]"
-              size="mini"
-              :disabled="apiConfig.userUrl.trim() === ''"
-              :loading="testApiLoading"
-              @click="testApi"
-            >
+            <a-button type="outline" class="px-[8px]" size="mini" :loading="testApiLoading" @click="testApi">
               {{ t('ms.personal.test') }}
             </a-button>
             <a-button

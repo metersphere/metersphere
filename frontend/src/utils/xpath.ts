@@ -12,8 +12,17 @@ export function matchXMLWithXPath(xmlText: string, xpathQuery: string): xpath.Se
     // 解析 XML 文本
     const xmlDoc = new DOMParser().parseFromString(xmlText, 'text/xml');
 
+    // 创建一个命名空间解析器
+    const resolver = (prefix: string) => {
+      // 获取 XML 文档的根元素
+      const root = xmlDoc.documentElement;
+      // 从根元素获取命名空间的 URI
+      const nsUri = root.getAttributeNS('http://www.w3.org/2000/xmlns/', prefix);
+      return nsUri || null;
+    };
+
     // 使用 XPath 查询匹配的节点
-    const nodes = xpath.select(xpathQuery, xmlDoc);
+    const nodes = xpath.selectWithResolver(xpathQuery, xmlDoc, { lookupNamespaceURI: resolver });
 
     // 返回匹配结果
     return nodes;

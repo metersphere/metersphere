@@ -438,7 +438,7 @@
     variableType: RequestExtractEnvType.TEMPORARY,
     extractScope: RequestExtractScope.BODY,
     expression: '',
-    extractType: RequestExtractExpressionEnum.REGEX,
+    extractType: RequestExtractExpressionEnum.JSON_PATH,
     expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
     resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
     resultMatchingRuleNum: 1,

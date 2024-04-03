@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center">
+  <div v-if="caseLevel" class="flex items-center">
     <div
       class="mr-[4px] h-[8px] w-[8px] rounded-full"
       :style="{
@@ -15,7 +15,7 @@
   import { CaseLevel } from './types';
 
   const props = defineProps<{
-    caseLevel: CaseLevel;
+    caseLevel?: CaseLevel;
   }>();
 
   const caseLevelMap = {
@@ -41,7 +41,7 @@
     },
   };
 
-  const caseLevel = computed(() => caseLevelMap[props.caseLevel] || {});
+  const caseLevel = computed(() => (props.caseLevel ? caseLevelMap[props.caseLevel] : undefined));
 </script>
 
 <style lang="less" scoped></style>

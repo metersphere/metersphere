@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
+  import { cloneDeep } from 'lodash-es';
 
   import MsList from '@/components/pure/ms-list/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -155,7 +156,7 @@
    */
   function copyListItem(item: ExecuteConditionProcessor) {
     let copyItem = {
-      ...item,
+      ...cloneDeep(item),
       id: new Date().getTime(),
     };
     const isExistPre = data.value.filter(
@@ -171,7 +172,7 @@
     }
 
     copyItem = {
-      ...item,
+      ...cloneDeep(item),
       beforeStepScript: !isExistPre,
       id: new Date().getTime(),
     };

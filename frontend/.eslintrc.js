@@ -102,6 +102,7 @@ module.exports = {
             '^localforage$',
             'vue-draggable-plus',
             'jsonpath-plus',
+            'lossless-json',
           ], // node依赖
           ['.*/assets/.*', '^@/assets$'], // 项目静态资源
           ['^@/components/pure/.*', '^@/components/business/.*', '.*\\.vue$'], // 组件

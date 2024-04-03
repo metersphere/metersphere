@@ -319,19 +319,23 @@
         </div>
       </template>
       <a-spin v-else :loading="previewDetail.executeLoading" class="h-[calc(100%-45px)] w-full pb-[18px]">
-        <result
+        <div
           v-show="
             previewDetail.protocol === 'HTTP' || previewDetail.response?.requestResults[0]?.responseResult.responseCode
           "
-          v-model:active-tab="previewDetail.responseActiveTab"
-          :request-result="previewDetail.response?.requestResults[0]"
-          :console="previewDetail.response?.console"
-          :is-http-protocol="previewDetail.protocol === 'HTTP'"
-          :is-priority-local-exec="props.isPriorityLocalExec"
-          :request-url="previewDetail.url"
-          is-definition
-          @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
-        />
+          class="h-full"
+        >
+          <result
+            v-model:active-tab="previewDetail.responseActiveTab"
+            :request-result="previewDetail.response?.requestResults[0]"
+            :console="previewDetail.response?.console"
+            :is-http-protocol="previewDetail.protocol === 'HTTP'"
+            :is-priority-local-exec="props.isPriorityLocalExec"
+            :request-url="previewDetail.url"
+            is-definition
+            @execute="emit('execute', props.isPriorityLocalExec ? 'localExec' : 'serverExec')"
+          />
+        </div>
       </a-spin>
     </a-collapse-item>
   </a-collapse>

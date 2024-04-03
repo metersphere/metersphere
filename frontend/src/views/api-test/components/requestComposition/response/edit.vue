@@ -206,7 +206,7 @@
   const responseTabs = defineModel<ResponseItem[]>('responseDefinition', {
     required: true,
   });
-  const activeResponse = ref<ResponseItem>(responseTabs.value[0]);
+  const activeResponse = ref<ResponseItem>(responseTabs.value[0] || defaultResponseItem);
 
   function addResponseTab(defaultProps?: Partial<ResponseItem>) {
     responseTabs.value.push({
@@ -267,7 +267,7 @@
         break;
       case 'copy':
         addResponseTab({
-          ..._tab,
+          ...cloneDeep(_tab),
           id: new Date().getTime(),
           label: `copy_${t(_tab.label || _tab.name)}`,
           name: `copy_${t(_tab.label || _tab.name)}`,

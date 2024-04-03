@@ -6,6 +6,7 @@
 <script setup lang="ts">
   import { onMounted, onUnmounted, Ref, ref, watch } from 'vue';
   import { JSONPath } from 'jsonpath-plus';
+  import { isSafeNumber, parse } from 'lossless-json';
 
   import JPPicker from '@/assets/js/jsonpath-picker-vanilla/jsonpath-picker-vanilla';
 
@@ -28,14 +29,20 @@
   );
 
   const emit = defineEmits<{
-    (e: 'pick', path: string, result: any[]): void;
+    (e: 'pick', path: string, parseJson: string | Record<string, any>, result: any[]): void;
   }>();
 
   function initJsonPathPicker() {
     try {
       json.value = props.data;
       if (typeof props.data === 'string') {
-        json.value = JSON.parse(props.data);
+        json.value = parse(props.data, undefined, (value) => {
+          if (!isSafeNumber(value) || Number(value).toString().length < value.length) {
+            // 大数、超长小数、科学计数法、小数位全为 0 等情况下，JS 精度丢失，所以需要用字符串存储
+            return `Number(${value.toString()})`;
+          }
+          return Number(value);
+        }) as Record<string, any>;
       }
       JPPicker.jsonPathPicker(jr.value, json.value, [ip.value], props.opt);
     } catch (error) {
@@ -61,8 +68,15 @@
     if (ev.target && ev.target.classList.contains('pick-path')) {
       setTimeout(() => {
         if (ip.value) {
-          jsonPath.value = ip.value.value;
-          emit('pick', jsonPath.value, JSONPath({ json: json.value, path: jsonPath.value }));
+          jsonPath.value = `$${ip.value.value}`;
+          emit(
+            'pick',
+            jsonPath.value,
+            json.value,
+            JSONPath({ json: json.value, path: jsonPath.value }).map((e) =>
+              e.toString().replace(/Number\(([^)]+)\)/g, '$1')
+            )
+          );
         }
       }, 0);
     }
