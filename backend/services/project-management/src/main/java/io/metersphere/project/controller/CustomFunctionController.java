@@ -1,6 +1,7 @@
 package io.metersphere.project.controller;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.dto.customfunction.CustomFuncColumnsOptionDTO;
@@ -11,6 +12,8 @@ import io.metersphere.project.dto.customfunction.request.CustomFunctionUpdateReq
 import io.metersphere.project.service.CustomFunctionLogService;
 import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -93,11 +96,21 @@ public class CustomFunctionController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "项目管理-公共脚本-脚本删除")
+    @Operation(summary = "项目管理-脚本删除")
     @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#id)", msClass = CustomFunctionLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "custom_function")
     public void delete(@PathVariable String id) {
         customFunctionService.delete(id);
+    }
+
+    @PostMapping("/history/page")
+    @Operation(summary = "项目管理-公共脚本-变更历史-列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public Pager<List<OperationHistoryDTO>> page(@Validated @RequestBody OperationHistoryRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
+        return PageUtils.setPageInfo(page, customFunctionService.list(request));
     }
 }

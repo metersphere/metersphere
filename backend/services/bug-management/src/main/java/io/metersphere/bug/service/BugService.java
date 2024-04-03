@@ -756,6 +756,9 @@ public class BugService {
         }).toList();
         statusField.setOptions(statusCustomOption);
         statusField.setRequired(true);
+        if (CollectionUtils.isEmpty(templateDTO.getCustomFields())) {
+            templateDTO.setCustomFields(new ArrayList<>());
+        }
         templateDTO.getCustomFields().addFirst(statusField);
         return templateDTO;
     }
@@ -1570,7 +1573,7 @@ public class BugService {
         });
         // 第三方平台模板
         TemplateDTO pluginDefaultTemplate = getPluginBugDefaultTemplate(projectId, true);
-        if (pluginDefaultTemplate != null) {
+        if (pluginDefaultTemplate != null && CollectionUtils.isNotEmpty(pluginDefaultTemplate.getCustomFields())) {
             headerCustomFields.addAll(pluginDefaultTemplate.getCustomFields());
         }
         return headerCustomFields;
