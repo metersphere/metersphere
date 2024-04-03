@@ -702,9 +702,6 @@ public class FunctionalCaseService {
         List<CustomFieldOption> memberCustomOption = getMemberOptions(projectId);
         List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
         customFields.forEach(customField -> {
-            if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
-                customField.setOptions(memberCustomOption);
-            }
             if (customField.getInternal()) {
                 customField.setFieldName(baseCustomFieldService.translateInternalField(customField.getFieldName()));
             }
@@ -714,6 +711,9 @@ public class FunctionalCaseService {
         Map<String, List<CustomFieldOption>> customOptions = fieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
         customFields.forEach(customField -> {
             customField.setOptions(customOptions.get(customField.getFieldId()));
+            if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                customField.setOptions(memberCustomOption);
+            }
         });
         return customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
     }
