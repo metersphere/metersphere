@@ -203,5 +203,5 @@ export default {
   'system.config.memoryCleanup.setSuccess': 'Setup successful',
   'system.config.memoryCleanup.saveCount': 'Reserved quantity',
   'system.config.memoryCleanup.saveCountTip':
-    'It is effective for all projects in the system. Use case change history that exceeds the settings will be cleared and will take effect immediately after the update.',
+    'Effective for all projects in the system, the system will clear unset change history in the early morning',
 };
