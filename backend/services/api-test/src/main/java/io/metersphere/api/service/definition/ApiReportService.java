@@ -6,6 +6,7 @@ import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.dto.api.result.RequestResult;
@@ -213,6 +214,8 @@ public class ApiReportService {
             }
             apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
             apiReportDTO.setChildren(apiReportSteps);
+            apiReportDTO.setTotal((long) apiReportSteps.size());
+            apiReportDTO.setPendingCount(apiReportSteps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
             return apiReportDTO;
         }
         ApiTestCaseRecordExample example = new ApiTestCaseRecordExample();

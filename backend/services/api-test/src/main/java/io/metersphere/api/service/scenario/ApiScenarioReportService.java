@@ -246,7 +246,7 @@ public class ApiScenarioReportService {
 
         scenarioReportDTO.setStepErrorCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.ERROR.name(), step.getStatus())).count());
         scenarioReportDTO.setStepSuccessCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), step.getStatus())).count());
-        scenarioReportDTO.setStepPendingCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepPendingCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
         scenarioReportDTO.setStepFakeErrorCount(steps.stream().filter(step -> StringUtils.equals(ApiReportStatus.FAKE_ERROR.name(), step.getStatus())).count());
         //控制台信息 console
         ApiScenarioReportLogExample example = new ApiScenarioReportLogExample();

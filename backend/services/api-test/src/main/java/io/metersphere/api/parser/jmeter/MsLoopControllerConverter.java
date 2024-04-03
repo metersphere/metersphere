@@ -174,8 +174,8 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
         controller.setName(StringUtils.isNotBlank(element.getName()) ? element.getName() : "Foreach Controller");
         controller.setProperty(TestElement.TEST_CLASS, ForeachController.class.getName());
         controller.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ForeachControlPanel"));
-        controller.setInputVal(element.getForEachController().getVariable());
-        controller.setReturnVal(element.getForEachController().getValue());
+        controller.setInputVal(element.getForEachController().getValue());
+        controller.setReturnVal(element.getForEachController().getVariable());
         controller.setUseSeparator(true);
         return controller;
     }
