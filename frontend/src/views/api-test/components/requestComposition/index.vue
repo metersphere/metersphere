@@ -283,9 +283,11 @@
             <template #second>
               <response
                 v-show="showResponse"
+                ref="responseRef"
                 v-model:active-layout="activeLayout"
                 v-model:active-tab="requestVModel.responseActiveTab"
                 v-model:response-definition="requestVModel.responseDefinition"
+                :show-response-result-button="requestVModel.mode === 'debug'"
                 :is-http-protocol="isHttpProtocol"
                 :is-priority-local-exec="isPriorityLocalExec"
                 :request-url="requestVModel.url"
@@ -1340,6 +1342,8 @@
     requestVModel.value.executeLoading = false;
   }
 
+  const responseRef = ref<InstanceType<typeof response>>();
+
   watch(
     () => requestVModel.value.id,
     async () => {
@@ -1361,6 +1365,9 @@
         // 如果定义有参数BODY/QUERY/REST，用例默认tab是参数tab
         requestVModel.value.activeTab = contentTabList.value[1].value;
       }
+      if (!props.isCase) {
+        responseRef.value?.setActiveResponse(requestVModel.value.mode === 'debug' ? 'result' : 'content');
+      }
       if (props.request.isExecute && !requestVModel.value.executeLoading) {
         // 如果是执行操作打开接口详情，且该接口不在执行状态中，则立即执行
         execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
@@ -1373,6 +1380,15 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => requestVModel.value?.mode,
+    (val: 'debug' | 'definition' | undefined) => {
+      if (val) {
+        responseRef.value?.setActiveResponse(val === 'debug' ? 'result' : 'content');
+      }
     }
   );
 

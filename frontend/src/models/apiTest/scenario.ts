@@ -419,6 +419,7 @@ export interface ScenarioDetail extends Scenario {
   latest: boolean;
   modulePath: string;
   createUser: string;
+  createUserName: string;
   createTime: number;
   updateTime: number;
   updateUser: string;
