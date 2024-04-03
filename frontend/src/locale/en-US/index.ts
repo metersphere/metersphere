@@ -31,6 +31,7 @@ export default {
     'menu.apiTest.management': 'API',
     'menu.apiTest.management.definition': 'API',
     'menu.apiTest.scenario': 'Scenario',
+    'menu.apiTest.scenario.recycle': 'Recycle',
     'menu.apiTest.report': 'Report',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',

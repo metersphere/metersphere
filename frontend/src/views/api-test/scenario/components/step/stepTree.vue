@@ -1203,9 +1203,12 @@
 
   function handleStopExecute(step?: ScenarioStepItem) {
     if (step?.reportId) {
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
       websocketMap[step.reportId].close();
-      step.isExecuting = false;
-      step.executeStatus = undefined;
+      if (realStep) {
+        realStep.isExecuting = false;
+        updateStepStatus([realStep as ScenarioStepItem], scenario.value.stepResponses);
+      }
     }
   }
 

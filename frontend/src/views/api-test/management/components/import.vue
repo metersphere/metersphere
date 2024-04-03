@@ -184,9 +184,9 @@
                 :max-length="255"
                 class="flex-1"
               ></a-input>
-              <MsButton type="text" @click="taskDrawerVisible = true">{{
-                t('apiTestManagement.timeTaskList')
-              }}</MsButton>
+              <MsButton type="text" @click="taskDrawerVisible = true">
+                {{ t('apiTestManagement.timeTaskList') }}
+              </MsButton>
             </div>
           </a-form-item>
           <a-form-item
@@ -501,6 +501,11 @@
         name: importForm.value.name,
       });
       Message.success(t('apiTestManagement.createTaskSuccess'));
+      importForm.value = { ...defaultForm };
+      importFormRef.value?.resetFields();
+      importType.value = 'time';
+      fileList.value = [];
+      moreSettingActive.value = [];
       taskDrawerVisible.value = true;
     } catch (error) {
       // eslint-disable-next-line no-console

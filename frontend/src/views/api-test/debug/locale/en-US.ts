@@ -99,6 +99,7 @@ export default {
   'apiTestDebug.storageByResult': 'Store by result',
   'apiTestDebug.storageByResultPlaceholder': 'E.g. {a}; Subsequent use such as {b}',
   'apiTestDebug.extractParameter': 'Extract',
+  'apiTestDebug.sqlExtractParameter': 'Extract values by column',
   'apiTestDebug.searchTip': 'Please enter a group name',
   'apiTestDebug.allRequest': 'All requests',
   'apiTestDebug.deleteFolderTipTitle': 'Remove the `{name}` module?',

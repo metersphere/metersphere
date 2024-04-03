@@ -60,7 +60,11 @@
                 <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
                 <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
               </div>
-              <MsButton v-if="scenario.isDebug === false && !scenario.executeLoading" type="text" @click="checkReport">
+              <MsButton
+                v-if="scenario.isDebug === false && !scenario.executeLoading && !scenario.isNew"
+                type="text"
+                @click="checkReport"
+              >
                 {{ t('apiScenario.checkReport') }}
               </MsButton>
             </div>
@@ -267,6 +271,7 @@
 
   function checkReport() {
     openNewPage(ApiTestRouteEnum.API_TEST_REPORT, {
+      type: 'API_SCENARIO',
       reportId: scenario.value.reportId,
     });
   }

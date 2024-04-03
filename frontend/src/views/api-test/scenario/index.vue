@@ -311,6 +311,19 @@
     setStepExecuteStatus(activeScenarioTab.value);
   }
 
+  const folderTree = ref<ModuleTreeNode[]>([]);
+  const folderTreePathMap = ref<Record<string, any>>({});
+  const activeModule = ref<string>('all');
+  const activeFolder = ref<string>('all');
+  const offspringIds = ref<string[]>([]);
+  const isShowScenario = ref(false);
+
+  // 获取激活用例类型样式
+  const getActiveClass = (type: string) => {
+    return activeFolder.value === type ? 'folder-text case-active' : 'folder-text';
+  };
+  const recycleModulesCount = ref(0);
+
   function newTab(defaultScenarioInfo?: Scenario, action?: 'copy' | 'execute') {
     if (defaultScenarioInfo) {
       const isCopy = action === 'copy';
@@ -382,26 +395,13 @@
         ...cloneDeep(defaultScenario),
         id: getGenerateId(),
         label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
-        moduleId: 'root',
+        moduleId: activeModule.value === 'all' ? 'root' : activeModule.value,
         projectId: appStore.currentProjectId,
         priority: 'P0',
       });
     }
     activeScenarioTab.value = scenarioTabs.value[scenarioTabs.value.length - 1] as ScenarioParams;
   }
-
-  const folderTree = ref<ModuleTreeNode[]>([]);
-  const folderTreePathMap = ref<Record<string, any>>({});
-  const activeModule = ref<string>('all');
-  const activeFolder = ref<string>('all');
-  const offspringIds = ref<string[]>([]);
-  const isShowScenario = ref(false);
-
-  // 获取激活用例类型样式
-  const getActiveClass = (type: string) => {
-    return activeFolder.value === type ? 'folder-text case-active' : 'folder-text';
-  };
-  const recycleModulesCount = ref(0);
 
   const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
 
