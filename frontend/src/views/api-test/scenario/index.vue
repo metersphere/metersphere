@@ -318,6 +318,7 @@
       if (isCopy) {
         // 场景被复制，递归处理节点，增加copyFromStepId
         copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
+          node.copyFromStepId = node.id;
           if (
             node.parent &&
             node.parent.stepType === ScenarioStepType.API_SCENARIO &&
@@ -337,8 +338,7 @@
             // 非引用场景步骤
             node.id = getGenerateId(); // 重新生成 ID
           }
-          node.copyFromStepId = node.id;
-          node.uniqueId = getGenerateId();
+          node.uniqueId = node.id;
           return node;
         });
       } else {
@@ -366,7 +366,6 @@
         ...defaultScenarioInfo,
         steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
-        uniqueId: getGenerateId(),
         label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         name: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         isNew: isCopy,

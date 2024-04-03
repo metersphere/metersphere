@@ -60,7 +60,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
                 <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
               </div>
-              <MsButton v-if="scenario.isDebug === false" type="text" @click="checkReport">
+              <MsButton v-if="scenario.isDebug === false && !scenario.executeLoading" type="text" @click="checkReport">
                 {{ t('apiScenario.checkReport') }}
               </MsButton>
             </div>
@@ -234,14 +234,14 @@
       const ids = new Set(checkedKeys.value);
       if (batchToggleRange.value === 'top') {
         scenario.value.steps = scenario.value.steps.map((item) => {
-          if (ids.has(item.id)) {
+          if (ids.has(item.uniqueId)) {
             item.enable = isBatchEnable.value;
           }
           return item;
         });
       } else {
         scenario.value.steps = mapTree(scenario.value.steps, (node) => {
-          if (ids.has(node.id) && node.isRefScenarioStep !== true) {
+          if (ids.has(node.uniqueId) && node.isRefScenarioStep !== true) {
             // 如果是完全引用的场景下的子孙步骤，则不允许操作启用禁用
             node.enable = isBatchEnable.value;
           }
@@ -257,7 +257,7 @@
   }
 
   function batchDelete() {
-    deleteNodes(scenario.value.steps, checkedKeys.value, 'id');
+    deleteNodes(scenario.value.steps, checkedKeys.value, 'uniqueId');
     Message.success(t('common.deleteSuccess'));
     if (scenario.value.steps.length === 0) {
       checkedAll.value = false;
@@ -321,9 +321,9 @@
                 child.isQuoteScenarioStep = child.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
                 child.isRefScenarioStep = child.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
               }
-              if (selectedKeys.value.includes(node.id) && !selectedKeys.value.includes(child.id)) {
+              if (selectedKeys.value.includes(node.uniqueId) && !selectedKeys.value.includes(child.uniqueId)) {
                 // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
-                selectedKeys.value.push(child.id);
+                selectedKeys.value.push(child.uniqueId);
               }
               return child;
             }) as ScenarioStepItem[];
@@ -344,10 +344,10 @@
     scenario.value.executeLoading = true;
     const checkedKeysSet = new Set(checkedKeys.value);
     const waitTingDebugSteps = filterTree(scenario.value.steps, (node) => {
-      if (checkedKeysSet.has(node.id)) {
+      if (checkedKeysSet.has(node.uniqueId)) {
         if (!node.enable) {
-          // 如果步骤未开启，则删除已选 id，方便下面waitingDebugStepDetails详情判断是否携带
-          checkedKeysSet.delete(node.id);
+          // 如果步骤未开启，则删除已选 uniqueId，方便下面waitingDebugStepDetails详情判断是否携带
+          checkedKeysSet.delete(node.uniqueId);
           node.executeStatus = undefined;
         } else {
           node.executeStatus = ScenarioExecuteStatus.EXECUTING;

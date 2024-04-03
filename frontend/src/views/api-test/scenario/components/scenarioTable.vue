@@ -138,7 +138,6 @@
         <a-select
           v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
           v-model:model-value="record.status"
-          v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']"
           class="param-input w-full"
           size="mini"
           @change="() => handleStatusChange(record)"

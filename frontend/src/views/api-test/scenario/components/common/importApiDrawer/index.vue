@@ -240,11 +240,13 @@
       });
       if (refType === ScenarioStepRefType.COPY) {
         fullScenarioArr = mapTree<MsTableDataItem<ApiScenarioTableItem>>(fullScenarioArr, (node) => {
+          const id = getGenerateId();
           return {
             ...node,
             copyFromStepId: node.id,
             originProjectId: node.projectId,
-            id: getGenerateId(),
+            id,
+            uniqueId: id,
           };
         });
         emit(
@@ -258,18 +260,24 @@
         handleCancel();
       } else {
         fullScenarioArr = fullScenarioArr.map((e) => {
+          const id = getGenerateId();
           return {
             ...e,
             children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
+              const childId = getGenerateId();
               return {
                 ...node,
                 originProjectId: node.projectId,
+                uniqueId: childId,
                 isQuoteScenarioStep: true,
                 isRefScenarioStep: true, // 默认是完全引用的
+                draggable: false,
               };
             }),
-            id: getGenerateId(),
+            id,
+            uniqueId: id,
             originProjectId: e.projectId,
+            draggable: false,
           };
         });
         emit(

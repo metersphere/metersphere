@@ -11,7 +11,7 @@
         :expand-all="props.expandAll"
         :node-more-actions="stepMoreActions"
         :filter-more-action-func="setStepMoreAction"
-        :field-names="{ title: 'name', key: 'id', children: 'children' }"
+        :field-names="{ title: 'name', key: 'uniqueId', children: 'children' }"
         :virtual-list-props="{
           height: '100%',
           threshold: 20,
@@ -89,7 +89,7 @@
                 <component
                   :is="getStepContent(step)"
                   :data="checkStepIsApi(step) || step.stepType === ScenarioStepType.API_SCENARIO ? step : step.config"
-                  :step-id="step.id"
+                  :step-id="step.uniqueId"
                   :disabled="!!step.isQuoteScenarioStep"
                   @quick-input="setQuickInput(step, $event)"
                   @change="handleStepContentChange($event, step)"
@@ -99,7 +99,7 @@
                 <template v-if="checkStepIsApi(step)">
                   <apiMethodName v-if="checkStepShowMethod(step)" :method="step.config.method" />
                   <div
-                    v-if="step.id === showStepNameEditInputStepId"
+                    v-if="step.uniqueId === showStepNameEditInputStepId"
                     class="name-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
                     @click.stop
                   >
@@ -129,7 +129,7 @@
                 <!-- 其他步骤描述 -->
                 <template v-else>
                   <div
-                    v-if="step.id === showStepDescEditInputStepId"
+                    v-if="step.uniqueId === showStepDescEditInputStepId"
                     class="desc-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
                   >
                     <a-input
@@ -171,10 +171,17 @@
         </template>
         <template #extra="step">
           <stepInsertStepTrigger
+            v-if="
+              !step.isQuoteScenarioStep &&
+              !(
+                step.stepType === ScenarioStepType.API_SCENARIO &&
+                [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(step.refType)
+              )
+            "
             v-model:selected-keys="selectedKeys"
             v-model:steps="steps"
             :step="step"
-            @click="setFocusNodeKey(step.id)"
+            @click="setFocusNodeKey(step.uniqueId)"
             @other-create="handleOtherCreate"
             @close="setFocusNodeKey('')"
             @add-done="handleAddStepDone"
@@ -525,7 +532,7 @@
 
   function handleResponsePopoverVisibleChange(visible: boolean, step: ScenarioStepItem) {
     if (visible) {
-      setFocusNodeKey(step.id);
+      setFocusNodeKey(step.uniqueId);
     } else {
       setFocusNodeKey('');
     }
@@ -565,9 +572,9 @@
    * 增加步骤时判断父节点是否选中，如果选中则需要把新节点也选中
    */
   function selectedIfNeed(step: TreeNode<ScenarioStepItem>, parent?: TreeNode<ScenarioStepItem>) {
-    if (parent && selectedKeys.value.includes(parent.id)) {
+    if (parent && selectedKeys.value.includes(parent.uniqueId)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-      selectedKeys.value.push(step.id);
+      selectedKeys.value.push(step.uniqueId);
     }
   }
 
@@ -636,6 +643,9 @@
           danger: true,
         },
       ];
+    }
+    if ((node as ScenarioStepItem).isQuoteScenarioStep) {
+      return [];
     }
     return stepMoreActions;
   }
@@ -732,7 +742,7 @@
   // 应用场景配置
   function saveScenarioConfig() {
     if (activeStep.value) {
-      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.id, 'id');
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
       if (realStep) {
         realStep.refType = scenarioConfigForm.value.refType; // 更新场景引用类型
         realStep.config = {
@@ -773,7 +783,7 @@
         }
         insertNodes<ScenarioStepItem>(
           steps.value,
-          node.id,
+          node.uniqueId,
           {
             ...cloneDeep(
               mapTree<ScenarioStepItem>(node, (childNode) => {
@@ -786,7 +796,7 @@
                   stepDetails.value[childId] = cloneDeep(childStepDetail);
                 }
                 if (childStepFileParam) {
-                  // 如果复制的步骤还有详情数据，则也复制详情数据
+                  // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
                   scenario.value.stepFileParam[id] = cloneDeep(childStepFileParam);
                 }
                 if (!isQuoteScenario) {
@@ -818,7 +828,7 @@
           },
           'after',
           selectedIfNeed,
-          'id'
+          'uniqueId'
         );
         scenario.value.unSaved = true;
         break;
@@ -831,7 +841,7 @@
         showScenarioConfig.value = true;
         break;
       case 'delete':
-        deleteNode(steps.value, node.id, 'id');
+        deleteNode(steps.value, node.uniqueId, 'uniqueId');
         scenario.value.unSaved = true;
         break;
       default:
@@ -850,7 +860,7 @@
   const tempStepName = ref('');
   function handleStepNameClick(step: ScenarioStepItem) {
     tempStepName.value = step.name;
-    showStepNameEditInputStepId.value = step.id;
+    showStepNameEditInputStepId.value = step.uniqueId;
     nextTick(() => {
       // 等待输入框渲染完成后聚焦
       const input = treeRef.value?.$el.querySelector('.name-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
@@ -859,7 +869,7 @@
   }
 
   function applyStepNameChange(step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.name = tempStepName.value;
     }
@@ -874,7 +884,7 @@
   const tempStepDesc = ref('');
   function handleStepDescClick(step: ScenarioStepItem) {
     tempStepDesc.value = step.name;
-    showStepDescEditInputStepId.value = step.id;
+    showStepDescEditInputStepId.value = step.uniqueId;
     nextTick(() => {
       // 等待输入框渲染完成后聚焦
       const input = treeRef.value?.$el.querySelector('.desc-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
@@ -883,7 +893,7 @@
   }
 
   function applyStepDescChange(step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.name = tempStepDesc.value;
     }
@@ -892,7 +902,7 @@
   }
 
   function handleStepContentChange($event, step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       Object.keys($event).forEach((key) => {
         realStep.config[key] = $event[key];
@@ -905,14 +915,14 @@
    * 处理步骤展开折叠
    */
   function handleStepExpand(data: MsTreeExpandedData) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.node?.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.node?.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.expanded = !realStep.expanded;
     }
   }
 
   function handleStepToggleEnable(data: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.enable = !realStep.enable;
       scenario.value.unSaved = true;
@@ -973,10 +983,10 @@
     const _stepType = getStepType(step);
     const offspringIds: string[] = [];
     mapTree(step.children || [], (e) => {
-      offspringIds.push(e.id);
+      offspringIds.push(e.uniqueId);
       return e;
     });
-    selectedKeys.value = [step.id, ...offspringIds];
+    selectedKeys.value = [step.uniqueId, ...offspringIds];
     if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
@@ -1140,7 +1150,7 @@
    * @param executeType 执行类型
    */
   function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'uniqueId');
     if (realStep) {
       delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
       realStep.reportId = getGenerateId();
@@ -1373,7 +1383,7 @@
   function deleteCaseStep(step?: ScenarioStepItem) {
     if (step) {
       customCaseDrawerVisible.value = false;
-      deleteNode(steps.value, step.id, 'id');
+      deleteNode(steps.value, step.uniqueId, 'uniqueId');
       activeStep.value = undefined;
       scenario.value.unSaved = true;
     }
@@ -1389,6 +1399,7 @@
       handleCreateStep(
         {
           id,
+          uniqueId: id,
           refType: ScenarioStepRefType.DIRECT,
           stepType: ScenarioStepType.SCRIPT,
           name,
@@ -1461,20 +1472,20 @@
       loading.value = true;
       const offspringIds: string[] = [];
       mapTree(dragNode.children || [], (e) => {
-        offspringIds.push(e.id);
+        offspringIds.push(e.uniqueId);
         return e;
       });
-      const stepIdAndOffspringIds = [dragNode.id, ...offspringIds];
+      const stepIdAndOffspringIds = [dragNode.uniqueId, ...offspringIds];
       if (dropPosition === 0) {
         // 拖拽到节点内
-        if (selectedKeys.value.includes(dropNode.id)) {
+        if (selectedKeys.value.includes(dropNode.uniqueId)) {
           // 释放位置的节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
           selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
         }
-      } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.id)) {
+      } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.uniqueId)) {
         // 释放位置的节点的父节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
         selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
-      } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.id)) {
+      } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.uniqueId)) {
         // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点及其子孙节点从选中的节点中移除
         selectedKeys.value = selectedKeys.value.filter((e) => {
           for (let i = 0; i < stepIdAndOffspringIds.length; i++) {
@@ -1487,8 +1498,7 @@
           return true;
         });
       }
-      console.log(dragNode, dropNode);
-      const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'id');
+      const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'uniqueId');
       if (dragResult) {
         Message.success(t('common.moveSuccess'));
         scenario.value.unSaved = true;
@@ -1508,7 +1518,7 @@
   const quickInputDataKey = ref('');
 
   function setQuickInput(step: ScenarioStepItem, dataKey: string) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.id, 'id');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       activeStep.value = realStep as ScenarioStepItem;
     }

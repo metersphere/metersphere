@@ -488,7 +488,6 @@ export function handleTreeDragDrop<T>(
     return false;
   }
   const index = parentChildren.findIndex((node: TreeNode<T>) => node[customKey] === dragNode[customKey]);
-  console.log('index', parentChildren, dragNode, index);
   if (index !== -1) {
     parentChildren.splice(index, 1);
 

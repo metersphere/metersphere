@@ -19,7 +19,7 @@ export default function useCreateActions() {
 
   /**
    * 插入步骤时判断父节点是否选中，如果选中则需要把新节点也选中
-   * @param selectedKeys 选中的步骤 id 集合
+   * @param selectedKeys 选中的步骤 uniqueId 集合
    * @param steps 需要判断的步骤
    * @param parent 需要判断的父节点
    */
@@ -28,9 +28,9 @@ export default function useCreateActions() {
     steps: (ScenarioStepItem | TreeNode<ScenarioStepItem>)[],
     parent?: TreeNode<ScenarioStepItem>
   ) {
-    if (parent && selectedKeys.includes(parent.id)) {
+    if (parent && selectedKeys.includes(parent.uniqueId)) {
       // 添加子节点时，当前节点已选中，则需要把新节点也需要选中（因为父级选中子级也会展示选中状态）
-      selectedKeys.push(...steps.map((item) => item.id));
+      selectedKeys.push(...steps.map((item) => item.uniqueId));
     }
   }
 
@@ -40,7 +40,7 @@ export default function useCreateActions() {
    * @param step 目标步骤
    * @param steps 顶层步骤列表
    * @param createStepAction 创建步骤操作类型
-   * @param selectedKeys 选中的步骤 id 集合
+   * @param selectedKeys 选中的步骤 uniqueId 集合
    */
   function handleCreateStep(
     defaultStepInfo: Record<string, any>,
@@ -49,18 +49,20 @@ export default function useCreateActions() {
     createStepAction: CreateStepAction,
     selectedKeys: (string | number)[]
   ) {
+    const id = getGenerateId();
     const newStep = {
       ...cloneDeep(defaultStepItemCommon),
-      id: getGenerateId(),
+      id,
+      uniqueId: id,
       ...defaultStepInfo,
     };
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.id,
+      step.uniqueId,
       newStep,
       createStepAction,
       (newNode, parent) => selectedIfNeed(selectedKeys, [newNode], parent),
-      'id'
+      'uniqueId'
     );
   }
 
@@ -113,12 +115,12 @@ export default function useCreateActions() {
       } else if (stepType === ScenarioStepType.API_SCENARIO) {
         config = cloneDeep(defaultScenarioStepConfig);
       }
-      if (item.id || item.resourceId) {
+      if (item.resourceId || item.id) {
         // 引用复制接口、用例、场景时的源资源信息
         resourceField = {
-          resourceId: item.id || item.resourceId, // 场景会调接口获取信息，所以有resourceId，接口、用例没有，下同
-          resourceNum: item.num || item.resourceNum,
-          resourceName: item.name || item.resourceName,
+          resourceId: item.resourceId || item.id, // 场景会调接口获取信息，所以有resourceId，接口、用例没有，下同
+          resourceNum: item.resourceNum || item.num,
+          resourceName: item.resourceName || item.name,
         };
       }
       if (item.protocol) {
@@ -170,11 +172,11 @@ export default function useCreateActions() {
   ) {
     insertNodes<ScenarioStepItem>(
       step.parent?.children || steps,
-      step.id,
+      step.uniqueId,
       readyInsertSteps,
       createStepAction,
       undefined,
-      'id'
+      'uniqueId'
     );
     selectedIfNeed(selectedKeys, readyInsertSteps, step);
   }
