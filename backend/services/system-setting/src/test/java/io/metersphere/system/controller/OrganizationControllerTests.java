@@ -293,14 +293,14 @@ public class OrganizationControllerTests extends BaseTest {
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(0);
         organizationRequest.setPageSize(10);
-        organizationRequest.setKeyword("sys_default_user");
+        organizationRequest.initKeyword("sys_default_user");
         organizationRequest.setOrganizationId("sys_default_organization_3");
         this.requestPost(ORGANIZATION_MEMBER_LIST, organizationRequest, status().isBadRequest());
         // 页数有误
         organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
         organizationRequest.setPageSize(1);
-        organizationRequest.setKeyword("sys_default_user");
+        organizationRequest.initKeyword("sys_default_user");
         organizationRequest.setOrganizationId("sys_default_organization_3");
         this.requestPost(ORGANIZATION_MEMBER_LIST, organizationRequest, status().isBadRequest());
     }
@@ -478,7 +478,7 @@ public class OrganizationControllerTests extends BaseTest {
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
         organizationRequest.setPageSize(10);
-        organizationRequest.setKeyword(keyWord);
+        organizationRequest.initKeyword(keyWord);
         organizationRequest.setOrganizationId(orgId);
         MvcResult mvcResult = this.responsePost(organizationRequest);
         // 获取返回值

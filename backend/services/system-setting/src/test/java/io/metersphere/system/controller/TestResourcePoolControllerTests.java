@@ -575,7 +575,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
         request.setPageSize(5);
-        request.setKeyword(keyWord);
+        request.initKeyword(keyWord);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/page")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

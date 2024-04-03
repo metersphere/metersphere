@@ -102,9 +102,9 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         this.requestPost(PROJECT_USER_ROLE_LIST, request);
         // 覆盖空数据
         request.setProjectId("default-project-3");
-        request.setKeyword("project_member");
+        request.initKeyword("project_member");
         this.requestPost(PROJECT_USER_ROLE_LIST, request);
-        request.setKeyword("not_exit");
+        request.initKeyword("not_exit");
         this.requestPost(PROJECT_USER_ROLE_LIST, request);
     }
 

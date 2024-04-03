@@ -1166,7 +1166,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setCurrent(1);
             this.setPageSize(10);
             this.setProjectId(project.getId());
-            this.setKeyword(finalUpdateRequest.getName());
+            this.initKeyword(finalUpdateRequest.getName());
         }};
         MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
         String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);

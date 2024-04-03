@@ -132,7 +132,7 @@
             and (
             api_scenario.num like concat('%', #{request.condition.keyword},'%')
             or api_scenario.name like concat('%', #{request.condition.keyword},'%')
-            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.condition.keyword},'"]'))
+            or api_scenario.tags like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <include refid="filters">
@@ -145,7 +145,7 @@
             and (
             api_scenario.num like concat('%', #{request.keyword},'%')
             or api_scenario.name like concat('%', #{request.keyword},'%')
-            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or api_scenario.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
@@ -183,7 +183,7 @@
             and (
             api_scenario.num like concat('%', #{request.keyword},'%')
             or api_scenario.name like concat('%', #{request.keyword},'%')
-            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or api_scenario.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
