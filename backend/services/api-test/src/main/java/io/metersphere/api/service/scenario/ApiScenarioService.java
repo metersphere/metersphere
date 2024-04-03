@@ -1710,19 +1710,22 @@ public class ApiScenarioService extends MoveNodeService {
 
         // 获取当前场景配置的环境信息
         EnvironmentModeDTO environmentModeDTO = scenarioParseEnvInfo.getRefScenarioEnvMap().get(step.getResourceId());
-        String environmentId = environmentModeDTO.getEnvironmentId();
 
-        // 设置是否是环境组
-        Boolean isGrouped = environmentModeDTO.getGrouped();
-        msScenario.setGrouped(isGrouped);
-        Map<String, EnvironmentInfoDTO> envMap = scenarioParseEnvInfo.getEnvMap();
+        if (environmentModeDTO != null) {
+            String environmentId = environmentModeDTO.getEnvironmentId();
 
-        if (BooleanUtils.isTrue(isGrouped)) {
-            // 设置环境组 map
-            msScenario.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, environmentId));
-        } else {
-            // 设置环境
-            msScenario.setEnvironmentInfo(envMap.get(environmentId));
+            // 设置是否是环境组
+            Boolean isGrouped = environmentModeDTO.getGrouped();
+            msScenario.setGrouped(isGrouped);
+            Map<String, EnvironmentInfoDTO> envMap = scenarioParseEnvInfo.getEnvMap();
+
+            if (BooleanUtils.isTrue(isGrouped)) {
+                // 设置环境组 map
+                msScenario.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, environmentId));
+            } else {
+                // 设置环境
+                msScenario.setEnvironmentInfo(envMap.get(environmentId));
+            }
         }
     }
 
@@ -2151,7 +2154,7 @@ public class ApiScenarioService extends MoveNodeService {
             }
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         }
-        return stepDetail;
+        return JSON.parseObject(JSON.toJSONString(stepDetail));
     }
 
     private void checkTargetModule(String targetModuleId, String projectId) {
