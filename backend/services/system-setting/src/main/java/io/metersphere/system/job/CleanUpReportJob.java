@@ -49,60 +49,56 @@ public class CleanUpReportJob {
 
         for (int i = 0; i < pages; i++) {
             int start = i * 100;
-            Thread.startVirtualThread(new Runnable() {
-                @Override
-                public void run() {
-                    List<Project> projects = baseProjectMapper.selectProjectByLimit(start,100);
-                    projects.forEach(project -> {
-                        ProjectApplicationExample applicationExample = new ProjectApplicationExample();
-                        //test_plan
-                        applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name());
-                        List<ProjectApplication> testPlan = projectApplicationMapper.selectByExample(applicationExample);
-                        Map<String, String> map = new HashMap<>();
-                        if (CollectionUtils.isNotEmpty(testPlan)) {
-                            map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), testPlan.get(0).getTypeValue());
-                        } else {
-                            map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), "3M");
-                        }
-
-                        //ui
-                        applicationExample.clear();
-                        applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.UI.UI_CLEAN_REPORT.name());
-                        List<ProjectApplication> ui = projectApplicationMapper.selectByExample(applicationExample);
-                        if (CollectionUtils.isNotEmpty(ui)) {
-                            map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), ui.get(0).getTypeValue());
-                        } else {
-                            map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), "3M");
-                        }
-
-                        //load_test
-                        applicationExample.clear();
-                        applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name());
-                        List<ProjectApplication> loadTest = projectApplicationMapper.selectByExample(applicationExample);
-                        if (CollectionUtils.isNotEmpty(loadTest)) {
-                            map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), loadTest.get(0).getTypeValue());
-                        } else {
-                            map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), "3M");
-                        }
-
-                        //api
-                        applicationExample.clear();
-                        applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());
-                        List<ProjectApplication> api = projectApplicationMapper.selectByExample(applicationExample);
-                        if (CollectionUtils.isNotEmpty(api)) {
-                            map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), api.get(0).getTypeValue());
-                        } else {
-                            map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), "3M");
-                        }
-
-                        Map<String, BaseCleanUpReport> beansOfType = applicationContext.getBeansOfType(BaseCleanUpReport.class);
-                        beansOfType.forEach((k, v) -> {
-                            v.cleanReport(map, project.getId());
-                        });
-
-                    });
+            List<Project> projects = baseProjectMapper.selectProjectByLimit(start, 100);
+            projects.forEach(project -> {
+                ProjectApplicationExample applicationExample = new ProjectApplicationExample();
+                //test_plan
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name());
+                List<ProjectApplication> testPlan = projectApplicationMapper.selectByExample(applicationExample);
+                Map<String, String> map = new HashMap<>();
+                if (CollectionUtils.isNotEmpty(testPlan)) {
+                    map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), testPlan.get(0).getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), "3M");
                 }
+
+                //ui
+                applicationExample.clear();
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.UI.UI_CLEAN_REPORT.name());
+                List<ProjectApplication> ui = projectApplicationMapper.selectByExample(applicationExample);
+                if (CollectionUtils.isNotEmpty(ui)) {
+                    map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), ui.get(0).getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), "3M");
+                }
+
+                //load_test
+                applicationExample.clear();
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name());
+                List<ProjectApplication> loadTest = projectApplicationMapper.selectByExample(applicationExample);
+                if (CollectionUtils.isNotEmpty(loadTest)) {
+                    map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), loadTest.get(0).getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), "3M");
+                }
+
+                //api
+                applicationExample.clear();
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());
+                List<ProjectApplication> api = projectApplicationMapper.selectByExample(applicationExample);
+                if (CollectionUtils.isNotEmpty(api)) {
+                    map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), api.get(0).getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), "3M");
+                }
+
+                Map<String, BaseCleanUpReport> beansOfType = applicationContext.getBeansOfType(BaseCleanUpReport.class);
+                beansOfType.forEach((k, v) -> {
+                    v.cleanReport(map, project.getId());
+                });
+
             });
+
         }
     }
 
