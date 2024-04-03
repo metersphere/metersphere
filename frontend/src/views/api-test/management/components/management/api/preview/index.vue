@@ -182,4 +182,8 @@
   const activeKey = ref('detail');
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.ms-detail-card .one-line-text) {
+    max-width: 300px;
+  }
+</style>

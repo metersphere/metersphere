@@ -1539,13 +1539,15 @@
             emit('addDone');
             done(true);
             Message.success(t('common.saveSuccess'));
-            saveCaseModalVisible.value = false;
+            handleSaveCaseCancel();
+            saveCaseLoading.value = false;
           }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
           done(false);
         } finally {
+          handleSaveCaseCancel();
           saveCaseLoading.value = false;
         }
       } else {
