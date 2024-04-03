@@ -211,7 +211,7 @@
               </a-form-item>
             </template>
           </MsCodeEditor>
-          <div class="mb-[24px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
+          <div class="mb-[24px] mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.nodeConfigEditorTip') }}
           </div>
         </div>

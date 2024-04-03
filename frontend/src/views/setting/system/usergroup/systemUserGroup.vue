@@ -15,7 +15,7 @@
         <div class="p-[24px]">
           <div class="flex flex-row items-center justify-between">
             <a-tooltip :content="currentUserGroupItem.name">
-              <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
+              <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
             </a-tooltip>
             <div class="flex items-center">
               <a-input-search

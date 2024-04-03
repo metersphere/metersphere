@@ -61,7 +61,7 @@
       <span class="text-[rgb(var(--warning-6))]">{{ t('system.orgTemplate.enableWarningTip') }}</span>
       <a-input
         v-model="validateKeyWord"
-        :placeholder="t('system.orgTemplate.searchOrgPlaceholder', { name: orgName })"
+        :placeholder="t('system.orgTemplate.searchOrgPlaceholder')"
         allow-clear
         class="mb-4 mt-[8px]"
         :max-length="255"
@@ -228,7 +228,8 @@
       .content {
         @apply flex;
         .logo-img {
-          @apply mr-3 flex items-center bg-white;
+          border-radius: var(--border-radius-small);
+          @apply mr-3 flex items-center justify-center bg-white;
         }
         .template-operation {
           .operation {
