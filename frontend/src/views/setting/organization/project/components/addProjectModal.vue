@@ -8,9 +8,15 @@
     @cancel="handleCancel(false)"
   >
     <template #title>
-      <span v-if="isEdit">
+      <span v-if="isEdit" class="flex">
         {{ t('system.project.updateProject') }}
-        <span class="text-[var(--color-text-4)]">({{ props.currentProject?.name }})</span>
+        <div class="ml-[4px] flex text-[var(--color-text-4)]">
+          (
+          <a-tooltip :content="props.currentProject?.name">
+            <div class="one-line-text max-w-[300px]">{{ props.currentProject?.name }}</div>
+          </a-tooltip>
+          )
+        </div>
       </span>
       <span v-else>
         {{ t('system.project.createProject') }}

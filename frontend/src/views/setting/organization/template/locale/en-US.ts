@@ -185,7 +185,7 @@ export default {
   'system.orgTemplate.enableTip': 'Are you sure to enable the project template',
   'system.orgTemplate.enableWarningTip': 'Enabled, irreversible for organization template, please careful operation.',
   'system.orgTemplate.typeEmptyTip': 'The filed type cannot be empty',
-  'system.orgTemplate.searchOrgPlaceholder': 'Please enter the organization name :{name}',
+  'system.orgTemplate.searchOrgPlaceholder': 'Please enter the organization name',
   'system.orgTemplate.associatedField': 'Associated field ',
   'system.orgTemplate.associatedHasField': 'Associate an added field',
   'system.orgTemplate.addFieldDesc': 'Adds a new field',

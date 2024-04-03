@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col px-[24px] pb-[24px]">
-    <div class="sticky top-0 z-[999] bg-white pt-[24px]">
+    <div class="sticky top-0 z-[999] bg-white pb-[8px] pt-[24px]">
       <a-input-search
         :placeholder="t('system.userGroup.searchHolder')"
         allow-clear
@@ -51,8 +51,8 @@
           <div
             v-for="element in systemUserGroupList"
             :key="element.id"
-            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            class="list-item"
+            :class="{ '!bg-[rgb(var(--primary-1))]': element.id === currentId }"
             @click="handleListItemClick(element)"
           >
             <CreateUserGroupPopup
@@ -64,22 +64,24 @@
               <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text text-[var(--color-text-1)]"
-                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    class="list-item-name one-line-text text-[var(--color-text-1)]"
+                    :class="{ '!text-[rgb(var(--primary-5))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
-                  <MsMoreAction
-                    v-if="element.type === systemType"
-                    v-permission="props.updatePermission"
-                    :list="addMemberActionItem"
-                    @select="handleAddMember"
-                  >
-                    <div class="icon-button">
-                      <MsIcon type="icon-icon_add_outlined" size="16" />
-                    </div>
-                  </MsMoreAction>
+                <div
+                  class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
+                  :class="{ '!opacity-100': element.id === currentId }"
+                >
+                  <div class="icon-button">
+                    <MsIcon
+                      v-if="element.type === systemType"
+                      v-permission="props.updatePermission"
+                      type="icon-icon_add_outlined"
+                      size="16"
+                      @click="handleAddMember"
+                    />
+                  </div>
                   <MsMoreAction
                     v-if="isSystemShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="systemMoreAction"
@@ -139,8 +141,8 @@
           <div
             v-for="element in orgUserGroupList"
             :key="element.id"
-            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            class="list-item"
+            :class="{ '!bg-[rgb(var(--primary-1))]': element.id === currentId }"
             @click="handleListItemClick(element)"
           >
             <CreateUserGroupPopup
@@ -152,22 +154,24 @@
               <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text text-[var(--color-text-1)]"
-                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    class="list-item-name one-line-text text-[var(--color-text-1)]"
+                    :class="{ '!text-[rgb(var(--primary-5))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
-                  <MsMoreAction
-                    v-if="element.type === systemType"
-                    v-permission="props.updatePermission"
-                    :list="addMemberActionItem"
-                    @select="handleAddMember"
-                  >
-                    <div class="icon-button">
-                      <MsIcon type="icon-icon_add_outlined" size="16" />
-                    </div>
-                  </MsMoreAction>
+                <div
+                  class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
+                  :class="{ '!opacity-100': element.id === currentId }"
+                >
+                  <div class="icon-button">
+                    <MsIcon
+                      v-if="element.type === systemType"
+                      v-permission="props.updatePermission"
+                      type="icon-icon_add_outlined"
+                      size="16"
+                      @click="handleAddMember"
+                    />
+                  </div>
                   <MsMoreAction
                     v-if="isOrdShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="orgMoreAction"
@@ -227,8 +231,8 @@
           <div
             v-for="element in projectUserGroupList"
             :key="element.id"
-            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            class="list-item"
+            :class="{ '!bg-[rgb(var(--primary-1))]': element.id === currentId }"
             @click="handleListItemClick(element)"
           >
             <CreateUserGroupPopup
@@ -240,22 +244,24 @@
               <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text text-[var(--color-text-1)]"
-                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    class="list-item-name one-line-text text-[var(--color-text-1)]"
+                    :class="{ '!text-[rgb(var(--primary-5))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
                 </a-tooltip>
-                <div v-if="element.id === currentId" class="flex flex-row items-center gap-[8px]">
-                  <MsMoreAction
-                    v-if="element.type === systemType"
-                    v-permission="props.updatePermission"
-                    :list="addMemberActionItem"
-                    @select="handleAddMember"
-                  >
-                    <div v-permission="props.updatePermission" class="icon-button">
-                      <MsIcon type="icon-icon_add_outlined" size="16" />
-                    </div>
-                  </MsMoreAction>
+                <div
+                  class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
+                  :class="{ '!opacity-100': element.id === currentId }"
+                >
+                  <div class="icon-button">
+                    <MsIcon
+                      v-if="element.type === systemType"
+                      v-permission="props.updatePermission"
+                      type="icon-icon_add_outlined"
+                      size="16"
+                      @click="handleAddMember"
+                    />
+                  </div>
                   <MsMoreAction
                     v-if="isProjectShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
                     :list="projectMoreAction"
@@ -362,10 +368,6 @@
   const projectUserGroupList = computed(() => {
     return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.PROJECT);
   });
-
-  const addMemberActionItem: ActionsItem[] = [
-    { label: 'system.userGroup.addMember', eventTag: 'addMember', permission: props.updatePermission },
-  ];
 
   const systemMoreAction: ActionsItem[] = [
     {
@@ -593,5 +595,14 @@
   .v-enter-from,
   .v-leave-to {
     opacity: 0;
+  }
+  .list-item {
+    padding: 7px 4px 7px 20px;
+    height: 38px;
+    border-radius: var(--border-radius-small);
+    @apply flex cursor-pointer items-center hover:bg-[rgb(var(--primary-9))];
+    &:hover .list-item-action {
+      opacity: 1;
+    }
   }
 </style>

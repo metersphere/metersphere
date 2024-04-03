@@ -174,7 +174,7 @@ export default {
   'system.orgTemplate.enableTip': '确认启用项目模版吗',
   'system.orgTemplate.enableWarningTip': '启用后，不可恢复为组织模版，请谨慎操作！',
   'system.orgTemplate.typeEmptyTip': '字段类型不能为空',
-  'system.orgTemplate.searchOrgPlaceholder': '请输入组织名称: {name} ',
+  'system.orgTemplate.searchOrgPlaceholder': '请输入组织名称',
   'system.orgTemplate.associatedField': '关联字段 ',
   'system.orgTemplate.associatedHasField': '关联已添加的字段',
   'system.orgTemplate.addFieldDesc': '新增一个新的字段',
