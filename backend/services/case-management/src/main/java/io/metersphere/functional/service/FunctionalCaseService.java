@@ -460,20 +460,11 @@ public class FunctionalCaseService {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
         if (CollectionUtils.isNotEmpty(templateDTO.getCustomFields())) {
             List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
-            List<UserExtendDTO> memberOption = projectService.getMemberOption(functionalCase.getProjectId(), null);
-            List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
-                CustomFieldOption customFieldOption = new CustomFieldOption();
-                customFieldOption.setFieldId(option.getId());
-                customFieldOption.setValue(option.getId());
-                customFieldOption.setInternal(false);
-                customFieldOption.setText(option.getName());
-                return customFieldOption;
-            }).toList();
+            List<CustomFieldOption> memberCustomOption = getMemberOptions(functionalCase.getProjectId());
             customFields.forEach(item -> {
                 if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                     item.setOptions(memberCustomOption);
                 }
-                ;
                 FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
                 Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
                     item.setDefaultValue(customField.getValue());
@@ -483,8 +474,22 @@ public class FunctionalCaseService {
                 }, () -> {
                 });
             });
+
             functionalCaseDetailDTO.setCustomFields(customFields);
         }
+    }
+
+    private List<CustomFieldOption> getMemberOptions(String projectId) {
+        List<UserExtendDTO> memberOption = projectService.getMemberOption(projectId, null);
+        List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
+            CustomFieldOption customFieldOption = new CustomFieldOption();
+            customFieldOption.setFieldId(option.getId());
+            customFieldOption.setValue(option.getId());
+            customFieldOption.setInternal(false);
+            customFieldOption.setText(option.getName());
+            return customFieldOption;
+        }).toList();
+        return memberCustomOption;
     }
 
 
@@ -669,12 +674,12 @@ public class FunctionalCaseService {
             return new ArrayList<>();
         }
         //处理自定义字段值
-        return handleCustomFields(functionalCaseLists);
+        return handleCustomFields(functionalCaseLists, request.getProjectId());
     }
 
-    private List<FunctionalCasePageDTO> handleCustomFields(List<FunctionalCasePageDTO> functionalCaseLists) {
+    private List<FunctionalCasePageDTO> handleCustomFields(List<FunctionalCasePageDTO> functionalCaseLists,String projectId) {
         List<String> ids = functionalCaseLists.stream().map(FunctionalCasePageDTO::getId).collect(Collectors.toList());
-        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = getCaseCustomFiledMap(ids);
+        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = getCaseCustomFiledMap(ids,projectId);
         Set<String> userIds = extractUserIds(functionalCaseLists);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         functionalCaseLists.forEach(functionalCasePageDTO -> {
@@ -693,9 +698,13 @@ public class FunctionalCaseService {
                 .collect(Collectors.toSet());
     }
 
-    public Map<String, List<FunctionalCaseCustomFieldDTO>> getCaseCustomFiledMap(List<String> ids) {
+    public Map<String, List<FunctionalCaseCustomFieldDTO>> getCaseCustomFiledMap(List<String> ids,String projectId) {
+        List<CustomFieldOption> memberCustomOption = getMemberOptions(projectId);
         List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
         customFields.forEach(customField -> {
+            if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                customField.setOptions(memberCustomOption);
+            }
             if (customField.getInternal()) {
                 customField.setFieldName(baseCustomFieldService.translateInternalField(customField.getFieldName()));
             }

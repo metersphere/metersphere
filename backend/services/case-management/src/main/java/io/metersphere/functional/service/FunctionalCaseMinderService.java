@@ -166,7 +166,7 @@ public class FunctionalCaseMinderService {
             baseTreeNodes.remove(0);
         }
         //自定义字段
-        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(caseIds);
+        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(caseIds,request.getProjectId());
         //构建返回数据，主层级应与模块树层级相同
         MinderSearchDTO minderSearchDTO = new MinderSearchDTO();
         minderSearchDTO.setBaseTreeNodes(baseTreeNodes);

@@ -33,7 +33,7 @@ public class AssociateCaseProvider implements BaseAssociateCaseProvider {
             return new ArrayList<>();
         }
         List<String> ids = functionalCases.stream().map(TestCaseProviderDTO::getId).toList();
-        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids);
+        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids,testCasePageProviderRequest.getProjectId());
         functionalCases.forEach(functionalCase -> {
             List<FunctionalCaseCustomFieldDTO> customFields = caseCustomFiledMap.get(functionalCase.getId());
             Optional<FunctionalCaseCustomFieldDTO> priorityField = customFields.stream().filter(field -> StringUtils.equals(Translator.get("custom_field.functional_priority"), field.getFieldName())).findFirst();
