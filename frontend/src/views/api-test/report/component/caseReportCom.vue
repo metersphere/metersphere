@@ -16,18 +16,47 @@
           <div class="time-card-item flex h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title">{{ t('report.detail.api.totalTime') }}</span>
-            <span class="count">{{ getTotalTime.split('-')[0] || 0 }}</span
-            ><span class="time-card-item-title">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
+            <a-popover position="bottom" content-class="response-popover-content">
+              <span class="count">{{ getTotalTime.split('-')[0] || 0 }}</span
+              ><span class="time-card-item-title">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
+              <template #content>
+                <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
+                  <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.totalTime') }}</div>
+                  <div class="mt-2 text-[var(--color-text-1)]">
+                    <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] || '-' }}</span
+                    >{{ getTotalTime.split('-')[1] || 'ms' }}</div
+                  >
+                </div>
+              </template>
+            </a-popover>
           </div>
           <div class="time-card-item h-full">
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title"> {{ t('report.detail.api.requestTotalTime') }}</span>
-            <span class="count">{{
-              detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
-            }}</span
-            ><span class="time-card-item-title">{{
-              detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
-            }}</span>
+            <a-popover position="bottom" content-class="response-popover-content">
+              <div class="flex items-center">
+                <div class="count">{{
+                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                }}</div
+                ><div class="time-card-item-title">{{
+                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
+                }}</div>
+              </div>
+
+              <template #content>
+                <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
+                  <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.requestTotalTime') }}</div>
+                  <div class="mt-2 text-[var(--color-text-1)]">
+                    <span class="text-[18px] font-medium">{{
+                      detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                    }}</span
+                    >{{
+                      detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
+                    }}</div
+                  >
+                </div>
+              </template>
+            </a-popover>
           </div>
         </div>
 
@@ -50,22 +79,54 @@
               <MsIcon type="icon-icon_yes_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
               {{ t('report.detail.api.assertPass') }}
             </div>
+
             <div class="flex items-center">
-              <span class="count"
-                >{{ detail.assertionPassRate === 'Calculating' ? '-' : detail.assertionPassRate || '0.00' }}%</span
-              >
-              <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
-              <span>{{
-                getIndicators(detail.assertionSuccessCount) === '-'
-                  ? '-'
-                  : addCommasToNumber(detail.assertionSuccessCount || 0)
-              }}</span>
-              <span class="mx-1 text-[var(--color-text-4)]"
-                >/
-                {{
-                  getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
-                }}</span
-              >
+              <a-popover position="bottom" content-class="response-popover-content">
+                <div class="flex items-center">
+                  <div class="count one-line-text max-w-[80px]">{{
+                    detail.assertionPassRate === 'Calculating' ? '-' : detail.assertionPassRate || '0.00'
+                  }}</div
+                  >%
+                  <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
+                  <div class="one-line-text max-w-[80px]">{{
+                    getIndicators(detail.assertionSuccessCount) === '-'
+                      ? '-'
+                      : addCommasToNumber(detail.assertionSuccessCount || 0)
+                  }}</div>
+                  <span class="mx-1 text-[var(--color-text-4)]">/</span>
+                  <div class="one-line-text max-w-[80px]">
+                    {{
+                      getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
+                    }}</div
+                  >
+                </div>
+
+                <template #content>
+                  <div class="min-w-[190px] max-w-[400px] p-4 text-[14px]">
+                    <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.assertPass') }}</div>
+                    <div class="mt-2 flex items-center justify-between">
+                      <div class="text-[18px] font-medium text-[var(--color-text-1)]"
+                        >{{ getIndicators(detail.assertionPassRate) }} <span>%</span></div
+                      >
+                      <div>
+                        <span class="text-[var(--color-text-1)]">{{
+                          getIndicators(detail.assertionSuccessCount) === '-'
+                            ? '-'
+                            : addCommasToNumber(detail.assertionSuccessCount || 0)
+                        }}</span>
+                        <span class="text-[var(--color-text-4)]"
+                          ><span class="mx-1">/</span>
+                          {{
+                            getIndicators(detail.assertionCount) === '-'
+                              ? '-'
+                              : addCommasToNumber(detail.assertionCount) || 0
+                          }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </a-popover>
             </div>
           </div>
         </div>

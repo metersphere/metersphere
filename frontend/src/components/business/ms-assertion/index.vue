@@ -126,6 +126,7 @@
           <ScriptTab
             v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
             v-model:data="getCurrentItemState"
+            :disabled="props.disabled"
             @change="handleChange"
           />
         </a-scrollbar>
@@ -176,7 +177,7 @@
     isDefinition?: boolean; // 是否是定义页面
     assertionConfig?: ExecuteAssertionConfig; // 是否开启全局
     response?: string; // 响应内容
-    disabled?: boolean;
+    disabled?: boolean; // 是否禁用
     showExtraction?: boolean; // 是否显示提取
   }>();
 
