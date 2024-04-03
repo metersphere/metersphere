@@ -138,7 +138,7 @@ public class ApiScenarioBatchRunService {
 
             String reportId = null;
             try {
-                ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(id);
+                ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(id);
                 if (apiScenarioDetail == null) {
                     if (runModeConfig.isIntegratedReport()) {
                         // 用例不存在，则在执行集合中删除
@@ -281,7 +281,7 @@ public class ApiScenarioBatchRunService {
      * @param queueDetail
      */
     public void executeNextTask(ExecutionQueue queue, ExecutionQueueDetail queueDetail) {
-        ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(queueDetail.getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(queueDetail.getResourceId());
         if (apiScenarioDetail == null) {
             LogUtils.info("当前执行任务的用例已删除 {}", queueDetail.getResourceId());
             return;
@@ -405,7 +405,7 @@ public class ApiScenarioBatchRunService {
             }
             Long requestCount = 0L;
             while (queueDetail != null) {
-                ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(queueDetail.getResourceId());
+                ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(queueDetail.getResourceId());
                 if (apiScenarioDetail == null) {
                     LogUtils.info("当前场景已删除 {}", queueDetail.getResourceId());
                     continue;

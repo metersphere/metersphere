@@ -1275,7 +1275,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
-        ApiScenarioDetail apiScenarioDetail = get(id);
+        ApiScenarioDetail apiScenarioDetail = getForRun(id);
 
         // 解析生成待执行的场景树
         MsScenario msScenario = new MsScenario();
@@ -1942,9 +1942,34 @@ public class ApiScenarioService extends MoveNodeService {
         return apiScenarios.getFirst();
     }
 
+    public ApiScenarioDetail getForRun(String scenarioId) {
+        ApiScenarioDetail apiScenarioDetail = get(scenarioId);
+        filerDisableSteps(apiScenarioDetail.getSteps());
+        return apiScenarioDetail;
+    }
+
+    /**
+     * 过滤掉禁用的步骤
+     */
+    public List<? extends ApiScenarioStepCommonDTO> filerDisableSteps(List<? extends ApiScenarioStepCommonDTO> steps) {
+        if (CollectionUtils.isEmpty(steps)) {
+            return List.of();
+        }
+        return steps.stream()
+                .filter(step -> {
+                    boolean isEnable = BooleanUtils.isTrue(step.getEnable());
+                    if (isEnable) {
+                        step.setChildren(filerDisableSteps(step.getChildren()));
+                    }
+                    return isEnable;
+                })
+                .toList();
+    }
+
     public ApiScenarioDetail get(String scenarioId) {
         ApiScenario apiScenario = checkResourceIsNoDeleted(scenarioId);
         ApiScenarioDetail apiScenarioDetail = BeanUtils.copyBean(new ApiScenarioDetail(), apiScenario);
+        apiScenarioDetail.setSteps(List.of());
         ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(scenarioId);
         if (apiScenarioBlob != null) {
             apiScenarioDetail.setScenarioConfig(JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));
