@@ -197,5 +197,5 @@ export default {
   'system.config.memoryCleanup.year': '年',
   'system.config.memoryCleanup.setSuccess': '设置成功',
   'system.config.memoryCleanup.saveCount': '保留条数',
-  'system.config.memoryCleanup.saveCountTip': '对系统内所有的项目生效，超出设置的用例变更历史会被清除，更新后立即生效',
+  'system.config.memoryCleanup.saveCountTip': '对系统内所有的项目生效，系统会在凌晨清除超出设置的变更历史记录',
 };
