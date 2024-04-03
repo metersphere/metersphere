@@ -14,6 +14,7 @@ export default {
   'apiTestManagement.disableTaskSuccess': '关闭定时导入任务成功',
   'apiTestManagement.addSubModule': '添加子模块',
   'apiTestManagement.allApi': '全部接口',
+  'apiTestManagement.allCase': '全部用例',
   'apiTestManagement.searchTip': '请输入模块/接口名称',
   'apiTestManagement.moveSearchTip': '请输入模块名称搜索',
   'apiTestManagement.noMatchModule': '暂无匹配的模块/接口',

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-[12px] flex items-center gap-[8px]">
+    <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiScenario.quoteTreeSearchTip')" allow-clear />
       <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('apiScenario.expandAllStep')">
         <a-button
@@ -13,6 +13,14 @@
         </a-button>
       </a-tooltip>
     </div>
+    <div class="folder" @click="setActiveFolder('all')">
+      <div :class="allFolderClass">
+        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+        <div class="folder-name">{{ folderText }}</div>
+        <div class="folder-count">({{ allScenarioCount }})</div>
+      </div>
+    </div>
+    <a-divider class="my-[8px]" />
     <a-spin class="w-full" :loading="loading">
       <MsTree
         v-model:selected-keys="selectedKeys"
@@ -85,6 +93,26 @@
   const isExpandAll = ref(false);
   const moduleCountMap = ref<Record<string, number>>({});
   const selectedKeys = ref<string[]>([]);
+  const folderText = computed(() => {
+    if (props.type === 'api') {
+      return t('apiTestManagement.allApi');
+    }
+    if (props.type === 'case') {
+      return t('apiTestManagement.allCase');
+    }
+    if (props.type === 'scenario') {
+      return t('apiScenario.tree.folder.allScenario');
+    }
+  });
+  const allScenarioCount = computed(() => moduleCountMap.value.all || 0);
+  const allFolderClass = computed(() =>
+    selectedKeys.value[0] === 'all' ? 'folder-text folder-text--active' : 'folder-text'
+  );
+
+  function setActiveFolder(id: string) {
+    selectedKeys.value = [id];
+    emit('select', [], { id, name: folderText.value });
+  }
 
   /**
    * 初始化模块树
@@ -104,8 +132,7 @@
       } else if (type === 'scenario') {
         folderTree.value = await getScenarioModuleTree(params);
       }
-      selectedKeys.value = [folderTree.value[0]?.id];
-      emit('select', [folderTree.value[0]?.id], folderTree.value[0]);
+      setActiveFolder('all');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -154,6 +181,36 @@
 </script>
 
 <style lang="less" scoped>
+  .folder {
+    @apply flex cursor-pointer items-center justify-between;
+
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-text {
+      @apply flex flex-1 cursor-pointer items-center;
+      .folder-icon {
+        margin-right: 4px;
+        color: var(--color-text-4);
+      }
+      .folder-name {
+        color: var(--color-text-1);
+      }
+      .folder-count {
+        margin-left: 4px;
+        color: var(--color-text-4);
+      }
+    }
+    .folder-text--active {
+      .folder-icon,
+      .folder-name,
+      .folder-count {
+        color: rgb(var(--primary-5));
+      }
+    }
+  }
   .expand-btn {
     padding: 8px;
     .arco-icon {

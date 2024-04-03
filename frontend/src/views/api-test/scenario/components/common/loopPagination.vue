@@ -5,6 +5,7 @@
     :page-size="1"
     :total="props.loopTotal"
     :show-jumper="props.loopTotal > 5"
+    :base-size="Infinity"
     show-total
     size="mini"
     class="loop-pagination"

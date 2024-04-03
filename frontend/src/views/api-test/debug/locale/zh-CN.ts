@@ -93,6 +93,7 @@ export default {
   'apiTestDebug.storageByResult': '按结果存储',
   'apiTestDebug.storageByResultPlaceholder': '如 {a}; 后续使用如{b}',
   'apiTestDebug.extractParameter': '提取参数',
+  'apiTestDebug.sqlExtractParameter': '按列提取值',
   'apiTestDebug.searchTip': '请输入模块/请求名称',
   'apiTestDebug.allRequest': '全部请求',
   'apiTestDebug.deleteFolderTipTitle': '是否删除 {name} 模块？',

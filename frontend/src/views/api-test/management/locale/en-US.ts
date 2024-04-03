@@ -14,6 +14,7 @@ export default {
   'apiTestManagement.disableTaskSuccess': 'Closing the scheduled import task successfully',
   'apiTestManagement.addSubModule': 'Add submodule',
   'apiTestManagement.allApi': 'All api',
+  'apiTestManagement.allCase': 'All case',
   'apiTestManagement.searchTip': 'Please enter module/api name',
   'apiTestManagement.moveSearchTip': 'Please enter the module name to search',
   'apiTestManagement.noMatchModule': 'No matching module/api yet',

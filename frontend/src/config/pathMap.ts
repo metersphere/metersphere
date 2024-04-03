@@ -95,7 +95,7 @@ export const pathMap: PathMapItem[] = [
           },
           {
             key: 'API_TEST_MANAGEMENT_RECYCLE', // 接口测试-回收站
-            locale: 'menu.bugManagement.bugRecycle',
+            locale: 'menu.apiTest.scenario.recycle',
             route: RouteEnum.API_TEST_MANAGEMENT_RECYCLE,
             permission: [],
             level: MENU_LEVEL[2],
@@ -103,15 +103,29 @@ export const pathMap: PathMapItem[] = [
         ],
       },
       {
-        key: 'API_SCENARIO_MANAGEMENT_SCENARIO', // 接口测试-场景
+        key: 'API_TEST_SCENARIO_MANAGEMENT', // 接口测试-场景
         locale: 'menu.apiTest.scenario',
         route: RouteEnum.API_TEST_SCENARIO,
         permission: [],
         level: MENU_LEVEL[2],
         children: [
           {
-            key: 'API_TEST_SCENARIO_RECYCLE', // 接口测试-回收站
-            locale: 'menu.bugManagement.bugRecycle',
+            key: 'API_TEST_SCENARIO_MANAGEMENT_SCENARIO', // 接口测试-场景
+            locale: 'menu.apiTest.scenario',
+            route: RouteEnum.API_TEST_SCENARIO,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_SCENARIO_MANAGEMENT_MODULE', // 接口测试-场景-模块
+            locale: 'common.module',
+            route: RouteEnum.API_TEST_SCENARIO,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'API_TEST_SCENARIO_RECYCLE', // 接口测试-场景-回收站
+            locale: 'menu.apiTest.scenario.recycle',
             route: RouteEnum.API_TEST_SCENARIO_RECYCLE,
             permission: [],
             level: MENU_LEVEL[2],
