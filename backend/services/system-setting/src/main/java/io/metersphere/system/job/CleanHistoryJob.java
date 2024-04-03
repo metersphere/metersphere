@@ -57,14 +57,7 @@ public class CleanHistoryJob {
         int size = 100;
         List<List<String>> batchList = splitList(sourceIds, size);
 
-        batchList.forEach(batch -> {
-            Thread.startVirtualThread(new Runnable() {
-                @Override
-                public void run() {
-                    cleanupHistory(batch, limit);
-                }
-            });
-        });
+        batchList.forEach(batch -> cleanupHistory(batch, limit));
     }
 
     private List<List<String>> splitList(List<String> list, int size) {
