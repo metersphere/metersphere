@@ -1218,7 +1218,7 @@
     const { assertionConfig } = requestVModel.value.children[0];
     const assertionList = assertionConfig.assertions.map((assertItem: any) => {
       const bodyAssertionDataByTypeList = filterKeyValParams(
-        assertItem.bodyAssertionDataByType.assertions,
+        assertItem?.bodyAssertionDataByType?.assertions || [],
         defaultAssertParamsItem,
         isExecute
       ).validParams;
@@ -1229,19 +1229,28 @@
           assertions: bodyAssertionDataByTypeList,
         },
         regexAssertion: {
-          ...assertItem.regexAssertion,
-          assertions: filterKeyValParams(assertItem.regexAssertion.assertions, defaultAssertXpathParamsItem, isExecute)
-            .validParams,
+          ...assertItem?.regexAssertion,
+          assertions: filterKeyValParams(
+            assertItem?.regexAssertion?.assertions || [],
+            defaultAssertXpathParamsItem,
+            isExecute
+          ).validParams,
         },
         xpathAssertion: {
           ...assertItem.xpathAssertion,
-          assertions: filterKeyValParams(assertItem.xpathAssertion.assertions, defaultAssertXpathParamsItem, isExecute)
-            .validParams,
+          assertions: filterKeyValParams(
+            assertItem?.xpathAssertion?.assertions || [],
+            defaultAssertXpathParamsItem,
+            isExecute
+          ).validParams,
         },
         jsonPathAssertion: {
           ...assertItem.jsonPathAssertion,
-          assertions: filterKeyValParams(assertItem.jsonPathAssertion.assertions, defaultAssertParamsItem, isExecute)
-            .validParams,
+          assertions: filterKeyValParams(
+            assertItem?.jsonPathAssertion?.assertions || [],
+            defaultAssertParamsItem,
+            isExecute
+          ).validParams,
         },
       };
     });
