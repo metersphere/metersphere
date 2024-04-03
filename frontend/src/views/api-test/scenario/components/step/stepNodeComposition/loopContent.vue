@@ -254,7 +254,7 @@
     () => dbClick?.value.timeStamp,
     () => {
       // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id === props.stepId) {
+      if ((dbClick?.value.e?.target as Element).parentNode?.uniqueId === props.stepId) {
         emit(
           'quickInput',
           innerData.value.whileController.conditionType === WhileConditionType.CONDITION

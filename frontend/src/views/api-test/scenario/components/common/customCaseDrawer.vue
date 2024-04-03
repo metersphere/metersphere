@@ -936,7 +936,7 @@
         url: res.path,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
-        stepId: activeStep.value?.id || '',
+        stepId: activeStep.value?.uniqueId || '',
         ...parseRequestBodyResult,
       };
       nextTick(() => {

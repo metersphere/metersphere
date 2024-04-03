@@ -25,7 +25,7 @@
     </a-select>
     <a-tooltip :content="innerData.value" :disabled="!innerData.value">
       <a-input
-        :id="innerData.id"
+        :id="props.stepId"
         v-model:model-value="innerData.value"
         size="mini"
         class="w-[110px] px-[8px]"

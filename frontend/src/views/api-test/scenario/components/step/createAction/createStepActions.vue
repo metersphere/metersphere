@@ -163,7 +163,7 @@
       case ScenarioAddStepActionType.CUSTOM_API:
       case ScenarioAddStepActionType.SCRIPT_OPERATION:
         if (step.value) {
-          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.id, 'id');
+          const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.value.uniqueId, 'uniqueId');
           if (realStep) {
             emit('otherCreate', val, realStep as ScenarioStepItem);
           }

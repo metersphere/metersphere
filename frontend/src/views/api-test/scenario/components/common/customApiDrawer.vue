@@ -508,7 +508,8 @@
   );
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
-    if (props.step?.uniqueId) {
+    if (requestVModel.value.stepId === props.step?.uniqueId && props.step?.uniqueId) {
+      // 判断当前步骤 id 与传入的激活步骤 id 是否一致，避免在操作插入步骤时带入的是其他步骤的响应内容
       return props.stepResponses?.[props.step?.uniqueId]?.[currentLoop.value - 1];
     }
   });
@@ -1059,7 +1060,7 @@
         url: res.path,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
-        stepId: props.step?.id || '',
+        stepId: props.step?.uniqueId || '',
         responseActiveTab: ResponseComposition.BODY,
         ...parseRequestBodyResult,
       };

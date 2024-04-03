@@ -37,7 +37,13 @@
           <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
             <slot name="extra" v-bind="_props"></slot>
             <MsTableMoreAction
-              v-if="props.nodeMoreActions"
+              v-if="
+                props.nodeMoreActions &&
+                (typeof props.filterMoreActionFunc === 'function'
+                  ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
+                  : props.nodeMoreActions
+                ).length > 0
+              "
               :list="
                 typeof props.filterMoreActionFunc === 'function'
                   ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
@@ -47,14 +53,6 @@
               @select="handleNodeMoreSelect($event, _props)"
               @close="moreActionsClose"
             >
-              <!--              <MsButton-->
-              <!--                type="text"-->
-              <!--                :size="props.nodeMoreActionSize || 'mini'"-->
-              <!--                class="ms-tree-node-extra__more"-->
-              <!--                @click="focusNodeKey = _props[props.fieldNames.key]"-->
-              <!--              >-->
-              <!--                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(&#45;&#45;color-text-4)]" />-->
-              <!--              </MsButton>-->
             </MsTableMoreAction>
           </div>
           <div class="ms-tree-node-extra-end">
@@ -78,8 +76,6 @@
   import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
