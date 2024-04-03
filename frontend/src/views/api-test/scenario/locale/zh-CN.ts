@@ -201,8 +201,11 @@ export default {
 
   // 回收站
   'api_scenario.recycle.recover': '恢复',
+  'api_scenario.recycle.recoveredSuccessfully': '恢复成功',
   'api_scenario.recycle.list': '回收站列表',
   'api_scenario.recycle.batchCleanOut': '彻底删除',
+  'api_scenario.recycle.completedDeleteCaseTitle': '确认彻底删除 {name} 吗?',
+  'api_scenario.recycle.cleanOutDeleteOnRecycleTip': '删除后，场景无法恢复，请谨慎操作!',
   'apiScenario.quoteTreeNoData': '暂无可引用数据，可切换项目获取数据',
   'apiScenario.quoteTreeSearchTip': '输入模块名称搜索',
   'apiScenario.quoteTableSearchTip': '通过路径或名称搜索',

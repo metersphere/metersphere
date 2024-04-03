@@ -196,8 +196,12 @@ export default {
 
   // 回收站
   'api_scenario.recycle.recover': 'Recover',
+  'api_scenario.recycle.recoveredSuccessfully': 'Recover success',
   'api_scenario.recycle.list': 'Recycle list',
   'api_scenario.recycle.batchCleanOut': 'Delete',
+  'api_scenario.recycle.completedDeleteCaseTitle': 'Are you sure you want to completely delete {name}?',
+  'api_scenario.recycle.cleanOutDeleteOnRecycleTip':
+    'After deletion, the scene cannot be restored, please operate with caution!',
   'api_scenario.table.searchPlaceholder': 'Search by ID/Name/Tag',
   'apiScenario.quoteTreeNoData': 'There is currently no reference data. You can switch projects to obtain data.',
   'apiScenario.quoteTreeSearchTip': 'Enter module name to search',

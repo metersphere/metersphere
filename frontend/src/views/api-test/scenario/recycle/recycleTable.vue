@@ -329,6 +329,7 @@
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
+      showTooltip: true,
       titleSlotName: 'createUser',
       width: 109,
       showDrag: true,
@@ -336,6 +337,7 @@
     {
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
+      showTooltip: true,
       titleSlotName: 'updateUser',
       width: 109,
       showDrag: true,
@@ -343,6 +345,7 @@
     {
       title: 'apiScenario.table.columns.operation',
       dataIndex: 'deleteUserName',
+      showTooltip: true,
       titleSlotName: 'deleteUser',
       width: 109,
       showDrag: true,
@@ -475,7 +478,7 @@
         await recoverScenario(record?.id as string);
       }
 
-      Message.success(t('common.revokeSuccess'));
+      Message.success(t('api_scenario.recycle.recoveredSuccessfully'));
       tableSelected.value = [];
       resetSelector();
       loadScenarioList(true);
@@ -489,7 +492,7 @@
    * 删除接口
    */
   function deleteOperation(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('api_scenario.table.deleteScenarioTipTitle', { name: record?.name });
+    let title = t('api_scenario.recycle.completedDeleteCaseTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('api_scenario.table.batchDeleteScenarioTip', {
@@ -500,7 +503,7 @@
     openModal({
       type: 'error',
       title,
-      content: t('api_scenario.table.deleteScenarioTip'),
+      content: t('api_scenario.recycle.cleanOutDeleteOnRecycleTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
