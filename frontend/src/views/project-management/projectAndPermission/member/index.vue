@@ -397,6 +397,8 @@
   onBeforeMount(() => {
     initData();
   });
+
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
 
 <style scoped></style>
