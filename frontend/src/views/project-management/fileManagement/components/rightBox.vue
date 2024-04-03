@@ -1022,9 +1022,11 @@
   const activeFileIndex = ref(0);
 
   async function openFileDetail(id: string, index: number) {
-    showDetailDrawer.value = true;
     activeFileId.value = id;
     activeFileIndex.value = index;
+    await nextTick(() => {
+      showDetailDrawer.value = true;
+    });
   }
 
   watch(
