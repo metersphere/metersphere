@@ -654,7 +654,7 @@
         padding: 4px 8px;
       }
     }
-    max-width: 172px;
+    max-width: 400px;
   }
   .ms-params-input-setting-trigger {
     @apply bg-white;

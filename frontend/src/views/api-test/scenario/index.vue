@@ -366,8 +366,8 @@
         ...defaultScenarioInfo,
         steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
-        label: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
-        name: isCopy ? `copy-${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+        label: isCopy ? `copy_${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+        name: isCopy ? `copy_${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
         isNew: isCopy,
         stepResponses: {},
       });

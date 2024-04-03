@@ -819,7 +819,7 @@
                 };
               })[0]
             ),
-            name: `copy-${node.name}`,
+            name: `copy_${node.name}`,
             copyFromStepId: node.id,
             sort: node.sort + 1,
             isNew: true,
