@@ -262,9 +262,9 @@
   <!--  定时任务配置-->
   <a-modal v-model:visible="showScheduleModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="600">
     <template #title>
-      <div>
+      <div class="float-left">
         {{ scheduleModalTitle }}
-        <div class="text-[var(--color-text-4)]">
+        <div class="float-right text-[var(--color-text-4)]">
           {{ '（' + tableRecord?.name + '）' }}
         </div>
       </div>
@@ -327,7 +327,7 @@
         class="mb-0"
       >
         <a-select v-model="scheduleConfig.config.poolId" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of environmentList" :key="item.id" :value="item.id">
+          <a-option v-for="item of resourcePoolList" :key="item.id" :value="item.id">
             {{ t(item.name) }}
           </a-option>
         </a-select>
@@ -561,7 +561,7 @@
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
-  import { getEnvList } from '@/api/modules/api-test/management';
+  import { getEnvList, getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import {
     batchEditScenario,
     batchOptionScenario,
@@ -582,6 +582,7 @@
 
   import { Environment } from '@/models/apiTest/management';
   import { ApiScenarioScheduleConfig, ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
+  import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -625,9 +626,22 @@
   const scheduleUseNewEnv = ref(false);
 
   const environmentList = ref<Environment[]>();
+  const defaultPoolId = ref('');
+  const resourcePoolList = ref<ResourcePoolItem[]>();
+
   // 初始化环境列表
   async function initEnvList() {
     environmentList.value = await getEnvList(appStore.currentProjectId);
+  }
+  // 初始化资源池
+  async function initResourcePool() {
+    try {
+      defaultPoolId.value = await getPoolId(appStore.currentProjectId);
+      resourcePoolList.value = await getPoolOption(appStore.currentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   const scenarioPriorityList = ref([
@@ -1036,6 +1050,9 @@
   ];
 
   function resetScheduleConfig(record: ApiScenarioTableItem) {
+    // 初始化资源池
+    initResourcePool();
+
     // 初始化已选择的表格数据
     tableRecord.value = record;
     if (record.scheduleConfig) {
@@ -1047,7 +1064,7 @@
         enable: false,
         cron: '0 0 0/1 * * ? ',
         config: {
-          poolId: '',
+          poolId: defaultPoolId?.value,
           grouped: false,
         },
       };
@@ -1055,6 +1072,7 @@
     scheduleUseNewEnv.value = !!scheduleConfig.value.config.environmentId;
     // 初始化环境
     initEnvList();
+
     // 初始化弹窗标题
     if (tableRecord.value.scheduleConfig) {
       scheduleModalTitle.value = t('apiScenario.schedule.update');
