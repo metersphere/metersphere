@@ -17,7 +17,7 @@
       <slot name="titleRight"></slot>
     </div>
   </div>
-  <div v-if="data.length > 0 && activeItem" class="flex h-[calc(100%-40px)] gap-[8px]">
+  <div v-if="data.length > 0 && activeItem" class="flex h-[calc(100%-40px)] w-full gap-[8px]">
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
         v-model:list="data"

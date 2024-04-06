@@ -203,10 +203,6 @@
 
   const detailDrawerRef = ref();
 
-  onBeforeUnmount(() => {
-    detailDrawerRef.value?.destroy();
-  });
-
   watch(
     () => showDrawer.value,
     (val) => {

@@ -25,3 +25,5 @@ export const GetFormApiImportModuleCountUrl = '/api/definition/module/count';
 export const TestScriptUrl = '/api/test/custom/func/run';
 // websoket连接
 export const ConnectionWebsocketUrl = '/ws/api';
+// 公共脚本变更历史详情
+export const getChangeHistoryUrl = '/project/custom/func/history/page';

@@ -18,6 +18,7 @@
           isStaticItemHeight: true,
           estimatedSize: 48,
         }"
+        :animation="false"
         action-on-node-click="expand"
         disabled-title-tooltip
         block-node
@@ -26,7 +27,8 @@
         @more-actions-close="() => setFocusNodeKey('')"
       >
         <template #title="step">
-          <div class="flex flex-col">
+          <!-- <div class="absolute h-full w-full top-0" style="border: 1px solid #0cc"></div> -->
+          <div class="flex flex-col" @click="handleStop($event, step)">
             <div class="flex w-full items-center gap-[8px]">
               <div
                 class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
@@ -44,7 +46,10 @@
                       })
                     "
                   >
-                    <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]">
+                    <div
+                      v-if="!(step.children && step.children.length && showApiType.includes(step.stepType))"
+                      class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]"
+                    >
                       <MsIcon
                         :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
                         :size="14"
@@ -66,8 +71,14 @@
                   </div>
 
                   <a-tooltip :content="step.name" position="tl">
-                    <div class="step-name-container w-full flex-grow" @click.stop="showDetail(step)">
-                      <div class="one-line-text mx-[4px] max-w-[150px] text-[var(--color-text-1)]">
+                    <div
+                      class="step-name-container"
+                      :class="{
+                        'w-full flex-grow': showApiType.includes(step.stepType),
+                      }"
+                      @click="showDetail($event, step)"
+                    >
+                      <div class="one-line-text mx-[4px] max-w-[300px] text-[var(--color-text-1)]">
                         {{ step.name }}
                       </div>
                     </div>
@@ -186,6 +197,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { MsTreeExpandedData } from '@/components/business/ms-tree/types';
 
@@ -226,14 +238,19 @@
   const innerExpandedKeys = defineModel<(string | number)[]>('expandedKeys', {
     required: false,
   });
+  const showApiType = ref<string[]>([ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST]);
+
+  const innerNumber = ref<number>(0);
 
   /**
    * 处理步骤展开折叠
    */
   function handleStepExpand(data: MsTreeExpandedData) {
-    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
-    if (realStep) {
-      realStep.expanded = !realStep.expanded;
+    const isNotAllowExpand =
+      data.node?.children && data.node?.children.length && showApiType.value.includes(data.node?.stepType);
+    if (isNotAllowExpand && data.node && data.node.children) {
+      data.node.stepChildren = cloneDeep(data.node.children);
+      data.node.children = [];
     }
   }
 
@@ -255,12 +272,17 @@
 
   function expandHandler(item: ScenarioItemType) {
     const realStep = findNodeByKey<ScenarioItemType>(steps.value, item.stepId, 'stepId');
-    // TODO
     if (realStep) {
+      const isNotAllowExpand =
+        realStep.children && realStep?.children.length && showApiType.value.includes(realStep?.stepType);
+      if (isNotAllowExpand) {
+        realStep.stepChildren = cloneDeep(realStep.children);
+        realStep.children = [];
+      }
       realStep.fold = !realStep.fold;
     }
   }
-  const showApiType = ref<string[]>([ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST]);
+
   const showCondition = ref<string[]>([
     ScenarioStepType.API,
     ScenarioStepType.API_CASE,
@@ -276,7 +298,7 @@
     return props.activeType === 'tab';
   }
   const activeItem = ref();
-  function showDetail(item: ScenarioItemType) {
+  function showDetail(event: Event, item: ScenarioItemType) {
     if (props.activeType === 'tab') {
       return;
     }
@@ -285,6 +307,7 @@
     }
     activeItem.value = item;
     emit('detail', activeItem.value);
+    event.stopPropagation();
   }
 
   // 响应状态码对应颜色
@@ -314,6 +337,12 @@
       return true;
     }
     return item.children && item.children.length > 0;
+  }
+
+  function handleStop(event: Event, step: ScenarioItemType) {
+    if (step.children && step.children.length && showApiType.value.includes(step.stepType)) {
+      event.stopPropagation();
+    }
   }
 </script>
 

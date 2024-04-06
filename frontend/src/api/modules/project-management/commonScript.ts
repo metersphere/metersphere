@@ -3,6 +3,7 @@ import {
   AddCommonScriptUrl,
   ConnectionWebsocketUrl,
   DeleteCommonScriptUrl,
+  getChangeHistoryUrl,
   GetCommonScriptDetailUrl,
   GetCommonScriptPageUrl,
   GetCommonScriptStatusUrl,
@@ -19,6 +20,7 @@ import type { ModulesTreeType } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams } from '@/models/common';
 import type {
   AddOrUpdateCommonScript,
+  changeHistory,
   CommonScriptItem,
   TestScriptType,
 } from '@/models/projectManagement/commonScript';
@@ -56,6 +58,10 @@ export function getCommonScriptStatus(data: AddOrUpdateCommonScript) {
 // 获取插入脚本列表
 export function getInsertCommonScriptPage(data: TableQueryParams) {
   return MSR.post<CommonList<CommonScriptItem[]>>({ url: GetInsertCommonScriptPageUrl, data });
+}
+// 获取公共脚本变更历史详情
+export function getChangeHistory(data: TableQueryParams) {
+  return MSR.post<CommonList<changeHistory[]>>({ url: getChangeHistoryUrl, data });
 }
 
 /**

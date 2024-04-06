@@ -1,14 +1,5 @@
 <template>
-  <div class="h-full w-full">
-    <a-scrollbar
-      :style="{
-        overflow: 'auto',
-        height: 'calc(100vh - 490px)',
-      }"
-    >
-      <conditionContent v-model:data="condition" :disabled="props.disabled" />
-    </a-scrollbar>
-  </div>
+  <conditionContent v-model:data="condition" :disabled="props.disabled" />
 </template>
 
 <script lang="ts" setup>
@@ -37,12 +28,6 @@
   }>();
 
   const condition = useVModel(props, 'data', emit);
-
-  // function handleChange() {
-  //   // eslint-disable-next-line no-use-before-define
-  //   emit('update:data');
-  //   emit('change', { ...condition.value });
-  // }
 
   const currentEnvConfig = ref({});
 

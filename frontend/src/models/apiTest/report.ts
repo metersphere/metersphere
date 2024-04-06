@@ -105,6 +105,7 @@ export interface ScenarioItemType {
   children: ScenarioItemType[];
   level?: number;
   stepDetail: ReportStepDetailItem;
+  stepChildren?: ScenarioItemType[]; // 步骤子步骤
 }
 
 export type ScenarioDetailItem = Partial<ScenarioItemType>;

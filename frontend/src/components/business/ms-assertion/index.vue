@@ -81,7 +81,6 @@
           :style="{
             overflow: 'auto',
             height: '100%',
-            width: '100%',
           }"
         >
           <!-- 响应头 -->
@@ -123,13 +122,13 @@
             @change="handleChange"
           />
           <!-- 脚本 -->
-          <ScriptTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            @change="handleChange"
-          />
         </a-scrollbar>
+        <ScriptTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          @change="handleChange"
+        />
       </div>
     </div>
   </div>

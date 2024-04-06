@@ -195,10 +195,6 @@
     reportStepDetail.value = cloneDeep(detail);
   }
 
-  onBeforeUnmount(() => {
-    detailDrawerRef.value?.destroy();
-  });
-
   watch(
     () => showDrawer.value,
     (val) => {
