@@ -66,3 +66,16 @@ export interface TestScriptType {
   script: string;
   projectId: string;
 }
+// 变更历史详情
+export interface changeHistory {
+  id: string;
+  projectId: string;
+  createTime: string;
+  createUser: string;
+  sourceId: string;
+  type: string;
+  module: string;
+  refId: string;
+  createUserName: string;
+  versionName: string;
+}

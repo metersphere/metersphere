@@ -66,4 +66,5 @@ export default {
   'project.processor.terminationTest': '终止测试',
   'project.processor.code_hide_report_length': '隐藏报文长度',
   'project.processor.code_add_report_length': '报文头添加长度',
+  'project.processor.current': '当前',
 };

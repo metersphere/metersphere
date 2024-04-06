@@ -58,7 +58,7 @@
     required: true,
   });
 
-  const reportStepDetail = ref<ReportDetail>({
+  const initReportStepDetail = {
     id: '',
     name: '', // 报告名称
     testPlanId: '',
@@ -96,6 +96,9 @@
     children: [], // 步骤列表
     stepTotal: 0, // 步骤总数
     console: '',
+  };
+  const reportStepDetail = ref<ReportDetail>({
+    ...initReportStepDetail,
   });
   async function getReportCaseDetail() {
     try {
@@ -110,6 +113,7 @@
     () => innerVisible.value,
     async (val) => {
       if (val) {
+        reportStepDetail.value = { ...initReportStepDetail };
         await getReportCaseDetail();
       }
     }

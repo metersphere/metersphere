@@ -99,7 +99,12 @@
       :enable-radio-selected="radioSelected"
       @save="saveHandler"
     />
-    <ScriptDetailDrawer v-model:visible="showDetailDrawer" :script-id="scriptId" />
+    <ScriptDetailDrawer
+      ref="scriptDetailDrawer"
+      v-model:visible="showDetailDrawer"
+      :script-id="scriptId"
+      @update="updateHandler"
+    />
   </MsCard>
 </template>
 
@@ -329,6 +334,7 @@
 
   const paramsList = ref<ParamsRequestType[]>([]);
   const confirmLoading = ref<boolean>(false);
+  const scriptDetailDrawer = ref();
 
   // 保存自定义代码片段应用
   async function saveHandler(form: AddOrUpdateCommonScript) {
@@ -351,6 +357,9 @@
           ? t('project.commonScript.saveDraftSuccessfully')
           : t('project.commonScript.appliedSuccessfully')
       );
+      if (showDetailDrawer.value) {
+        scriptDetailDrawer.value.getDetail();
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -360,6 +369,11 @@
 
   function addCommonScript() {
     isEditId.value = '';
+    showScriptDrawer.value = true;
+  }
+
+  function updateHandler(id: string) {
+    isEditId.value = id;
     showScriptDrawer.value = true;
   }
 

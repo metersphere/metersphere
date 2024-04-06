@@ -1,37 +1,39 @@
 <template>
-  <div :class="`flex w-full items-center ${props.class}`">
-    <a-input-tag
-      v-model:model-value="innerModelValue"
-      v-model:input-value="innerInputValue"
-      :error="isError"
-      :placeholder="t(props.placeholder || 'ms.tagsInput.tagsInputPlaceholder')"
-      :allow-clear="props.allowClear"
-      :retain-input-value="props.retainInputValue"
-      :unique-value="props.uniqueValue"
-      :max-tag-count="props.maxTagCount"
-      :readonly="props.readonly"
-      :class="props.inputClass"
-      :size="props.size"
-      :disabled="props.disabled"
-      @press-enter="tagInputEnter"
-      @blur="tagInputBlur"
-      @clear="emit('clear')"
-      @click="emit('click')"
-    >
-      <template v-if="$slots.prefix" #prefix>
-        <slot name="prefix"></slot>
-      </template>
-      <template v-if="$slots.tag" #tag="{ data }">
-        <slot name="tag" :data="data"></slot>
-      </template>
-      <template v-if="$slots.suffix" #suffix>
-        <slot name="suffix"></slot>
-      </template>
-    </a-input-tag>
+  <div class="w-full">
+    <div :class="`flex w-full items-center ${props.class}`">
+      <a-input-tag
+        v-model:model-value="innerModelValue"
+        v-model:input-value="innerInputValue"
+        :error="isError"
+        :placeholder="t(props.placeholder || 'ms.tagsInput.tagsInputPlaceholder')"
+        :allow-clear="props.allowClear"
+        :retain-input-value="props.retainInputValue"
+        :unique-value="props.uniqueValue"
+        :max-tag-count="props.maxTagCount"
+        :readonly="props.readonly"
+        :class="props.inputClass"
+        :size="props.size"
+        :disabled="props.disabled"
+        @press-enter="tagInputEnter"
+        @blur="tagInputBlur"
+        @clear="emit('clear')"
+        @click="emit('click')"
+      >
+        <template v-if="$slots.prefix" #prefix>
+          <slot name="prefix"></slot>
+        </template>
+        <template v-if="$slots.tag" #tag="{ data }">
+          <slot name="tag" :data="data"></slot>
+        </template>
+        <template v-if="$slots.suffix" #suffix>
+          <slot name="suffix"></slot>
+        </template>
+      </a-input-tag>
+    </div>
+    <div v-if="isError" class="ml-[1px] flex justify-start text-[12px] text-[rgb(var(--danger-6))]">
+      {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
+    </div>
   </div>
-  <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">
-    {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
-  </span>
 </template>
 
 <script setup lang="ts">

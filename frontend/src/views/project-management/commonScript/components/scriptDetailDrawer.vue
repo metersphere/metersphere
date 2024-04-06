@@ -1,13 +1,31 @@
 <template>
-  <MsDrawer
-    v-model:visible="scriptDetailDrawer"
-    :title="t('project.commonScript.publicScriptName')"
-    :width="768"
-    :footer="false"
-    unmount-on-close
-  >
+  <MsDrawer v-model:visible="scriptDetailDrawer" :title="form.name" :width="800" :footer="false" unmount-on-close>
     <template #headerLeft>
       <MsTag class="ml-1" type="success" theme="light">{{ t('project.commonScript.testSuccess') }}</MsTag>
+    </template>
+    <template #tbutton>
+      <div class="flex">
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          type="icon"
+          status="secondary"
+          class="mr-4 !rounded-[var(--border-radius-small)]"
+          @click="editHandler"
+        >
+          <MsIcon type="icon-icon_edit_outlined" class="mr-2 font-[16px]" />
+          {{ t('common.edit') }}
+        </MsButton>
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          type="icon"
+          status="secondary"
+          :loading="loading"
+          class="mr-4 !rounded-[var(--border-radius-small)]"
+          @click="testHandler"
+        >
+          {{ t('apiTestDebug.test') }}
+        </MsButton>
+      </div>
     </template>
     <a-radio-group v-model="showType" type="button" size="small">
       <a-radio value="detail">{{ t('project.commonScript.detail') }}</a-radio>
@@ -27,11 +45,11 @@
           </span>
         </div>
       </div>
-      <span>{{ t('project.commonScript.inputParams') }}</span>
+      <div class="mb-4">{{ t('project.commonScript.inputParams') }}</div>
 
       <ms-base-table v-bind="propsRes" ref="tableRef" class="mb-4" no-disable v-on="propsEvent">
         <template #mustContain="{ record }">
-          <a-checkbox v-model:model-value="record.mustContain" :disabled="true"></a-checkbox>
+          <a-checkbox v-model:model-value="record.required" :disabled="true"></a-checkbox>
         </template>
       </ms-base-table>
 
@@ -46,7 +64,7 @@
         width="100%"
         height="calc(100vh - 155px)"
         theme="MS-text"
-        :read-only="false"
+        :read-only="true"
         :show-full-screen="false"
         :show-theme-change="false"
       />
@@ -55,12 +73,15 @@
       v-else
       v-bind="changeHistoryPropsRes"
       ref="tableRef"
-      class="mb-4"
+      class="mt-4"
       no-disable
       v-on="changeHistoryPropsEvent"
     >
-      <template #changeSerialNumber="{ record }"
-        ><div class="flex items-center"> {{ record.changeSerialNumber }} <MsTag>当前</MsTag> </div>
+      <template #id="{ record }">
+        <div class="flex items-center">
+          <div class="one-line-text mr-2 max-w-[200px]"> {{ record.id }} </div>
+          <MsTag>{{ t('project.processor.current') }}</MsTag>
+        </div>
       </template>
       <template #operation="{ record }">
         <MsButton status="primary" @click="recoverHandler(record)">
@@ -84,11 +105,20 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-  import { getCommonScriptDetail } from '@/api/modules/project-management/commonScript';
+  import {
+    getChangeHistory,
+    getCommonScriptDetail,
+    getSocket,
+    testCommonScript,
+  } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { getGenerateId } from '@/utils';
 
   import type { AddOrUpdateCommonScript } from '@/models/projectManagement/commonScript';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  const appStore = useAppStore();
 
   const { t } = useI18n();
 
@@ -97,7 +127,7 @@
     scriptId: string; // 脚本id
   }>();
 
-  const emit = defineEmits(['update:visible', 'change']);
+  const emit = defineEmits(['update:visible', 'change', 'update']);
 
   const showType = ref('detail');
 
@@ -113,8 +143,8 @@
   const columns: MsTableColumn = [
     {
       title: 'project.commonScript.ParameterNames',
-      slotName: 'name',
-      dataIndex: 'name',
+      slotName: 'key',
+      dataIndex: 'key',
       showTooltip: true,
       showInTable: true,
     },
@@ -127,8 +157,8 @@
     },
     {
       title: 'project.commonScript.description',
-      slotName: 'desc',
-      dataIndex: 'desc',
+      slotName: 'description',
+      dataIndex: 'description',
       showTooltip: true,
     },
     {
@@ -139,7 +169,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, setProps } = useTable(undefined, {
+  const { propsRes, propsEvent } = useTable(undefined, {
     columns,
     selectable: false,
     showSetting: false,
@@ -149,70 +179,61 @@
 
   const scriptType = ref<'commonScript' | 'executionResult'>('commonScript');
 
-  const detailValue = ref('');
-
   const changeHistoryColumns: MsTableColumn = [
     {
       title: 'project.commonScript.changeSerialNumber',
-      slotName: 'changeSerialNumber',
-      dataIndex: 'changeSerialNumber',
+      slotName: 'id',
+      dataIndex: 'id',
       showTooltip: true,
       showInTable: true,
+      width: 300,
     },
     {
       title: 'project.commonScript.actionType',
-      slotName: 'actionType',
-      dataIndex: 'actionType',
+      slotName: 'type',
+      dataIndex: 'type',
       showInTable: true,
+      width: 200,
     },
     {
       title: 'project.commonScript.actionUser',
-      dataIndex: 'actionUser',
-      slotName: 'actionUser',
+      dataIndex: 'createUserName',
+      slotName: 'createUserName',
       showTooltip: true,
       showInTable: true,
     },
     {
       title: 'project.commonScript.updateTime',
-      dataIndex: 'updateTime',
-      slotName: 'updateTime',
+      dataIndex: 'createTime',
+      slotName: 'createTime',
       showTooltip: true,
       showInTable: true,
     },
-    {
-      title: 'project.commonScript.tableColumnActions',
-      slotName: 'operation',
-      dataIndex: 'operation',
-      fixed: 'right',
-      width: 140,
-      showInTable: true,
-      showDrag: false,
-    },
+    // TODO:这个版本不上恢复
+    // {
+    //   title: 'project.commonScript.tableColumnActions',
+    //   slotName: 'operation',
+    //   dataIndex: 'operation',
+    //   fixed: 'right',
+    //   width: 140,
+    //   showInTable: true,
+    //   showDrag: false,
+    // },
   ];
 
   const {
     propsRes: changeHistoryPropsRes,
     propsEvent: changeHistoryPropsEvent,
-    loadList: changeHistoryloadList,
-    setLoadListParams: changeHistorySetLoadListParams,
-    resetSelector: changeHistoryResetSelector,
-  } = useTable(
-    () =>
-      Promise.resolve({
-        list: [],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
-    {
-      columns: changeHistoryColumns,
-      tableKey: TableKeyEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT_CHANGE_HISTORY,
-      selectable: false,
-      showSetting: false,
-      scroll: { x: '100%' },
-      heightUsed: 300,
-    }
-  );
+    setLoadListParams: setHistoryLoadListParams,
+    loadList: loadHistoryList,
+  } = useTable(getChangeHistory, {
+    columns: changeHistoryColumns,
+    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT_CHANGE_HISTORY,
+    selectable: false,
+    showSetting: false,
+    scroll: { x: '100%' },
+    heightUsed: 300,
+  });
 
   function recoverHandler(record: any) {}
 
@@ -230,27 +251,37 @@
 
   const form = ref<AddOrUpdateCommonScript>({ ...initForm });
 
-  async function getDetail(scriptId: string) {
+  const detailValue = computed({
+    get: () => {
+      return scriptType.value === 'commonScript' ? form.value.script : form.value.result;
+    },
+    set: (val) => val,
+  });
+
+  async function getDetail() {
     try {
-      const result = await getCommonScriptDetail(scriptId);
+      const result = await getCommonScriptDetail(props.scriptId);
       form.value = cloneDeep(result);
-      detailValue.value = form.value.script;
       const innerTableData = JSON.parse(form.value.params);
-      setProps({ data: innerTableData.slice(0, innerTableData.length - 1) });
+      propsRes.value.data = innerTableData;
     } catch (error) {
       console.log(error);
     }
   }
-  const originScript = ref<string>('');
 
-  watch(
-    () => props.scriptId,
-    (val) => {
-      if (val && originScript.value !== val) {
-        getDetail(val);
-      }
+  function loadChangeHistoryPage() {
+    setHistoryLoadListParams({
+      projectId: appStore.getCurrentProjectId,
+      sourceId: props.scriptId,
+    });
+    loadHistoryList();
+  }
+
+  watchEffect(() => {
+    if (props.scriptId) {
+      getDetail();
     }
-  );
+  });
 
   watch(
     () => scriptType.value,
@@ -260,8 +291,86 @@
     }
   );
 
-  onMounted(() => {
-    originScript.value = props.scriptId;
+  function editHandler() {
+    emit('update', props.scriptId);
+  }
+
+  const websocket = ref<any>();
+  const reportId = ref('');
+
+  function testHandler() {
+    reportId.value = getGenerateId();
+  }
+
+  const loading = ref<boolean>(false);
+
+  async function run() {
+    try {
+      const { type, script } = form.value;
+      const parameters = JSON.parse(form.value.params);
+      parameters
+        .filter((item: any) => item.key && item.value)
+        .map((item) => {
+          return {
+            key: item.key,
+            value: item.value,
+            valid: item.mustContain,
+          };
+        });
+      const params = {
+        type,
+        script,
+        params: parameters,
+        projectId: appStore.currentProjectId,
+        reportId: reportId.value,
+      };
+      await testCommonScript(params);
+    } catch (error) {
+      loading.value = false;
+    }
+  }
+
+  function onOpen() {
+    run();
+  }
+
+  function debugSocket() {
+    loading.value = true;
+    websocket.value = getSocket(reportId.value);
+    websocket.value.onopen = onOpen;
+    websocket.value.addEventListener('message', (event: any) => {
+      const result = JSON.parse(event.data);
+      if (result.msgType === 'EXEC_RESULT') {
+        form.value.result = result.taskResult.console;
+        scriptType.value = 'executionResult';
+        websocket.value.close();
+        loading.value = false;
+      }
+    });
+  }
+
+  watch(
+    () => reportId.value,
+    (val) => {
+      if (val) {
+        debugSocket();
+      }
+    }
+  );
+
+  watch(
+    () => showType.value,
+    (val) => {
+      if (val === 'changeHistory') {
+        loadChangeHistoryPage();
+      } else {
+        getDetail();
+      }
+    }
+  );
+
+  defineExpose({
+    getDetail,
   });
 </script>
 

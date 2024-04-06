@@ -47,8 +47,12 @@
             </div>
             <div>
               <a-popover position="bottom" content-class="response-popover-content">
-                <span class="ml-4 text-[18px] font-medium">{{ getTotalTime.split('-')[0] || '-' }}</span>
-                <span class="ml-1 text-[var(--color-text-4)]">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
+                <div class="flex items-center">
+                  <div class="one-line-text ml-4 max-w-[80px] text-[18px] font-medium">{{
+                    getTotalTime.split('-')[0] || '-'
+                  }}</div>
+                  <div class="ml-1 text-[var(--color-text-4)]">{{ getTotalTime.split('-')[1] || 'ms' }}</div>
+                </div>
                 <template #content>
                   <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
                     <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.totalTime') }}</div>
@@ -68,7 +72,7 @@
             </div>
             <div>
               <a-popover position="bottom" content-class="response-popover-content">
-                <span class="ml-4 text-[18px] font-medium">{{
+                <span class="one-line-text ml-4 inline-block max-w-[80px] align-middle text-[18px] font-medium">{{
                   detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
                 }}</span>
 
@@ -147,26 +151,11 @@
 
       <div class="request-analyze">
         <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
-        <div class="flex min-h-[110px] items-center">
-          <div class="relative mr-4">
-            <div class="charts absolute text-center">
-              <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-              <div class="text-[18px] font-medium">{{ getIndicators(detail.requestTotal) }}</div>
-            </div>
-            <MsChart width="110px" height="110px" :options="charOptions" />
-          </div>
-          <div class="chart-legend grid flex-1 gap-y-3">
-            <!-- 图例开始 -->
-            <div v-for="item of legendData" :key="item.value" class="chart-legend-item">
-              <div class="chart-flag">
-                <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
-                <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
-              </div>
-              <div class="count">{{ item.count || 0 }}</div>
-              <div class="count">{{ item.rote || 0 }}%</div>
-            </div>
-          </div>
-        </div>
+        <SetReportChart
+          :legend-data="legendData"
+          :options="charOptions"
+          :request-total="getIndicators(detail.requestTotal)"
+        />
       </div>
     </div>
     <!-- 报告步骤分析和请求分析结束 -->
@@ -182,10 +171,9 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
-  import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
-  import MsColorLine from '@/components/pure/ms-color-line/index.vue';
+  import SetReportChart from './case/setReportChart.vue';
   import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';
   import StepProgress from './stepProgress.vue';
@@ -265,6 +253,7 @@
   const legendData = ref<LegendData[]>([]);
   const charOptions = ref({
     tooltip: {
+      show: false,
       trigger: 'item',
     },
     legend: {
@@ -449,6 +438,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 99;
     margin: auto;
   }
 </style>

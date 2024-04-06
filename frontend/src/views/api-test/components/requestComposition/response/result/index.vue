@@ -310,14 +310,16 @@
 
   const isShowLoopControl = computed(() => {
     return (
-      props.stepItem?.children && props.stepItem.children.length && showApiType.value.includes(props.stepItem.stepType)
+      props.stepItem?.stepChildren &&
+      props.stepItem?.stepChildren.length &&
+      showApiType.value.includes(props.stepItem.stepType)
     );
   });
 
   const controlCurrent = ref<number>(1);
   const controlTotal = computed(() => {
-    if (props.stepItem?.children) {
-      return props.stepItem.children.length || 0;
+    if (props.stepItem?.stepChildren) {
+      return props.stepItem?.stepChildren.length || 0;
     }
     return 0;
   });
@@ -326,8 +328,8 @@
    *  循环次数控制器
    */
   function loadControlLoop() {
-    if (isShowLoopControl.value) {
-      const loopStepId = props.stepItem?.children[controlCurrent.value - 1].stepId;
+    if (isShowLoopControl.value && props.stepItem?.stepChildren) {
+      const loopStepId = props.stepItem?.stepChildren[controlCurrent.value - 1].stepId;
       if (loopStepId) {
         getStepDetail(loopStepId);
       }
@@ -340,8 +342,8 @@
     () => props.stepItem?.stepId,
     (val) => {
       if (val) {
-        if (isShowLoopControl.value) {
-          getStepDetail(props.stepItem?.children[controlCurrent.value - 1].stepId as string);
+        if (isShowLoopControl.value && props.stepItem?.stepChildren) {
+          getStepDetail(props.stepItem?.stepChildren[controlCurrent.value - 1].stepId as string);
         } else {
           getStepDetail(val);
         }

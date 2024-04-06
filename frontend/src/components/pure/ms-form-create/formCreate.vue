@@ -15,6 +15,7 @@
    */
   import { ref, watch, watchEffect } from 'vue';
 
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import JiraKey from './comp/jiraKey.vue';
   import PassWord from './formcreate-password.vue';
   import SearchSelect from './searchSelect.vue';
@@ -24,6 +25,7 @@
   formCreate.component('PassWord', PassWord);
   formCreate.component('SearchSelect', SearchSelect);
   formCreate.component('JiraKey', JiraKey);
+  formCreate.component('MsTagsInput', MsTagsInput);
   const FormCreate = formCreate.$form();
 
   const props = defineProps<{

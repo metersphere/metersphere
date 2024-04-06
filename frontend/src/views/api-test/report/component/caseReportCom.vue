@@ -228,6 +228,7 @@
   const charOptions = ref({
     tooltip: {
       trigger: 'item',
+      show: false,
     },
     legend: {
       show: false,

@@ -383,7 +383,7 @@
     treeRef.value?.checkAll(val);
   }
 
-  function expandNode(key: string | number, expanded: boolean) {
+  function expandNode(key: (string | number)[] | (string | number), expanded: boolean) {
     treeRef.value?.expandNode(key, expanded);
   }
 

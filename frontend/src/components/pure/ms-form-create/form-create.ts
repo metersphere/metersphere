@@ -136,7 +136,7 @@ export const INT = {
 };
 
 export const MULTIPLE_INPUT = {
-  type: 'a-input-tag',
+  type: 'MsTagsInput',
   field: 'fieldName',
   title: '',
   value: [],
