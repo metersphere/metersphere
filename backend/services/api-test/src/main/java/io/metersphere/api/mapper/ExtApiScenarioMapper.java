@@ -13,7 +13,6 @@ import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ExtApiScenarioMapper {
@@ -58,4 +57,6 @@ public interface ExtApiScenarioMapper {
     Long getPos(String projectId);
 
     List<ApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
+
+    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
 }

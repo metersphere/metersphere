@@ -265,6 +265,27 @@
   const allScenarioCount = computed(() => modulesCount.value.all || 0);
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
+  const lastModuleCountParam = ref<ApiScenarioGetModuleParams>({
+    projectId: appStore.currentProjectId,
+  });
+
+  async function initModuleCount(params: ApiScenarioGetModuleParams) {
+    try {
+      lastModuleCountParam.value = params;
+      const res = await getModuleCount(params);
+      modulesCount.value = res;
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+          draggable: !props.readOnly,
+          disabled: props.readOnly ? node.id === selectedKeys.value[0] : false,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 初始化模块树
@@ -315,6 +336,7 @@
       console.log(error);
     } finally {
       loading.value = false;
+      await initModuleCount(lastModuleCountParam.value);
     }
   }
 
@@ -445,27 +467,12 @@
     await initModules();
   }
 
-  async function initModuleCount(params: ApiScenarioGetModuleParams) {
-    try {
-      const res = await getModuleCount(params);
-      modulesCount.value = res;
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: res[node.id] || 0,
-          draggable: !props.readOnly,
-          disabled: props.readOnly ? node.id === selectedKeys.value[0] : false,
-        };
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
   onBeforeMount(async () => {
-    await initModules();
-    await initModuleCount({
+    lastModuleCountParam.value = {
       projectId: appStore.currentProjectId,
-    });
+    };
+
+    await initModules();
   });
   defineExpose({
     refresh,
