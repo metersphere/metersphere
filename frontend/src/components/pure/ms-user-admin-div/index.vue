@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row flex-nowrap">
-    <a-tooltip content-class="max-w-[600px]">
+    <a-tooltip content-class="max-w-[600px]" :content="props.name">
       <div class="flex flex-row flex-nowrap">{{ characterLimit(props.name) }}</div>
     </a-tooltip>
     <div v-if="props.isAdmin" class="ml-1 flex flex-row flex-nowrap text-[var(--color-text-4)]">{{
