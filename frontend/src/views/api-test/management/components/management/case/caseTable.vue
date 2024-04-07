@@ -423,6 +423,7 @@
     protocol: string; // 查看的协议类型
     apiDetail?: RequestParam;
     offspringIds: string[];
+    memberOptions: { label: string; value: string }[];
   }>();
 
   const caseExecute = ref(false);
@@ -634,7 +635,6 @@
   const caseFilters = ref<string[]>([]);
   const createUserFilterVisible = ref(false);
   const createUserFilters = ref<string[]>([]);
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
@@ -652,12 +652,8 @@
     }
     return moduleIds;
   }
-
   async function loadCaseList() {
     const selectModules = await getModuleIds();
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-
     const params = {
       apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
