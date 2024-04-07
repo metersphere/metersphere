@@ -238,7 +238,12 @@
   const innerExpandedKeys = defineModel<(string | number)[]>('expandedKeys', {
     required: false,
   });
-  const showApiType = ref<string[]>([ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST]);
+  const showApiType = ref<string[]>([
+    ScenarioStepType.API,
+    ScenarioStepType.API_CASE,
+    ScenarioStepType.CUSTOM_REQUEST,
+    ScenarioStepType.SCRIPT,
+  ]);
 
   const innerNumber = ref<number>(0);
 
