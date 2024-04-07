@@ -305,11 +305,7 @@ public class ApiScenarioReportService {
                     step.setResponseSize(step.getChildren().stream().mapToLong(child -> child.getResponseSize() != null ? child.getResponseSize() : 0).sum());
                     //请求的状态， 如果是 LOOP_CONTROLLER IF_CONTROLLER ONCE_ONLY_CONTROLLER  则需要判断子级的状态 但是如果下面没有子集不需要判断状态
                     //需要把这些数据拿出来 如果没有子请求说明是最后一级的请求 不需要计算入状态
-                    //children 先过滤满足控制器的数据，然后再获取id
-                    List<String> controllerIds = children.stream().filter(child -> stepTypes.contains(child.getStepType())).map(ApiScenarioReportStepDTO::getStepId).toList();
-                    //看map中有没有这些id  如果没有 需要返回几个没有
-                    List<String> noControllerIds = controllerIds.stream().filter(controllerId -> !scenarioReportStepMap.containsKey(controllerId)).toList();
-                    //获取所有的子请求的状态
+                   //获取所有的子请求的状态
                     List<String> requestStatus = children.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
                     //过滤出来SUCCESS的状态
                     List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
@@ -318,7 +314,7 @@ public class ApiScenarioReportService {
                         step.setStatus(ApiReportStatus.ERROR.name());
                     } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
                         step.setStatus(ApiReportStatus.FAKE_ERROR.name());
-                    } else if (successStatus.size() == children.size() - noControllerIds.size()) {
+                    } else if (successStatus.size() == children.size()) {
                         step.setStatus(ApiReportStatus.SUCCESS.name());
                     }
                 } else if (stepTypes.contains(step.getStepType())) {

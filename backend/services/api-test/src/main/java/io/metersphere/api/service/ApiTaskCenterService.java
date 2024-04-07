@@ -47,8 +47,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
-
 /**
  * @author: LAN
  * @date: 2024/1/17 11:24
@@ -264,7 +262,6 @@ public class ApiTaskCenterService {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     TaskRunnerClient.stopApi(endpoint, subList);
                 } catch (Exception e) {
-                    LogUtils.error(e);
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                         extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
                         //记录日志
@@ -273,7 +270,7 @@ public class ApiTaskCenterService {
                         extApiScenarioReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_SCENARIO.toString());
                     }
-                    throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
+                    LogUtils.error(e);
                 }
             });
         });
