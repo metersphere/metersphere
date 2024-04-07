@@ -206,37 +206,44 @@
             {{ t('apiTestDebug.quote') }}
           </MsButton>
         </div>
-        <a-radio-group v-model:model-value="commonScriptShowType" size="small" type="button" class="mb-[8px] w-fit">
-          <a-radio value="parameters">{{ t('apiTestDebug.parameters') }}</a-radio>
-          <a-radio value="scriptContent">{{ t('apiTestDebug.scriptContent') }}</a-radio>
-        </a-radio-group>
-        <MsBaseTable v-show="commonScriptShowType === 'parameters'" v-bind="propsRes" v-on="propsEvent">
-          <template #value="{ record }">
-            <a-tooltip :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')">
-              <div
-                :class="[
-                  record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-                  '!mr-[4px] !p-[4px]',
-                ]"
-              >
-                <div>*</div>
-              </div>
-            </a-tooltip>
-            {{ record.value }}
-          </template>
-        </MsBaseTable>
-        <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
-          <MsCodeEditor
-            v-if="condition.commonScriptInfo"
-            v-model:model-value="condition.commonScriptInfo.script"
-            theme="vs"
-            height="100%"
-            :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
-            :show-full-screen="false"
-            :show-theme-change="false"
-            read-only
+        <div v-if="showParameters() || showScript()">
+          <a-radio-group v-model:model-value="commonScriptShowType" size="small" type="button" class="mb-[8px] w-fit">
+            <a-radio v-if="showParameters()" value="parameters">{{ t('apiTestDebug.parameters') }}</a-radio>
+            <a-radio value="scriptContent">{{ t('apiTestDebug.scriptContent') }}</a-radio>
+          </a-radio-group>
+          <MsBaseTable
+            v-if="showParameters()"
+            v-show="commonScriptShowType === 'parameters'"
+            v-bind="propsRes"
+            v-on="propsEvent"
           >
-          </MsCodeEditor>
+            <template #value="{ record }">
+              <a-tooltip :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')">
+                <div
+                  :class="[
+                    record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
+                    '!mr-[4px] !p-[4px]',
+                  ]"
+                >
+                  <div>*</div>
+                </div>
+              </a-tooltip>
+              {{ record.value }}
+            </template>
+          </MsBaseTable>
+          <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
+            <MsCodeEditor
+              v-if="condition.commonScriptInfo"
+              v-model:model-value="condition.commonScriptInfo.script"
+              theme="vs"
+              height="100%"
+              :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
+              :show-full-screen="false"
+              :show-theme-change="false"
+              read-only
+            >
+            </MsCodeEditor>
+          </div>
         </div>
       </div>
     </template>
@@ -479,8 +486,14 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { ProtocolItem } from '@/models/apiTest/common';
-  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
+  import {
+    ExecuteConditionProcessor,
+    JSONPathExtract,
+    KeyValueParam,
+    ProtocolItem,
+    RegexExtract,
+    XPathExtract,
+  } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
   import { DataSourceItem, EnvConfig } from '@/models/projectManagement/environmental';
   import {
@@ -630,14 +643,6 @@ if (!result){
     columns,
     noDisable: true,
   });
-
-  watch(
-    () => condition.value.commonScriptInfo,
-    (info) => {
-      propsRes.value.data = info?.params as any[]; // 查看详情的时候需要赋值一下
-    },
-    { deep: true, immediate: true }
-  );
 
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {
@@ -889,6 +894,28 @@ if (!result){
     emit('change');
   }
 
+  function showParameters() {
+    if (condition.value.commonScriptInfo && condition.value.commonScriptInfo.params) {
+      let emptyKeyCount = 0;
+      condition.value.commonScriptInfo.params.forEach((item: KeyValueParam) => {
+        if (item.key !== '') {
+          emptyKeyCount++;
+        }
+      });
+      if (emptyKeyCount > 0) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+  function showScript() {
+    if (condition.value.commonScriptInfo && condition.value.commonScriptInfo.script !== '') {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * 提取参数表格-保存快速提取的配置
    */
@@ -921,7 +948,16 @@ if (!result){
       console.log(error);
     }
   });
-
+  watch(
+    () => condition.value.commonScriptInfo,
+    (info) => {
+      propsRes.value.data = info?.params as any[]; // 查看详情的时候需要赋值一下
+      if (!showParameters()) {
+        commonScriptShowType.value = 'scriptContent';
+      }
+    },
+    { deep: true, immediate: true }
+  );
   const hasPreAndPost = computed(() => {
     if (props.showPrePostRequest) {
       return (
