@@ -85,12 +85,16 @@ export function composePermissions(userRoleRelations: UserRoleRelation[], type: 
 export function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
   const userStore = useUserStore();
   const appStore = useAppStore();
+  const { currentMenuConfig } = appStore;
+  if (!currentMenuConfig.includes(route.name as string)) {
+    // 没有配置的菜单不显示
+    return false;
+  }
   if (userStore.isAdmin) {
-    // 如果是超级管理员，或者是系统设置菜单，或者是项目菜单，都有权限
+    // 如果是系统管理员, 包含项目, 组织, 系统层级所有菜单权限
     return true;
   }
-  const { currentMenuConfig } = appStore;
-  return currentMenuConfig.includes(route.name as string) && hasAnyPermission(route.meta?.roles || []);
+  return hasAnyPermission(route.meta?.roles || []);
 }
 
 // 有权限的第一个路由名，如果没有找到则返回IndexRoute
