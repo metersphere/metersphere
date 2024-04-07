@@ -24,4 +24,5 @@ export default {
   'ms.assertion.validateChild': '添加子校验',
   'ms.assertion.openGlobal': '启用全局断言',
   'ms.assertion.openGlobalTip': '默认开启，关闭则运行该接口时不执行全局断言',
+  'ms.assertion.expectedValueTitle': `特殊字符"$ ( ) * + . [ ]{ } \\^ |"需转义为"\\特殊字符"，如"$"转义后为"\\$`,
 };

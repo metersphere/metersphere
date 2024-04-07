@@ -68,7 +68,7 @@
     if (ev.target && ev.target.classList.contains('pick-path')) {
       setTimeout(() => {
         if (ip.value) {
-          jsonPath.value = `$${ip.value.value}`;
+          jsonPath.value = `$.${ip.value.value}`;
           emit(
             'pick',
             jsonPath.value,

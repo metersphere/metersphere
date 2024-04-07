@@ -35,7 +35,11 @@
             },
           }"
           allow-search
-        />
+        >
+          <template #tree-slot-title="node">
+            <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+          </template>
+        </a-tree-select>
         <div class="flex items-center justify-end gap-[12px]">
           <a-button type="secondary" @click="handleSaveFileCancel">{{ t('common.cancel') }}</a-button>
           <a-button type="primary" :loading="saveLoading" @click="handleSaveFileConfirm">

@@ -199,7 +199,13 @@
           },
         }"
         @change="(value) => handleChangeModule(record, value)"
-      ></a-tree-select>
+      >
+        <template #tree-slot-title="node">
+          <a-tooltip :content="`${node.name}`" position="tl">
+            <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+          </a-tooltip>
+        </template>
+      </a-tree-select>
       <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
         <span class="one-line-text inline-block" @click="record.showModuleTree = true">{{
           getModules(record.moduleId)

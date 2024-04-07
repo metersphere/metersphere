@@ -80,7 +80,7 @@
       <template #id="{ record }">
         <div class="flex items-center">
           <div class="one-line-text mr-2 max-w-[200px]"> {{ record.id }} </div>
-          <MsTag>{{ t('project.processor.current') }}</MsTag>
+          <!-- <MsTag>{{ t('project.processor.current') }}</MsTag> -->
         </div>
       </template>
       <template #operation="{ record }">

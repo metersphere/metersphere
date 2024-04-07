@@ -37,18 +37,17 @@
       <a-form-item field="tags" :label="t('project.commonScript.tags')">
         <MsTagsInput v-model:modelValue="form.tags"></MsTagsInput>
       </a-form-item>
-      <a-form-item field="inputParameters" :label="t('project.commonScript.inputParams')">
-        <paramTable
-          v-model:params="innerParams"
-          :scroll="{ x: '100%' }"
-          :columns="columns"
-          :height-used="heightUsed"
-          :selectable="false"
-          @change="handleParamTableChange"
-        />
-      </a-form-item>
-      <div class="mb-2 flex items-center justify-between">
-        <a-radio-group v-model:model-value="scriptType" type="button" size="small">
+      <div class="mb-4">{{ t('project.commonScript.inputParams') }}</div>
+      <paramTable
+        v-model:params="innerParams"
+        :columns="columns"
+        :scroll="{ x: 'auto' }"
+        :height-used="heightUsed"
+        :selectable="false"
+        @change="handleParamTableChange"
+      />
+      <div class="mb-2 mt-4 flex items-center justify-between">
+        <a-radio-group v-model:model-value="scriptType" type="button">
           <a-radio value="commonScript">{{ t('project.commonScript.commonScript') }}</a-radio>
           <a-radio value="executionResult">{{ t('project.commonScript.executionResult') }}</a-radio>
         </a-radio-group>
@@ -147,6 +146,7 @@
       title: 'project.commonScript.ParameterValue',
       dataIndex: 'value',
       slotName: 'value',
+      width: 300,
     },
     {
       title: 'project.commonScript.description',
@@ -157,6 +157,7 @@
       title: 'project.commonScript.isRequired',
       slotName: 'mustContain',
       dataIndex: 'required',
+      width: 60,
     },
     {
       title: '',

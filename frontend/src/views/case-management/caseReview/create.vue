@@ -33,7 +33,13 @@
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           :loading="moduleLoading"
           allow-search
-        />
+        >
+          <template #tree-slot-title="node">
+            <a-tooltip :content="`${node.name}`" position="tl">
+              <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+            </a-tooltip>
+          </template>
+        </a-tree-select>
       </a-form-item>
       <a-form-item field="type" :label="t('caseManagement.caseReview.type')">
         <a-radio-group v-model:modelValue="reviewForm.type" :disabled="isEdit">

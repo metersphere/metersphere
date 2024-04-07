@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!innerExpand" class="w-[32%] min-w-[25%] bg-white p-3 pl-0">
+  <div v-if="!innerExpand" class="w-[32%] min-w-[30%] max-w-[42%] bg-white p-3 pl-0">
     <div class="mb-2 flex items-center justify-between">
       <div class="flex items-center">
         <span v-if="innerExpand" class="collapsebtn mr-1 flex items-center justify-center" @click="expandedHandler">

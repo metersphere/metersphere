@@ -168,9 +168,9 @@
     {
       title: 'project.commonScript.description',
       dataIndex: 'description',
-      width: 200,
       showDrag: true,
       showTooltip: true,
+      width: 150,
     },
     {
       title: 'project.commonScript.enable',
@@ -179,13 +179,14 @@
       showInTable: true,
       width: 150,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.commonScript.tags',
       dataIndex: 'tags',
       showInTable: true,
       isTag: true,
-      width: 456,
+      width: 440,
       showDrag: true,
     },
     {
@@ -193,8 +194,9 @@
       dataIndex: 'createUserName',
       titleSlotName: 'createUserFilter',
       showInTable: true,
-      width: 200,
       showDrag: true,
+      showTooltip: true,
+      width: 150,
     },
     {
       title: 'project.commonScript.createTime',
@@ -204,18 +206,20 @@
         sorter: true,
       },
       showInTable: true,
-      width: 300,
       showDrag: true,
+      showTooltip: true,
+      width: 200,
     },
     {
       title: 'system.resourcePool.tableColumnUpdateTime',
       dataIndex: 'updateTime',
-      width: 180,
       showDrag: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showTooltip: true,
+      width: 200,
     },
   ];
 
@@ -226,7 +230,7 @@
     {
       columns,
       scroll: {
-        x: '100%',
+        x: 1300,
       },
       showSetting: false,
       selectable: true,

@@ -206,31 +206,19 @@
             {{ t('apiTestDebug.quote') }}
           </MsButton>
         </div>
-        <div v-if="showParameters() || showScript()">
+        <div v-show="showParameters() || showScript()" class="h-[calc(100%-47px)] min-h-[300px]">
           <a-radio-group v-model:model-value="commonScriptShowType" size="small" type="button" class="mb-[8px] w-fit">
             <a-radio v-if="showParameters()" value="parameters">{{ t('apiTestDebug.parameters') }}</a-radio>
             <a-radio value="scriptContent">{{ t('apiTestDebug.scriptContent') }}</a-radio>
           </a-radio-group>
-          <MsBaseTable
-            v-if="showParameters()"
-            v-show="commonScriptShowType === 'parameters'"
-            v-bind="propsRes"
-            v-on="propsEvent"
-          >
-            <template #value="{ record }">
-              <a-tooltip :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')">
-                <div
-                  :class="[
-                    record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-                    '!mr-[4px] !p-[4px]',
-                  ]"
-                >
-                  <div>*</div>
-                </div>
-              </a-tooltip>
-              {{ record.value }}
-            </template>
-          </MsBaseTable>
+          <paramTable
+            v-if="commonScriptShowType === 'parameters'"
+            v-model:params="scriptParams"
+            :scroll="{ x: '100%' }"
+            :columns="scriptColumns"
+            :height-used="heightUsed"
+            :selectable="false"
+          />
           <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
             <MsCodeEditor
               v-if="condition.commonScriptInfo"
@@ -619,30 +607,38 @@ if (!result){
   }
 
   const commonScriptShowType = ref<'parameters' | 'scriptContent'>('parameters');
-  const columns: MsTableColumn = [
+
+  const scriptParams = ref<any[]>([]);
+
+  const scriptColumns: MsTableColumn = [
     {
-      title: 'apiTestDebug.paramName',
+      title: 'project.commonScript.ParameterNames',
       slotName: 'key',
       dataIndex: 'key',
-      showTooltip: true,
+      addLineDisabled: true,
+      disabledColumn: true,
     },
     {
-      title: 'apiTestDebug.paramValue',
+      title: 'project.commonScript.ParameterValue',
       dataIndex: 'value',
       slotName: 'value',
+      addLineDisabled: true,
     },
     {
-      title: 'apiTestDebug.desc',
-      dataIndex: 'description',
+      title: 'project.commonScript.description',
       slotName: 'description',
-      showTooltip: true,
+      dataIndex: 'description',
+      addLineDisabled: true,
+      disabledColumn: true,
+    },
+    {
+      title: 'project.commonScript.isRequired',
+      slotName: 'mustContain',
+      dataIndex: 'required',
+      addLineDisabled: true,
+      disabledColumn: true,
     },
   ];
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
-    scroll: { x: '100%' },
-    columns,
-    noDisable: true,
-  });
 
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {
@@ -659,7 +655,7 @@ if (!result){
         };
       }),
     };
-    propsRes.value.data = (condition.value.commonScriptInfo?.params as any[]) || [];
+    scriptParams.value = (condition.value.commonScriptInfo?.params as any[]) || [];
     showQuoteDrawer.value = false;
   }
 
@@ -951,7 +947,7 @@ if (!result){
   watch(
     () => condition.value.commonScriptInfo,
     (info) => {
-      propsRes.value.data = info?.params as any[]; // 查看详情的时候需要赋值一下
+      scriptParams.value = info?.params as any[]; // 查看详情的时候需要赋值一下
       if (!showParameters()) {
         commonScriptShowType.value = 'scriptContent';
       }

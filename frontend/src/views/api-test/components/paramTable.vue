@@ -86,8 +86,8 @@
         <a-auto-complete
           v-if="columnConfig.inputType === 'autoComplete'"
           v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabledExceptParam"
-          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow !== false)"
+          :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
+          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)"
           class="ms-form-table-input"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
           :filter-option="false"
@@ -110,7 +110,7 @@
         <a-input
           v-else
           v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabledExceptParam"
+          :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="ms-form-table-input"
           size="mini"
@@ -232,9 +232,9 @@
         v-model:value="record.value"
         :disabled="props.disabledParamValue"
         size="mini"
-        @change="() => addTableLine(rowIndex)"
+        @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         @dblclick="quickInputParams(record)"
-        @apply="() => addTableLine(rowIndex)"
+        @apply="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
     <!-- 长度范围 -->
@@ -293,7 +293,7 @@
     <template #description="{ record, columnConfig, rowIndex }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
-        :disabled="props.disabledExceptParam"
+        :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
         size="mini"
         @input="() => addTableLine(rowIndex)"
         @dblclick="quickInputDesc(record)"
@@ -315,7 +315,7 @@
     <template #mustContain="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
-        :disabled="props.disabledExceptParam"
+        :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
         @change="handleMustContainColChange(false)"
       />
     </template>
@@ -348,6 +348,17 @@
       </a-select>
     </template>
     <!-- 匹配值 -->
+    <template #expectedTitle="{ columnConfig }">
+      <div class="flex items-center text-[var(--color-text-3)]">
+        {{ t('apiTestDebug.paramType') }}
+        <a-tooltip :content="columnConfig.typeTitleTooltip" position="right">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </a-tooltip>
+      </div>
+    </template>
     <template #expectedValue="{ record, rowIndex, columnConfig }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
@@ -583,6 +594,7 @@
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
     addLineDisabled?: boolean; // 用于 是否禁用添加新行
+    disabledColumn?: boolean; // 用于禁用某一列不能编辑
   }
 
   const props = withDefaults(

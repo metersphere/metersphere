@@ -201,4 +201,5 @@ export default {
     'The content of some tabs has not been saved. The unsaved content will be lost after leaving. Are you sure you want to leave?',
   'apiTestDebug.testSuccess': 'Test success',
   'apiTestDebug.searchByDataBaseName': 'Search by data source name',
+  'apiTestDebug.regexMatchRules': 'Expression matching rules',
 };
