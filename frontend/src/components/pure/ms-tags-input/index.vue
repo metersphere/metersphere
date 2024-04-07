@@ -16,6 +16,7 @@
         :disabled="props.disabled"
         @press-enter="tagInputEnter"
         @blur="tagInputBlur"
+        @change="(value) => emit('change', value)"
         @clear="emit('clear')"
         @click="emit('click')"
       >
@@ -100,7 +101,6 @@
         tagsLength.value = val.length;
       }
       emit('update:modelValue', val);
-      emit('change', val);
     }
   );
 

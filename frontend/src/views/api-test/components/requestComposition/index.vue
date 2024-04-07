@@ -1286,6 +1286,7 @@
     if (isHttpProtocol.value) {
       try {
         if (!props.executeApi) return;
+        await nextTick();
         requestVModel.value.executeLoading = true;
         requestVModel.value.response = cloneDeep(defaultResponse);
         const res = await props.executeApi(makeRequestParams(executeType));
