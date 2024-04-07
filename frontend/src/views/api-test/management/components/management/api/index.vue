@@ -6,6 +6,7 @@
         :offspring-ids="props.offspringIds"
         :protocol="props.protocol"
         :refresh-time-stamp="refreshTableTimeStamp"
+        :member-options="memberOptions"
         @open-api-tab="(record, isExecute) => openApiTab(record, false, isExecute)"
         @open-copy-api-tab="openApiTab($event, true)"
         @add-api-tab="addApiTab"
@@ -109,6 +110,7 @@
             :protocol="activeApiTab.protocol"
             :api-detail="activeApiTab"
             :offspring-ids="props.offspringIds"
+            :member-options="memberOptions"
           />
         </a-tab-pane>
         <!-- <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane> -->
@@ -168,6 +170,7 @@
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
     protocol: string;
+    memberOptions: { label: string; value: string }[];
   }>();
 
   const emit = defineEmits<{

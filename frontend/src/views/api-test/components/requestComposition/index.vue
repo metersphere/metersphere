@@ -406,7 +406,12 @@
       </a-form-item>
     </a-form>
   </a-modal>
-  <addDependencyDrawer v-if="props.isDefinition" v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" />
+  <addDependencyDrawer
+    v-if="props.isDefinition"
+    v-model:visible="showAddDependencyDrawer"
+    :member-options="memberOptions"
+    :mode="addDependencyMode"
+  />
 </template>
 
 <script setup lang="ts">
@@ -433,6 +438,7 @@
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { addCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
@@ -1526,8 +1532,13 @@
   function handleCancel() {
     saveModalFormRef.value?.resetFields();
   }
-
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
+  async function initMemberOptions() {
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+  }
   onMounted(() => {
+    initMemberOptions();
     if (!props.isDefinition) {
       registerCatchSaveShortcut(handleSaveShortcut);
     }

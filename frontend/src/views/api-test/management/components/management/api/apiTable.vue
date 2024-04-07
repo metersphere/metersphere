@@ -363,6 +363,7 @@
     protocol: string; // 查看的协议类型
     readOnly?: boolean; // 是否是只读模式
     refreshTimeStamp?: number;
+    memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
     (e: 'openApiTab', record: ApiDefinitionDetail, isExecute?: boolean): void;
@@ -554,7 +555,6 @@
   const statusFilters = ref<string[]>([]);
   const createUserFilterVisible = ref(false);
   const createUserFilters = ref<string[]>([]);
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
@@ -567,11 +567,9 @@
     }
     return moduleIds;
   }
+
   async function loadApiList() {
     const moduleIds = await getModuleIds();
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,

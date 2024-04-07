@@ -39,6 +39,7 @@
     :offspring-ids="props.offspringIds"
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
+    :member-options="memberOptions"
     @import="emit('import')"
     @delete-api="(id) => handleDeleteApiFromModuleTree(id)"
   />
@@ -51,6 +52,7 @@
     :protocol="props.protocol"
     :module-tree="props.moduleTree"
     :offspring-ids="props.offspringIds"
+    :member-options="memberOptions"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
   />
 </template>
@@ -67,6 +69,7 @@
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getProtocolList } from '@/api/modules/api-test/common';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useAppStore from '@/store/modules/app';
@@ -98,7 +101,11 @@
   const { t } = useI18n();
 
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
-
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
+  async function initMemberOptions() {
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+  }
   const currentTab = ref('api');
   const tabOptions = [
     { label: 'API', value: 'api' },
@@ -297,6 +304,7 @@
   const currentEnvConfig = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
 
   onBeforeMount(() => {
+    initMemberOptions();
     initProtocolList();
   });
 

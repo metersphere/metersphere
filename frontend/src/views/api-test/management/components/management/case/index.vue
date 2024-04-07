@@ -7,6 +7,7 @@
         :is-api="false"
         :active-module="props.activeModule"
         :protocol="props.protocol"
+        :member-options="memberOptions"
         @open-case-tab="openCaseTab"
         @open-case-tab-and-execute="openCaseTabAndExecute"
       />
@@ -46,6 +47,7 @@
     protocol: string;
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
+    memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
     (e: 'deleteCase', id: string): void;
