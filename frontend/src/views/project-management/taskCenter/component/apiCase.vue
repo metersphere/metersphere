@@ -76,14 +76,7 @@
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
   />
-  <CaseReportDrawer
-    v-model:visible="showCaseDetailDrawer"
-    :report-id="activeDetailId"
-    :active-report-index="activeReportIndex"
-    :table-data="propsRes.data"
-    :page-change="propsEvent.pageChange"
-    :pagination="propsRes.msPagination!"
-  />
+  <caseAndScenarioReportDrawer v-model:visible="showCaseDetailDrawer" :report-id="activeDetailId" />
 </template>
 
 <script setup lang="ts">
@@ -96,7 +89,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import ExecutionStatus from './executionStatus.vue';
-  import CaseReportDrawer from '@/views/api-test/management/components/management/case/caseReportDrawer.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 
   import {

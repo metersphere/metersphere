@@ -343,7 +343,7 @@
     @finished="loadCaseListAndResetSelector"
   />
   <!-- 执行结果抽屉 -->
-  <caseReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
+  <caseAndScenarioReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
 </template>
 
 <script setup lang="ts">
@@ -361,10 +361,10 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseDetailDrawer from './caseDetailDrawer.vue';
-  import caseReportDrawer from './caseReportDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import {

@@ -28,7 +28,8 @@
         </template>
       </a-dropdown>
     </template>
-    <CaseReportCom :detail-info="reportStepDetail" />
+    <CaseReportCom v-if="!props.isScenario" :detail-info="reportStepDetail" />
+    <ScenarioCom v-else :detail-info="reportStepDetail" />
   </MsDrawer>
 </template>
 
@@ -39,8 +40,9 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import CaseReportCom from '@/views/api-test/report/component/caseReportCom.vue';
+  import ScenarioCom from '@/views/api-test/report/component/scenarioCom.vue';
 
-  import { getShareInfo, getShareTime, reportCaseDetail } from '@/api/modules/api-test/report';
+  import { getShareInfo, getShareTime, reportCaseDetail, reportScenarioDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -49,6 +51,7 @@
 
   const props = defineProps<{
     reportId: string;
+    isScenario?: boolean;
   }>();
 
   const appStore = useAppStore();
@@ -100,9 +103,13 @@
   const reportStepDetail = ref<ReportDetail>({
     ...initReportStepDetail,
   });
-  async function getReportCaseDetail() {
+  async function getReportDetail() {
     try {
-      reportStepDetail.value = await reportCaseDetail(props.reportId);
+      if (props.isScenario) {
+        reportStepDetail.value = await reportScenarioDetail(props.reportId);
+      } else {
+        reportStepDetail.value = await reportCaseDetail(props.reportId);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -114,7 +121,7 @@
     async (val) => {
       if (val) {
         reportStepDetail.value = { ...initReportStepDetail };
-        await getReportCaseDetail();
+        await getReportDetail();
       }
     }
   );
@@ -130,7 +137,9 @@
       const shareId = res.shareUrl;
 
       const { origin } = window.location;
-      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_CASE}${shareId}`;
+      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${
+        props.isScenario ? RouteEnum.SHARE_REPORT_SCENARIO : RouteEnum.SHARE_REPORT_CASE
+      }${shareId}`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareLink.value).then(
           () => {
@@ -172,6 +181,7 @@
         shareTime.value = value + (translations[type] || translations.D);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
