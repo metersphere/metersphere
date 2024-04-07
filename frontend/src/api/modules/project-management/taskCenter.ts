@@ -4,6 +4,7 @@ import {
   batchStopRealProjectApiUrl,
   batchStopRealSystemApiUrl,
   deleteScheduleSysTaskUrl,
+  enableSchedule,
   scheduleOrgCenterListUrl,
   scheduleProCenterListUrl,
   scheduleSysCenterListUrl,
@@ -69,5 +70,9 @@ export function getScheduleProApiCaseList(data: TableQueryParams) {
 
 export function deleteScheduleSysTask(id: string) {
   return MSR.get({ url: `${deleteScheduleSysTaskUrl}/${id}` });
+}
+
+export function switchSchedule(id: string) {
+  return MSR.get({ url: `${enableSchedule}/${id}` });
 }
 export default {};

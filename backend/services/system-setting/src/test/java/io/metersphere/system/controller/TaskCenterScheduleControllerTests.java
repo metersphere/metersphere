@@ -1,7 +1,7 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.api.domain.ApiDefinitionSwagger;
-import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
+import io.metersphere.sdk.constants.ScheduleResourceType;
+import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -12,6 +12,7 @@ import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import io.metersphere.system.mapper.ExtSwaggerMapper;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -51,6 +52,8 @@ class TaskCenterScheduleControllerTests extends BaseTest {
 
     @Resource
     ExtSwaggerMapper extSwaggerMapper;
+    @Resource
+    ScheduleService scheduleService;
 
 
 
@@ -165,6 +168,30 @@ class TaskCenterScheduleControllerTests extends BaseTest {
             Assertions.assertTrue(count > 0);
         }
         this.requestGet(SCHEDULED_DELETE + "schedule-121", ERROR_REQUEST_MATCHER);
+    }
+
+    @Test
+    @Order(13)
+    void testEnable() throws Exception {
+       //先导入数据
+        Schedule schedule = new Schedule();
+        schedule.setName("test-schedule-switch");
+        schedule.setResourceId("test-schedule-switch");
+        schedule.setEnable(true);
+        schedule.setValue("0 0/1 * * * ?");
+        schedule.setKey("test-resource-id");
+        schedule.setCreateUser("admin");
+        schedule.setProjectId(DEFAULT_PROJECT_ID);
+        schedule.setConfig("{}");
+        schedule.setJob("io.metersphere.api.service.schedule.SwaggerUrlImportJob");
+        schedule.setType(ScheduleType.CRON.name());
+        schedule.setResourceType(ScheduleResourceType.API_IMPORT.name());
+
+        scheduleService.addSchedule(schedule);
+        scheduleService.getSchedule(schedule.getId());
+        scheduleService.editSchedule(schedule);
+        scheduleService.getScheduleByResource(schedule.getResourceId(), schedule.getJob());
+        this.requestGet("/task/center/schedule/switch" + "test-schedule-switch");
     }
 
 }
