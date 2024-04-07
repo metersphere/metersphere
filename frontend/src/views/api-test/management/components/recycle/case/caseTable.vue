@@ -94,6 +94,45 @@
           </template>
         </a-trigger>
       </template>
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadCaseList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
+      <template #updateUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="updateUserFilterVisible"
+          v-model:status-filters="updateUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadCaseList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
+      <template #deleteUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="deleteUserFilterVisible"
+          v-model:status-filters="deleteUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadCaseList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #lastReportStatusFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="lastReportStatusFilterVisible"
@@ -181,6 +220,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteRecycleCase,
@@ -190,6 +230,7 @@
     recoverCase,
   } from '@/api/modules/api-test/management';
   import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -304,7 +345,8 @@
     },
     {
       title: 'case.tableColumnUpdateUser',
-      dataIndex: 'updateUser',
+      dataIndex: 'updateName',
+      titleSlotName: 'updateUserFilter',
       showInTable: true,
       showTooltip: true,
       width: 180,
@@ -325,6 +367,7 @@
     {
       title: 'case.tableColumnCreateUser',
       dataIndex: 'createName',
+      titleSlotName: 'createUserFilter',
       showTooltip: true,
       width: 180,
       showDrag: true,
@@ -344,6 +387,7 @@
     {
       title: 'apiTestManagement.deleteUser',
       dataIndex: 'deleteName',
+      titleSlotName: 'deleteUserFilter',
       showInTable: true,
       showTooltip: true,
       width: 180,
@@ -408,12 +452,21 @@
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
   const lastReportStatusFilters = ref<string[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilters = ref<string[]>([]);
+  const updateUserFilterVisible = ref(false);
+  const updateUserFilters = ref<string[]>([]);
+  const deleteUserFilterVisible = ref(false);
+  const deleteUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
 
-  function loadCaseList() {
+  async function loadCaseList() {
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -423,6 +476,9 @@
         status: statusFilters.value,
         priority: caseFilters.value,
         lastReportStatus: lastReportStatusFilters.value,
+        createUser: createUserFilters.value,
+        updateUser: updateUserFilters.value,
+        deleteUser: deleteUserFilters.value,
       },
     };
     setLoadListParams(params);

@@ -89,6 +89,19 @@
           </template>
         </a-trigger>
       </template>
+      <template #deleteUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="deleteUserFilterVisible"
+          v-model:status-filters="deleteUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadApiList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #deleteUserName="{ record }">
         <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
       </template>
@@ -122,6 +135,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchCleanOutDefinition,
@@ -130,6 +144,7 @@
     getDefinitionPage,
     recoverDefinition,
   } from '@/api/modules/api-test/management';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -222,11 +237,9 @@
     {
       title: 'apiTestManagement.deleteUser',
       slotName: 'deleteUserName',
+      titleSlotName: 'deleteUserFilter',
+      showTooltip: true,
       dataIndex: 'deleteUser',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 180,
       showDrag: true,
     },
@@ -275,6 +288,9 @@
   const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
+  const deleteUserFilterVisible = ref(false);
+  const deleteUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const moduleIds = computed(() => {
     if (props.activeModule === 'all') {
       return [];
@@ -283,14 +299,21 @@
   });
   const tableQueryParams = ref<any>();
 
-  function loadApiList() {
+  async function loadApiList() {
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
       deleted: true,
       protocol: props.protocol,
-      filter: { status: statusFilters.value, method: methodFilters.value },
+      filter: {
+        status: statusFilters.value,
+        method: methodFilters.value,
+        deleteUser: deleteUserFilters.value,
+      },
     };
     setLoadListParams(params);
     loadList();

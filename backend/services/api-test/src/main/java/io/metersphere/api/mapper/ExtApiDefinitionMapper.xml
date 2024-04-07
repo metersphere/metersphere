@@ -309,12 +309,16 @@
                             and api_definition.method in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='create_user'">
+                        <when test="key=='createUser'">
                             and api_definition.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='version_id'">
+                        <when test="key=='versionId'">
                             and api_definition.version_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='deleteUser'">
+                            and api_definition.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key.startsWith('custom_single')">

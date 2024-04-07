@@ -129,6 +129,19 @@
         </a-select>
         <apiStatus v-else :status="record.status" size="small" />
       </template>
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadApiList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #action="{ record }">
         <MsButton
           v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
@@ -320,6 +333,7 @@
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteDefinition,
@@ -330,6 +344,7 @@
     sortDefinition,
     updateDefinition,
   } from '@/api/modules/api-test/management';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -450,10 +465,13 @@
     },
     {
       title: 'common.creator',
+      slotName: 'createUserName',
       dataIndex: 'createUserName',
-      width: 180,
-      showDrag: true,
+      titleSlotName: 'createUserFilter',
+      showInTable: true,
       showTooltip: true,
+      width: 200,
+      showDrag: true,
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -534,6 +552,9 @@
   const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
@@ -548,6 +569,8 @@
   }
   async function loadApiList() {
     const moduleIds = await getModuleIds();
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
 
     const params = {
       keyword: keyword.value,
@@ -557,6 +580,7 @@
       filter: {
         status: statusFilters.value,
         method: methodFilters.value,
+        createUser: createUserFilters.value,
       },
     };
     setLoadListParams(params);

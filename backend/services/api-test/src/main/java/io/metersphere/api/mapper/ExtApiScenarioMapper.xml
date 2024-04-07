@@ -235,11 +235,19 @@
                             and api_scenario.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='create_user'">
+                        <when test="key=='createUser'">
                             and api_scenario.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='version_id'">
+                        <when test="key=='updateUser'">
+                            and api_scenario.update_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='deleteUser'">
+                            and api_scenario.delete_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='versionId'">
                             and api_scenario.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>

@@ -139,6 +139,45 @@
             :status="record.lastReportStatus"
           />
         </template>
+        <template #createUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="createUserFilterVisible"
+            v-model:status-filters="createUserFilters"
+            :title="(columnConfig.title as string)"
+            :list="memberOptions"
+            @search="loadScenarioList"
+          >
+            <template #item="{ item }">
+              {{ item.label }}
+            </template>
+          </TableFilter>
+        </template>
+        <template #updateUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="updateUserFilterVisible"
+            v-model:status-filters="updateUserFilters"
+            :title="(columnConfig.title as string)"
+            :list="memberOptions"
+            @search="loadScenarioList"
+          >
+            <template #item="{ item }">
+              {{ item.label }}
+            </template>
+          </TableFilter>
+        </template>
+        <template #deleteUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="deleteUserFilterVisible"
+            v-model:status-filters="deleteUserFilters"
+            :title="(columnConfig.title as string)"
+            :list="memberOptions"
+            @search="loadScenarioList"
+          >
+            <template #item="{ item }">
+              {{ item.label }}
+            </template>
+          </TableFilter>
+        </template>
         <template #operation="{ record }">
           <MsButton
             v-permission="['PROJECT_API_SCENARIO:READ+DELETED']"
@@ -176,6 +215,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteScenario,
@@ -184,6 +224,7 @@
     getTrashScenarioPage,
     recoverScenario,
   } from '@/api/modules/api-test/scenario';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -329,8 +370,8 @@
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
+      titleSlotName: 'createUserFilter',
       showTooltip: true,
-      titleSlotName: 'createUser',
       width: 109,
       showDrag: true,
     },
@@ -338,15 +379,15 @@
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
       showTooltip: true,
-      titleSlotName: 'updateUser',
+      titleSlotName: 'updateUserFilter',
       width: 109,
       showDrag: true,
     },
     {
-      title: 'apiScenario.table.columns.operation',
+      title: 'apiScenario.table.columns.deleteUser',
       dataIndex: 'deleteUserName',
       showTooltip: true,
-      titleSlotName: 'deleteUser',
+      titleSlotName: 'deleteUserFilter',
       width: 109,
       showDrag: true,
     },
@@ -406,6 +447,13 @@
 
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilters = ref<string[]>([]);
+  const updateUserFilterVisible = ref(false);
+  const updateUserFilters = ref<string[]>([]);
+  const deleteUserFilterVisible = ref(false);
+  const deleteUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const tableStore = useTableStore();
   async function loadScenarioList(refreshTreeCount?: boolean) {
     let moduleIds: string[] = [];
@@ -416,7 +464,8 @@
         moduleIds = [props.activeModule, ...props.offspringIds];
       }
     }
-
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -425,6 +474,9 @@
         lastReportStatus: lastReportStatusListFilters.value,
         status: statusFilters.value,
         priority: priorityFilters.value,
+        createUser: createUserFilters.value,
+        updateUser: updateUserFilters.value,
+        deleteUser: deleteUserFilters.value,
       },
     };
     setLoadListParams(params);
