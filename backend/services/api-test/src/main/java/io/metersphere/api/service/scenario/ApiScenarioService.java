@@ -2098,6 +2098,11 @@ public class ApiScenarioService extends MoveNodeService {
             if (isRefOrPartialScenario(step)) {
 
                 List<ApiScenarioStepDTO> scenarioSteps = scenarioStepMap.get(step.getResourceId());
+
+                if (CollectionUtils.isEmpty(scenarioSteps)) {
+                    continue;
+                }
+
                 scenarioSteps.forEach(item -> {
                     // 如果步骤的场景ID不等于当前场景的ID，说明是引用的步骤，如果 parentId 为空，说明是一级子步骤，重新挂载到对应的场景中
                     if (StringUtils.isEmpty(item.getParentId())) {

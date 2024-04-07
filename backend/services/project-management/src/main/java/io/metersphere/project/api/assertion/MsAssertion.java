@@ -43,4 +43,9 @@ public abstract class MsAssertion {
      * id
      */
     private String id;
+    /**
+     * 项目ID
+     * 执行时设置
+     */
+    private String projectId;
 }
