@@ -255,6 +255,7 @@ public class ApiExecuteService {
         MsScriptElement msScriptElement = new MsScriptElement();
         msScriptElement.setEnableCommonScript(true);
         msScriptElement.setName(runRequest.getReportId());
+        msScriptElement.setProjectId(runRequest.getProjectId());
         CommonScriptInfo commonScriptInfo = new CommonScriptInfo();
         commonScriptInfo.setId(runRequest.getProjectId());
         commonScriptInfo.setParams(runRequest.getParams());

@@ -42,6 +42,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
 
     @Override
     public void toHashTree(HashTree tree, MsCommonElement element, ParameterConfig config) {
+        element.setProjectId(element.getParent().getProjectId());
         EnvironmentInfoDTO envInfo = getEnvInfo(element, config);
         // 解析前置处理器，包括环境前置
         addProcessors(tree, element, config, envInfo, true);
@@ -78,7 +79,10 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
         }
 
         assertionConfig.getAssertions()
-                .forEach(assertion -> AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreAssertStatus(assertions)));
+                .forEach(assertion -> {
+                    assertion.setProjectId(element.getProjectId());
+                    AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreAssertStatus(assertions));
+                });
     }
 
     /**

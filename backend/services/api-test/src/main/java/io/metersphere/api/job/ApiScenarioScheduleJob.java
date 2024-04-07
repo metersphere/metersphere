@@ -42,6 +42,11 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         parseParam.setEnvironmentId(apiRunModeConfigDTO.getEnvironmentId());
         parseParam.setGrouped(apiRunModeConfigDTO.getGrouped());
 
+        if (StringUtils.isBlank(apiRunModeConfigDTO.getEnvironmentId())) {
+            parseParam.setEnvironmentId(apiScenarioDetail.getEnvironmentId());
+            parseParam.setGrouped(apiScenarioDetail.getGrouped());
+        }
+
         if (StringUtils.isBlank(apiRunModeConfigDTO.getPoolId())) {
             apiRunModeConfigDTO.setPoolId(apiExecuteService.getProjectApiResourcePoolId(apiScenarioDetail.getProjectId()));
         }
