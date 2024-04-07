@@ -301,14 +301,9 @@ public class ApiScenarioBatchRunService {
         boolean envGroup = getEnvGroup(runModeConfig, apiScenarioDetail);
 
         // 解析生成待执行的场景树
-        MsScenario msScenario = new MsScenario();
-        msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
-        msScenario.setScenarioConfig(apiScenarioDetail.getScenarioConfig());
-        msScenario.setProjectId(apiScenarioDetail.getProjectId());
+        MsScenario msScenario = apiScenarioService.getMsScenario(apiScenarioDetail);
 
-        ApiScenarioParseParam parseParam = new ApiScenarioParseParam();
-        parseParam.setScenarioConfig(apiScenarioDetail.getScenarioConfig());
-        parseParam.setStepDetails(Map.of());
+        ApiScenarioParseParam parseParam = apiScenarioService.getApiScenarioParseParam(apiScenarioDetail);
         parseParam.setEnvironmentId(envId);
         parseParam.setGrouped(envGroup);
 

@@ -84,7 +84,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
@@ -1278,18 +1277,28 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
 
         // 解析生成待执行的场景树
-        MsScenario msScenario = new MsScenario();
-        msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
-        msScenario.setScenarioConfig(apiScenarioDetail.getScenarioConfig());
-        msScenario.setProjectId(apiScenarioDetail.getProjectId());
+        MsScenario msScenario = getMsScenario(apiScenarioDetail);
 
+        ApiScenarioParseParam parseParam = getApiScenarioParseParam(apiScenarioDetail);
+
+        return executeRun(apiScenarioDetail, msScenario, apiScenarioDetail.getSteps(), parseParam, reportId, userId);
+    }
+
+    public ApiScenarioParseParam getApiScenarioParseParam(ApiScenarioDetail apiScenarioDetail) {
         ApiScenarioParseParam parseParam = new ApiScenarioParseParam();
         parseParam.setScenarioConfig(apiScenarioDetail.getScenarioConfig());
         parseParam.setStepDetails(Map.of());
         parseParam.setEnvironmentId(apiScenarioDetail.getEnvironmentId());
         parseParam.setGrouped(apiScenarioDetail.getGrouped());
+        return parseParam;
+    }
 
-        return executeRun(apiScenarioDetail, msScenario, apiScenarioDetail.getSteps(), parseParam, reportId, userId);
+    public MsScenario getMsScenario(ApiScenarioDetail apiScenarioDetail) {
+        MsScenario msScenario = new MsScenario();
+        msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
+        msScenario.setScenarioConfig(apiScenarioDetail.getScenarioConfig());
+        msScenario.setProjectId(apiScenarioDetail.getProjectId());
+        return msScenario;
     }
 
     public TaskRequestDTO run(ApiScenarioDebugRequest request, String userId) {
@@ -1336,7 +1345,13 @@ public class ApiScenarioService extends MoveNodeService {
         parseConfig.setReportId(reportId);
 
         // 初始化报告
-        initApiReport(apiScenario, parseParam.getEnvironmentId(), reportId, poolId, userId);
+        ApiScenarioReport scenarioReport = getScenarioReport(userId);
+        scenarioReport.setId(reportId);
+        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        scenarioReport.setPoolId(poolId);
+        scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
+        initApiReport(apiScenario, scenarioReport);
 
         // 初始化报告步骤
         initScenarioReportSteps(steps, taskRequest.getReportId());
@@ -1352,20 +1367,11 @@ public class ApiScenarioService extends MoveNodeService {
      * 预生成用例的执行报告
      *
      * @param apiScenario
-     * @param poolId
-     * @param userId
      * @return
      */
-    public ApiScenarioRecord initApiReport(ApiScenario apiScenario, String envId, String reportId, String poolId, String userId) {
+    public ApiScenarioRecord initApiReport(ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
         // 初始化报告
-        ApiScenarioReport scenarioReport = getScenarioReport(userId);
-        scenarioReport.setId(reportId);
-        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
         scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
-        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        scenarioReport.setPoolId(poolId);
-        scenarioReport.setEnvironmentId(apiScenario.getEnvironmentId());
-        scenarioReport.setEnvironmentId(envId);
         scenarioReport.setProjectId(apiScenario.getProjectId());
 
         // 创建报告和用例的关联关系

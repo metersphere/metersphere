@@ -208,11 +208,6 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#request.getScenarioId()", resourceType = "api_scenario")
     @SendNotice(taskType = NoticeConstants.TaskType.SCHEDULE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScheduleNotice(#request)", targetClass = ApiScenarioNoticeService.class)
     public String scheduleConfig(@Validated @RequestBody ApiScenarioScheduleConfigRequest request) {
-        /*
-        TODO to Chen Jianxing:
-            request.configMap 中需要补充场景的执行信息，比如环境、资源池、是否失败停止等配置。
-            在触发定时任务的APIScenarioScheduleJob中会用到
-         */
         apiValidateService.validateApiMenuInProject(request.getScenarioId(), ApiResource.API_SCENARIO.name());
         return apiScenarioService.scheduleConfig(request, SessionUtils.getUserId());
     }
