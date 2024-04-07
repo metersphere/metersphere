@@ -1215,6 +1215,7 @@ public class ApiScenarioService extends MoveNodeService {
         example.createCriteria()
                 .andNameEqualTo(apiScenario.getName())
                 .andModuleIdEqualTo(apiScenario.getModuleId())
+                .andDeletedEqualTo(false)
                 .andProjectIdEqualTo(apiScenario.getProjectId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             throw new MSException(API_SCENARIO_EXIST);
@@ -1231,6 +1232,7 @@ public class ApiScenarioService extends MoveNodeService {
                 .andIdNotEqualTo(request.getId())
                 .andModuleIdEqualTo(request.getModuleId())
                 .andNameEqualTo(request.getName())
+                .andDeletedEqualTo(false)
                 .andProjectIdEqualTo(request.getProjectId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             throw new MSException(API_SCENARIO_EXIST);
@@ -1300,6 +1302,9 @@ public class ApiScenarioService extends MoveNodeService {
         msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
         msScenario.setScenarioConfig(getScenarioConfig(request, true));
         msScenario.setProjectId(request.getProjectId());
+
+        // 处理特殊的步骤详情
+        addSpecialStepDetails(request.getSteps(), request.getStepDetails());
 
         return executeRun(apiScenario, msScenario, request.getSteps(), request, request.getReportId(), userId);
     }
