@@ -155,7 +155,7 @@
             class="!mr-0"
             @click="deleteOperation(record)"
           >
-            {{ t('common.delete') }}
+            {{ t('api_scenario.recycle.batchCleanOut') }}
           </MsButton>
         </template>
       </ms-base-table>
