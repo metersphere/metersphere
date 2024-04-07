@@ -191,8 +191,7 @@
   async function initDetail() {
     try {
       loading.value = true;
-      const res = await getReviewDetail(reviewId.value);
-      reviewDetail.value = res;
+      reviewDetail.value = await getReviewDetail(reviewId.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -259,7 +258,7 @@
         baseAssociateCaseRequest: params,
       });
       Message.success(t('caseManagement.caseReview.associateSuccess'));
-      initDetail();
+      await initDetail();
       folderTreeRef.value?.initModules();
       caseTableRef.value?.searchCase();
     } catch (error) {

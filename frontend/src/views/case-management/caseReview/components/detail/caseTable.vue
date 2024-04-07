@@ -648,7 +648,6 @@
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-    caseFilters.value = caseLevelFields.value?.options.map((item: any) => item.text);
   }
 
   // 批量重新评审
