@@ -1,7 +1,6 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
-import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -25,8 +24,6 @@ public interface ExtApiScenarioModuleMapper {
     BaseModule selectBaseModuleById(String dragNodeId);
 
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
-
-    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
 
     List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
 
