@@ -387,12 +387,64 @@
         </div>
       </template>
     </a-modal>
+    <a-modal
+      v-model:visible="saveNewApiModalVisible"
+      :title="t('common.save')"
+      :ok-loading="saveLoading"
+      class="ms-modal-form"
+      title-align="start"
+      body-class="!p-0"
+      @before-ok="handleSave"
+      @cancel="handleCancel"
+    >
+      <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
+        <a-form-item
+          field="name"
+          :label="t('apiTestDebug.requestName')"
+          :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
+          asterisk-position="end"
+        >
+          <a-input
+            v-model:model-value="saveModalForm.name"
+            :max-length="255"
+            :placeholder="t('apiTestDebug.requestNamePlaceholder')"
+          />
+        </a-form-item>
+        <a-form-item
+          v-if="activeStep?.config.protocol === 'HTTP'"
+          field="path"
+          :label="t('apiTestDebug.requestUrl')"
+          :rules="[{ required: true, message: t('apiTestDebug.requestUrlRequired') }]"
+          asterisk-position="end"
+        >
+          <a-input
+            v-model:model-value="saveModalForm.path"
+            :max-length="255"
+            :placeholder="t('apiTestDebug.commonPlaceholder')"
+          />
+        </a-form-item>
+        <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
+          <a-tree-select
+            v-model:modelValue="saveModalForm.moduleId"
+            :data="moduleTree || []"
+            :field-names="{ title: 'name', key: 'id', children: 'children' }"
+            :tree-props="{
+              virtualListProps: {
+                height: 200,
+                threshold: 200,
+              },
+            }"
+            allow-search
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useEventListener } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -412,6 +464,7 @@
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { addDefinition } from '@/api/modules/api-test/management';
   import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
@@ -437,8 +490,10 @@
     ScenarioStepFileParams,
     ScenarioStepItem,
   } from '@/models/apiTest/scenario';
+  import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
+    RequestDefinitionStatus,
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
     ScenarioStepLoopTypeEnum,
@@ -449,6 +504,7 @@
   import type { RequestParam } from '../common/customApiDrawer.vue';
   import updateStepStatus from '../utils';
   import useCreateActions from './createAction/useCreateActions';
+  import { defaultResponseItem } from '@/views/api-test/components/config';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
@@ -492,6 +548,8 @@
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
+  const moduleTree = inject<Ref<ModuleTreeNode[]>>('moduleTree');
+  const activeModule = inject<Ref<string>>('activeModule');
 
   const permissionMap = {
     execute: 'PROJECT_API_SCENARIO:READ+EXECUTE',
@@ -773,6 +831,67 @@
     }
   }
 
+  const saveNewApiModalVisible = ref(false);
+  const saveModalForm = ref({
+    name: '',
+    path: '',
+    moduleId: activeModule?.value || 'root',
+  });
+  const saveModalFormRef = ref<FormInstance>();
+  const saveLoading = ref(false);
+
+  /**
+   * 保存请求
+   * @param fullParams 保存时传入的参数
+   * @param silence 是否静默保存（接口定义另存为用例时要先静默保存接口）
+   */
+  async function realSave() {
+    try {
+      saveLoading.value = true;
+      if (activeStep.value) {
+        const detail = stepDetails.value[activeStep.value.id] as RequestParam;
+        const fileParams = scenario.value.stepFileParam[activeStep.value.id];
+        await addDefinition({
+          ...saveModalForm.value,
+          projectId: appStore.currentProjectId,
+          tags: [],
+          description: '',
+          status: RequestDefinitionStatus.PROCESSING,
+          customFields: [],
+          versionId: '',
+          environmentId: currentEnvConfig?.value.id || '',
+          request: detail,
+          uploadFileIds: fileParams?.uploadFileIds || [],
+          linkFileIds: fileParams?.linkFileIds || [],
+          response: [defaultResponseItem],
+          method: detail?.method,
+          protocol: detail?.protocol,
+        });
+        Message.success(t('common.saveSuccess'));
+        saveNewApiModalVisible.value = false;
+        saveLoading.value = false;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      saveLoading.value = false;
+    }
+  }
+
+  function handleSave(done: (closed: boolean) => void) {
+    saveModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        await realSave();
+        done(true);
+      }
+    });
+    done(false);
+  }
+
+  function handleCancel() {
+    saveModalFormRef.value?.resetFields();
+  }
+
   function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
       case 'copy':
@@ -850,6 +969,11 @@
       case 'delete':
         deleteNode(steps.value, node.uniqueId, 'uniqueId');
         scenario.value.unSaved = true;
+        break;
+      case 'saveAsApi':
+        activeStep.value = node as ScenarioStepItem;
+        saveModalForm.value.path = (stepDetails.value[node.id] as RequestParam)?.url;
+        saveNewApiModalVisible.value = true;
         break;
       default:
         break;

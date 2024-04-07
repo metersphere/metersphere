@@ -13,7 +13,7 @@ export interface ApiDefinitionCustomField {
 // 创建定义参数
 export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
   tags: string[];
-  response: ResponseDefinition;
+  response: ResponseDefinition[];
   description: string;
   status: RequestDefinitionStatus;
   customFields: ApiDefinitionCustomField[];
