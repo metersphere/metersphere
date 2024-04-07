@@ -78,7 +78,6 @@
           v-model:request="detailForm"
           :is-case="true"
           :api-detail="apiDetailInfo as RequestParam"
-          hide-response-layout-switch
           :upload-temp-file-api="uploadTempFileCase"
           :file-save-as-source-id="detailForm.id"
           :file-module-options-api="getTransferOptionsCase"

@@ -169,264 +169,141 @@
     </div>
     <div ref="splitContainerRef" class="request-and-response h-[calc(100%-100px)]">
       <MsSplitBox
-        ref="horizontalSplitBoxRef"
-        :size="!props.isCase && props.isDefinition ? 0.7 : 1"
-        :max="props.isDefinition && !props.isCase ? 0.9 : 1"
-        :min="props.isDefinition && !props.isCase ? 0.7 : 1"
-        :disabled="props.isCase && !props.isDefinition"
-        :class="props.isCase && !props.isDefinition ? 'hidden-second' : ''"
-        :first-container-class="props.isCase && !props.isDefinition ? 'border-r-0' : ''"
-        direction="horizontal"
-        expand-direction="right"
+        ref="verticalSplitBoxRef"
+        v-model:size="splitBoxSize"
+        :max="!showResponse ? 1 : 0.98"
+        min="10px"
+        :direction="activeLayout"
+        second-container-class="!overflow-y-hidden"
+        :class="!showResponse ? 'hidden-second' : 'show-second'"
+        @expand-change="handleVerticalExpandChange"
       >
         <template #first>
-          <MsSplitBox
-            ref="verticalSplitBoxRef"
-            v-model:size="splitBoxSize"
-            :max="!showResponse ? 1 : 0.98"
-            min="10px"
-            :direction="activeLayout"
-            second-container-class="!overflow-y-hidden"
-            :class="!showResponse ? 'hidden-second' : 'show-second'"
-            @expand-change="handleVerticalExpandChange"
-          >
-            <template #first>
-              <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
-                <div
-                  :class="`flex h-full min-w-[800px] flex-col p-[16px] ${
-                    activeLayout === 'horizontal' ? ' pr-[16px]' : ''
-                  }`"
+          <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
+            <div
+              :class="`flex h-full min-w-[800px] flex-col p-[16px] ${
+                activeLayout === 'horizontal' ? ' pr-[16px]' : ''
+              }`"
+            >
+              <div class="tab-pane-container">
+                <apiBaseForm
+                  v-if="!props.isCase && props.isDefinition"
+                  v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
+                  ref="apiBaseFormRef"
+                  v-model:requestVModel="requestVModel"
+                  :select-tree="selectTree"
+                />
+                <a-spin
+                  v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
+                  :loading="pluginLoading"
+                  class="min-h-[100px] w-full"
                 >
-                  <div class="tab-pane-container">
-                    <a-spin
-                      v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
-                      :loading="pluginLoading"
-                      class="min-h-[100px] w-full"
-                    >
-                      <MsFormCreate
-                        v-model:api="fApi"
-                        :rule="currentPluginScript"
-                        :option="currentPluginOptions"
-                        @change="
-                          () => {
-                            if (isInitPluginForm) {
-                              handlePluginFormChange();
-                            }
-                          }
-                        "
-                      />
-                    </a-spin>
-                    <httpHeader
-                      v-if="requestVModel.activeTab === RequestComposition.HEADER"
-                      v-model:params="requestVModel.headers"
-                      :layout="activeLayout"
-                      :second-box-height="secondBoxHeight"
-                      @change="handleActiveDebugChange"
-                    />
-                    <httpBody
-                      v-else-if="requestVModel.activeTab === RequestComposition.BODY"
-                      v-model:params="requestVModel.body"
-                      :layout="activeLayout"
-                      :second-box-height="secondBoxHeight"
-                      :upload-temp-file-api="props.uploadTempFileApi"
-                      :file-save-as-source-id="props.fileSaveAsSourceId"
-                      :file-save-as-api="props.fileSaveAsApi"
-                      :file-module-options-api="props.fileModuleOptionsApi"
-                      @change="handleActiveDebugChange"
-                    />
-                    <httpQuery
-                      v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
-                      v-model:params="requestVModel.query"
-                      :layout="activeLayout"
-                      :second-box-height="secondBoxHeight"
-                      @change="handleActiveDebugChange"
-                    />
-                    <httpRest
-                      v-else-if="requestVModel.activeTab === RequestComposition.REST"
-                      v-model:params="requestVModel.rest"
-                      :layout="activeLayout"
-                      :second-box-height="secondBoxHeight"
-                      @change="handleActiveDebugChange"
-                    />
-                    <precondition
-                      v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
-                      v-model:config="requestVModel.children[0].preProcessorConfig"
-                      :is-definition="props.isDefinition"
-                      @change="handleActiveDebugChange"
-                    />
-                    <postcondition
-                      v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
-                      v-model:config="requestVModel.children[0].postProcessorConfig"
-                      :response="requestVModel.response?.requestResults[0]?.responseResult.body"
-                      :layout="activeLayout"
-                      :second-box-height="secondBoxHeight"
-                      :is-definition="props.isDefinition"
-                      @change="handleActiveDebugChange"
-                    />
-                    <assertion
-                      v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
-                      v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                      :is-definition="props.isDefinition"
-                      :response="requestVModel.response?.requestResults[0]?.responseResult.body"
-                      :assertion-config="requestVModel.children[0].assertionConfig"
-                      :show-extraction="true"
-                    />
-                    <auth
-                      v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
-                      v-model:params="requestVModel.authConfig"
-                      @change="handleActiveDebugChange"
-                    />
-                    <setting
-                      v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
-                      v-model:params="requestVModel.otherConfig"
-                      @change="handleActiveDebugChange"
-                    />
-                  </div>
-                </div>
-              </a-spin>
-            </template>
-            <template #second>
-              <response
-                v-show="showResponse"
-                ref="responseRef"
-                v-model:active-layout="activeLayout"
-                v-model:active-tab="requestVModel.responseActiveTab"
-                v-model:response-definition="requestVModel.responseDefinition"
-                :show-response-result-button="requestVModel.mode === 'debug'"
-                :is-http-protocol="isHttpProtocol"
-                :is-priority-local-exec="isPriorityLocalExec"
-                :request-url="requestVModel.url"
-                :is-expanded="isVerticalExpanded"
-                :hide-layout-switch="props.hideResponseLayoutSwitch"
-                :request-result="requestVModel.response?.requestResults[0]"
-                :console="requestVModel.response?.console"
-                :is-edit="props.isDefinition && isHttpProtocol && !props.isCase"
-                :upload-temp-file-api="props.uploadTempFileApi"
-                :loading="requestVModel.executeLoading || loading"
-                :is-definition="props.isDefinition"
-                @change-expand="changeVerticalExpand"
-                @change-layout="handleActiveLayoutChange"
-                @change="handleActiveDebugChange"
-                @execute="(executeType) => (props.isCase ? emit('execute', executeType) : execute(executeType))"
-              />
-            </template>
-          </MsSplitBox>
+                  <MsFormCreate
+                    v-model:api="fApi"
+                    :rule="currentPluginScript"
+                    :option="currentPluginOptions"
+                    @change="
+                      () => {
+                        if (isInitPluginForm) {
+                          handlePluginFormChange();
+                        }
+                      }
+                    "
+                  />
+                </a-spin>
+                <httpHeader
+                  v-if="requestVModel.activeTab === RequestComposition.HEADER"
+                  v-model:params="requestVModel.headers"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <httpBody
+                  v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+                  v-model:params="requestVModel.body"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  :upload-temp-file-api="props.uploadTempFileApi"
+                  :file-save-as-source-id="props.fileSaveAsSourceId"
+                  :file-save-as-api="props.fileSaveAsApi"
+                  :file-module-options-api="props.fileModuleOptionsApi"
+                  @change="handleActiveDebugChange"
+                />
+                <httpQuery
+                  v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+                  v-model:params="requestVModel.query"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <httpRest
+                  v-else-if="requestVModel.activeTab === RequestComposition.REST"
+                  v-model:params="requestVModel.rest"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  @change="handleActiveDebugChange"
+                />
+                <precondition
+                  v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+                  v-model:config="requestVModel.children[0].preProcessorConfig"
+                  :is-definition="props.isDefinition"
+                  @change="handleActiveDebugChange"
+                />
+                <postcondition
+                  v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+                  v-model:config="requestVModel.children[0].postProcessorConfig"
+                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
+                  :layout="activeLayout"
+                  :second-box-height="secondBoxHeight"
+                  :is-definition="props.isDefinition"
+                  @change="handleActiveDebugChange"
+                />
+                <assertion
+                  v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
+                  v-model:params="requestVModel.children[0].assertionConfig.assertions"
+                  :is-definition="props.isDefinition"
+                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
+                  :assertion-config="requestVModel.children[0].assertionConfig"
+                  :show-extraction="true"
+                />
+                <auth
+                  v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+                  v-model:params="requestVModel.authConfig"
+                  @change="handleActiveDebugChange"
+                />
+                <setting
+                  v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+                  v-model:params="requestVModel.otherConfig"
+                  @change="handleActiveDebugChange"
+                />
+              </div>
+            </div>
+          </a-spin>
         </template>
-        <template v-if="!props.isCase && props.isDefinition" #second>
-          <div class="p-[16px]">
-            <!-- TODO:第一版没有模板 -->
-            <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
-            <a-form ref="activeApiTabFormRef" :model="requestVModel" layout="vertical">
-              <a-form-item
-                field="name"
-                :label="t('apiTestManagement.apiName')"
-                class="mb-[16px]"
-                :rules="[{ required: true, message: t('apiTestManagement.apiNameRequired') }]"
-              >
-                <a-input
-                  v-model:model-value="requestVModel.name"
-                  :max-length="255"
-                  :placeholder="t('apiTestManagement.apiNamePlaceholder')"
-                  allow-clear
-                  @change="handleActiveApiChange"
-                />
-              </a-form-item>
-              <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px]">
-                <a-tree-select
-                  v-model:modelValue="requestVModel.moduleId"
-                  :data="selectTree as ModuleTreeNode[]"
-                  :field-names="{ title: 'name', key: 'id', children: 'children' }"
-                  :tree-props="{
-                    virtualListProps: {
-                      height: 200,
-                      threshold: 200,
-                    },
-                  }"
-                  allow-search
-                  :filter-tree-node="filterTreeNode"
-                  @change="handleActiveApiChange"
-                >
-                  <template #tree-slot-title="node">
-                    <a-tooltip :content="`${node.name}`" position="tl">
-                      <div class="inline-flex w-full">
-                        <div class="one-line-text w-[240px] text-[var(--color-text-1)]">
-                          {{ node.name }}
-                        </div>
-                      </div>
-                    </a-tooltip>
-                  </template>
-                </a-tree-select>
-              </a-form-item>
-              <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px]">
-                <a-select
-                  v-model:model-value="requestVModel.status"
-                  :placeholder="t('common.pleaseSelect')"
-                  class="param-input w-full"
-                  @change="handleActiveApiChange"
-                >
-                  <template #label>
-                    <apiStatus :status="requestVModel.status" />
-                  </template>
-                  <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
-                    <apiStatus :status="item" />
-                  </a-option>
-                </a-select>
-              </a-form-item>
-              <a-form-item :label="t('common.tag')" class="mb-[16px]">
-                <MsTagsInput v-model:model-value="requestVModel.tags" @change="handleActiveApiChange" />
-              </a-form-item>
-              <a-form-item :label="t('common.desc')" class="mb-[16px]">
-                <a-textarea
-                  v-model:model-value="requestVModel.description"
-                  :max-length="1000"
-                  @change="handleActiveApiChange"
-                />
-              </a-form-item>
-            </a-form>
-            <!-- TODO:第一版先不做依赖 -->
-            <!-- <div class="mb-[8px] flex items-center">
-                  <div class="text-[var(--color-text-2)]">
-                    {{ t('apiTestManagement.addDependency') }}
-                  </div>
-                  <a-divider margin="4px" direction="vertical" />
-                  <MsButton
-                    type="text"
-                    class="font-medium"
-                    :disabled="requestVModel.preDependency.length === 0 && requestVModel.postDependency.length === 0"
-                    @click="clearAllDependency"
-                  >
-                    {{ t('apiTestManagement.clearSelected') }}
-                  </MsButton>
-                </div>
-                <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
-                  <div class="flex items-center">
-                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
-                      {{ t('apiTestManagement.preDependency') }}
-                      <div class="text-[rgb(var(--primary-5))]">
-                        {{ requestVModel.preDependency.length }}
-                      </div>
-                      {{ t('apiTestManagement.dependencyUnit') }}
-                    </div>
-                    <a-divider margin="8px" direction="vertical" />
-                    <MsButton type="text" class="font-medium" @click="handleDddDependency('pre')">
-                      {{ t('apiTestManagement.addPreDependency') }}
-                    </MsButton>
-                  </div>
-                  <div class="mt-[8px] flex items-center">
-                    <div class="flex items-center gap-[4px] text-[var(--color-text-2)]">
-                      {{ t('apiTestManagement.postDependency') }}
-                      <div class="text-[rgb(var(--primary-5))]">
-                        {{ requestVModel.postDependency.length }}
-                      </div>
-                      {{ t('apiTestManagement.dependencyUnit') }}
-                    </div>
-                    <a-divider margin="8px" direction="vertical" />
-                    <MsButton type="text" class="font-medium" @click="handleDddDependency('post')">
-                      {{ t('apiTestManagement.addPostDependency') }}
-                    </MsButton>
-                  </div>
-                </div> -->
-          </div>
+        <template #second>
+          <response
+            v-show="showResponse"
+            ref="responseRef"
+            v-model:active-layout="activeLayout"
+            v-model:active-tab="requestVModel.responseActiveTab"
+            v-model:response-definition="requestVModel.responseDefinition"
+            :show-response-result-button="requestVModel.mode === 'debug'"
+            :is-http-protocol="isHttpProtocol"
+            :is-priority-local-exec="isPriorityLocalExec"
+            :request-url="requestVModel.url"
+            :is-expanded="isVerticalExpanded"
+            :hide-layout-switch="props.hideResponseLayoutSwitch"
+            :request-result="requestVModel.response?.requestResults[0]"
+            :console="requestVModel.response?.console"
+            :is-edit="props.isDefinition && isHttpProtocol && !props.isCase"
+            :upload-temp-file-api="props.uploadTempFileApi"
+            :loading="requestVModel.executeLoading || loading"
+            :is-definition="props.isDefinition"
+            @change-expand="changeVerticalExpand"
+            @change-layout="handleActiveLayoutChange"
+            @change="handleActiveDebugChange"
+            @execute="(executeType) => (props.isCase ? emit('execute', executeType) : execute(executeType))"
+          />
         </template>
       </MsSplitBox>
     </div>
@@ -551,7 +428,7 @@
   import setting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
-  import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import apiBaseForm from '@/views/api-test/management/components/management/api/apiBaseForm.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { addCase } from '@/api/modules/api-test/management';
@@ -580,7 +457,6 @@
     RequestCaseStatus,
     RequestComposition,
     RequestConditionProcessor,
-    RequestDefinitionStatus,
     RequestMethods,
   } from '@/enums/apiEnum';
 
@@ -668,6 +544,13 @@
     }
   }
 
+  // 基本信息tab
+  const baseInfoContentTab = [
+    {
+      value: RequestComposition.BASE_INFO,
+      label: t('apiScenario.baseInfo'),
+    },
+  ];
   // 请求内容公共tabKey
   const commonContentTabKey = [
     RequestComposition.PRECONDITION,
@@ -743,18 +626,22 @@
       if (props.isDefinition) {
         // 接口定义，定义模式隐藏前后置、断言
         return requestVModel.value.mode === 'debug'
-          ? httpContentTabList
-          : httpContentTabList.filter((e) => !commonContentTabKey.includes(e.value));
+          ? [...baseInfoContentTab, ...httpContentTabList]
+          : [...baseInfoContentTab, ...httpContentTabList.filter((e) => !commonContentTabKey.includes(e.value))];
       }
       // 接口调试无断言
       return httpContentTabList.filter((e) => e.value !== RequestComposition.ASSERTION);
     }
     // 插件 tabs
-    if (props.isDefinition) {
+    if (props.isDefinition && !props.isCase) {
       // 接口定义，定义模式隐藏前后置、断言
       return requestVModel.value.mode === 'definition'
-        ? pluginContentTab
-        : [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
+        ? [...baseInfoContentTab, ...pluginContentTab]
+        : [
+            ...baseInfoContentTab,
+            ...pluginContentTab,
+            ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value)),
+          ];
     }
     return [...pluginContentTab, ...httpContentTabList.filter((e) => commonContentTabKey.includes(e.value))];
   });
@@ -1007,7 +894,6 @@
     }
   );
 
-  const horizontalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const verticalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const isVerticalExpanded = ref(true);
   function handleVerticalExpandChange(val: boolean) {
@@ -1041,16 +927,6 @@
     isVerticalExpanded.value = true;
     splitBoxSize.value = 0.6;
     verticalSplitBoxRef.value?.expand(0.6);
-  }
-
-  function handleActiveApiChange() {
-    if (requestVModel.value) {
-      requestVModel.value.unSaved = true;
-    }
-  }
-
-  function filterTreeNode(searchValue, nodeData) {
-    return nodeData.name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const saveModalVisible = ref(false);
@@ -1582,7 +1458,7 @@
     }
   }
 
-  const activeApiTabFormRef = ref<FormInstance>();
+  const apiBaseFormRef = ref<InstanceType<typeof apiBaseForm>>();
   const isUrlError = ref(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     if (requestVModel.value.url === '' && requestVModel.value.protocol === 'HTTP') {
@@ -1590,10 +1466,9 @@
       return;
     }
     isUrlError.value = false;
-    activeApiTabFormRef.value?.validate(async (errors) => {
-      console.log('validate');
+    apiBaseFormRef.value?.formRef?.validate(async (errors) => {
       if (errors) {
-        horizontalSplitBoxRef.value?.expand();
+        requestVModel.value.activeTab = RequestComposition.BASE_INFO;
       } else {
         switch (value) {
           case 'save':
