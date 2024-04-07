@@ -119,6 +119,12 @@
       <a-radio value="all">{{ t('apiScenario.allStep') }}</a-radio>
     </a-radio-group>
   </a-modal>
+  <!-- 场景报告抽屉 -->
+  <caseAndScenarioReportDrawer
+    v-model:visible="showScenarioReportVisible"
+    is-scenario
+    :report-id="scenario.reportId as string ?? ''"
+  />
 </template>
 
 <script setup lang="ts">
@@ -130,10 +136,10 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import stepTree from './stepTree.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
 
   import { getScenarioDetail } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
-  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { deleteNodes, filterTree, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
@@ -149,7 +155,6 @@
   }>();
 
   const { t } = useI18n();
-  const { openNewPage } = useOpenNewPage();
 
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
@@ -269,11 +274,9 @@
     }
   }
 
+  const showScenarioReportVisible = ref(false);
   function checkReport() {
-    openNewPage(ApiTestRouteEnum.API_TEST_REPORT, {
-      type: 'API_SCENARIO',
-      reportId: scenario.value.reportId,
-    });
+    showScenarioReportVisible.value = true;
   }
 
   /**

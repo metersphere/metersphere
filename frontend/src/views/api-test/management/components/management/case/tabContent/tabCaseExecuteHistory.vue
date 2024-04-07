@@ -91,14 +91,7 @@
       </template>
     </ms-base-table>
   </div>
-  <CaseReportDrawer
-    v-model:visible="showResponse"
-    :report-id="activeReportId"
-    :active-report-index="activeReportIndex"
-    :table-data="propsRes.data"
-    :page-change="propsEvent.pageChange"
-    :pagination="propsRes.msPagination!"
-  />
+  <caseAndScenarioReportDrawer v-model:visible="showResponse" :report-id="activeReportId" />
 </template>
 
 <script setup lang="ts">
@@ -108,7 +101,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import CaseReportDrawer from '@/views/api-test/management/components/management/case/caseReportDrawer.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
