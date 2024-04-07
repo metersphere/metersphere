@@ -34,6 +34,13 @@
         LEFT JOIN project_version ON project_version.id = api_scenario.version_id
         where api_scenario.deleted = #{request.deleted}
         <include refid="queryWhereCondition"/>
+        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
+            and api_scenario.id not in
+            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
+
 
     </select>
     <select id="getIds" resultType="java.lang.String">

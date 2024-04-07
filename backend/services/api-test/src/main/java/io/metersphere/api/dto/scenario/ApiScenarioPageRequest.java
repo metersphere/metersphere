@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -35,4 +36,7 @@ public class ApiScenarioPageRequest extends BasePageRequest {
 
     @Schema(description = "删除状态(状态为 1 时为回收站数据)")
     private Boolean deleted = false;
+
+    @Schema(description = "查询时排除的ID")
+    private List<String> excludeIds = new ArrayList<>();
 }
