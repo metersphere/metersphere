@@ -31,12 +31,9 @@
   import apiTable from './management/api/apiTable.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
 
   import { ModuleTreeNode } from '@/models/common';
-
-  import useAppStore from '../../../../store/modules/app';
 
   const props = defineProps<{
     visible: boolean;
