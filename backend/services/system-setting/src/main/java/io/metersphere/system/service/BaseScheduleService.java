@@ -29,12 +29,12 @@ public class BaseScheduleService {
             try {
                 if (schedule.getEnable()) {
                     LogUtils.info("初始化任务：" + JSON.toJSONString(schedule));
-                    scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey()),
-                            new TriggerKey(schedule.getKey()), Class.forName(schedule.getJob()), schedule.getValue(),
+                    scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getJob()),
+                            new TriggerKey(schedule.getKey(),schedule.getJob()), Class.forName(schedule.getJob()), schedule.getValue(),
                             scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getCreateUser()));
                 } else {
                     // 删除关闭的job
-                    removeJob(schedule.getKey());
+                    removeJob(schedule);
                 }
             } catch (Exception e) {
                 LogUtils.error("初始化任务失败", e);
@@ -49,7 +49,7 @@ public class BaseScheduleService {
         return scheduleMapper.selectByExample(example);
     }
 
-    private void removeJob(String key) {
-        scheduleManager.removeJob(new JobKey(key), new TriggerKey(key));
+    private void removeJob(Schedule schedule) {
+        scheduleManager.removeJob(new JobKey(schedule.getKey(), schedule.getJob()), new TriggerKey(schedule.getKey(), schedule.getJob()));
     }
 }
