@@ -37,6 +37,14 @@
       @drag-change="handleDragChange"
       @module-change="loadCaseList"
     >
+      <template v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+ADD']) && props.isApi" #empty>
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          {{ t('apiTestManagement.tableNoDataAndPlease') }}
+          <MsButton class="ml-[8px]" @click="createCase">
+            {{ t('caseManagement.featureCase.creatingCase') }}
+          </MsButton>
+        </div>
+      </template>
       <template #num="{ record }">
         <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">{{
           record.num

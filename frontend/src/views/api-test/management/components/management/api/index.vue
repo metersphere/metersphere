@@ -304,6 +304,7 @@
   );
 
   const loading = ref(false);
+  const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
   async function openApiTab(
     apiInfo: ModuleTreeNode | ApiDefinitionDetail | string,
     isCopy = false,
@@ -314,6 +315,7 @@
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
     if (isLoadedTabIndex > -1 && !isCopy) {
+      const preActiveApiTabId = activeApiTab.value.id;
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeApiTab.value = {
         ...(apiTabs.value[isLoadedTabIndex] as RequestParam),
@@ -321,6 +323,10 @@
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
       };
+      // requestCompositionRef里监听的是id,所以id相等的时候需要单独调执行
+      if (preActiveApiTabId === apiTabs.value[isLoadedTabIndex].id) {
+        requestCompositionRef.value?.execute(userStore.isPriorityLocalExec ? 'localExec' : 'serverExec');
+      }
       return;
     }
     try {
@@ -383,12 +389,11 @@
   }
 
   // 跳转到接口定义tab，且执行
-  const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
   function toExecuteDefinition() {
     activeApiTab.value.definitionActiveKey = 'definition';
     activeApiTab.value.isExecute = true;
     activeApiTab.value.mode = 'debug';
-    requestCompositionRef.value?.execute(userStore.localExecuteUrl ? 'localExec' : 'serverExec');
+    requestCompositionRef.value?.execute(userStore.isPriorityLocalExec ? 'localExec' : 'serverExec');
   }
 
   function handleDelete() {
