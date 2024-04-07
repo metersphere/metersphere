@@ -187,6 +187,7 @@
     moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
     confirmLoading: boolean;
     associatedIds: string[]; // 已关联用例id集合用于去重已关联
+    hasNotAssociatedIds?: string[];
     type: RequestModuleEnum[keyof RequestModuleEnum];
     moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
     hideProjectSelect?: boolean; // 是否隐藏项目选择
@@ -352,7 +353,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setTableSelected } = useTable(
     props.getTableFunc,
     {
       columns,
@@ -396,6 +397,11 @@
       projectId: innerProject.value,
       excludeIds: [...props.associatedIds], // 已经存在的关联的id列表
     });
+    if (props.hasNotAssociatedIds && props.hasNotAssociatedIds.length > 0) {
+      props.hasNotAssociatedIds.forEach((hasNotAssociatedId) => {
+        setTableSelected(hasNotAssociatedId);
+      });
+    }
   }
 
   const combine = ref<Record<string, any>>({});

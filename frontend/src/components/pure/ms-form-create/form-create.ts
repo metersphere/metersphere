@@ -131,6 +131,8 @@ export const INT = {
   value: 0,
   props: {
     precision: 0,
+    max: 999999999999999,
+    min: -999999999999999,
     placeholder: t('formCreate.PleaseEnter'),
   },
 };

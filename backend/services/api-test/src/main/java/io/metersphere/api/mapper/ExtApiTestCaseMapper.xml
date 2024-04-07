@@ -446,19 +446,19 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='create_user' or key=='createUser'">
+                        <when test="key=='createUser'">
                             and atc.create_user in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>
                         </when>
-                        <when test="key=='update_user' or key=='updateUser'">
+                        <when test="key=='updateUser'">
                             and atc.update_user in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>
                         </when>
-                        <when test="key=='delete_user' or key=='deleteUser'">
+                        <when test="key=='deleteUser'">
                             and atc.delete_user in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})

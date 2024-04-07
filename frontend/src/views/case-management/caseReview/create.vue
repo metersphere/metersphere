@@ -193,7 +193,7 @@
     v-model:visible="caseAssociateVisible"
     v-model:project="caseAssociateProject"
     :reviewers="reviewForm.reviewers"
-    :associated-ids="selectedAssociateCasesParams.selectIds"
+    :has-not-associated-ids="selectedAssociateCasesParams.selectIds"
     @success="writeAssociateCases"
   />
 </template>
