@@ -8,6 +8,7 @@
     :get-table-func="getCaseList"
     :confirm-loading="confirmLoading"
     :associated-ids="[]"
+    :has-not-associated-ids="props.hasNotAssociatedIds"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     :table-params="{ reviewId: props.reviewId }"
     hide-project-select
@@ -94,6 +95,7 @@
     project: string;
     reviewId?: string;
     reviewers?: string[];
+    hasNotAssociatedIds?: string[];
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
