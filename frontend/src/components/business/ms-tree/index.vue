@@ -20,7 +20,7 @@
       <template v-if="$slots['title']" #title="_props">
         <a-tooltip
           :content="_props[props.fieldNames.title]"
-          :mouse-enter-delay="800"
+          :mouse-enter-delay="300"
           :position="props.titleTooltipPosition"
           :disabled="props.disabledTitleTooltip"
         >

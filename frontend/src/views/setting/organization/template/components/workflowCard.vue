@@ -249,7 +249,7 @@
       const params: UpdateWorkFlowSetting = {
         fromId: props.stateItem?.id,
         toId: props.columnItem?.dataIndex as string,
-        enable: type === 'create' ? true : props.stateItem?.statusDefinitions.join().includes('END'),
+        enable: type === 'create',
       };
       await updateOrdWorkStateFlow(params);
       Message.success(

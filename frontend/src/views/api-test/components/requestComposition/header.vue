@@ -5,6 +5,7 @@
       :params="innerParams"
       :default-param-item="defaultHeaderParamsItem"
       no-param-type
+      :type-title="props.typeTitle"
       @apply="handleBatchParamApply"
     />
   </div>
@@ -28,18 +29,21 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { responseHeaderOption } from '@/config/apiTest';
+  import { useI18n } from '@/hooks/useI18n';
 
   import { EnableKeyValueParam } from '@/models/apiTest/common';
 
   import { filterKeyValParams } from '../utils';
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
 
+  const { t } = useI18n();
   const props = defineProps<{
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
+    typeTitle?: string;
   }>();
   const emit = defineEmits<{
     (e: 'update:selectedKeys', value: string[]): void;

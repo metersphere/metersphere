@@ -5,7 +5,8 @@
     :show-full-screen="true"
     :title="t('apiTestDebug.fastExtraction')"
     disabled-width-drag
-    @confirm="emit('apply', expressionForm)"
+    @confirm="confirmHandler"
+    @close="closeHandler"
   >
     <div v-if="expressionForm.extractType === RequestExtractExpressionEnum.REGEX" class="h-[400px]">
       <MsCodeEditor
@@ -137,7 +138,7 @@
           </MsButton>
         </template>
         <div class="mt-[16px]">
-          <moreSetting v-model:config="expressionForm" />
+          <moreSetting v-model:config="expressionForm" :is-show-result-match-rules="false" />
         </div>
       </a-collapse-item>
     </a-collapse>
@@ -146,7 +147,7 @@
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
-  import FormInstance, { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
   import { JSONPath } from 'jsonpath-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -176,14 +177,18 @@
   );
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
-    (e: 'apply', config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>): void;
+    (
+      e: 'apply',
+      config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>,
+      matchResult: any[]
+    ): void;
   }>();
 
   const { t } = useI18n();
 
   const innerVisible = useVModel(props, 'visible', emit);
   const expressionForm = ref({ ...props.config });
-  const expressionFormRef = ref<typeof FormInstance>();
+  const expressionFormRef = ref<FormInstance | null>(null);
   const parseJson = ref<string | Record<string, any>>({});
   const matchResult = ref<any[]>([]); // 当前匹配结果
   const isMatched = ref(false); // 是否执行过匹配
@@ -272,6 +277,17 @@
   }
 
   const moreSettingActive = ref<number[]>([]);
+  function confirmHandler() {
+    expressionFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        emit('apply', expressionForm.value, matchResult.value);
+      }
+    });
+  }
+
+  function closeHandler() {
+    expressionFormRef.value?.resetFields();
+  }
 </script>
 
 <style lang="less" scoped>

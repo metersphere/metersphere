@@ -14,12 +14,14 @@
         </span>
       </template>
     </a-input-search>
-    <batchAddKeyVal
-      :add-type-text="t('project.environmental.env.constantBatchAddTip')"
-      :params="innerParams"
-      no-param-type
-      @apply="handleBatchParamApply"
-    />
+    <div>
+      <batchAddKeyVal
+        :add-type-text="t('project.environmental.env.constantBatchAddTip')"
+        :params="innerParams"
+        no-param-type
+        @apply="handleBatchParamApply"
+      />
+    </div>
   </div>
   <paramsTable
     v-model:params="innerParams"

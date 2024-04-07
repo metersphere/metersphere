@@ -143,6 +143,16 @@
         </template>
       </slot>
     </template>
+    <template
+      v-for="item of props.columns.filter((e) => e.titleSlotName !== undefined)"
+      #[item.titleSlotName!]="{ record, rowIndex, column }"
+    >
+      <slot
+        :name="item.titleSlotName"
+        v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+      >
+      </slot>
+    </template>
   </MsBaseTable>
 </template>
 

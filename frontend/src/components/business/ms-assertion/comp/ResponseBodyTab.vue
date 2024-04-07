@@ -14,6 +14,7 @@
         v-model:params="condition.jsonPathAssertion.assertions"
         :disabled-except-param="props.disabled"
         :selectable="true"
+        :response="props.response"
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
@@ -90,6 +91,17 @@
             <span class="invisible relative"></span>
           </a-popover>
         </template>
+        <!-- <template #expectedTitle="{ columnConfig }">
+          <div class="flex items-center text-[var(--color-text-3)]">
+            {{ t('apiTestDebug.paramType') }}
+            <a-tooltip :content="columnConfig.typeTitleTooltip" position="right">
+              <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+        </template> -->
       </paramsTable>
     </div>
     <!-- jsonPath结束 -->
@@ -259,9 +271,9 @@
         v-model:params="condition.regexAssertion.assertions"
         :selectable="true"
         :disabled-except-param="props.disabled"
-        :columns="xPathColumns"
+        :columns="regexColumns"
         :scroll="{ minWidth: '700px' }"
-        :default-param-item="xPathDefaultParamItem"
+        :default-param-item="regexDefaultParamItem"
         @change="(data) => handleChange(data, ResponseBodyAssertionType.REGEX)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
@@ -472,6 +484,8 @@
       title: 'ms.assertion.matchValue',
       dataIndex: 'expectedValue',
       slotName: 'expectedValue',
+      titleSlotName: 'expectedTitle',
+      typeTitleTooltip: t('ms.assertion.expectedValueTitle'),
     },
     {
       title: '',
@@ -493,16 +507,45 @@
 
   // json默认值
   const jsonPathDefaultParamItem = {
-    expression: '',
-    condition: EQUAL.value,
-    expectedValue: '',
     enable: true,
+    variableName: '',
+    variableType: RequestExtractEnvType.TEMPORARY,
+    extractScope: RequestExtractScope.BODY,
+    expression: '',
+    extractType: RequestExtractExpressionEnum.JSON_PATH,
+    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+    resultMatchingRuleNum: 1,
+    responseFormat: ResponseBodyXPathAssertionFormat.XML,
+    moreSettingPopoverVisible: false,
   };
   // xpath默认值
   const xPathDefaultParamItem = {
     expression: '',
     enable: true,
     valid: true,
+    variableType: RequestExtractEnvType.TEMPORARY,
+    extractScope: RequestExtractScope.BODY,
+    extractType: RequestExtractExpressionEnum.X_PATH,
+    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+    resultMatchingRuleNum: 1,
+    responseFormat: ResponseBodyXPathAssertionFormat.XML,
+    moreSettingPopoverVisible: false,
+  };
+  // xpath默认值
+  const regexDefaultParamItem = {
+    expression: '',
+    enable: true,
+    valid: true,
+    variableType: RequestExtractEnvType.TEMPORARY,
+    extractScope: RequestExtractScope.BODY,
+    extractType: RequestExtractExpressionEnum.REGEX,
+    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+    resultMatchingRuleNum: 1,
+    responseFormat: ResponseBodyXPathAssertionFormat.XML,
+    moreSettingPopoverVisible: false,
   };
 
   const handleChange = (data: any[], type: string, isInit?: boolean) => {
@@ -555,6 +598,30 @@
           eventTag: 'copy',
           label: 'common.copy',
         },
+        // {
+        //   eventTag: 'setting',
+        //   label: 'common.setting',
+        // },
+      ],
+    },
+  ];
+  const regexColumns: ParamTableColumn[] = [
+    {
+      title: 'ms.assertion.expression',
+      dataIndex: 'expression',
+      slotName: 'expression',
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      fixed: 'right',
+      width: 130,
+      moreAction: [
+        {
+          eventTag: 'copy',
+          label: 'common.copy',
+        },
+        // TODO 后台没有写 先不要了
         // {
         //   eventTag: 'setting',
         //   label: 'common.setting',
@@ -644,28 +711,62 @@
    * 提取参数表格-应用更多设置
    */
   function applyMoreSetting(record: ExpressionConfig) {
-    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
-      if (e.id === activeRecord.value.id) {
-        record.moreSettingPopoverVisible = false;
-        return {
-          ...activeRecord.value,
-          moreSettingPopoverVisible: false,
-        } as any;
-      }
-      return e;
-    });
-    handleChange(condition.value.assertion, condition.value.assertion);
+    switch (condition.value.assertionBodyType) {
+      case ResponseBodyAssertionType.JSON_PATH:
+        condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
+          if (e.id === activeRecord.value.id) {
+            record.moreSettingPopoverVisible = false;
+            return {
+              ...activeRecord.value,
+              moreSettingPopoverVisible: false,
+            } as any;
+          }
+          return e;
+        });
+        break;
+      case ResponseBodyAssertionType.XPATH:
+        condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e) => {
+          if (e.id === activeRecord.value.id) {
+            record.moreSettingPopoverVisible = false;
+            return {
+              ...activeRecord.value,
+              moreSettingPopoverVisible: false,
+            } as any;
+          }
+          return e;
+        });
+        break;
+      case ResponseBodyAssertionType.REGEX:
+        condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e) => {
+          if (e.id === activeRecord.value.id) {
+            record.moreSettingPopoverVisible = false;
+            return {
+              ...activeRecord.value,
+              moreSettingPopoverVisible: false,
+            } as any;
+          }
+          return { ...e };
+        });
+        break;
+      default:
+        break;
+    }
+    emit('change', { ...condition.value });
   }
 
   /**
    * 提取参数表格-保存快速提取的配置
    */
-  function handleFastExtractionApply(config: RegexExtract | JSONPathExtract | XPathExtract) {
+  function handleFastExtractionApply(
+    config: RegexExtract | JSONPathExtract | XPathExtract,
+    matchResult: Record<string, any>
+  ) {
     condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
           ...config,
+          expectedValue: matchResult.join(''),
         };
       }
       return e;

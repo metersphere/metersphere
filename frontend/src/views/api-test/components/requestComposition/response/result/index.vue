@@ -343,21 +343,15 @@
 
   const originStepId = ref<string | undefined>('');
 
-  watch(
-    () => props.stepItem?.stepId,
-    (val) => {
-      if (val) {
-        if (isShowLoopControl.value && props.stepItem?.stepChildren) {
-          getStepDetail(props.stepItem?.stepChildren[controlCurrent.value - 1].stepId as string);
-        } else {
-          getStepDetail(val);
-        }
+  watchEffect(() => {
+    if (props.stepItem?.stepId && !props.stepItem.fold) {
+      if (isShowLoopControl.value && props.stepItem?.stepChildren) {
+        getStepDetail(props.stepItem?.stepChildren[controlCurrent.value - 1].stepId as string);
+      } else {
+        getStepDetail(props.stepItem.stepId);
       }
-    },
-    {
-      immediate: true,
     }
-  );
+  });
 
   onMounted(() => {
     originStepId.value = props.stepItem?.stepId;

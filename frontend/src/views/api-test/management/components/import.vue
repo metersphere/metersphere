@@ -47,7 +47,13 @@
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
               allow-clear
-            />
+            >
+              <template #tree-slot-title="node">
+                <a-tooltip :content="`${node.name}`" position="tl">
+                  <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+                </a-tooltip>
+              </template>
+            </a-tree-select>
           </a-form-item>
           <a-form-item>
             <template #label>
@@ -243,7 +249,13 @@
               class="w-[436px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
-            />
+            >
+              <template #tree-slot-title="node">
+                <a-tooltip :content="`${node.name}`" position="tl">
+                  <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+                </a-tooltip>
+              </template>
+            </a-tree-select>
           </a-form-item>
           <a-form-item>
             <template #label>

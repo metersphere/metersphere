@@ -3,14 +3,21 @@
     <MsSplitBox>
       <template #first>
         <div class="p-[24px]">
-          <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
-            <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT">{{
-              t('project.environmental.env')
-            }}</a-radio>
-            <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT_GROUP">{{
+          <div
+            ><a-radio-group
+              v-model:model-value="showType"
+              type="button"
+              class="file-show-type w-[50%]"
+              @change="changeShowType"
+            >
+              <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT">{{
+                t('project.environmental.env')
+              }}</a-radio>
+              <!-- <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT_GROUP">{{
               t('project.environmental.envGroup')
-            }}</a-radio>
-          </a-radio-group>
+            }}</a-radio> -->
+            </a-radio-group></div
+          >
           <template v-if="showType === 'PROJECT'">
             <a-input-search
               v-model="keyword"
@@ -764,7 +771,7 @@
     background-color: rgba(var(--primary-1));
   }
   .file-show-type {
-    @apply grid grid-cols-2;
+    @apply grid grid-cols-1;
 
     margin-bottom: 8px;
     :deep(.arco-radio-button-content) {

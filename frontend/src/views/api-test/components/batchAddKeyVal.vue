@@ -1,7 +1,11 @@
 <template>
-  <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
-    {{ t('apiTestDebug.batchAdd') }}
-  </a-button>
+  <div class="flex w-full" :class="[props.typeTitle ? 'justify-between' : 'justify-start']">
+    <span v-if="props.typeTitle">{{ props.typeTitle }}</span>
+    <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
+      {{ t('apiTestDebug.batchAdd') }}
+    </a-button>
+  </div>
+
   <MsDrawer
     v-model:visible="showBatchAddParamDrawer"
     :width="680"
@@ -60,6 +64,7 @@
       noParamType?: boolean; // 是否有参数类型
       addTypeText?: string; // 添加类型文案
       disabled?: boolean;
+      typeTitle?: string;
     }>(),
     {
       noParamType: false,

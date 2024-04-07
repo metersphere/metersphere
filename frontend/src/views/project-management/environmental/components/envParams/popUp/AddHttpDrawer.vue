@@ -141,7 +141,13 @@
               height: 200,
             },
           }"
-        ></a-tree-select>
+        >
+          <template #tree-slot-title="node">
+            <a-tooltip :content="`${node.name}`" position="tl">
+              <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+            </a-tooltip>
+          </template>
+        </a-tree-select>
       </a-form-item>
       <!-- 路径 -->
       <a-form-item
@@ -171,6 +177,7 @@
       :disabled-param-value="false"
       :disabled-except-param="false"
       :second-box-height="secondBoxHeight"
+      :type-title="t('project.environmental.requestHeader')"
     />
   </MsDrawer>
 </template>

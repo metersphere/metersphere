@@ -188,7 +188,7 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       sortIndex: 1,
       showTooltip: true,
       sortable: {
@@ -241,6 +241,7 @@
       dataIndex: 'createUserName',
       showInTable: true,
       width: 300,
+      showTooltip: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateTime',
@@ -253,7 +254,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getFormApiImportPageList,
     {
-      scroll: { x: 'auto' },
+      scroll: { x: '100%' },
       columns,
       showSetting: false,
       selectable: true,
