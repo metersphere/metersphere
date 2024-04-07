@@ -345,7 +345,7 @@
           suggestion,
         }),
       ],
-      autofocus: 'start',
+      autofocus: false,
       onUpdate: () => {
         debounceOnUpdate();
       },

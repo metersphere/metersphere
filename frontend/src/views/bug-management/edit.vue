@@ -509,15 +509,6 @@
     }
   }
 
-  function beforeUpload(file: File) {
-    const _maxSize = 50 * 1024 * 1024;
-    if (file.size > _maxSize) {
-      Message.warning(t('ms.upload.overSize'));
-      return Promise.resolve(false);
-    }
-    return Promise.resolve(true);
-  }
-
   function associatedFile() {
     associatedDrawer.value = true;
   }
@@ -761,7 +752,7 @@
     // 自定义字段赋值
     fApi.value.setValue(tmpObj);
     // 平台默认模板系统字段单独处理
-    if (isPlatformDefaultTemplate && form.value.platformSystemFields) {
+    if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
       Object.keys(form.value.platformSystemFields).forEach((key) => {
         form.value.platformSystemFields[key] = tmpObj[key];
       });
