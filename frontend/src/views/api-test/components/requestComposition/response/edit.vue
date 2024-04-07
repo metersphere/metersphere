@@ -11,7 +11,7 @@
         <div class="response-tab">
           <div v-if="tab.defaultFlag" class="response-tab-default-icon"></div>
           <a-tooltip
-            v-if="getTextWidth(t(tab.name || tab.label)) > 200"
+            v-if="translateTextToPX(t(tab.name || tab.label)) > 200"
             :content="t(tab.name || tab.label) + '(' + tab.statusCode + ')'"
           >
             <span class="one-line-text" style="max-width: 200px"
@@ -189,6 +189,7 @@
   import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { translateTextToPX } from '@/utils/css';
 
   import { ResponseDefinition } from '@/models/apiTest/common';
   import { ResponseBodyFormat, ResponseComposition } from '@/enums/apiEnum';
@@ -315,16 +316,6 @@
   function changeBodyFormat(val: ResponseBodyFormat) {
     activeResponse.value.body.bodyType = val;
     emit('change');
-  }
-
-  function getTextWidth(text: string) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (context != null) {
-      const metrics = context.measureText(text);
-      return metrics.width;
-    }
-    return 0;
   }
 
   // const jsonSchemaColumns: FormTableColumn[] = [
