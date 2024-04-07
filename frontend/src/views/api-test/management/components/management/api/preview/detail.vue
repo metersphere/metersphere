@@ -659,7 +659,7 @@
       case RequestBodyFormat.FORM_DATA:
         return (previewDetail.value.body.formDataBody?.formValues || []).map((e) => ({
           ...e,
-          value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('\n') : e.value,
+          value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('、') : e.value,
         }));
       case RequestBodyFormat.WWW_FORM:
         return previewDetail.value.body.wwwFormBody?.formValues || [];

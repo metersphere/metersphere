@@ -87,7 +87,7 @@
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
-  import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
+  import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import { encrypted } from '@/utils';
   import { setLoginExpires } from '@/utils/auth';
@@ -160,8 +160,18 @@
         const { username, password } = values;
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
+        if (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') {
+          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目/白板用户没有项目）
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+          return;
+        }
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
-        const redirectHasPermission = redirect && routerNameHasPermission(redirect as string, router.getRoutes());
+        const redirectHasPermission =
+          redirect &&
+          ![NO_RESOURCE_ROUTE_NAME, NO_PROJECT_ROUTE_NAME].includes(redirect as string) &&
+          routerNameHasPermission(redirect as string, router.getRoutes());
         const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
         const res = await getProjectInfo(appStore.currentProjectId);
         if (!res || res.deleted) {

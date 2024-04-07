@@ -37,6 +37,7 @@
   const props = defineProps<{
     config: ExecuteConditionConfig;
     isDefinition?: boolean; // 是否是定义页面
+    isScenario?: boolean; // 是否是场景页面
     disabled?: boolean;
   }>();
   const emit = defineEmits<{
@@ -48,9 +49,15 @@
   const innerConfig = useVModel(props, 'config', emit);
 
   const conditionTypes = computed(() => {
+    // 接口定义
     if (props.isDefinition) {
       return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.TIME_WAITING];
     }
+    // 接口场景
+    if (props.isScenario) {
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL];
+    }
+    // 接口调试
     return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING];
   });
 </script>

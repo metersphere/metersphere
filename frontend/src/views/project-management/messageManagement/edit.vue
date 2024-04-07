@@ -24,7 +24,7 @@
           </a-tooltip>
         </div>
         <a-select v-model:model-value="fieldType" class="my-[8px]" :options="fieldTypeOptions"></a-select>
-        <a-spin class="relative h-[calc(100%-69px)] w-full" :loading="fieldLoading">
+        <a-spin class="relative h-[calc(100%-70px)] w-full" :loading="fieldLoading">
           <div :class="`field-out-container ${containerStatusClass}`">
             <div ref="fieldListRef" class="field-container">
               <div v-for="field of filterFields" :key="field.id" class="field-item" @click="addField(field)">
@@ -45,7 +45,7 @@
                     </div>
                   </template>
                 </a-popover>
-                <MsButton type="icon" class="field-plus">
+                <MsButton type="icon" class="field-plus" @click="addField(field)">
                   <MsIcon type="icon-icon_add_outlined" size="14"></MsIcon>
                 </MsButton>
               </div>
@@ -68,7 +68,7 @@
             }}
           </div>
         </div>
-        <div class="flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
+        <div class="flex-1 overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
           <div class="mb-[8px] text-[var(--color-text-4)]">{{ t('project.messageManagement.title') }}</div>
           <a-textarea
             ref="subjectInputRef"
@@ -77,20 +77,22 @@
             :auto-size="{ minRows: 3, maxRows: 3 }"
             :max-length="1000"
             :disabled="saveLoading"
+            class="break-keep"
             @focus="focusTarget = 'subject'"
           />
           <div class="mb-[8px] mt-[16px] text-[var(--color-text-4)]">{{ t('project.messageManagement.content') }}</div>
-          <a-textarea
-            v-if="template.length > 0 || focusTarget === 'template'"
-            ref="templateInputRef"
-            v-model:model-value="template"
-            class="h-[calc(100%-156px)]"
-            :max-length="1000"
-            auto-size
-            :disabled="saveLoading"
-            @focus="focusTarget = 'template'"
-            @blur="focusTarget = null"
-          />
+          <div v-if="template.length > 0 || focusTarget === 'template'" class="h-[calc(100%-156px)]">
+            <a-textarea
+              ref="templateInputRef"
+              v-model:model-value="template"
+              class="h-full overflow-scroll break-keep"
+              :max-length="1000"
+              auto-size
+              :disabled="saveLoading"
+              @focus="focusTarget = 'template'"
+              @blur="focusTarget = null"
+            />
+          </div>
           <div
             v-else
             class="flex h-[calc(100%-156px)] flex-col items-center gap-[16px] bg-white"
@@ -105,18 +107,19 @@
         <div class="mb-[8px] font-medium text-[var(--color-text-1)]">
           {{ t('project.messageManagement.updatePreview') }}
         </div>
-        <MessagePreview
-          v-if="messageDetail"
-          :robot="{
-            ...messageDetail,
-            template,
-            subject,
-          }"
-          :fields="fields"
-          :function-name="'接口测试'"
-          :event-name="'创建任务'"
-          is-update-preview
-        />
+        <div v-if="messageDetail" class="h-[calc(100%-30px)] overflow-hidden">
+          <MessagePreview
+            :robot="{
+              ...messageDetail,
+              template,
+              subject,
+            }"
+            :fields="fields"
+            function-name=""
+            event-name=""
+            is-update-preview
+          />
+        </div>
       </div>
     </div>
   </MsCard>
@@ -341,6 +344,10 @@
         @apply visible;
       }
     }
+  }
+  .overflow-scroll {
+    @apply overflow-y-auto;
+    .ms-scroll-bar();
   }
   .content-empty-img {
     margin-top: 100px;

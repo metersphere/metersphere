@@ -20,11 +20,19 @@
         <environmentSelect v-model:current-env-config="currentEnvConfig" />
         <executeButton
           ref="executeButtonRef"
+          v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           :execute-loading="activeScenarioTab.executeLoading"
           @execute="handleExecute"
           @stop-debug="handleStopExecute"
         />
-        <a-button type="primary" :loading="saveLoading" @click="saveScenario">
+        <a-button
+          v-permission="
+            activeScenarioTab.isNew ? ['PROJECT_API_SCENARIO:READ+ADD'] : ['PROJECT_API_SCENARIO:READ+UPDATE']
+          "
+          type="primary"
+          :loading="saveLoading"
+          @click="saveScenario"
+        >
           {{ t('common.save') }}
         </a-button>
       </div>
@@ -118,6 +126,7 @@
   } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
@@ -458,6 +467,25 @@
         scenarioDetail.id = res.id;
         if (!scenarioDetail.steps) {
           scenarioDetail.steps = [];
+        } else {
+          scenarioDetail.steps = mapTree(scenarioDetail.steps, (node) => {
+            if (
+              node.parent &&
+              node.parent.stepType === ScenarioStepType.API_SCENARIO &&
+              [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
+            ) {
+              // 如果根节点是引用场景
+              node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+              node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+              node.draggable = false; // 引用场景下的任何步骤不可拖拽
+            } else if (node.parent) {
+              // 如果有父节点
+              node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
+              node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+            }
+            node.uniqueId = getGenerateId();
+            return node;
+          });
         }
         const index = scenarioTabs.value.findIndex((e) => e.id === activeScenarioTab.value.id);
         if (index !== -1) {
@@ -525,6 +553,8 @@
       openScenarioTab(route.query.sId as string);
     }
   });
+
+  useLeaveTabUnSaveCheck(scenarioTabs.value, ['PROJECT_API_SCENARIO:READ+ADD', 'PROJECT_API_SCENARIO:READ+UPDATE']);
 
   const hasLocalExec = computed(() => executeButtonRef.value?.hasLocalExec);
   const localExecuteUrl = computed(() => executeButtonRef.value?.localExecuteUrl);

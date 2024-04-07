@@ -180,6 +180,7 @@
             "
             v-model:selected-keys="selectedKeys"
             v-model:steps="steps"
+            v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEFINITION:READ+UPDATE']"
             :step="step"
             @click="setFocusNodeKey(step.uniqueId)"
             @other-create="handleOtherCreate"
@@ -223,6 +224,7 @@
     <createStepActions
       v-model:selected-keys="selectedKeys"
       v-model:steps="steps"
+      v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEFINITION:READ+UPDATE']"
       @add-done="handleAddStepDone"
       @other-create="handleOtherCreate"
     >
@@ -239,6 +241,7 @@
       :file-params="currentStepFileParams"
       :step="activeStep"
       :step-responses="scenario.stepResponses"
+      :permission-map="permissionMap"
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
       @stop-debug="handleStopExecute(activeStep)"
@@ -250,6 +253,7 @@
       :request="currentStepDetail as unknown as RequestParam"
       :file-params="currentStepFileParams"
       :step-responses="scenario.stepResponses"
+      :permission-map="permissionMap"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep(activeStep)"
       @stop-debug="handleStopExecute(activeStep)"
@@ -489,6 +493,9 @@
   const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
+  const permissionMap = {
+    execute: 'PROJECT_API_SCENARIO:READ+EXECUTE',
+  };
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string | number>(''); // 聚焦的key
@@ -1374,6 +1381,10 @@
         uploadFileIds: request.uploadFileIds,
         deleteFileIds: request.deleteFileIds,
         unLinkFileIds: request.unLinkFileIds,
+      };
+      activeStep.value.config = {
+        ...activeStep.value.config,
+        method: request.method,
       };
       emit('updateResource', request.uploadFileIds, request.linkFileIds);
       activeStep.value = undefined;

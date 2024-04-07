@@ -36,7 +36,9 @@
 
 <style lang="less" scoped>
   .condition {
-    overflow: overlay;
+    .ms-scroll-bar();
+
+    overflow: auto;
     width: 100%;
     height: 700px;
     flex-shrink: 0;

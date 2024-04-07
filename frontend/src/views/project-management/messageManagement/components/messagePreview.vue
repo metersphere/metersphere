@@ -5,9 +5,9 @@
   </div>
   <div
     v-if="props.robot.platform === 'IN_SITE'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
+    class="preview-rounded h-full w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="preview-rounded bg-white">
+    <div class="preview-rounded h-full overflow-scroll bg-white">
       <div
         v-if="!props.isUpdatePreview"
         class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px]"
@@ -19,9 +19,9 @@
       </div>
       <div class="flex gap-[12px] p-[16px]">
         <a-avatar>MS</a-avatar>
-        <div class="flex flex-1 flex-col">
+        <div class="flex flex-1 flex-col overflow-hidden">
           <div class="font-medium text-[var(--color-text-1)]" v-html="subject || '-'"></div>
-          <div class="mt-[4px] text-[var(--color-text-2)]" v-html="template || '-'"></div>
+          <div class="mt-[4px] flex-1 text-[var(--color-text-2)]" v-html="template || '-'"></div>
           <div class="text-[var(--color-text-4)]">{{ dayjs().format('YYYY-MM-DD HH:mm:ss') }}</div>
         </div>
       </div>
@@ -29,7 +29,7 @@
   </div>
   <div
     v-else-if="props.robot.platform === 'MAIL'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
+    class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
     <div class="mb-[4px] text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]" v-html="subject || '-'">
     </div>
@@ -48,7 +48,7 @@
   </div>
   <div
     v-else-if="props.robot.platform === 'WE_COM'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
+    class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
     <div class="preview-rounded bg-white">
       <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px_16px_8px_16px]">
@@ -71,7 +71,7 @@
   </div>
   <div
     v-else-if="props.robot.platform === 'DING_TALK'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] text-[14px]"
+    class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] text-[14px]"
   >
     <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[12px_12px_4px_12px]">
       <div class="flex items-center gap-[4px] text-[14px] font-medium text-[var(--color-text-1)]">
@@ -114,7 +114,7 @@
   </div>
   <div
     v-else-if="props.robot.platform === 'LARK'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] text-[14px]"
+    class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] text-[14px]"
   >
     <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[12px_12px_4px_12px]">
       <div class="flex items-center gap-[4px] text-[14px] font-medium text-[var(--color-text-1)]">
@@ -149,7 +149,7 @@
   </div>
   <div
     v-else-if="props.robot.platform === 'CUSTOM'"
-    class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
+    class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
     <div class="preview-rounded bg-white">
       <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px_16px_8px_16px]">
@@ -232,7 +232,7 @@
     ) {
       previewName = `MeterSphere ${previewName}`;
     }
-    return previewName
+    return previewName;
   });
 
   const template = computed(() => {
@@ -248,5 +248,9 @@
     @apply overflow-hidden;
 
     border-radius: var(--border-radius-small);
+  }
+  .overflow-scroll {
+    @apply overflow-y-auto;
+    .ms-scroll-bar();
   }
 </style>

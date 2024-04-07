@@ -47,7 +47,8 @@
 
 <style lang="less" scoped>
   .single-logo-layout {
-    height: 100vh;
+    @apply h-full;
+
     background-color: var(--color-text-n9);
     .body {
       margin-top: 56px;

@@ -95,6 +95,7 @@
         isValidXml.value = false;
         return;
       }
+      isValidXml.value = true;
       parsedXml.value = xmlDoc;
       // 先将 XML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
       flattenedXml.value = new XmlBeautify({ parser: DOMParser })

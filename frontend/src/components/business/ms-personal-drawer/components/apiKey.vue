@@ -47,14 +47,24 @@
         </div>
         <div class="px-[16px]">
           <div class="api-item-label">{{ t('ms.personal.desc') }}</div>
-          <a-tooltip :content="item.description" :disabled="!item.description">
-            <div class="api-item-value one-line-text">{{ item.description || '-' }}</div>
-          </a-tooltip>
+          <a-textarea
+            v-if="item.showDescInput"
+            v-model:model-value="item.description"
+            :placeholder="t('common.pleaseInput')"
+            :max-length="500"
+            @blur="handleDescChange(item)"
+          ></a-textarea>
+          <div v-else class="desc-line api-item-value">
+            <a-tooltip :content="item.description" :disabled="!item.description">
+              <div class="one-line-text">{{ item.description || '-' }}</div>
+            </a-tooltip>
+            <MsIcon type="icon-icon_edit_outlined" class="edit-icon" @click="handleEditClick(item)" />
+          </div>
           <div class="api-item-label">{{ t('ms.personal.createTime') }}</div>
           <div class="api-item-value">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
           </div>
-          <div class="api-item-label">{{ t('ms.personal.expireTime') }}</div>
+          <div class="api-item-label">{{ t('ms.personal.validTime') }}</div>
           <div class="api-item-value">
             {{ item.forever ? t('ms.personal.forever') : dayjs(item.expireTime).format('YYYY-MM-DD HH:mm:ss') }}
             <a-tooltip v-if="item.isExpire" :content="t('ms.personal.expiredTip')">
@@ -63,16 +73,26 @@
           </div>
         </div>
         <div class="flex items-center justify-between px-[16px]">
-          <MsTableMoreAction :list="actions" trigger="click" @select="handleMoreActionSelect($event, item)">
+          <div class="flex items-center gap-[8px]">
             <a-button
-              v-permission="['SYSTEM_PERSONAL_API_KEY:READ+UPDATE', 'SYSTEM_PERSONAL_API_KEY:READ+DELETE']"
+              v-permission="['SYSTEM_PERSONAL_API_KEY:READ+UPDATE']"
               size="mini"
               type="outline"
               class="arco-btn-outline--secondary"
+              @click="handleSetValidTime(item)"
             >
-              {{ t('common.setting') }}
+              {{ t('ms.personal.validTime') }}
             </a-button>
-          </MsTableMoreAction>
+            <a-button
+              v-permission="['SYSTEM_PERSONAL_API_KEY:READ+DELETE']"
+              size="mini"
+              type="outline"
+              class="arco-btn-outline--danger"
+              @click="deleteApiKey(item)"
+            >
+              {{ t('common.delete') }}
+            </a-button>
+          </div>
           <a-switch
             v-model:model-value="item.enable"
             v-permission="['SYSTEM_PERSONAL_API_KEY:READ+UPDATE']"
@@ -142,8 +162,6 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import {
@@ -168,6 +186,7 @@
   interface APIKEYItem extends APIKEY {
     isExpire: boolean;
     desensitization: boolean;
+    showDescInput: boolean;
   }
   const apiKeyList = ref<APIKEYItem[]>([]);
   const hasCratePermission = hasAnyPermission(['SYSTEM_PERSONAL_API_KEY:READ+ADD']);
@@ -180,6 +199,7 @@
         ...item,
         isExpire: item.forever ? false : item.expireTime < Date.now(),
         desensitization: true,
+        showDescInput: false,
       }));
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -207,23 +227,6 @@
       newLoading.value = false;
     }
   }
-
-  const actions: ActionsItem[] = [
-    {
-      label: t('ms.personal.validTime'),
-      eventTag: 'time',
-      permission: ['SYSTEM_PERSONAL_API_KEY:READ+UPDATE'],
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: t('common.delete'),
-      danger: true,
-      eventTag: 'delete',
-      permission: ['SYSTEM_PERSONAL_API_KEY:READ+DELETE'],
-    },
-  ];
 
   function handleCopy(val: string) {
     if (isSupported) {
@@ -299,6 +302,30 @@
     return false;
   }
 
+  function handleEditClick(item: APIKEYItem) {
+    item.showDescInput = true;
+    nextTick(() => {
+      document.querySelector<HTMLInputElement>('.arco-textarea')?.focus();
+    });
+  }
+
+  async function handleDescChange(item: APIKEYItem) {
+    try {
+      loading.value = true;
+      await updateAPIKEY({
+        id: item.id || '',
+        description: item.description,
+      });
+      item.showDescInput = false;
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   const timeModalVisible = ref(false);
   const defaultTimeForm = {
     activeTimeType: 'forever',
@@ -307,13 +334,14 @@
   };
   const timeForm = ref({ ...defaultTimeForm });
   const timeFormRef = ref<FormInstance>();
+  const activeKey = ref<APIKEYItem>();
 
   function handleTimeConfirm(done: (closed: boolean) => void) {
     timeFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
           await updateAPIKEY({
-            id: apiKeyList.value[0].id,
+            id: activeKey.value?.id || '',
             description: timeForm.value.desc,
             expireTime: timeForm.value.activeTimeType === 'forever' ? 0 : dayjs(timeForm.value.time).valueOf(),
             forever: timeForm.value.activeTimeType === 'forever',
@@ -337,17 +365,14 @@
     timeForm.value = { ...defaultTimeForm };
   }
 
-  function handleMoreActionSelect(item: ActionsItem, apiKey: APIKEYItem) {
-    if (item.eventTag === 'time') {
-      timeForm.value = {
-        activeTimeType: apiKey.forever ? 'forever' : 'custom',
-        time: apiKey.expireTime ? dayjs(apiKey.expireTime).format('YYYY-MM-DD HH:mm:ss') : '',
-        desc: apiKey.description,
-      };
-      timeModalVisible.value = true;
-    } else if (item.eventTag === 'delete') {
-      deleteApiKey(apiKey);
-    }
+  function handleSetValidTime(apiKey: APIKEYItem) {
+    activeKey.value = apiKey;
+    timeForm.value = {
+      activeTimeType: apiKey.forever ? 'forever' : 'custom',
+      time: apiKey.expireTime ? dayjs(apiKey.expireTime).format('YYYY-MM-DD HH:mm:ss') : '',
+      desc: apiKey.description,
+    };
+    timeModalVisible.value = true;
   }
 </script>
 
@@ -405,6 +430,19 @@
       .copy-icon {
         @apply invisible;
       }
+    }
+  }
+  .desc-line {
+    gap: 4px;
+    &:hover {
+      .edit-icon {
+        @apply visible;
+      }
+    }
+    .edit-icon {
+      @apply invisible cursor-pointer;
+
+      color: rgb(var(--primary-5));
     }
   }
 </style>

@@ -1,31 +1,29 @@
 <template>
-  <div class="end-item">
-    <DefaultLayout
-      :logo="pageConfig.logoPlatform[0]?.url || defaultPlatformLogo"
-      :name="pageConfig.platformName"
-      class="overflow-hidden"
-      hide-right
-    >
-      <template #page>
-        <div class="page">
-          <div class="content-wrapper">
-            <div class="content">
-              <div class="icon">
-                <div class="icon-svg">
-                  <svg-icon width="232px" height="184px" name="no_resource" />
-                </div>
-                <div class="radius-box"></div>
+  <DefaultLayout
+    :logo="pageConfig.logoPlatform[0]?.url || defaultPlatformLogo"
+    :name="pageConfig.platformName"
+    class="overflow-hidden"
+    hide-right
+  >
+    <template #page>
+      <div class="page">
+        <div class="content-wrapper">
+          <div class="content">
+            <div class="icon">
+              <div class="icon-svg">
+                <svg-icon width="232px" height="184px" name="no_resource" />
               </div>
-              <div class="title">
-                <span>{{ props.isProject ? t('common.noProject') : t('common.noResource') }}</span>
-              </div>
-              <slot></slot>
+              <div class="radius-box"></div>
             </div>
+            <div class="title">
+              <span>{{ props.isProject ? t('common.noProject') : t('common.noResource') }}</span>
+            </div>
+            <slot></slot>
           </div>
         </div>
-      </template>
-    </DefaultLayout>
-  </div>
+      </div>
+    </template>
+  </DefaultLayout>
 </template>
 
 <script lang="ts" setup>
@@ -45,15 +43,9 @@
 </script>
 
 <style lang="less" scoped>
-  .end-item {
-    :deep(.arco-menu-vertical) {
-      .arco-menu-inner {
-        justify-content: end;
-      }
-    }
-  }
   .page {
-    height: 100vh;
+    @apply h-full;
+
     background-color: var(--color-text-fff);
     .content-wrapper {
       display: flex;

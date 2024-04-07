@@ -61,7 +61,12 @@
       <div class="p-[16px]">
         <!-- TODO:第一版没有模板 -->
         <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
-        <baseInfo ref="baseInfoRef" :scenario="scenario as Scenario" :module-tree="props.moduleTree" />
+        <baseInfo
+          ref="baseInfoRef"
+          :scenario="scenario as Scenario"
+          :module-tree="props.moduleTree"
+          @change="scenario.unSaved = true"
+        />
         <!-- TODO:第一版先不做依赖 -->
         <!-- <div class="mb-[8px] flex items-center">
                   <div class="text-[var(--color-text-2)]">

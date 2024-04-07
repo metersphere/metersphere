@@ -87,7 +87,7 @@
           v-if="columnConfig.inputType === 'autoComplete'"
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam"
-          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)"
+          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow !== false)"
           class="ms-form-table-input"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
           :filter-option="false"

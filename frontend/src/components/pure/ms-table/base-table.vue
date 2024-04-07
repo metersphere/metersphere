@@ -232,7 +232,7 @@
           v-if="!!attrs.showPagination"
           size="small"
           v-bind="(attrs.msPagination as MsPaginationI)"
-          hide-on-single-page
+          :simple="showBatchAction"
           @change="pageChange"
           @page-size-change="pageSizeChange"
         />
@@ -469,7 +469,7 @@
   });
 
   const showBatchAction = computed(() => {
-    return selectedCount.value > 0 && attrs.selectable;
+    return selectedCount.value > 0 && !!attrs.selectable;
   });
 
   const handleBatchAction = (value: BatchActionParams) => {
@@ -621,6 +621,13 @@
     await initColumn();
     batchLeft.value = getBatchLeft();
   });
+
+  watch(
+    () => props.columns,
+    () => {
+      initColumn();
+    }
+  );
 
   defineExpose({
     initColumn,

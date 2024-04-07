@@ -66,7 +66,7 @@
               </a-select>
             </a-form-item>
             <a-form-item field="tags" :label="t('common.tag')">
-              <MsTagsInput v-model:model-value="detailForm.tags" />
+              <MsTagsInput v-model:model-value="detailForm.tags" :max-tag-count="1" />
             </a-form-item>
           </div>
         </a-form>

@@ -33,7 +33,6 @@
           v-model:model-value="requestVModel.customizeRequestEnvEnable"
           class="w-[150px]"
           :disabled="props.step?.isQuoteScenarioStep"
-          popup-container=".customApiDrawer-title-right"
           @change="handleUseEnvChange"
         >
           <template #prefix>
@@ -102,7 +101,7 @@
               </a-input>
             </a-input-group>
           </div>
-          <div>
+          <div v-permission="[props.permissionMap?.execute]">
             <a-dropdown-button
               v-if="hasLocalExec"
               :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
@@ -395,8 +394,6 @@
     detailLoading?: boolean; // 详情加载状态
     permissionMap?: {
       execute: string;
-      create: string;
-      update: string;
     };
     stepResponses?: Record<string | number, RequestResult[]>;
     fileParams?: ScenarioStepFileParams;
@@ -1115,6 +1112,7 @@
             url: props.request.path, // 后台字段是 path
             activeTab: contentTabList.value[0].value,
             responseActiveTab: ResponseComposition.BODY,
+            stepId: props.step?.uniqueId || '',
             isNew: false,
           });
           if (_stepType.value.isQuoteApi) {

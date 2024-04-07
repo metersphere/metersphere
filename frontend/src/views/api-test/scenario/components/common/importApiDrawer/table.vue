@@ -124,73 +124,136 @@
 
   const keyword = ref('');
 
-  const columns: MsTableColumn = [
-    {
-      title: 'ID',
-      dataIndex: 'num',
-      slotName: 'num',
-      sortIndex: 1,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      fixed: 'left',
-      width: 120,
-    },
-    {
-      title: 'apiTestManagement.apiName',
-      dataIndex: 'name',
-      showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      width: 200,
-    },
-    {
-      title: 'apiTestManagement.apiType',
-      dataIndex: 'method',
-      slotName: 'method',
-      titleSlotName: 'methodFilter',
-      width: 140,
-    },
-    {
-      title: 'apiTestManagement.apiStatus',
-      dataIndex: 'status',
-      slotName: 'status',
-      titleSlotName: 'statusFilter',
-      width: 130,
-    },
-    {
-      title: 'apiTestManagement.path',
-      dataIndex: 'path',
-      showTooltip: true,
-      width: 200,
-    },
-    // {
-    //   title: 'apiTestManagement.version',
-    //   dataIndex: 'versionName',
-    //   width: 100,
-    // },
-    {
-      title: 'common.tag',
-      dataIndex: 'tags',
-      isTag: true,
-      isStringTag: true,
-      width: 150,
-    },
-  ];
   const tableConfig = {
-    columns,
     scroll: { x: 700 },
     selectable: true,
     showSelectorAll: false,
     heightUsed: 300,
   };
   // 接口定义表格
-  const useApiTable = useTable(getDefinitionPage, tableConfig);
+  const useApiTable = useTable(getDefinitionPage, {
+    ...tableConfig,
+    columns: [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        fixed: 'left',
+        width: 120,
+      },
+      {
+        title: 'apiTestManagement.apiName',
+        dataIndex: 'name',
+        showTooltip: true,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 200,
+      },
+      {
+        title: 'apiTestManagement.apiType',
+        dataIndex: 'method',
+        slotName: 'method',
+        titleSlotName: 'methodFilter',
+        width: 140,
+      },
+      {
+        title: 'apiTestManagement.apiStatus',
+        dataIndex: 'status',
+        slotName: 'status',
+        titleSlotName: 'statusFilter',
+        width: 130,
+      },
+      {
+        title: 'apiTestManagement.path',
+        dataIndex: 'path',
+        showTooltip: true,
+        width: 200,
+      },
+      // {
+      //   title: 'apiTestManagement.version',
+      //   dataIndex: 'versionName',
+      //   width: 100,
+      // },
+      {
+        title: 'common.tag',
+        dataIndex: 'tags',
+        isTag: true,
+        isStringTag: true,
+        width: 150,
+      },
+    ],
+  });
   // 接口用例表格
-  const useCaseTable = useTable(getCasePage, tableConfig);
+  const useCaseTable = useTable(getCasePage, {
+    ...tableConfig,
+    columns: [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        fixed: 'left',
+        width: 130,
+        ellipsis: true,
+        showTooltip: true,
+      },
+      {
+        title: 'case.caseName',
+        dataIndex: 'name',
+        showTooltip: true,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 180,
+      },
+      {
+        title: 'case.caseLevel',
+        dataIndex: 'priority',
+        slotName: 'caseLevel',
+        titleSlotName: 'caseLevelFilter',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 150,
+      },
+      {
+        title: 'apiTestManagement.apiStatus',
+        dataIndex: 'status',
+        slotName: 'status',
+        titleSlotName: 'statusFilter',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 150,
+      },
+      {
+        title: 'apiTestManagement.path',
+        dataIndex: 'path',
+        showTooltip: true,
+        width: 150,
+      },
+      {
+        title: 'common.tag',
+        dataIndex: 'tags',
+        isTag: true,
+        isStringTag: true,
+      },
+    ],
+  });
   // 接口场景表格
   const useScenarioTable = useTable(getScenarioPage, {
     ...tableConfig,

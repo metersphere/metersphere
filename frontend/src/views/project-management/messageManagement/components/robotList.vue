@@ -133,6 +133,7 @@
             :max-length="255"
             :placeholder="t('project.messageManagement.namePlaceholder')"
             allow-clear
+            class="w-[732px]"
           ></a-input>
         </a-form-item>
         <a-form-item
@@ -149,7 +150,11 @@
             </a-radio>
           </a-radio-group>
           <template v-if="robotForm.type === 'CUSTOM'">
-            <MsFormItemSub :text="t('project.messageManagement.dingTalkCustomTip')" :show-fill-icon="false">
+            <MsFormItemSub
+              :text="t('project.messageManagement.dingTalkCustomTip')"
+              :show-fill-icon="false"
+              class="mb-[16px]"
+            >
               <MsButton
                 type="text"
                 class="ml-[8px] !text-[12px] leading-[16px]"
@@ -159,7 +164,7 @@
                 {{ t('project.messageManagement.noticeDetail') }}
               </MsButton>
             </MsFormItemSub>
-            <a-alert :title="t('project.messageManagement.dingTalkCustomTitle')">
+            <a-alert :title="t('project.messageManagement.dingTalkCustomTitle')" class="w-[732px]">
               <div class="text-[var(--color-text-2)]">{{ t('project.messageManagement.dingTalkCustomContent1') }}</div>
               <div class="text-[var(--color-text-2)]">
                 {{ t('project.messageManagement.dingTalkCustomContent2', { at: '@' }) }}
@@ -168,7 +173,11 @@
             </a-alert>
           </template>
           <template v-else>
-            <MsFormItemSub :text="t('project.messageManagement.dingTalkEnterpriseTip')" :show-fill-icon="false">
+            <MsFormItemSub
+              :text="t('project.messageManagement.dingTalkEnterpriseTip')"
+              :show-fill-icon="false"
+              class="mb-[16px]"
+            >
               <MsButton
                 type="text"
                 class="ml-[8px] !text-[12px] leading-[16px]"
@@ -182,7 +191,7 @@
                 {{ t('project.messageManagement.helpDoc') }}
               </MsButton>
             </MsFormItemSub>
-            <a-alert :title="t('project.messageManagement.dingTalkEnterpriseTitle')">
+            <a-alert :title="t('project.messageManagement.dingTalkEnterpriseTitle')" class="w-[732px]">
               <div class="text-[var(--color-text-2)]">
                 {{ t('project.messageManagement.dingTalkEnterpriseContent1', { at: '@' }) }}
               </div>
@@ -205,6 +214,7 @@
               :max-length="255"
               :placeholder="t('project.messageManagement.appKeyPlaceholder')"
               allow-clear
+              class="w-[732px]"
             ></a-input>
           </a-form-item>
           <a-form-item
@@ -219,6 +229,7 @@
               :max-length="255"
               :placeholder="t('project.messageManagement.appSecretPlaceholder')"
               allow-clear
+              class="w-[732px]"
             ></a-input>
           </a-form-item>
         </template>
@@ -248,6 +259,7 @@
                 }
               )
             "
+            class="w-[732px]"
             allow-clear
           ></a-input>
         </a-form-item>
@@ -358,7 +370,7 @@
     projectId: appStore.currentProjectId,
     name: '',
     platform: 'WE_COM',
-    enable: false,
+    enable: true,
     webhook: '',
     type: 'CUSTOM',
     appKey: '',
