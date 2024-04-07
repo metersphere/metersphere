@@ -43,4 +43,6 @@ export default {
   'project.taskCenter.delSchedule': '确定删除定时任务吗？',
   'project.taskCenter.delScheduleSuccess': '删除定时任务成功',
   'project.taskCenter.delSchedule.tip': '删除定时任务会导致任务停止，是否继续？',
+  'project.taskCenter.enableScheduleSuccess': '启用定时任务成功',
+  'project.taskCenter.disableScheduleSuccess': '关闭定时任务成功',
 };

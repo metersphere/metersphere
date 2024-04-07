@@ -8,6 +8,8 @@ export const deleteScheduleSysTaskUrl = '/task/center/schedule/delete';
 // 系统接口用例和场景停止实时任务
 export const batchStopRealSystemApiUrl = '/task/center/api/system/stop';
 
+export const enableSchedule = '/task/center/schedule/switch';
+
 // 组织管理
 // 任务中心-实时任务-接口用例/场景
 export const taskOrgRealCenterListUrl = '/task/center/api/org/real-time/page';

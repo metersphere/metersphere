@@ -28,7 +28,12 @@
         <a-button type="text" class="flex w-full">{{ record.resourceName }}</a-button>
       </template>
       <template #operation="{ record }">
-        <a-switch v-model="record.enable" size="small" type="line" />
+        <a-switch
+          v-model="record.enable"
+          size="small"
+          type="line"
+          :before-change="() => handleBeforeEnableChange(record)"
+        />
         <a-divider direction="vertical" />
         <MsButton class="!mr-0" @click="delSchedule(record)">{{ t('common.delete') }}</MsButton>
         <!-- TODO这一版不上 -->
@@ -58,6 +63,7 @@
     getScheduleOrgApiCaseList,
     getScheduleProApiCaseList,
     getScheduleSysApiCaseList,
+    switchSchedule,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -231,9 +237,9 @@
 
   async function handleBeforeEnableChange(record: TimingTaskCenterApiCaseItem) {
     try {
-      await switchDefinitionSchedule(record.id);
+      await switchSchedule(record?.id as string);
       Message.success(
-        t(record.enable ? 'apiTestManagement.disableTaskSuccess' : 'apiTestManagement.enableTaskSuccess')
+        t(record.enable ? 'project.taskCenter.disableScheduleSuccess' : 'project.taskCenter.enableScheduleSuccess')
       );
       return true;
     } catch (error) {

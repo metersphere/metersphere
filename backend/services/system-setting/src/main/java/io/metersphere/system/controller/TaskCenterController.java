@@ -58,5 +58,13 @@ public class TaskCenterController {
         taskCenterService.delete(id);
     }
 
+    @GetMapping("/schedule/switch/{id}")
+    @Operation(summary = "系统-任务中心-关闭/开启定时任务")
+    @CheckOwner(resourceId = "#id", resourceType = "schedule")
+    public void enable(@PathVariable String id) {
+        taskCenterService.enable(id);
+    }
+
+
 
 }
