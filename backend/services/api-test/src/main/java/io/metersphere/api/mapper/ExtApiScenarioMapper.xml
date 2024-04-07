@@ -528,6 +528,13 @@
             #{id}
         </foreach>
     </select>
+    <select id="countModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT api_scenario.module_id AS moduleId, count(api_scenario.id) AS dataCount
+        FROM api_scenario
+        where api_scenario.deleted =#{deleted}
+        <include refid="queryWhereCondition"/>
+        GROUP BY api_scenario.module_id
+    </select>
 
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">

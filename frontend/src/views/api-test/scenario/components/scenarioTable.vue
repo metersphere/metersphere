@@ -941,26 +941,26 @@
       lastReportStatusFilterVisible.value = false;
       statusFilterVisible.value = false;
       priorityFilterVisible.value = false;
-      loadScenarioList(false);
+      loadScenarioList(true);
     }
   }
 
   function resetStatusFilter() {
     statusFilterVisible.value = false;
     statusFilters.value = [];
-    loadScenarioList();
+    loadScenarioList(true);
   }
 
   function resetPriorityFilter() {
     priorityFilterVisible.value = false;
     priorityFilters.value = [];
-    loadScenarioList();
+    loadScenarioList(true);
   }
 
   function resetLastReportStatusFilter() {
     lastReportStatusFilterVisible.value = false;
     lastReportStatusListFilters.value = [];
-    loadScenarioList();
+    loadScenarioList(true);
   }
 
   async function handleStatusChange(record: ApiScenarioUpdateDTO) {

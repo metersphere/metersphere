@@ -44,19 +44,11 @@
 
         ORDER BY pos ASC
     </select>
-    <select id="countModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
-        SELECT api_scenario.module_id AS moduleId, count(api_scenario.id) AS dataCount
-        FROM api_scenario
-        where api_scenario.deleted =#{deleted}
-        <include refid="queryWhereCondition"/>
-        GROUP BY api_scenario.module_id
-    </select>
     <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
         SELECT id, name, pos, project_Id, parent_id
         FROM api_scenario_module
         WHERE id = #{0}
     </select>
-
     <select id="selectModuleByParentIdAndPosOperator"
             parameterType="io.metersphere.project.dto.NodeSortQueryParam"
             resultType="io.metersphere.system.dto.sdk.BaseModule">
@@ -111,40 +103,6 @@
         </foreach>
         ORDER BY pos
     </select>
-
-    <sql id="queryWhereCondition">
-        <if test="request.keyword != null and request.keyword != ''">
-            and (
-            api_scenario.num like concat('%', #{request.keyword},'%')
-            or api_scenario.name like concat('%', #{request.keyword},'%')
-            or api_scenario.tags like concat('%', #{request.keyword},'%')
-            )
-        </if>
-        <if test="request.projectId != null and request.projectId != ''">
-            and api_scenario.project_id = #{request.projectId}
-        </if>
-        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and api_scenario.module_id in
-            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                #{nodeId}
-            </foreach>
-        </if>
-        <include refid="filters">
-            <property name="filter" value="request.filter"/>
-        </include>
-
-        <if test="request.combine != null and request.combine != ''">
-            <include refid="combine">
-                <property name="condition" value="request.combine"/>
-                <property name="name" value="request.name"/>
-                <property name="ObjectTags" value="request.combine.tags"/>
-            </include>
-        </if>
-
-        <include refid="queryVersionCondition">
-            <property name="versionTable" value="api_scenario"/>
-        </include>
-    </sql>
 
     <sql id="queryVersionCondition">
         <if test="request.versionId != null and request.versionId != ''">
@@ -209,41 +167,6 @@
         </if>
 
 
-    </sql>
-
-    <sql id="filters">
-        <if test="${filter} != null and ${filter}.size() > 0">
-            <foreach collection="${filter}.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='status'">
-                            and api_scenario.status in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='create_user'">
-                            and api_scenario.create_user in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='version_id'">
-                            and api_scenario.version_id in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='level'">
-                            and api_scenario.level in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='principal'">
-                            and api_scenario.principal in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='update_user'">
-                            and api_scenario.update_user in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                    </choose>
-                </if>
-            </foreach>
-        </if>
     </sql>
 
 

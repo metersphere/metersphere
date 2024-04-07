@@ -10,6 +10,7 @@ import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioModuleMapper;
+import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiScenarioModuleMapper;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
@@ -50,6 +51,8 @@ public class ApiScenarioModuleService extends ModuleTreeService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
 
     public List<BaseTreeNode> getTree(ApiScenarioModuleRequest request) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
@@ -244,7 +247,7 @@ public class ApiScenarioModuleService extends ModuleTreeService {
     public Map<String, Long> moduleCount(ApiScenarioModuleRequest request, boolean deleted) {
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
-        List<ModuleCountDTO> moduleCountDTOList = extApiScenarioModuleMapper.countModuleIdByRequest(request, deleted);
+        List<ModuleCountDTO> moduleCountDTOList = extApiScenarioMapper.countModuleIdByRequest(request, deleted);
         long allCount = getAllCount(moduleCountDTOList);
         Map<String, Long> moduleCountMap = getModuleCountMap(request, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
