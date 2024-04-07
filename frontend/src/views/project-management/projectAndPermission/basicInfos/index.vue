@@ -31,7 +31,10 @@
   <div class="ml-1 flex flex-col">
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.createBy') }}</span>
-      <span>{{ projectDetail?.createUser }}</span>
+      <a-tooltip v-if="translateTextToPX(projectDetail?.createUser) > 300" :content="projectDetail?.createUser">
+        <span class="one-line-text" style="max-width: 300px">{{ projectDetail?.createUser }}</span>
+      </a-tooltip>
+      <span v-else>{{ projectDetail?.createUser }}</span>
     </div>
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.organization') }}</span>
@@ -62,6 +65,7 @@
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { translateTextToPX } from '@/utils/css';
 
   import type { ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
 
