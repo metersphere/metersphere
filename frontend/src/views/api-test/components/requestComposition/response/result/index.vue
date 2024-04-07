@@ -261,7 +261,12 @@
   });
 
   const loading = ref<boolean>(false);
-  const showApiType = ref<string[]>([ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST]);
+  const showApiType = ref<string[]>([
+    ScenarioStepType.API,
+    ScenarioStepType.API_CASE,
+    ScenarioStepType.CUSTOM_REQUEST,
+    ScenarioStepType.SCRIPT,
+  ]);
   // 获取详情
   async function getStepDetail(stepId: string) {
     try {

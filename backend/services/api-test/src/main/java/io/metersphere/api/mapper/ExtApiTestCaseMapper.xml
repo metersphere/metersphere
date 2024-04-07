@@ -239,7 +239,7 @@
     </select>
     <select id="getExecuteList" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
         select
-        api_report.id,
+        distinct api_report.id,
         api_report.name,
         api_report.status,
         api_report.start_time,

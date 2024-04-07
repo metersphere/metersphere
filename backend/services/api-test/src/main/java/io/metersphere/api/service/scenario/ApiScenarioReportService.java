@@ -200,7 +200,8 @@ public class ApiScenarioReportService {
         //只处理请求的
         List<String> stepTypes = Arrays.asList(ApiScenarioStepType.API_CASE.name(),
                 ApiScenarioStepType.API.name(),
-                ApiScenarioStepType.CUSTOM_REQUEST.name());
+                ApiScenarioStepType.CUSTOM_REQUEST.name(),
+                ApiScenarioStepType.SCRIPT.name());
         scenarioReportSteps.parallelStream().forEach(step -> {
             if (stepTypes.contains(step.getStepType())) {
                 List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
