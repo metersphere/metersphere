@@ -24,7 +24,7 @@
               <icon-right :size="8" />
             </MsButton>
           </template>
-          <div v-if="props.isEdit && props.showResponseResultButton" class="ml-[4px] flex items-center">
+          <div v-if="props.isEdit && props.showResponseResultButton" class="ml-[4px] mr-[24px] flex items-center">
             <MsButton
               type="text"
               :class="['font-medium', activeResponseType === 'content' ? '' : '!text-[var(--color-text-n4)]', '!mr-0']"

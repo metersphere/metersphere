@@ -78,7 +78,6 @@
             v-model:detail-loading="loading"
             v-model:request="activeApiTab"
             :module-tree="props.moduleTree"
-            hide-response-layout-switch
             :create-api="addDefinition"
             :update-api="updateDefinition"
             :execute-api="debugDefinition"

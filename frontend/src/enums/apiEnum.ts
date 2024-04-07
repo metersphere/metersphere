@@ -11,6 +11,7 @@ export enum RequestMethods {
 }
 // 接口组成部分
 export enum RequestComposition {
+  BASE_INFO = 'BASE_INFO',
   PLUGIN = 'PLUGIN',
   HEADER = 'HEADER',
   BODY = 'BODY',
