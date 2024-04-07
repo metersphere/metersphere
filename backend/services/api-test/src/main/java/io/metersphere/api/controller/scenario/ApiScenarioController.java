@@ -120,7 +120,7 @@ public class ApiScenarioController {
     @GetMapping("/delete-to-gc/{id}")
     @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioDTO(#id)", targetClass = ApiScenarioNoticeService.class)
     public void deleteToGc(@PathVariable String id) {

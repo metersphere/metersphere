@@ -172,6 +172,20 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.DELETE.name(),
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
+                apiScenario.getName());
+        dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
+        return dto;
+    }
+
+    public LogDTO moveToGcLog(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        LogDTO dto = new LogDTO(
+                null,
+                null,
+                apiScenario.getId(),
+                null,
+                OperationLogType.DELETE.name(),
                 OperationLogModule.API_TEST_SCENARIO_RECYCLE,
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
