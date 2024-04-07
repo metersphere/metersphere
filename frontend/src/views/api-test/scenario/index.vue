@@ -80,7 +80,7 @@
       <create
         ref="createRef"
         v-model:scenario="activeScenarioTab"
-        :module-tree="folderTree"
+        :module-tree="moduleTree"
         @batch-debug="realExecute($event, false)"
       ></create>
     </div>
@@ -88,7 +88,7 @@
       <detail
         ref="detailRef"
         v-model:scenario="activeScenarioTab"
-        :module-tree="folderTree"
+        :module-tree="moduleTree"
         @batch-debug="realExecute($event, false)"
       ></detail>
     </div>
@@ -320,7 +320,7 @@
     setStepExecuteStatus(activeScenarioTab.value);
   }
 
-  const folderTree = ref<ModuleTreeNode[]>([]);
+  const moduleTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
   const activeModule = ref<string>('all');
   const activeFolder = ref<string>('all');
@@ -415,7 +415,7 @@
   const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
 
   function handleModuleInit(tree: any, _protocol: string, pathMap: Record<string, any>) {
-    folderTree.value = tree;
+    moduleTree.value = tree;
     folderTreePathMap.value = pathMap;
   }
 
@@ -528,6 +528,18 @@
   }
 
   async function openScenarioTab(record: ApiScenarioTableItem | string, action?: 'copy' | 'execute') {
+    const isLoadedTabIndex = scenarioTabs.value.findIndex(
+      (e) => e.id === (typeof record === 'string' ? record : record.id)
+    );
+    if (isLoadedTabIndex > -1 && action !== 'copy') {
+      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      activeScenarioTab.value = scenarioTabs.value[isLoadedTabIndex];
+      // requestCompositionRef里监听的是id,所以id相等的时候需要单独调执行
+      if (action === 'execute') {
+        handleExecute(executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
+      }
+      return;
+    }
     try {
       appStore.showLoading();
       const res = await getScenarioDetail(typeof record === 'string' ? record : record.id);
@@ -568,6 +580,8 @@
   provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);
+  provide('moduleTree', readonly(moduleTree));
+  provide('activeModule', readonly(activeModule));
 </script>
 
 <style scoped lang="less">

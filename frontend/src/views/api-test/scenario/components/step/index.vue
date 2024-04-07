@@ -128,8 +128,6 @@
 </template>
 
 <script setup lang="ts">
-  // import dayjs from 'dayjs';
-
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -145,7 +143,6 @@
 
   import { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     isNew?: boolean; // 是否新建

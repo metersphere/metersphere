@@ -97,7 +97,6 @@
   /**
    * @description 接口测试-接口调试
    */
-  import { onBeforeRouteLeave } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -123,7 +122,6 @@
   } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
-  import useModal from '@/hooks/useModal';
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -141,7 +139,6 @@
   import { parseRequestBodyFiles } from '../components/utils';
 
   const { t } = useI18n();
-  const { openModal } = useModal();
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
