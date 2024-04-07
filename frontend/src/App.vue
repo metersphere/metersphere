@@ -6,7 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { useEventListener, useWindowSize } from '@vueuse/core';
 
@@ -75,7 +74,7 @@
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
     const isLoginPage = route.name === 'login';
-    if (isLogin && appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
+    if (isLogin && appStore.currentProjectId !== 'no_such_project') {
       // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
       try {
         const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);

@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+  import { onBeforeRouteLeave } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
@@ -68,6 +69,8 @@
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
+  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -95,6 +98,7 @@
   }>();
   const appStore = useAppStore();
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
 
@@ -298,6 +302,13 @@
   onBeforeMount(() => {
     initProtocolList();
   });
+
+  useLeaveTabUnSaveCheck(apiTabs.value, [
+    'PROJECT_API_DEFINITION:READ+ADD',
+    'PROJECT_API_DEFINITION:READ+UPDATE',
+    'PROJECT_API_DEFINITION_CASE:READ+ADD',
+    'PROJECT_API_DEFINITION_CASE:READ+UPDATE',
+  ]);
 
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));

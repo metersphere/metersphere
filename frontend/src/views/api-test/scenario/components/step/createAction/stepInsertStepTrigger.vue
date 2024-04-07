@@ -1,64 +1,66 @@
 <template>
-  <a-trigger
-    trigger="click"
-    class="arco-trigger-menu absolute"
-    content-class="w-[160px]"
-    position="br"
-    @popup-visible-change="handleActionTriggerChange"
-  >
-    <MsButton :id="step.uniqueId" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
-      <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
-    </MsButton>
-    <template #content>
-      <createStepActions
-        v-model:visible="innerStep.createActionsVisible"
-        v-model:selected-keys="selectedKeys"
-        v-model:steps="steps"
-        v-model:step="innerStep"
-        :create-step-action="activeCreateAction"
-        position="br"
-        :popup-translate="[-7, -10]"
-        @other-create="(type, step) => emit('otherCreate', type, step, activeCreateAction)"
-        @close="handleActionsClose"
-        @add-done="emit('addDone')"
-      >
-        <span></span>
-      </createStepActions>
-      <div class="arco-trigger-menu-inner">
-        <div
-          v-if="showAddChildStep"
-          :class="[
-            'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'inside' ? 'step-tree-active-action' : '',
-          ]"
-          @click="handleTriggerActionClick('inside')"
+  <div>
+    <a-trigger
+      trigger="click"
+      class="arco-trigger-menu absolute"
+      content-class="w-[160px]"
+      position="br"
+      @popup-visible-change="handleActionTriggerChange"
+    >
+      <MsButton :id="step.uniqueId" type="icon" class="ms-tree-node-extra__btn !mr-[4px]" @click="emit('click')">
+        <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
+      </MsButton>
+      <template #content>
+        <createStepActions
+          v-model:visible="innerStep.createActionsVisible"
+          v-model:selected-keys="selectedKeys"
+          v-model:steps="steps"
+          v-model:step="innerStep"
+          :create-step-action="activeCreateAction"
+          position="br"
+          :popup-translate="[-7, -10]"
+          @other-create="(type, step) => emit('otherCreate', type, step, activeCreateAction)"
+          @close="handleActionsClose"
+          @add-done="emit('addDone')"
         >
-          <icon-plus size="12" />
-          {{ t('apiScenario.inside') }}
+          <span></span>
+        </createStepActions>
+        <div class="arco-trigger-menu-inner">
+          <div
+            v-if="showAddChildStep"
+            :class="[
+              'arco-trigger-menu-item !mx-0 !w-full',
+              activeCreateAction === 'inside' ? 'step-tree-active-action' : '',
+            ]"
+            @click="handleTriggerActionClick('inside')"
+          >
+            <icon-plus size="12" />
+            {{ t('apiScenario.inside') }}
+          </div>
+          <div
+            :class="[
+              'arco-trigger-menu-item !mx-0 !w-full',
+              activeCreateAction === 'before' ? 'step-tree-active-action' : '',
+            ]"
+            @click="handleTriggerActionClick('before')"
+          >
+            <icon-left size="12" />
+            {{ t('apiScenario.before') }}
+          </div>
+          <div
+            :class="[
+              'arco-trigger-menu-item !mx-0 !w-full',
+              activeCreateAction === 'after' ? 'step-tree-active-action' : '',
+            ]"
+            @click="handleTriggerActionClick('after')"
+          >
+            <icon-left size="12" />
+            {{ t('apiScenario.after') }}
+          </div>
         </div>
-        <div
-          :class="[
-            'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'before' ? 'step-tree-active-action' : '',
-          ]"
-          @click="handleTriggerActionClick('before')"
-        >
-          <icon-left size="12" />
-          {{ t('apiScenario.before') }}
-        </div>
-        <div
-          :class="[
-            'arco-trigger-menu-item !mx-0 !w-full',
-            activeCreateAction === 'after' ? 'step-tree-active-action' : '',
-          ]"
-          @click="handleTriggerActionClick('after')"
-        >
-          <icon-left size="12" />
-          {{ t('apiScenario.after') }}
-        </div>
-      </div>
-    </template>
-  </a-trigger>
+      </template>
+    </a-trigger>
+  </div>
 </template>
 
 <script setup lang="ts">

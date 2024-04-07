@@ -36,8 +36,8 @@ export interface LocalConfig {
 // 更新 APIKEY
 export interface UpdateAPIKEYParams {
   id: string;
-  forever: boolean;
-  expireTime: number;
+  forever?: boolean;
+  expireTime?: number;
   description: string;
 }
 // APIKEY

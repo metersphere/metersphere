@@ -436,6 +436,9 @@
   }
   :deep(.ms-api-tab-nav) {
     @apply h-full;
+    .arco-tabs {
+      @apply border-b-0;
+    }
     .arco-tabs-nav {
       border-bottom: 1px solid var(--color-text-n8);
     }

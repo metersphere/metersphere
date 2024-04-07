@@ -94,11 +94,8 @@
   const moduleCountMap = ref<Record<string, number>>({});
   const selectedKeys = ref<string[]>([]);
   const folderText = computed(() => {
-    if (props.type === 'api') {
+    if (props.type === 'api' || props.type === 'case') {
       return t('apiTestManagement.allApi');
-    }
-    if (props.type === 'case') {
-      return t('apiTestManagement.allCase');
     }
     if (props.type === 'scenario') {
       return t('apiScenario.tree.folder.allScenario');

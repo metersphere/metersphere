@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/useI18n';
 import useModal from '@/hooks/useModal';
 
 const isSave = ref(false);
-const isRouteIntercepted = ref<boolean>(false);
 
 // 离开页面确认提示
 export default function useLeaveUnSaveTip() {

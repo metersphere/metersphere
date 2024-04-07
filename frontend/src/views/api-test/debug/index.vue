@@ -122,6 +122,7 @@
     uploadTempFile,
   } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useModal from '@/hooks/useModal';
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -346,34 +347,7 @@
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let isLeaving = false;
-  onBeforeRouteLeave((to, from, next) => {
-    if (
-      !isLeaving &&
-      debugTabs.value.some((tab) => tab.unSaved) &&
-      hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+UPDATE'])
-    ) {
-      isLeaving = true;
-      // 如果有未保存的调试则提示用户
-      openModal({
-        type: 'warning',
-        title: t('common.tip'),
-        content: t('apiTestDebug.unsavedLeave'),
-        hideCancel: false,
-        cancelText: t('common.stay'),
-        okText: t('common.leave'),
-        onBeforeOk: async () => {
-          next();
-        },
-        onCancel: () => {
-          isLeaving = false;
-        },
-      });
-    } else {
-      next();
-    }
-  });
+  useLeaveTabUnSaveCheck(debugTabs.value, ['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+UPDATE']);
 </script>
 
 <style lang="less" scoped></style>

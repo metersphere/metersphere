@@ -11,6 +11,7 @@
         :max-length="255"
         :placeholder="t('apiScenario.namePlaceholder')"
         allow-clear
+        @input="() => emit('change')"
       />
     </a-form-item>
     <a-form-item :label="t('apiScenario.belongModule')" class="mb-[16px]">
@@ -25,10 +26,15 @@
           },
         }"
         allow-search
+        @change="() => emit('change')"
       />
     </a-form-item>
     <a-form-item :label="t('apiScenario.scenarioLevel')">
-      <a-select v-model:model-value="scenario.priority" :placeholder="t('common.pleaseSelect')">
+      <a-select
+        v-model:model-value="scenario.priority"
+        :placeholder="t('common.pleaseSelect')"
+        @change="() => emit('change')"
+      >
         <template #label>
           <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="scenario.priority" /></span>
         </template>
@@ -42,6 +48,7 @@
         v-model:model-value="scenario.status"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
+        @change="() => emit('change')"
       >
         <template #label>
           <apiStatus :status="scenario.status" />
@@ -52,13 +59,14 @@
       </a-select>
     </a-form-item>
     <a-form-item :label="t('common.tag')" class="mb-[16px]">
-      <MsTagsInput v-model:model-value="scenario.tags" />
+      <MsTagsInput v-model:model-value="scenario.tags" @change="() => emit('change')" />
     </a-form-item>
     <a-form-item :label="t('common.desc')" class="mb-[16px]">
       <a-textarea
         v-model:model-value="scenario.description"
         :max-length="500"
         :placeholder="t('apiScenario.descPlaceholder')"
+        @input="() => emit('change')"
       />
     </a-form-item>
     <template v-if="props.isEdit">
@@ -96,6 +104,8 @@
     moduleTree: ModuleTreeNode[]; // 模块树
     isEdit?: boolean;
   }>();
+  const emit = defineEmits(['change']);
+
   const scenario = defineModel<ScenarioDetail | Scenario>('scenario', {
     required: true,
   });

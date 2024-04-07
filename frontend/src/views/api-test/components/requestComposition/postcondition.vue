@@ -42,6 +42,7 @@
     layout: 'horizontal' | 'vertical';
     response?: string; // 响应内容
     isDefinition?: boolean; // 是否是定义页面
+    isScenario?: boolean; // 是否是场景页面
     disabled?: boolean;
   }>();
   const emit = defineEmits<{
@@ -61,6 +62,10 @@
   const conditionTypes = computed(() => {
     if (props.isDefinition) {
       return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.EXTRACT];
+    }
+    // 接口场景
+    if (props.isScenario) {
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL];
     }
     return [RequestConditionProcessor.SCRIPT];
   });

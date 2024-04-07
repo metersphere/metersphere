@@ -252,7 +252,11 @@
       <template v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('api_scenario.table.tableNoDataAndPlease') }}
-          <MsButton class="float-right ml-[8px]" @click="emit('createScenario')">
+          <MsButton
+            v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+            class="float-right ml-[8px]"
+            @click="emit('createScenario')"
+          >
             {{ t('apiScenario.createScenario') }}
           </MsButton>
         </div>

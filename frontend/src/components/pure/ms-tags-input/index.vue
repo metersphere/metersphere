@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <a-tooltip :content="allTagText" :disabled="innerModelValue.length === 0" :mouse-enter-delay="300">
     <div :class="`flex w-full items-center ${props.class}`">
       <a-input-tag
         v-model:model-value="innerModelValue"
@@ -34,7 +34,7 @@
     <div v-if="isError" class="ml-[1px] flex justify-start text-[12px] text-[rgb(var(--danger-6))]">
       {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
     </div>
-  </div>
+  </a-tooltip>
 </template>
 
 <script setup lang="ts">
@@ -85,6 +85,10 @@
       innerInputValue.value.length > props.maxLength ||
       (innerModelValue.value || []).some((item) => item.toString().length > props.maxLength)
   );
+  const allTagText = computed(() => {
+    return (innerModelValue.value || []).join('、');
+  });
+
   watch(
     () => props.modelValue,
     (val) => {

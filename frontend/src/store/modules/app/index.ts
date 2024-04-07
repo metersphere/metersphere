@@ -12,7 +12,7 @@ import { getPackageType, getSystemVersion, getUserHasProjectPermission } from '@
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
-import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME, WHITE_LIST } from '@/router/constants';
+import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';

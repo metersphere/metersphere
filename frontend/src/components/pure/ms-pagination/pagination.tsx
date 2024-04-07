@@ -326,28 +326,12 @@ export default defineComponent({
     });
 
     const renderPager = () => {
-      if (props.simple) {
-        return (
-          <span class={`${prefixCls}-simple-jumper`}>
-            {getPageItemElement('previous', { simple: true })}
-            <PageJumper
-              disabled={props.disabled}
-              current={computedCurrent.value}
-              size={mergedSize.value}
-              pages={pages.value}
-              simple
-              onChange={handleClick}
-            />
-            {getPageItemElement('next', { simple: true })}
-          </span>
-        );
-      }
-
       return (
         <ul class={`${prefixCls}-list`}>
           {getPageItemElement('previous', { simple: true })}
           {pageList.value}
           {props.showMore &&
+            !props.simple &&
             getPageItemElement('more', {
               key: 'more',
               step: props.bufferSize * 2 + 1,
@@ -396,7 +380,7 @@ export default defineComponent({
 
       return (
         <div class={cls.value}>
-          {props.showTotal && (
+          {props.showTotal && !props.simple && (
             <span class={`${prefixCls}-total`}>
               {slots.total?.({ total: props.total }) ?? t('msPagination.total', { total: props.total })}
             </span>
@@ -412,7 +396,7 @@ export default defineComponent({
             />
           )}
           {renderPager()}
-          {!props.simple && props.showJumper && (
+          {!props.simple && !props.simple && props.showJumper && (
             <PageJumper
               v-slots={{
                 'jumper-prepend': slots['jumper-prepend'],

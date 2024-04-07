@@ -400,6 +400,7 @@ export interface ResponseResult {
   transferStartTime: number;
   vars: string;
   assertions: any;
+  imageUrl?: string; // 返回为图片时的图片地址
 }
 
 export interface RequestResult {

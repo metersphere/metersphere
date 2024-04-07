@@ -1,43 +1,48 @@
 <template>
-  <a-dropdown
-    v-model:popup-visible="visible"
-    :position="props.position || 'bottom'"
-    :popup-translate="props.popupTranslate"
-    class="scenario-action-dropdown"
-    @select="(val) => handleCreateActionSelect(val as ScenarioAddStepActionType)"
-  >
-    <slot></slot>
-    <template #content>
-      <a-dgroup :title="t('apiScenario.requestScenario')">
-        <a-doption :value="ScenarioAddStepActionType.IMPORT_SYSTEM_API">
-          {{ t('apiScenario.importSystemApi') }}
-        </a-doption>
-        <a-doption :value="ScenarioAddStepActionType.CUSTOM_API">
-          {{ t('apiScenario.customApi') }}
-        </a-doption>
-      </a-dgroup>
-      <a-dgroup :title="t('apiScenario.logicControl')">
-        <a-doption :value="ScenarioAddStepActionType.LOOP_CONTROL">
-          <div class="flex w-full items-center justify-between">
-            {{ t('apiScenario.loopControl') }}
-            <MsButton type="text" @click="openTutorial">{{ t('apiScenario.tutorial') }}</MsButton>
-          </div>
-        </a-doption>
-        <a-doption :value="ScenarioAddStepActionType.CONDITION_CONTROL">
-          {{ t('apiScenario.conditionControl') }}
-        </a-doption>
-        <a-doption :value="ScenarioAddStepActionType.ONLY_ONCE_CONTROL">
-          {{ t('apiScenario.onlyOnceControl') }}
-        </a-doption>
-      </a-dgroup>
-      <a-dgroup :title="t('apiScenario.other')">
-        <a-doption :value="ScenarioAddStepActionType.SCRIPT_OPERATION">
-          {{ t('apiScenario.scriptOperation') }}
-        </a-doption>
-        <a-doption :value="ScenarioAddStepActionType.WAIT_TIME">{{ t('apiScenario.waitTime') }}</a-doption>
-      </a-dgroup>
-    </template>
-  </a-dropdown>
+  <div>
+    <a-dropdown
+      v-model:popup-visible="visible"
+      :position="props.position || 'bottom'"
+      :popup-translate="props.popupTranslate"
+      class="scenario-action-dropdown"
+      @select="(val) => handleCreateActionSelect(val as ScenarioAddStepActionType)"
+    >
+      <slot></slot>
+      <template #content>
+        <a-dgroup :title="t('apiScenario.requestScenario')">
+          <a-doption
+            v-permission="['PROJECT_API_SCENARIO:READ+IMPORT']"
+            :value="ScenarioAddStepActionType.IMPORT_SYSTEM_API"
+          >
+            {{ t('apiScenario.importSystemApi') }}
+          </a-doption>
+          <a-doption :value="ScenarioAddStepActionType.CUSTOM_API">
+            {{ t('apiScenario.customApi') }}
+          </a-doption>
+        </a-dgroup>
+        <a-dgroup :title="t('apiScenario.logicControl')">
+          <a-doption :value="ScenarioAddStepActionType.LOOP_CONTROL">
+            <div class="flex w-full items-center justify-between">
+              {{ t('apiScenario.loopControl') }}
+              <MsButton type="text" @click="openTutorial">{{ t('apiScenario.tutorial') }}</MsButton>
+            </div>
+          </a-doption>
+          <a-doption :value="ScenarioAddStepActionType.CONDITION_CONTROL">
+            {{ t('apiScenario.conditionControl') }}
+          </a-doption>
+          <a-doption :value="ScenarioAddStepActionType.ONLY_ONCE_CONTROL">
+            {{ t('apiScenario.onlyOnceControl') }}
+          </a-doption>
+        </a-dgroup>
+        <a-dgroup :title="t('apiScenario.other')">
+          <a-doption :value="ScenarioAddStepActionType.SCRIPT_OPERATION">
+            {{ t('apiScenario.scriptOperation') }}
+          </a-doption>
+          <a-doption :value="ScenarioAddStepActionType.WAIT_TIME">{{ t('apiScenario.waitTime') }}</a-doption>
+        </a-dgroup>
+      </template>
+    </a-dropdown>
+  </div>
 </template>
 
 <script setup lang="ts">

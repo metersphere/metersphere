@@ -60,27 +60,29 @@
           :disabled="!isEditableApi"
           allow-clear
         />
-        <a-dropdown-button
-          v-if="hasLocalExec"
-          :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-          class="exec-btn"
-          @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-          @select="execute"
-        >
-          {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-          <template #icon>
-            <icon-down />
-          </template>
-          <template #content>
-            <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-              {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-            </a-doption>
-          </template>
-        </a-dropdown-button>
-        <a-button v-else-if="!requestVModel.executeLoading" type="primary" @click="() => execute('serverExec')">
-          {{ t('apiTestDebug.serverExec') }}
-        </a-button>
-        <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+        <div v-permission="[props.permissionMap?.execute]">
+          <a-dropdown-button
+            v-if="hasLocalExec"
+            :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+            class="exec-btn"
+            @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+            @select="execute"
+          >
+            {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+            <template #icon>
+              <icon-down />
+            </template>
+            <template #content>
+              <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+              </a-doption>
+            </template>
+          </a-dropdown-button>
+          <a-button v-else-if="!requestVModel.executeLoading" type="primary" @click="() => execute('serverExec')">
+            {{ t('apiTestDebug.serverExec') }}
+          </a-button>
+          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+        </div>
       </div>
       <div class="px-[16px]">
         <MsTab
@@ -306,6 +308,9 @@
     request?: RequestParam; // 请求参数集合
     stepResponses?: Record<string | number, RequestResult[]>;
     fileParams?: ScenarioStepFileParams;
+    permissionMap?: {
+      execute: string;
+    };
   }>();
   const emit = defineEmits<{
     (e: 'applyStep', request: RequestParam): void;
