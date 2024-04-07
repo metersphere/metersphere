@@ -487,7 +487,7 @@
   <a-modal
     v-if="!isCase"
     v-model:visible="saveCaseModalVisible"
-    :title="t('common.save')"
+    :title="t('apiTestManagement.saveAsCase')"
     :ok-loading="saveCaseLoading"
     class="ms-modal-form"
     title-align="start"
@@ -1590,6 +1590,7 @@
     }
     isUrlError.value = false;
     activeApiTabFormRef.value?.validate(async (errors) => {
+      console.log('validate');
       if (errors) {
         horizontalSplitBoxRef.value?.expand();
       } else {

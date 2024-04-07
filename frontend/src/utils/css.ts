@@ -16,3 +16,13 @@ export function translatePxToNumber(str: string): number {
   const result = Number(str.replace('px', ''));
   return Number.isNaN(result) ? 0 : result;
 }
+
+export function translateTextToPX(text: string) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (context != null) {
+    const metrics = context.measureText(text);
+    return metrics.width;
+  }
+  return 0;
+}
