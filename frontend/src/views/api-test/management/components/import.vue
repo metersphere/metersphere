@@ -92,7 +92,7 @@
                 <a-checkbox v-model:model-value="importForm.syncCase" class="mr-[24px]">
                   {{ t('apiTestManagement.syncImportCase') }}
                 </a-checkbox>
-                <a-checkbox v-model:model-value="importForm.coverModule">
+                <a-checkbox v-if="importForm.coverData" v-model:model-value="importForm.coverModule">
                   {{ t('apiTestManagement.syncUpdateDirectory') }}
                 </a-checkbox>
               </div>
