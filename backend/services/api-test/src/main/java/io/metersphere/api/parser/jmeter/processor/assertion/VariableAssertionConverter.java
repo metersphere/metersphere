@@ -75,116 +75,119 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
                 flag = true;
                 """, variableAssertionItem.getVariableName(), variableAssertionItem.getExpectedValue());
 
+        handleMap.put(MsAssertionCondition.REGEX.name(),
+                """
+                import java.util.regex.Pattern;
+                result = Pattern.matches(expectation, variableValue);
+                msg = variableValue + " not matching " + expectation;
+                """);
+
         handleMap.put(MsAssertionCondition.EQUALS.name(),
                 """
-                result = expectation.equals(variableValue);
-                msg = "value == " + expectation;
+                result = variableValue.equals(expectation);
+                msg = variableValue + " == " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.NOT_EQUALS.name(),
                 """
-                result = !expectation.equals(variableValue);
-                msg = "value != " + expectation;
+                result = !variableValue.equals(expectation);
+                msg = variableValue + " != " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.CONTAINS.name(),
                 """
-                result = expectation.contains(variableValue);
-                msg = "value contains " + expectation;
+                result = variableValue.contains(expectation);
+                msg = variableValue + " contains " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.NOT_CONTAINS.name(),
                 """
-                result = !expectation.contains(variableValue);
-                msg = "value not contains " + expectation;
+                result = !variableValue.contains(expectation);
+                msg = variableValue + " not contains " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.GT.name(),
                 """
-                number = Integer.parseInt(expectation);
-                result = number > expectation;
-                msg = "value > " + expectation;
+                result = Double.parseDouble(variableValue) > Double.parseDouble(expectation);
+                msg = variableValue + " > " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.GT_OR_EQUALS.name(),
                 """
-                number = Integer.parseInt(expectation);
-                result = number >= expectation;
-                msg = "value >= " + expectation;
+                result = Double.parseDouble(variableValue) >= Double.parseDouble(expectation);
+                msg = variableValue + " >= " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LT.name(),
                 """
-                number = Integer.parseInt(expectation);
-                result = number < expectation;
-                msg = "value < " + expectation;
+                result = Double.parseDouble(variableValue) < Double.parseDouble(expectation);
+                msg = variableValue + " < " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LT_OR_EQUALS.name(),
                 """
-                number = Integer.parseInt(expectation);
-                result = number <= expectation;
-                msg = "value <= " + expectation;
+                result = Double.parseDouble(variableValue) <= Double.parseDouble(expectation);
+                msg = variableValue + " <= " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.START_WITH.name(),
                 """
-                result = expectation.startsWith(variableValue);
-                msg = "value start with " + expectation;
+                result = variableValue.startsWith(expectation);
+                msg = variableValue + " start with " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.END_WITH.name(),
                 """
-                result = expectation.endWith(variableValue);
-                msg = "value end with " + expectation;
+                result = variableValue.endsWith(expectation);
+                msg = variableValue + " end with " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LENGTH_EQUALS.name(),
                 """
-                number = Integer.parseInt(expectation);
+                number = Double.parseDouble(expectation);
                 result = variableValue.length() == number;
-                msg = "value length == " + expectation;
+                msg = variableValue + " length == " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LENGTH_GT.name(),
                 """
-                number = Integer.parseInt(expectation);
+                number = Double.parseDouble(expectation);
                 result = variableValue.length() > number;
-                msg = "value length > " + expectation;
+                msg = variableValue + " length > " + expectation;
                 """);
 
-        handleMap.put(MsAssertionCondition.LENGTH_GT.name(),
+        handleMap.put(MsAssertionCondition.LENGTH_GT_OR_EQUALS.name(),
                 """
-                number = Integer.parseInt(expectation);
+                number = Double.parseDouble(expectation);
                 result = variableValue.length() >= number;
-                msg = "value length >= " + expectation;
+                msg = variableValue + " length >= " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LENGTH_LT.name(),
                 """
-                number = Integer.parseInt(expectation);
+                number = Double.parseDouble(expectation);
                 result = variableValue.length() < number;
-                msg = "value length < " + expectation;
+                msg = variableValue + " length < " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.LENGTH_LT_OR_EQUALS.name(),
                 """
-                number = Integer.parseInt(expectation);
+                number = Double.parseDouble(expectation);
                 result = variableValue.length() <= number;
-                msg = "value length <= " + expectation;
+                msg = variableValue + " length <= " + expectation;
                 """);
 
         handleMap.put(MsAssertionCondition.EMPTY.name(),
                 """
                 result = variableValue == void || variableValue.length() == 0;
-                msg = "value is empty";
+                msg = variableValue + " is empty";
                 flag = false;
                 """);
 
         handleMap.put(MsAssertionCondition.NOT_EMPTY.name(),
                 """
                 result = variableValue != void && variableValue.length() > 0;
-                msg = "value is not empty";
+                msg = variableValue + " is not empty";
                 flag = false;
                 """);
 
