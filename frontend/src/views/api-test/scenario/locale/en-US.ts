@@ -45,6 +45,7 @@ export default {
   'apiScenario.table.columns.createTime': 'Create time',
   'apiScenario.table.columns.updateUser': 'Update user',
   'apiScenario.table.columns.updateTime': 'Update time',
+  'apiScenario.table.columns.deleteUser': 'Delete User',
   'apiScenario.table.columns.operation': 'Operation',
   'apiScenario.table.columns.deleteTime': 'Delete time',
   'api_scenario.table.tableNoDataAndPlease': 'No data yet, please',

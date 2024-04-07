@@ -458,6 +458,12 @@
                                 (#{value})
                             </foreach>
                         </when>
+                        <when test="key=='delete_user' or key=='deleteUser'">
+                            and atc.delete_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
             </foreach>

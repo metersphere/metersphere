@@ -216,6 +216,32 @@
           :status="record.lastReportStatus"
         />
       </template>
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadScenarioList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
+      <template #updateUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="updateUserFilterVisible"
+          v-model:status-filters="updateUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadScenarioList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #operation="{ record }">
         <MsButton
           v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']"
@@ -564,6 +590,7 @@
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import { getEnvList, getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import {
@@ -578,6 +605,7 @@
     updateScenarioPro,
     updateScenarioStatus,
   } from '@/api/modules/api-test/scenario';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -610,6 +638,11 @@
   const lastReportStatusFilters = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]);
   });
+  const createUserFilterVisible = ref(false);
+  const createUserFilters = ref<string[]>([]);
+  const updateUserFilterVisible = ref(false);
+  const updateUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -783,6 +816,7 @@
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
       slotName: 'createUserName',
+      titleSlotName: 'createUserFilter',
       showTooltip: true,
       showDrag: true,
       width: 109,
@@ -791,6 +825,7 @@
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
       slotName: 'updateUserName',
+      titleSlotName: 'updateUserFilter',
       showTooltip: true,
       showDrag: true,
       width: 109,
@@ -923,6 +958,8 @@
         moduleIds = [props.activeModule, ...props.offspringIds];
       }
     }
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -931,6 +968,8 @@
         lastReportStatus: lastReportStatusListFilters.value,
         status: statusFilters.value,
         priority: priorityFilters.value,
+        createUser: createUserFilters.value,
+        updateUser: updateUserFilters.value,
       },
     };
     setLoadListParams(params);

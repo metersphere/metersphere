@@ -144,6 +144,19 @@
           </template>
         </a-trigger>
       </template>
+      <template #createUserFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="createUserFilterVisible"
+          v-model:status-filters="createUserFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="loadCaseList"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #lastReportStatusFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="lastReportStatusFilterVisible"
@@ -374,6 +387,7 @@
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteCase,
@@ -386,6 +400,7 @@
     updateCasePriority,
     updateCaseStatus,
   } from '@/api/modules/api-test/management';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -540,7 +555,10 @@
     },
     {
       title: 'case.tableColumnCreateUser',
+      slotName: 'createName',
       dataIndex: 'createName',
+      titleSlotName: 'createUserFilter',
+      showInTable: true,
       showTooltip: true,
       width: 180,
       showDrag: true,
@@ -614,6 +632,9 @@
   const statusFilters = ref<string[]>([]);
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
+  const createUserFilterVisible = ref(false);
+  const createUserFilters = ref<string[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = computed(() => {
     return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
@@ -634,6 +655,9 @@
 
   async function loadCaseList() {
     const selectModules = await getModuleIds();
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+
     const params = {
       apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
@@ -644,6 +668,7 @@
         status: statusFilters.value,
         priority: caseFilters.value,
         lastReportStatus: lastReportStatusFilters.value,
+        createUser: createUserFilters.value,
       },
     };
     setLoadListParams(params);
