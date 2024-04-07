@@ -31,7 +31,7 @@ public class ApiScenarioReportLogService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
 
 
-    public void deleteLog(String id) {
+    public LogDTO deleteLog(String id) {
         ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(scenarioReport.getProjectId());
         LogDTO dto = new LogDTO(
@@ -46,10 +46,10 @@ public class ApiScenarioReportLogService {
         dto.setPath("/api/report/scenario/delete/" + scenarioReport.getId());
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(scenarioReport));
-        operationLogService.add(dto);
+        return dto;
     }
 
-    public void updateLog(String id) {
+    public LogDTO updateLog(String id) {
         ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(scenarioReport.getProjectId());
         LogDTO dto = new LogDTO(
@@ -64,7 +64,7 @@ public class ApiScenarioReportLogService {
         dto.setPath("/api/report/scenario/rename/" + scenarioReport.getId() + "/" + scenarioReport.getName());
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(scenarioReport));
-        operationLogService.add(dto);
+        return dto;
     }
 
     @Async
