@@ -15,7 +15,15 @@
     set: (value: any) => {
       store.currentEnvDetailInfo.config.commonVariables = value;
     },
-    get: () => store.currentEnvDetailInfo.config?.commonVariables || [],
+    get: () => {
+      return store.currentEnvDetailInfo.config?.commonVariables.map((e: any) => {
+        return {
+          ...e,
+          tags: e.tags || [],
+          description: e.description || '',
+        };
+      });
+    },
   });
 </script>
 

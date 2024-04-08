@@ -17,25 +17,25 @@
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.successCount') }}</div>
-            {{ getIndicators(detail.stepSuccessCount) }}
+            {{ detail.stepSuccessCount || 0 }}
           </div>
           <!-- 误报 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.fakeErrorCount') }}</div>
-            {{ getIndicators(detail.stepFakeErrorCount) }}
+            {{ detail.stepFakeErrorCount || 0 }}
           </div>
           <!-- 失败 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.errorCount') }}</div>
-            {{ getIndicators(detail.stepErrorCount) }}
+            {{ detail.stepErrorCount || 0 }}
           </div>
           <!-- 未执行 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
             <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.pendingCount') }}</div>
-            {{ getIndicators(detail.stepPendingCount) }}
+            {{ detail.stepPendingCount || 0 }}
           </div>
         </div>
         <StepProgress :report-detail="detail" height="8px" radius="var(--border-radius-mini)" />
@@ -49,7 +49,7 @@
               <a-popover position="bottom" content-class="response-popover-content">
                 <div class="flex items-center">
                   <div class="one-line-text ml-4 max-w-[80px] text-[18px] font-medium">{{
-                    getTotalTime.split('-')[0] || '-'
+                    getTotalTime.split('-')[0]
                   }}</div>
                   <div class="ml-1 text-[var(--color-text-4)]">{{ getTotalTime.split('-')[1] || 'ms' }}</div>
                 </div>
@@ -57,7 +57,7 @@
                   <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
                     <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.totalTime') }}</div>
                     <div class="mt-2 text-[var(--color-text-1)]">
-                      <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] || '-' }}</span
+                      <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] }}</span
                       >{{ getTotalTime.split('-')[1] || 'ms' }}</div
                     >
                   </div>
@@ -73,7 +73,7 @@
             <div>
               <a-popover position="bottom" content-class="response-popover-content">
                 <span class="one-line-text ml-4 inline-block max-w-[80px] align-middle text-[18px] font-medium">{{
-                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
                 }}</span>
 
                 <span class="ml-1 text-[var(--color-text-4)]">{{
@@ -84,7 +84,7 @@
                     <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.requestTotalTime') }}</div>
                     <div class="mt-2 text-[var(--color-text-1)]">
                       <span class="text-[18px] font-medium">{{
-                        detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                        detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
                       }}</span
                       >{{
                         detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
@@ -103,19 +103,21 @@
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex flex-nowrap items-center">
                 <div class="one-line-text max-w-[80px] text-[18px] font-medium text-[var(--color-text-1)]"
-                  >{{ getIndicators(detail.assertionPassRate) }}
+                  >{{ detail.assertionPassRate || 0 }}
                 </div>
-                <span>%</span>
+                <span v-show="detail.assertionPassRate !== 'Calculating'" class="ml-1">%</span>
                 <a-divider direction="vertical" :margin="0" class="!mx-2 h-[16px]"></a-divider>
                 <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{
-                  getIndicators(detail.assertionSuccessCount) === '-'
-                    ? '-'
-                    : addCommasToNumber(detail.assertionSuccessCount || 0)
+                  getIndicators(detail.assertionSuccessCount) !== 'Calculating'
+                    ? addCommasToNumber(detail.assertionSuccessCount)
+                    : getIndicators(detail.assertionSuccessCount)
                 }}</div>
                 <span class="mx-1">/</span>
                 <div class="one-line-text max-w-[80px] text-[var(--color-text-4)]">
                   {{
-                    getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
+                    getIndicators(detail.assertionCount) !== 'Calculating'
+                      ? addCommasToNumber(detail.assertionCount)
+                      : getIndicators(detail.assertionCount)
                   }}</div
                 >
               </div>
@@ -124,20 +126,21 @@
                   <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.assertPass') }}</div>
                   <div class="mt-2 flex items-center justify-between">
                     <div class="text-[18px] font-medium text-[var(--color-text-1)]"
-                      >{{ getIndicators(detail.assertionPassRate) }} <span>%</span></div
+                      >{{ getIndicators(detail.assertionPassRate) }}
+                      <span v-show="detail.assertionPassRate !== 'Calculating'">%</span></div
                     >
                     <div>
                       <span class="text-[var(--color-text-1)]">{{
-                        getIndicators(detail.assertionSuccessCount) === '-'
-                          ? '-'
-                          : addCommasToNumber(detail.assertionSuccessCount || 0)
+                        getIndicators(detail.assertionSuccessCount) !== 'Calculating'
+                          ? addCommasToNumber(detail.assertionSuccessCount || 0)
+                          : getIndicators(detail.assertionSuccessCount)
                       }}</span>
                       <span class="text-[var(--color-text-4)]"
                         ><span class="mx-1">/</span>
                         {{
-                          getIndicators(detail.assertionCount) === '-'
-                            ? '-'
-                            : addCommasToNumber(detail.assertionCount) || 0
+                          getIndicators(detail.assertionCount) !== 'Calculating'
+                            ? addCommasToNumber(detail.assertionCount)
+                            : getIndicators(detail.assertionCount)
                         }}</span
                       >
                     </div>
@@ -154,7 +157,7 @@
         <SetReportChart
           :legend-data="legendData"
           :options="charOptions"
-          :request-total="getIndicators(detail.requestTotal)"
+          :request-total="getIndicators(detail.requestTotal) || 0"
         />
       </div>
     </div>
@@ -245,9 +248,9 @@
       if (endTime && startTime && endTime !== 0 && startTime !== 0) {
         return formatDuration(endTime - startTime);
       }
-      return '-';
+      return '0';
     }
-    return '-';
+    return '0';
   });
 
   const legendData = ref<LegendData[]>([]);
@@ -357,8 +360,8 @@
       return {
         ...item,
         label: t(item.label),
-        count: detail.value[item.value] === 'Calculating' ? '-' : detail.value[item.value] || 0,
-        rote: detail.value[item.rateKey] === 'Calculating' ? '-' : detail.value[item.rateKey],
+        count: detail.value[item.value] || 0,
+        rote: detail.value[item.rateKey] || 0,
       };
     });
   }

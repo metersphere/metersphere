@@ -8,7 +8,11 @@
       <!-- 请求分析 -->
       <div class="request-analyze min-h-[110px]">
         <div class="block-title mb-4">{{ t('report.detail.api.requestAnalysis') }}</div>
-        <SetReportChart :legend-data="legendData" :options="charOptions" :request-total="getIndicators(detail.total)" />
+        <SetReportChart
+          :legend-data="legendData"
+          :options="charOptions"
+          :request-total="getIndicators(detail.total) || 0"
+        />
       </div>
       <!-- 耗时分析 -->
       <div class="time-analyze">
@@ -17,13 +21,13 @@
             <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
             <span class="time-card-item-title">{{ t('report.detail.api.totalTime') }}</span>
             <a-popover position="bottom" content-class="response-popover-content">
-              <span class="count">{{ getTotalTime.split('-')[0] || 0 }}</span
+              <span class="count">{{ getTotalTime.split('-')[0] }}</span
               ><span class="time-card-item-title">{{ getTotalTime.split('-')[1] || 'ms' }}</span>
               <template #content>
                 <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
                   <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.totalTime') }}</div>
                   <div class="mt-2 text-[var(--color-text-1)]">
-                    <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] || '-' }}</span
+                    <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] }}</span
                     >{{ getTotalTime.split('-')[1] || 'ms' }}</div
                   >
                 </div>
@@ -36,7 +40,7 @@
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex items-center">
                 <div class="count">{{
-                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
                 }}</div
                 ><div class="time-card-item-title">{{
                   detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
@@ -48,7 +52,7 @@
                   <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.requestTotalTime') }}</div>
                   <div class="mt-2 text-[var(--color-text-1)]">
                     <span class="text-[18px] font-medium">{{
-                      detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '-'
+                      detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
                     }}</span
                     >{{
                       detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
@@ -68,10 +72,27 @@
               {{ t('report.detail.api.executionRate') }}
             </div>
             <div class="flex items-center">
-              <span class="count"> {{ getExcuteRate() }} %</span>
-              <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
-              <span>{{ getIndicators(getRequestEacuteCount) }}</span>
-              <span class="mx-1 text-[var(--color-text-4)]">/ {{ getIndicators(getRequestTotalCount) }}</span>
+              <a-popover position="bottom" content-class="response-popover-content">
+                <div class="count one-line-text max-w-[80px]"> {{ getExcuteRate() }} </div
+                ><span v-show="getExcuteRate() !== 'Calculating'">%</span>
+                <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
+                <span>{{ getIndicators(getRequestEacuteCount) }}</span>
+                <span class="mx-1 text-[var(--color-text-4)]">/ {{ getIndicators(getRequestTotalCount) }}</span>
+                <template #content>
+                  <div class="min-w-[190px] max-w-[400px] p-4 text-[14px]">
+                    <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionRate') }}</div>
+                    <div class="mt-2 flex items-center justify-between">
+                      <div class="count text-[18px] font-medium">
+                        {{ getExcuteRate() }} <span v-show="getExcuteRate() !== 'Calculating'">%</span>
+                      </div>
+                      <div>
+                        <span>{{ getIndicators(getRequestEacuteCount) }}</span>
+                        <span class="mx-1 text-[var(--color-text-4)]">/ {{ getIndicators(getRequestTotalCount) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </a-popover>
             </div>
           </div>
           <div class="time-card-item-rote">
@@ -83,20 +104,20 @@
             <div class="flex items-center">
               <a-popover position="bottom" content-class="response-popover-content">
                 <div class="flex items-center">
-                  <div class="count one-line-text max-w-[80px]">{{
-                    detail.assertionPassRate === 'Calculating' ? '-' : detail.assertionPassRate || '0.00'
-                  }}</div
-                  >%
+                  <div class="count one-line-text max-w-[80px]">{{ detail.assertionPassRate || '0.00' }}</div
+                  ><span v-show="detail.assertionPassRate !== 'Calculating'" class="ml-1">%</span>
                   <a-divider direction="vertical" class="!h-[16px]" :margin="8"></a-divider>
                   <div class="one-line-text max-w-[80px]">{{
-                    getIndicators(detail.assertionSuccessCount) === '-'
-                      ? '-'
-                      : addCommasToNumber(detail.assertionSuccessCount || 0)
+                    getIndicators(detail.assertionSuccessCount) !== 'Calculating'
+                      ? addCommasToNumber(detail.assertionSuccessCount || 0)
+                      : getIndicators(detail.assertionSuccessCount)
                   }}</div>
                   <span class="mx-1 text-[var(--color-text-4)]">/</span>
                   <div class="one-line-text max-w-[80px]">
                     {{
-                      getIndicators(detail.assertionCount) === '-' ? '-' : addCommasToNumber(detail.assertionCount) || 0
+                      getIndicators(detail.assertionCount) !== 'Calculating'
+                        ? addCommasToNumber(detail.assertionCount)
+                        : getIndicators(detail.assertionCount)
                     }}</div
                   >
                 </div>
@@ -106,20 +127,21 @@
                     <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.assertPass') }}</div>
                     <div class="mt-2 flex items-center justify-between">
                       <div class="text-[18px] font-medium text-[var(--color-text-1)]"
-                        >{{ getIndicators(detail.assertionPassRate) }} <span>%</span></div
+                        >{{ getIndicators(detail.assertionPassRate) }}
+                        <span v-show="detail.assertionPassRate !== 'Calculating'">%</span></div
                       >
                       <div>
                         <span class="text-[var(--color-text-1)]">{{
-                          getIndicators(detail.assertionSuccessCount) === '-'
-                            ? '-'
-                            : addCommasToNumber(detail.assertionSuccessCount || 0)
+                          getIndicators(detail.assertionSuccessCount) !== 'Calculating'
+                            ? addCommasToNumber(detail.assertionSuccessCount || 0)
+                            : getIndicators(detail.assertionSuccessCount)
                         }}</span>
                         <span class="text-[var(--color-text-4)]"
                           ><span class="mx-1">/</span>
                           {{
-                            getIndicators(detail.assertionCount) === '-'
-                              ? '-'
-                              : addCommasToNumber(detail.assertionCount) || 0
+                            getIndicators(detail.assertionCount) !== 'Calculating'
+                              ? addCommasToNumber(detail.assertionCount)
+                              : getIndicators(detail.assertionCount)
                           }}</span
                         >
                       </div>
@@ -219,9 +241,9 @@
       if (endTime && startTime && endTime !== 0 && startTime !== 0) {
         return formatDuration(endTime - startTime);
       }
-      return '-';
+      return '0';
     }
-    return '-';
+    return '0';
   });
 
   const legendData = ref<LegendData[]>([]);
@@ -287,9 +309,10 @@
   const activeTab = ref<'tiled' | 'tab'>('tiled');
 
   function getExcuteRate() {
-    return 100 - Number(detail.value.requestPendingRate)
-      ? (100 - Number(detail.value.requestPendingRate)).toFixed(2)
-      : '0.00';
+    if (detail.value.requestPendingRate && detail.value.requestPendingRate !== 'Calculating') {
+      return (100 - Number(detail.value.requestPendingRate)).toFixed(2);
+    }
+    return getIndicators(detail.value.requestPendingRate);
   }
 
   // 执行数量
@@ -359,8 +382,8 @@
       return {
         ...item,
         label: t(item.label),
-        count: detail.value[item.value] === 'Calculating' ? '-' : detail.value[item.value] || 0,
-        rote: detail.value[item.rateKey] === 'Calculating' ? '-' : detail.value[item.rateKey],
+        count: detail.value[item.value] || 0,
+        rote: detail.value[item.rateKey] || 0,
       };
     });
   }

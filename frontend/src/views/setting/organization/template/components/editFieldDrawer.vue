@@ -6,7 +6,7 @@
     :ok-loading="drawerLoading"
     :width="800"
     :show-continue="!isEdit && data.length < 20"
-    :ok-disabled="data.length >= 20"
+    :ok-disabled="data.length >= 20 && !isEdit"
     @confirm="handleDrawerConfirm"
     @continue="saveAndContinue"
     @cancel="handleDrawerCancel"
