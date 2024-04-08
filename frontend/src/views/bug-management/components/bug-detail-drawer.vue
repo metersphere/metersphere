@@ -632,6 +632,12 @@
     (val) => {
       if (val) {
         activeTab.value = 'detail';
+      } else {
+        const query = { ...route.query };
+        delete query.id;
+        router.replace({
+          query,
+        });
       }
     }
   );

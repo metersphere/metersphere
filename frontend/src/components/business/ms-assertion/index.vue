@@ -40,9 +40,13 @@
           >
             <div class="ms-assertion-body-left-item-row">
               <span class="ms-assertion-body-left-item-row-num">{{ index + 1 }}</span>
-              <div class="one-line-text" :class="{ 'text-[rgb(var(--primary-5))]': activeKey === item.id }">{{
-                item.name
-              }}</div>
+              <a-tooltip :content="item.name">
+                <div
+                  class="one-line-text max-w-[80px]"
+                  :class="{ 'text-[rgb(var(--primary-5))]': activeKey === item.id }"
+                  >{{ item.name }}</div
+                >
+              </a-tooltip>
             </div>
             <div class="ms-assertion-body-left-item-switch">
               <div v-show="!props.disabled" class="ms-assertion-body-left-item-switch-action">
@@ -128,6 +132,7 @@
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
+          @deleteScriptItem="deleteScriptItem"
         />
       </div>
     </div>
@@ -152,13 +157,16 @@
   import ScriptTab from './comp/ScriptTab.vue';
   import StatusCodeTab from './comp/StatusCodeTab.vue';
   import VariableTab from './comp/VariableTab.vue';
-
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { characterLimit } from '@/utils';
 
   import { ExecuteAssertionConfig } from '@/models/apiTest/common';
   import { ResponseAssertionType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import { MsAssertionItem } from './type';
+
+  const { openModal } = useModal();
 
   defineOptions({
     name: 'MsAssertion',
@@ -358,8 +366,25 @@
   const handleMoreActionSelect = (event: ActionsItem, item: MsAssertionItem) => {
     const currentIndex = assertions.value.findIndex((tmpItem) => tmpItem.id === item.id);
     if (event.eventTag === 'delete') {
-      assertions.value.splice(currentIndex, 1);
-      activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
+      openModal({
+        type: 'error',
+        title: t('system.orgTemplate.deleteTemplateTitle', { name: characterLimit(item.name) }),
+        content: t('script.delete.confirm'),
+        okText: t('system.userGroup.confirmDelete'),
+        cancelText: t('system.userGroup.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            assertions.value.splice(currentIndex, 1);
+            activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
     } else {
       // copy 当前item
       const tmpObj = { ...cloneDeep(assertions.value[currentIndex]), id: new Date().getTime().valueOf().toString() };
@@ -368,6 +393,15 @@
       assertions.value = cloneDeep(tmpArr);
       activeKey.value = tmpObj.id;
     }
+  };
+
+  /**
+   * 删除脚本项
+   */
+  const deleteScriptItem = (id: string | number) => {
+    const currentIndex = assertions.value.findIndex((tmpItem) => tmpItem.id === id);
+    assertions.value.splice(currentIndex, 1);
+    activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
   };
 
   // item点击
