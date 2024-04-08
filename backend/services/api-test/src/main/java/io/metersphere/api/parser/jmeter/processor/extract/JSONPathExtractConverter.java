@@ -2,6 +2,7 @@ package io.metersphere.api.parser.jmeter.processor.extract;
 
 import io.metersphere.project.api.processor.extract.JSONPathExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -23,9 +24,11 @@ public class JSONPathExtractConverter extends ExtractConverter<JSONPathExtract> 
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JSON_POST_PROCESSOR_GUI));
         extractor.setRefNames(msExtract.getVariableName());
         extractor.setJsonPathExpressions(msExtract.getExpression());
-        extractor.setProperty("JSONPostProcessor.compute_concat", true);
         // 处理匹配多条等匹配规则
         extractor.setMatchNumbers(parseResultMatchingRule(msExtract).toString());
+        if (StringUtils.equals(extractor.getMatchNumbers(), "-1")) {
+            extractor.setComputeConcatenation(true);
+        }
         extractor.setEnabled(msExtract.getEnable());
         hashTree.add(extractor);
     }
