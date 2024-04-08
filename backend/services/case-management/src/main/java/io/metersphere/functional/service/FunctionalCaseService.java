@@ -200,7 +200,7 @@ public class FunctionalCaseService {
 
         //记录日志
         FunctionalCaseHistoryLogDTO historyLogDTO = getImportLogModule(functionalCase);
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
 
         return functionalCase;
     }
@@ -420,7 +420,7 @@ public class FunctionalCaseService {
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
         List<String> types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
-        List<String> modules = List.of(OperationLogModule.CASE_MANAGEMENT_CASE_CREATE, OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
+        List<String> modules = List.of(OperationLogModule.FUNCTIONAL_CASE);
         operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andTypeIn(types).andModuleIn(modules);
         functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
 
@@ -834,7 +834,7 @@ public class FunctionalCaseService {
                 historyLogDTO.setCustomFields(customFields);
                 historyLogDTO.setCaseAttachments(caseAttachments);
                 historyLogDTO.setFileAssociationList(fileAssociationList);
-                saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
+                saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
             }
         }
     }
@@ -1092,7 +1092,7 @@ public class FunctionalCaseService {
         List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
         FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>());
 
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.FUNCTIONAL_CASE);
     }
 
 
@@ -1223,7 +1223,7 @@ public class FunctionalCaseService {
         //记录新值
         FunctionalCaseHistoryLogDTO modifiedLogDTO = getImportLogModule(functionalCase);
         //记录日志
-        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
+        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.FUNCTIONAL_CASE);
     }
 
     private void addStatusIds(List<String> caseIds, FunctionalCase functionalCase, FunctionalCaseExcelData functionalCaseExcelData) {

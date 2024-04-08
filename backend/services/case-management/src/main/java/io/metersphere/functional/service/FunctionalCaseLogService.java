@@ -69,7 +69,7 @@ public class FunctionalCaseLogService {
                 request.getCaseId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
+                OperationLogModule.FUNCTIONAL_CASE,
                 historyLogDTO.getFunctionalCase().getName());
         dto.setHistory(true);
         dto.setPath("/attachment/upload/file");
@@ -94,7 +94,7 @@ public class FunctionalCaseLogService {
                 request.getCaseId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
+                OperationLogModule.FUNCTIONAL_CASE,
                 historyLogDTO.getFunctionalCase().getName());
         dto.setHistory(true);
         dto.setPath("/attachment/delete/file");
@@ -120,7 +120,7 @@ public class FunctionalCaseLogService {
                 requests.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
+                OperationLogModule.FUNCTIONAL_CASE,
                 requests.getName());
         dto.setHistory(true);
         dto.setPath("/functional/case/update");
