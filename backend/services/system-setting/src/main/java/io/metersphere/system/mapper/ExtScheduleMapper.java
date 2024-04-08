@@ -2,6 +2,7 @@ package io.metersphere.system.mapper;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import org.apache.ibatis.annotations.Param;
@@ -29,4 +30,6 @@ public interface ExtScheduleMapper {
     long countQuartzTriggersByResourceId(String scheduleId);
 
     long countQuartzCronTriggersByResourceId(String scheduleId);
+
+    List<Schedule> getScheduleByLimit(@Param("start") int start, @Param("limit") int limit);
 }

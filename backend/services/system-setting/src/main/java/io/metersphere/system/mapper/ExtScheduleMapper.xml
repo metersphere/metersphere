@@ -118,5 +118,8 @@
         WHERE resource_id = #{0}
     </select>
 
+    <select id="getScheduleByLimit" resultType="io.metersphere.system.domain.Schedule">
+        SELECT * FROM schedule ORDER BY create_time LIMIT #{start}, #{limit}
+    </select>
 
 </mapper>
