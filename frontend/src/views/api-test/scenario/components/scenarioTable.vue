@@ -294,7 +294,19 @@
     <template #title>
       <div class="float-left">
         {{ scheduleModalTitle }}
-        <div class="float-right text-[var(--color-text-4)]">
+        <a-tooltip v-if="translateTextToPX(tableRecord?.name) > 300">
+          <template #content>
+            <span>
+              {{ tableRecord?.name }}
+            </span>
+          </template>
+          <div class="float-right flex text-[var(--color-text-4)]">
+            {{ '（' }}
+            <div class="one-line-text" style="max-width: 300px">{{ tableRecord?.name }}</div>
+            {{ '）' }}
+          </div>
+        </a-tooltip>
+        <div v-else class="float-right text-[var(--color-text-4)]">
           {{ '（' + tableRecord?.name + '）' }}
         </div>
       </div>
@@ -610,6 +622,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { translateTextToPX } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { Environment } from '@/models/apiTest/management';

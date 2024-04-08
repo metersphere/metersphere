@@ -215,7 +215,13 @@
                 <!-- 自定义字段结束 -->
                 <div class="baseItem">
                   <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
-                  <span class="value">{{ detailInfo?.createUserName }}</span>
+                  <a-tooltip
+                    v-if="translateTextToPX(detailInfo?.createUserName) > 200"
+                    :content="detailInfo?.createUserName"
+                  >
+                    <span class="one-line-text" style="max-width: 200px">{{ detailInfo?.createUserName }}</span>
+                  </a-tooltip>
+                  <span v-else class="value">{{ detailInfo?.createUserName }}</span>
                 </div>
                 <div class="baseItem">
                   <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
@@ -283,6 +289,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
+  import { translateTextToPX } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';

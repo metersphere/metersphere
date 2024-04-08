@@ -31,21 +31,34 @@
                   {{ robot.description }}
                 </div>
                 <div v-else class="flex flex-wrap items-center text-[12px] leading-[16px] text-[var(--color-text-4)]">
-                  <div class="mr-[16px]">
-                    <a-tooltip position="tl" mini :content="robot.createUser">{{ robot.createUser }}</a-tooltip>
-                    {{
-                      `${t('project.messageManagement.createAt')} ${dayjs(robot.createTime).format(
-                        'YYYY-MM-DD HH:mm:ss'
-                      )}`
-                    }}
-                  </div>
-                  <div>
-                    {{
-                      `${robot.updateUser} ${t('project.messageManagement.updateAt')} ${dayjs(robot.updateTime).format(
-                        'YYYY-MM-DD HH:mm:ss'
-                      )}`
-                    }}
-                  </div>
+                  <a-tooltip
+                    v-if="translateTextToPX(robot.createUser) > 200"
+                    position="tl"
+                    mini
+                    :content="robot.createUser"
+                  >
+                    <span class="one-line-text" style="max-width: 200px">{{ robot.createUser }}</span></a-tooltip
+                  >
+                  <span v-else class="one-line-text" style="max-width: 200px">{{ robot.createUser }}</span>
+                  <span class="mr-[16px]">{{
+                    `${t('project.messageManagement.createAt')} ${dayjs(robot.createTime).format(
+                      'YYYY-MM-DD HH:mm:ss'
+                    )}`
+                  }}</span>
+                  <a-tooltip
+                    v-if="translateTextToPX(robot.updateUser) > 200"
+                    position="tl"
+                    mini
+                    :content="robot.updateUser"
+                  >
+                    <span class="one-line-text" style="max-width: 200px">{{ robot.updateUser }}</span></a-tooltip
+                  >
+                  <span v-else class="one-line-text" style="max-width: 200px">{{ robot.updateUser }}</span>
+                  {{
+                    ` ${t('project.messageManagement.updateAt')} ${dayjs(robot.updateTime).format(
+                      'YYYY-MM-DD HH:mm:ss'
+                    )}`
+                  }}
                 </div>
               </div>
             </div>
@@ -303,6 +316,7 @@
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
+  import { translateTextToPX } from '@/utils/css';
 
   import type {
     ProjectRobotPlatform,
