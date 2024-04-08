@@ -474,8 +474,13 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             return null;
         }
         String domain = httpConfig.getHostname().trim();
+        int index = domain.indexOf(":");
+        if (index > -1) {
+            domain = domain.substring(0, index);
+        }
+
         List<Host> hosts = new ArrayList<>();
-        envConfig.getConfig().getHostConfig().getHosts().forEach(host -> {
+        for (Host host : envConfig.getConfig().getHostConfig().getHosts()) {
             if (StringUtils.isNotBlank(host.getDomain())) {
                 String hostDomain = host.getDomain().trim().replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
                 if (StringUtils.equals(hostDomain, domain)) {
@@ -483,7 +488,8 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                     hosts.add(host);
                 }
             }
-        });
+        }
+
         if (CollectionUtils.isNotEmpty(hosts)) {
             return dnsCacheManager(name + "DNSCacheManager", hosts);
         }
