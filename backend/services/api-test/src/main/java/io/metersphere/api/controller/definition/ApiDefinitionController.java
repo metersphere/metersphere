@@ -141,6 +141,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiDefinitionLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_definition")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getEditApiDTO(#id)", targetClass = ApiDefinitionNoticeService.class)
     public void deleteToGc(@PathVariable String id, @RequestParam(required = false) boolean deleteAllVersion) {
         apiDefinitionService.deleteToGc(id, deleteAllVersion, SessionUtils.getUserId());
     }
