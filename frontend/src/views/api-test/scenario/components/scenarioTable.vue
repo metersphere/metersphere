@@ -774,7 +774,7 @@
       titleSlotName: 'lastReportStatusFilter',
       dataIndex: 'lastReportStatus',
       slotName: 'lastReportStatus',
-      showTooltip: true,
+      showTooltip: false,
       showDrag: true,
       width: 100,
     },
