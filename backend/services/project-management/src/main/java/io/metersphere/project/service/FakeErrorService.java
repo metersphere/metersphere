@@ -20,6 +20,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +47,8 @@ public class FakeErrorService {
 
     @Resource
     private ExtFakeErrorMapper extFakeErrorMapper;
+    @Resource
+    private UserLoginService userLoginService;
 
     private static final String ADD_TYPE = "ADD";
 
@@ -124,7 +127,18 @@ public class FakeErrorService {
         if (StringUtils.isNotBlank(request.getKeyword())) {
             criteria.andNameLike("%" + request.getKeyword() + "%");
         }
-        return fakeErrorMapper.selectByExample(example);
+        List<FakeError> fakeErrors = fakeErrorMapper.selectByExample(example);
+        //把createUser和updateUser提取出来生成新的set
+        List<String> userIds = new ArrayList<>();
+        userIds.addAll(fakeErrors.stream().map(FakeError::getCreateUser).toList());
+        userIds.addAll(fakeErrors.stream().map(FakeError::getUpdateUser).toList());
+        Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+        fakeErrors.forEach(fakeError -> {
+            fakeError.setCreateUser(userMap.get(fakeError.getCreateUser()));
+            fakeError.setUpdateUser(userMap.get(fakeError.getUpdateUser()));
+        });
+
+        return fakeErrors;
     }
 
 
