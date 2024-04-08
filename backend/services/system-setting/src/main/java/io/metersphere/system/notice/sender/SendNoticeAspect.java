@@ -44,7 +44,7 @@ public class SendNoticeAspect {
 
     private final static String ID = "id";
     private final static String PROJECT_ID = "projectId";
-
+    private final static String CREATE_USER = "createUser";
 
     @Pointcut("@annotation(io.metersphere.system.notice.annotation.SendNotice)")
     public void pointcut() {
@@ -164,6 +164,9 @@ public class SendNoticeAspect {
                     }
                     if (object.containsKey(PROJECT_ID) && resource.get(PROJECT_ID) == null) {
                         resource.put(PROJECT_ID, object.get(PROJECT_ID));
+                    }
+                    if (object.containsKey(CREATE_USER) && resource.get(CREATE_USER) == null) {
+                        resource.put(CREATE_USER, object.get(CREATE_USER));
                     }
                 }
             }
