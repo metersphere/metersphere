@@ -11,7 +11,6 @@
     <a-input
       ref="inputRef"
       v-model:model-value="innerValue"
-      :max-length="255"
       :disabled="props.disabled"
       :size="props.size"
       :placeholder="t('ms.paramsInput.commonPlaceholder')"

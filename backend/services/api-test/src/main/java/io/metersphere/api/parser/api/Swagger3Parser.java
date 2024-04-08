@@ -8,7 +8,7 @@ import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.*;
-import io.metersphere.api.dto.request.http.auth.NoAuth;
+import io.metersphere.project.dto.environment.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.parser.ImportParser;

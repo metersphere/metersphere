@@ -1,6 +1,5 @@
 package io.metersphere.project.dto.environment;
 
-import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.host.HostConfig;
@@ -28,8 +27,6 @@ public class EnvironmentConfig {
 
     @Schema(description = "Host配置")
     private HostConfig hostConfig = new HostConfig();
-    @Schema(description = "认证配置")
-    private AuthConfig authConfig = new AuthConfig();
     @Schema(description = "全局前置脚本")
     private EnvProcessorConfig preProcessorConfig = new EnvProcessorConfig();
     @Schema(description = "全局后置脚本")

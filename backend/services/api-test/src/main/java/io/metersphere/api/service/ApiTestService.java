@@ -102,7 +102,6 @@ public class ApiTestService {
         EnvironmentConfig newEnvironmentConfig = new EnvironmentConfig();
         newEnvironmentConfig.setHttpConfig(environmentConfig.getHttpConfig());
         newEnvironmentConfig.setCommonVariables(environmentConfig.getCommonVariables());
-        newEnvironmentConfig.setAuthConfig(null);
         newEnvironmentConfig.setPreProcessorConfig(null);
         newEnvironmentConfig.setPostProcessorConfig(null);
         newEnvironmentConfig.setAssertionConfig(null);

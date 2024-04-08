@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.request.http;
 
-import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
+import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.sdk.constants.HttpMethodConstants;

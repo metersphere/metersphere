@@ -222,7 +222,6 @@ public class ApiTestControllerTests extends BaseTest {
         Environment environment = baseEnvTestService.initEnv("111");
         MvcResult mvcResult = this.requestGetAndReturn(ENVIRONMENT, environment.getId());
         EnvironmentConfig environmentConfig = getResultData(mvcResult, EnvironmentConfig.class);
-        Assertions.assertNull(environmentConfig.getAuthConfig());
         Assertions.assertNull(environmentConfig.getPreProcessorConfig());
         Assertions.assertNull(environmentConfig.getPostProcessorConfig());
         Assertions.assertNull(environmentConfig.getAssertionConfig());
