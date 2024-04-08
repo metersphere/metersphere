@@ -485,7 +485,7 @@
       dataIndex: 'expectedValue',
       slotName: 'expectedValue',
       titleSlotName: 'expectedTitle',
-      typeTitleTooltip: t('ms.assertion.expectedValueTitle'),
+      // typeTitleTooltip: t('ms.assertion.expectedValueTitle'),
     },
     {
       title: '',

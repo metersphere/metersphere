@@ -348,7 +348,7 @@
       </a-select>
     </template>
     <!-- 匹配值 -->
-    <template #expectedTitle="{ columnConfig }">
+    <!-- <template #expectedTitle="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t('apiTestDebug.paramType') }}
         <a-tooltip :content="columnConfig.typeTitleTooltip" position="right">
@@ -358,7 +358,7 @@
           />
         </a-tooltip>
       </div>
-    </template>
+    </template> -->
     <template #expectedValue="{ record, rowIndex, columnConfig }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
