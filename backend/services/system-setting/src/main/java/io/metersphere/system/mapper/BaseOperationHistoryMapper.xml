@@ -62,11 +62,8 @@
                     #{type}
                 </foreach>
             </if>
-            <if test="request.modules != null and request.modules.size() > 0">
-                AND operation_history.`module` in
-                <foreach collection="request.modules" item="module" open="(" close=")" separator=",">
-                    #{module}
-                </foreach>
+            <if test="request.modules != null and request.modules !=''">
+                AND operation_history.`module` like CONCAT('%',#{request.modules},'%')
             </if>
         </where>
     </select>

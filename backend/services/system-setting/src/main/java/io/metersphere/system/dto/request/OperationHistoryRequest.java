@@ -33,7 +33,7 @@ public class OperationHistoryRequest extends BasePageRequest implements Serializ
     private List<String> types;
 
     @Schema(description =  "操作模块")
-    private List<String> modules;
+    private String modules;
 
 
 }

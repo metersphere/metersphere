@@ -147,7 +147,7 @@
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.sourceId,
-      modules: ['API_TEST_MANAGEMENT_CASE'],
+      modules: 'API_TEST_MANAGEMENT_CASE',
       types: typeFilter.value,
     });
     loadList();

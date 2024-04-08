@@ -238,7 +238,7 @@
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
       types: ['IMPORT', 'ADD', 'UPDATE'],
-      modules: ['CASE_MANAGEMENT_CASE_CREATE', 'CASE_MANAGEMENT_CASE_UPDATE'],
+      modules: 'CASE_MANAGEMENT_CASE',
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);
