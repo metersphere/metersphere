@@ -67,6 +67,7 @@
    * @description 系统设置-系统-用户组
    */
   import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
@@ -83,7 +84,7 @@
 
   const currentTable = ref('auth');
   provide('systemType', AuthScopeEnum.SYSTEM);
-
+  const router = useRouter();
   const { t } = useI18n();
   const currentKeyword = ref('');
   const ugLeftRef = ref();
@@ -157,7 +158,7 @@
     }
   });
   onMounted(() => {
-    ugLeftRef.value?.initData();
+    ugLeftRef.value?.initData(router.currentRoute.value.query.id, true);
   });
 </script>
 

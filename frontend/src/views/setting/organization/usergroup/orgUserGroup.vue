@@ -68,6 +68,7 @@
    * @description 系统设置-组织-用户组
    */
   import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
@@ -82,6 +83,7 @@
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
 
+  const router = useRouter();
   // 注入系统层级
   provide('systemType', AuthScopeEnum.ORGANIZATION);
   const currentTable = ref('user');
@@ -156,7 +158,7 @@
     }
   });
   onMounted(() => {
-    ugLeftRef.value?.initData();
+    ugLeftRef.value?.initData(router.currentRoute.value.query.id, true);
   });
 </script>
 
