@@ -1,6 +1,6 @@
 <template>
   <a-collapse v-model:active-key="activeDetailKey" :bordered="false">
-    <a-collapse-item v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE" key="request">
+    <a-collapse-item key="request">
       <template #header>
         <div class="flex items-center gap-[4px]">
           <div v-if="activeDetailKey.includes('request')" class="down-icon">
@@ -131,7 +131,7 @@
             </MsCodeEditor>
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
-          <div class="detail-item">
+          <div v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">
                 {{ `${t('apiTestManagement.requestBody')}-${previewDetail.body.bodyType}` }}

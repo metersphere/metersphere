@@ -107,7 +107,7 @@
           <template #label>
             <apiStatus :status="record.status" size="small" />
           </template>
-          <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
+          <a-option v-for="item of requestCaseStatus" :key="item" :value="item">
             <apiStatus :status="item" size="small" />
           </a-option>
         </a-select>
@@ -127,7 +127,7 @@
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
+                  <a-checkbox v-for="val of requestCaseStatus" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
@@ -437,6 +437,9 @@
 
   const keyword = ref('');
 
+  const requestCaseStatus = computed(() =>
+    Object.values(RequestDefinitionStatus).filter((item) => item !== RequestDefinitionStatus.DEBUGGING)
+  );
   const hasOperationPermission = computed(() =>
     hasAnyPermission([
       'PROJECT_API_DEFINITION_CASE:READ+DELETE',
@@ -881,10 +884,6 @@
           {
             label: 'apiTestManagement.deprecate',
             value: RequestDefinitionStatus.DEPRECATED,
-          },
-          {
-            label: 'apiTestManagement.debugging',
-            value: RequestDefinitionStatus.DEBUGGING,
           },
         ];
       default:

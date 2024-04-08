@@ -370,8 +370,10 @@
   }
   :deep(.ms-detail-card-desc) {
     gap: 16px;
+    justify-content: end;
     & > div {
       width: auto;
+      max-width: 50%;
     }
   }
   :deep(.arco-form > .arco-form-item):nth-child(1) .arco-form-item-label-col {
