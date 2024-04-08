@@ -8,7 +8,6 @@ import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -31,7 +30,6 @@ public class ApiDefinitionScheduleController {
     @Operation(summary = "接口测试-接口管理-定时同步-创建")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
     @Log(type = OperationLogType.ADD, expression = "#msClass.scheduleLog(#request)", msClass = ApiDefinitionLogService.class)
-    @CheckOwner(resourceId = "#request.getScenarioId()", resourceType = "api_scenario")
     public String createSchedule(@RequestBody @Validated({Created.class}) ApiScheduleRequest request) {
         return apiDefinitionScheduleService.createSchedule(request, SessionUtils.getUserId());
     }
