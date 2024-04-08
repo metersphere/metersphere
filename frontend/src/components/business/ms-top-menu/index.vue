@@ -95,15 +95,7 @@
           }
 
           const filterMenuTopRouter =
-            currentParent?.children?.filter((item: any) => {
-              if (permission.accessRouter(item) && item.meta?.isTopMenu) {
-                // if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
-                //   return appStore.packageType === 'enterprise';
-                // }
-                return true;
-              }
-              return false;
-            }) || [];
+            currentParent?.children?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu) || [];
 
           appStore.setTopMenus(filterMenuTopRouter);
           setCurrentTopMenu(name as string);

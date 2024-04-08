@@ -16,7 +16,7 @@ export default function usePermission() {
      * @returns 是否
      */
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
-      if (includes(firstLevelMenu, route.name)) {
+      if (firstLevelMenu.includes(route.name as string)) {
         // 一级菜单: 创建项目时 被勾选的模块
         return topLevelMenuHasPermission(route);
       }

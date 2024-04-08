@@ -22,11 +22,12 @@ function getInsertCommonScript() {
 }
 
 export const SCRIPT_MENU: CommonScriptMenu[] = [
-  {
-    title: t('project.code_segment.importApiTest'),
-    value: 'api_definition',
-    command: 'api_definition',
-  },
+  // TODO 这个版本不上
+  // {
+  //   title: t('project.code_segment.importApiTest'),
+  //   value: 'api_definition',
+  //   command: 'api_definition',
+  // },
   {
     title: t('project.code_segment.newApiTest'),
     value: 'new_api_request',

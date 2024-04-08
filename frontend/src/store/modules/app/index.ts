@@ -272,6 +272,22 @@ const useAppStore = defineStore('app', {
         return false;
       }
     },
+    async getProjectInfos() {
+      try {
+        const res = await getProjectInfo(this.currentProjectId);
+        if (!res || res.deleted) {
+          const router = useRouter();
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+        }
+        if (res) {
+          this.setCurrentMenuConfig(res?.moduleIds || []);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
     /**
      * 初始化页面配置
      */

@@ -82,11 +82,15 @@ export function composePermissions(userRoleRelations: UserRoleRelation[], type: 
 }
 
 // 判断当前一级菜单是否有权限
-export function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
+export async function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
   const userStore = useUserStore();
   const appStore = useAppStore();
   const { currentMenuConfig } = appStore;
-  if (!currentMenuConfig.includes(route.name as string)) {
+  if (!currentMenuConfig.length) {
+    await appStore.getProjectInfos();
+  }
+
+  if (currentMenuConfig.length && !currentMenuConfig.includes(route.name as string)) {
     // 没有配置的菜单不显示
     return false;
   }
