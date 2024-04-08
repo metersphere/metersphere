@@ -762,6 +762,10 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showDrag: true,
       width: 140,
     },
@@ -790,6 +794,7 @@
     {
       title: 'apiScenario.table.columns.steps',
       dataIndex: 'stepTotal',
+      showInTable: false,
       showDrag: true,
       width: 100,
     },
@@ -797,17 +802,21 @@
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
       showDrag: true,
+      showInTable: false,
       width: 100,
     },
     {
       title: 'apiScenario.table.columns.module',
       dataIndex: 'modulePath',
+      showTooltip: true,
+      showInTable: false,
       showDrag: true,
       width: 176,
     },
     {
       title: 'apiScenario.table.columns.createTime',
       dataIndex: 'createTime',
+      showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -818,6 +827,7 @@
     {
       title: 'apiScenario.table.columns.updateTime',
       dataIndex: 'updateTime',
+      showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -829,6 +839,7 @@
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUserName',
       slotName: 'createUserName',
+      showInTable: false,
       titleSlotName: 'createUserFilter',
       showTooltip: true,
       showDrag: true,
@@ -838,6 +849,7 @@
       title: 'apiScenario.table.columns.updateUser',
       dataIndex: 'updateUserName',
       slotName: 'updateUserName',
+      showInTable: false,
       titleSlotName: 'updateUserFilter',
       showTooltip: true,
       showDrag: true,
