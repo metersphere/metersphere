@@ -41,7 +41,7 @@
           <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
         <div class="count">{{ item.count || 0 }}</div>
-        <div class="count">{{ item.rote || 0 }}%</div>
+        <div class="count">{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'">%</span></div>
       </div>
     </div>
   </div>

@@ -71,11 +71,10 @@
 
   const colorData = computed(() => {
     if (
-      props.reportDetail.status === 'ERROR' ||
-      (props.reportDetail.successCount === 0 &&
-        props.reportDetail.errorCount === 0 &&
-        props.reportDetail.fakeErrorCount === 0 &&
-        props.reportDetail.pendingCount === 0)
+      props.reportDetail.successCount === 0 &&
+      props.reportDetail.errorCount === 0 &&
+      props.reportDetail.fakeErrorCount === 0 &&
+      props.reportDetail.pendingCount === 0
     ) {
       return [
         {

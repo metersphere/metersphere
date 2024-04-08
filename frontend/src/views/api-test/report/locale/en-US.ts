@@ -70,6 +70,7 @@ export default {
   'report.detail.api.scriptError': 'Script error',
   'report.detail.api.scriptErrorTip': 'Script error',
   'report.detail.api.scenario': 'scenario',
+  'report.detail.api.step': 'step',
   'report.detail.api.request': 'request',
   'report.detail.api.globalWaitingTime': 'Scenario global waiting time',
   'report.detail.api.executeEnv': 'Running environment',

@@ -93,7 +93,7 @@
   const cascaderOptions = ref<CascaderOption[]>([
     {
       value: ScenarioStepType.API_SCENARIO,
-      label: t('report.detail.api.scenario'),
+      label: t('report.detail.api.step'),
       children: createChildOption(ScenarioStepType.API_SCENARIO),
     },
     {

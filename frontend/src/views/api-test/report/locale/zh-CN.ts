@@ -69,6 +69,7 @@ export default {
   'report.detail.api.scriptError': '脚本错误',
   'report.detail.api.scriptErrorTip': '脚本报错',
   'report.detail.api.scenario': '场景',
+  'report.detail.api.step': '步骤',
   'report.detail.api.request': '请求',
   'report.detail.api.globalWaitingTime': '场景全局等待时间',
   'report.detail.api.executeEnv': '运行环境',
