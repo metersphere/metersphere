@@ -265,29 +265,15 @@
     </template>
     <!-- 标签 -->
     <template #tag="{ record, columnConfig, rowIndex }">
-      <a-popover
-        position="tl"
-        :disabled="(record[columnConfig.dataIndex as string]||[]).length === 0"
-        class="ms-params-input-popover"
-      >
-        <template #content>
-          <div class="param-popover-title">
-            {{ t('common.tag') }}
-          </div>
-          <div class="param-popover-value">
-            <MsTagsGroup is-string-tag :tag-list="record[columnConfig.dataIndex as string]" />
-          </div>
-        </template>
-        <MsTagsInput
-          v-model:model-value="record[columnConfig.dataIndex as string]"
-          :disabled="props.disabledExceptParam"
-          :max-tag-count="2"
-          input-class="ms-form-table-input"
-          size="mini"
-          @change="() => addTableLine(rowIndex)"
-          @clear="() => addTableLine(rowIndex)"
-        />
-      </a-popover>
+      <MsTagsInput
+        v-model:model-value="record[columnConfig.dataIndex as string]"
+        :disabled="props.disabledExceptParam"
+        :max-tag-count="2"
+        input-class="ms-form-table-input"
+        size="mini"
+        @change="() => addTableLine(rowIndex)"
+        @clear="() => addTableLine(rowIndex)"
+      />
     </template>
     <!-- 描述 -->
     <template #description="{ record, columnConfig, rowIndex }">

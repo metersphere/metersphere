@@ -170,4 +170,9 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  // arco-input-tag-mirror会导致表格拖拽问题，故需要加上relative
+  :deep(.arco-input-tag) {
+    position: relative;
+  }
+</style>
