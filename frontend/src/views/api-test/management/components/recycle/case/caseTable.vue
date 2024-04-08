@@ -230,12 +230,10 @@
     recoverCase,
   } from '@/api/modules/api-test/management';
   import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiCaseBatchParams, ApiCaseDetail } from '@/models/apiTest/management';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
@@ -246,6 +244,7 @@
     activeModule: string;
     offspringIds: string[];
     protocol: string; // 查看的协议类型
+    memberOptions: { label: string; value: string }[];
   }>();
 
   const appStore = useAppStore();
@@ -458,15 +457,12 @@
   const updateUserFilters = ref<string[]>([]);
   const deleteUserFilterVisible = ref(false);
   const deleteUserFilters = ref<string[]>([]);
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
 
   async function loadCaseList() {
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,

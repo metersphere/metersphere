@@ -24,6 +24,7 @@
   <api
     v-show="currentTab === 'api'"
     ref="apiRef"
+    :member-options="memberOptions"
     :module-tree="props.moduleTree"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
@@ -31,6 +32,7 @@
   />
   <api-case
     v-show="currentTab === 'case'"
+    :member-options="memberOptions"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
     :protocol="protocol"
@@ -44,7 +46,9 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -56,6 +60,7 @@
   }>();
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const currentTab = ref('api');
   const tabOptions = [
@@ -72,10 +77,21 @@
   ]);
   const activeApiTab = ref<RequestParam>(apiTabs.value[0] as RequestParam);
 
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
+
+  async function initMemberOptions() {
+    memberOptions.value = await getProjectOptions(appStore.currentProjectId);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+  }
+
   // 下拉框切换
   function currentTabChange(val: any) {
     apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
   }
+
+  onBeforeMount(() => {
+    initMemberOptions();
+  });
 </script>
 
 <style lang="less" scoped>
