@@ -23,6 +23,7 @@ public class JSONPathExtractConverter extends ExtractConverter<JSONPathExtract> 
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JSON_POST_PROCESSOR_GUI));
         extractor.setRefNames(msExtract.getVariableName());
         extractor.setJsonPathExpressions(msExtract.getExpression());
+        extractor.setProperty("JSONPostProcessor.compute_concat", true);
         // 处理匹配多条等匹配规则
         extractor.setMatchNumbers(parseResultMatchingRule(msExtract).toString());
         extractor.setEnabled(msExtract.getEnable());

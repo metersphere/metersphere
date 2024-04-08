@@ -48,7 +48,7 @@ export const defaultConditionController = {
 
 // 条件控制器
 export const defaultTimeController = {
-  delay: 0, // 等待时间
+  delay: 1000, // 等待时间
 };
 
 // 场景配置

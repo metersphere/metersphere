@@ -339,6 +339,7 @@
         :min="0"
         :precision="0"
         :max="600000"
+        :default-value="1000"
         class="w-[160px]"
         model-event="input"
       />

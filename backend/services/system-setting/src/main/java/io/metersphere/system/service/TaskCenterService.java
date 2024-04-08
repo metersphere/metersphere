@@ -5,7 +5,6 @@ import com.github.pagehelper.page.PageMethod;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Schedule;
@@ -23,7 +22,6 @@ import org.quartz.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -205,25 +203,10 @@ public class TaskCenterService {
 
     public void enable(String id) {
         Schedule schedule = checkScheduleExit(id);
-        //根据全路径获取类 通过反射获取类
         schedule.setEnable(!schedule.getEnable());
         scheduleService.editSchedule(schedule);
-        try {
-            String className = schedule.getJob();
-            Class<?> clazz = Class.forName(className);
-            Object instance = clazz.getDeclaredConstructor().newInstance();
-
-            // 调用无参方法
-            Method method = clazz.getMethod("getTriggerKey", String.class);
-            Object result = method.invoke(instance, schedule.getResourceId());
-
-            Method method1 = clazz.getMethod("getJobKey", String.class);
-            Object result1 = method1.invoke(instance, schedule.getResourceId());
-
-            scheduleService.addOrUpdateCronJob(schedule, (JobKey) result1, (TriggerKey) result, clazz);
-        } catch (Exception e) {
-            LogUtils.error("enable schedule error", e);
-        }
+        scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
+                new TriggerKey(schedule.getKey(),schedule.getJob()), schedule.getJob().getClass());
 
 
     }
