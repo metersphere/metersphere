@@ -32,6 +32,7 @@ export default {
   'system.user.resetPswTip': 'Reset the password of {name} to its initial password?',
   'system.user.batchResetPswTip': 'Reset the passwords of the selected {count} users to their initial passwords?',
   'system.user.resetPswContent': "The initial password is the user's mailbox, which will take effect at the next login",
+  'system.user.resetAdminPswContent': 'The initial password is metersphere, which will take effect at the next login',
   'system.user.resetPswConfirm': 'Reset',
   'system.user.resetPswCancel': 'Cancel',
   'system.user.resetPswSuccess': 'Reset successfully',

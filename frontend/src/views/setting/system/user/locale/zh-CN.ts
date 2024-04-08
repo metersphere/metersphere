@@ -31,6 +31,7 @@ export default {
   'system.user.resetPswTip': '是否将 {name} 的密码重置为初始密码？',
   'system.user.batchResetPswTip': '是否将选中的 {count} 个用户的密码重置为初始密码？',
   'system.user.resetPswContent': '初始的密码为用户邮箱，下次登录时生效',
+  'system.user.resetAdminPswContent': '初始的密码为metersphere，下次登录时生效',
   'system.user.resetPswConfirm': '确认重置',
   'system.user.resetPswCancel': '取消',
   'system.user.resetPswSuccess': '重置成功',
