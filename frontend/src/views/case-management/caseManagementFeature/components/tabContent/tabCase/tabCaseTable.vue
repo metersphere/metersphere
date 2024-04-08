@@ -270,7 +270,7 @@
   async function cancelLink(record: any) {
     try {
       await cancelAssociatedCase({
-        selectIds: [record.sourceId],
+        selectIds: [record.id],
         caseId: props.caseId,
         sourceType: record.sourceType,
       });
