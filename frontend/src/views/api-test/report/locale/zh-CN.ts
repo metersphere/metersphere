@@ -29,7 +29,7 @@ export default {
   'report.detail.pendingCount': '未执行',
   'report.detail.stepTotal': '总数',
   'report.detail.script.error': '脚本失败',
-  'report.detail.scenario.errorTip': '当前场景的执行步骤中存在 前/后置脚本运行错误',
+  'report.detail.scenario.errorTip': '当前场景的执行环境中存在 前/后置脚本 运行错误',
   'report.detail.api.errorTip': '当前用例执行存在 前/后置脚本运行错误',
   'report.detail.api.resContent': '响应内容',
   'report.detail.api.executionTime': '执行时间',

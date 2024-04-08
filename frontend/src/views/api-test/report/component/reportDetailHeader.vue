@@ -20,7 +20,9 @@
             <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.executeEnv') }}</div>
             <div>
               {{
-                props.detail.environmentName || props.showType === 'CASE'
+                props.detail.environmentName
+                  ? props.detail.environmentName
+                  : props.showType === 'CASE'
                   ? t('report.detail.api.caseSaveEnv')
                   : t('report.detail.api.scenarioSavedEnv')
               }}
@@ -40,7 +42,7 @@
       </a-popover>
 
       <a-popover position="left" content-class="response-popover-content">
-        <span v-if="!props.detail.integrated && props.showType === 'API'">
+        <span v-if="!props.detail.integrated && props.showType === 'API' && props.detail.waitingTime">
           {{ props.detail.waitingTime ? formatDuration(props.detail.waitingTime).split('-')[0] : '-' }}
           <span>{{ props.detail.waitingTime ? formatDuration(props.detail.waitingTime).split('-')[1] : 'ms' }}</span>
           <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>

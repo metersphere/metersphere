@@ -8,7 +8,6 @@ import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
-import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiReportStatus;
@@ -18,7 +17,6 @@ import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -26,7 +24,6 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -186,13 +183,6 @@ public class ApiScenarioReportService {
         BeanUtils.copyBean(scenarioReportDTO, scenarioReport);
         //需要查询出所有的步骤
         List<ApiScenarioReportStepDTO> scenarioReportSteps = extApiScenarioReportMapper.selectStepByReportId(id);
-        if (BooleanUtils.isFalse(scenarioReport.getIntegrated())) {
-            ApiScenarioBlob apiScenarioBlob = extApiScenarioReportMapper.getScenarioBlob(id);
-            if (apiScenarioBlob != null) {
-                ScenarioConfig scenarioConfig = JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class);
-                scenarioReportDTO.setWaitingTime(scenarioConfig.getOtherConfig().getStepWaitTime());
-            }
-        }
         //查询所有步骤的detail
         List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDeatilByReportId(id);
         //根据stepId进行分组
