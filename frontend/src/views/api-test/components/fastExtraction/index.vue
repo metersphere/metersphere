@@ -247,25 +247,31 @@
         break;
       case RequestExtractExpressionEnum.REGEX:
       default:
-        // 先把前后的/和g去掉才能生成正则表达式
-        const matchesIterator = props.response?.matchAll(
-          new RegExp(expressionForm.value.expression.replace(/^\/|\/$|\/g$/g, ''), 'g')
-        );
-        if (matchesIterator) {
-          const matches = Array.from(matchesIterator);
-          try {
-            if (expressionForm.value.expressionMatchingRule === 'EXPRESSION') {
-              // 匹配表达式，取第一个匹配结果，是完整匹配结果
-              matchResult.value = matches.map((e) => e[0]) || [];
-            } else {
-              matchResult.value = matches.map((e) => e.slice(1)).flat(Infinity) || []; // 匹配分组，取匹配结果的第二项开始，是分组匹配结果
+        // 正则匹配中如果正则表达式不合法，会抛出异常，影响页面显示。这里便捕获异常，不影响页面显示
+        try {
+          // 先把前后的/和g去掉才能生成正则表达式
+          const matchesIterator = props.response?.matchAll(
+            new RegExp(expressionForm.value.expression.replace(/^\/|\/$|\/g$/g, ''), 'g')
+          );
+          if (matchesIterator) {
+            const matches = Array.from(matchesIterator);
+            try {
+              if (expressionForm.value.expressionMatchingRule === 'EXPRESSION') {
+                // 匹配表达式，取第一个匹配结果，是完整匹配结果
+                matchResult.value = matches.map((e) => e[0]) || [];
+              } else {
+                matchResult.value = matches.map((e) => e.slice(1)).flat(Infinity) || []; // 匹配分组，取匹配结果的第二项开始，是分组匹配结果
+              }
+            } catch (error) {
+              // 读取匹配数据错误说明无对应的匹配结果
+              matchResult.value = [];
+              isMatched.value = true;
             }
-          } catch (error) {
-            // 读取匹配数据错误说明无对应的匹配结果
+          } else {
             matchResult.value = [];
-            isMatched.value = true;
           }
-        } else {
+        } catch (error) {
+          console.log(`正则匹配异常：${error}`);
           matchResult.value = [];
         }
         break;
