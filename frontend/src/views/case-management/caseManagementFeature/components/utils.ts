@@ -134,7 +134,7 @@ export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
 }
 
 // 处理自定义字段
-export function getTableFields(customFields: CustomAttributes[], itemDataIndex: MsTableColumnData) {
+export function getTableFields(customFields: CustomAttributes[], itemDataIndex: MsTableColumnData, userId: string) {
   const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
   const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
 
@@ -147,6 +147,10 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
     // 处理多选项
     if (multipleExcludes.includes(currentColumnData.type) && currentColumnData.defaultValue) {
       selectValue = JSON.parse(currentColumnData.defaultValue);
+      if (Array.isArray(selectValue) && selectValue.includes('CREATE_USER')) {
+        const index = selectValue.indexOf('CREATE_USER');
+        selectValue.splice(index, 1, userId);
+      }
       return (
         (currentColumnData.options || [])
           .filter((item: any) => selectValue.includes(item.value))
@@ -168,6 +172,7 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
     }
     return currentColumnData.defaultValue || '-';
   }
+  return '-';
 }
 
 export function initFormCreate(customFields: CustomAttributes[], permission: string[]) {
