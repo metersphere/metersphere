@@ -422,10 +422,15 @@
       title = t('system.user.batchResetPswTip', { count: params?.currentSelectCount || tableSelected.value.length });
       selectIds = tableSelected.value as string[];
     }
+
+    let content = t('system.user.resetPswContent');
+    if (record && record.id === 'admin') {
+      content = t('system.user.resetAdminPswContent');
+    }
     openModal({
       type: 'warning',
       title,
-      content: t('system.user.resetPswContent'),
+      content,
       okText: t('system.user.resetPswConfirm'),
       cancelText: t('system.user.resetPswCancel'),
       onBeforeOk: async () => {
