@@ -87,6 +87,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private final static String UPDATE = "update";
     private final static String BATCH_UPDATE = "batch-update";
     private final static String DELETE_TO_GC = "delete-to-gc/{0}?deleteAllVersion={1}";
+    private final static String SINGLE_DELETE_TO_GC = "delete-to-gc/";
     private final static String BATCH_DELETE_TO_GC = "batch/delete-to-gc";
     private final static String COPY = "copy";
     private final static String BATCH_MOVE = "batch-move";
@@ -1230,6 +1231,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertTrue(apiDefinitionInfo.getDeleted());
         Assertions.assertEquals("admin", apiDefinitionInfo.getDeleteUser());
         Assertions.assertNotNull(apiDefinitionInfo.getDeleteTime());
+
+        this.requestGetWithOk(SINGLE_DELETE_TO_GC+"/"+apiDefinition.getId());
 
         // @存在多个版本
         String id = "1004";

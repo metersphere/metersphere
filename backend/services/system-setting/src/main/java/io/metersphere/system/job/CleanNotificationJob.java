@@ -17,7 +17,7 @@ public class CleanNotificationJob {
     private BaseNotificationMapper baseNotificationMapper;
 
     /**
-     * 清理状态为删除的项目  每天凌晨三点执行
+     * 清理90天前的站内通知  每天凌晨三点执行
      */
     @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanupNotification() {

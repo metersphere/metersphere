@@ -84,6 +84,12 @@ public class ApiDefinitionNoticeService {
         return handleBatchNotice(ids);
     }
 
+    public List<ApiDefinitionCaseDTO> getEditApiDTO(String id) {
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        return handleBatchNotice(ids);
+    }
+
     private List<ApiDefinitionCaseDTO> handleBatchNotice(List<String> ids) {
         List<ApiDefinitionCaseDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
