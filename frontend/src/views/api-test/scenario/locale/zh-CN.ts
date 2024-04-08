@@ -34,7 +34,7 @@ export default {
   'apiScenario.table.columns.name': '场景名称',
   'apiScenario.table.columns.level': '场景等级',
   'apiScenario.table.columns.status': '状态',
-  'apiScenario.table.columns.runResult': '运行结果',
+  'apiScenario.table.columns.runResult': '执行结果',
   'apiScenario.table.columns.tags': '标签',
   'apiScenario.table.columns.scenarioEnv': '场景环境',
   'apiScenario.table.columns.steps': '步骤数',
