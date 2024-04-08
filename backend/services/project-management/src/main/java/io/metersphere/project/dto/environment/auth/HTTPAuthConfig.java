@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.request.http.auth;
+package io.metersphere.project.dto.environment.auth;
 
 import io.metersphere.system.valid.EnumValue;
 import lombok.Data;

@@ -1,16 +1,18 @@
 package io.metersphere.api.parser.jmeter.processor;
 
 import io.metersphere.api.dto.ApiParamConfig;
-import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
+import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
+import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.processor.SQLProcessor;
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.processor.AbstractJDBCProcessor;
 import org.apache.jmeter.save.SaveService;
@@ -60,20 +62,29 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
                 .filter(KeyValueParam::isValid)
                 .toList();
         // 添加提取的变量
-        Arguments jdbcArguments = getJdbcArguments(sqlProcessor.getName(), extractParams);
-        if (jdbcArguments != null && !jdbcArguments.getArguments().isEmpty()) {
-            hashTree.add(jdbcArguments);
+        JSR223PostProcessor jdbcPostProcessor = getJdbcPostProcessor(sqlProcessor.getName(), extractParams);
+        if (jdbcPostProcessor != null ) {
+            hashTree.add(jdbcPostProcessor);
         }
     }
 
-    public Arguments getJdbcArguments(String name, List<KeyValueParam> extractParams) {
+    public JSR223PostProcessor getJdbcPostProcessor(String name, List<KeyValueParam> extractParams) {
         if (CollectionUtils.isNotEmpty(extractParams)) {
-            Arguments arguments = JmeterTestElementParserHelper.getArguments(name);
+            JSR223PostProcessor jsr223PostProcessor = new JSR223PostProcessor();
+            jsr223PostProcessor.setName(name);
+            jsr223PostProcessor.setProperty(TestElement.TEST_CLASS, jsr223PostProcessor.getClass().getSimpleName());
+            jsr223PostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.TEST_BEAN_GUI));
+            jsr223PostProcessor.setProperty(JmeterProperty.SCRIPT_LANGUAGE, ScriptLanguageType.BEANSHELL.name().toLowerCase());
+            StringBuilder scriptBuilder = new StringBuilder();
             extractParams.stream().filter(KeyValueParam::isValid)
-                    .forEach(keyValue ->
-                    arguments.addArgument(keyValue.getKey(), String.format("vars.get(\"%s\")", keyValue.getValue()), "=")
-            );
-           return arguments;
+                    .forEach(keyValue -> {
+                                String script = """
+                                        vars.put("%s","${%s}");
+                                        """;
+                                scriptBuilder.append(String.format(script, keyValue.getKey(), keyValue.getValue()));
+                            });
+            jsr223PostProcessor.setProperty(JmeterProperty.SCRIPT, scriptBuilder.toString());
+            return jsr223PostProcessor;
         }
         return null;
     }

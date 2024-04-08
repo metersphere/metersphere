@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.request.http.auth;
+package io.metersphere.project.dto.environment.auth;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -8,11 +8,10 @@ import org.apache.commons.lang3.StringUtils;
  * @CreateTime: 2023-11-07  11:00
  */
 @Data
-public class BasicAuth extends HTTPAuth {
+public class DigestAuth extends HTTPAuth {
     private String userName;
     private String password;
 
-    @Override
     public boolean isValid() {
         return StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password);
     }

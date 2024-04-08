@@ -4,9 +4,9 @@ package io.metersphere.api.parser.jmeter;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.request.http.*;
-import io.metersphere.api.dto.request.http.auth.BasicAuth;
-import io.metersphere.api.dto.request.http.auth.DigestAuth;
-import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
+import io.metersphere.project.dto.environment.auth.BasicAuth;
+import io.metersphere.project.dto.environment.auth.DigestAuth;
+import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverterFactory;
@@ -102,6 +102,9 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
 
+        if ((authConfig == null  || !authConfig.isHTTPAuthValid()) && httpConfig != null) {
+            authConfig = httpConfig.getAuthConfig();
+        }
         // 处理认证信息
         AuthManager authManager = getAuthManager(authConfig);
         Optional.ofNullable(authManager).ifPresent(httpTree::add);

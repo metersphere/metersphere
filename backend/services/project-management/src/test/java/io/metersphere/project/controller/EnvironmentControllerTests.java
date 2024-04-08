@@ -10,7 +10,6 @@ import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.project.dto.environment.*;
-import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.host.Host;
@@ -18,9 +17,6 @@ import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.processors.*;
 import io.metersphere.project.dto.environment.processors.pre.UiPreScript;
-import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
-import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
-import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.service.EnvironmentService;
@@ -284,37 +280,10 @@ public class EnvironmentControllerTests extends BaseTest {
         return hostConfig;
     }
 
-    private AuthConfig createAuthConfig() {
-        AuthConfig authConfig = new AuthConfig();
-        authConfig.setUsername("username");
-        authConfig.setPassword("password");
-        return authConfig;
-    }
-
     private EnvProcessorConfig createEnvironmentProcessorConfig() {
         EnvProcessorConfig environmentPreScript = new EnvProcessorConfig();
         environmentPreScript.setApiProcessorConfig(createApiEnvProcessorConfig());
         return environmentPreScript;
-    }
-
-    private KeyStoreConfig createKeyStoreConfig() {
-        KeyStoreConfig keyStoreConfig = new KeyStoreConfig();
-        KeyStoreEntry keyStoreEntry = new KeyStoreEntry();
-        keyStoreEntry.setId("id");
-        keyStoreEntry.setPassword("alias");
-        keyStoreEntry.setDefault(true);
-        keyStoreEntry.setSourceId("sourceId");
-        keyStoreEntry.setSourceName("sourceName");
-        keyStoreConfig.setEntry(List.of(keyStoreEntry));
-        KeyStoreFile keyStoreFile = new KeyStoreFile();
-        keyStoreFile.setId("id");
-        keyStoreFile.setName("name");
-        keyStoreFile.setType("type");
-        keyStoreFile.setUpdateTime("updateTime");
-        keyStoreFile.setPassword("password");
-        keyStoreFile.setFile(null);
-        keyStoreConfig.setFiles(List.of(keyStoreFile));
-        return keyStoreConfig;
     }
 
     private ApiEnvProcessorConfig createApiEnvProcessorConfig() {
@@ -602,61 +571,6 @@ public class EnvironmentControllerTests extends BaseTest {
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
-
-        //auth配置
-        envConfig.setAuthConfig(createAuthConfig());
-        request.setName("authConfig");
-        request.setConfig(envConfig);
-        paramMap.clear();
-        paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, Environment.class);
-        Assertions.assertNotNull(response);
-        environment = environmentMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environment);
-        Assertions.assertEquals(response.getId(), environment.getId());
-        Assertions.assertEquals(response.getName(), environment.getName());
-        Assertions.assertEquals(response.getProjectId(), environment.getProjectId());
-        environmentBlob = environmentBlobMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environmentBlob);
-        config = new String(environmentBlob.getConfig());
-        if (StringUtils.isNotBlank(config)) {
-            EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
-            Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getAuthConfig());
-            Assertions.assertEquals(envConfig.getAuthConfig(), environmentConfig.getAuthConfig());
-        }
-        //校验日志
-        checkLog(response.getId(), OperationLogType.ADD);
-
-        //ssl配置
-        AuthConfig authConfig = envConfig.getAuthConfig();
-        authConfig.setSslConfig(createKeyStoreConfig());
-        envConfig.setAuthConfig(authConfig);
-        request.setName("sslConfig");
-        request.setConfig(envConfig);
-        paramMap.clear();
-        paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, Environment.class);
-        Assertions.assertNotNull(response);
-        environment = environmentMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environment);
-        Assertions.assertEquals(response.getId(), environment.getId());
-        Assertions.assertEquals(response.getName(), environment.getName());
-        Assertions.assertEquals(response.getProjectId(), environment.getProjectId());
-        environmentBlob = environmentBlobMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environmentBlob);
-        config = new String(environmentBlob.getConfig());
-        if (StringUtils.isNotBlank(config)) {
-            EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
-            Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getAuthConfig());
-            Assertions.assertEquals(envConfig.getAuthConfig().getSslConfig(), environmentConfig.getAuthConfig().getSslConfig());
-        }
-        //校验日志
-        checkLog(response.getId(), OperationLogType.ADD);
-
         //前置脚本
         envConfig.setPreProcessorConfig(createEnvironmentProcessorConfig());
         request.setName("preScript");
