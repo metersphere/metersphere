@@ -26,6 +26,8 @@
     :disabled-except-param="props.disabledExceptParam"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
+    :show-setting="true"
+    :table-key="TableKeyEnum.API_TEST_DEBUG_REST"
     :default-param-item="defaultRequestParamsItem"
     @change="handleParamTableChange"
   />
@@ -42,6 +44,7 @@
 
   import { ExecuteRequestCommonParam } from '@/models/apiTest/common';
   import { RequestParamsType } from '@/enums/apiEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { filterKeyValParams } from '../utils';
   import { defaultRequestParamsItem } from '@/views/api-test/components/config';

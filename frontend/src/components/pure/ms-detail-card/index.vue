@@ -103,6 +103,9 @@
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);
     gap: 8px;
+    .one-line-text {
+      max-width: 300px;
+    }
     .ms-detail-card-desc {
       @apply flex flex-wrap overflow-hidden; // TODO:过渡动画
     }
