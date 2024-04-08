@@ -144,7 +144,6 @@
     getDefinitionPage,
     recoverDefinition,
   } from '@/api/modules/api-test/management';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -161,6 +160,7 @@
     offspringIds: string[];
     protocol: string; // 查看的协议类型
     readOnly?: boolean; // 是否是只读模式
+    memberOptions?: { label: string; value: string }[];
   }>();
 
   const appStore = useAppStore();
@@ -290,7 +290,6 @@
   const statusFilters = ref<string[]>([]);
   const deleteUserFilterVisible = ref(false);
   const deleteUserFilters = ref<string[]>([]);
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const moduleIds = computed(() => {
     if (props.activeModule === 'all') {
       return [];
@@ -299,10 +298,7 @@
   });
   const tableQueryParams = ref<any>();
 
-  async function loadApiList() {
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-
+  function loadApiList() {
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
