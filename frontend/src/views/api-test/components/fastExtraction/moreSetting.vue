@@ -29,7 +29,7 @@
         </a-radio>
       </a-radio-group>
     </div>
-    <div v-if="props.isShowResultMatchRules" class="mb-[16px]">
+    <div class="mb-[16px]">
       <div class="mb-[8px] text-[14px] text-[var(--color-text-1)]">
         {{ t('apiTestDebug.resultMatchRule') }}
       </div>
@@ -116,7 +116,6 @@
   const props = defineProps<{
     config: ExpressionConfig;
     isPopover?: boolean; // 是否是弹出框展示，弹出框展示时才显示表达式类型
-    isShowResultMatchRules?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:config', config: ExpressionConfig): void;

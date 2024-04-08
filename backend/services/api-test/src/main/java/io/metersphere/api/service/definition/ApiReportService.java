@@ -238,6 +238,9 @@ public class ApiReportService {
             List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
             apiReportSteps.add(apiReportStepDTO);
             apiReportDTO.setChildren(apiReportSteps);
+        } else {
+            apiReportDTO.setTotal(1L);
+            apiReportDTO.setPendingCount(1L);
         }
         return apiReportDTO;
     }

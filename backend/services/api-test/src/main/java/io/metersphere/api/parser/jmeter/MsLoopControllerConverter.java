@@ -3,16 +3,14 @@ package io.metersphere.api.parser.jmeter;
 import io.metersphere.api.dto.request.controller.LoopType;
 import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.api.dto.request.controller.WhileConditionType;
-import io.metersphere.api.parser.jmeter.processor.ScriptFilter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
-import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.control.*;
-import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
+import org.apache.jmeter.sampler.TestAction;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.timers.ConstantTimer;
@@ -43,6 +41,21 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
 
         parseChild(groupTree, element, config);
 
+        //如果是while循环，需要添加一个循环控制器超时处理
+        if (StringUtils.equals(element.getLoopType(), LoopType.WHILE.name()) && element.getWhileController() != null) {
+            String ifCondition = "${__jexl3(${__time(,)} - ${\"" + element.getCurrentTime() + "\"} >" + element.getWhileController().getTimeout() + ")}";
+            IfController ifController = ifController(ifCondition, element.getEnable());
+            TestAction testAction = new TestAction();
+            testAction.setEnabled(true);
+            testAction.setName("结束循环");
+            testAction.setProperty("ActionProcessor.action", 5);
+            testAction.setProperty(TestElement.TEST_CLASS, TestAction.class.getName());
+            testAction.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestActionGui"));
+            testAction.setProperty("ActionProcessor.target",0);
+
+            groupTree.add(ifController, testAction);
+        }
+
     }
 
 
@@ -64,23 +77,9 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
                 condition = element.getWhileController().getMsWhileScript().getScriptValue();
             }
             String ifCondition = "${__jexl3(" + condition + ")}";
-            String whileCondition = "${__jexl3(" + condition + " && \"${" + element.getCurrentTime() + "}\" !=\"stop\")}";
             HashTree ifHashTree = tree.add(ifController(ifCondition, element.getEnable()));
             addPreProc(ifHashTree, element);
-
-            HashTree hashTree = ifHashTree.add(initWhileController(element, whileCondition));
-            // 添加超时处理，防止死循环
-            JSR223PreProcessor jsr223PreProcessor = new JSR223PreProcessor();
-            jsr223PreProcessor.setName("While 循环控制器超时处理脚本");
-            jsr223PreProcessor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
-            jsr223PreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-            jsr223PreProcessor.setProperty("scriptLanguage", ScriptLanguageType.BEANSHELL.name().toLowerCase());
-
-            ScriptFilter.verify(ScriptLanguageType.BEANSHELL.name().toLowerCase(), element.getName(), script(element));
-
-            jsr223PreProcessor.setProperty("script", script(element));
-            hashTree.add(jsr223PreProcessor);
-            return hashTree;
+            return ifHashTree.add(initWhileController(element, ifCondition));
         }
         if (StringUtils.equals(element.getLoopType(), LoopType.FOREACH.name()) && element.getForEachController() != null) {
             return tree.add(initForeachController(element));
@@ -93,43 +92,13 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
         return null;
     }
 
-    private static String script(MsLoopController element) {
-        String script = """          
-                           
-                import java.util.*;
-                import java.text.SimpleDateFormat;
-                import org.apache.jmeter.threads.JMeterContextService;
-                                
-                // 循环控制器超时后结束循环
-                try{
-                  String ms_current_timer = vars.get("%s");
-                  long _nowTime = System.currentTimeMillis();
-                  if(ms_current_timer == null ){
-                    vars.put("%s",_nowTime.toString());
-                  }
-                  long time = Long.parseLong(vars.get("%s"));
-                   if((_nowTime - time) > %s ){
-                    vars.put("%s", "stop");
-                    log.info( "结束循环");
-                   }
-                }catch (Exception e){
-                  log.info( e.getMessage());
-                  vars.put("%s", "stop");
-                }
-                                
-                """;
-
-        return String.format(script, element.getCurrentTime(), element.getCurrentTime(), element.getCurrentTime(), element.getWhileController().getTimeout(), element.getCurrentTime(), element.getCurrentTime());
-    }
 
     private void addPreProc(HashTree hashTree, MsLoopController element) {
         JSR223Sampler sampler = new JSR223Sampler();
         sampler.setName("MS_CLEAR_LOOPS_VAR_" + element.getCurrentTime());
         sampler.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        sampler.setProperty("scriptLanguage", ScriptLanguageType.BEANSHELL.name().toLowerCase());
-        ScriptFilter.verify(ScriptLanguageType.BEANSHELL.name().toLowerCase(), element.getName(), script(element));
-        sampler.setProperty("script", "vars.put(\"" + element.getCurrentTime() + "\", null);");
+        sampler.setProperty("script", "${__time(,\"" + element.getCurrentTime() + "\")};");
         hashTree.add(sampler);
     }
 
