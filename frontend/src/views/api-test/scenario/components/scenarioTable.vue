@@ -652,7 +652,7 @@
   const priorityFilters = ref<string[]>([]);
   const scheduleConfig = ref<ApiScenarioScheduleConfig>({
     scenarioId: '',
-    enable: false,
+    enable: true,
     cron: '',
     config: {
       poolId: '',
@@ -899,6 +899,12 @@
       // 删除定时任务
       return [
         {
+          eventTag: 'updateSchedule',
+          label: t('apiScenario.schedule.update'),
+          permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+          danger: false,
+        },
+        {
           eventTag: 'deleteSchedule',
           label: t('apiScenario.schedule.delete'),
           permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
@@ -1104,7 +1110,7 @@
       // 初始化定时任务配置
       scheduleConfig.value = {
         scenarioId: record.id,
-        enable: false,
+        enable: true,
         cron: '0 0 0/1 * * ? ',
         config: {
           poolId: defaultPoolId?.value,
@@ -1152,6 +1158,9 @@
         break;
       case 'deleteSchedule':
         deleteScenarioSchedule(record.id);
+        break;
+      case 'updateSchedule':
+        openScheduleModal(record);
         break;
       default:
         break;

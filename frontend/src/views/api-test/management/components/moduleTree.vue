@@ -108,7 +108,7 @@
       class="mb-[16px]"
       allow-clear
     />
-    <a-spin class="w-full" :loading="loading">
+    <a-spin class="w-full" :style="{ height: `calc(100vh - 298px)` }" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         v-model:selected-keys="selectedKeys"

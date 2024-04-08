@@ -58,7 +58,7 @@
     </div>
     <a-divider class="my-[8px]" />
 
-    <a-spin class="w-full" :loading="loading">
+    <a-spin class="w-full" :style="{ height: `calc(100vh - 320px)` }" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         v-model:selected-keys="selectedKeys"
