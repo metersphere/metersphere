@@ -211,9 +211,8 @@
       </template>
       <template #lastReportStatus="{ record }">
         <ExecutionStatus
-          v-if="record.lastReportStatus"
           :module-type="ReportEnum.API_SCENARIO_REPORT"
-          :status="record.lastReportStatus"
+          :status="record.lastReportStatus ? record.lastReportStatus : 'PENDING'"
         />
       </template>
       <template #createUserFilter="{ columnConfig }">
