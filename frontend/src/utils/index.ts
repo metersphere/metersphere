@@ -261,7 +261,7 @@ export function mapTree<T>(
         if (newNode) {
           newNode.level = _level;
           if (newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
-            newNode[customChildrenKey] = mapFunc(newNode[customChildrenKey], fullPath, _level + 1, node);
+            newNode[customChildrenKey] = mapFunc(newNode[customChildrenKey], fullPath, _level + 1, newNode);
           }
         }
         return newNode;

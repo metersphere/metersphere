@@ -745,6 +745,9 @@
   background-color: rgb(var(--primary-5)) !important;
 }
 .arco-switch-type-circle.arco-switch-disabled {
+  background-color: var(--color-text-n8) !important;
+}
+.arco-switch-type-circle.arco-switch-checked.arco-switch-disabled {
   background-color: rgb(var(--primary-3)) !important;
 }
 .arco-switch-type-line.arco-switch-small {
@@ -774,13 +777,14 @@
     display: flex;
     align-items: center;
     padding: 2px 8px;
+    border-radius: var(--border-radius-small);
     background: var(--color-text-n9);
     gap: 8px;
     .ms-pagination-jumper-input {
       padding: 3px 8px;
       width: 57px;
       border: 1px solid var(--color-text-input-border);
-      border-radius: 3px;
+      border-radius: var(--border-radius-small);
       color: var(--color-text-1);
       background: var(--color-text-10);
       box-sizing: border-box;

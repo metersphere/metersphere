@@ -152,7 +152,7 @@
                       <div
                         :class="`one-line-text mr-[4px] ${
                           step.stepType === ScenarioStepType.ONCE_ONLY_CONTROLLER ? 'max-w-[750px]' : 'max-w-[150px]'
-                        } font-normal text-[var(--color-text-4)]`"
+                        } font-normal text-[var(--color-text-1)]`"
                       >
                         {{ step.name || t('apiScenario.pleaseInputStepDesc') }}
                       </div>
@@ -190,26 +190,10 @@
         </template>
         <template #extraEnd="step">
           <responsePopover
-            v-if="
-              [
-                ScenarioStepType.API,
-                ScenarioStepType.API_CASE,
-                ScenarioStepType.SCRIPT,
-                ScenarioStepType.CUSTOM_REQUEST,
-              ].includes(step.stepType) &&
-              (getExecuteStatus(step) === ScenarioExecuteStatus.SUCCESS ||
-                getExecuteStatus(step) === ScenarioExecuteStatus.FAILED)
-            "
             :step="step"
             :step-responses="scenario.stepResponses"
+            :final-execute-status="getExecuteStatus(step)"
             @visible-change="handleResponsePopoverVisibleChange"
-          />
-          <executeStatus
-            v-else-if="step.executeStatus"
-            :status="getExecuteStatus(step)"
-            :extra-text="getExecuteStatusExtraText(step)"
-            size="small"
-            class="ml-[4px]"
           />
         </template>
         <template v-if="steps.length === 0 && stepKeyword.trim() !== ''" #empty>
@@ -240,24 +224,30 @@
       :request="currentStepDetail as unknown as RequestParam"
       :file-params="currentStepFileParams"
       :step="activeStep"
+      :scenario-id="scenario.id"
       :step-responses="scenario.stepResponses"
       :permission-map="permissionMap"
+      :steps="steps"
       @add-step="addCustomApiStep"
       @apply-step="applyApiStep"
       @stop-debug="handleStopExecute(activeStep)"
       @execute="handleApiExecute"
+      @replace="handleReplaceStep"
     />
     <customCaseDrawer
       v-model:visible="customCaseDrawerVisible"
       :active-step="activeStep"
       :request="currentStepDetail as unknown as RequestParam"
+      :scenario-id="scenario.id"
       :file-params="currentStepFileParams"
+      :steps="steps"
       :step-responses="scenario.stepResponses"
       :permission-map="permissionMap"
       @apply-step="applyApiStep"
       @delete-step="deleteCaseStep(activeStep)"
       @stop-debug="handleStopExecute(activeStep)"
       @execute="(request, executeType) => handleApiExecute((request as unknown as RequestParam), executeType)"
+      @replace="handleReplaceStep"
     />
     <importApiDrawer
       v-if="importApiDrawerVisible"
@@ -451,7 +441,6 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import executeStatus from '../common/executeStatus.vue';
   import { ImportData } from '../common/importApiDrawer/index.vue';
   import stepType from '../common/stepType/stepType.vue';
   import createStepActions from './createAction/createStepActions.vue';
@@ -496,7 +485,6 @@
     RequestDefinitionStatus,
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
-    ScenarioStepLoopTypeEnum,
     ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
@@ -569,30 +557,18 @@
 
   function getExecuteStatus(step: ScenarioStepItem) {
     if (scenario.value.stepResponses && scenario.value.stepResponses[step.uniqueId]) {
+      if (
+        scenario.value.stepResponses[step.uniqueId].some((report) => report.status === ScenarioExecuteStatus.FAKE_ERROR)
+      ) {
+        return ScenarioExecuteStatus.FAKE_ERROR;
+      }
       // 有一次失败就是失败
-      return scenario.value.stepResponses[step.uniqueId].some((report) => !report.isSuccessful)
-        ? ScenarioExecuteStatus.FAILED
-        : ScenarioExecuteStatus.SUCCESS;
+      if (scenario.value.stepResponses[step.uniqueId].some((report) => !report.isSuccessful)) {
+        return ScenarioExecuteStatus.FAILED;
+      }
+      return ScenarioExecuteStatus.SUCCESS;
     }
     return step.executeStatus;
-  }
-
-  function getExecuteStatusExtraText(step: ScenarioStepItem) {
-    if (
-      step.stepType === ScenarioStepType.LOOP_CONTROLLER &&
-      step.config.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT &&
-      step.config.msCountController &&
-      step.config.msCountController.loops > 0
-    ) {
-      // 循环控制器展示当前执行次数/总次数
-      const firstHasResultChild = step.children?.find((child) => {
-        return checkStepIsApi(child) || child.stepType === ScenarioStepType.SCRIPT;
-      });
-      return firstHasResultChild && scenario.value.stepResponses[firstHasResultChild.uniqueId]
-        ? `${scenario.value.stepResponses[firstHasResultChild.uniqueId].length}/${step.config.msCountController.loops}`
-        : undefined;
-    }
-    return undefined;
   }
 
   function handleResponsePopoverVisibleChange(visible: boolean, step: ScenarioStepItem) {
@@ -914,8 +890,8 @@
             ...cloneDeep(
               mapTree<ScenarioStepItem>(node, (childNode) => {
                 const childId = getGenerateId();
-                const childStepDetail = stepDetails.value[node.id];
-                const childStepFileParam = scenario.value.stepFileParam[node.id];
+                const childStepDetail = stepDetails.value[childNode.id];
+                const childStepFileParam = scenario.value.stepFileParam[childNode.id];
                 let childCopyFromStepId = childNode.id;
                 if (childStepDetail) {
                   // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
@@ -923,7 +899,7 @@
                 }
                 if (childStepFileParam) {
                   // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
-                  scenario.value.stepFileParam[id] = cloneDeep(childStepFileParam);
+                  scenario.value.stepFileParam[childNode.id] = cloneDeep(childStepFileParam);
                 }
                 if (!isQuoteScenario) {
                   // 非引用场景才处理复制来源 id
@@ -1211,7 +1187,7 @@
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
-        environmentId: currentEnvConfig?.value.id || '',
+        environmentId: currentEnvConfig?.value?.id || '',
         projectId: appStore.currentProjectId,
         scenarioConfig: scenario.value.scenarioConfig,
         frontendDebug: executeType === 'localExec',
@@ -1302,6 +1278,7 @@
     } else {
       // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
       const reportId = getGenerateId();
+      delete scenario.value.stepResponses[request.stepId]; // 先移除上一次的执行结果
       request.executeLoading = true;
       activeStep.value = {
         id: request.stepId,
@@ -1340,6 +1317,41 @@
         realStep.isExecuting = false;
         updateStepStatus([realStep as ScenarioStepItem], scenario.value.stepResponses);
       }
+    }
+  }
+
+  function handleReplaceStep(newStep: ScenarioStepItem) {
+    if (activeStep.value) {
+      // 替换步骤，删除原本的详情数据
+      delete scenario.value.stepResponses[activeStep.value.uniqueId];
+      delete scenario.value.stepFileParam[activeStep.value.id];
+      delete stepDetails.value[activeStep.value.id];
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
+      if (realStep) {
+        // 将旧步骤替换为新步骤
+        if (realStep.parent?.children) {
+          // 如果被替换的步骤是子孙步骤，则需要在父级的 children 中替换
+          const index = realStep.parent.children.findIndex((item) => item.uniqueId === realStep.uniqueId);
+          realStep.parent.children.splice(index, 1, newStep);
+        } else {
+          // 如果被替换的步骤是第一层级步骤，则直接替换
+          const index = steps.value.findIndex((item) => item.uniqueId === realStep.uniqueId);
+          steps.value.splice(index, 1, newStep);
+        }
+      }
+    }
+    Message.success(t('apiScenario.replaceSuccess'));
+    scenario.value.unSaved = true;
+    if (newStep.stepType === ScenarioStepType.API_SCENARIO) {
+      customCaseDrawerVisible.value = false;
+      customApiDrawerVisible.value = false;
+    } else {
+      customCaseDrawerVisible.value = false;
+      customApiDrawerVisible.value = false;
+      nextTick(() => {
+        // 等待抽屉关闭后再打开新的抽屉
+        handleStepSelect([newStep.uniqueId], newStep);
+      });
     }
   }
 
@@ -1609,7 +1621,7 @@
       }
       loading.value = true;
       const offspringIds: string[] = [];
-      mapTree(dragNode.children || [], (e) => {
+      mapTree(cloneDeep(dragNode.children || []), (e) => {
         offspringIds.push(e.uniqueId);
         return e;
       });

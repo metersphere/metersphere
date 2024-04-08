@@ -79,7 +79,6 @@ export default function useTableProps<T>(
     emptyDataShowLine: true, // 空数据是否显示 "-"
     /** Column Selector */
     showJumpMethod: false, // 是否显示跳转方法
-    showFooterActionWrap: false, // 是否显示底部操作区域
     isSimpleSetting: false, // 是否是简易column设置
     filterIconAlignLeft: true, // 筛选图标是否靠左
     ...props,
@@ -446,22 +445,9 @@ export default function useTableProps<T>(
   });
 
   watchEffect(() => {
-    const { heightUsed, showPagination, selectedKeys, msPagination } = propsRes.value;
-    let hasFooterAction = false;
-    if (showPagination) {
-      const { pageSize, total } = msPagination as Pagination;
-      /*
-       * 是否有底部操作栏 包括 批量操作 和 分页器
-       * 1. 有分页器，且总条数大于每页条数
-       * 2. 有选中项
-       */
-      hasFooterAction = total > pageSize || selectedKeys.size > 0;
-    }
-
-    propsRes.value.showFooterActionWrap = hasFooterAction;
+    const { heightUsed } = propsRes.value;
     if (props?.heightUsed) {
-      const currentY =
-        appStore.innerHeight - (heightUsed || defaultHeightUsed) + (hasFooterAction ? 0 : footerActionWrapHeight);
+      const currentY = appStore.innerHeight - (heightUsed || defaultHeightUsed);
       propsRes.value.scroll = { ...propsRes.value.scroll, y: currentY };
     }
   });

@@ -23,6 +23,23 @@
         </a-tooltip>
       </div>
       <div
+        v-if="
+          props.step &&
+          !props.step.isQuoteScenarioStep &&
+          props.step.resourceId &&
+          props.step?.stepType !== ScenarioStepType.CUSTOM_REQUEST
+        "
+        class="ml-auto"
+      >
+        <replaceButton
+          :steps="props.steps"
+          :step="props.step"
+          :resource-id="props.step.resourceId"
+          :scenario-id="scenarioId"
+          @replace="handleReplace"
+        />
+      </div>
+      <div
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
         class="customApiDrawer-title-right ml-auto flex items-center gap-[16px]"
       >
@@ -306,6 +323,7 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
   import loopPagination from './loopPagination.vue';
+  import replaceButton from './replaceButton.vue';
   import stepTypeVue from './stepType/stepType.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
@@ -391,6 +409,7 @@
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
     step?: ScenarioStepItem;
+    steps: ScenarioStepItem[];
     detailLoading?: boolean; // 详情加载状态
     permissionMap?: {
       execute: string;
@@ -404,6 +423,7 @@
     (e: 'applyStep', request: RequestParam): void;
     (e: 'execute', request: RequestParam, executeType?: 'localExec' | 'serverExec'): void;
     (e: 'stopDebug'): void;
+    (e: 'replace', newStep: ScenarioStepItem): void;
   }>();
 
   const appStore = useAppStore();
@@ -492,7 +512,11 @@
   });
   // 抽屉标题
   const title = computed(() => {
-    if (_stepType.value.isCopyApi || _stepType.value.isQuoteApi) {
+    if (
+      _stepType.value.isCopyApi ||
+      _stepType.value.isQuoteApi ||
+      props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST
+    ) {
       return props.step?.name;
     }
     return t('apiScenario.customApi');
@@ -1014,6 +1038,7 @@
   }
 
   function stopDebug() {
+    requestVModel.value.executeLoading = false;
     emit('stopDebug');
   }
 
@@ -1095,6 +1120,14 @@
       console.log(error);
       loading.value = false;
     }
+  }
+
+  /**
+   * 替换步骤
+   * @param newStep 替换的新步骤
+   */
+  function handleReplace(newStep: ScenarioStepItem) {
+    emit('replace', newStep);
   }
 
   watch(

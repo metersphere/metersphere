@@ -148,7 +148,7 @@ export default {
   'common.value.notNull': '属性值不能为空',
   'common.nameNotNull': '名称不能为空',
   'common.namePlaceholder': '请输入名称，按回车键保存',
-  'common.unsavedLeave': '有标签页的内容未保存，离开后后未保存的内容将丢失，确定要离开吗？',
+  'common.unsavedLeave': '有标签页的内容未保存，离开后未保存的内容将丢失，确定要离开吗？',
   'common.image': '图片',
   'common.text': '文本',
 };

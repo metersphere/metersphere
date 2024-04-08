@@ -19,6 +19,7 @@
     </div>
     <ms-base-table
       v-bind="currentTable.propsRes.value"
+      v-model:selected-key="selectedKey"
       no-disable
       filter-icon-align-left
       v-on="currentTable.propsEvent.value"
@@ -87,7 +88,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn, MsTableDataItem } from '@/components/pure/ms-table/type';
+  import { MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
@@ -114,6 +115,9 @@
     selectedCases: MsTableDataItem<ApiCaseDetail>[]; // 已选中的用例
     selectedScenarios: MsTableDataItem<ApiScenarioTableItem>[]; // 已选中的场景
     scenarioId?: string | number;
+    caseId?: string | number;
+    apiId?: string | number;
+    singleSelect?: boolean; // 是否单选
   }>();
   const emit = defineEmits<{
     (e: 'select', data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]): void;
@@ -129,6 +133,7 @@
     selectable: true,
     showSelectorAll: false,
     heightUsed: 300,
+    selectorType: props.singleSelect ? 'radio' : ('checkbox' as 'checkbox' | 'radio' | 'none' | undefined),
   };
   // 接口定义表格
   const useApiTable = useTable(getDefinitionPage, {
@@ -357,6 +362,17 @@
     emit('select', tableSelectedData.value);
   }
 
+  const selectedKey = ref('');
+
+  watch(
+    () => selectedKey.value,
+    (val) => {
+      const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === val);
+      tableSelectedData.value = selectedData ? [selectedData] : [];
+      emit('select', tableSelectedData.value);
+    }
+  );
+
   function clearSelector() {
     tableSelectedData.value = [];
     currentTable.value.clearSelector();
@@ -399,7 +415,7 @@
           status: statusFilters.value,
           method: methodFilters.value,
         },
-        excludeIds: [props.scenarioId || ''],
+        excludeIds: [props.scenarioId || '', props.caseId || '', props.apiId || ''],
       });
       currentTable.value.loadList();
     });

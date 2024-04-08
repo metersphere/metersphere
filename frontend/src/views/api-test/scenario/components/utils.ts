@@ -27,6 +27,7 @@ export default function updateStepStatus(
       // 逻辑控制器和场景内部可以放入任意步骤，所以它的最终执行结果是根据内部步骤的执行结果来判断的
       let hasNotExecuted = false;
       let hasFailure = false;
+      let hasFakeError = false;
       if (!node.children || node.children.length === 0) {
         // 逻辑控制器内无步骤，则直接是未执行
         node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
@@ -43,13 +44,18 @@ export default function updateStepStatus(
           } else if (childNode.executeStatus === ScenarioExecuteStatus.FAILED) {
             // 子节点有一个失败，逻辑控制器就是失败
             hasFailure = true;
+          } else if (childNode.executeStatus === ScenarioExecuteStatus.FAKE_ERROR) {
+            // 子节点有一个误报，逻辑控制器就是误报
+            hasFakeError = true;
           }
         }
         // 递归完子节点后，判断当前逻辑控制器的状态
-        if (hasFailure) {
-          node.executeStatus = ScenarioExecuteStatus.FAILED;
-        } else if (hasNotExecuted) {
+        if (hasNotExecuted) {
           node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
+        } else if (hasFailure) {
+          node.executeStatus = ScenarioExecuteStatus.FAILED;
+        } else if (hasFakeError) {
+          node.executeStatus = ScenarioExecuteStatus.FAKE_ERROR;
         } else {
           node.executeStatus = ScenarioExecuteStatus.SUCCESS;
         }
@@ -60,9 +66,13 @@ export default function updateStepStatus(
     } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
       // 非逻辑控制器直接更改本身状态
       if (stepResponses[node.uniqueId] && stepResponses[node.uniqueId].length > 0) {
-        node.executeStatus = stepResponses[node.uniqueId].some((report) => !report.isSuccessful)
-          ? ScenarioExecuteStatus.FAILED
-          : ScenarioExecuteStatus.SUCCESS;
+        if (stepResponses[node.uniqueId].some((report) => !report.isSuccessful)) {
+          node.executeStatus = ScenarioExecuteStatus.FAILED;
+        } else if (stepResponses[node.uniqueId].some((report) => report.status === ScenarioExecuteStatus.FAKE_ERROR)) {
+          node.executeStatus = ScenarioExecuteStatus.FAKE_ERROR;
+        } else {
+          node.executeStatus = ScenarioExecuteStatus.SUCCESS;
+        }
       } else {
         node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
       }

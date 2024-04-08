@@ -207,11 +207,11 @@
       </template>
     </a-table>
     <div
-      v-if="attrs.showFooterActionWrap"
+      v-if="showBatchAction || !!attrs.showPagination"
       class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
-      <span v-if="!props.actionConfig && selectedCount > 0" class="title text-[var(--color-text-2)]">
+      <span v-if="props.actionConfig && selectedCount > 0" class="title text-[var(--color-text-2)]">
         {{ t('msTable.batch.selected', { count: selectedCount }) }}
         <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">
           {{ t('msTable.batch.clear') }}
@@ -232,7 +232,8 @@
           v-if="!!attrs.showPagination"
           size="small"
           v-bind="(attrs.msPagination as MsPaginationI)"
-          :simple="showBatchAction"
+          :simple="!!showBatchAction"
+          :show-jumper="(attrs.msPagination as MsPaginationI).total / (attrs.msPagination as MsPaginationI).pageSize > 5"
           @change="pageChange"
           @page-size-change="pageSizeChange"
         />
@@ -293,7 +294,6 @@
 
   const props = defineProps<{
     selectedKeys: Set<string>;
-    selectedKey: string;
     excludeKeys: Set<string>;
     selectorStatus: SelectAllEnum;
     actionConfig?: BatchActionConfig;
@@ -316,7 +316,6 @@
     firstColumnWidth?: number; // 选择、拖拽列的宽度
   }>();
   const emit = defineEmits<{
-    (e: 'update:selectedKey', value: string): void;
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
@@ -413,15 +412,15 @@
     }
   };
 
-  const innerSelectedKey = defineModel<string>('selectedKey', { default: '' }); // 内部维护的单选选中项
+  const selectedKey = defineModel<string>('selectedKey', { default: '' }); // 内部维护的单选选中项
   const tempRecord = ref<TableData>({});
 
   watch(
     () => attrs.data,
     (arr) => {
-      if (innerSelectedKey.value && Array.isArray(arr) && arr.length > 0) {
+      if (selectedKey.value && Array.isArray(arr) && arr.length > 0) {
         arr = arr.map((item: TableData) => {
-          if (item.id === innerSelectedKey.value) {
+          if (item.id === selectedKey.value) {
             item.tableChecked = true;
             tempRecord.value = item;
           }
@@ -436,7 +435,7 @@
 
   function handleRadioChange(val: boolean, record: TableData) {
     if (val) {
-      innerSelectedKey.value = record.id;
+      selectedKey.value = record.id;
       record.tableChecked = true;
       tempRecord.value.tableChecked = false;
       tempRecord.value = record;
@@ -469,7 +468,7 @@
   });
 
   const showBatchAction = computed(() => {
-    return selectedCount.value > 0 && !!attrs.selectable;
+    return selectedCount.value > 0 && !!attrs.selectable && props.actionConfig;
   });
 
   const handleBatchAction = (value: BatchActionParams) => {

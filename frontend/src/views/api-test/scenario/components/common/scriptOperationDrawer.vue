@@ -37,10 +37,10 @@
       <a-button type="secondary" @click="handleDrawerCancel">
         {{ t('common.cancel') }}
       </a-button>
-      <a-button type="secondary" @click="saveAndContinue">
+      <a-button type="secondary" :disabled="!scriptName" @click="saveAndContinue">
         {{ t('common.saveAndContinue') }}
       </a-button>
-      <a-button type="primary" @click="save">
+      <a-button type="primary" :disabled="!scriptName" @click="save">
         {{ t('common.add') }}
       </a-button>
     </template>

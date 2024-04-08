@@ -58,7 +58,11 @@
               </div>
               <div class="flex items-center gap-[4px]">
                 <div class="text-[var(--color-text-1)]">{{ t('common.fail') }}</div>
-                <div class="text-[rgb(var(--success-6))]">{{ scenario.executeFailCount }}</div>
+                <div class="text-[rgb(var(--danger-6))]">{{ scenario.executeFailCount }}</div>
+              </div>
+              <div class="flex items-center gap-[4px]">
+                <div class="text-[var(--color-text-1)]">{{ t('report.fake.error') }}</div>
+                <div class="text-[rgb(var(--warning-5))]">{{ scenario.executeFakeErrorCount }}</div>
               </div>
               <MsButton
                 v-if="scenario.isDebug === false && !scenario.executeLoading && !scenario.isNew"

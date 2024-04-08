@@ -21,7 +21,7 @@ export const defaultLoopController = {
   },
   whileController: {
     conditionType: WhileConditionType.CONDITION, // 条件类型
-    timeout: 0, // 超时时间
+    timeout: 3000, // 超时时间
     msWhileScript: {
       scriptValue: '', // 脚本值
     }, // 脚本
@@ -118,6 +118,7 @@ export const defaultScenario: Scenario = {
   executeTime: 0,
   executeSuccessCount: 0,
   executeFailCount: 0,
+  executeFakeErrorCount: 0,
   uploadFileIds: [],
   linkFileIds: [],
   reportId: '',

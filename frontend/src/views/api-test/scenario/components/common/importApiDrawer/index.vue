@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="visible"
-    :title="t('apiScenario.importSystemApi')"
+    :title="props.singleSelect ? t('common.replace') : t('apiScenario.importSystemApi')"
     :width="1200"
     no-content-padding
     disabled-width-drag
@@ -47,6 +47,9 @@
             :selected-cases="selectedCases"
             :selected-scenarios="selectedScenarios"
             :scenario-id="props.scenarioId"
+            :case-id="props.caseId"
+            :api-id="props.apiId"
+            :single-select="props.singleSelect"
             @select="handleTableSelect"
           />
         </div>
@@ -67,7 +70,12 @@
           <div class="second-text">{{ t('apiScenario.scenario') }}</div>
           <div class="main-text">{{ selectedScenarios.length }}</div>
           <a-divider v-show="totalSelected > 0" direction="vertical" :margin="4"></a-divider>
-          <MsButton v-show="totalSelected > 0" type="text" class="!mr-0 ml-[4px]" @click="clearAll">
+          <MsButton
+            v-show="totalSelected > 0 && !props.singleSelect"
+            type="text"
+            class="!mr-0 ml-[4px]"
+            @click="clearAll"
+          >
             {{ t('common.clear') }}
           </MsButton>
         </div>
@@ -115,6 +123,9 @@
 
   const props = defineProps<{
     scenarioId?: string | number;
+    caseId?: string | number;
+    apiId?: string | number;
+    singleSelect?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'copy', data: ImportData): void;
@@ -138,6 +149,11 @@
   });
 
   function handleTableSelect(data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]) {
+    if (props.singleSelect) {
+      selectedApis.value = [];
+      selectedCases.value = [];
+      selectedScenarios.value = [];
+    }
     if (activeKey.value === 'api') {
       selectedApis.value = data as MsTableDataItem<ApiDefinitionDetail>[];
     } else if (activeKey.value === 'case') {

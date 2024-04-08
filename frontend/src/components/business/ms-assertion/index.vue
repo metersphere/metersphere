@@ -132,7 +132,7 @@
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
           @change="handleChange"
-          @deleteScriptItem="deleteScriptItem"
+          @delete-script-item="deleteScriptItem"
         />
       </div>
     </div>
@@ -157,6 +157,7 @@
   import ScriptTab from './comp/ScriptTab.vue';
   import StatusCodeTab from './comp/StatusCodeTab.vue';
   import VariableTab from './comp/VariableTab.vue';
+
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { characterLimit } from '@/utils';

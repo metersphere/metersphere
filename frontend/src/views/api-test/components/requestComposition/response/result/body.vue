@@ -14,7 +14,7 @@
   <MsCodeEditor
     v-show="!showImg || showType === 'text'"
     ref="responseEditorRef"
-    :model-value="props.requestResult?.responseResult.body"
+    :model-value="props.requestResult?.responseResult.body || ''"
     :language="responseLanguage"
     theme="vs"
     :height="showImg ? 'calc(100% - 26px)' : '100%'"
