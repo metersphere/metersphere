@@ -249,6 +249,7 @@ export enum ScenarioExecuteStatus {
   FAILED = 'FAILED',
   STOP = 'STOP',
   UN_EXECUTE = 'UN_EXECUTE',
+  FAKE_ERROR = 'FAKE_ERROR',
 }
 // 场景步骤类型
 export enum ScenarioStepType {

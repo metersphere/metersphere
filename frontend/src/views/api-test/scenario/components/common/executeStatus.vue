@@ -38,6 +38,11 @@
       color: 'rgb(var(--danger-6))',
       text: 'common.fail',
     },
+    [ScenarioExecuteStatus.FAKE_ERROR]: {
+      bgColor: 'rgb(var(--warning-2))',
+      color: 'rgb(var(--warning-5))',
+      text: 'report.fake.error',
+    },
     [ScenarioExecuteStatus.SUCCESS]: {
       bgColor: 'rgb(var(--success-2))',
       color: 'rgb(var(--success-6))',

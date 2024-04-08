@@ -1,6 +1,6 @@
 <template>
   <MsCodeEditor
-    :model-value="props.console?.trim()"
+    :model-value="props.console?.trim() || ''"
     :language="LanguageEnum.PLAINTEXT"
     theme="MS-text"
     height="100%"

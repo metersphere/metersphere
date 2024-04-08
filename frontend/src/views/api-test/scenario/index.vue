@@ -17,7 +17,10 @@
         </template>
       </MsEditableTab>
       <div v-show="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
-        <environmentSelect v-model:current-env-config="currentEnvConfig" />
+        <environmentSelect
+          v-model:currentEnv="activeScenarioTab.environmentId"
+          v-model:current-env-config="currentEnvConfig"
+        />
         <executeButton
           ref="executeButtonRef"
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
@@ -161,6 +164,7 @@
       id: 'all',
       label: t('apiScenario.allScenario'),
       closable: false,
+      environmentId: '',
     } as ScenarioParams,
   ]);
   const activeScenarioTab = ref<ScenarioParams>(scenarioTabs.value[0] as ScenarioParams);
@@ -195,7 +199,9 @@
               ...result,
               console: data.taskResult.console,
             });
-            if (result.isSuccessful) {
+            if (result.status === ScenarioExecuteStatus.FAKE_ERROR) {
+              scenario.executeFakeErrorCount += 1;
+            } else if (result.isSuccessful) {
               scenario.executeSuccessCount += 1;
             } else {
               scenario.executeFailCount += 1;
@@ -233,6 +239,7 @@
       activeScenarioTab.value.executeTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
       activeScenarioTab.value.executeSuccessCount = 0;
       activeScenarioTab.value.executeFailCount = 0;
+      activeScenarioTab.value.executeFakeErrorCount = 0;
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
       activeScenarioTab.value.isDebug = !isExecute;
@@ -403,6 +410,7 @@
       scenarioTabs.value.push({
         ...cloneDeep(defaultScenario),
         id: getGenerateId(),
+        environmentId: currentEnvConfig.value?.id || '',
         label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
         moduleId: activeModule.value === 'all' ? 'root' : activeModule.value,
         projectId: appStore.currentProjectId,

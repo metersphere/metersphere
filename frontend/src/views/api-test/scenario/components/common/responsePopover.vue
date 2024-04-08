@@ -1,10 +1,22 @@
 <template>
   <a-popover
+    v-if="
+      [
+        ScenarioStepType.API,
+        ScenarioStepType.API_CASE,
+        ScenarioStepType.SCRIPT,
+        ScenarioStepType.CUSTOM_REQUEST,
+      ].includes(step.stepType) &&
+      props.finalExecuteStatus &&
+      [ScenarioExecuteStatus.SUCCESS, ScenarioExecuteStatus.FAILED, ScenarioExecuteStatus.FAKE_ERROR].includes(
+        props.finalExecuteStatus
+      )
+    "
     position="lt"
     content-class="scenario-step-response-popover"
     @popup-visible-change="emit('visibleChange', $event, props.step)"
   >
-    <executeStatus :status="finalExecuteStatus" size="small" class="ml-[4px]" />
+    <executeStatus :status="props.finalExecuteStatus" size="small" class="ml-[4px]" />
     <template #content>
       <div class="flex h-full flex-col">
         <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
@@ -40,6 +52,13 @@
       </div>
     </template>
   </a-popover>
+  <executeStatus
+    v-else-if="step.executeStatus"
+    :status="props.finalExecuteStatus"
+    :extra-text="getExecuteStatusExtraText(step)"
+    size="small"
+    class="ml-[4px]"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -50,7 +69,12 @@
 
   import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { ResponseComposition, ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+  import {
+    ResponseComposition,
+    ScenarioExecuteStatus,
+    ScenarioStepLoopTypeEnum,
+    ScenarioStepType,
+  } from '@/enums/apiEnum';
 
   const responseResult = defineAsyncComponent(
     () => import('@/views/api-test/components/requestComposition/response/index.vue')
@@ -59,6 +83,7 @@
   const props = defineProps<{
     step: ScenarioStepItem;
     stepResponses: Record<string | number, Array<RequestResult>>;
+    finalExecuteStatus?: ScenarioExecuteStatus;
   }>();
   const emit = defineEmits(['visibleChange']);
 
@@ -67,15 +92,27 @@
   const currentLoop = ref(1);
   const currentResponse = computed(() => props.stepResponses?.[props.step.uniqueId]?.[currentLoop.value - 1]);
   const loopTotal = computed(() => props.stepResponses?.[props.step.uniqueId]?.length || 0);
-  const finalExecuteStatus = computed(() => {
-    if (props.stepResponses[props.step.uniqueId] && props.stepResponses[props.step.uniqueId].length > 0) {
-      // 有一次失败就是失败
-      return props.stepResponses[props.step.uniqueId].some((report) => !report.isSuccessful)
-        ? ScenarioExecuteStatus.FAILED
-        : ScenarioExecuteStatus.SUCCESS;
+
+  function getExecuteStatusExtraText(step: ScenarioStepItem) {
+    if (
+      step.stepType === ScenarioStepType.LOOP_CONTROLLER &&
+      step.config.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT &&
+      step.config.msCountController &&
+      step.config.msCountController.loops > 0
+    ) {
+      // 循环控制器展示当前执行次数/总次数
+      const firstHasResultChild = step.children?.find((child) => {
+        return (
+          [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(step.stepType) ||
+          child.stepType === ScenarioStepType.SCRIPT
+        );
+      });
+      return firstHasResultChild && props.stepResponses[firstHasResultChild.uniqueId]
+        ? `${props.stepResponses[firstHasResultChild.uniqueId].length}/${step.config.msCountController.loops}`
+        : undefined;
     }
-    return props.step.executeStatus;
-  });
+    return undefined;
+  }
 </script>
 
 <style lang="less">

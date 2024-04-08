@@ -402,6 +402,7 @@ export interface Scenario {
   executeTime?: string | number; // 执行时间
   executeSuccessCount: number; // 执行成功数量
   executeFailCount: number; // 执行失败数量
+  executeFakeErrorCount: number; // 执行误报数量
   reportId: string | number; // 场景报告 id
   stepResponses: Record<string | number, Array<RequestResult>>; // 步骤响应集合，key 为步骤 id，value 为步骤响应内容
   isExecute?: boolean; // 是否从列表执行进去场景详情

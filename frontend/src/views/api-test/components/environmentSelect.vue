@@ -61,9 +61,11 @@
         value: item.id,
       }));
       currentEnv.value = currentEnv.value.length ? currentEnv.value : res[0]?.id;
-      if (currentEnv.value) {
-        await initEnvironment();
-      }
+      nextTick(() => {
+        if (currentEnv.value) {
+          initEnvironment();
+        }
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -81,6 +83,18 @@
   function goEnv() {
     openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT);
   }
+
+  watch(
+    () => currentEnv.value,
+    (val) => {
+      if (!val) {
+        currentEnv.value = (envOptions.value[0]?.value as string) || '';
+        nextTick(() => {
+          initEnvironment();
+        });
+      }
+    }
+  );
 
   onBeforeMount(() => {
     initEnvList();

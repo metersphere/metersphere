@@ -133,7 +133,7 @@
       >
         <a-input-number
           v-model:model-value="innerData.whileController.timeout"
-          class="w-[100px] px-[8px]"
+          class="w-[120px] px-[8px]"
           size="mini"
           :step="1"
           :min="0"

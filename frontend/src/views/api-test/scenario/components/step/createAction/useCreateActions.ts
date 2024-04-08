@@ -133,8 +133,8 @@ export default function useCreateActions() {
       }
       return {
         ...cloneDeep(defaultStepItemCommon),
-        id,
-        uniqueId: getGenerateId(), // 生成唯一 ID，避免重复引用的步骤无法读取正确的执行结果
+        id: item.uniqueId || id,
+        uniqueId: item.uniqueId || id, // 生成唯一 ID，避免重复引用的步骤无法读取正确的执行结果
         config: {
           ...defaultStepItemCommon.config,
           ...config,

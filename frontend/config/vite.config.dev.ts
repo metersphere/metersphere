@@ -13,38 +13,38 @@ export default mergeConfig(
       },
       proxy: {
         '/ws': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/ws/, ''),
           ws: true,
         },
         '/front': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front/, ''),
         },
         '/file': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/file/, ''),
         },
         '/attachment': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/attachment/, ''),
         },
         '/bug/attachment': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/bug\/attachment/, ''),
         },
         '/plugin/image': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/plugin\/image/, ''),
         },
         '/base-display': {
-          target: 'http://172.16.200.18:8081/',
+          target: 'https://qadevtest.fit2cloud.com/',
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/base-display/, ''),
         },

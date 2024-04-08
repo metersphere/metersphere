@@ -28,11 +28,17 @@
           </a-tooltip>
           <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
         </div>
-        <div class="right-operation-button-icon flex items-center">
-          <MsButton type="icon" status="secondary">
-            <MsIcon type="icon-icon_swich" />
-            {{ t('common.replace') }}
-          </MsButton>
+        <div
+          v-if="activeStep && !activeStep.isQuoteScenarioStep && requestVModel.resourceId"
+          class="right-operation-button-icon flex items-center"
+        >
+          <replaceButton
+            :steps="props.steps"
+            :step="activeStep"
+            :resource-id="requestVModel.resourceId"
+            :scenario-id="scenarioId"
+            @replace="handleReplace"
+          />
           <MsButton class="mr-4" type="icon" status="secondary" @click="handleDelete">
             <MsIcon type="icon-icon_delete-trash_outlined" />
             {{ t('common.delete') }}
@@ -255,6 +261,7 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
   import loopPagination from './loopPagination.vue';
+  import replaceButton from './replaceButton.vue';
   import stepType from './stepType/stepType.vue';
   import auth from '@/views/api-test/components/requestComposition/auth.vue';
   import postcondition from '@/views/api-test/components/requestComposition/postcondition.vue';
@@ -306,6 +313,7 @@
 
   const props = defineProps<{
     request?: RequestParam; // 请求参数集合
+    steps: ScenarioStepItem[];
     stepResponses?: Record<string | number, RequestResult[]>;
     fileParams?: ScenarioStepFileParams;
     permissionMap?: {
@@ -317,6 +325,7 @@
     (e: 'deleteStep'): void;
     (e: 'execute', request: RequestParam, executeType?: 'localExec' | 'serverExec'): void;
     (e: 'stopDebug'): void;
+    (e: 'replace', newStep: ScenarioStepItem): void;
   }>();
 
   const appStore = useAppStore();
@@ -903,6 +912,7 @@
   }
 
   function stopDebug() {
+    requestVModel.value.executeLoading = false;
     emit('stopDebug');
   }
 
@@ -956,6 +966,14 @@
     }
   }
 
+  /**
+   * 替换步骤
+   * @param newStep 替换的新步骤
+   */
+  function handleReplace(newStep: ScenarioStepItem) {
+    emit('replace', newStep);
+  }
+
   watch(
     () => visible.value,
     async (val) => {
@@ -968,6 +986,7 @@
           ...defaultApiParams,
           ...props.request,
           isNew: false,
+          stepId: activeStep.value?.uniqueId || '',
         });
         if (isQuote.value || isCopyNeedInit.value) {
           // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)

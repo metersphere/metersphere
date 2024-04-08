@@ -68,7 +68,7 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import CaseReportCom from './caseReportCom.vue';
 
-  import { getShareInfo, getShareTime, reportCaseDetail } from '@/api/modules/api-test/report';
+  import { getShareInfo, reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
