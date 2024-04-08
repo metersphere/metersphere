@@ -215,12 +215,14 @@
     <!-- 渲染自定义字段开始TODO -->
     <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
       <a-tooltip
-        :content="getTableFields(record.customFields, item as MsTableColumn)"
+        :content="getTableFields(record.customFields, item as MsTableColumn, record.createUser)"
         position="top"
         :mouse-enter-delay="100"
         mini
       >
-        <div class="one-line-text max-w-[300px]">{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
+        <div class="one-line-text max-w-[300px]">{{
+          getTableFields(record.customFields, item as MsTableColumn, record.createUser)
+        }}</div>
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段结束 -->
