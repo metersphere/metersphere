@@ -30,7 +30,7 @@ export default {
   'report.detail.stepTotal': 'total',
   'report.detail.script.error': 'Script error',
   'report.detail.scenario.errorTip':
-    'There is a pre/post script running error in the execution step of the current scenario.',
+    'There is a pre/post setup script run error in the execution environment of the current scene.',
   'report.detail.api.errorTip': 'There are pre/post script running errors in the current use case execution.',
   'report.detail.api.resContent': 'Response content',
   'report.detail.api.executionTime': 'Execution time',

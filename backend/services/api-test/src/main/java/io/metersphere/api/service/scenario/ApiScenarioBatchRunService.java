@@ -1,6 +1,5 @@
 package io.metersphere.api.service.scenario;
 
-import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
@@ -9,7 +8,10 @@ import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.ApiScenarioParseTmpParam;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
-import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioDetail;
+import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
@@ -22,7 +24,10 @@ import io.metersphere.sdk.dto.api.task.CollectionReportDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.DateUtils;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,7 +36,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -311,6 +319,14 @@ public class ApiScenarioBatchRunService {
         if (runModeConfig.isIntegratedReport()) {
             apiScenarioService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), runModeConfig.getCollectionReport().getReportId());
         } else {
+            if (parseParam.getScenarioConfig() != null
+                    && parseParam.getScenarioConfig().getOtherConfig() != null
+                    && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
+                ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
+                apiScenarioReport.setId(reportId);
+                apiScenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
+                apiScenarioReportMapper.updateByPrimaryKeySelective(apiScenarioReport);
+            }
             apiScenarioService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
         }
 

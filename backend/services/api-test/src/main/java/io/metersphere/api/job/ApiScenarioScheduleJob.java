@@ -19,6 +19,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.uid.IDGenerator;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.quartz.JobExecutionContext;
@@ -73,6 +74,11 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(apiRunModeConfigDTO.getPoolId());
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
+        if (parseParam.getScenarioConfig() != null
+                && parseParam.getScenarioConfig().getOtherConfig() != null
+                && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
+            scenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
+        }
         apiScenarioService.initApiReport(apiScenarioDetail, scenarioReport);
 
         // 初始化报告步骤

@@ -2143,6 +2143,66 @@ public class ApiScenarioReportExample {
             addCriterion("script_identifier not between", value1, value2, "scriptIdentifier");
             return (Criteria) this;
         }
+
+        public Criteria andWaitingTimeIsNull() {
+            addCriterion("waiting_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeIsNotNull() {
+            addCriterion("waiting_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeEqualTo(Long value) {
+            addCriterion("waiting_time =", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeNotEqualTo(Long value) {
+            addCriterion("waiting_time <>", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeGreaterThan(Long value) {
+            addCriterion("waiting_time >", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("waiting_time >=", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeLessThan(Long value) {
+            addCriterion("waiting_time <", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeLessThanOrEqualTo(Long value) {
+            addCriterion("waiting_time <=", value, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeIn(List<Long> values) {
+            addCriterion("waiting_time in", values, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeNotIn(List<Long> values) {
+            addCriterion("waiting_time not in", values, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeBetween(Long value1, Long value2) {
+            addCriterion("waiting_time between", value1, value2, "waitingTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andWaitingTimeNotBetween(Long value1, Long value2) {
+            addCriterion("waiting_time not between", value1, value2, "waitingTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

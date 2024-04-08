@@ -1356,6 +1356,11 @@ public class ApiScenarioService extends MoveNodeService {
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(poolId);
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
+        if (parseParam.getScenarioConfig() != null
+                && parseParam.getScenarioConfig().getOtherConfig() != null
+                && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
+            scenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
+        }
         initApiReport(apiScenario, scenarioReport);
 
         // 初始化报告步骤
@@ -2445,7 +2450,7 @@ public class ApiScenarioService extends MoveNodeService {
                 scenarioIds,
                 sublist -> operationGC(sublist, isDeleteOperation, deleteTime, logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(),
-                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule,OperationLogModule.API_TEST_SCENARIO_RECYCLE );
+                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule, OperationLogModule.API_TEST_SCENARIO_RECYCLE);
         return response;
     }
 
@@ -2488,6 +2493,7 @@ public class ApiScenarioService extends MoveNodeService {
     public void deleteScheduleConfig(String scenarioId) {
         scheduleService.deleteByResourceId(scenarioId, ApiScenarioScheduleJob.getJobKey(scenarioId), ApiScenarioScheduleJob.getTriggerKey(scenarioId));
     }
+
     public String scheduleConfig(ApiScenarioScheduleConfigRequest scheduleRequest, String operator) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scheduleRequest.getScenarioId());
         ScheduleConfig scheduleConfig = ScheduleConfig.builder()

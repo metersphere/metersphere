@@ -17,7 +17,7 @@ public class ApiScenarioReport implements Serializable {
 
     @Schema(description = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_report.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{api_scenario_report.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 300, message = "{api_scenario_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(description = "测试计划id", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -139,6 +139,9 @@ public class ApiScenarioReport implements Serializable {
     @Schema(description = "脚本标识")
     private String scriptIdentifier;
 
+    @Schema(description = "等待时间")
+    private Long waitingTime;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -172,7 +175,8 @@ public class ApiScenarioReport implements Serializable {
         requestFakeErrorRate("request_fake_error_rate", "requestFakeErrorRate", "VARCHAR", false),
         requestPassRate("request_pass_rate", "requestPassRate", "VARCHAR", false),
         assertionPassRate("assertion_pass_rate", "assertionPassRate", "VARCHAR", false),
-        scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false);
+        scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
+        waitingTime("waiting_time", "waitingTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

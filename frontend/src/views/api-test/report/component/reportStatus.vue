@@ -2,7 +2,7 @@
   <div class="flex items-center justify-start">
     <MsIcon :type="getExecutionResult().icon" :class="getExecutionResult()?.color" size="14" />
     <span class="ml-1">{{ t(getExecutionResult().label) }}</span>
-    <a-tooltip v-if="props.scriptIdentifier" :content="getMsg()">
+    <a-tooltip v-if="props.scriptIdentifier">
       <MsTag
         class="ml-2"
         :self-style="{
@@ -11,7 +11,7 @@
           backgroundColor: 'white',
         }"
       >
-        {{ t('report.detail.script.error') }}
+        {{ t('report.detail.scenario.errorTip') }}
       </MsTag>
     </a-tooltip>
   </div>
@@ -119,13 +119,6 @@
     return iconTypeStatus.value[props.moduleType][props.status];
   }
   const methodColor = 'rgb(var(--warning-7))';
-
-  function getMsg() {
-    if (props.moduleType === ReportEnum.API_SCENARIO_REPORT && props.scriptIdentifier) {
-      return t('report.detail.scenario.errorTip');
-    }
-    return t('report.detail.api.errorTip');
-  }
 </script>
 
 <style scoped></style>

@@ -134,7 +134,7 @@
         <ExecutionStatus
           :module-type="props.moduleType"
           :status="record.status"
-          :script-identifier="record.scriptIdentifier"
+          :script-identifier="props.moduleType === ReportEnum.API_SCENARIO_REPORT ? record.scriptIdentifier : null"
         />
       </template>
       <template #triggerMode="{ record }">

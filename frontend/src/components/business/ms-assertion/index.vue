@@ -381,6 +381,7 @@
             assertions.value.splice(currentIndex, 1);
             activeKey.value = currentIndex > 0 ? assertions.value[currentIndex - 1].id : '';
           } catch (error) {
+            // eslint-disable-next-line no-console
             console.log(error);
           }
         },

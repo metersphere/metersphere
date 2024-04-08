@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS schedule
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `project_id`  VARCHAR(50) COMMENT '项目ID',
-    `name`        VARCHAR(100) COMMENT '名称',
+    `name`        VARCHAR(255) COMMENT '名称',
     `config`      VARCHAR(1000) COMMENT '配置',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB

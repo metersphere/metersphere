@@ -368,6 +368,7 @@ CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求通过率' ,
     `assertion_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '断言通过率' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
+    `waiting_time` BIGINT    COMMENT '等待时间' ,
     PRIMARY KEY (id)
 )   ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
