@@ -27,7 +27,6 @@
         @more-actions-close="() => setFocusNodeKey('')"
       >
         <template #title="step">
-          <!-- <div class="absolute h-full w-full top-0" style="border: 1px solid #0cc"></div> -->
           <div class="flex flex-col" @click="handleStop($event, step)">
             <div class="flex w-full items-center gap-[8px]">
               <div
@@ -168,7 +167,7 @@
               <div v-if="!step.fold" class="line"></div>
             </div>
             <!-- 折叠展开内容 -->
-            <div v-show="showResContent(step)" class="foldContent mt-4 pl-2">
+            <div v-if="showResContent(step)" class="foldContent mt-4 pl-2">
               <StepDetailContent
                 :mode="props.activeType"
                 :step-item="step"
@@ -310,7 +309,12 @@
     if (!showApiType.value.includes(item.stepType)) {
       return;
     }
-    activeItem.value = item;
+    const isNotAllowExpand = item.children && item?.children.length && showApiType.value.includes(item.stepType);
+    if (isNotAllowExpand) {
+      item.stepChildren = cloneDeep(item.children);
+      item.children = [];
+    }
+    activeItem.value = cloneDeep(item);
     emit('detail', activeItem.value);
     event.stopPropagation();
   }

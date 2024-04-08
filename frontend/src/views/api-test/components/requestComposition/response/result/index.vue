@@ -87,14 +87,15 @@
       />
     </div>
     <!-- 平铺 -->
-    <TiledDisplay
-      v-if="props.mode === 'tiled'"
-      :menu-list="responseCompositionTabList"
-      :request-result="activeStepDetailCopy?.content"
-      :console="props.console"
-      :is-definition="props.isDefinition"
-      :report-id="props.reportId"
-    />
+    <a-spin v-if="props.mode === 'tiled'" class="w-full" :loading="loading">
+      <TiledDisplay
+        :menu-list="responseCompositionTabList"
+        :request-result="activeStepDetailCopy?.content"
+        :console="props.console"
+        :is-definition="props.isDefinition"
+        :report-id="props.reportId"
+      />
+    </a-spin>
     <!-- 响应内容tab -->
     <div v-else class="h-[calc(100%-8px)]">
       <a-spin :loading="loading" class="h-[calc(100%-8px)] w-full pb-1">
@@ -344,17 +345,18 @@
   const originStepId = ref<string | undefined>('');
 
   watchEffect(() => {
-    if (props.stepItem?.stepId && !props.stepItem.fold) {
-      if (isShowLoopControl.value && props.stepItem?.stepChildren) {
-        getStepDetail(props.stepItem?.stepChildren[controlCurrent.value - 1].stepId as string);
-      } else {
-        getStepDetail(props.stepItem.stepId);
-      }
+    if (props.stepItem?.stepId && props.mode === 'tiled') {
+      const stepIds = props.stepItem?.stepChildren || [];
+      getStepDetail(isShowLoopControl.value ? stepIds[controlCurrent.value - 1].stepId : props.stepItem.stepId);
     }
   });
 
   onMounted(() => {
     originStepId.value = props.stepItem?.stepId;
+    if (props.stepItem?.stepId && !props.stepItem.fold) {
+      const stepIds = props.stepItem?.stepChildren || [];
+      getStepDetail(isShowLoopControl.value ? stepIds[controlCurrent.value - 1].stepId : props.stepItem.stepId);
+    }
   });
 </script>
 
