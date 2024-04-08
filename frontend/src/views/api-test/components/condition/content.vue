@@ -457,9 +457,7 @@
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import InsertCommonScript from '@/components/business/ms-common-script/insertCommonScript.vue';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
@@ -472,7 +470,9 @@
 
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import {
@@ -496,6 +496,8 @@
   } from '@/enums/apiEnum';
 
   import { defaultKeyValueParamItem } from '@/views/api-test/components/config';
+
+  const { openModal } = useModal();
 
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
   const appStore = useAppStore();
@@ -604,7 +606,24 @@ if (!result){
    * 删除条件
    */
   function deleteCondition() {
-    emit('delete', condition.value.id);
+    openModal({
+      type: 'error',
+      title: t('system.orgTemplate.deleteTemplateTitle', { name: characterLimit(condition.value.name) }),
+      content: t('script.delete.confirm'),
+      okText: t('system.userGroup.confirmDelete'),
+      cancelText: t('system.userGroup.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          emit('delete', condition.value.id);
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   }
 
   const commonScriptShowType = ref<'parameters' | 'scriptContent'>('parameters');

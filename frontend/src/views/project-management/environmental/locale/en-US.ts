@@ -128,4 +128,5 @@ export default {
   'project.environmental.database.nameIsExist': 'Database name already exists',
   'project.environmental.http.noneDataExist': 'There is already a domain name with an enabled range of none!',
   'project.environmental.http.selectModule': 'Please select module',
+  'script.delete.confirm': 'After deletion, it cannot be restored. Please exercise caution.',
 };

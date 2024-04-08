@@ -1,5 +1,5 @@
 <template>
-  <conditionContent v-model:data="condition" :disabled="props.disabled" />
+  <conditionContent v-model:data="condition" :disabled="props.disabled" @delete="deleteItem" />
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +25,7 @@
   const emit = defineEmits<{
     (e: 'change', val: ScriptItem): void; //  数据发生变化
     (e: 'update:data'): void; //  数据发生变化
+    (e: 'deleteScriptItem', id: string | number): void; //  删除脚本
   }>();
 
   const condition = useVModel(props, 'data', emit);
@@ -38,6 +39,13 @@
   }
   /** 向孙组件提供属性 */
   provide('currentEnvConfig', readonly(currentEnvConfig));
+
+  /**
+   * 删除列表项
+   */
+  function deleteItem(id: string | number) {
+    emit('deleteScriptItem', id);
+  }
 
   onBeforeMount(() => {
     initEnvironment();

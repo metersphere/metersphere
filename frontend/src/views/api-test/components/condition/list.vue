@@ -67,6 +67,8 @@
 
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { characterLimit } from '@/utils';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
@@ -86,6 +88,7 @@
 
   const { t } = useI18n();
   const data = useVModel(props, 'list', emit);
+  const { openModal } = useModal();
 
   // 当前聚焦的列表项
   const focusItemKey = ref<any>('');
@@ -206,7 +209,24 @@
     if (event.eventTag === 'copy') {
       copyListItem(item);
     } else if (event.eventTag === 'delete') {
-      deleteListItem(item);
+      openModal({
+        type: 'error',
+        title: t('system.orgTemplate.deleteTemplateTitle', { name: characterLimit(item.name) }),
+        content: t('script.delete.confirm'),
+        okText: t('system.userGroup.confirmDelete'),
+        cancelText: t('system.userGroup.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            deleteListItem(item);
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
     }
   }
 </script>

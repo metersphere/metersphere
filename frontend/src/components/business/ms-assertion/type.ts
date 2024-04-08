@@ -8,6 +8,7 @@ export interface MsAssertionItem {
   id: string;
   label: string;
   value: string;
+  name: string;
   valueObj: ValueObject;
 }
 
