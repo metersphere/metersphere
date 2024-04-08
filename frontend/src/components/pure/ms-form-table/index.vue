@@ -53,29 +53,15 @@
           size="mini"
           @change="() => handleFormChange(record, rowIndex, item)"
         />
-        <a-popover
+        <MsTagsInput
           v-else-if="item.inputType === 'tags'"
-          position="tl"
-          :disabled="record[item.dataIndex as string].length === 0"
-          class="ms-params-input-popover"
-        >
-          <template #content>
-            <div class="ms-form-table-popover-title">
-              {{ t('common.tag') }}
-            </div>
-            <div class="ms-form-table-popover-value">
-              <MsTagsGroup is-string-tag :tag-list="record[item.dataIndex as string]" />
-            </div>
-          </template>
-          <MsTagsInput
-            v-model:model-value="record[item.dataIndex as string]"
-            :max-tag-count="1"
-            input-class="ms-form-table-input"
-            size="mini"
-            @change="() => handleFormChange(record, rowIndex, item)"
-            @clear="() => handleFormChange(record, rowIndex, item)"
-          />
-        </a-popover>
+          v-model:model-value="record[item.dataIndex as string]"
+          :max-tag-count="1"
+          input-class="ms-form-table-input"
+          size="mini"
+          @change="() => handleFormChange(record, rowIndex, item)"
+          @clear="() => handleFormChange(record, rowIndex, item)"
+        />
         <a-switch
           v-else-if="item.inputType === 'switch'"
           v-model:model-value="record[item.dataIndex as string]"
@@ -165,7 +151,6 @@
   import type { MsTableColumnData } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
