@@ -38,6 +38,7 @@
       :show-associated-scene="props.showAssociatedScene"
       :show-pre-post-request="props.showPrePostRequest"
       :request-radio-text-props="props.requestRadioTextProps"
+      :sql-code-editor-height="props.sqlCodeEditorHeight"
       @copy="copyListItem"
       @delete="deleteListItem"
       @change="emit('change')"
@@ -55,8 +56,8 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/common';
-  import { RequestConditionProcessor } from '@/enums/apiEnum';
+  import { ConditionType, ExecuteConditionProcessor, RegexExtract } from '@/models/apiTest/common';
+  import { RequestConditionProcessor, RequestExtractExpressionEnum, RequestExtractScope } from '@/enums/apiEnum';
 
   const props = withDefaults(
     defineProps<{
@@ -69,6 +70,7 @@
       response?: string; // 响应内容
       showAssociatedScene?: boolean;
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
+      sqlCodeEditorHeight?: string;
     }>(),
     {
       showAssociatedScene: false,
@@ -201,7 +203,6 @@
         if (isEXTRACT) {
           return;
         }
-
         data.value.push({
           id,
           processorType: RequestConditionProcessor.EXTRACT,
@@ -228,6 +229,11 @@
         hasNoIdItem = true;
         return {
           ...item,
+          extractors: item.extractors?.map((e, j) => ({
+            ...e,
+            extractScope: (e as RegexExtract).extractScope || RequestExtractScope.BODY,
+            id: new Date().getTime() + j,
+          })),
           id: new Date().getTime() + i,
         };
       }

@@ -10,14 +10,7 @@
         @press-enter="loadExecuteHistoryList"
       />
     </div>
-    <ms-base-table
-      v-bind="propsRes"
-      :first-column-width="44"
-      :secnario-id="props.scenarioId"
-      no-disable
-      filter-icon-align-left
-      v-on="propsEvent"
-    >
+    <ms-base-table v-bind="propsRes" no-disable filter-icon-align-left v-on="propsEvent">
       <template #num="{ record }">
         <span type="text" class="px-0">{{ record.num }}</span>
       </template>
@@ -27,12 +20,12 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="triggerModeFilterVisible = true">
+          <MsButton type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="triggerModeFilterVisible = true">
             <div class="font-medium">
               {{ t(columnConfig.title as string) }}
             </div>
             <icon-down :class="triggerModeFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
+          </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
@@ -146,10 +139,6 @@
       slotName: 'triggerMode',
       showTooltip: true,
       titleSlotName: 'triggerModeFilter',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 100,
     },
     {
@@ -157,10 +146,6 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 100,
     },
     {

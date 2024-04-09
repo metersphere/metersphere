@@ -192,19 +192,22 @@
         if (scenario.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
           data.taskResult.requestResults.forEach((result) => {
-            if (scenario.stepResponses[result.stepId] === undefined) {
-              scenario.stepResponses[result.stepId] = [];
-            }
-            scenario.stepResponses[result.stepId].push({
-              ...result,
-              console: data.taskResult.console,
-            });
-            if (result.status === ScenarioExecuteStatus.FAKE_ERROR) {
-              scenario.executeFakeErrorCount += 1;
-            } else if (result.isSuccessful) {
-              scenario.executeSuccessCount += 1;
-            } else {
-              scenario.executeFailCount += 1;
+            if (result.stepId) {
+              // 过滤掉前后置配置的执行结果，没有步骤 id
+              if (scenario.stepResponses[result.stepId] === undefined) {
+                scenario.stepResponses[result.stepId] = [];
+              }
+              scenario.stepResponses[result.stepId].push({
+                ...result,
+                console: data.taskResult.console,
+              });
+              if (result.status === ScenarioExecuteStatus.FAKE_ERROR) {
+                scenario.executeFakeErrorCount += 1;
+              } else if (result.isSuccessful) {
+                scenario.executeSuccessCount += 1;
+              } else {
+                scenario.executeFailCount += 1;
+              }
             }
           });
         }
@@ -306,6 +309,8 @@
       if (node.enable) {
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
+      } else {
+        node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
       }
       return !!node.enable;
     });
@@ -573,8 +578,8 @@
 
   onBeforeMount(() => {
     selectRecycleCount();
-    if (route.query.sId) {
-      openScenarioTab(route.query.sId as string);
+    if (route.query.id) {
+      openScenarioTab(route.query.id as string);
     }
   });
 

@@ -17,13 +17,13 @@
           <div>
             <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.belongProject') }}</div>
             <div class="text-[14px] text-[var(--color-text-1)]">
-              {{ originProjectName }}
+              {{ originProjectInfo?.projectName }}
             </div>
           </div>
           <div>
             <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.detailName') }}</div>
             <div class="cursor-pointer text-[14px] text-[rgb(var(--primary-5))]" @click="goDetail">
-              {{ `【${props.data.resourceNum}】${props.data.resourceName}` }}
+              {{ `【${originProjectInfo?.num}】${originProjectInfo?.name}` }}
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
 
-  import { ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ScenarioStepItem, ScenarioStepResourceInfo } from '@/models/apiTest/scenario';
   import { ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
@@ -67,12 +67,11 @@
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
 
-  const originProjectName = ref('');
+  const originProjectInfo = ref<ScenarioStepResourceInfo>();
 
   async function handleVisibleChange(val: boolean) {
     if (val && props.data.originProjectId) {
-      const res = await getStepProjectInfo(props.data.originProjectId);
-      originProjectName.value = res.name;
+      originProjectInfo.value = await getStepProjectInfo(props.data.resourceId || '', props.data.stepType);
     }
   }
 
@@ -90,7 +89,7 @@
       case _stepType.isQuoteScenario:
         openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
           pId: props.data.originProjectId,
-          sId: props.data.resourceId,
+          id: props.data.resourceId,
         });
         break;
       case _stepType.isQuoteCase:

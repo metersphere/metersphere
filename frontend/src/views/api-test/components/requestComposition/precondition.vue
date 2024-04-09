@@ -3,6 +3,7 @@
     v-model:list="innerConfig.processors"
     :disabled="props.disabled"
     :condition-types="conditionTypes"
+    :sql-code-editor-height="props.sqlCodeEditorHeight"
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
   >
@@ -39,6 +40,7 @@
     isDefinition?: boolean; // 是否是定义页面
     isScenario?: boolean; // 是否是场景页面
     disabled?: boolean;
+    sqlCodeEditorHeight?: string;
   }>();
   const emit = defineEmits<{
     (e: 'update:config', params: ExecuteConditionConfig): void;

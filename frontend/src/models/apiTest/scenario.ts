@@ -271,7 +271,7 @@ export interface ForEachController {
   variable: string; // 变量名
 }
 export interface CountController {
-  loops: number; // 循环次数
+  loops: string; // 循环次数
   loopTime: number; // 循环间隔时间
 }
 export interface WhileScript {
@@ -477,4 +477,12 @@ export interface GetSystemRequestParams {
 export interface ApiScenarioBatchOptionResult {
   success: number;
   error: number;
+}
+// 场景跨项目步骤资源信息
+export interface ScenarioStepResourceInfo {
+  id: string;
+  num: number;
+  name: string;
+  projectId: string;
+  projectName: string;
 }

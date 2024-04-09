@@ -242,6 +242,9 @@
           </template>
         </TableFilter>
       </template>
+      <template #stepTotal="{ record }">
+        {{ record.stepTotal }}
+      </template>
       <template #operation="{ record }">
         <MsButton
           v-permission="['PROJECT_API_SCENARIO:READ+UPDATE']"
@@ -505,14 +508,18 @@
           style="padding-top: 10px"
         >
           <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
-          <a-tooltip :content="t('caseManagement.featureCase.enableTags')">
-            <span class="flex items-center">
-              <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
-              <span class="mt-[2px]">
+          <span class="flex items-center">
+            <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
+            <span class="mt-[2px]">
+              <a-tooltip>
                 <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
-              </span>
+                <template #content>
+                  <div>{{ t('caseManagement.featureCase.enableTags') }}</div>
+                  <div>{{ t('caseManagement.featureCase.closeTags') }}</div>
+                </template>
+              </a-tooltip>
             </span>
-          </a-tooltip>
+          </span>
         </div>
         <div class="flex justify-end">
           <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
@@ -553,7 +560,7 @@
             {{ t('api_scenario.table.batchModalSubTitle', { count: tableSelected.length }) }}
           </div>
         </div>
-        <div v-else-if="isBatchMove">
+        <div v-else-if="isBatchMove" class="flex items-center">
           {{ t('common.batchMove') }}
           <div
             class="one-line-text ml-[4px] max-w-[100%] text-[var(--color-text-4)]"
@@ -795,6 +802,7 @@
     {
       title: 'apiScenario.table.columns.steps',
       dataIndex: 'stepTotal',
+      slotName: 'stepTotal',
       showInTable: false,
       showDrag: true,
       width: 100,

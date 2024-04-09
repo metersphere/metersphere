@@ -28,7 +28,7 @@
         </a-tooltip>
       </template>
     </MsEditableTab>
-    <environmentSelect ref="environmentSelectRef" />
+    <environmentSelect ref="environmentSelectRef" v-model:current-env="activeApiTab.environmentId" />
   </div>
   <api
     v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.type === 'api'"

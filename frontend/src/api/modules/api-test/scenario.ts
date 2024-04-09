@@ -62,9 +62,10 @@ import {
   ScenarioDetail,
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
+  ScenarioStepResourceInfo,
 } from '@/models/apiTest/scenario';
 import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
-import { ApiScenarioStatus } from '@/enums/apiEnum';
+import { ApiScenarioStatus, ScenarioStepType } from '@/enums/apiEnum';
 
 import type { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 import type { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
@@ -282,6 +283,6 @@ export function updateScenarioPro(id: string | number, priority: CaseLevel | und
 }
 
 // 获取跨项目信息
-export function getStepProjectInfo(id: string | number) {
-  return MSR.get({ url: GetStepProjectInfoUrl, params: id });
+export function getStepProjectInfo(id: string, type: ScenarioStepType) {
+  return MSR.get<ScenarioStepResourceInfo>({ url: GetStepProjectInfoUrl, params: id, data: { resourceType: type } });
 }

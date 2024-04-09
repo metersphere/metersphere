@@ -14,7 +14,7 @@
         :field-names="{ title: 'name', key: 'uniqueId', children: 'children' }"
         :virtual-list-props="{
           height: '100%',
-          threshold: 20,
+          threshold: 200,
           fixedSize: true,
           buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
         }"
@@ -50,10 +50,7 @@
                 "
               >
                 <div class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-1)]">
-                  <MsIcon
-                    :type="step.expanded ? 'icon-icon_split-turn-down-left' : 'icon-icon_split_turn-down_arrow'"
-                    :size="14"
-                  />
+                  <MsIcon type="icon-icon_split_turn-down_arrow" :size="14" />
                   {{ step.children?.length || 0 }}
                 </div>
               </a-tooltip>
@@ -67,14 +64,14 @@
                 ></a-switch>
                 <!-- 步骤执行 -->
                 <MsIcon
-                  v-show="!step.isExecuting"
+                  v-show="!step.isExecuting && step.enable"
                   type="icon-icon_play-round_filled"
                   :size="18"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
                   @click.stop="executeStep(step)"
                 />
                 <MsIcon
-                  v-show="step.isExecuting"
+                  v-show="step.isExecuting && step.enable"
                   type="icon-icon_stop"
                   :size="20"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
@@ -171,13 +168,7 @@
         </template>
         <template #extra="step">
           <stepInsertStepTrigger
-            v-if="
-              !step.isQuoteScenarioStep &&
-              !(
-                step.stepType === ScenarioStepType.API_SCENARIO &&
-                [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(step.refType)
-              )
-            "
+            v-if="!step.isQuoteScenarioStep"
             v-model:selected-keys="selectedKeys"
             v-model:steps="steps"
             v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEFINITION:READ+UPDATE']"
@@ -331,7 +322,13 @@
             <a-radio :value="false">{{ t('apiScenario.sourceScenario') }}</a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item :label="t('apiScenario.currentScenarioTip')">
+        <a-form-item
+          :label="
+            scenarioConfigForm.useCurrentScenarioParam
+              ? t('apiScenario.currentScenarioTip')
+              : t('apiScenario.sourceScenarioTip')
+          "
+        >
           <a-radio-group v-model:model-value="scenarioConfigForm.useBothScenarioParam">
             <a-radio :value="false">{{ t('apiScenario.empty') }}</a-radio>
             <a-radio :value="true">
@@ -1076,7 +1073,8 @@
     }
   }
 
-  function handleAddStepDone() {
+  function handleAddStepDone(newStep: ScenarioStepItem) {
+    selectedKeys.value = [newStep.uniqueId]; // 选中新添加的步骤
     emit('stepAdd');
     scenario.value.unSaved = true;
   }
@@ -1098,7 +1096,7 @@
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
       if (
-        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+        (stepDetails.value[step.id] === undefined && step.copyFromStepId && !step.isNew) ||
         (stepDetails.value[step.id] === undefined && !step.isNew)
       ) {
         // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
@@ -1109,7 +1107,7 @@
       activeStep.value = step;
       if (
         _stepType.isCopyCase &&
-        ((stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+        ((stepDetails.value[step.id] === undefined && step.copyFromStepId && !step.isNew) ||
           (stepDetails.value[step.id] === undefined && !step.isNew))
       ) {
         // 只有复制的 case 需要查看步骤详情，引用的无法更改所以不需要在此初始化详情
@@ -1444,11 +1442,7 @@
    */
   function addCustomApiStep(request: RequestParam) {
     request.isNew = false;
-    stepDetails.value[request.stepId] = {
-      ...request,
-      customizeRequest: true,
-      customizeRequestEnvEnable: request.customizeRequestEnvEnable,
-    };
+    stepDetails.value[request.stepId] = request;
     scenario.value.stepFileParam[request.stepId] = {
       linkFileIds: request.linkFileIds,
       uploadFileIds: request.uploadFileIds,
@@ -1490,6 +1484,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    selectedKeys.value = [request.stepId]; // 选中新添加的步骤
     emit('stepAdd');
     scenario.value.unSaved = true;
   }
@@ -1572,6 +1567,7 @@
         projectId: appStore.currentProjectId,
       });
     }
+    selectedKeys.value = [id]; // 选中新添加的步骤
     emit('stepAdd');
     scenario.value.unSaved = true;
   }

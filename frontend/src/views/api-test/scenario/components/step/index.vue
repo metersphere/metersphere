@@ -12,7 +12,7 @@
           />
           <div class="flex items-center gap-[4px]">
             {{ t('apiScenario.sum') }}
-            <div class="text-[rgb(var(--primary-5))]">{{ totalStepCount }}</div>
+            <div class="text-[rgb(var(--primary-5))]">{{ topLevelStepCount }}</div>
             {{ t('apiScenario.steps') }}
           </div>
         </div>
@@ -171,6 +171,7 @@
   const stepTreeRef = ref<InstanceType<typeof stepTree>>();
   const keyword = ref('');
 
+  const topLevelStepCount = computed(() => scenario.value.steps.length);
   const totalStepCount = computed(() => countNodes(scenario.value.steps));
 
   function handleChangeAll(value: boolean | (string | number | boolean)[]) {
@@ -267,7 +268,7 @@
   }
 
   function batchDelete() {
-    deleteNodes(scenario.value.steps, checkedKeys.value, 'uniqueId');
+    deleteNodes(scenario.value.steps, checkedKeys.value, (node) => !node.isQuoteScenarioStep, 'uniqueId');
     Message.success(t('common.deleteSuccess'));
     if (scenario.value.steps.length === 0) {
       checkedAll.value = false;
@@ -357,13 +358,16 @@
         if (!node.enable) {
           // 如果步骤未开启，则删除已选 uniqueId，方便下面waitingDebugStepDetails详情判断是否携带
           checkedKeysSet.delete(node.uniqueId);
-          node.executeStatus = undefined;
+          node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE; // 已选中但未开启的步骤显示未执行状态
         } else {
-          node.executeStatus = ScenarioExecuteStatus.EXECUTING;
+          node.executeStatus = ScenarioExecuteStatus.EXECUTING; // 已选中且已开启的步骤显示执行中状态
         }
         return !!node.enable;
       }
       node.executeStatus = undefined; // 未选中的步骤不显示执行状态
+      if (node.children && node.children.length > 0) {
+        return true; // 因为存在选中了子步骤但是没有选中父步骤，所以需要递归完整树
+      }
       return false;
     });
     const waitingDebugStepDetails = {};

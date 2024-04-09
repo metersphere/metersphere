@@ -200,8 +200,8 @@
   function share() {
     if (isSupported) {
       const url = window.location.href;
-      const dIdParam = `&sId=${scenario.value.id}`;
-      const copyUrl = url.includes('sId') ? url.split('&sId')[0] : url;
+      const dIdParam = `&id=${scenario.value.id}`;
+      const copyUrl = url.includes('id') ? url.split('&id')[0] : url;
       copy(`${copyUrl}${dIdParam}`);
       Message.success(t('common.copySuccess'));
     } else {

@@ -14,14 +14,11 @@
         :content="innerData.msCountController.loops?.toString()"
         :disabled="!innerData.msCountController.loops"
       >
-        <a-input-number
+        <a-input
           v-model:model-value="innerData.msCountController.loops"
           class="w-[80px] px-[8px]"
           size="mini"
-          :step="1"
-          :min="1"
           hide-button
-          :precision="0"
           model-event="input"
           :disabled="props.disabled"
           @blur="handleInputChange"
@@ -29,7 +26,7 @@
           <template #prefix>
             <div class="text-[12px] text-[var(--color-text-4)]">{{ t('apiScenario.num') }}:</div>
           </template>
-        </a-input-number>
+        </a-input>
       </a-tooltip>
     </a-input-group>
     <template v-if="innerData.loopType === ScenarioStepLoopTypeEnum.FOREACH">

@@ -26,7 +26,7 @@
     <template #typeTitle="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t('apiTestDebug.paramType') }}
-        <a-tooltip :content="columnConfig.typeTitleTooltip" position="right">
+        <a-tooltip :content="columnConfig.typeTitleTooltip" :disabled="!columnConfig.typeTitleTooltip" position="right">
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
             size="16"
@@ -59,7 +59,7 @@
     <template #extractValueTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t('apiTestDebug.extractValueByColumn') }}
-        <a-tooltip :content="t('caseManagement.caseReview.passRateTip')" position="right">
+        <a-tooltip :content="t('apiTestDebug.extractValueTitleTip')" position="right">
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
             size="16"
@@ -211,7 +211,7 @@
       <MsAddAttachment
         v-else-if="record.paramType === RequestParamsType.FILE"
         v-model:file-list="record.files"
-        :disabled="props.disabledExceptParam"
+        :disabled="props.disabledParamValue"
         mode="input"
         :multiple="true"
         :fields="{
@@ -819,7 +819,6 @@
     () => props.params,
     (arr) => {
       if (arr.length > 0) {
-        let hasNoIdItem = false; // 是否有没有id的项，用以判断是否是后台数据初始化表格
         paramsData.value = arr.map((item, i) => {
           if (!item) {
             // 批量添加过来的数据最后一行会是 undefined
@@ -830,7 +829,6 @@
           }
           if (!item.id) {
             // 后台存储无id，渲染时需要手动添加一次
-            hasNoIdItem = true;
             return {
               ...item,
               id: new Date().getTime() + i,
@@ -838,7 +836,11 @@
           }
           return item;
         });
-        if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
+        if (
+          !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
+          !props.isTreeTable &&
+          !filterKeyValParams(arr, arr[arr.length - 2]).lastDataIsDefault // 为了判断最后俩行是否一致（因为下拉框切换会新增一行一样的数据，此时最后一条数据与默认数据是不一样的）
+        ) {
           addTableLine(arr.length - 1, false, true);
         }
       } else {
@@ -1033,7 +1035,7 @@
    */
   function handleSearchParams(val: string, item: FormTableColumn) {
     item.autoCompleteParams = item.autoCompleteParams?.map((e) => {
-      e.isShow = (e.label || '').includes(val);
+      e.isShow = (e.label || '').toLowerCase().includes(val.toLowerCase());
       return e;
     });
   }

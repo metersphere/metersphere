@@ -6,6 +6,7 @@
     :response="props.response"
     :disabled="props.disabled"
     :height-used="heightUsed"
+    :sql-code-editor-height="props.sqlCodeEditorHeight"
     @change="emit('change')"
   >
     <template v-if="props.isDefinition" #titleRight>
@@ -44,6 +45,7 @@
     isDefinition?: boolean; // 是否是定义页面
     isScenario?: boolean; // 是否是场景页面
     disabled?: boolean;
+    sqlCodeEditorHeight?: string;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', params: ExecuteConditionProcessor[]): void;

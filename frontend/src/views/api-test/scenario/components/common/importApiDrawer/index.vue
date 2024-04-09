@@ -255,6 +255,7 @@
         fullScenarioArr.push(...res);
       });
       if (refType === ScenarioStepRefType.COPY) {
+        // 复制需要递归给每个节点生成新的uniqueId，并记录copyFromStepId
         fullScenarioArr = mapTree<MsTableDataItem<ApiScenarioTableItem>>(fullScenarioArr, (node) => {
           const id = getGenerateId();
           return {
@@ -275,6 +276,7 @@
         );
         handleCancel();
       } else {
+        // 引用只需要给场景节点生成新的步骤 id，内部步骤只需要生成uniqueId作为前端渲染 id
         fullScenarioArr = fullScenarioArr.map((e) => {
           const id = getGenerateId();
           return {

@@ -92,6 +92,7 @@
         },
       ],
       titleSlotName: 'typeTitle',
+      typeTitleTooltip: t('apiScenario.params.typeTooltip'),
     },
     {
       title: 'apiScenario.params.paramValue',

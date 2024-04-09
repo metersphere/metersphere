@@ -77,7 +77,7 @@
         | ScenarioAddStepActionType.SCRIPT_OPERATION,
       step?: ScenarioStepItem
     );
-    (e: 'addDone');
+    (e: 'addDone', newStep: ScenarioStepItem);
   }>();
 
   const appStore = useAppStore();
@@ -117,7 +117,7 @@
         } else {
           steps.value.push(defaultLoopStep);
         }
-        emit('addDone');
+        emit('addDone', defaultLoopStep);
         break;
       case ScenarioAddStepActionType.CONDITION_CONTROL:
         const defaultConditionStep = buildInsertStepInfos(
@@ -132,7 +132,7 @@
         } else {
           steps.value.push(defaultConditionStep);
         }
-        emit('addDone');
+        emit('addDone', defaultConditionStep);
         break;
       case ScenarioAddStepActionType.ONLY_ONCE_CONTROL:
         const defaultOnlyOnceStep = buildInsertStepInfos(
@@ -147,7 +147,7 @@
         } else {
           steps.value.push(defaultOnlyOnceStep);
         }
-        emit('addDone');
+        emit('addDone', defaultOnlyOnceStep);
         break;
       case ScenarioAddStepActionType.WAIT_TIME:
         const defaultWaitTimeStep = buildInsertStepInfos(
@@ -162,7 +162,7 @@
         } else {
           steps.value.push(defaultWaitTimeStep);
         }
-        emit('addDone');
+        emit('addDone', defaultWaitTimeStep);
         break;
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
       case ScenarioAddStepActionType.CUSTOM_API:
