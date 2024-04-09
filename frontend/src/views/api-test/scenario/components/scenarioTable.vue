@@ -789,6 +789,7 @@
       dataIndex: 'environmentName',
       showDrag: true,
       width: 159,
+      showTooltip: true,
     },
     {
       title: 'apiScenario.table.columns.steps',
@@ -1360,7 +1361,7 @@
       } else if (isBatchCopy.value) {
         optionType = 'batchCopy';
       }
-      await batchOptionScenario(optionType, {
+      const res = await batchOptionScenario(optionType, {
         selectIds: batchParams.value?.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
@@ -1373,7 +1374,8 @@
       Message.success(
         t('api_scenario.batch_operation.success', {
           opt: batchOptionType.value,
-          name: selectedBatchOptModuleName?.value,
+          success: res?.success,
+          error: res?.error,
         })
       );
       tableSelected.value = [];

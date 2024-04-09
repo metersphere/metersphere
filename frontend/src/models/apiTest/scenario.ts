@@ -472,3 +472,9 @@ export interface GetSystemRequestParams {
   scenarioRequest?: GetSystemRequestTypeParams;
   refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF;
 }
+
+// 场景批量操作结果
+export interface ApiScenarioBatchOptionResult {
+  success: number;
+  error: number;
+}

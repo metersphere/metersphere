@@ -72,7 +72,7 @@ export default {
   'apiScenario.updateRefScenarioSuccess': '引用场景数据已更新',
   'apiScenario.replaceSuccess': '步骤替换成功',
   // 批量操作文案
-  'api_scenario.batch_operation.success': '成功{opt}至 {name}',
+  'api_scenario.batch_operation.success': '成功{opt} {success} 条，失败 {error} 条',
   'api_scenario.table.batchMoveConfirm': '{opt}{count}个场景至已选模块',
   'apiScenario.name': '场景名称',
   'apiScenario.nameRequired': '场景名称不能为空',
