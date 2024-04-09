@@ -162,7 +162,7 @@ const transform: AxiosTransform = {
         if (errorMessageMode === 'modal') {
           Modal.error({ title: t('api.errorTip'), content: errMessage });
         } else if (errorMessageMode === 'message') {
-          Message.error(errMessage);
+          Message.error({ content: errMessage, duration: 5000 });
         }
         return Promise.reject(error);
       }
