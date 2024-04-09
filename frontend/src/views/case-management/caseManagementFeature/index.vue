@@ -381,6 +381,7 @@
       validateResultModal.value = false;
       showExcelModal.value = false;
       caseTableRef.value.initData();
+      caseTreeRef.value.initModules();
     } catch (error) {
       console.log(error);
     } finally {

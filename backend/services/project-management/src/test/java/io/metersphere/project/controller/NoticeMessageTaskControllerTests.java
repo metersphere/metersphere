@@ -77,7 +77,6 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setEnable(true);
         messageTaskRequest.setSubject("看看改不改");
         messageTaskRequest.setUseDefaultSubject(false);
-        messageTaskRequest.setUseDefaultTemplate(false);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -505,7 +504,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         List<MessageTaskDetailDTO> collect2 = messageTaskDetailDTOList1.stream().filter(t -> t.event.equals(NoticeConstants.Event.CREATE)).toList();
         Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = collect2.get(0).getProjectRobotConfigMap();
         ProjectRobotConfigDTO projectRobotConfigDTO = projectRobotConfigMap.get("test_message_robot2");
-        Assertions.assertFalse(StringUtils.equals(projectRobotConfigDTO.getTemplate(),"发送消息测试"));
+        Assertions.assertTrue(StringUtils.equals(projectRobotConfigDTO.getTemplate(),"发送消息测试"));
     }
 
 
