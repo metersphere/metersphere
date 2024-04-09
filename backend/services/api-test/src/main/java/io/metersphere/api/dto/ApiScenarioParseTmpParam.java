@@ -2,6 +2,7 @@ package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import lombok.Data;
 
 import java.util.*;
@@ -33,6 +34,12 @@ public class ApiScenarioParseTmpParam {
      * value 为 MsHTTPElement
      */
     private Map<String, List<MsHTTPElement>> stepTypeHttpElementMap = new HashMap<>();
+    /**
+     * 步骤 Map
+     * key 为 uniqueId
+     * value 为 步骤
+     */
+    private Map<String, ApiScenarioStepCommonDTO> uniqueIdStepMap = new HashMap<>();
     /**
      * 场景中所有的 MsCommonElement 列表
      */

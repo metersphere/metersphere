@@ -1513,7 +1513,7 @@ public class ApiScenarioService extends MoveNodeService {
         parseStep2MsElement(msScenario, steps, tmpParam);
 
         // 设置 HttpElement 的模块信息
-        setApiDefinitionExecuteInfo(tmpParam.getStepTypeHttpElementMap());
+        setApiDefinitionExecuteInfo(tmpParam.getUniqueIdStepMap(), tmpParam.getStepTypeHttpElementMap());
 
         // 设置使用脚本前后置的公共脚本信息
         apiCommonService.setEnableCommonScriptProcessorInfo(tmpParam.getCommonElements());
@@ -1532,11 +1532,40 @@ public class ApiScenarioService extends MoveNodeService {
      * 设置 HttpElement 的模块信息
      * 用户环境中的模块过滤
      *
+     * @param uniqueIdStepMap
      * @param stepTypeHttpElementMap
      */
-    private void setApiDefinitionExecuteInfo(Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
-        apiCommonService.setApiDefinitionExecuteInfo(stepTypeHttpElementMap.get(ApiScenarioStepType.API.name()), apiDefinitionService::getModuleInfoByIds);
-        apiCommonService.setApiDefinitionExecuteInfo(stepTypeHttpElementMap.get(ApiScenarioStepType.API_CASE.name()), apiTestCaseService::getModuleInfoByIds);
+    private void setApiDefinitionExecuteInfo(Map<String, ApiScenarioStepCommonDTO> uniqueIdStepMap, Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
+        setApiDefinitionExecuteInfo(uniqueIdStepMap, stepTypeHttpElementMap.get(ApiScenarioStepType.API.name()), apiDefinitionService::getModuleInfoByIds);
+        setApiDefinitionExecuteInfo(uniqueIdStepMap, stepTypeHttpElementMap.get(ApiScenarioStepType.API_CASE.name()), apiTestCaseService::getModuleInfoByIds);
+    }
+
+    /**
+     * 设置 MsHTTPElement 中的 method 等信息
+     * @param httpElements
+     * @param getDefinitionInfoFunc
+     */
+    public void setApiDefinitionExecuteInfo(Map<String, ApiScenarioStepCommonDTO> uniqueIdStepMap, List<MsHTTPElement> httpElements, Function<List<String>, List<ApiDefinitionExecuteInfo>> getDefinitionInfoFunc) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(httpElements)) {
+            List<String> resourceIds = httpElements.stream().map(MsHTTPElement::getResourceId).collect(Collectors.toList());
+            // 获取接口模块信息
+            Map<String, ApiDefinitionExecuteInfo> resourceModuleMap = apiCommonService.getApiDefinitionExecuteInfoMap(getDefinitionInfoFunc, resourceIds);
+            httpElements.forEach(httpElement -> {
+                ApiDefinitionExecuteInfo definitionExecuteInfo = resourceModuleMap.get(httpElement.getResourceId());
+                String path = httpElement.getPath();
+                String method = httpElement.getMethod();
+
+                // httpElement 设置模块,请求方法等信息
+                apiCommonService.setApiDefinitionExecuteInfo(httpElement, definitionExecuteInfo);
+
+                ApiScenarioStepCommonDTO step = uniqueIdStepMap.get(httpElement.getStepId());
+                if (step != null && isCopyApi(step.getStepType(), step.getRefType())) {
+                    // 复制的接口定义，不使用源接口定义的path和method
+                    httpElement.setPath(path);
+                    httpElement.setMethod(method);
+                }
+            });
+        }
     }
 
     /**
@@ -1668,6 +1697,8 @@ public class ApiScenarioService extends MoveNodeService {
                 // 如果调试的时候前端没有传步骤唯一ID，则生成唯一ID
                 step.setUniqueId(IDGenerator.nextStr());
             }
+
+            parseParam.getUniqueIdStepMap().put(step.getUniqueId(), step);
 
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step,
@@ -2065,8 +2096,20 @@ public class ApiScenarioService extends MoveNodeService {
         return isApi(stepType) && StringUtils.equals(refType, ApiScenarioStepRefType.REF.name());
     }
 
+    /**
+     * 判断步骤是否是引用的接口定义
+     * 引用的接口定义允许修改参数值，需要特殊处理
+     */
+    private boolean isCopyApi(String stepType, String refType) {
+        return isApi(stepType) && isCopy(refType);
+    }
+
     private boolean isApi(String stepType) {
         return StringUtils.equals(stepType, ApiScenarioStepType.API.name());
+    }
+
+    private boolean isCopy(String refType) {
+        return StringUtils.equals(refType, ApiScenarioStepRefType.COPY.name());
     }
 
     private boolean isApiCase(String stepType) {
