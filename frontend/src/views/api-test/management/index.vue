@@ -43,6 +43,7 @@
             <importApi
               v-model:visible="importDrawerVisible"
               :module-tree="folderTree"
+              :active-module="activeModule"
               popup-container="#managementContainer"
               @done="handleImportDone"
             />

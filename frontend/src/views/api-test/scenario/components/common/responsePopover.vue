@@ -98,7 +98,8 @@
       step.stepType === ScenarioStepType.LOOP_CONTROLLER &&
       step.config.loopType === ScenarioStepLoopTypeEnum.LOOP_COUNT &&
       step.config.msCountController &&
-      step.config.msCountController.loops > 0
+      !Number.isNaN(step.config.msCountController.loops) &&
+      Number(step.config.msCountController.loops) > 0
     ) {
       // 循环控制器展示当前执行次数/总次数
       const firstHasResultChild = step.children?.find((child) => {

@@ -188,7 +188,7 @@
                 v-model:model-value="importForm.name"
                 :placeholder="t('apiTestManagement.taskNamePlaceholder')"
                 :max-length="255"
-                class="flex-1"
+                class="w-[550px]"
               ></a-input>
               <MsButton type="text" @click="taskDrawerVisible = true">
                 {{ t('apiTestManagement.timeTaskList') }}
@@ -204,7 +204,7 @@
             <a-input
               v-model:model-value="importForm.swaggerUrl"
               :placeholder="t('apiTestManagement.urlImportPlaceholder')"
-              class="w-[700px]"
+              class="w-[550px]"
               allow-clear
             ></a-input>
           </a-form-item>
@@ -246,7 +246,7 @@
             <a-tree-select
               v-model:modelValue="importForm.moduleId"
               :data="moduleTree"
-              class="w-[436px]"
+              class="w-[500px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
             >
@@ -370,6 +370,7 @@
     visible: boolean;
     moduleTree: ModuleTreeNode[];
     popupContainer?: string;
+    activeModule: string;
   }>();
   const emit = defineEmits(['update:visible', 'done']);
 
@@ -391,8 +392,8 @@
   const defaultForm: ImportApiDefinitionRequest = {
     platform: RequestImportFormat.SWAGGER,
     name: '',
-    moduleId: '',
-    coverData: true,
+    moduleId: 'root',
+    coverData: false,
     syncCase: true,
     coverModule: false,
     swaggerUrl: '',
@@ -406,6 +407,19 @@
   };
   const importForm = ref({ ...defaultForm });
   const importFormRef = ref<FormInstance>();
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        importForm.value.moduleId = props.activeModule !== 'all' ? props.activeModule : 'root';
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
   const moreSettingActive = ref<number[]>([]);
   const disabledConfirm = computed(() => {
     if (importForm.value.type === RequestImportType.API) {

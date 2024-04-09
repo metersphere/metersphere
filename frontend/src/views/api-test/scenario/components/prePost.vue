@@ -1,7 +1,13 @@
 <template>
   <div class="condition">
     <div>
-      <precondition v-model:config="preProcessorConfig" :is-definition="false" @change="emit('change')" />
+      <precondition
+        v-model:config="preProcessorConfig"
+        :is-definition="false"
+        sql-code-editor-height="300px"
+        is-scenario
+        @change="emit('change')"
+      />
     </div>
     <a-divider class="my-[8px]" type="dashed" />
     <div>
@@ -9,6 +15,8 @@
         v-model:config="postProcessorConfig"
         :is-definition="false"
         :layout="activeLayout"
+        sql-code-editor-height="300px"
+        is-scenario
         @change="emit('change')"
       />
     </div>
@@ -37,10 +45,6 @@
 <style lang="less" scoped>
   .condition {
     .ms-scroll-bar();
-
-    overflow: auto;
-    width: 100%;
-    height: 700px;
-    flex-shrink: 0;
+    @apply h-full  overflow-auto;
   }
 </style>

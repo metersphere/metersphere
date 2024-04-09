@@ -321,14 +321,18 @@
           style="padding-top: 10px"
         >
           <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
-          <a-tooltip :content="t('caseManagement.featureCase.enableTags')">
-            <span class="flex items-center">
-              <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
-              <span class="mt-[2px]">
+          <span class="flex items-center">
+            <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
+            <span class="mt-[2px]">
+              <a-tooltip>
                 <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
-              </span>
+                <template #content>
+                  <div>{{ t('caseManagement.featureCase.enableTags') }}</div>
+                  <div>{{ t('caseManagement.featureCase.closeTags') }}</div>
+                </template>
+              </a-tooltip>
             </span>
-          </a-tooltip>
+          </span>
         </div>
         <div class="flex justify-end">
           <a-button type="secondary" :disabled="batchEditLoading" @click="cancelBatchEdit">

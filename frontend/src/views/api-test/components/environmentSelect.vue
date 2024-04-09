@@ -89,10 +89,10 @@
     (val) => {
       if (!val) {
         currentEnv.value = (envOptions.value[0]?.value as string) || '';
-        nextTick(() => {
-          initEnvironment();
-        });
       }
+      nextTick(() => {
+        initEnvironment();
+      });
     }
   );
 

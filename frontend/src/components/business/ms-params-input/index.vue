@@ -170,7 +170,7 @@
             class="mb-[16px] flex items-baseline gap-[16px] overflow-hidden bg-[var(--color-text-n9)] p-[5px_8px]"
           >
             <div class="break-all text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>
-            <a-spin :loading="previewLoading" class="flex flex-1 flex-wrap gap-[8px]">
+            <a-spin :loading="previewLoading" class="flex flex-1 flex-wrap items-baseline gap-[8px]">
               <div class="param-preview">{{ paramPreview }}</div>
               <MsButton type="text" @click="getMockValue">{{ t('ms.paramsInput.previewClick') }}</MsButton>
             </a-spin>
@@ -510,7 +510,7 @@
       }
       if (valueArr[1]) {
         // 匹配函数名和参数
-        const functionRegex = /([a-zA-Z]+)(?:\(([^)]*)\))?/;
+        const functionRegex = /([a-zA-Z0-9]+)(?:\(([^)]*)\))?/;
         const functionMatch = valueArr[1].match(functionRegex);
 
         if (functionMatch) {
@@ -654,6 +654,7 @@
         padding: 4px 8px;
       }
     }
+
     max-width: 400px;
   }
   .ms-params-input-setting-trigger {

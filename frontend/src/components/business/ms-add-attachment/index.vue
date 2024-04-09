@@ -48,7 +48,7 @@
   </a-form-item>
   <template v-else>
     <div v-if="props.multiple" class="flex w-full items-center">
-      <dropdownMenu @link-file="associatedFile" @change="handleChange" />
+      <dropdownMenu :disabled="props.disabled" @link-file="associatedFile" @change="handleChange" />
       <saveAsFilePopover
         v-if="props.fileSaveAsSourceId"
         v-model:visible="saveFilePopoverVisible"
@@ -85,7 +85,7 @@
                 :size="props.tagSize"
                 class="m-0 border-none p-0"
                 :self-style="{ backgroundColor: 'transparent !important' }"
-                :closable="data.value !== '__arco__more'"
+                :closable="data.value !== '__arco__more' || props.disabled"
                 @close="handleClose(data)"
               >
                 {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}

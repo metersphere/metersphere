@@ -79,6 +79,9 @@
       <template #status="{ record }">
         <apiStatus :status="record.status" size="small" />
       </template>
+      <template #priority="{ record }">
+        <caseLevel :case-level="record.priority" />
+      </template>
     </ms-base-table>
   </div>
 </template>
@@ -90,6 +93,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -475,7 +479,7 @@
       case 'scenario':
       default:
         routeName = ApiTestRouteEnum.API_TEST_SCENARIO;
-        query.sId = id;
+        query.id = id;
         break;
     }
     openNewPage(routeName, query);

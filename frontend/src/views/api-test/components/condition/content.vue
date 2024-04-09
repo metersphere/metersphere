@@ -46,7 +46,12 @@
       </div>
       <!-- 前后置请求结束 -->
       <div class="flex items-center justify-between">
-        <a-radio-group v-model="condition.enableCommonScript" class="mb-[8px]" @change="emit('change')">
+        <a-radio-group
+          v-model="condition.enableCommonScript"
+          class="mb-[8px]"
+          :disabled="props.disabled"
+          @change="emit('change')"
+        >
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
           <a-radio v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ'])" :value="true">
             {{ t('apiTestDebug.quote') }}
@@ -58,6 +63,7 @@
             class="mr-2"
             size="small"
             type="line"
+            :disabled="props.disabled"
             @change="emit('change')"
           />
           {{ t('apiTestDebug.preconditionAssociatedSceneResult') }}
@@ -79,6 +85,7 @@
             v-model:model-value="condition.name"
             :placeholder="t('apiTestDebug.preconditionScriptNamePlaceholder')"
             :max-length="255"
+            :disabled="props.disabled"
             size="small"
             @press-enter="isShowEditScriptNameInput = false"
             @blur="isShowEditScriptNameInput = false"
@@ -201,36 +208,39 @@
             v-permission="['PROJECT_CUSTOM_FUNCTION:READ']"
             type="text"
             class="font-medium"
+            :disabled="props.disabled"
             @click="showQuoteDrawer = true"
           >
             {{ t('apiTestDebug.quote') }}
           </MsButton>
         </div>
-        <div v-show="showParameters() || showScript()" class="h-[calc(100%-47px)] min-h-[300px]">
-          <a-radio-group v-model:model-value="commonScriptShowType" size="small" type="button" class="mb-[8px] w-fit">
-            <a-radio v-if="showParameters()" value="parameters">{{ t('apiTestDebug.parameters') }}</a-radio>
-            <a-radio value="scriptContent">{{ t('apiTestDebug.scriptContent') }}</a-radio>
-          </a-radio-group>
-          <paramTable
-            v-if="commonScriptShowType === 'parameters'"
-            v-model:params="scriptParams"
-            :scroll="{ x: '100%' }"
-            :columns="scriptColumns"
-            :height-used="heightUsed"
-            :selectable="false"
-          />
-          <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
+        <div v-if="showParameters() || showScript()" class="min-h-[300px]">
+          <div>
+            <a-radio-group v-model:model-value="commonScriptShowType" size="small" type="button" class="mb-[8px] w-fit">
+              <a-radio v-if="showParameters()" value="parameters">{{ t('apiTestDebug.parameters') }}</a-radio>
+              <a-radio value="scriptContent">{{ t('apiTestDebug.scriptContent') }}</a-radio>
+            </a-radio-group>
+          </div>
+          <div class="h-[calc(100%-76px)]">
+            <paramTable
+              v-if="commonScriptShowType === 'parameters'"
+              v-model:params="scriptParams"
+              :disabled-param-value="props.disabled"
+              :scroll="{ x: '100%' }"
+              :columns="scriptColumns"
+              :height-used="heightUsed"
+              :selectable="false"
+            />
             <MsCodeEditor
-              v-if="condition.commonScriptInfo"
+              v-else-if="commonScriptShowType === 'scriptContent' && condition.commonScriptInfo"
               v-model:model-value="condition.commonScriptInfo.script"
               theme="vs"
-              height="100%"
+              :height="props.sqlCodeEditorHeight || '100%'"
               :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
-            >
-            </MsCodeEditor>
+            />
           </div>
         </div>
       </div>
@@ -289,7 +299,9 @@
           v-model:model-value="condition.variableNames"
           :max-length="255"
           :disabled="props.disabled"
-          :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: 'id', b: 'email', c: '{id_1}', d: '{email_1}' })"
+          :placeholder="
+            t('apiTestDebug.storageByColPlaceholder', { a: 'id', b: 'email', c: '${id_1}', d: '${email_1}' })
+          "
           @input="() => emit('change')"
         />
       </div>
@@ -350,6 +362,7 @@
         ref="extractParamsTableRef"
         :params="condition.extractors"
         :disabled-except-param="props.disabled"
+        :disabled-param-value="props.disabled"
         :default-param-item="defaultExtractParamItem"
         :columns="extractParamsColumns"
         :selectable="false"
@@ -411,7 +424,7 @@
           >
             <template #content>
               <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" />
-              <div class="flex items-center justify-end gap-[8px]">
+              <div v-show="!props.disabled" class="flex items-center justify-end gap-[8px]">
                 <a-button type="secondary" size="mini" @click="record.moreSettingPopoverVisible = false">
                   {{ t('common.cancel') }}
                 </a-button>
@@ -426,7 +439,11 @@
       </paramTable>
     </div>
   </div>
-  <quoteSqlSourceDrawer v-model:visible="quoteSqlSourceDrawerVisible" @apply="handleQuoteSqlSourceApply" />
+  <quoteSqlSourceDrawer
+    v-model:visible="quoteSqlSourceDrawerVisible"
+    :selected-key="condition.dataSourceId"
+    @apply="handleQuoteSqlSourceApply"
+  />
   <fastExtraction
     v-model:visible="fastExtractionVisible"
     :response="props.response"
@@ -512,6 +529,7 @@
       requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略
       totalList?: ExecuteConditionProcessor[]; // 总列表
+      sqlCodeEditorHeight?: string; // sql脚本编辑器高度
     }>(),
     {
       showAssociatedScene: false,
@@ -530,27 +548,34 @@
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const condition = useVModel(props, 'data', emit);
 
-  watchEffect(() => {
-    if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
-      // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
-      const dataSourceItem = currentEnvConfig?.value.dataSources.find(
-        (item) => item.dataSource === condition.value.dataSourceName
-      );
-      if (dataSourceItem) {
-        // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
-        condition.value.dataSourceName = dataSourceItem.dataSource;
-        condition.value.dataSourceId = dataSourceItem.id;
-      } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
-        // 如果没有找到，就默认取第一个数据源
-        condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
-        condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
-      } else {
-        // 如果没有数据源，就清除已选的数据源
-        condition.value.dataSourceName = '';
-        condition.value.dataSourceId = '';
+  watch(
+    () => currentEnvConfig?.value,
+    () => {
+      if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
+        // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
+        const dataSourceItem = currentEnvConfig?.value.dataSources.find(
+          (item) => item.dataSource === condition.value.dataSourceName
+        );
+        if (currentEnvConfig?.value.dataSources.length === 0) {
+          // 如果没有数据源，就清除已选的数据源
+          condition.value.dataSourceName = '';
+          condition.value.dataSourceId = '';
+        } else if (dataSourceItem) {
+          // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
+          condition.value.dataSourceName = dataSourceItem.dataSource;
+          condition.value.dataSourceId = dataSourceItem.id;
+        } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
+          // 如果没有找到，就默认取第一个数据源
+          condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
+          condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
+        }
       }
+    },
+    {
+      immediate: true,
+      deep: true,
     }
-  });
+  );
 
   // 是否显示脚本名称编辑框
   const isShowEditScriptNameInput = ref(false);

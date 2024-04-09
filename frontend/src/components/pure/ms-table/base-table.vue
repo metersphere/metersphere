@@ -7,7 +7,7 @@
     <a-table
       v-bind="{ ...$attrs, ...scrollObj }"
       :row-class="getRowClass"
-      :column-resizable="false"
+      :column-resizable="true"
       :span-method="spanMethod"
       :columns="currentColumns"
       :expanded-keys="props.expandedKeys"
@@ -211,7 +211,7 @@
       class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
-      <span v-if="props.actionConfig && selectedCount > 0" class="title text-[var(--color-text-2)]">
+      <span v-if="props.actionConfig && selectedCount > 0 && !showBatchAction" class="title text-[var(--color-text-2)]">
         {{ t('msTable.batch.selected', { count: selectedCount }) }}
         <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">
           {{ t('msTable.batch.clear') }}

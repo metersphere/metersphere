@@ -270,6 +270,7 @@
           contextmenu: !props.readOnly, // 只读模式下禁用右键菜单
           ...props,
           language: props.language.toLowerCase(),
+          theme: currentTheme.value,
         });
 
         // 监听值的变化

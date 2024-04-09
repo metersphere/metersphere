@@ -72,7 +72,7 @@ export default {
   'caseManagement.featureCase.fileName': '文件名',
   'caseManagement.featureCase.description': '描述',
   'caseManagement.featureCase.tags': '标签',
-  'caseManagement.featureCase.enableTags': `开启：新增标签,关闭：覆盖原有标签`,
+  'caseManagement.featureCase.enableTags': '开启：新增标签',
   'caseManagement.featureCase.closeTags': '关闭：覆盖原有标签',
   'caseManagement.featureCase.appendTag': '追加标签',
   'caseManagement.featureCase.batchEdit': '批量编辑 (已选 { number } 条用例)',

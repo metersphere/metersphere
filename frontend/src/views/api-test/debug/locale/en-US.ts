@@ -202,4 +202,6 @@ export default {
   'apiTestDebug.testSuccess': 'Test success',
   'apiTestDebug.searchByDataBaseName': 'Search by data source name',
   'apiTestDebug.regexMatchRules': 'Expression matching rules',
+  'apiTestDebug.extractValueTitleTip':
+    'Enter the column name and corresponding value in column storage. If you want to extract the first value of the name column, enter name_1',
 };

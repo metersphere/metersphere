@@ -13,7 +13,6 @@
         v-model:selected-keys="selectedKeys"
         :data="folderTree"
         :keyword="moduleKeyword"
-        :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="t('apiScenario.tree.noMatchModule')"
@@ -48,7 +47,6 @@
 
   import { getModuleCount, getModuleTree } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
@@ -65,27 +63,10 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const { openModal } = useModal();
-
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
-    switch (value) {
-      case 'newScenario':
-        emit('newScenario');
-        break;
-      case 'import':
-        emit('import');
-        break;
-      case 'addModule':
-        document.querySelector('#addModulePopSpan')?.dispatchEvent(new Event('click'));
-        break;
-      default:
-        break;
-    }
-  }
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 343px)',
+      height: '40vh',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
@@ -96,30 +77,10 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
   const selectedKeys = ref<Array<string | number>>([]);
-  const allFolderClass = computed(() =>
-    selectedKeys.value[0] === 'all' ? 'folder-text folder-text--active' : 'folder-text'
-  );
   const loading = ref(false);
 
-  const folderMoreActions: ActionsItem[] = [
-    {
-      label: 'common.rename',
-      eventTag: 'rename',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: 'common.delete',
-      eventTag: 'delete',
-      danger: true,
-    },
-  ];
-
   const modulesCount = ref<Record<string, number>>({});
-  const allScenarioCount = computed(() => modulesCount.value.all || 0);
   const isExpandAll = ref(props.isExpandAll);
-  const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
   /**
    * 初始化模块树
@@ -163,10 +124,6 @@
       isExpandAll.value = val;
     }
   );
-
-  function changeExpand() {
-    isExpandAll.value = !isExpandAll.value;
-  }
 
   /**
    * 处理文件夹树节点选中事件

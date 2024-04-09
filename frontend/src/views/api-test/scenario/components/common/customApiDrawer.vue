@@ -43,9 +43,11 @@
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
         class="customApiDrawer-title-right ml-auto flex items-center gap-[16px]"
       >
-        <div class="text-[14px] font-normal text-[var(--color-text-4)]">
-          {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
-        </div>
+        <a-tooltip :content="currentEnvConfig?.name" :disabled="!currentEnvConfig?.name">
+          <div class="one-line-text max-w-[250px] text-[14px] font-normal text-[var(--color-text-4)]">
+            {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
+          </div>
+        </a-tooltip>
         <a-select
           v-model:model-value="requestVModel.customizeRequestEnvEnable"
           class="w-[150px]"
@@ -119,27 +121,39 @@
             </a-input-group>
           </div>
           <div v-permission="[props.permissionMap?.execute]">
-            <a-dropdown-button
-              v-if="hasLocalExec"
-              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-              class="exec-btn"
-              @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-              @select="execute"
+            <template v-if="hasLocalExec">
+              <a-dropdown-button
+                v-if="!requestVModel.executeLoading"
+                :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+                class="exec-btn"
+                @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+                @select="execute"
+              >
+                {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+                <template #icon>
+                  <icon-down />
+                </template>
+                <template #content>
+                  <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                    {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+                  </a-doption>
+                </template>
+              </a-dropdown-button>
+              <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+                {{ t('common.stop') }}
+              </a-button>
+            </template>
+            <a-button
+              v-else-if="!requestVModel.executeLoading"
+              class="mr-[12px]"
+              type="primary"
+              @click="() => execute('serverExec')"
             >
-              {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-              <template #icon>
-                <icon-down />
-              </template>
-              <template #content>
-                <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-                  {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-                </a-doption>
-              </template>
-            </a-dropdown-button>
-            <a-button v-else-if="!requestVModel.executeLoading" type="primary" @click="() => execute('serverExec')">
               {{ t('apiTestDebug.serverExec') }}
             </a-button>
-            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+              {{ t('common.stop') }}
+            </a-button>
           </div>
         </div>
         <a-input
@@ -201,7 +215,7 @@
                   <httpHeader
                     v-if="requestVModel.activeTab === RequestComposition.HEADER"
                     v-model:params="requestVModel.headers"
-                    :disabled-param-value="!isEditableApi"
+                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :layout="activeLayout"
                     :second-box-height="secondBoxHeight"
@@ -211,7 +225,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.BODY"
                     v-model:params="requestVModel.body"
                     :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi"
+                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     :upload-temp-file-api="uploadTempFile"
@@ -224,7 +238,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
                     v-model:params="requestVModel.query"
                     :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi"
+                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
@@ -233,7 +247,7 @@
                     v-else-if="requestVModel.activeTab === RequestComposition.REST"
                     v-model:params="requestVModel.rest"
                     :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi"
+                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
                     @change="handleActiveDebugChange"
@@ -554,11 +568,15 @@
 
   // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
   const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
+  // 全可编辑接口
   const isEditableApi = computed(
     () =>
       !props.step?.isQuoteScenarioStep &&
       (_stepType.value.isCopyApi || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.step)
   );
+  // 非引用场景下的引用 api只可更改参数值接口
+  const isEditableParamValue = computed(() => !props.step?.isQuoteScenarioStep && _stepType.value.isQuoteApi);
+  // 是否是 HTTP 协议
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
 
   const isInitPluginForm = ref(false);
@@ -999,7 +1017,7 @@
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
       name: requestVModel.value.name,
       unSaved: requestVModel.value.unSaved,
-      customizeRequest: props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST || !props.request,
+      customizeRequest: requestVModel.value.customizeRequest,
       customizeRequestEnvEnable: requestVModel.value.customizeRequestEnvEnable,
       children: [
         {

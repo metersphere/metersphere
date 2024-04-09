@@ -67,27 +67,39 @@
           allow-clear
         />
         <div v-permission="[props.permissionMap?.execute]">
-          <a-dropdown-button
-            v-if="hasLocalExec"
-            :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-            class="exec-btn"
-            @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-            @select="execute"
+          <template v-if="hasLocalExec">
+            <a-dropdown-button
+              v-if="!requestVModel.executeLoading"
+              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+              class="exec-btn"
+              @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+              @select="execute"
+            >
+              {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                  {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
+            <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+              {{ t('common.stop') }}
+            </a-button>
+          </template>
+          <a-button
+            v-else-if="!requestVModel.executeLoading"
+            class="mr-[12px]"
+            type="primary"
+            @click="() => execute('serverExec')"
           >
-            {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-            <template #icon>
-              <icon-down />
-            </template>
-            <template #content>
-              <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-                {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-              </a-doption>
-            </template>
-          </a-dropdown-button>
-          <a-button v-else-if="!requestVModel.executeLoading" type="primary" @click="() => execute('serverExec')">
             {{ t('apiTestDebug.serverExec') }}
           </a-button>
-          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">{{ t('common.stop') }}</a-button>
+          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+            {{ t('common.stop') }}
+          </a-button>
         </div>
       </div>
       <div class="px-[16px]">
@@ -443,8 +455,8 @@
     }
   );
 
-  // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
-  const isEditableApi = computed(() => _stepType.value.isCopyCase);
+  // 非引用场景下的复制 case 可更改
+  const isEditableApi = computed(() => !activeStep.value?.isQuoteScenarioStep && _stepType.value.isCopyCase);
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const isInitPluginForm = ref(false);
   const loading = ref(false);

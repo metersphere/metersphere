@@ -7,7 +7,7 @@
       v-model:expanded-keys="expandedKeys"
       v-model:selected-keys="selectedKeys"
       v-model:checked-keys="checkedKeys"
-      :data="data"
+      :data="filterTreeData"
       class="ms-tree"
       :allow-drop="handleAllowDrop"
       @drag-start="onDragStart"
@@ -197,13 +197,13 @@
     init(true);
   });
 
-  const originTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
+  const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
 
   watch(
     () => data.value,
     (val) => {
       if (!props.keyword) {
-        originTreeData.value = cloneDeep(val);
+        filterTreeData.value = cloneDeep(val);
       }
     },
     {
@@ -220,7 +220,7 @@
     const search = (_data: MsTreeNodeData[]) => {
       const result: MsTreeNodeData[] = [];
       _data.forEach((item) => {
-        if (item[props.fieldNames.title].toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
+        if (item[props.fieldNames.title].toLowerCase().includes(keyword.toLowerCase())) {
           result.push({ ...item, expanded: true });
         } else if (item[props.fieldNames.children]) {
           const filterData = search(item[props.fieldNames.children]);
@@ -237,13 +237,17 @@
       return result;
     };
 
-    return search(originTreeData.value);
+    return search(data.value);
   }
 
   // 防抖搜索
   const updateDebouncedSearch = debounce(() => {
     if (props.keyword) {
-      data.value = searchData(props.keyword);
+      filterTreeData.value = searchData(props.keyword);
+      nextTick(() => {
+        // 展开所有搜索到的节点(expandedKeys控制了节点展开，但是节点展开折叠图标未变化，需要手动触发展开事件)
+        treeRef.value?.expandNode(expandedKeys.value);
+      });
     }
   }, props.searchDebounce);
 
@@ -251,7 +255,7 @@
     () => props.keyword,
     (val) => {
       if (!val) {
-        data.value = cloneDeep(originTreeData.value);
+        filterTreeData.value = cloneDeep(data.value);
       } else {
         updateDebouncedSearch();
       }

@@ -26,7 +26,7 @@
           :popup-translate="[-7, -10]"
           @other-create="(type, step) => emit('otherCreate', type, step, activeCreateAction)"
           @close="handleActionsClose"
-          @add-done="emit('addDone')"
+          @add-done="emit('addDone', $event)"
         >
           <span></span>
         </createStepActions>
@@ -93,7 +93,7 @@
       step?: ScenarioStepItem,
       activeCreateAction?: CreateStepAction
     );
-    (e: 'addDone');
+    (e: 'addDone', newStep: ScenarioStepItem);
   }>();
 
   const { t } = useI18n();

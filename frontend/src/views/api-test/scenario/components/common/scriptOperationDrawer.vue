@@ -19,11 +19,12 @@
           v-model="scriptName"
           :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
           :max-length="255"
+          :disabled="isReadonly"
           size="small"
         />
       </div>
       <div class="mt-[10px] flex flex-1 gap-[8px]">
-        <conditionContent v-if="visible" v-model:data="activeItem" :is-build-in="true" />
+        <conditionContent v-if="visible" v-model:data="activeItem" :disabled="isReadonly" :is-build-in="true" />
       </div>
       <div v-if="currentResponse?.console" class="p-[8px]">
         <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
@@ -88,6 +89,7 @@
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', { required: true });
+  const isReadonly = computed(() => props.step?.isQuoteScenarioStep);
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
     if (props.step?.uniqueId) {
