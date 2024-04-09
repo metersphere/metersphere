@@ -44,15 +44,18 @@
       width: 150,
     },
     {
-      title: 'apiScenario.operationUser',
+      title: 'mockManagement.operationUser',
       dataIndex: 'createUserName',
       showTooltip: true,
       width: 150,
     },
     {
-      title: 'apiScenario.updateTime',
-      dataIndex: 'updateTime',
-      showTooltip: true,
+      title: 'apiTestManagement.updateTime',
+      dataIndex: 'createTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 180,
     },
     // {
@@ -74,7 +77,7 @@
     (item) => ({
       ...item,
       type: t(operationTypeOptions.find((e) => e.value === item.type)?.label || ''),
-      updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+      createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
 

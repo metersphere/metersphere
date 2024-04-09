@@ -35,7 +35,7 @@ public class ApiScenarioLogService {
     private ApiScenarioMapper apiScenarioMapper;
 
     public void batchEditLog(List<ApiScenario> scenarioList, String operator, String projectId) {
-        saveBatchLog(projectId, scenarioList, "/api/scenario/batch/edit", operator, OperationLogType.UPDATE.name(), false);
+        saveBatchLog(projectId, scenarioList, "/api/scenario/batch/edit", operator, OperationLogType.UPDATE.name(), true);
     }
 
 
