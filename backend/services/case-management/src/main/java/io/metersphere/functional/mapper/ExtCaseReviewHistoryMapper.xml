@@ -105,12 +105,15 @@
     <update id="batchUpdateAbandoned">
         update case_review_history
         set abandoned = true
-        where review_id = #{reviewId}
+        where abandoned = false
+        <if test="reviewId != null and reviewId != ''">
+            and review_id = #{reviewId}
+        </if>
         and case_id in
         <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
             #{caseId}
         </foreach>
-        and abandoned = false
+
     </update>
 
 

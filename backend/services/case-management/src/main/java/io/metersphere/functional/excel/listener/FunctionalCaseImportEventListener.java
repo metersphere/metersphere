@@ -66,9 +66,9 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     private FunctionalCaseExcelData currentMergeData;
     private Integer firstMergeRowIndex;
     /**
-     * 每隔5000条存储数据库，然后清理list ，方便内存回收
+     * 每隔1000条存储数据库，然后清理list ，方便内存回收
      */
-    protected static final int BATCH_COUNT = 5000;
+    protected static final int BATCH_COUNT = 1000;
     protected List<FunctionalCaseExcelData> list = new ArrayList<>();
     protected List<ExcelErrData<FunctionalCaseExcelData>> errList = new ArrayList<>();
     /**

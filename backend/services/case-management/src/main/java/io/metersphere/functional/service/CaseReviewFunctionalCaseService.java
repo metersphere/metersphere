@@ -335,10 +335,10 @@ public class CaseReviewFunctionalCaseService {
         if (CollectionUtils.isNotEmpty(caseReviewFunctionalCases)) {
             //重新提审，作废之前的记录
             extCaseReviewHistoryMapper.updateAbandoned(blob.getId());
-
+            List<CaseReviewHistory> historyList = new ArrayList<>();
             caseReviewFunctionalCases.forEach(item -> {
                 updateReviewCaseAndCaseStatus(item);
-                insertHistory(item);
+                insertHistory(item, historyList);
                 //更新用例触发重新提审-需要重新计算评审的整体状态
                 Map<String, Integer> countMap = new HashMap<>();
                 countMap.put(item.getStatus(), 1);
@@ -354,10 +354,11 @@ public class CaseReviewFunctionalCaseService {
                 provider.updateCaseReview(param);
 
             });
+            caseReviewHistoryMapper.batchInsertSelective(historyList);
         }
     }
 
-    private void insertHistory(CaseReviewFunctionalCase item) {
+    private void insertHistory(CaseReviewFunctionalCase item, List<CaseReviewHistory> historyList) {
         CaseReviewHistory caseReviewHistory = new CaseReviewHistory();
         caseReviewHistory.setId(IDGenerator.nextStr());
         caseReviewHistory.setCaseId(item.getCaseId());
@@ -366,7 +367,7 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCreateUser(UserRoleScope.SYSTEM);
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistory.setDeleted(false);
-        caseReviewHistoryMapper.insertSelective(caseReviewHistory);
+        historyList.add(caseReviewHistory);
     }
 
     private void updateReviewCaseAndCaseStatus(CaseReviewFunctionalCase item) {
@@ -522,7 +523,7 @@ public class CaseReviewFunctionalCaseService {
                 }
             });
             //检查是否全部是通过，全是才是PASS,否则是评审中(如果时自动重新提审，会有个system用户，这里需要排出一下)
-            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) !=null) {
+            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) != null) {
                 hasReviewedUserMap.remove(UserRoleScope.SYSTEM);
             }
             if (unPassCount.get() > 0) {
@@ -806,13 +807,24 @@ public class CaseReviewFunctionalCaseService {
         example.createCriteria().andCaseIdIn(caseIds);
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(example);
         Map<String, List<CaseReviewFunctionalCase>> reviews = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+        List<CaseReviewHistory> historyList = new ArrayList<>();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
+        FunctionalCaseMapper functionalCaseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
         reviews.forEach((k, v) -> {
             Map<String, Integer> countMap = new HashMap<>();
             Map<String, String> statusMap = new HashMap<>();
             v.forEach(c -> {
-                extCaseReviewHistoryMapper.updateAbandoned(c.getCaseId());
-                updateReviewCaseAndCaseStatus(c);
-                insertHistory(c);
+                c.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
+                c.setUpdateTime(System.currentTimeMillis());
+                caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(c);
+
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setId(c.getCaseId());
+                functionalCase.setReviewStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
+                functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+
+                insertHistory(c, historyList);
                 statusMap.put(c.getCaseId(), c.getStatus());
             });
             //更新用例触发重新提审-需要重新计算评审的整体状态
@@ -826,5 +838,10 @@ public class CaseReviewFunctionalCaseService {
             param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
             provider.updateCaseReview(param);
         });
+
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        extCaseReviewHistoryMapper.batchUpdateAbandoned(null, caseIds);
+        caseReviewHistoryMapper.batchInsertSelective(historyList);
     }
 }
