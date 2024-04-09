@@ -30,7 +30,6 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
-import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -100,7 +99,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
     protected static final String STEP_GET = "step/get/{0}";
-    protected static final String STEP_PROJECT_INFO = "step/project-ifo/{0}";
+    protected static final String STEP_RESOURCE_INFO = "step/resource-info/{0}?resourceType={1}";
     protected static final String DEBUG = "debug";
     protected static final String RUN = "run/{0}";
     protected static final String RUN_REAL_TIME = "run/{0}?reportId={1}";
@@ -633,6 +632,8 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         // 测试关联的文件更新
         testHandleFileAssociationUpgrade();
+
+        addApiScenario = apiScenarioMapper.selectByPrimaryKey(addApiScenario.getId());
 
         // @@重名校验异常
         request.setName(anOtherAddApiScenario.getName());
@@ -1218,17 +1219,30 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     @Test
     @Order(7)
-    public void getStepResourceProjectInfo() throws Exception {
-        MvcResult mvcResult = this.requestGetAndReturn(STEP_PROJECT_INFO, DEFAULT_PROJECT_ID);
-        Project project = getResultData(mvcResult, Project.class);
-        Assertions.assertEquals(project.getName(), projectMapper.selectByPrimaryKey(project.getId()).getName());
+    public void getStepResourceResourceInfo() throws Exception {
 
-        mvcResult = this.requestGetAndReturn(STEP_PROJECT_INFO, "tyuio");
-        project = getResultData(mvcResult, Project.class);
-        Assertions.assertNull(project);
+        MvcResult mvcResult = this.requestGetAndReturn(STEP_RESOURCE_INFO, apiDefinition.getId(), ApiScenarioStepType.API.name());
+        ApiStepResourceInfo apiStepResourceInfo = getResultData(mvcResult, ApiStepResourceInfo.class);
+        Assertions.assertEquals(apiStepResourceInfo.getNum(), apiDefinition.getNum());
+        Assertions.assertEquals(apiStepResourceInfo.getName(), apiDefinition.getName());
+        Assertions.assertEquals(apiStepResourceInfo.getProjectName(), projectMapper.selectByPrimaryKey(apiDefinition.getProjectId()).getName());
+
+        mvcResult = this.requestGetAndReturn(STEP_RESOURCE_INFO, apiTestCase.getId(), ApiScenarioStepType.API_CASE.name());
+        apiStepResourceInfo = getResultData(mvcResult, ApiStepResourceInfo.class);
+        Assertions.assertEquals(apiStepResourceInfo.getNum(), apiTestCase.getNum());
+        Assertions.assertEquals(apiStepResourceInfo.getName(), apiTestCase.getName());
+        Assertions.assertEquals(apiStepResourceInfo.getProjectName(), projectMapper.selectByPrimaryKey(apiTestCase.getProjectId()).getName());
+
+        mvcResult = this.requestGetAndReturn(STEP_RESOURCE_INFO, addApiScenario.getId(), ApiScenarioStepType.API_SCENARIO.name());
+        apiStepResourceInfo = getResultData(mvcResult, ApiStepResourceInfo.class);
+        Assertions.assertEquals(apiStepResourceInfo.getNum(), addApiScenario.getNum());
+        Assertions.assertEquals(apiStepResourceInfo.getName(), addApiScenario.getName());
+        Assertions.assertEquals(apiStepResourceInfo.getProjectName(), projectMapper.selectByPrimaryKey(addApiScenario.getProjectId()).getName());
+
+        this.requestGetAndReturn(STEP_RESOURCE_INFO, addApiScenario.getId(), "AAA");
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_PROJECT_INFO, DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_RESOURCE_INFO, "aa", "bb");
     }
 
     private void requestGetStepDetail(List<? extends ApiScenarioStepCommonDTO> steps) throws Exception {

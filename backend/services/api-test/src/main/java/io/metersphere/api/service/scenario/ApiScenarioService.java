@@ -2738,14 +2738,41 @@ public class ApiScenarioService extends MoveNodeService {
         return extApiDefinitionMapper.getReference(request);
     }
 
-    public Project getStepResourceProjectInfo(String projectId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        if (project == null) {
-            return null;
+    public ApiStepResourceInfo getStepResourceInfo(String resourceId, String resourceType) {
+        ApiResourceType apiResourceType = EnumValidator.validateEnum(ApiResourceType.class, resourceType);
+        ApiStepResourceInfo apiStepResourceInfo = new ApiStepResourceInfo();
+        apiStepResourceInfo.setId(resourceId);
+        String projectId;
+
+        switch (apiResourceType) {
+            case API_SCENARIO -> {
+                ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(resourceId);
+                apiStepResourceInfo.setId(apiScenario.getId());
+                apiStepResourceInfo.setNum(apiScenario.getNum());
+                apiStepResourceInfo.setName(apiScenario.getName());
+                projectId = apiScenario.getProjectId();
+            }
+            case API -> {
+                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(resourceId);
+                apiStepResourceInfo.setId(apiDefinition.getId());
+                apiStepResourceInfo.setNum(apiDefinition.getNum());
+                apiStepResourceInfo.setName(apiDefinition.getName());
+                projectId = apiDefinition.getProjectId();
+            }
+            case API_CASE -> {
+                ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
+                apiStepResourceInfo.setId(apiTestCase.getId());
+                apiStepResourceInfo.setNum(apiTestCase.getNum());
+                apiStepResourceInfo.setName(apiTestCase.getName());
+                projectId = apiTestCase.getProjectId();
+            }
+            default -> {
+                return apiStepResourceInfo;
+            }
         }
-        Project projectInfo = new Project();
-        projectInfo.setId(project.getId());
-        projectInfo.setName(project.getName());
-        return projectInfo;
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        apiStepResourceInfo.setProjectId(project.getId());
+        apiStepResourceInfo.setProjectName(project.getName());
+        return apiStepResourceInfo;
     }
 }

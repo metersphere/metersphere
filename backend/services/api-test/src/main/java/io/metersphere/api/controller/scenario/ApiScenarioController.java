@@ -14,7 +14,6 @@ import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
-import io.metersphere.project.domain.Project;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -142,11 +141,11 @@ public class ApiScenarioController {
         return apiScenarioService.getStepDetail(stepId);
     }
 
-    @GetMapping("/step/project-ifo/{projectId}")
-    @Operation(summary = "接口测试-接口场景管理-获取步骤的所属项目信息")
+    @GetMapping("/step/resource-info/{resourceId}")
+    @Operation(summary = "接口测试-接口场景管理-获取步骤关联资源的信息")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
-    public Project getStepResourceProjectInfo(@PathVariable String projectId) {
-        return apiScenarioService.getStepResourceProjectInfo(projectId);
+    public ApiStepResourceInfo getStepResourceInfo(@PathVariable String resourceId, @RequestParam String resourceType) {
+        return apiScenarioService.getStepResourceInfo(resourceId, resourceType);
     }
 
     //需求补充：回收站里的相关操作都不需要发通知
