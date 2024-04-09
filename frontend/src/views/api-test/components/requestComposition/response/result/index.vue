@@ -31,13 +31,13 @@
       <div class="flex flex-row gap-6 text-center">
         <a-popover position="left" content-class="response-popover-content">
           <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
-            {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+            {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
           </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
               <div :style="{ color: statusCodeColor }">
-                {{ activeStepDetail?.content?.responseResult.responseCode || '-' }}
+                {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
               </div>
             </div>
           </template>
