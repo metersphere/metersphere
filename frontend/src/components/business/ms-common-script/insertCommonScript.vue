@@ -75,10 +75,58 @@
         </TableFilter>
       </template>
       <template #status="{ record }">
-        <MsTag v-if="record.status === 'PASSED'" type="success" theme="light">{{
-          t('project.commonScript.testsPass')
-        }}</MsTag>
-        <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
+        <a-select
+          v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE'])"
+          v-model:model-value="record.status"
+          class="param-input w-[110px]"
+          size="mini"
+          @change="() => handleStatusChange(record)"
+        >
+          <template #label>
+            <commonScriptStatus :status="record.status" />
+          </template>
+          <a-option :key="CommonScriptStatusEnum.PASSED" :value="CommonScriptStatusEnum.PASSED">
+            <commonScriptStatus :status="CommonScriptStatusEnum.PASSED" />
+          </a-option>
+          <a-option :key="CommonScriptStatusEnum.DRAFT" :value="CommonScriptStatusEnum.DRAFT">
+            <commonScriptStatus :status="CommonScriptStatusEnum.DRAFT" />
+          </a-option>
+        </a-select>
+        <commonScriptStatus v-else :status="record.status" />
+      </template>
+      <template #statusFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="statusFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
+            {{ t(columnConfig.title as string) }}
+            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </MsButton>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                  <a-checkbox :key="CommonScriptStatusEnum.PASSED" :value="CommonScriptStatusEnum.PASSED">
+                    <commonScriptStatus :status="CommonScriptStatusEnum.PASSED" />
+                  </a-checkbox>
+                  <a-checkbox :key="CommonScriptStatusEnum.DRAFT" :value="CommonScriptStatusEnum.DRAFT">
+                    <commonScriptStatus :status="CommonScriptStatusEnum.DRAFT" />
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
       </template>
       <template #enable="{ record }">
         <MsTag v-if="record.enable" type="success" theme="light">{{ t('project.commonScript.testsPass') }}</MsTag>
@@ -100,6 +148,7 @@
 <script setup lang="ts">
   import { defineModel, ref } from 'vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { Language } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -108,20 +157,31 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
+  import commonScriptStatus from '@/views/project-management/commonScript/components/commonScriptStatus.vue';
 
   import {
     addOrUpdateCommonScriptReq,
     getCustomFuncColumnOption,
     getInsertCommonScriptPage,
+    updateStatusCommonScript,
   } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BugOptionItem } from '@/models/bug-management';
-  import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
+  import type {
+    AddOrUpdateCommonScript,
+    CommonScriptItem,
+    ParamsRequestType,
+  } from '@/models/projectManagement/commonScript';
+  import { CommonScriptStatusEnum } from '@/enums/commonScriptStatusEnum';
 
   import Message from '@arco-design/web-vue/es/message';
   import debounce from 'lodash-es/debounce';
+
+  const statusFilterVisible = ref(false);
+  const statusFilters = ref<string[]>([]);
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -176,10 +236,14 @@
       title: 'project.commonScript.enable',
       dataIndex: 'status',
       slotName: 'status',
+      titleSlotName: 'statusFilter',
       showInTable: true,
       width: 150,
       showDrag: true,
-      showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'project.commonScript.tags',
@@ -267,6 +331,7 @@
       type: props.scriptLanguage,
       filter: {
         createUser: createUserFilterValue.value,
+        status: statusFilters.value,
       },
     });
     loadList();
@@ -335,7 +400,30 @@
     const res = await getCustomFuncColumnOption(appStore.currentProjectId);
     createUserFilterOptions.value = res.userOption;
   }
-
+  async function handleStatusChange(record: CommonScriptItem) {
+    try {
+      await updateStatusCommonScript({
+        id: record.id,
+        status: record.status,
+        projectId: record.projectId,
+      });
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    initData();
+  }
+  function handleFilterHidden(val: boolean) {
+    if (!val) {
+      statusFilterVisible.value = false;
+      initData();
+    }
+  }
   watch(
     () => props.visible,
     (val) => {
@@ -348,4 +436,19 @@
   );
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-brand);
+      }
+    }
+  }
+</style>

@@ -4,6 +4,8 @@ export const GetCommonScriptPageUrl = '/project/custom/func/page';
 export const AddCommonScriptUrl = '/project/custom/func/add';
 // 更新公共脚本
 export const UpdateCommonScriptUrl = '/project/custom/func/update';
+// 更新公共脚本状态
+export const UpdateCommonScriptStatusUrl = '/project/custom/func/status';
 // 获取公共脚本详情
 export const GetCommonScriptDetailUrl = '/project/custom/func/detail';
 // 删除公共脚本

@@ -64,6 +64,7 @@ export default {
   'system.orgTemplate.optionsIdTip': 'The option ID cannot be empty',
   'system.orgTemplate.updateTip': 'Are you sure to update {name}?',
   'system.orgTemplate.updateDescription': 'After the update, use {type} will be an update of the field',
+  'system.orgTemplate.confirm': 'Confirm',
   'system.orgTemplate.columnTemplateName': 'Template name',
   'system.orgTemplate.copy': 'Copy',
   'system.orgTemplate.defaultValue': 'Default value',
