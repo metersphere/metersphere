@@ -31,6 +31,9 @@ public class TaskCenterDTO implements Serializable {
     @Schema(description = "资源Id 单独报告显示模块业务id 集合报告显示报告id")
     private String resourceId;
 
+    @Schema(description = "资源编号 单独报告显示模块编号 集合报告显示报告编号")
+    private String resourceNum;
+
     @Schema(description = "资源名称 单独报告显示模块名称 集合报告显示报告名称")
     private String resourceName;
 

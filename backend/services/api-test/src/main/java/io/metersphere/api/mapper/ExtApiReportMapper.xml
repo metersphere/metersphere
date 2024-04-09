@@ -161,6 +161,11 @@
         CASE
         WHEN api_report.integrated = 0 THEN
         c.num ELSE api_report.id
+        END AS resourceNum,
+
+        CASE
+        WHEN api_report.integrated = 0 THEN
+        c.id ELSE api_report.id
         END AS resourceId,
 
         CASE
@@ -182,9 +187,10 @@
             #{projectId}
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
-            and (
-            api_report.name like concat('%', #{request.keyword},'%')
-            or c.name like concat('%', #{request.keyword},'%')
+            and ( (api_report.name like concat('%', #{request.keyword},'%')
+            and c.name like concat('%', #{request.keyword},'%'))
+            or (api_report.id like concat('%', #{request.keyword},'%')
+            and c.num like concat('%', #{request.keyword},'%'))
             )
         </if>
         <include refid="filters">
