@@ -30,30 +30,22 @@
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
           </MsButton>
         </a-tooltip>
-        <template v-if="!props.readOnly">
-          <a-dropdown @select="handleSelect">
-            <MsButton v-permission="['PROJECT_API_SCENARIO:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
-              <MsIcon
-                type="icon-icon_create_planarity"
-                size="18"
-                class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-              />
-            </MsButton>
-            <template #content>
-              <a-doption value="newScenario">{{ t('apiScenario.createScenario') }}</a-doption>
-              <a-doption value="addModule">{{ t('apiScenario.createSubModule') }}</a-doption>
-            </template>
-          </a-dropdown>
-          <popConfirm
-            mode="add"
-            :all-names="rootModulesName"
-            parent-id="NONE"
-            :add-module-api="addModule"
-            @add-finish="initModules"
-          >
-            <span id="addModulePopSpan"></span>
-          </popConfirm>
-        </template>
+        <popConfirm
+          v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD']) && !props.readOnly"
+          mode="add"
+          :all-names="rootModulesName"
+          parent-id="NONE"
+          :add-module-api="addModule"
+          @add-finish="initModules"
+        >
+          <MsButton type="icon" class="!mr-0 p-[2px]">
+            <MsIcon
+              type="icon-icon_create_planarity"
+              size="18"
+              class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+            />
+          </MsButton>
+        </popConfirm>
       </div>
     </div>
     <a-divider class="my-[8px]" />
@@ -183,22 +175,6 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
-    switch (value) {
-      case 'newScenario':
-        emit('newScenario');
-        break;
-      case 'import':
-        emit('import');
-        break;
-      case 'addModule':
-        document.querySelector('#addModulePopSpan')?.dispatchEvent(new Event('click'));
-        break;
-      default:
-        break;
-    }
-  }
 
   const virtualListProps = computed(() => {
     if (props.readOnly) {

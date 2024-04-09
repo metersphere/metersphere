@@ -69,34 +69,22 @@
               <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
             </MsButton>
           </a-tooltip>
-          <template v-if="!props.readOnly && !props.trash">
-            <a-dropdown @select="handleSelect">
-              <MsButton v-permission="['PROJECT_API_DEFINITION:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
-                <MsIcon
-                  type="icon-icon_create_planarity"
-                  size="18"
-                  class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                />
-              </MsButton>
-              <template #content>
-                <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="newApi">{{
-                  t('apiTestManagement.newApi')
-                }}</a-doption>
-                <a-doption v-permission="['PROJECT_API_DEFINITION:READ+ADD']" value="addModule">{{
-                  t('apiTestManagement.addSubModule')
-                }}</a-doption>
-              </template>
-            </a-dropdown>
-            <popConfirm
-              mode="add"
-              :all-names="rootModulesName"
-              parent-id="NONE"
-              :add-module-api="addModule"
-              @add-finish="handleAddFinish"
-            >
-              <span id="addModulePopSpan"></span>
-            </popConfirm>
-          </template>
+          <popConfirm
+            v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) && !props.readOnly && !props.trash"
+            mode="add"
+            :all-names="rootModulesName"
+            parent-id="NONE"
+            :add-module-api="addModule"
+            @add-finish="handleAddFinish"
+          >
+            <MsButton type="icon" class="!mr-0 p-[2px]">
+              <MsIcon
+                type="icon-icon_create_planarity"
+                size="18"
+                class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+              />
+            </MsButton>
+          </popConfirm>
         </div>
       </div>
       <a-divider class="my-[8px]" />
@@ -282,9 +270,6 @@
         break;
       case 'import':
         emit('import');
-        break;
-      case 'addModule':
-        document.querySelector('#addModulePopSpan')?.dispatchEvent(new Event('click'));
         break;
       default:
         break;

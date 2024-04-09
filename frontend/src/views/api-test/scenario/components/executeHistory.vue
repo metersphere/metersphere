@@ -97,6 +97,8 @@
         </MsButton>
       </template>
     </ms-base-table>
+    <!-- 场景报告抽屉 -->
+    <caseAndScenarioReportDrawer v-model:visible="showScenarioReportVisible" is-scenario :report-id="reportId" />
   </div>
 </template>
 
@@ -108,6 +110,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecuteStatus from '@/views/api-test/scenario/components/executeStatus.vue';
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
@@ -241,7 +244,12 @@
     loadExecuteHistoryList();
   }
 
-  function showResult(record: ExecuteHistoryItem) {}
+  const showScenarioReportVisible = ref(false);
+  const reportId = ref('');
+  function showResult(record: ExecuteHistoryItem) {
+    reportId.value = record.id;
+    showScenarioReportVisible.value = true;
+  }
 
   onBeforeMount(() => {
     loadExecuteHistoryList();
