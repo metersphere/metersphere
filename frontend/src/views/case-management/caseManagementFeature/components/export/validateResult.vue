@@ -70,18 +70,28 @@
           @click="backCaseList"
           >{{ t('caseManagement.featureCase.backCaseList') }}</MsButton
         >
-        <MsButton v-if="!validateResultInfo.failCount" type="text" class="ml-[8px]" @click="confirmImport">{{
-          t('caseManagement.featureCase.import')
-        }}</MsButton>
+        <MsButton
+          v-if="!validateResultInfo.failCount"
+          type="text"
+          class="ml-[8px]"
+          :loading="props.importLoading"
+          @click="confirmImport"
+        >
+          {{ t('caseManagement.featureCase.import') }}</MsButton
+        >
         <MsButton
           v-if="validateResultInfo.failCount || (validateResultInfo.failCount && validateResultInfo.successCount)"
           class="ml-[8px]"
           @click="handleCancel"
           >{{ t('caseManagement.featureCase.backToUploadPage') }}</MsButton
         >
-        <MsButton v-if="validateResultInfo.failCount && validateResultInfo.successCount" @click="confirmImport">{{
-          t('caseManagement.featureCase.ignoreErrorContinueImporting')
-        }}</MsButton>
+        <MsButton
+          v-if="validateResultInfo.failCount && validateResultInfo.successCount"
+          :loading="props.importLoading"
+          @click="confirmImport"
+        >
+          {{ t('caseManagement.featureCase.ignoreErrorContinueImporting') }}</MsButton
+        >
       </div>
     </template>
   </a-modal>

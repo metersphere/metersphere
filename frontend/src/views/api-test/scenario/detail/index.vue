@@ -253,7 +253,4 @@
       .ms-scroll-bar();
     }
   }
-  :deep(.ms-detail-card .flex) {
-    max-width: 75%;
-  }
 </style>
