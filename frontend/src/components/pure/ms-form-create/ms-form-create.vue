@@ -1,5 +1,11 @@
 <template>
-  <FormCreate v-model:api="fApi" :rule="formRuleList" :option="props.options || option" @change="changeHandler">
+  <FormCreate
+    v-model:api="fApi"
+    :rule="formRuleList"
+    :option="props.options || option"
+    @change="changeHandler"
+    @mounted="handleMounted"
+  >
   </FormCreate>
 </template>
 
@@ -39,7 +45,7 @@
     api: any; // 表单对象
   }>();
 
-  const emit = defineEmits(['update:api', 'update', 'update:formItem', 'change']);
+  const emit = defineEmits(['update:api', 'update', 'update:formItem', 'change', 'mounted']);
 
   const fApi = computed({
     get() {
@@ -262,10 +268,24 @@
     getFormCreateItem();
     getControlFormItems();
   }
+  function setValue() {
+    nextTick(() => {
+      console.log(props.formRule);
+      const tempObj: Record<string, any> = {};
+      props.formRule.forEach((item) => {
+        tempObj[item.name] = item.value;
+      });
+
+      fApi.value?.setValue({ ...tempObj });
+    });
+  }
 
   watchEffect(() => {
     formItems.value = props.formRule;
+    // 初始化的时候设置一次值 放置初始上来校验不通过
+
     initFormItem();
+    // setValue();
   });
 
   const option = {
@@ -289,6 +309,11 @@
   function changeHandler(value: any, defaultValue: any, formRuleItem: FormRuleItem, api: any) {
     fApi.value.validateField(value);
     emit('change', defaultValue, formRuleItem, api);
+  }
+
+  function handleMounted() {
+    // setValue();
+    emit('mounted');
   }
 
   watch(

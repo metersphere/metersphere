@@ -592,7 +592,6 @@
     wrap: {
       'asterisk-position': 'end',
       'validate-trigger': ['change'],
-      'hide-asterisk': true,
     },
   };
 

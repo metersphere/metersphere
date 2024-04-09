@@ -33,6 +33,8 @@
         v-model:api="fApi"
         v-model:form-item="platformItem"
         :form-rule="platformRules"
+        @change="changeHandler"
+        @mounted="handleMounted"
       />
       <!-- 同步机制 -->
       <a-form-item field="MECHANISM" :label="t('project.menu.syncMechanism')">
@@ -280,7 +282,22 @@
       console.log(e);
     }
   };
+  function setValue() {
+    const tempObj: Record<string, any> = {};
+    platformRules.value.forEach((item) => {
+      tempObj[item.name] = item.value;
+    });
 
+    fApi.value?.setValue({ ...tempObj });
+  }
+  function changeHandler(a, b) {
+    fApi.value.validateField(b.field);
+    fApi.value.refreshValidate();
+  }
+
+  function handleMounted() {
+    setValue();
+  }
   watch(
     () => props.visible,
     (val) => {
