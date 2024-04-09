@@ -301,13 +301,13 @@
   }
 
   onMounted(async () => {
-    getEnabledModules();
     getFetch();
   });
 
   watch(
     () => props.bugId,
     () => {
+      getEnabledModules();
       getFetch();
     }
   );
