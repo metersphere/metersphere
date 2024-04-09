@@ -60,7 +60,7 @@
                 <template #label>
                   <apiStatus :status="detailForm.status" size="small" />
                 </template>
-                <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
+                <a-option v-for="item of Object.values(RequestCaseStatus)" :key="item" :value="item">
                   <apiStatus :status="item" size="small" />
                 </a-option>
               </a-select>
@@ -95,7 +95,7 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsDetailCard from '@/components/pure/ms-detail-card/index.vue';
+  import MsDetailCard, { type Description } from '@/components/pure/ms-detail-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
@@ -124,7 +124,7 @@
 
   import { AddApiCaseParams, ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
+  import { RequestCaseStatus, RequestMethods } from '@/enums/apiEnum';
 
   import { casePriorityOptions, defaultResponse } from '@/views/api-test/components/config';
 
@@ -152,7 +152,7 @@
     }
   }
 
-  const description = computed(() => [
+  const description = computed<Description[]>(() => [
     {
       key: 'type',
       locale: 'apiTestManagement.apiType',
@@ -162,6 +162,7 @@
       key: 'path',
       locale: 'apiTestManagement.path',
       value: apiDetailInfo.value.url || apiDetailInfo.value.path,
+      tooltipPosition: 'tr',
     },
   ]);
 

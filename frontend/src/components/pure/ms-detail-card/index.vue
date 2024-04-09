@@ -28,7 +28,7 @@
           <div v-else>-</div>
         </div>
         <slot v-else :name="item.key" :value="item.value">
-          <a-tooltip :content="item.value" :disabled="isEmpty(item.value)">
+          <a-tooltip :content="item.value" :disabled="isEmpty(item.value)" :position="item.tooltipPosition">
             <div
               class="text-ov overflow-hidden overflow-ellipsis whitespace-nowrap pr-[24px] text-[var(--color-text-1)]"
               >{{ item.value || '-' }}</div
@@ -68,6 +68,7 @@
     locale: string;
     value: string | string[];
     width?: string;
+    tooltipPosition?: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb';
   }
 
   const props = defineProps<{
