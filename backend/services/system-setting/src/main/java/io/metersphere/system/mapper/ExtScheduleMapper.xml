@@ -50,7 +50,7 @@
             and (
             task.resource_name like concat('%', #{request.keyword},'%')
                 or
-            task.resource_id like concat('%', #{request.keyword},'%')
+            task.resource_num like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="taskCenterScheduleFilters">

@@ -152,12 +152,17 @@
         CASE
         WHEN api_scenario_report.integrated = 0 THEN
         s.num ELSE api_scenario_report.id
-        END AS resourceId,
+        END AS resourceNum,
 
         CASE
         WHEN api_scenario_report.integrated = 0 THEN
         s.NAME ELSE api_scenario_report.NAME
         END AS resourceName,
+
+        CASE
+        WHEN api_scenario_report.integrated = 0 THEN
+        s.id ELSE api_scenario_report.id
+        END AS resourceId,
 
         t.name as poolName
         from api_scenario_report
@@ -173,8 +178,10 @@
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            api_scenario_report.name like concat('%', #{request.keyword},'%')
-            or s.name like concat('%', #{request.keyword},'%')
+            (api_scenario_report.name like concat('%', #{request.keyword},'%')
+            and s.name like concat('%', #{request.keyword},'%'))
+                or (api_scenario_report.id like concat('%', #{request.keyword},'%')
+                and s.num like concat('%', #{request.keyword},'%'))
             )
         </if>
         <include refid="filters">

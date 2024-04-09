@@ -5,6 +5,7 @@ export interface RealTaskCenterApiCaseItem {
   projectId: string;
   id: string;
   resourceId: string;
+  resourceNum: number; // 资源业务id
   resourceName: string; // 资源名称 单独报告显示模块名称 集合报告显示报告名称
   triggerMode: string; // 触发模式（手动，定时，批量，测试计划）
   poolName: string; // 资源池名称

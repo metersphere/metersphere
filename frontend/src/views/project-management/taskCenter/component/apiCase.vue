@@ -193,8 +193,8 @@
   const columns: MsTableColumn = [
     {
       title: 'project.taskCenter.resourceID',
-      dataIndex: 'resourceId',
-      slotName: 'resourceId',
+      dataIndex: 'resourceNum',
+      slotName: 'resourceNum',
       width: 200,
       showTooltip: true,
       showDrag: false,

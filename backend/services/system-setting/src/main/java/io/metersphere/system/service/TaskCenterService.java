@@ -13,6 +13,7 @@ import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -206,7 +207,7 @@ public class TaskCenterService {
         schedule.setEnable(!schedule.getEnable());
         scheduleService.editSchedule(schedule);
         scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
-                new TriggerKey(schedule.getKey(),schedule.getJob()), schedule.getJob().getClass());
+                new TriggerKey(schedule.getKey(),schedule.getJob()), BaseScheduleJob.class);
 
 
     }
