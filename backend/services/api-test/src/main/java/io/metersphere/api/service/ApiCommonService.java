@@ -280,25 +280,6 @@ public class ApiCommonService {
     }
 
     /**
-     * 设置 MsHTTPElement 中的 method 等信息
-     * @param httpElements
-     * @param getDefinitionInfoFunc
-     */
-    public void setApiDefinitionExecuteInfo(List<MsHTTPElement> httpElements, Function<List<String>, List<ApiDefinitionExecuteInfo>> getDefinitionInfoFunc) {
-        if (CollectionUtils.isNotEmpty(httpElements)) {
-            List<String> resourceIds = httpElements.stream().map(MsHTTPElement::getResourceId).collect(Collectors.toList());
-            // 获取接口模块信息
-            Map<String, ApiDefinitionExecuteInfo> resourceModuleMap = getApiDefinitionExecuteInfoMap(getDefinitionInfoFunc, resourceIds);
-            httpElements.forEach(httpElement -> {
-                ApiDefinitionExecuteInfo definitionExecuteInfo = resourceModuleMap.get(httpElement.getResourceId());
-                // httpElement 设置模块,请求方法等信息
-                setApiDefinitionExecuteInfo(httpElement, definitionExecuteInfo);
-            });
-        }
-    }
-
-
-    /**
      * 获取资源 ID 和接口定义信息 的 Map
      * @param getDefinitionInfoFunc
      * @param resourceIds
