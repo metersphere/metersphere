@@ -13,6 +13,7 @@ import {
   GetFormApiImportUrl,
   GetInsertCommonScriptPageUrl,
   TestScriptUrl,
+  UpdateCommonScriptStatusUrl,
   UpdateCommonScriptUrl,
 } from '@/api/requrls/project-management/commonScript';
 
@@ -24,7 +25,7 @@ import type {
   CommonScriptItem,
   TestScriptType,
 } from '@/models/projectManagement/commonScript';
-import { CustomFuncColumnOptionItem } from '@/models/projectManagement/commonScript';
+import { CustomFuncColumnOptionItem, updateCommonScriptStatus } from '@/models/projectManagement/commonScript';
 
 // 获取公共脚本列表
 export function getCommonScriptPage(data: TableQueryParams) {
@@ -42,6 +43,12 @@ export function addOrUpdateCommonScriptReq(data: AddOrUpdateCommonScript) {
 export function updateCommonScript(data: AddOrUpdateCommonScript) {
   return MSR.post({ url: UpdateCommonScriptUrl, data });
 }
+
+// 更新公共脚本状态
+export function updateStatusCommonScript(data: updateCommonScriptStatus) {
+  return MSR.post({ url: UpdateCommonScriptStatusUrl, data });
+}
+
 // 获取公共脚本详情
 export function getCommonScriptDetail(id: string) {
   return MSR.get<CommonScriptItem>({ url: `${GetCommonScriptDetailUrl}/${id}` });

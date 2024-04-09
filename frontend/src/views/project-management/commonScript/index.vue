@@ -39,7 +39,24 @@
         </div>
       </template>
       <template #status="{ record }">
-        <commonScriptStatus :status="record.status" />
+        <a-select
+          v-if="hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE'])"
+          v-model:model-value="record.status"
+          class="param-input w-[110px]"
+          size="mini"
+          @change="() => handleStatusChange(record)"
+        >
+          <template #label>
+            <commonScriptStatus :status="record.status" />
+          </template>
+          <a-option :key="CommonScriptStatusEnum.PASSED" :value="CommonScriptStatusEnum.PASSED">
+            <commonScriptStatus :status="CommonScriptStatusEnum.PASSED" />
+          </a-option>
+          <a-option :key="CommonScriptStatusEnum.DRAFT" :value="CommonScriptStatusEnum.DRAFT">
+            <commonScriptStatus :status="CommonScriptStatusEnum.DRAFT" />
+          </a-option>
+        </a-select>
+        <commonScriptStatus v-else :status="record.status" />
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -128,6 +145,7 @@
     addOrUpdateCommonScriptReq,
     deleteCommonScript,
     getCommonScriptPage,
+    updateStatusCommonScript,
   } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -383,10 +401,38 @@
     isEditId.value = record.id as string;
     showScriptDrawer.value = true;
   }
+  async function handleStatusChange(record: CommonScriptItem) {
+    try {
+      await updateStatusCommonScript({
+        id: record.id,
+        status: record.status,
+        projectId: record.projectId,
+      });
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   onMounted(() => {
     initData();
   });
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-brand);
+      }
+    }
+  }
+</style>

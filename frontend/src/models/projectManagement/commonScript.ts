@@ -44,6 +44,13 @@ export interface AddOrUpdateCommonScript {
   result: string;
 }
 
+// 新增或编辑
+export interface updateCommonScriptStatus {
+  id?: string;
+  status: string;
+  projectId: string;
+}
+
 export interface ParamsRequestType {
   contentType: string;
   encode: boolean;
