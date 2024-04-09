@@ -1,10 +1,7 @@
 <template>
-  <div class="flex w-full" :class="[props.typeTitle ? 'justify-between' : 'justify-start']">
-    <span v-if="props.typeTitle">{{ props.typeTitle }}</span>
-    <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
-      {{ t('apiTestDebug.batchAdd') }}
-    </a-button>
-  </div>
+  <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
+    {{ t('apiTestDebug.batchAdd') }}
+  </a-button>
 
   <MsDrawer
     v-model:visible="showBatchAddParamDrawer"

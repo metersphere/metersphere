@@ -1,5 +1,6 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
+    <span v-if="props.typeTitle">{{ props.typeTitle }}</span>
     <batchAddKeyVal
       :disabled="props.disabledExceptParam"
       :params="innerParams"
