@@ -86,9 +86,6 @@ export async function topLevelMenuHasPermission(route: RouteLocationNormalized |
   const userStore = useUserStore();
   const appStore = useAppStore();
   const { currentMenuConfig } = appStore;
-  if (!currentMenuConfig.length) {
-    await appStore.getProjectInfos();
-  }
 
   if (currentMenuConfig.length && !currentMenuConfig.includes(route.name as string)) {
     // 没有配置的菜单不显示
