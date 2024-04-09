@@ -518,9 +518,15 @@
   // 处理详情字段
   function getDetailData(detailResult: DetailCase) {
     const { customFields, attachments, steps } = detailResult;
+
+    let copyName = `copy_${detailResult.name}`;
+    if (copyName.length > 255) {
+      copyName = copyName.slice(0, 255);
+    }
+
     form.value = {
       ...detailResult,
-      name: route.params.mode === 'copy' ? `copy_${detailResult.name}` : detailResult.name,
+      name: route.params.mode === 'copy' ? copyName : detailResult.name,
     };
     // 处理自定义字段
     formRules.value = initFormCreate(customFields as CustomAttributes[], ['FUNCTIONAL_CASE:READ+UPDATE']);
