@@ -35,10 +35,7 @@ import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
-import io.metersphere.system.service.ApiPluginService;
-import io.metersphere.system.service.CommonProjectService;
-import io.metersphere.system.service.SystemParameterService;
-import io.metersphere.system.service.TestResourcePoolService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -98,6 +95,8 @@ public class ApiExecuteService {
     private GlobalParamsService globalParamsService;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private JdbcDriverPluginService jdbcDriverPluginService;
 
     @PostConstruct
     private void init() {
@@ -144,7 +143,11 @@ public class ApiExecuteService {
         String executeScript = parseExecuteScript(runRequest.getTestElement(), parameterConfig);
 
         // 设置插件文件信息 todo 多项目
-        taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(taskRequest.getProjectId()));
+        List<ApiExecuteFileInfo> pluginFiles = new ArrayList<>();
+        pluginFiles.addAll(apiPluginService.getFileInfoByProjectId(taskRequest.getProjectId()));
+        pluginFiles.addAll(jdbcDriverPluginService.getFileInfoByProjectId(taskRequest.getProjectId()));
+
+        taskRequest.setPluginFiles(pluginFiles);
 
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(taskRequest.getReportId(), taskRequest.getResourceId());

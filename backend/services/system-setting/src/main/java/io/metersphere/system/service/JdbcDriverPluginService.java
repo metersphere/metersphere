@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PluginScenarioType;
+import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
@@ -23,6 +25,9 @@ public class JdbcDriverPluginService {
     private PluginLoadService pluginLoadService;
     @Resource
     private BasePluginService basePluginService;
+    @Resource
+    private ProjectMapper projectMapper;
+
     public static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
     public static final String DRIVER_OPTION_SEPARATOR = "&";
     public static final String SYSTEM_PLUGIN_ID = "system";
@@ -88,5 +93,16 @@ public class JdbcDriverPluginService {
         return extensions.stream().filter(driver -> StringUtils.equals(driver.getClass().getName(), className))
                 .findFirst()
                 .orElseThrow(() -> new MSException("未找到对应的驱动"));
+    }
+
+    public List<ApiExecuteFileInfo> getFileInfoByProjectId(String projectId) {
+        return basePluginService.getOrgEnabledPlugins(projectMapper.selectByPrimaryKey(projectId).getOrganizationId(), PluginScenarioType.JDBC_DRIVER)
+                .stream().map(plugin -> {
+                    ApiExecuteFileInfo apiExecuteFileInfo = new ApiExecuteFileInfo();
+                    apiExecuteFileInfo.setFileId(plugin.getId() + "_" + plugin.getUpdateTime());
+                    apiExecuteFileInfo.setFileName(plugin.getFileName());
+                    return apiExecuteFileInfo;
+                }).toList();
+
     }
 }
