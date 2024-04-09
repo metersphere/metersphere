@@ -50,7 +50,7 @@
                       class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]"
                     >
                       <MsIcon
-                        :type="step.expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'"
+                        :type="step.expanded ? 'icon-icon_split-turn-down-left' : 'icon-icon_split_turn-down_arrow'"
                         :size="14"
                       />
                       <span class="mx-1"> {{ step.children?.length || 0 }}</span>
@@ -255,6 +255,10 @@
     if (isNotAllowExpand && data.node && data.node.children) {
       data.node.stepChildren = cloneDeep(data.node.children);
       data.node.children = [];
+    }
+    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
+    if (realStep) {
+      realStep.expanded = !realStep.expanded;
     }
   }
 
