@@ -150,7 +150,7 @@ public class BugController {
     }
 
     @PostMapping("/sync/all")
-    @Operation(summary = "缺陷管理-列表-同步缺陷(全量)")
+    @Operation(summary = "缺陷管理-列表-同步缺陷(企业)")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void syncAll(@RequestBody BugSyncRequest request) {

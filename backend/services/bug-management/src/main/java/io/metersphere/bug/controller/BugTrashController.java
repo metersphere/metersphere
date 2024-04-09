@@ -37,7 +37,7 @@ public class BugTrashController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "delete_time desc");
         request.setUseTrash(true);
         return PageUtils.setPageInfo(page, bugService.list(request));
     }

@@ -271,6 +271,7 @@
     visible: boolean;
     detailId: string; // 详情 id
     detailIndex: number; // 详情 下标
+    detailDefaultTab: string; // 详情默认 tab
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
     pageChange: (page: number) => Promise<void>; // 分页变更函数
@@ -381,7 +382,7 @@
     currentCustomFields.value = customFieldsRes.customFields || [];
     if (detailInfo.value.customFields && Array.isArray(detailInfo.value.customFields)) {
       const MULTIPLE_TYPE = ['MULTIPLE_SELECT', 'MULTIPLE_INPUT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
-      const SINGRADIO_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
+      const SINGLE_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
       detail.customFields.forEach((item) => {
         if (MULTIPLE_TYPE.includes(item.type)) {
           const multipleOptions = getOptionFromTemplate(
@@ -389,11 +390,13 @@
           );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
-          if (item.type !== 'MULTIPLE_INPUT') {
-            const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
-            tmpObj[item.id] = currentDefaultValue;
-          } else {
-            tmpObj[item.id] = JSON.parse(item.value);
+          if (item.value) {
+            if (item.type !== 'MULTIPLE_INPUT') {
+              const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
+              tmpObj[item.id] = currentDefaultValue;
+            } else {
+              tmpObj[item.id] = JSON.parse(item.value);
+            }
           }
         } else if (item.type === 'INT' || item.type === 'FLOAT') {
           tmpObj[item.id] = Number(item.value);
@@ -402,7 +405,7 @@
           if (arr && arr instanceof Array && arr.length > 0) {
             tmpObj[item.id] = arr[arr.length - 1];
           }
-        } else if (SINGRADIO_TYPE.includes(item.type)) {
+        } else if (SINGLE_TYPE.includes(item.type)) {
           const multipleOptions = getOptionFromTemplate(
             currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
           );
@@ -630,7 +633,11 @@
     () => showDrawerVisible.value,
     (val) => {
       if (val) {
-        activeTab.value = 'detail';
+        if (props.detailDefaultTab) {
+          activeTab.value = props.detailDefaultTab;
+        } else {
+          activeTab.value = 'detail';
+        }
       } else {
         const query = { ...route.query };
         delete query.id;

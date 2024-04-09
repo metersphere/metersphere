@@ -1611,6 +1611,7 @@ public class BugService {
         bugs.forEach(bug -> {
             LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), currentUser, operationType, module, bug.getTitle());
             log.setPath(path);
+            log.setHistory(true);
             log.setMethod(HttpMethodConstants.POST.name());
             if (batchUpdate) {
                 // 批量更新只记录TAG的变更内容

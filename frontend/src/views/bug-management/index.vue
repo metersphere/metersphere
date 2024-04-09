@@ -55,6 +55,12 @@
         </div>
       </template>
 
+      <template #relationCaseCount="{ record, rowIndex }">
+        <a-button type="text" class="px-0" @click="showRelateCaseCount(record.id, rowIndex)">{{
+          record.relationCaseCount
+        }}</a-button>
+      </template>
+
       <template #createUserFilter="{ columnConfig }">
         <TableFilter
           v-model:visible="createUserFilterVisible"
@@ -185,6 +191,7 @@
     v-model:visible="detailVisible"
     :detail-id="activeDetailId"
     :detail-index="activeCaseIndex"
+    :detail-default-tab="activeDetailTab"
     :current-platform="currentPlatform"
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
@@ -273,6 +280,7 @@
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
+  const activeDetailTab = ref<string>('');
   const currentDeleteObj = reactive<{ id: string; title: string }>({ id: '', title: '' });
   const deleteVisible = ref(false);
   const batchEditVisible = ref(false);
@@ -407,7 +415,7 @@
     {
       title: 'bugManagement.numberOfCase',
       dataIndex: 'relationCaseCount',
-      slotName: 'numberOfCase',
+      slotName: 'relationCaseCount',
       width: 80,
       showDrag: true,
       showInTable: true,
@@ -677,7 +685,15 @@
       detailVisible.value = true;
       activeDetailId.value = id;
       activeCaseIndex.value = rowIndex - 1;
+      activeDetailTab.value = 'detail';
     }
+  };
+
+  const showRelateCaseCount = async (id: string, rowIndex: number) => {
+    detailVisible.value = true;
+    activeDetailId.value = id;
+    activeCaseIndex.value = rowIndex - 1;
+    activeDetailTab.value = 'case';
   };
 
   const handleCopy = (record: BugListItem) => {

@@ -197,7 +197,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public Pager<List<ApiTestCaseDTO>> pageTrash(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "delete_time desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true));
     }
 
