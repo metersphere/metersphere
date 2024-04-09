@@ -70,7 +70,7 @@ public class ApiScenarioReportLogService {
     @Async
     public void batchDeleteLog(List<String> ids, String userId, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<ApiScenarioReport> apiReports = extApiScenarioReportMapper.selectApiReportByIds(ids, true);
+        List<ApiScenarioReport> apiReports = extApiScenarioReportMapper.selectApiReportByIds(ids);
         List<LogDTO> logs = new ArrayList<>();
         apiReports.forEach(apiReport -> {
             LogDTO dto = new LogDTO(

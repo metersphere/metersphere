@@ -17,7 +17,7 @@ public interface ExtApiReportMapper {
 
     List<String> getIds(@Param("request") ApiReportBatchRequest request);
 
-    List<ApiReport> selectApiReportByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
+    List<ApiReport> selectApiReportByIds(@Param("ids") List<String> ids);
 
     List<ApiReportStepDTO> selectStepsByReportId(String id);
 
