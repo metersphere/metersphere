@@ -36,6 +36,7 @@ export interface Options {
     enabled: boolean;
   };
   readOnly: boolean; // 只读
+  autoIndent: boolean; // 自动缩进
   fontSize: number; // 字体大小
   scrollBeyondLastLine: boolean; // 取消代码后面一大段空白
   overviewRulerBorder: boolean; // 不要滚动条的边框
@@ -69,6 +70,10 @@ export const editorProps = {
     type: Boolean as PropType<boolean>,
     default: false,
   },
+  autoIndent: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
   options: {
     type: Object as PropType<Options>,
     default() {
@@ -81,6 +86,7 @@ export const editorProps = {
           enabled: true,
         },
         readOnly: false,
+        autoIndent: true,
         fontSize: 16,
         scrollBeyondLastLine: false,
         overviewRulerBorder: false,
