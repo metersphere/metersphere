@@ -34,6 +34,8 @@
       const { logout } = useUser();
       const router = useRouter();
       const route = useRoute();
+      // @desc: 初始化配置的项目模块
+      appStore.getProjectInfos();
       const { menuTree } = useMenuTree();
       const collapsed = computed({
         get() {
