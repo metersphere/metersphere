@@ -182,6 +182,8 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiCommonService apiCommonService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -225,6 +227,13 @@ public class ApiScenarioService extends MoveNodeService {
         scheduleExample.createCriteria().andResourceIdIn(scenarioIds).andResourceTypeEqualTo(ScheduleResourceType.API_SCENARIO.name());
         List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
         Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
+        //获取所有的lastResultId
+        List<String> lastResultIds = scenarioLists.stream().map(ApiScenarioDTO::getLastReportId).toList();
+        ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
+        reportExample.createCriteria().andIdIn(lastResultIds);
+        List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExample(reportExample);
+        // 生成map key是id value是ScriptIdentifier  但是getScriptIdentifier为空的不放入
+        Map<String, String> reportMap = reports.stream().filter(report -> StringUtils.isNotBlank(report.getScriptIdentifier())).collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getScriptIdentifier));
         scenarioLists.forEach(item -> {
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
@@ -248,6 +257,9 @@ public class ApiScenarioService extends MoveNodeService {
                 if (schedule.getEnable()) {
                     item.setNextTriggerTime(getNextTriggerTime(schedule.getValue()));
                 }
+            }
+            if (MapUtils.isNotEmpty(reportMap) && reportMap.containsKey(item.getLastReportId())) {
+                item.setScriptIdentifier(reportMap.get(item.getLastReportId()));
             }
         });
     }

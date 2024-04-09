@@ -171,6 +171,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ProjectMapper projectMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ApiScenarioReportService scenarioReportService;
 
     private static String fileMetadataId;
     private static String localFileId;
@@ -235,6 +237,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiScenario.setUpdateTime(System.currentTimeMillis());
             apiScenario.setCreateUser("admin");
             apiScenario.setUpdateUser("admin");
+            apiScenario.setLastReportId("lastReportId");
             Schedule schedule = new Schedule();
             schedule.setId(IDGenerator.nextStr());
             schedule.setKey(apiScenario.getId());
@@ -261,6 +264,22 @@ public class ApiScenarioControllerTests extends BaseTest {
             scheduleMapper.insertSelective(schedule);
             apiScenarioMapper.insertSelective(apiScenario);
         }
+        ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
+        ApiScenarioReport scenarioReport = new ApiScenarioReport();
+        scenarioReport.setId("lastReportId");
+        scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
+        scenarioReport.setName("scenario-11name");
+        scenarioReport.setStartTime(System.currentTimeMillis());
+        scenarioReport.setCreateUser("admin");
+        scenarioReport.setUpdateUser("admin");
+        scenarioReport.setStatus(ApiReportStatus.SUCCESS.name());
+        scenarioReport.setUpdateTime(System.currentTimeMillis());
+        scenarioReport.setPoolId("api-pool-id");
+        scenarioReport.setEnvironmentId("api-environment-id");
+        scenarioReport.setRunMode("api-run-mode");
+        scenarioReport.setTriggerMode("api-trigger-mode");
+        scenarioReport.setScriptIdentifier("api-script-identifier");
+        scenarioReportService.insertApiScenarioReport(List.of(scenarioReport), new ArrayList<>());
     }
 
     @Test
