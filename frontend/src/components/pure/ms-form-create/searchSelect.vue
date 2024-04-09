@@ -46,12 +46,13 @@
   const emit = defineEmits(['update:model-value']);
   const selectValue = ref<string[] | string>();
 
-  const optionsList = ref<{ label: string; value: string }[]>([]);
+  const optionsList = ref<{ label: string; value: string }[]>(props.options || []);
   const selectLoading = ref(false);
 
   const params = ref<OptionsParams>();
   const pluginId = (sessionStorage.getItem('platformKey') as string) || 'jira';
-  async function getLinksItem() {
+
+  const getLinksItem = debounce(async () => {
     if (props.optionMethod) {
       selectLoading.value = true;
       params.value = {
@@ -75,7 +76,7 @@
         console.log(error);
       }
     }
-  }
+  }, 300);
   // 内部的关键词
   const innerKeyword = ref<string | undefined>('');
   const searchHandler = debounce((inputVal: string) => {
@@ -105,9 +106,6 @@
   );
 
   watchEffect(() => {
-    if (props.options) {
-      optionsList.value = props.options;
-    }
     if (props.modelValue) {
       selectValue.value = props.modelValue;
     }

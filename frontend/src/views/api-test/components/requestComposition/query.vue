@@ -9,14 +9,12 @@
         />
       </a-tooltip>
     </div>
-    <span>
-      <batchAddKeyVal
-        :params="innerParams"
-        :disabled="props.disabledExceptParam"
-        :default-param-item="defaultRequestParamsItem"
-        @apply="handleBatchParamApply"
-      />
-    </span>
+    <batchAddKeyVal
+      :params="innerParams"
+      :disabled="props.disabledExceptParam"
+      :default-param-item="defaultRequestParamsItem"
+      @apply="handleBatchParamApply"
+    />
   </div>
   <paramTable
     :params="innerParams"
