@@ -60,8 +60,8 @@
         select
         api_scenario_report.id,
         api_scenario_report.name
-        from api_scenario_report where api_scenario_report.deleted = #{deleted}
-                          and api_scenario_report.test_plan_id = 'NONE'
+        from api_scenario_report where
+                         api_scenario_report.test_plan_id = 'NONE'
         and api_scenario_report.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}

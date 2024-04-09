@@ -151,7 +151,7 @@ public class ApiReportService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> {
+        SubListUtils.dealForSubList(ids, 500, subList -> {
             ApiReportExample example = new ApiReportExample();
             example.createCriteria().andIdIn(subList);
             ApiReport apiReport = new ApiReport();

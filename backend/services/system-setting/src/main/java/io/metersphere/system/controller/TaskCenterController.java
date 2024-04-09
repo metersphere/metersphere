@@ -32,7 +32,7 @@ public class TaskCenterController {
 
     @PostMapping("/project/schedule/page")
     @Operation(summary = "项目-任务中心-定时任务列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
     public Pager<List<TaskCenterScheduleDTO>> projectScheduleList(@Validated @RequestBody TaskCenterSchedulePageRequest request) {
         return taskCenterService.getProjectSchedulePage(request, SessionUtils.getCurrentProjectId());
     }
