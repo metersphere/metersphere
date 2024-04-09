@@ -178,9 +178,6 @@ public class NoticeMessageTaskService {
                 if (!useDefaultSubject) {
                     messageTask.setSubject(messageTaskRequest.getSubject());
                 }
-            } else {
-                //如果没有机器人id,则只是修改人其余配置不变
-                useDefaultTemplate = messageTask.getUseDefaultTemplate();
             }
             messageTask.setReceivers(existUserIds);
             mapper.updateByPrimaryKeySelective(messageTask);
