@@ -89,7 +89,7 @@
       title: 'project.taskCenter.resourceID',
       dataIndex: 'resourceNum',
       slotName: 'resourceNum',
-      width: 300,
+      width: 140,
       showInTable: true,
       showTooltip: true,
     },
