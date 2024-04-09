@@ -170,15 +170,58 @@
           />
         </a-input-group>
       </a-form-item>
+      <httpHeader
+        v-model:params="form.headers"
+        :layout="activeLayout"
+        :disabled-param-value="false"
+        :disabled-except-param="false"
+        :second-box-height="secondBoxHeight"
+        :type-title="t('project.environmental.requestHeader')"
+      />
+      <a-form-item class="mt-4" asterisk-position="end" field="path" :label="t('project.environmental.http.authType')">
+        <a-radio-group v-model:model-value="form.authConfig.authType" class="mb-[16px]">
+          <a-radio :value="RequestAuthType.NONE">No Auth</a-radio>
+          <a-radio :value="RequestAuthType.BASIC">Basic Auth</a-radio>
+          <a-radio :value="RequestAuthType.DIGEST">Digest Auth</a-radio>
+        </a-radio-group>
+        <a-form v-if="form.authConfig.authType === 'BASIC'" ref="authFormRef" :model="form" layout="vertical">
+          <a-form-item :label="t('apiTestDebug.username')">
+            <a-input
+              v-model:model-value="form.authConfig.basicAuth.userName"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
+              class="w-[450px]"
+              :max-length="255"
+            />
+          </a-form-item>
+          <a-form-item :label="t('apiTestDebug.password')">
+            <a-input-password
+              v-model:model-value="form.authConfig.basicAuth.password"
+              autocomplete="new-password"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
+              class="w-[450px]"
+            />
+          </a-form-item>
+        </a-form>
+        <a-form v-else-if="form.authConfig.authType == 'DIGEST'" ref="authFormRef" :model="form" layout="vertical">
+          <a-form-item :label="t('apiTestDebug.username')">
+            <a-input
+              v-model:model-value="form.authConfig.digestAuth.userName"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
+              class="w-[450px]"
+              :max-length="255"
+            />
+          </a-form-item>
+          <a-form-item :label="t('apiTestDebug.password')">
+            <a-input-password
+              v-model:model-value="form.authConfig.digestAuth.password"
+              autocomplete="new-password"
+              :placeholder="t('apiTestDebug.commonPlaceholder')"
+              class="w-[450px]"
+            />
+          </a-form-item>
+        </a-form>
+      </a-form-item>
     </a-form>
-    <httpHeader
-      v-model:params="form.headers"
-      :layout="activeLayout"
-      :disabled-param-value="false"
-      :disabled-except-param="false"
-      :second-box-height="secondBoxHeight"
-      :type-title="t('project.environmental.requestHeader')"
-    />
   </MsDrawer>
 </template>
 
@@ -198,6 +241,7 @@
 
   import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';
+  import { RequestAuthType } from '@/enums/apiEnum';
 
   const httpHeader = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/header.vue'));
 
@@ -241,6 +285,19 @@
     pathMatchRule: {
       path: '',
       condition: '',
+    },
+    authConfig: {
+      authType: 'NONE',
+      basicAuth: {
+        userName: '',
+        password: '',
+        valid: true,
+      },
+      digestAuth: {
+        userName: '',
+        password: '',
+        valid: true,
+      },
     },
   };
 

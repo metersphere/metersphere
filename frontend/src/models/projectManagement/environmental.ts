@@ -1,4 +1,5 @@
 import { EnableKeyValueParam, ExecuteConditionProcessor } from '@/models/apiTest/common';
+import { RequestAuthType } from '@/enums/apiEnum';
 
 export interface EnvListItem {
   mock?: boolean;
@@ -134,6 +135,12 @@ export interface DragParam {
   moveId: string;
 }
 
+export interface AuthForm {
+  userName: string;
+  password: string;
+  valid: boolean;
+}
+
 export interface HttpForm {
   id?: string;
   protocol: string;
@@ -155,6 +162,11 @@ export interface HttpForm {
   pathMatchRule: {
     path: '';
     condition: '';
+  };
+  authConfig: {
+    authType: keyof typeof RequestAuthType;
+    basicAuth: AuthForm;
+    digestAuth: AuthForm;
   };
 }
 // 环境列表项
