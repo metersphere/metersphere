@@ -118,6 +118,7 @@
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="props.isModal ? t('apiTestManagement.noMatchModule') : t('apiTestManagement.noMatchModule')"
+        :draggable="!props.readOnly && !props.isModal && hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
         :virtual-list-props="virtualListProps"
         :field-names="{
           title: 'name',
@@ -125,7 +126,6 @@
           children: 'children',
           count: 'count',
         }"
-        :draggable="!props.readOnly && !props.isModal"
         :filter-more-action-func="filterMoreActionFunc"
         :allow-drop="allowDrop"
         block-node
@@ -475,7 +475,7 @@
         return {
           ...node,
           count: res[node.id] || 0,
-          draggable: !(props.readOnly || props.isModal),
+          draggable: node.id !== 'root' && !(props.readOnly || props.isModal),
           disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
         };
       });

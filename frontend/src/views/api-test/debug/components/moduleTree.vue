@@ -289,6 +289,7 @@
         return {
           ...node,
           count: res[node.id] || 0,
+          draggable: node.id !== 'root',
         };
       });
     } catch (error) {

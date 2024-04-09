@@ -49,7 +49,7 @@ export default {
   'project.messageManagement.appSecretPlaceholder': '打开帮助文档可直接获取',
   'project.messageManagement.appSecretRequired': 'AppSecret 不能为空',
   'project.messageManagement.disableTitle': '确定关闭 {name} 吗？',
-  'project.messageManagement.disableContent': '关闭后，将不在接收 {robot} 通知，且不在消息列表页展示',
+  'project.messageManagement.disableContent': '关闭后，将不再接收 {robot} 通知，且不在消息列表页展示',
   'project.messageManagement.disableConfirm': '确认关闭',
   'project.messageManagement.disableSuccess': '关闭成功',
   'project.messageManagement.enableTitle': '开启 {name}',

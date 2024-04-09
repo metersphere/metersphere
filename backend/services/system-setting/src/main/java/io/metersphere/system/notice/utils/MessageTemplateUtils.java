@@ -276,11 +276,11 @@ public class MessageTemplateUtils {
         for (Field allField : domainTemplateFields) {
             Schema annotation = allField.getAnnotation(Schema.class);
             if (annotation != null) {
-                String description = annotation.description();
+                String description;
                 if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                    description = "{{" + description + "}}";
+                    description = "{{" + Translator.get("message.domain."+ allField.getName()) + "}}";
                 } else {
-                    description = "<" + description + ">";
+                    description = "<" + Translator.get("message.domain."+ allField.getName()) + ">";
                 }
                 map.put(allField.getName(), description);
             }
