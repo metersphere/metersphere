@@ -1753,7 +1753,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         //增加日志检查
         operationScenarioIds.forEach(item -> {
             LOG_CHECK_LIST.add(
-                    new CheckLogModel(item, OperationLogType.COPY, "/api/scenario/batch-operation/copy")
+                    new CheckLogModel(item, OperationLogType.ADD, "/api/scenario/batch-operation/copy")
             );
         });
 

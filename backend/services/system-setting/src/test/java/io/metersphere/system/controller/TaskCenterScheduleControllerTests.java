@@ -192,6 +192,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         scheduleService.editSchedule(schedule);
         scheduleService.getScheduleByResource(schedule.getResourceId(), schedule.getJob());
         this.requestGet("/task/center/schedule/switch" + "test-schedule-switch");
+        this.requestGet("/task/center/schedule/switch" + "test-schedule-switch");
+        this.requestGet("/task/center/schedule/update/" + "test-schedule-switch" + "/0 0/2 * * * ?");
     }
-
 }

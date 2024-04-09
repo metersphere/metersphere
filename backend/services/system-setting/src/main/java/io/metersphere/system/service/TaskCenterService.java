@@ -210,4 +210,12 @@ public class TaskCenterService {
 
 
     }
+
+    public void update(String id, String cron) {
+        Schedule schedule = checkScheduleExit(id);
+        schedule.setValue(cron);
+        scheduleService.editSchedule(schedule);
+        scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
+                new TriggerKey(schedule.getKey(),schedule.getJob()), schedule.getJob().getClass());
+    }
 }

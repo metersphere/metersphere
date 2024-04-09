@@ -2292,7 +2292,7 @@ public class ApiScenarioService extends MoveNodeService {
         request.setSelectIds(scenarioIds);
         ApiScenarioBatchOperationResponse response =
                 ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, request, logInsertModule.getOperator()));
-        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.COPY.name(), logInsertModule, null);
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.ADD.name(), logInsertModule, null);
         return response;
     }
 
