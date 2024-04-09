@@ -391,12 +391,16 @@
           return node;
         });
       }
+      let copyName = `copy_${defaultScenarioInfo.name}`;
+      if (copyName.length > 255) {
+        copyName = copyName.slice(0, 255);
+      }
       scenarioTabs.value.push({
         ...defaultScenarioInfo,
         steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
-        label: isCopy ? `copy_${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
-        name: isCopy ? `copy_${defaultScenarioInfo.name}` : defaultScenarioInfo.name,
+        label: isCopy ? copyName : defaultScenarioInfo.name,
+        name: isCopy ? copyName : defaultScenarioInfo.name,
         isNew: isCopy,
         stepResponses: {},
       });
