@@ -542,10 +542,20 @@
   const keyword = ref('');
   const columns: MsTableColumn = [
     {
-      title: 'apiTestManagement.name',
-      dataIndex: 'taskName',
+      title: 'project.taskCenter.resourceID',
+      dataIndex: 'resourceNum',
+      slotName: 'resourceNum',
+      width: 140,
+      showInTable: true,
       showTooltip: true,
-      width: 150,
+    },
+    {
+      title: 'project.taskCenter.resourceName',
+      slotName: 'resourceName',
+      dataIndex: 'resourceName',
+      width: 200,
+      showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'apiTestManagement.taskRunRule',
