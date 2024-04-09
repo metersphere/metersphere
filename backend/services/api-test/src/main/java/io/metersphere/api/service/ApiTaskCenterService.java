@@ -251,7 +251,7 @@ public class ApiTaskCenterService {
                          String path,
                          String method,
                          String module) {
-        nodesList.forEach(node -> {
+        nodesList.parallelStream().forEach(node -> {
             String endpoint = TaskRunnerClient.getEndpoint(node.getIp(), node.getPort());
             //需要去除取消勾选的report
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
