@@ -1124,9 +1124,9 @@
     { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
   ];
 
-  function resetScheduleConfig(record: ApiScenarioTableItem) {
+  async function resetScheduleConfig(record: ApiScenarioTableItem) {
     // 初始化资源池
-    initResourcePool();
+    await initResourcePool();
 
     // 初始化已选择的表格数据
     tableRecord.value = record;
@@ -1146,7 +1146,7 @@
     }
     scheduleUseNewEnv.value = !!scheduleConfig.value.config.environmentId;
     // 初始化环境
-    initEnvList();
+    await initEnvList();
 
     // 初始化弹窗标题
     if (tableRecord.value.scheduleConfig) {
@@ -1156,8 +1156,8 @@
     }
   }
 
-  function openScheduleModal(record: ApiScenarioTableItem) {
-    resetScheduleConfig(record);
+  async function openScheduleModal(record: ApiScenarioTableItem) {
+    await resetScheduleConfig(record);
     showScheduleModal.value = true;
   }
   async function deleteScenarioSchedule(scenarioId: string) {
