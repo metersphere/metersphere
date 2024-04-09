@@ -77,6 +77,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setEnable(true);
         messageTaskRequest.setSubject("看看改不改");
         messageTaskRequest.setUseDefaultSubject(false);
+        messageTaskRequest.setUseDefaultTemplate(false);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

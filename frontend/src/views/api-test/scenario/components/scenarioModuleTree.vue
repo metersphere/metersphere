@@ -68,6 +68,7 @@
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="t('apiScenario.tree.noMatchModule')"
+        :draggable="!props.readOnly && hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
         :virtual-list-props="virtualListProps"
         :field-names="{
           title: 'name',
@@ -75,7 +76,6 @@
           children: 'children',
           count: 'count',
         }"
-        :draggable="!props.readOnly && hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
         block-node
         title-tooltip-position="left"
         @select="folderNodeSelect"
@@ -278,7 +278,7 @@
         return {
           ...node,
           count: res[node.id] || 0,
-          draggable: !props.readOnly,
+          draggable: node.id !== 'root' && !props.readOnly,
           disabled: props.readOnly ? node.id === selectedKeys.value[0] : false,
         };
       });

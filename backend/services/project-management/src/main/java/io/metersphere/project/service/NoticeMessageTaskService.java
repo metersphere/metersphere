@@ -146,10 +146,9 @@ public class NoticeMessageTaskService {
      * @param existUserIds       系统中还存在的入参传过来的接收人
      */
     private List<MessageTask> updateMessageTasks(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds) {
-        boolean enable = messageTaskRequest.getEnable() != null && messageTaskRequest.getEnable();
-        boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
-        boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
-
+        boolean enable = getBooleanValue(false, messageTaskRequest.getEnable());
+        boolean useDefaultSubject = getBooleanValue(true, messageTaskRequest.getUseDefaultSubject());
+        boolean useDefaultTemplate = getBooleanValue(true, messageTaskRequest.getUseDefaultTemplate());
         //查询在当前事件和已存在的通知人员下的数据，即数据库已存在的数据
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo(messageTaskRequest.getProjectId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
@@ -176,7 +175,7 @@ public class NoticeMessageTaskService {
                 messageTask.setEnable(enable);
                 messageTask.setUseDefaultSubject(useDefaultSubject);
                 messageTask.setUseDefaultTemplate(useDefaultTemplate);
-                if (!messageTask.getUseDefaultSubject()) {
+                if (!useDefaultSubject) {
                     messageTask.setSubject(messageTaskRequest.getSubject());
                 }
             } else {
@@ -195,12 +194,19 @@ public class NoticeMessageTaskService {
         return messageTasks;
     }
 
+    private static boolean getBooleanValue(boolean value, Boolean messageTaskRequest) {
+        boolean enable = value;
+        if (messageTaskRequest != null) {
+            enable = messageTaskRequest;
+        }
+        return enable;
+    }
+
     private static void buildMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTask messageTask, List<String> existUserIds) {
         String testId = messageTaskRequest.getTestId() == null ? "NONE" : messageTaskRequest.getTestId();
-        boolean enable = messageTaskRequest.getEnable() != null && messageTaskRequest.getEnable();
-        boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
-        boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
-
+        boolean enable = getBooleanValue(false, messageTaskRequest.getEnable());
+        boolean useDefaultSubject = getBooleanValue(true, messageTaskRequest.getUseDefaultSubject());
+        boolean useDefaultTemplate = getBooleanValue(true, messageTaskRequest.getUseDefaultTemplate());
         String insertId = IDGenerator.nextStr();
         messageTask.setId(insertId);
         messageTask.setTaskType(messageTaskRequest.getTaskType());
