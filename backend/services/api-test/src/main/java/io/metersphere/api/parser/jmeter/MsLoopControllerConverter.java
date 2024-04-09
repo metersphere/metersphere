@@ -109,9 +109,6 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
         loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
         loopController.setLoops(element.getMsCountController().getLoops());
-        if (StringUtils.isNotEmpty(element.getMsCountController().getLoops())) {
-            loopController.setContinueForever(true);
-        }
         return loopController;
     }
 

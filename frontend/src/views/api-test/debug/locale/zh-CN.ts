@@ -147,7 +147,7 @@ export default {
   'apiTestDebug.unit': '条',
   'apiTestDebug.specifyMatchTip': '需要指定匹配的第N条结果，如果超出指定则返回为空',
   'apiTestDebug.allMatch': '全部匹配',
-  'apiTestDebug.allMatchTip': '正则返回的是一个匹配结果数组',
+  'apiTestDebug.allMatchTip': '返回的是一个匹配结果数组',
   'apiTestDebug.contentType': '响应内容格式',
   'apiTestDebug.responseTime': '响应时间',
   'apiTestDebug.responseStage': '阶段',

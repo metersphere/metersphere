@@ -158,7 +158,7 @@ export default {
   'apiTestDebug.specifyMatchTip':
     'The Nth matching result needs to be specified. If it exceeds the specified number, it will return empty.',
   'apiTestDebug.allMatch': 'Match all',
-  'apiTestDebug.allMatchTip': 'The regular return is an array of matching results.',
+  'apiTestDebug.allMatchTip': 'The return is an array of matching results.',
   'apiTestDebug.contentType': 'Response content format',
   'apiTestDebug.responseTime': 'Response time',
   'apiTestDebug.responseStage': 'Stage',
