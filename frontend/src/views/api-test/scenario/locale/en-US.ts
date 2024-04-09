@@ -57,7 +57,7 @@ export default {
   'apiScenario.times': 'bout',
   'apiScenario.executionResult': 'Execution result',
   // 批量操作文案
-  'api_scenario.batch_operation.success': 'Success {opt} to {name}',
+  'api_scenario.batch_operation.success': 'Success {success} ，error {error} ',
   'api_scenario.table.batchMoveConfirm': 'Ready to {opt} {count} scenarios',
   'apiScenario.name': 'Scene name',
   'apiScenario.nameRequired': 'Scene name cannot be empty',

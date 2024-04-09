@@ -46,6 +46,7 @@ import { ExecuteConditionProcessor } from '@/models/apiTest/common';
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
+  ApiScenarioBatchOptionResult,
   ApiScenarioBatchRunParams,
   ApiScenarioDebugRequest,
   ApiScenarioGetModuleParams,
@@ -147,10 +148,10 @@ export function batchOptionScenario(
   }
 ) {
   if (optionType === 'batchMove') {
-    return MSR.post({ url: BatchMoveScenarioUrl, data });
+    return MSR.post<ApiScenarioBatchOptionResult>({ url: BatchMoveScenarioUrl, data });
   }
   if (optionType === 'batchCopy') {
-    return MSR.post({ url: BatchCopyScenarioUrl, data });
+    return MSR.post<ApiScenarioBatchOptionResult>({ url: BatchCopyScenarioUrl, data });
   }
 }
 
