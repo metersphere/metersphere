@@ -3,7 +3,8 @@
     <MsSplitBox>
       <template #first>
         <div class="p-[24px]">
-          <div
+          <!-- TODO:这个版本环境不展示默认项目环境 -->
+          <!-- <div
             ><a-radio-group
               v-model:model-value="showType"
               type="button"
@@ -13,11 +14,11 @@
               <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT">{{
                 t('project.environmental.env')
               }}</a-radio>
-              <!-- <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT_GROUP">{{
-              t('project.environmental.envGroup')
-            }}</a-radio> -->
+              <a-radio v-permission="['PROJECT_ENVIRONMENT:READ']" value="PROJECT_GROUP">{{
+                t('project.environmental.envGroup')
+              }}</a-radio>
             </a-radio-group></div
-          >
+          > -->
           <template v-if="showType === 'PROJECT'">
             <a-input-search
               v-model="keyword"

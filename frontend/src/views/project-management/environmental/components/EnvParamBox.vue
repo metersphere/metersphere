@@ -222,7 +222,6 @@
         try {
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
-          getParameters();
           await updateOrAddEnv({ fileList: [], request: getParameters() });
           setState(true);
 
