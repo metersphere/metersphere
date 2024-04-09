@@ -26,4 +26,6 @@ public class ApiScenarioDTO extends ApiScenario {
     private ApiScenarioScheduleConfigRequest scheduleConfig;
     @Schema(description = "定时任务下一次执行时间")
     private Long nextTriggerTime;
+    @Schema(description = "脚本错误标识")
+    private String scriptIdentifier;
 }

@@ -193,6 +193,13 @@ public class ApiScenarioReportService {
                 ApiScenarioStepType.CUSTOM_REQUEST.name(),
                 ApiScenarioStepType.SCRIPT.name());
         scenarioReportSteps.parallelStream().forEach(step -> {
+            if (StringUtils.equals(ApiScenarioStepType.CONSTANT_TIMER.name(), step.getStepType())) {
+                if (CollectionUtils.isNotEmpty(detailMap.get(step.getStepId()))) {
+                    step.setStatus(ApiReportStatus.SUCCESS.name());
+                } else {
+                    step.setStatus(ApiReportStatus.PENDING.name());
+                }
+            }
             if (stepTypes.contains(step.getStepType())) {
                 List<ApiScenarioReportStepDTO> details = detailMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(details) && details.size() > 1) {
@@ -222,7 +229,7 @@ public class ApiScenarioReportService {
                         }
                     }
                     step.setChildren(details);
-                } else if (CollectionUtils.isNotEmpty(details)){
+                } else if (CollectionUtils.isNotEmpty(details)) {
                     step.setName(details.getFirst().getRequestName());
                     step.setReportId(details.getFirst().getReportId());
                     step.setRequestTime(details.getFirst().getRequestTime());
@@ -283,8 +290,7 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isNotEmpty(steps)) {
             List<String> stepTypes = Arrays.asList(ApiScenarioStepType.IF_CONTROLLER.name(),
                     ApiScenarioStepType.LOOP_CONTROLLER.name(),
-                    ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name(),
-                    ApiScenarioStepType.CONSTANT_TIMER.name());
+                    ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name());
             steps.parallelStream().forEach(step -> {
                 List<ApiScenarioReportStepDTO> children = scenarioReportStepMap.get(step.getStepId());
                 if (CollectionUtils.isNotEmpty(children)) {
@@ -296,7 +302,7 @@ public class ApiScenarioReportService {
                     step.setResponseSize(step.getChildren().stream().mapToLong(child -> child.getResponseSize() != null ? child.getResponseSize() : 0).sum());
                     //请求的状态， 如果是 LOOP_CONTROLLER IF_CONTROLLER ONCE_ONLY_CONTROLLER  则需要判断子级的状态 但是如果下面没有子集不需要判断状态
                     //需要把这些数据拿出来 如果没有子请求说明是最后一级的请求 不需要计算入状态
-                   //获取所有的子请求的状态
+                    //获取所有的子请求的状态
                     List<String> requestStatus = children.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
                     //过滤出来SUCCESS的状态
                     List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
@@ -310,9 +316,6 @@ public class ApiScenarioReportService {
                     }
                 } else if (stepTypes.contains(step.getStepType())) {
                     step.setStatus(ApiReportStatus.PENDING.name());
-                    if (StringUtils.equals(ApiScenarioStepType.CONSTANT_TIMER.name(), step.getStepType())) {
-                        step.setStatus(ApiReportStatus.SUCCESS.name());
-                    }
                 }
             });
         }

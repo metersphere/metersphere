@@ -19,7 +19,9 @@ import org.apache.jorphan.collections.HashTree;
 public class ScenarioTimeWaitingProcessorConverter extends TimeWaitingProcessorConverter {
     @Override
     public void parse(HashTree hashTree, TimeWaitingProcessor processor, ParameterConfig config) {
-        hashTree.add(getConstantTimerDebugSampler(), getConstantTimer(processor));
+        DebugSampler constantTimerDebugSampler = getConstantTimerDebugSampler();
+        constantTimerDebugSampler.setProperty(ElementProperty.MS_STEP_ID.name(), processor.getStepId());
+        hashTree.add(constantTimerDebugSampler, getConstantTimer(processor));
     }
 
     private DebugSampler getConstantTimerDebugSampler() {

@@ -213,6 +213,7 @@
         <ExecutionStatus
           :module-type="ReportEnum.API_SCENARIO_REPORT"
           :status="record.lastReportStatus ? record.lastReportStatus : 'PENDING'"
+          :script-identifier="record.scriptIdentifier"
         />
       </template>
       <template #createUserFilter="{ columnConfig }">
@@ -775,7 +776,7 @@
       slotName: 'lastReportStatus',
       showTooltip: false,
       showDrag: true,
-      width: 100,
+      width: 200,
     },
     {
       title: 'apiScenario.table.columns.tags',

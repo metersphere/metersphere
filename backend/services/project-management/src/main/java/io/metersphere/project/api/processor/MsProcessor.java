@@ -49,4 +49,9 @@ public abstract class MsProcessor {
      * 执行时设置
      */
     private String projectId;
+    /**
+     * 环境ID
+     * 执行时设置
+     */
+    private String stepId;
 }
