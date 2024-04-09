@@ -98,8 +98,9 @@
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {
         if (
-          (stepType.includes(item.stepType) && item.status && item.status.includes(stepTypeStatus)) ||
-          (stepTypeStatus && stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier)
+          stepType.includes(item.stepType) &&
+          ((item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
+            (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier))
         ) {
           result.push({ ...item, expanded: true });
         } else if (item.children) {

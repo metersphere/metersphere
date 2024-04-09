@@ -27,7 +27,7 @@
         </MsButton>
       </div>
     </template>
-    <a-radio-group v-model="showType" type="button" size="small">
+    <a-radio-group v-model="showType" type="button">
       <a-radio value="detail">{{ t('project.commonScript.detail') }}</a-radio>
       <a-radio value="changeHistory">{{ t('project.commonScript.changeHistory') }}</a-radio>
     </a-radio-group>
@@ -41,7 +41,7 @@
         <div class="item">
           <span class="label">{{ t('project.commonScript.tags') }}</span>
           <span class="content">
-            <MsTag v-for="tag of form.tags" :key="tag" theme="outline">{{ tag }}</MsTag>
+            <MsTag v-for="tag of form.tags" :key="tag" class="mb-2" theme="outline">{{ tag }}</MsTag>
           </span>
         </div>
       </div>
@@ -381,7 +381,7 @@
       .label {
         width: 56px;
         color: var(--color-text-3);
-        @apply mr-2;
+        @apply mr-2 flex-shrink-0;
       }
     }
   }

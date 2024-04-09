@@ -19,6 +19,9 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
+      <template #resourceId="{ record }">
+        <div type="text" class="one-line-text flex w-full">{{ record.resourceId }}</div>
+      </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="statusFilterVisible"
@@ -34,11 +37,23 @@
           <template #content>
             <div class="arco-table-filters-content">
               <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusListFilters" direction="vertical" size="small">
+                <a-checkbox-group
+                  v-model:model-value="statusFiltersMap[props.moduleType]"
+                  direction="vertical"
+                  size="small"
+                >
                   <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
                     <ExecutionStatus :module-type="props.moduleType" :status="key" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="arco-table-filters-bottom">
+                <a-button size="mini" type="secondary" @click="handleFilterReset">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button size="mini" type="primary" @click="handleFilterSubmit()">
+                  {{ t('common.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -49,6 +64,19 @@
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(ExecutionMethodsLabel[record.triggerMode]) }}</span>
+      </template>
+      <template #triggerModeFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="triggerModeVisible"
+          v-model:status-filters="triggerModeFiltersMap[props.moduleType]"
+          :title="(columnConfig.title as string)"
+          :list="triggerModeList"
+          @search="initData()"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
       </template>
       <template #operationTime="{ record }">
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
@@ -91,6 +119,7 @@
   import ExecutionStatus from './executionStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchStopRealOrdApi,
@@ -105,16 +134,19 @@
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { TaskStatus } from './utils';
 
+  const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
 
   const { openModal } = useModal();
@@ -127,7 +159,6 @@
   }>();
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
-  const statusListFilters = ref<string[]>([]);
 
   const permissionsMap = {
     organization: {
@@ -165,15 +196,15 @@
       dataIndex: 'resourceId',
       slotName: 'resourceId',
       width: 200,
-      showInTable: true,
       showTooltip: true,
+      showDrag: false,
     },
     {
       title: 'project.taskCenter.resourceName',
       slotName: 'resourceName',
       dataIndex: 'resourceName',
       width: 300,
-      showDrag: true,
+      showDrag: false,
       showTooltip: true,
     },
     {
@@ -181,6 +212,10 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -189,6 +224,7 @@
       title: 'project.taskCenter.executionMode',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
+      titleSlotName: 'triggerModeFilter',
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -238,14 +274,62 @@
       showSelectAll: true,
     }
   );
+  const triggerModeList = ref([
+    {
+      value: 'SCHEDULE',
+      label: t('project.taskCenter.scheduledTask'),
+    },
+    {
+      value: 'MANUAL',
+      label: t('project.taskCenter.manualExecution'),
+    },
+    {
+      value: 'API',
+      label: t('project.taskCenter.interfaceCall'),
+    },
+    {
+      value: 'BATCH',
+      label: t('project.taskCenter.batchExecution'),
+    },
+  ]);
+  const triggerModeVisible = ref<boolean>(false);
+  const triggerModeApiCase = ref([]);
+  const triggerModeApiScenario = ref([]);
+
+  const triggerModeFiltersMap = ref<Record<string, string[]>>({
+    API_CASE: triggerModeApiCase.value,
+    API_SCENARIO: triggerModeApiScenario.value,
+  });
+
+  const statusFilterApiCase = ref([]);
+  const statusFilterApiScenario = ref([]);
+
+  const statusFiltersMap = ref<Record<string, string[]>>({
+    API_CASE: statusFilterApiCase.value,
+    API_SCENARIO: statusFilterApiScenario.value,
+  });
 
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
       moduleType: props.moduleType,
-      filter: { status: statusListFilters.value },
+      filter: {
+        status: statusFiltersMap.value[props.moduleType],
+        triggerMode: triggerModeFiltersMap.value[props.moduleType],
+      },
     });
     loadList();
+  }
+
+  function handleFilterReset() {
+    statusFiltersMap.value[props.moduleType] = [];
+    statusFilterVisible.value = false;
+    initData();
+  }
+
+  function handleFilterSubmit() {
+    statusFilterVisible.value = false;
+    initData();
   }
 
   const tableBatchActions = {
@@ -374,6 +458,22 @@
       }
     }
   );
+  /**
+   * 跳转接口用例详情 TODO 后台要加字段 加了字段再处理
+   */
+
+  function showDetail(id: string) {
+    if (props.moduleType === 'API_CASE') {
+      openNewPage(RouteEnum.API_TEST_MANAGEMENT, {
+        cId: id,
+      });
+    } else {
+      openNewPage(RouteEnum.API_TEST_MANAGEMENT, {
+        dId: id,
+      });
+    }
+  }
+
   onMounted(async () => {
     await tableStore.initColumn(TableKeyEnum.TASK_API_CASE, columns, 'drawer', true);
   });
