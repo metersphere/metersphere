@@ -7,10 +7,10 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ApiScenarioStatus, RequestDefinitionStatus } from '@/enums/apiEnum';
+  import { ApiScenarioStatus, RequestCaseStatus, RequestDefinitionStatus } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    status: RequestDefinitionStatus | ApiScenarioStatus;
+    status: RequestDefinitionStatus | ApiScenarioStatus | RequestCaseStatus;
     size?: Size;
   }>();
 
