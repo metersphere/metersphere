@@ -432,7 +432,7 @@
   });
   const moduleTree = computed(() => mapTree(props.moduleTree, (node) => ({ ...node, draggable: false })));
   const syncFrequencyOptions = [
-    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ? ' },
+    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
     { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
     { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
     { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },

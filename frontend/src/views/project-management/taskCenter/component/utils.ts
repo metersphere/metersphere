@@ -146,4 +146,27 @@ export const TaskStatus = {
   },
 };
 
+export const resourceTypeMap = {
+  [TaskCenterEnum.API_CASE]: {
+    value: TaskCenterEnum.API_CASE,
+    label: 'project.taskCenter.interfaceCase',
+  },
+  [TaskCenterEnum.API_SCENARIO]: {
+    value: TaskCenterEnum.API_SCENARIO,
+    label: 'project.taskCenter.apiScenario',
+  },
+  [TaskCenterEnum.UI_TEST]: {
+    value: TaskCenterEnum.UI_TEST,
+    label: 'project.taskCenter.uiDefaultFile',
+  },
+  [TaskCenterEnum.LOAD_TEST]: {
+    value: TaskCenterEnum.LOAD_TEST,
+    label: 'project.taskCenter.performanceTest',
+  },
+  [TaskCenterEnum.TEST_PLAN]: {
+    value: TaskCenterEnum.TEST_PLAN,
+    label: 'project.taskCenter.testPlan',
+  },
+};
+
 export default {};

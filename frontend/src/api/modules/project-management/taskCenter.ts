@@ -14,6 +14,7 @@ import {
   taskOrgRealCenterListUrl,
   taskProRealCenterListUrl,
   taskSysRealCenterListUrl,
+  updateRunRulesUrl,
 } from '@/api/requrls/project-management/taskCenter';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -74,5 +75,8 @@ export function deleteScheduleSysTask(id: string) {
 
 export function switchSchedule(id: string) {
   return MSR.get({ url: `${enableSchedule}/${id}` });
+}
+export function updateRunRules(id: string, data: string) {
+  return MSR.get({ url: `${updateRunRulesUrl}/${id}`, data });
 }
 export default {};

@@ -36,3 +36,5 @@ export const stopRealSysApiUrl = '/task/center/api/system/stop';
 export const stopRealOrdApiUrl = '/task/center/api/org/stop';
 // 停止单个任务(项目)
 export const stopRealProjectApiUrl = '/task/center/api/project/stop';
+// 更新定时任务运行规则
+export const updateRunRulesUrl = '/task/center/schedule/update';
