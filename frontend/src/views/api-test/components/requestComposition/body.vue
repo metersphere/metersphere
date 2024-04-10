@@ -207,6 +207,7 @@
       {
         title: 'apiTestDebug.paramName',
         dataIndex: 'key',
+        needValidRepeat: true,
         slotName: 'key',
         width: 240,
       },

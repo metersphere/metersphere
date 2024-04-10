@@ -165,6 +165,7 @@
         :content-tab-list="contentTabList"
         :get-text-func="getTabBadge"
         class="no-content relative mt-[8px] border-b"
+        :before-change="beforeChange"
       />
     </div>
     <div ref="splitContainerRef" class="request-and-response h-[calc(100%-100px)]">
@@ -447,6 +448,7 @@
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useFormTableStore from '@/store/modules/components/form-table';
   import useUserStore from '@/store/modules/user';
   import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
@@ -512,6 +514,12 @@
   } & RequestCustomAttr &
     TabItem;
 
+  interface TabErrorMessage {
+    tab: string;
+    tabLabel: string;
+    errorMessageList: string[];
+  }
+
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
     moduleTree?: ModuleTreeNode[]; // 模块树
@@ -540,6 +548,7 @@
 
   const appStore = useAppStore();
   const userStore = useUserStore();
+  const formTableStore = useFormTableStore();
   const { t } = useI18n();
 
   const loading = defineModel<boolean>('detailLoading', { default: false });
@@ -1470,6 +1479,24 @@
     }
   }
 
+  const tabErrorMessageList = ref<TabErrorMessage[]>([]);
+  // 关键是tab内容用的是v-if, activeTab是当前的时候，才能获取到对应tab的errorMessageList，所以需要beforeChange
+  function beforeChange(oldKey: string) {
+    const tabLabel = contentTabList.value.find((item) => item.value === oldKey)?.label ?? '';
+    const index = tabErrorMessageList.value.findIndex((item) => item.tab === oldKey);
+    const listItem: TabErrorMessage = {
+      tab: oldKey,
+      tabLabel,
+      errorMessageList: formTableStore.errorMessageList,
+    };
+    if (index > -1) {
+      tabErrorMessageList.value[index] = listItem;
+    } else {
+      tabErrorMessageList.value.push(listItem);
+    }
+    return true;
+  }
+
   const apiBaseFormRef = ref<InstanceType<typeof apiBaseForm>>();
   const isUrlError = ref(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {
@@ -1482,6 +1509,16 @@
       if (errors) {
         requestVModel.value.activeTab = RequestComposition.BASE_INFO;
       } else {
+        // 校验重复
+        beforeChange(requestVModel.value.activeTab);
+        if (tabErrorMessageList.value.length) {
+          tabErrorMessageList.value.forEach((item) => {
+            item.errorMessageList.forEach((message) => {
+              Message.error(`${item.tabLabel}${message}`);
+            });
+          });
+          return;
+        }
         switch (value) {
           case 'save':
             handleSaveShortcut();

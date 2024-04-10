@@ -411,6 +411,7 @@
       slotName: 'key',
       inputType: 'autoComplete',
       autoCompleteParams: responseHeaderOption,
+      needValidRepeat: true,
     },
     {
       title: 'apiTestManagement.paramVal',

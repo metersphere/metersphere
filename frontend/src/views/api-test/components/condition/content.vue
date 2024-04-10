@@ -660,6 +660,7 @@ if (!result){
       title: 'project.commonScript.ParameterNames',
       slotName: 'key',
       dataIndex: 'key',
+      needValidRepeat: true,
       addLineDisabled: true,
       disabledColumn: true,
     },
@@ -713,6 +714,7 @@ if (!result){
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'apiTestDebug.extractValueByColumn',

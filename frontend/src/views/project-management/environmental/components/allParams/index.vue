@@ -83,6 +83,7 @@
       slotName: 'key',
       showInTable: true,
       showDrag: true,
+      needValidRepeat: true,
       columnSelectorDisabled: true,
     },
     {

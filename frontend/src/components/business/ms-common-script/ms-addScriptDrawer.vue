@@ -141,6 +141,7 @@
       title: 'project.commonScript.ParameterNames',
       slotName: 'key',
       dataIndex: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'project.commonScript.ParameterValue',

@@ -1,148 +1,167 @@
 <template>
-  <MsBaseTable
-    v-bind="propsRes"
-    :hoverable="false"
-    is-simple-setting
-    :span-method="props.spanMethod"
-    :class="!props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : ''"
-    v-on="propsEvent"
-    @drag-change="tableChange"
-  >
-    <!-- 展开行-->
-    <template #expand-icon="{ expanded, record }">
-      <div class="flex items-center gap-[2px] text-[var(--color-text-4)]">
-        <MsIcon :type="expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'" />
-        <div v-if="record.children">{{ record.children.length }}</div>
-      </div>
-    </template>
-    <template
-      v-for="item of props.columns.filter((e) => e.slotName !== undefined)"
-      #[item.slotName!]="{ record, rowIndex, column }"
+  <a-form ref="formRef" :model="propsRes">
+    <MsBaseTable
+      v-bind="propsRes"
+      :hoverable="false"
+      is-simple-setting
+      :span-method="props.spanMethod"
+      :class="!props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : ''"
+      v-on="propsEvent"
+      @drag-change="tableChange"
     >
-      <slot :name="item.slotName" v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }">
-        <a-tooltip
-          v-if="item.hasRequired"
-          :content="t(record.required ? 'msFormTable.paramRequired' : 'msFormTable.paramNotRequired')"
+      <!-- 展开行-->
+      <template #expand-icon="{ expanded, record }">
+        <div class="flex items-center gap-[2px] text-[var(--color-text-4)]">
+          <MsIcon :type="expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'" />
+          <div v-if="record.children">{{ record.children.length }}</div>
+        </div>
+      </template>
+      <template
+        v-for="item of props.columns.filter((e) => e.slotName !== undefined)"
+        :key="item.toString()"
+        #[item.slotName!]="{ record, rowIndex, column }"
+      >
+        <a-form-item
+          :field="`data[${rowIndex}].${item.dataIndex}`"
+          label=""
+          :rules="{
+            validator: (value, callback) => {
+              validRepeat(rowIndex, item.dataIndex as string, value, callback);
+            },
+          }"
         >
-          <MsButton
-            type="icon"
-            :class="[
-              record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-              '!mr-[4px] !p-[4px]',
-            ]"
-            size="mini"
-            @click="toggleRequired(record, rowIndex, item)"
+          <slot
+            :name="item.slotName"
+            v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
           >
-            <div>*</div>
-          </MsButton>
-        </a-tooltip>
-        <a-input
-          v-if="item.inputType === 'input'"
-          v-model:model-value="record[item.dataIndex as string]"
-          :placeholder="t(item.locale)"
-          class="ms-form-table-input"
-          :max-length="255"
-          size="mini"
-          @input="() => handleFormChange(record, rowIndex, item)"
-        />
-        <a-select
-          v-else-if="item.inputType === 'select'"
-          v-model:model-value="record[item.dataIndex as string]"
-          :options="item.typeOptions || []"
-          class="ms-form-table-input w-full"
-          size="mini"
-          @change="() => handleFormChange(record, rowIndex, item)"
-        />
-        <MsTagsInput
-          v-else-if="item.inputType === 'tags'"
-          v-model:model-value="record[item.dataIndex as string]"
-          :max-tag-count="1"
-          input-class="ms-form-table-input"
-          size="mini"
-          @change="() => handleFormChange(record, rowIndex, item)"
-          @clear="() => handleFormChange(record, rowIndex, item)"
-        />
-        <a-switch
-          v-else-if="item.inputType === 'switch'"
-          v-model:model-value="record[item.dataIndex as string]"
-          size="small"
-          class="ms-form-table-input-switch"
-          type="line"
-          @change="() => handleFormChange(record, rowIndex, item)"
-        />
-        <a-checkbox
-          v-else-if="item.inputType === 'checkbox'"
-          v-model:model-value="record[item.dataIndex as string]"
-          @change="() => handleFormChange(record, rowIndex, item)"
-        />
-        <template v-else-if="item.inputType === 'autoComplete'">
-          <a-auto-complete
-            v-model:model-value="record[item.dataIndex as string]"
-            :data="item.autoCompleteParams?.filter((e) => e.isShow === true)"
-            class="ms-form-table-input"
-            :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
-            :filter-option="false"
-            size="small"
-            @search="(val) => handleSearchParams(val, item)"
-            @change="() => handleFormChange(record, rowIndex, item)"
-            @select="(val) => selectAutoComplete(val, record, item)"
-          >
-            <template #option="{ data: opt }">
-              <div class="w-[350px]">
-                {{ opt.raw.value }}
-                <a-tooltip :content="t(opt.raw.desc)" position="bl" :mouse-enter-delay="300">
-                  <div class="one-line-text max-w-full text-[12px] leading-[16px] text-[var(--color-text-4)]">
-                    {{ t(opt.raw.desc) }}
+            <a-tooltip
+              v-if="item.hasRequired"
+              :content="t(record.required ? 'msFormTable.paramRequired' : 'msFormTable.paramNotRequired')"
+            >
+              <MsButton
+                type="icon"
+                :class="[
+                  record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
+                  '!mr-[4px] !p-[4px]',
+                ]"
+                size="mini"
+                @click="toggleRequired(record, rowIndex, item)"
+              >
+                <div>*</div>
+              </MsButton>
+            </a-tooltip>
+            <a-input
+              v-if="item.inputType === 'input'"
+              v-model:model-value="record[item.dataIndex as string]"
+              :placeholder="t(item.locale)"
+              class="ms-form-table-input"
+              :max-length="255"
+              size="mini"
+              @input="() => handleFormChange(record, rowIndex, item)"
+            />
+            <a-select
+              v-else-if="item.inputType === 'select'"
+              v-model:model-value="record[item.dataIndex as string]"
+              :options="item.typeOptions || []"
+              class="ms-form-table-input w-full"
+              size="mini"
+              @change="() => handleFormChange(record, rowIndex, item)"
+            />
+            <MsTagsInput
+              v-else-if="item.inputType === 'tags'"
+              v-model:model-value="record[item.dataIndex as string]"
+              :max-tag-count="1"
+              input-class="ms-form-table-input"
+              size="mini"
+              @change="() => handleFormChange(record, rowIndex, item)"
+              @clear="() => handleFormChange(record, rowIndex, item)"
+            />
+            <a-switch
+              v-else-if="item.inputType === 'switch'"
+              v-model:model-value="record[item.dataIndex as string]"
+              size="small"
+              class="ms-form-table-input-switch"
+              type="line"
+              @change="() => handleFormChange(record, rowIndex, item)"
+            />
+            <a-checkbox
+              v-else-if="item.inputType === 'checkbox'"
+              v-model:model-value="record[item.dataIndex as string]"
+              @change="() => handleFormChange(record, rowIndex, item)"
+            />
+            <template v-else-if="item.inputType === 'autoComplete'">
+              <a-auto-complete
+                v-model:model-value="record[item.dataIndex as string]"
+                :data="item.autoCompleteParams?.filter((e) => e.isShow === true)"
+                class="ms-form-table-input"
+                :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
+                :filter-option="false"
+                size="small"
+                @search="(val) => handleSearchParams(val, item)"
+                @change="() => handleFormChange(record, rowIndex, item)"
+                @select="(val) => selectAutoComplete(val, record, item)"
+              >
+                <template #option="{ data: opt }">
+                  <div class="w-[350px]">
+                    {{ opt.raw.value }}
+                    <a-tooltip :content="t(opt.raw.desc)" position="bl" :mouse-enter-delay="300">
+                      <div class="one-line-text max-w-full text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                        {{ t(opt.raw.desc) }}
+                      </div>
+                    </a-tooltip>
                   </div>
-                </a-tooltip>
+                </template>
+              </a-auto-complete>
+            </template>
+            <template v-else-if="item.inputType === 'text'">
+              {{
+                typeof item.valueFormat === 'function'
+                  ? item.valueFormat(record)
+                  : record[item.dataIndex as string] || '-'
+              }}
+            </template>
+            <template v-else-if="item.dataIndex === 'action'">
+              <div
+                :key="item.dataIndex"
+                class="flex flex-row items-center"
+                :class="{ 'justify-end': item.align === 'right' }"
+              >
+                <slot
+                  name="operationPre"
+                  v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+                ></slot>
+                <MsTableMoreAction
+                  v-if="item.moreAction"
+                  :list="getMoreActionList(item.moreAction, record)"
+                  @select="(e) => handleMoreActionSelect(e, record, item, rowIndex)"
+                />
+                <icon-minus-circle
+                  v-if="dataLength > 1 && rowIndex !== dataLength - 1"
+                  class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
+                  size="20"
+                  @click="deleteParam(record, rowIndex)"
+                />
               </div>
             </template>
-          </a-auto-complete>
-        </template>
-        <template v-else-if="item.inputType === 'text'">
-          {{
-            typeof item.valueFormat === 'function' ? item.valueFormat(record) : record[item.dataIndex as string] || '-'
-          }}
-        </template>
-        <template v-else-if="item.dataIndex === 'action'">
-          <div
-            :key="item.dataIndex"
-            class="flex flex-row items-center"
-            :class="{ 'justify-end': item.align === 'right' }"
-          >
-            <slot
-              name="operationPre"
-              v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
-            ></slot>
-            <MsTableMoreAction
-              v-if="item.moreAction"
-              :list="getMoreActionList(item.moreAction, record)"
-              @select="(e) => handleMoreActionSelect(e, record, item, rowIndex)"
-            />
-            <icon-minus-circle
-              v-if="dataLength > 1 && rowIndex !== dataLength - 1"
-              class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
-              size="20"
-              @click="deleteParam(record, rowIndex)"
-            />
-          </div>
-        </template>
-      </slot>
-    </template>
-    <template
-      v-for="item of props.columns.filter((e) => e.titleSlotName !== undefined)"
-      #[item.titleSlotName!]="{ record, rowIndex, column }"
-    >
-      <slot
-        :name="item.titleSlotName"
-        v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+          </slot>
+        </a-form-item>
+      </template>
+      <template
+        v-for="item of props.columns.filter((e) => e.titleSlotName !== undefined)"
+        #[item.titleSlotName!]="{ record, rowIndex, column }"
       >
-      </slot>
-    </template>
-  </MsBaseTable>
+        <slot
+          :name="item.titleSlotName"
+          v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+        >
+        </slot>
+      </template>
+    </MsBaseTable>
+  </a-form>
 </template>
 
 <script setup lang="ts">
+  import { FormInstance } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -155,6 +174,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
+  import useFormTableStore from '@/store/modules/components/form-table';
 
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -167,6 +187,7 @@
     required?: boolean; // 是否必填
     inputType?: 'input' | 'select' | 'tags' | 'switch' | 'text' | 'checkbox' | 'autoComplete'; // 输入组件类型
     autoCompleteParams?: SelectOptionData[]; // 自动补全参数
+    needValidRepeat?: boolean; // 是否需要判断重复
     valueFormat?: (record: Record<string, any>) => string; // 展示值格式化，仅在inputType为text时生效
     [key: string]: any; // 扩展属性
   }
@@ -217,6 +238,7 @@
 
   const { t } = useI18n();
   const tableStore = useTableStore();
+  const formTableStore = useFormTableStore();
 
   async function initColumns() {
     if (props.showSetting && props.tableKey) {
@@ -258,6 +280,31 @@
 
   const dataLength = computed(() => propsRes.value.data.length);
 
+  // 校验重复
+  const formRef = ref<FormInstance>();
+  function validRepeat(rowIndex: number, dataIndex: string, value: any, callback: (error?: string) => void) {
+    const currentColumn = props.columns.find((item) => item.dataIndex === dataIndex);
+    if (!currentColumn?.needValidRepeat) {
+      callback();
+      return;
+    }
+    propsRes.value.data?.forEach((row, index) => {
+      if (row[dataIndex].length && index !== rowIndex && row[dataIndex] === value) {
+        callback(`${t(currentColumn?.title as string)}${t('msFormTable.paramRepeatMessage')}`);
+      }
+    });
+    callback();
+  }
+
+  // 校验并更新错误信息列表
+  const errorMessageList = ref<string[]>([]); // 错误信息列表
+  function validateAndUpdateErrorMessageList() {
+    formRef.value?.validate((errors) => {
+      errorMessageList.value = !errors ? [] : [...new Set(Object.values(errors).map(({ message }) => message))];
+      formTableStore.setErrorMessageList(errorMessageList.value);
+    });
+  }
+
   watch(
     () => selectedKeys.value,
     (arr) => {
@@ -276,6 +323,7 @@
     () => props.data,
     (arr) => {
       propsRes.value.data = arr as any[];
+      validateAndUpdateErrorMessageList();
     },
     {
       immediate: true,
@@ -369,6 +417,11 @@
   function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {
     record[item.dataIndex as string] = val;
   }
+
+  // 卸载前清空errorMessageList
+  onBeforeUnmount(() => {
+    formTableStore.setErrorMessageList([]);
+  });
 
   await initColumns();
 </script>
@@ -467,5 +520,21 @@
     font-size: 12px;
     line-height: 16px;
     color: var(--color-text-1);
+  }
+  :deep(.arco-form-item) {
+    margin-bottom: 0;
+    .arco-form-item-label-col {
+      display: none;
+    }
+    .arco-form-item-content,
+    .arco-form-item-wrapper-col {
+      min-height: auto;
+    }
+    .arco-form-item-message {
+      margin-bottom: 0;
+    }
+    .arco-form-item-content-flex {
+      flex-wrap: nowrap;
+    }
   }
 </style>

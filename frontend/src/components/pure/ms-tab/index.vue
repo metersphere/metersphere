@@ -1,5 +1,9 @@
 <template>
-  <a-tabs v-model:active-key="innerActiveKey" :class="[props.class, props.noContent ? 'no-content' : '']">
+  <a-tabs
+    v-model:active-key="innerActiveKey"
+    :class="[props.class, props.noContent ? 'no-content' : '']"
+    @tab-click="handleTabClick"
+  >
     <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="item.label">
       <template #title>
         <a-badge
@@ -28,6 +32,7 @@
       class?: string;
       getTextFunc?: (value: any) => string;
       noContent?: boolean;
+      beforeChange?: (oldKey: string) => boolean;
     }>(),
     {
       getTextFunc: (value: any) => value,
@@ -38,6 +43,16 @@
   const innerActiveKey = defineModel<string>('activeKey', {
     default: '',
   });
+
+  // tab切换拦截
+  async function handleTabClick(key: string | number) {
+    const oldKey = innerActiveKey.value;
+    let continueChange = true;
+    if (props.beforeChange) {
+      continueChange = await props.beforeChange(oldKey);
+    }
+    innerActiveKey.value = continueChange ? (key as string) : oldKey;
+  }
 </script>
 
 <style lang="less" scoped>

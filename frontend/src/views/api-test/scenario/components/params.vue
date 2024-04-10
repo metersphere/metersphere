@@ -76,6 +76,7 @@
       title: 'apiScenario.params.name',
       dataIndex: 'key',
       slotName: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'apiScenario.params.type',

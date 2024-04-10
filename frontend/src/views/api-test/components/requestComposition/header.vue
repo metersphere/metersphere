@@ -60,6 +60,7 @@
       dataIndex: 'key',
       slotName: 'key',
       inputType: 'autoComplete',
+      needValidRepeat: true,
       autoCompleteParams: responseHeaderOption,
     },
     {
