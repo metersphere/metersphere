@@ -1863,6 +1863,10 @@ public class ApiScenarioService extends MoveNodeService {
     private List<String> getHasDetailStepIds(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, Object> stepDetailsParam) {
         List<String> needBlobStepIds = new ArrayList<>();
         for (ApiScenarioStepCommonDTO step : steps) {
+            List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
+            if (CollectionUtils.isNotEmpty(children)) {
+                needBlobStepIds.addAll(getHasDetailStepIds(children, stepDetailsParam));
+            }
             if (BooleanUtils.isFalse(step.getEnable())) {
                 continue;
             }
@@ -1874,10 +1878,6 @@ public class ApiScenarioService extends MoveNodeService {
                 continue;
             }
             needBlobStepIds.add(step.getId());
-            List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
-            if (CollectionUtils.isNotEmpty(children)) {
-                needBlobStepIds.addAll(getHasDetailStepIds(children, stepDetailsParam));
-            }
         }
         return needBlobStepIds;
     }
