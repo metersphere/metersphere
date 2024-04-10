@@ -28,10 +28,11 @@ public class ApiScenarioNoticeService {
     @Resource
     private ScheduleMapper scheduleMapper;
 
-    public List<Schedule> getScheduleNotice(ApiScenarioScheduleConfigRequest request) {
+    public Schedule getScheduleNotice(ApiScenarioScheduleConfigRequest request) {
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(request.getScenarioId()).andJobEqualTo(ApiScenarioScheduleJob.class.getName());
-        return scheduleMapper.selectByExample(example);
+        List<Schedule> schedules = scheduleMapper.selectByExample(example);
+        return CollectionUtils.isEmpty(schedules) ? null : schedules.get(0);
     }
 
     public List<ApiScenario> getBatchOptionScenarios(ApiScenarioBatchRequest request) {
