@@ -22,7 +22,7 @@
     />
   </div>
   <paramsTable
-    v-model:params="innerParams"
+    :params="innerParams"
     :table-key="props.tableKey"
     :columns="columns"
     :draggable="true"
@@ -34,8 +34,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
-
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
@@ -47,7 +45,6 @@
 
   const props = withDefaults(
     defineProps<{
-      params: any[];
       tableKey: TableKeyEnum;
     }>(),
     {
@@ -55,7 +52,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:params', value: any[]): void;
     (e: 'change'): void; //  数据发生变化
   }>();
 
@@ -63,13 +59,15 @@
 
   const { t } = useI18n();
 
-  const innerParams = useVModel(props, 'params', emit);
-  const backupParams = ref(props.params);
+  const innerParams = defineModel<any[]>('params', {
+    required: true,
+  });
+  const backupParams = ref(innerParams.value);
   const firstSearch = ref(true);
 
   const defaultParamItem = {
     key: '',
-    type: '',
+    paramType: '',
     value: '',
     description: '',
     tags: [],

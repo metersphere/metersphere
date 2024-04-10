@@ -24,6 +24,7 @@ export default {
   'ms.paramsInput.floatIntegerMin': '整数部分最小值',
   'ms.paramsInput.floatIntegerMax': '整数部分最大值',
   'ms.paramsInput.commonPlaceholder': '请输入',
+  'ms.paramsInput.commonDescPlaceholder': '请输入描述',
   'ms.paramsInput.commonSelectPlaceholder': '请选择',
   'ms.paramsInput.bool': '布尔值',
   'ms.paramsInput.boolDesc': '随机生成一个布尔值',

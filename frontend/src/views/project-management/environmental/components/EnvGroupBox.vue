@@ -38,18 +38,19 @@
           </a-form-item>
         </a-form>
         <paramsTable
-          v-model:params="innerParams"
+          :params="innerParams"
           :show-setting="false"
           :columns="columns"
           :selectable="false"
+          :default-param-item="defaultParamItem"
           @change="handleParamTableChange"
         />
       </div>
       <div v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="footer" :style="{ width: '100%' }">
         <a-button :disabled="!canSave" @click="handleReset">{{ t('common.cancel') }}</a-button>
-        <a-button :disabled="!canSave" :loading="loading" type="primary" @click="handleSave">{{
-          t('common.save')
-        }}</a-button>
+        <a-button :disabled="!canSave" :loading="loading" type="primary" @click="handleSave">
+          {{ t('common.save') }}
+        </a-button>
       </div>
     </template>
     <template v-else>
@@ -86,6 +87,13 @@
   });
   const store = useProjectEnvStore();
 
+  const defaultParamItem = {
+    projectId: '',
+    environmentId: '',
+    host: '',
+    description: '',
+    enable: true,
+  };
   const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'project.environmental.project',

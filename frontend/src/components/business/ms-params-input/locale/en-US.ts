@@ -26,6 +26,7 @@ export default {
   'ms.paramsInput.floatIntegerMin': 'Minimum value of integer part',
   'ms.paramsInput.floatIntegerMax': 'Maximum value of integer part',
   'ms.paramsInput.commonPlaceholder': 'Please input',
+  'ms.paramsInput.commonDescPlaceholder': 'Please input description',
   'ms.paramsInput.commonSelectPlaceholder': 'Please select',
   'ms.paramsInput.bool': 'Boolean',
   'ms.paramsInput.boolDesc': 'Generate a random boolean value',

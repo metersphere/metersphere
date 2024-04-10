@@ -1,5 +1,8 @@
 <template>
-  <AllPrams v-model:params="allParams" :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_PARAM" />
+  <AllPrams
+    v-model:params="projectEnvStore.currentEnvDetailInfo.config.commonVariables"
+    :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_PARAM"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -9,22 +12,7 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  const store = useProjectEnvStore();
-
-  const allParams = computed({
-    set: (value: any) => {
-      store.currentEnvDetailInfo.config.commonVariables = value;
-    },
-    get: () => {
-      return store.currentEnvDetailInfo.config?.commonVariables.map((e: any) => {
-        return {
-          ...e,
-          tags: e.tags || [],
-          description: e.description || '',
-        };
-      });
-    },
-  });
+  const projectEnvStore = useProjectEnvStore();
 </script>
 
 <style lang="less" scoped></style>

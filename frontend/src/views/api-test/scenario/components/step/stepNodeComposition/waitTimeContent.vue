@@ -46,9 +46,8 @@
   });
 
   function handleInputChange() {
-    console.log('innerData.value.delay', innerData.value.delay);
     if (!innerData.value.delay) {
-      innerData.value.delay = 1;
+      innerData.value.delay = 1000;
     }
     nextTick(() => {
       emit('change', innerData.value);

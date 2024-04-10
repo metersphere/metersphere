@@ -76,7 +76,7 @@
           <template v-if="hasLocalExec">
             <a-dropdown-button
               v-if="!requestVModel.executeLoading"
-              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.path)"
               class="exec-btn"
               @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
               @select="execute"

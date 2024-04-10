@@ -199,7 +199,7 @@
         </div>
       </div>
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
-        <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
+        <div class="mb-[8px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
           <div class="break-word max-w-[70%] break-all text-[var(--color-text-2)]">
             {{ condition.commonScriptInfo?.name || '-' }}
           </div>
@@ -247,17 +247,16 @@
     </template>
     <!-- SQL操作 -->
     <template v-else-if="condition.processorType === RequestConditionProcessor.SQL">
-      <div class="mb-[16px]">
-        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
+      <div class="mb-[8px]">
         <a-input
           v-model:model-value="condition.name"
           :disabled="props.disabled"
-          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          :placeholder="t('ms.paramsInput.commonDescPlaceholder')"
           :max-length="255"
           @input="() => emit('change')"
         />
       </div>
-      <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
+      <div class="mb-[8px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
         <div class="max-w-[70%] break-words text-[var(--color-text-2)]">
           {{ condition.dataSourceName || '-' }}
         </div>
@@ -272,12 +271,12 @@
         </MsButton>
       </div>
       <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.sqlScript') }}</div>
-      <div class="mb-[16px] h-[300px]">
+      <div class="mb-[8px] h-[300px]">
         <MsCodeEditor
           v-model:model-value="condition.script"
           :read-only="props.disabled"
           theme="vs"
-          height="276px"
+          height="120px"
           :language="LanguageEnum.SQL"
           :show-full-screen="false"
           :show-theme-change="false"
@@ -285,7 +284,7 @@
         >
         </MsCodeEditor>
       </div>
-      <div class="mb-[16px]">
+      <div class="mb-[8px]">
         <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
           {{ t('apiTestDebug.storageByCol') }}
           <a-tooltip position="right" :content="t('apiTestDebug.storageColTip')">
@@ -318,7 +317,7 @@
           @change="handleSqlSourceParamTableChange"
         />
       </div>
-      <div class="mt-[16px]">
+      <div class="mt-[8px]">
         <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
           {{ t('apiTestDebug.storageByResult') }}
           <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
