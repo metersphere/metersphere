@@ -183,7 +183,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // authenticationScheme: 'Bearer',
         authenticationScheme: '',
         baseURL: `${window.location.origin}/${import.meta.env.VITE_API_BASE_URL as string}`,
-        timeout: 120 * 1000,
+        timeout: 300 * 1000,
         headers: { 'Content-Type': ContentTypeEnum.JSON },
         // 如果是form-data格式
         // headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
