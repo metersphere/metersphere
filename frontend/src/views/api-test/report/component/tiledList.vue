@@ -40,6 +40,7 @@
   import StepTree from './step/stepTree.vue';
 
   import type { ReportDetail, ScenarioItemType } from '@/models/apiTest/report';
+  import { ScenarioStepType } from '@/enums/apiEnum';
 
   import { addFoldField } from '../utils';
 
@@ -89,6 +90,12 @@
     },
     { deep: true, immediate: true }
   );
+  const showApiType = ref<string[]>([
+    ScenarioStepType.API,
+    ScenarioStepType.API_CASE,
+    ScenarioStepType.CUSTOM_REQUEST,
+    ScenarioStepType.SCRIPT,
+  ]);
 
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
@@ -97,20 +104,32 @@
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {
+        const isStepChildren = item.children && item?.children.length && showApiType.value.includes(item.stepType);
         if (
           stepType.includes(item.stepType) &&
           ((item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
             (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier))
         ) {
-          result.push({ ...item, expanded: true });
+          const resItem = {
+            ...item,
+            expanded: false,
+            stepChildren: isStepChildren ? cloneDeep(item.children) : [],
+            children: isStepChildren ? [] : item.children,
+          };
+          result.push(resItem);
         } else if (item.children) {
           const filterData = search(item.children);
           if (filterData.length) {
-            result.push({
+            const filterItem = {
               ...item,
-              expanded: true,
+              expanded: false,
               children: filterData,
-            });
+            };
+            if (isStepChildren) {
+              filterItem.stepChildren = cloneDeep(item.children);
+              filterItem.children = [];
+            }
+            result.push(filterItem);
           }
         }
       });

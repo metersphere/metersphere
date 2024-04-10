@@ -49,10 +49,7 @@
                       v-if="!(step.children && step.children.length && showApiType.includes(step.stepType))"
                       class="flex cursor-pointer items-center gap-[2px] text-[var(--color-text-4)]"
                     >
-                      <MsIcon
-                        :type="step.expanded ? 'icon-icon_split-turn-down-left' : 'icon-icon_split_turn-down_arrow'"
-                        :size="14"
-                      />
+                      <MsIcon :type="'icon-icon_split_turn-down_arrow'" :size="14" />
                       <span class="mx-1"> {{ step.children?.length || 0 }}</span>
                     </div>
                   </a-tooltip>

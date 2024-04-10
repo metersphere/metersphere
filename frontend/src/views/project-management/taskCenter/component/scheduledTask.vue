@@ -7,7 +7,7 @@
       </a-button>-->
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('system.organization.searchIndexPlaceholder')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"
@@ -22,10 +22,34 @@
       @batch-action="handleTableBatch"
     >
       <template #resourceNum="{ record }">
-        <a-button type="text" class="flex w-full">{{ record.resourceNum }}</a-button>
+        <div
+          type="text"
+          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          @click="showDetail(record.resourceId)"
+          >{{ record.resourceNum }}</div
+        >
       </template>
       <template #resourceName="{ record }">
-        <a-button type="text" class="flex w-full">{{ record.resourceName }}</a-button>
+        <div type="text" class="flex w-full">{{ record.resourceName }}</div>
+      </template>
+      <template #resourceType="{ record }">
+        <div type="text" class="flex w-full">{{ t(resourceTypeMap[record.resourceType].label) }}</div>
+      </template>
+      <template #value="{ record }">
+        <a-select
+          v-model:model-value="record.value"
+          :placeholder="t('common.pleaseSelect')"
+          class="param-input w-full min-w-[250px]"
+          :disabled="!record.enable"
+          @change="() => changeRunRules(record)"
+        >
+          <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
+            <span class="text-[var(--color-text-2)]"> {{ item.value }}</span
+            ><span class="ml-1 text-[var(--color-text-n4)] hover:text-[rgb(var(--primary-5))]">
+              {{ item.label }}
+            </span>
+          </a-option>
+        </a-select>
       </template>
       <template #operation="{ record }">
         <a-switch
@@ -64,14 +88,21 @@
     getScheduleProApiCaseList,
     getScheduleSysApiCaseList,
     switchSchedule,
+    updateRunRules,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
 
   import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
+  import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
+
+  import { resourceTypeMap } from './utils';
+
+  const { openNewPage } = useOpenNewPage();
 
   const tableStore = useTableStore();
   const { openModal } = useModal();
@@ -115,7 +146,7 @@
       dataIndex: 'value',
       slotName: 'value',
       showInTable: true,
-      width: 150,
+      width: 300,
       showDrag: true,
       showTooltip: true,
     },
@@ -143,6 +174,10 @@
       showInTable: true,
       width: 200,
       showDrag: true,
+      // sortable: {
+      //   sortDirections: ['ascend', 'descend'],
+      //   sorter: true,
+      // },
     },
     {
       title: 'common.operation',
@@ -152,6 +187,12 @@
       fixed: 'right',
       showDrag: false,
     },
+  ];
+  const syncFrequencyOptions = [
+    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
+    { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
+    { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
+    { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
   ];
 
   const loadRealMap = ref({
@@ -165,7 +206,7 @@
     {
       tableKey: TableKeyEnum.TASK_SCHEDULE_TASK,
       scroll: {
-        x: '100%',
+        x: 1200,
       },
       showSetting: true,
       selectable: true,
@@ -248,6 +289,29 @@
       return false;
     }
   }
+  /**
+   * 更新运行规则
+   */
+  async function changeRunRules(record: TimingTaskCenterApiCaseItem) {
+    try {
+      await updateRunRules(record.id, record.value);
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * 跳转接口用例详情
+   */
+
+  function showDetail(id: string) {
+    if (props.moduleType === 'TEST_RESOURCE') {
+      openNewPage(RouteEnum.API_TEST_SCENARIO, {
+        sId: id,
+      });
+    }
+  }
 
   const moreActions: ActionsItem[] = [
     {
@@ -277,4 +341,19 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-1);
+      }
+    }
+  }
+</style>

@@ -4,7 +4,7 @@
       <span>{{ t('project.taskCenter.apiCaseList', { type: props.name }) }}</span>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :placeholder="t('system.organization.searchIndexPlaceholder')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"
@@ -19,8 +19,13 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #resourceId="{ record }">
-        <div type="text" class="one-line-text flex w-full">{{ record.resourceId }}</div>
+      <template #resourceNum="{ record }">
+        <div
+          type="text"
+          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          @click="showDetail(record.resourceId)"
+          >{{ record.resourceNum }}</div
+        >
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -85,7 +90,6 @@
         <MsButton class="!mr-0" @click="viewReport(record.id, rowIndex)">{{
           t('project.taskCenter.viewReport')
         }}</MsButton>
-        <span></span>
         <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
           v-if="['RUNNING', 'RERUNNING'].includes(record.status) && hasAnyPermission(permissionsMap[props.group].stop)"
@@ -196,8 +200,9 @@
       dataIndex: 'resourceNum',
       slotName: 'resourceNum',
       width: 200,
+      sortIndex: 1,
+      fixed: 'left',
       showTooltip: true,
-      showDrag: false,
     },
     {
       title: 'project.taskCenter.resourceName',
@@ -206,6 +211,22 @@
       width: 300,
       showDrag: false,
       showTooltip: true,
+    },
+    {
+      title: 'system.project.name',
+      dataIndex: 'projectName',
+      slotName: 'projectName',
+      showTooltip: true,
+      showDrag: true,
+      width: 200,
+    },
+    {
+      title: 'system.organization.organizationName',
+      dataIndex: 'organizationName',
+      slotName: 'organizationName',
+      showTooltip: true,
+      showDrag: true,
+      width: 200,
     },
     {
       title: 'project.taskCenter.executionResult',
@@ -271,6 +292,7 @@
       showSetting: true,
       selectable: true,
       heightUsed: 330,
+      enableDrag: false,
       showSelectAll: true,
     }
   );
@@ -459,17 +481,17 @@
     }
   );
   /**
-   * 跳转接口用例详情 TODO 后台要加字段 加了字段再处理
+   * 跳转接口用例详情
    */
-
   function showDetail(id: string) {
     if (props.moduleType === 'API_CASE') {
       openNewPage(RouteEnum.API_TEST_MANAGEMENT, {
         cId: id,
       });
-    } else {
-      openNewPage(RouteEnum.API_TEST_MANAGEMENT, {
-        dId: id,
+    }
+    if (props.moduleType === 'API_SCENARIO') {
+      openNewPage(RouteEnum.API_TEST_SCENARIO, {
+        sId: id,
       });
     }
   }
