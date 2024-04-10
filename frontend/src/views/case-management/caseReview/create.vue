@@ -12,7 +12,7 @@
         asterisk-position="end"
       >
         <a-input
-          v-model.trim.modelValue="reviewForm.name"
+          v-model:modelValue="reviewForm.name"
           :placeholder="t('caseManagement.caseReview.reviewNamePlaceholder')"
           :max-length="255"
         />

@@ -285,6 +285,8 @@ public class CaseReviewService {
         caseReview.setModuleId(request.getModuleId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             caseReview.setTags(request.getTags());
+        } else {
+            caseReview.setTags(new ArrayList<>());
         }
         caseReview.setDescription(request.getDescription());
         checkAndSetStartAndEndTime(request, caseReview);

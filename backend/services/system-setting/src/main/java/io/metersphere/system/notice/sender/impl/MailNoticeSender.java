@@ -95,6 +95,9 @@ public class MailNoticeSender extends AbstractNoticeSender {
 
         LogUtils.debug("发件人地址" + javaMailSender.getUsername());
         LogUtils.debug("helper" + helper);
+        if (subject.length() > 60) {
+            subject = subject.substring(0,59);
+        }
         helper.setSubject("MeterSphere " + subject);
 
         LogUtils.info("收件人地址: {}", Arrays.asList(users));

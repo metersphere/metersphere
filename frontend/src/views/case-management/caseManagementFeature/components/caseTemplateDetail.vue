@@ -10,7 +10,7 @@
           asterisk-position="end"
         >
           <a-input
-            v-model.trim="form.name"
+            v-model="form.name"
             :max-length="255"
             :placeholder="t('system.orgTemplate.caseNamePlaceholder')"
             allow-clear
