@@ -26,6 +26,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -171,6 +172,7 @@ public class FunctionalCaseCommentService {
         String subject = defaultSubjectMap.get(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK + "_" + functionalCaseCommentRequest.getEvent());
         List<String> relatedUsers = getRelatedUsers(functionalCaseDTO.getRelatedUsers());
         User user = userMapper.selectByPrimaryKey(userId);
+        setLanguage(user.getLanguage());
         BeanMap beanMap = new BeanMap(functionalCaseDTO);
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
@@ -185,6 +187,16 @@ public class FunctionalCaseCommentService {
                 .relatedUsers(relatedUsers)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, noticeModel);
+    }
+
+    private static void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
     }
 
     /**

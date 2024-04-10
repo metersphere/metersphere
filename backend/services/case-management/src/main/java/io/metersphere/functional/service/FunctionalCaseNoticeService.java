@@ -11,6 +11,7 @@ import io.metersphere.functional.request.FunctionalCaseBatchEditRequest;
 import io.metersphere.functional.request.FunctionalCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -52,6 +53,7 @@ public class FunctionalCaseNoticeService {
     public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        functionalCaseDTO.setTriggerMode(Translator.get("log.test_plan.functional_case"));
         BeanUtils.copyBean(functionalCaseDTO, functionalCase);
         setNotifier(functionalCaseCommentRequest, functionalCaseDTO);
         List<OptionDTO> customFields = getCustomFields(functionalCaseCommentRequest.getCaseId());

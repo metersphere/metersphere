@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS message_task(
        `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
        `use_default_template` BIT NOT NULL  DEFAULT 1 COMMENT '是否使用默认模版' ,
        `use_default_subject` BIT NOT NULL  DEFAULT 1 COMMENT '是否使用默认标题（仅邮件）' ,
-       `subject` VARCHAR(64)    COMMENT '邮件标题' ,
+       `subject` VARCHAR(1000)    COMMENT '邮件标题' ,
        PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

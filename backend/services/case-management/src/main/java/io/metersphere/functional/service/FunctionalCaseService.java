@@ -1063,6 +1063,7 @@ public class FunctionalCaseService {
      */
     private void noticeModule(List<FunctionalCaseDTO> noticeList, FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        functionalCaseDTO.setTriggerMode(Translator.get("log.test_plan.functional_case"));
         functionalCaseDTO.setName(functionalCaseExcelData.getName());
         functionalCaseDTO.setProjectId(request.getProjectId());
         functionalCaseDTO.setCaseEditType(functionalCaseExcelData.getCaseEditType());
