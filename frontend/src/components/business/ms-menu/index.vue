@@ -134,7 +134,9 @@
       const menuSwitchOrgVisible = ref(false);
       const orgKeyword = ref('');
       const originOrgList = ref<{ id: string; name: string }[]>([]);
-      const orgList = computed(() => originOrgList.value.filter((e) => e.name.includes(orgKeyword.value)));
+      const orgList = computed(() =>
+        originOrgList.value.filter((e) => e.name.toLowerCase().includes(orgKeyword.value.toLowerCase()))
+      );
 
       async function switchOrg(id: string) {
         try {
@@ -291,7 +293,7 @@
                           }}
                         >
                           <a-tooltip content={item.name}>
-                            <div class="one-line-text max-w-[220px]">{item.name}</div>
+                            <div class="one-line-text flex-1">{item.name}</div>
                           </a-tooltip>
                           {item.id === appStore.currentOrgId ? (
                             <MsTag

@@ -332,8 +332,10 @@
       return;
     }
     try {
+      appStore.showLoading();
       loading.value = true;
       const res = await getDefinitionDetail(typeof apiInfo === 'string' ? apiInfo : apiInfo.id);
+      appStore.hideLoading();
       let name = isCopy ? `copy_${res.name}` : res.name;
       if (name.length > 255) {
         name = name.slice(0, 255);
@@ -367,6 +369,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
       loading.value = false;
+      appStore.hideLoading();
     }
   }
 

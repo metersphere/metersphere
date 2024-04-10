@@ -3,6 +3,9 @@
     v-if="props.requestResult?.responseResult?.responseCode"
     class="flex items-center justify-between gap-[24px] text-[14px]"
   >
+    <a-tooltip :content="props.requestResult.fakeErrorCode">
+      <executeStatus :status="props.requestResult.status" size="small" class="ml-[4px]" />
+    </a-tooltip>
     <a-popover position="left" content-class="response-popover-content">
       <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
         {{ props.requestResult.responseResult.responseCode }}
@@ -44,6 +47,7 @@
 
 <script setup lang="ts">
   import responseTimeLine from '@/views/api-test/components/responseTimeLine.vue';
+  import executeStatus from '@/views/api-test/scenario/components/common/executeStatus.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

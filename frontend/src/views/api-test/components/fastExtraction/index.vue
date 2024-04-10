@@ -21,7 +21,7 @@
       />
     </div>
     <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.JSON_PATH" class="code-container">
-      <MsJsonPathPicker :data="props.response || ''" class="bg-white" @pick="handlePathPick" />
+      <MsJsonPathPicker :data="props.response || ''" class="bg-white" @init="initJsonPath" @pick="handlePathPick" />
     </div>
     <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.X_PATH" class="code-container">
       <MsXPathPicker :xml-string="props.response || ''" class="bg-white" @pick="handlePathPick" />
@@ -204,9 +204,14 @@
     }
   );
 
+  function initJsonPath(_parseJson: string | Record<string, any>) {
+    parseJson.value = _parseJson;
+  }
+
   function handlePathPick(path: string, _parseJson: string | Record<string, any>) {
     expressionForm.value.expression = path;
     parseJson.value = _parseJson;
+    expressionFormRef.value?.clearValidate();
   }
 
   /*
@@ -271,6 +276,7 @@
             matchResult.value = [];
           }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(`正则匹配异常：${error}`);
           matchResult.value = [];
         }

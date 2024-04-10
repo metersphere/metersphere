@@ -64,14 +64,14 @@
                 ></a-switch>
                 <!-- 步骤执行 -->
                 <MsIcon
-                  v-show="!step.isExecuting && step.enable"
+                  v-show="!step.isExecuting"
                   type="icon-icon_play-round_filled"
                   :size="18"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
                   @click.stop="executeStep(step)"
                 />
                 <MsIcon
-                  v-show="step.isExecuting && step.enable"
+                  v-show="step.isExecuting"
                   type="icon-icon_stop"
                   :size="20"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
@@ -378,12 +378,9 @@
     <a-modal
       v-model:visible="saveNewApiModalVisible"
       :title="t('common.save')"
-      :ok-loading="saveLoading"
       class="ms-modal-form"
       title-align="start"
       body-class="!p-0"
-      @before-ok="handleSave"
-      @cancel="handleCancel"
     >
       <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
         <a-form-item
@@ -414,7 +411,7 @@
         <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
           <a-tree-select
             v-model:modelValue="saveModalForm.moduleId"
-            :data="moduleTree || []"
+            :data="apiModuleTree"
             :field-names="{ title: 'name', key: 'id', children: 'children' }"
             :tree-props="{
               virtualListProps: {
@@ -423,6 +420,64 @@
               },
             }"
             allow-search
+          />
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[4px]">
+            <a-checkbox v-model:model-value="saveModalForm.saveApiAsCase"></a-checkbox>
+            {{ t('apiScenario.syncSaveAsCase') }}
+          </div>
+          <div class="flex items-center gap-[12px]">
+            <a-button type="secondary" :disabled="saveLoading" @click="handleSaveApiCancel">
+              {{ t('common.cancel') }}
+            </a-button>
+            <a-button type="primary" :loading="saveLoading" @click="handleSaveApi">{{ t('common.confirm') }}</a-button>
+          </div>
+        </div>
+      </template>
+    </a-modal>
+    <a-modal
+      v-model:visible="saveCaseModalVisible"
+      :title="t('apiTestManagement.saveAsCase')"
+      :ok-loading="saveCaseLoading"
+      class="ms-modal-form"
+      title-align="start"
+      body-class="!p-0"
+      @before-ok="saveAsCase"
+      @cancel="handleSaveCaseCancel"
+    >
+      <a-form ref="saveCaseModalFormRef" :model="saveCaseModalForm" layout="vertical">
+        <a-form-item
+          field="name"
+          :label="t('case.caseName')"
+          :rules="[{ required: true, message: t('case.caseNameRequired') }]"
+          asterisk-position="end"
+        >
+          <a-input
+            v-model:model-value="saveCaseModalForm.name"
+            :placeholder="t('case.caseNamePlaceholder')"
+            :max-length="255"
+          />
+        </a-form-item>
+        <a-form-item field="priority" :label="t('case.caseLevel')">
+          <a-select v-model:model-value="saveCaseModalForm.priority" :options="casePriorityOptions"></a-select>
+        </a-form-item>
+        <a-form-item field="status" :label="t('common.status')">
+          <a-select v-model:model-value="saveCaseModalForm.status">
+            <a-option v-for="item in caseStatusOptions" :key="item.value" :value="item.value">
+              {{ t(item.label) }}
+            </a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item field="tags" :label="t('common.tag')">
+          <MsTagsInput
+            v-model:model-value="saveCaseModalForm.tags"
+            placeholder="common.tagsInputPlaceholder"
+            allow-clear
+            unique-value
+            retain-input-value
           />
         </a-form-item>
       </a-form>
@@ -437,6 +492,7 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
   import { ImportData } from '../common/importApiDrawer/index.vue';
@@ -451,7 +507,12 @@
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
-  import { addDefinition } from '@/api/modules/api-test/management';
+  import {
+    addCase,
+    addDefinition,
+    getDefinitionDetail,
+    getModuleTreeOnlyModules,
+  } from '@/api/modules/api-test/management';
   import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
@@ -467,7 +528,12 @@
     TreeNode,
   } from '@/utils';
 
-  import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+  import {
+    ExecuteApiRequestFullParams,
+    ExecuteConditionProcessor,
+    ExecutePluginRequestParams,
+  } from '@/models/apiTest/common';
+  import { AddApiCaseParams } from '@/models/apiTest/management';
   import {
     ApiScenarioDebugRequest,
     CreateStepAction,
@@ -477,9 +543,9 @@
     ScenarioStepFileParams,
     ScenarioStepItem,
   } from '@/models/apiTest/scenario';
-  import { ModuleTreeNode } from '@/models/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
+    RequestCaseStatus,
     RequestDefinitionStatus,
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
@@ -490,7 +556,7 @@
   import type { RequestParam } from '../common/customApiDrawer.vue';
   import updateStepStatus from '../utils';
   import useCreateActions from './createAction/useCreateActions';
-  import { defaultResponseItem } from '@/views/api-test/components/config';
+  import { casePriorityOptions, caseStatusOptions, defaultResponseItem } from '@/views/api-test/components/config';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
@@ -534,8 +600,6 @@
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const moduleTree = inject<Ref<ModuleTreeNode[]>>('moduleTree');
-  const activeModule = inject<Ref<string>>('activeModule');
 
   const permissionMap = {
     execute: 'PROJECT_API_SCENARIO:READ+EXECUTE',
@@ -666,7 +730,10 @@
         },
       ];
     }
-    if (_stepType.isQuoteCase) {
+    if ((node as ScenarioStepItem).isQuoteScenarioStep) {
+      return [];
+    }
+    if (_stepType.isQuoteApi || _stepType.isCopyApi) {
       return [
         {
           label: 'common.copy',
@@ -682,9 +749,6 @@
           danger: true,
         },
       ];
-    }
-    if ((node as ScenarioStepItem).isQuoteScenarioStep) {
-      return [];
     }
     return stepMoreActions;
   }
@@ -805,28 +869,95 @@
     }
   }
 
+  async function getStepDetail(step: ScenarioStepItem) {
+    try {
+      appStore.showLoading();
+      const res = await getScenarioStep(step.copyFromStepId || step.id);
+      let parseRequestBodyResult;
+      if (step.config.protocol === 'HTTP' && res.body) {
+        parseRequestBodyResult = parseRequestBodyFiles(res.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
+      stepDetails.value[step.id] = {
+        ...res,
+        stepId: step.id,
+        protocol: step.config.protocol,
+        method: step.config.method,
+        ...parseRequestBodyResult,
+      };
+      scenario.value.stepFileParam[step.id] = parseRequestBodyResult;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
+  const apiModuleTree = ref<MsTreeNodeData[]>([]);
+  async function initApiModuleTree(protocol: string) {
+    try {
+      apiModuleTree.value = await getModuleTreeOnlyModules({
+        keyword: '',
+        protocol,
+        projectId: appStore.currentProjectId,
+        moduleIds: [],
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
+
   const saveNewApiModalVisible = ref(false);
   const saveModalForm = ref({
     name: '',
     path: '',
-    moduleId: activeModule?.value || 'root',
+    moduleId: 'root',
+    saveApiAsCase: false,
   });
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
 
+  async function saveApiAsCase(id: string) {
+    if (activeStep.value) {
+      const detail = stepDetails.value[activeStep.value.id] as RequestParam;
+      const fileParams = scenario.value.stepFileParam[activeStep.value.id];
+      const url = new URL(saveModalForm.value.path);
+      const path = url.pathname + url.search + url.hash;
+      const params: AddApiCaseParams = {
+        name: saveModalForm.value.name,
+        projectId: appStore.currentProjectId,
+        environmentId: currentEnvConfig?.value.id || '',
+        apiDefinitionId: id,
+        request: {
+          ...detail,
+          url: path,
+        },
+        priority: 'P0',
+        status: RequestCaseStatus.PROCESSING,
+        tags: [],
+        uploadFileIds: fileParams?.uploadFileIds || [],
+        linkFileIds: fileParams?.linkFileIds || [],
+      };
+      await addCase(params);
+    }
+  }
+
   /**
    * 保存请求
-   * @param fullParams 保存时传入的参数
-   * @param silence 是否静默保存（接口定义另存为用例时要先静默保存接口）
+   * @param isSaveCase 是否需要保存用例
    */
-  async function realSave() {
+  async function realSaveAsApi() {
     try {
       saveLoading.value = true;
       if (activeStep.value) {
         const detail = stepDetails.value[activeStep.value.id] as RequestParam;
         const fileParams = scenario.value.stepFileParam[activeStep.value.id];
-        await addDefinition({
+        const url = new URL(saveModalForm.value.path);
+        const path = url.pathname + url.search + url.hash;
+        const res = await addDefinition({
           ...saveModalForm.value,
+          path,
           projectId: appStore.currentProjectId,
           tags: [],
           description: '',
@@ -834,13 +965,20 @@
           customFields: [],
           versionId: '',
           environmentId: currentEnvConfig?.value.id || '',
-          request: detail,
+          request: {
+            ...detail,
+            url: path,
+            path,
+          },
           uploadFileIds: fileParams?.uploadFileIds || [],
           linkFileIds: fileParams?.linkFileIds || [],
           response: [defaultResponseItem],
           method: detail?.method,
           protocol: detail?.protocol,
         });
+        if (saveModalForm.value.saveApiAsCase) {
+          await saveApiAsCase(res.id);
+        }
         Message.success(t('common.saveSuccess'));
         saveNewApiModalVisible.value = false;
         saveLoading.value = false;
@@ -852,18 +990,99 @@
     }
   }
 
-  function handleSave(done: (closed: boolean) => void) {
-    saveModalFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        await realSave();
-        done(true);
-      }
-    });
-    done(false);
+  function handleSaveApiCancel() {
+    saveModalFormRef.value?.resetFields();
+    saveNewApiModalVisible.value = false;
   }
 
-  function handleCancel() {
-    saveModalFormRef.value?.resetFields();
+  function handleSaveApi() {
+    saveModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        await realSaveAsApi();
+        handleSaveApiCancel();
+      }
+    });
+  }
+
+  const saveCaseModalVisible = ref(false);
+  const saveCaseLoading = ref(false);
+  const saveCaseModalForm = ref({
+    name: '',
+    priority: 'P0',
+    status: RequestCaseStatus.PROCESSING,
+    tags: [],
+  });
+  const saveCaseModalFormRef = ref<FormInstance>();
+
+  function handleSaveCaseCancel() {
+    saveCaseModalForm.value = {
+      name: '',
+      priority: 'P0',
+      status: RequestCaseStatus.PROCESSING,
+      tags: [],
+    };
+    saveCaseModalVisible.value = false;
+  }
+
+  function saveAsCase(done: (closed: boolean) => void) {
+    saveCaseModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          if (activeStep.value) {
+            saveCaseLoading.value = true;
+            let detail = stepDetails.value[activeStep.value.id] as
+              | ExecuteApiRequestFullParams
+              | ExecutePluginRequestParams;
+            if (!detail) {
+              // 如果步骤没有查看过详情，则需要手动加载一次
+              if (
+                (stepDetails.value[activeStep.value.id] === undefined &&
+                  activeStep.value.copyFromStepId &&
+                  !activeStep.value.isNew) ||
+                (stepDetails.value[activeStep.value.id] === undefined && !activeStep.value.isNew)
+              ) {
+                // 详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+                await getStepDetail(activeStep.value);
+                detail = stepDetails.value[activeStep.value.id] as
+                  | ExecuteApiRequestFullParams
+                  | ExecutePluginRequestParams;
+              } else {
+                const apiDetail = await getDefinitionDetail(activeStep.value.resourceId || '');
+                detail = {
+                  ...apiDetail.request,
+                  ...apiDetail,
+                };
+              }
+            }
+            const fileParams = scenario.value.stepFileParam[activeStep.value.id];
+            const params: AddApiCaseParams = {
+              projectId: appStore.currentProjectId,
+              environmentId: currentEnvConfig?.value.id || '',
+              apiDefinitionId: activeStep.value.resourceId || '',
+              request: detail,
+              ...saveCaseModalForm.value,
+              uploadFileIds: fileParams?.uploadFileIds || [],
+              linkFileIds: fileParams?.linkFileIds || [],
+            };
+            await addCase(params);
+            done(true);
+            Message.success(t('common.saveSuccess'));
+            handleSaveCaseCancel();
+            saveCaseLoading.value = false;
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+          done(false);
+        } finally {
+          handleSaveCaseCancel();
+          saveCaseLoading.value = false;
+        }
+      } else {
+        saveCaseLoading.value = false;
+        done(false);
+      }
+    });
   }
 
   function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
@@ -946,8 +1165,13 @@
         break;
       case 'saveAsApi':
         activeStep.value = node as ScenarioStepItem;
+        initApiModuleTree((stepDetails.value[node.id] as RequestParam)?.protocol);
         saveModalForm.value.path = (stepDetails.value[node.id] as RequestParam)?.url;
         saveNewApiModalVisible.value = true;
+        break;
+      case 'saveAsCase':
+        activeStep.value = node as ScenarioStepItem;
+        saveCaseModalVisible.value = true;
         break;
       default:
         break;
@@ -971,12 +1195,17 @@
       const input = treeRef.value?.$el.querySelector('.name-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
       input?.focus();
     });
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
+    if (realStep) {
+      realStep.draggable = false; // 编辑时禁止拖拽
+    }
   }
 
   function applyStepNameChange(step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.name = tempStepName.value;
+      realStep.draggable = true; // 编辑完恢复拖拽
     }
     showStepNameEditInputStepId.value = '';
     scenario.value.unSaved = true;
@@ -995,12 +1224,17 @@
       const input = treeRef.value?.$el.querySelector('.desc-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
       input?.focus();
     });
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
+    if (realStep) {
+      realStep.draggable = false; // 编辑时禁止拖拽
+    }
   }
 
   function applyStepDescChange(step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.name = tempStepDesc.value;
+      realStep.draggable = true; // 编辑完恢复拖拽
     }
     showStepDescEditInputStepId.value = '';
     scenario.value.unSaved = true;
@@ -1049,30 +1283,6 @@
       return scenario.value.stepFileParam[activeStep.value.id];
     }
   });
-
-  async function getStepDetail(step: ScenarioStepItem) {
-    try {
-      appStore.showLoading();
-      const res = await getScenarioStep(step.copyFromStepId || step.id);
-      let parseRequestBodyResult;
-      if (step.config.protocol === 'HTTP' && res.body) {
-        parseRequestBodyResult = parseRequestBodyFiles(res.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      }
-      stepDetails.value[step.id] = {
-        ...res,
-        stepId: step.id,
-        protocol: step.config.protocol,
-        method: step.config.method,
-        ...parseRequestBodyResult,
-      };
-      scenario.value.stepFileParam[step.id] = parseRequestBodyResult;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      appStore.hideLoading();
-    }
-  }
 
   function handleAddStepDone(newStep: ScenarioStepItem) {
     selectedKeys.value = [newStep.uniqueId]; // 选中新添加的步骤
@@ -1165,7 +1375,7 @@
         websocketMap[reportId]?.close();
         if (step.reportId === data.reportId) {
           step.isExecuting = false;
-          updateStepStatus([step], _scenario.stepResponses);
+          updateStepStatus([step], _scenario.stepResponses, step.uniqueId);
         }
       }
     });
@@ -1194,6 +1404,7 @@
         steps: mapTree(executeParams.steps, (node) => {
           return {
             ...node,
+            enable: node.uniqueId === currentStep.uniqueId || node.enable, // 单步骤执行，则临时无视顶层启用禁用状态
             parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
           };
         }),
@@ -1206,7 +1417,7 @@
       console.log(error);
       websocketMap[executeParams.reportId].close();
       currentStep.isExecuting = false;
-      updateStepStatus([currentStep], scenario.value.stepResponses);
+      updateStepStatus([currentStep], scenario.value.stepResponses, currentStep.uniqueId);
     }
   }
 
@@ -1225,16 +1436,18 @@
       traverseTree(
         realStep,
         (step) => {
-          if (step.enable) {
-            // 启用的步骤才执行
+          if (step.enable || step.uniqueId === realStep.uniqueId) {
+            // 启用的步骤才执行；如果点击的是禁用步骤也执行，但是禁用的子步骤不执行
             _stepDetails[step.id] = stepDetails.value[step.id];
             step.executeStatus = ScenarioExecuteStatus.EXECUTING;
+          } else {
+            step.executeStatus = undefined;
           }
           delete scenario.value.stepResponses[step.uniqueId]; // 先移除上一次的执行结果
         },
         (step) => {
-          // 当前步骤是启用的情况，才需要继续递归子孙步骤；否则无需向下递归
-          return step.enable;
+          // 当前步骤是启用的情或是在禁用的步骤上点击执行，才需要继续递归子孙步骤；否则无需向下递归
+          return step.enable || step.uniqueId === realStep.uniqueId;
         }
       );
       realExecute(
@@ -1314,7 +1527,7 @@
       websocketMap[step.reportId].close();
       if (realStep) {
         realStep.isExecuting = false;
-        updateStepStatus([realStep as ScenarioStepItem], scenario.value.stepResponses);
+        updateStepStatus([realStep as ScenarioStepItem], scenario.value.stepResponses, realStep.uniqueId);
       }
     }
   }

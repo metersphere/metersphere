@@ -506,6 +506,7 @@
           tableSelectedData.value = props.selectedScenarios;
           break;
       }
+      keyword.value = '';
     }
   );
 

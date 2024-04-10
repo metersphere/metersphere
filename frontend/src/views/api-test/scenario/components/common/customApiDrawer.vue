@@ -13,6 +13,12 @@
   >
     <template #title>
       <div class="flex max-w-[60%] items-center gap-[8px]">
+        <div
+          v-if="props.step"
+          class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] pr-[2px] !text-white"
+        >
+          {{ props.step.sort }}
+        </div>
         <stepTypeVue
           v-if="props.step && [ScenarioStepType.API, ScenarioStepType.CUSTOM_REQUEST].includes(props.step?.stepType)"
           :step="props.step"
@@ -23,44 +29,46 @@
           </div>
         </a-tooltip>
       </div>
-      <div
-        v-if="props.step && !props.step.isQuoteScenarioStep"
-        class="right-operation-button-icon ml-auto flex items-center"
-      >
-        <replaceButton
-          v-if="props.step.resourceId && props.step?.stepType !== ScenarioStepType.CUSTOM_REQUEST"
-          :steps="props.steps"
-          :step="props.step"
-          :resource-id="props.step.resourceId"
-          :scenario-id="scenarioId"
-          @replace="handleReplace"
-        />
-        <MsButton class="mr-4" type="icon" status="secondary" @click="emit('deleteStep')">
-          <MsIcon type="icon-icon_delete-trash_outlined" />
-          {{ t('common.delete') }}
-        </MsButton>
-      </div>
-      <div
-        v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
-        class="customApiDrawer-title-right ml-auto flex items-center gap-[16px]"
-      >
-        <a-tooltip :content="currentEnvConfig?.name" :disabled="!currentEnvConfig?.name">
-          <div class="one-line-text max-w-[250px] text-[14px] font-normal text-[var(--color-text-4)]">
-            {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
-          </div>
-        </a-tooltip>
-        <a-select
-          v-model:model-value="requestVModel.customizeRequestEnvEnable"
-          class="w-[150px]"
-          :disabled="props.step?.isQuoteScenarioStep"
-          @change="handleUseEnvChange"
+      <div class="ml-auto flex items-center gap-[16px]">
+        <div
+          v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
+          class="customApiDrawer-title-right flex items-center gap-[16px]"
         >
-          <template #prefix>
-            <div> {{ t('project.environmental.env') }} </div>
-          </template>
-          <a-option :value="true">{{ t('common.quote') }}</a-option>
-          <a-option :value="false">{{ t('common.notQuote') }}</a-option>
-        </a-select>
+          <a-tooltip :content="currentEnvConfig?.name" :disabled="!currentEnvConfig?.name">
+            <div class="one-line-text max-w-[250px] text-[14px] font-normal text-[var(--color-text-4)]">
+              {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
+            </div>
+          </a-tooltip>
+          <a-select
+            v-model:model-value="requestVModel.customizeRequestEnvEnable"
+            class="w-[150px]"
+            :disabled="props.step?.isQuoteScenarioStep"
+            @change="handleUseEnvChange"
+          >
+            <template #prefix>
+              <div> {{ t('project.environmental.env') }} </div>
+            </template>
+            <a-option :value="true">{{ t('common.quote') }}</a-option>
+            <a-option :value="false">{{ t('common.notQuote') }}</a-option>
+          </a-select>
+        </div>
+        <div
+          v-if="props.step && !props.step.isQuoteScenarioStep"
+          class="right-operation-button-icon ml-auto flex items-center"
+        >
+          <replaceButton
+            v-if="props.step.resourceId && props.step?.stepType !== ScenarioStepType.CUSTOM_REQUEST"
+            :steps="props.steps"
+            :step="props.step"
+            :resource-id="props.step.resourceId"
+            :scenario-id="scenarioId"
+            @replace="handleReplace"
+          />
+          <MsButton type="icon" status="secondary" @click="emit('deleteStep')">
+            <MsIcon type="icon-icon_delete-trash_outlined" />
+            {{ t('common.delete') }}
+          </MsButton>
+        </div>
       </div>
     </template>
     <a-empty

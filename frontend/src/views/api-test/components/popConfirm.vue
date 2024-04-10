@@ -76,6 +76,7 @@
     addModuleApi?: (params: { projectId: string; parentId: string; name: string }) => Promise<any>;
     updateModuleApi?: (params: { id: string; name: string }) => Promise<any>;
     updateApiNodeApi?: (params: { id: string; name: string }) => Promise<any>;
+    repeatMessage?: string;
   }>();
 
   const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish']);
@@ -174,7 +175,7 @@
 
   function validateName(value: any, callback: (error?: string | undefined) => void) {
     if (props.allNames.includes(value)) {
-      callback(t('project.fileManagement.nameExist'));
+      callback(props.repeatMessage || t('project.fileManagement.nameExist'));
     }
   }
 

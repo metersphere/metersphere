@@ -180,6 +180,7 @@ export default {
   'apiScenario.sourceScenarioEnvTip': '运行环境，含环境参数',
   'apiScenario.setSuccess': '设置成功',
   'apiScenario.pleaseInputUrl': '请输入 url',
+  'apiScenario.syncSaveAsCase': '同步添加测试接口用例',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',
