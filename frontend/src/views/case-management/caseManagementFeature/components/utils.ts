@@ -151,6 +151,9 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
         const index = selectValue.indexOf('CREATE_USER');
         selectValue.splice(index, 1, userId);
       }
+      if (selectValue === 'CREATE_USER') {
+        selectValue = userId;
+      }
       return (
         (currentColumnData.options || [])
           .filter((item: any) => selectValue.includes(item.value))

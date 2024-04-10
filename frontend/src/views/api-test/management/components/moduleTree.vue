@@ -422,6 +422,7 @@
           return {
             ...e,
             hideMoreAction: e.id === 'root',
+            draggable: e.id !== 'root',
           };
         });
       }
