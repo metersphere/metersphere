@@ -33,6 +33,7 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
@@ -177,6 +178,11 @@ public class ApiDefinitionImportUtilService {
 
         ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
         getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
+
+        //不用的数据清空，保证内存回收
+        apiLists = new ArrayList<>();
+        apiModules = new ArrayList<>();
+        importData = new ArrayList<>();
 
         //数据入库
         insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request);
@@ -388,7 +394,7 @@ public class ApiDefinitionImportUtilService {
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        operationLogService.batchAdd(operationLogs);
+        SubListUtils.dealForSubList(operationLogs, 500, operationLogService::batchAdd);
         //发送通知
         List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
         User user = userMapper.selectByPrimaryKey(request.getUserId());

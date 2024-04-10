@@ -62,6 +62,7 @@ public class ApiTestCaseLogService {
                 request.getName());
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setHistory(true);
         return dto;
     }
 

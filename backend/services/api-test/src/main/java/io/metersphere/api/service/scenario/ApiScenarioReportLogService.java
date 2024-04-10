@@ -12,7 +12,6 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,7 +66,6 @@ public class ApiScenarioReportLogService {
         return dto;
     }
 
-    @Async
     public void batchDeleteLog(List<String> ids, String userId, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         List<ApiScenarioReport> apiReports = extApiScenarioReportMapper.selectApiReportByIds(ids);
