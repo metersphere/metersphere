@@ -54,8 +54,8 @@
         <a-tooltip position="tl" :content-style="{ maxWidth: '500px' }">
           <template #content>
             <div class="flex flex-col">
-              <div>{{ t('project.menu.defect.enableTip') }}</div>
-              <div class="flex flex-nowrap">{{ t('project.menu.defect.closeTip') }}</div>
+              <div>{{ t('project.menu.demand.enableTip') }}</div>
+              <div class="flex flex-nowrap">{{ t('project.menu.demand.closeTip') }}</div>
             </div>
           </template>
           <div>

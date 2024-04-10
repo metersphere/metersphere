@@ -67,6 +67,8 @@ export default {
   // 同步缺陷
   'project.menu.defect.enableTip': '开启：平台创建的缺陷同步至第三方项目管理平台',
   'project.menu.defect.closeTip': '关闭：平台创建的缺陷则无法同步至第三方项目管理平台',
+  'project.menu.demand.enableTip': '开启：平台创建的用例可关联第三方需求',
+  'project.menu.demand.closeTip': '关闭：平台创建的用例无法关联第三方的需求',
   'project.menu.defect.customLabel': '自定义频率',
   'project.menu.defect.enableAfterConfig': '配置第三方信息后可开启',
   // 误报规则

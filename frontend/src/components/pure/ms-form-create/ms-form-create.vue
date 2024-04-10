@@ -225,6 +225,18 @@
           tooltip: item.tooltip,
         },
       };
+      if (ruleItem.type === 'input') {
+        // input 需要单独emit监听事件 emit:['change', 'blur'],
+        ruleItem.on = {
+          blur: () => {
+            // 失去焦点后value值改变
+            if (item.value !== fApi.value.getValue(item.name)) {
+              fApi.value.validateField(item.name);
+              emit('change', fApi.value.getValue(item.name), ruleItem, fApi.value);
+            }
+          },
+        };
+      }
       // 如果存在placeholder, 替换掉默认的placeholder
       if (item.platformPlaceHolder) {
         ruleItem.props.placeholder = item.platformPlaceHolder;
@@ -256,6 +268,15 @@
     }
   }
 
+  function changeHandler(value: any, defaultValue: any, formRuleItem: FormRuleItem, api: any) {
+    if (formRuleItem.type === 'input') {
+      // 输入框失去焦点后再保存
+      return;
+    }
+    fApi.value.validateField(value);
+    emit('change', defaultValue, formRuleItem, api);
+  }
+
   function getControlFormItems() {
     const convertedData = formItems.value.map((item: FormItem) => convertItem(item));
     formRuleList.value = convertedData;
@@ -270,7 +291,6 @@
   }
   function setValue() {
     nextTick(() => {
-      console.log(props.formRule);
       const tempObj: Record<string, any> = {};
       props.formRule.forEach((item) => {
         tempObj[item.name] = item.value;
@@ -305,11 +325,6 @@
       'validate-trigger': ['change'],
     },
   };
-
-  function changeHandler(value: any, defaultValue: any, formRuleItem: FormRuleItem, api: any) {
-    fApi.value.validateField(value);
-    emit('change', defaultValue, formRuleItem, api);
-  }
 
   function handleMounted() {
     // setValue();

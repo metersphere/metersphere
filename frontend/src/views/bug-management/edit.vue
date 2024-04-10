@@ -76,7 +76,12 @@
               </div>
             </div>
           </a-form-item>
-          <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static">
+          <MsFileList
+            ref="fileListRef"
+            v-model:file-list="fileList"
+            :init-file-save-tips="t('ms.upload.waiting_save')"
+            mode="static"
+          >
             <template #actions="{ item }">
               <!-- 本地文件 -->
               <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">

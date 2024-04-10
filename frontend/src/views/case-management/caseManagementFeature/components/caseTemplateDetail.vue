@@ -84,7 +84,13 @@
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">
-        <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static" :show-upload-type-desc="true">
+        <MsFileList
+          ref="fileListRef"
+          v-model:file-list="fileList"
+          mode="static"
+          :init-file-save-tips="t('ms.upload.waiting_save')"
+          :show-upload-type-desc="true"
+        >
           <template #actions="{ item }">
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
@@ -283,8 +289,6 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile, getGenerateId } from '@/utils';
-  import { scrollIntoView } from '@/utils/dom';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     AssociatedList,

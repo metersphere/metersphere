@@ -29,6 +29,7 @@
           :detail-id="props.detailId"
           :detail-index="props.detailIndex"
           :table-data="props.tableData"
+          @loading-detail="setDetailLoading"
           @loaded="handleDetailLoaded"
         />
         <div class="ml-auto flex items-center">
@@ -59,7 +60,7 @@
     getDetailFunc: (id: string) => Promise<any>; // 获取详情的请求函数
   }>();
 
-  const emit = defineEmits(['update:visible', 'loaded']);
+  const emit = defineEmits(['update:visible', 'loaded', 'loadingDetail']);
 
   const prevNextButtonRef = ref<InstanceType<typeof MsPrevNextButton>>();
 
@@ -97,6 +98,10 @@
   function handleDetailLoaded(val: any) {
     detail.value = val;
     emit('loaded', val);
+  }
+
+  function setDetailLoading() {
+    emit('loadingDetail');
   }
 
   watch(

@@ -15,6 +15,7 @@
     show-full-screen
     unmount-on-close
     :mask="false"
+    @loading-detail="setDetailLoading"
     @loaded="loadedBug"
   >
     <template #titleLeft>
@@ -90,113 +91,115 @@
       </div>
     </template>
     <template #default="{ loading }">
-      <div ref="wrapperRef" class="h-full bg-white">
-        <MsSplitBox
-          ref="wrapperRef"
-          expand-direction="right"
-          :max="0.7"
-          :min="0.7"
-          :size="900"
-          :class="{ 'left-bug-detail': activeTab === 'comment' }"
-        >
-          <template #first>
-            <div class="leftWrapper h-full">
-              <div class="header h-[50px]">
-                <MsTab
-                  v-model:active-key="activeTab"
-                  :content-tab-list="contentTabList"
-                  :get-text-func="getTabBadge"
-                  class="no-content relative mb-[8px]"
-                />
-                <div class="tab-pane-container">
-                  <BugDetailTab
-                    v-if="activeTab === 'detail'"
-                    ref="bugDetailTabRef"
-                    :form-item="formItem"
-                    :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                    :detail-info="detailInfo"
-                    :is-platform-default-template="isPlatformDefaultTemplate"
-                    :platform-system-fields="platformSystemFields"
-                    :current-platform="props.currentPlatform"
-                    @update-success="updateSuccess"
+      <a-spin :loading="detailLoading" class="w-full">
+        <div ref="wrapperRef" class="h-full bg-white">
+          <MsSplitBox
+            ref="wrapperRef"
+            expand-direction="right"
+            :max="0.7"
+            :min="0.7"
+            :size="900"
+            :class="{ 'left-bug-detail': activeTab === 'comment' }"
+          >
+            <template #first>
+              <div class="leftWrapper h-full">
+                <div class="header h-[50px]">
+                  <MsTab
+                    v-model:active-key="activeTab"
+                    :content-tab-list="contentTabList"
+                    :get-text-func="getTabBadge"
+                    class="no-content relative mb-[8px]"
                   />
+                  <div class="tab-pane-container">
+                    <BugDetailTab
+                      v-if="activeTab === 'detail'"
+                      ref="bugDetailTabRef"
+                      :form-item="formItem"
+                      :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                      :detail-info="detailInfo"
+                      :is-platform-default-template="isPlatformDefaultTemplate"
+                      :platform-system-fields="platformSystemFields"
+                      :current-platform="props.currentPlatform"
+                      @update-success="updateSuccess"
+                    />
 
-                  <BugCaseTab
-                    v-else-if="activeTab === 'case'"
-                    :bug-id="detailInfo.id"
-                    @update-case-success="updateSuccess"
-                  />
+                    <BugCaseTab
+                      v-else-if="activeTab === 'case'"
+                      :bug-id="detailInfo.id"
+                      @update-case-success="updateSuccess"
+                    />
 
-                  <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
+                    <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
 
-                  <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
+                    <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </template>
-          <template #second>
-            <a-spin :loading="rightLoading" class="w-full">
-              <!-- 所属平台一致, 详情展示 -->
-              <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper p-[24px]">
-                <!-- 自定义字段开始 -->
-                <div class="inline-block w-full break-words">
-                  <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
-                    <a-space direction="vertical" class="w-[100%]" size="large">
-                      <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
-                    </a-space>
-                  </a-skeleton>
-                  <div v-if="!loading" class="mb-4 font-medium">
-                    <strong>
-                      {{ t('bugManagement.detail.basicInfo') }}
-                    </strong>
-                  </div>
-                  <MsFormCreate
-                    v-if="!loading"
-                    ref="formCreateRef"
-                    v-model:form-item="formItem"
-                    v-model:api="fApi"
-                    :form-rule="formRules"
-                    class="w-full"
-                    :option="options"
-                    @change="handelFormCreateChange"
-                  />
-                  <!-- 自定义字段结束 -->
-                  <div
-                    v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
-                    class="baseItem"
-                  >
-                    <a-form
-                      :model="{}"
-                      :label-col-props="{
-                        span: 9,
-                      }"
-                      :wrapper-col-props="{
-                        span: 15,
-                      }"
-                      label-align="left"
-                      content-class="tags-class"
+            </template>
+            <template #second>
+              <a-spin :loading="rightLoading" class="w-full">
+                <!-- 所属平台一致, 详情展示 -->
+                <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper p-[24px]">
+                  <!-- 自定义字段开始 -->
+                  <div class="inline-block w-full break-words">
+                    <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
+                      <a-space direction="vertical" class="w-[100%]" size="large">
+                        <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
+                      </a-space>
+                    </a-skeleton>
+                    <div v-if="!loading" class="mb-4 font-medium">
+                      <strong>
+                        {{ t('bugManagement.detail.basicInfo') }}
+                      </strong>
+                    </div>
+                    <MsFormCreate
+                      v-if="!loading"
+                      ref="formCreateRef"
+                      v-model:form-item="formItem"
+                      v-model:api="fApi"
+                      :form-rule="formRules"
+                      class="w-full"
+                      :option="options"
+                      @change="handelFormCreateChange"
+                    />
+                    <!-- 自定义字段结束 -->
+                    <div
+                      v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
+                      class="baseItem"
                     >
-                      <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                        <MsTagsInput
-                          v-model:model-value="tags"
-                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                          @blur="changeTag"
-                        />
-                      </a-form-item>
-                    </a-form>
+                      <a-form
+                        :model="{}"
+                        :label-col-props="{
+                          span: 9,
+                        }"
+                        :wrapper-col-props="{
+                          span: 15,
+                        }"
+                        label-align="left"
+                        content-class="tags-class"
+                      >
+                        <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
+                          <MsTagsInput
+                            v-model:model-value="tags"
+                            :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                            @blur="changeTag"
+                          />
+                        </a-form-item>
+                      </a-form>
+                    </div>
                   </div>
-                </div>
 
-                <!-- 内置基础信息结束 -->
-              </div>
-              <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
-              <div v-else>
-                <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
-              </div>
-            </a-spin>
-          </template>
-        </MsSplitBox>
-      </div>
+                  <!-- 内置基础信息结束 -->
+                </div>
+                <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
+                <div v-else>
+                  <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
+                </div>
+              </a-spin>
+            </template>
+          </MsSplitBox>
+        </div>
+      </a-spin>
       <CommentInput
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
         :content="commentContent"
@@ -241,7 +244,7 @@
     followBug,
     getBugDetail,
     getTemplateById,
-  } from '@/api/modules/bug-management/index';
+  } from '@/api/modules/bug-management';
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -251,8 +254,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomFieldItem } from '@/models/bug-management';
-  import { BugEditCustomField, BugEditFormObject, BugTemplateRequest } from '@/models/bug-management';
-  import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import { BugEditCustomField, BugEditFormObject } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
@@ -290,7 +292,7 @@
   const bugDetailTabRef = ref();
   const isPlatformDefaultTemplate = ref(false);
   const rightLoading = ref(false);
-  const rowLength = ref<number>(0);
+  const detailLoading = ref(false);
   const activeTab = ref<string>('detail');
 
   const detailInfo = ref<Record<string, any>>({ match: [] }); // 存储当前详情信息，通过loadBug 获取
@@ -332,53 +334,33 @@
       });
     }
   };
+
   const currentCustomFields = ref<CustomFieldItem[]>([]);
 
-  const templateChange = async (v: SelectValue, valueObj: BugEditFormObject, request: BugTemplateRequest) => {
-    if (v) {
-      try {
-        const res = await getTemplateById({
-          projectId: appStore.currentProjectId,
-          id: v,
-          fromStatusId: request.fromStatusId,
-          platformBugKey: request.platformBugKey,
-        });
-        platformSystemFields.value = res.customFields.filter((field) => field.platformSystemField);
-        platformSystemFields.value.forEach((item) => {
-          item.defaultValue = valueObj[item.fieldId];
-        });
-        getFormRules(
-          res.customFields.filter((field) => !field.platformSystemField),
-          valueObj
-        );
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    }
-  };
   const getOptionFromTemplate = (field: CustomFieldItem | undefined) => {
     if (field) {
       return field.options ? field.options : JSON.parse(field.platformOptionJson);
     }
     return [];
   };
+
   async function loadedBug(detail: BugEditFormObject) {
-    detailInfo.value = { ...detail };
-    const { templateId } = detailInfo.value;
     // 是否平台默认模板
     isPlatformDefaultTemplate.value = detail.platformDefault;
-    // TAG 赋值
-    tags.value = detail.tags || [];
-    caseCount.value = detailInfo.value.linkCaseCount;
-    const tmpObj = { status: detailInfo.value.status };
-    // 初始化自定义字段
+    // 关闭loading
+    detailLoading.value = false;
     const customFieldsRes = await getTemplateById({
       projectId: appStore.currentProjectId,
-      id: templateId,
+      id: detail.templateId,
       fromStatusId: detail.status,
       platformBugKey: detail.platformBugId,
     });
+    // 详情信息, TAG赋值
+    detailInfo.value = { ...detail };
+    tags.value = detail.tags || [];
+    caseCount.value = detailInfo.value.linkCaseCount;
+    const tmpObj = { status: detailInfo.value.status };
+    platformSystemFields.value = customFieldsRes.customFields.filter((field) => field.platformSystemField);
     currentCustomFields.value = customFieldsRes.customFields || [];
     if (detailInfo.value.customFields && Array.isArray(detailInfo.value.customFields)) {
       const MULTIPLE_TYPE = ['MULTIPLE_SELECT', 'MULTIPLE_INPUT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
@@ -392,8 +374,7 @@
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           if (item.value) {
             if (item.type !== 'MULTIPLE_INPUT') {
-              const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
-              tmpObj[item.id] = currentDefaultValue;
+              tmpObj[item.id] = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
             } else {
               tmpObj[item.id] = JSON.parse(item.value);
             }
@@ -411,16 +392,29 @@
           );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
-          const currentDefaultValue = optionsIds.find((e: any) => item.value === e) || '';
-          tmpObj[item.id] = currentDefaultValue;
+          tmpObj[item.id] = optionsIds.find((e: any) => item.value === e) || '';
         } else {
           tmpObj[item.id] = item.value;
         }
       });
     }
     // 初始化自定义字段
-    await templateChange(templateId, tmpObj, { platformBugKey: detail.platformBugId, fromStatusId: detail.status });
+    platformSystemFields.value.forEach((item) => {
+      item.defaultValue = tmpObj[item.fieldId];
+    });
+    getFormRules(
+      customFieldsRes.customFields.filter((field) => !field.platformSystemField),
+      tmpObj
+    );
   }
+
+  /**
+   * 详情加载中
+   */
+  function setDetailLoading() {
+    detailLoading.value = true;
+  }
+
   /**
    * 获取 tab 的参数数量徽标
    */
@@ -443,7 +437,6 @@
 
   function updateSuccess() {
     rightLoading.value = false;
-    detailDrawerRef.value?.initDetail();
     emit('submit');
   }
 

@@ -35,6 +35,7 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
     isCopyFlag,
     associateId: refId,
     createUserName,
+    createTime,
     uploadedTime: createTime,
   };
 }

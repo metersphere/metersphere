@@ -10,7 +10,10 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.Schedule;
-import io.metersphere.system.dto.BugNoticeDTO;
+import io.metersphere.system.dto.BugMessageDTO;
+import io.metersphere.system.dto.BugSyncNoticeDTO;
+import io.metersphere.system.dto.request.DefaultBugCustomField;
+import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
@@ -71,9 +74,14 @@ public class NoticeTemplateService {
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(BugNoticeDTO.class);
+                Field[] allFields = FieldUtils.getAllFields(BugMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.BUG.toString());
+                //TODO：获取报告
+            }
+            case NoticeConstants.TaskType.BUG_SYNC_TASK -> {
+                Field[] allFields = FieldUtils.getAllFields(BugSyncNoticeDTO.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
@@ -120,7 +128,13 @@ public class NoticeTemplateService {
         for (CustomField customField : customFields) {
             MessageTemplateFieldDTO messageTemplateFieldDTO = new MessageTemplateFieldDTO();
             messageTemplateFieldDTO.setId(customField.getName());
-            messageTemplateFieldDTO.setName(StringUtils.isBlank(customField.getRemark()) ? "-" : customField.getRemark());
+            if (StringUtils.equalsAnyIgnoreCase(customField.getName(),
+                    DefaultBugCustomField.DEGREE.getName(), DefaultFunctionalCustomField.PRIORITY.getName())) {
+                // 缺陷严重程度, 用例等级 作为系统内置的自定义字段需要国际化后在模板展示
+                messageTemplateFieldDTO.setName(Translator.get("custom_field." + customField.getName()));
+            } else {
+                messageTemplateFieldDTO.setName(customField.getName());
+            }
             messageTemplateFieldDTO.setFieldSource(NoticeConstants.FieldSource.CUSTOM_FIELD);
             messageTemplateFieldDTOS.add(messageTemplateFieldDTO);
         }
