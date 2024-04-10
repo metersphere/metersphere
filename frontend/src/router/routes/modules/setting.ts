@@ -385,7 +385,7 @@ const Setting: AppRouteRecordRaw = {
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
-                locale: 'menu.settings.organization.bugTemplate',
+                locale: 'menu.settings.organization.template',
               },
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,

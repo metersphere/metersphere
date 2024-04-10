@@ -21,6 +21,7 @@ export default {
   'system.orgTemplate.disabledTemplates': 'disabled',
   'system.orgTemplate.fieldSetting': 'Setting',
   'system.orgTemplate.TemplateManagement': 'Template',
+  'system.orgTemplate.TemplateManagementList': 'Template',
   'system.orgTemplate.workflowSetup': 'Workflow',
   'system.orgTemplate.enable': 'Enable',
   'system.orgTemplate.update': 'Update Field',
@@ -29,6 +30,7 @@ export default {
   'system.orgTemplate.enableDescription': 'The project template is enabled. Field Settings are inoperable',
   'system.orgTemplate.fieldLimit': 'You can add a maximum of 20 fields',
   'system.orgTemplate.isSystem': 'System',
+  'system.orgTemplate.isBuiltIn': 'Built-in',
   'system.orgTemplate.fieldList': 'Field list',
   'system.orgTemplate.addOptions': 'Add an option',
   'system.orgTemplate.deleteTip':

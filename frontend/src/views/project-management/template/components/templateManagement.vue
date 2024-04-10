@@ -60,7 +60,7 @@
             @click="previewDetail(record.id)"
             >{{ record.name }}</span
           >
-          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isBuiltIn') }}</MsTag>
         </div>
       </template>
       <template #operation="{ record }">
