@@ -17,6 +17,12 @@
         <template #first>
           <div class="p-[24px] pb-0">
             <div class="feature-case h-[100%]">
+              <a-input-search
+                v-model:model-value="groupKeyword"
+                :placeholder="t('caseManagement.featureCase.searchTip')"
+                allow-clear
+                class="mb-[16px]"
+              ></a-input-search>
               <div class="case h-[38px]">
                 <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                   <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
@@ -64,6 +70,7 @@
                 :active-folder="activeFolder"
                 :is-expand-all="isExpandAll"
                 :modules-count="modulesCount"
+                :group-keyword="groupKeyword"
                 @case-node-select="caseNodeSelect"
                 @init="setRootModules"
                 @drag-update="dragUpdate"
@@ -163,7 +170,7 @@
   const isExpandAll = ref(false);
   const activeCaseType = ref<'folder' | 'module'>('folder'); // 激活用例类型
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
-
+  const groupKeyword = ref<string>('');
   // 全部展开或折叠
   const expandHandler = () => {
     isExpandAll.value = !isExpandAll.value;

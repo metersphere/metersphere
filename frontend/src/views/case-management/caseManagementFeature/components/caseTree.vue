@@ -1,16 +1,10 @@
 <template>
-  <a-input-search
-    v-model:model-value="groupKeyword"
-    :placeholder="t('caseManagement.featureCase.searchTip')"
-    allow-clear
-    class="mb-[16px]"
-  ></a-input-search>
   <a-spin class="w-full" :style="{ height: `calc(100vh - 346px)` }" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
       :data="caseTree"
-      :keyword="groupKeyword"
+      :keyword="props.groupKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('common.noData')"
@@ -111,13 +105,12 @@
     isExpandAll: boolean; // 是否展开用例节点
     allNames?: string[]; // 所有的模块name列表
     modulesCount?: Record<string, number>; // 模块数量统计对象
+    groupKeyword?: string; // 搜索关键字
   }>();
 
   const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init', 'dragUpdate']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
-
-  const groupKeyword = ref<string>('');
 
   const caseTree = ref<ModuleTreeNode[]>([]);
 
