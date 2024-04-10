@@ -9,7 +9,7 @@
       </div>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('apiScenario.quoteTableSearchTip')"
+        :placeholder="props.searchPlaceholder"
         allow-clear
         class="mr-[8px] w-[240px]"
         @search="() => loadPage()"
@@ -122,6 +122,7 @@
     caseId?: string | number;
     apiId?: string | number;
     singleSelect?: boolean; // 是否单选
+    searchPlaceholder: string; // 搜索框提示词。场景和接口、用例不一样，需要区分。
   }>();
   const emit = defineEmits<{
     (e: 'select', data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]): void;
