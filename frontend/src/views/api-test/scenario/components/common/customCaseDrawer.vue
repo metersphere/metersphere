@@ -29,13 +29,13 @@
           <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
         </div>
         <div
-          v-if="activeStep && !activeStep.isQuoteScenarioStep && requestVModel.resourceId"
+          v-if="activeStep && !activeStep.isQuoteScenarioStep && activeStep.resourceId"
           class="right-operation-button-icon flex items-center"
         >
           <replaceButton
             :steps="props.steps"
             :step="activeStep"
-            :resource-id="requestVModel.resourceId"
+            :resource-id="activeStep.resourceId"
             :scenario-id="scenarioId"
             @replace="handleReplace"
           />
@@ -350,6 +350,7 @@
   // 注入祖先组件提供的属性
   const scenarioId = inject<string | number>('scenarioId');
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
+  const hasLocalExec = inject<Ref<boolean>>('hasLocalExec');
 
   const defaultApiParams: RequestParam = {
     name: '',
@@ -619,8 +620,6 @@
       protocolLoading.value = false;
     }
   }
-
-  const hasLocalExec = ref(false); // 是否配置了api本地执行
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
   const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换传入的 API 数据导致动态表单数据丢失

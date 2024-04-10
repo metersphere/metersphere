@@ -107,6 +107,7 @@ const useUserStore = defineStore('user', {
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
         appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);
+        this.initLocalConfig(); // 获取本地执行配置
       } catch (err) {
         clearToken();
         throw err;

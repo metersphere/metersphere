@@ -284,5 +284,5 @@ export function updateScenarioPro(id: string | number, priority: CaseLevel | und
 
 // 获取跨项目信息
 export function getStepProjectInfo(id: string, type: ScenarioStepType) {
-  return MSR.get<ScenarioStepResourceInfo>({ url: GetStepProjectInfoUrl, params: id, data: { resourceType: type } });
+  return MSR.get<ScenarioStepResourceInfo>({ url: `${GetStepProjectInfoUrl}/${id}`, params: { resourceType: type } });
 }

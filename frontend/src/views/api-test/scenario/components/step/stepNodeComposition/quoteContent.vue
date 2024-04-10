@@ -13,20 +13,22 @@
     >
       <MsIcon type="icon-icon-draft" class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
       <template #content>
-        <div class="flex flex-col gap-[16px]">
-          <div>
-            <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.belongProject') }}</div>
-            <div class="text-[14px] text-[var(--color-text-1)]">
-              {{ originProjectInfo?.projectName }}
+        <a-spin class="h-full w-full" :loading="loading">
+          <div class="flex flex-col gap-[16px]">
+            <div>
+              <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.belongProject') }}</div>
+              <div class="text-[14px] text-[var(--color-text-1)]">
+                {{ originProjectInfo?.projectName }}
+              </div>
+            </div>
+            <div>
+              <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.detailName') }}</div>
+              <div class="cursor-pointer text-[14px] text-[rgb(var(--primary-5))]" @click="goDetail">
+                {{ `【${originProjectInfo?.num}】${originProjectInfo?.name}` }}
+              </div>
             </div>
           </div>
-          <div>
-            <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.detailName') }}</div>
-            <div class="cursor-pointer text-[14px] text-[rgb(var(--primary-5))]" @click="goDetail">
-              {{ `【${originProjectInfo?.num}】${originProjectInfo?.name}` }}
-            </div>
-          </div>
-        </div>
+        </a-spin>
       </template>
     </a-popover>
     <MsTag
@@ -68,10 +70,18 @@
   const { openNewPage } = useOpenNewPage();
 
   const originProjectInfo = ref<ScenarioStepResourceInfo>();
-
+  const loading = ref(false);
   async function handleVisibleChange(val: boolean) {
-    if (val && props.data.originProjectId) {
-      originProjectInfo.value = await getStepProjectInfo(props.data.resourceId || '', props.data.stepType);
+    try {
+      loading.value = true;
+      if (val && props.data.originProjectId) {
+        originProjectInfo.value = await getStepProjectInfo(props.data.resourceId || '', props.data.stepType);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
