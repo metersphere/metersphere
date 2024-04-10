@@ -56,7 +56,7 @@
                 v-if="item.status === UploadStatus.init"
                 class="text-[12px] leading-[16px] text-[var(--color-text-4)]"
               >
-                {{ t('ms.upload.waiting_save') }}
+                {{ initFileSaveTips ? initFileSaveTips : t('ms.upload.waiting') }}
               </div>
               <div
                 v-else-if="item.status === UploadStatus.done"
@@ -76,8 +76,8 @@
                       }}
                     </div>
                   </a-tooltip>
-                  <div v-if="showUploadSuccess(item)" class="flex items-center">
-                    <MsIcon type="icon-icon_succeed_colorful" />
+                  <div v-if="showUploadSuccess(item)" class="ml-4 flex items-center">
+                    <MsIcon type="icon-icon_succeed_colorful" class="mr-2" />
                     {{ t('ms.upload.uploadSuccess') }}
                   </div>
                 </div>
@@ -185,6 +185,7 @@
       showDelete?: boolean; // 是否展示删除按钮
       handleView?: (item: MsFileItem) => void; // 是否自定义预览
       showUploadTypeDesc?: boolean; // 自定义上传类型关联于&上传于
+      initFileSaveTips?: string; // 上传初始文件时的提示
     }>(),
     {
       mode: 'remote',
@@ -211,6 +212,7 @@
   watch(
     () => props.fileList,
     (val) => {
+      console.log(props.initFileSaveTips);
       innerFileList.value = val.sort((a, b) => {
         if (a.status === UploadStatus.init && b.status !== UploadStatus.init) {
           return -1; // "init" 排在前面

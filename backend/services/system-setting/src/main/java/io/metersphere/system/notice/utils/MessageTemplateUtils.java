@@ -6,7 +6,7 @@ import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
-import io.metersphere.system.dto.BugNoticeDTO;
+import io.metersphere.system.dto.BugMessageDTO;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -153,7 +153,7 @@ public class MessageTemplateUtils {
                 allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
-                allFields = FieldUtils.getAllFields(BugNoticeDTO.class);
+                allFields = FieldUtils.getAllFields(BugMessageDTO.class);
             }
             case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
                 allFields = FieldUtils.getAllFields(UiScenario.class);

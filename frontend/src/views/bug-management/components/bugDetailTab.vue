@@ -84,6 +84,7 @@
       :upload-func="uploadOrAssociationFile"
       :handle-delete="deleteFileHandler"
       :show-delete="props.allowEdit"
+      :init-file-save-tips="t('ms.upload.waiting_save')"
       @finish="uploadFileOver"
     >
       <template #actions="{ item }">

@@ -74,5 +74,7 @@ export default {
     'Turn on: The defects created by the platform are synced to the third-party project management platform',
   'project.menu.defect.closeTip':
     'Turn off: The defects created by the platform cannot be synced to the third-party project management platform',
+  'project.menu.demand.enableTip': 'On: functional cases can relate to third-party demands',
+  'project.menu.demand.closeTip': 'Off: functional cases cannot relate to third party demands',
   'project.menu.defect.customLabel': 'Custom Frequency',
 };

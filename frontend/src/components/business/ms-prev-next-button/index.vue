@@ -52,7 +52,7 @@
     getDetailFunc: (id: string) => Promise<any>; // 获取详情的请求函数
   }>();
 
-  const emit = defineEmits(['update:loading', 'loaded']);
+  const emit = defineEmits(['update:loading', 'loaded', 'loadingDetail']);
 
   const { t } = useI18n();
 
@@ -94,6 +94,7 @@
   async function initDetail() {
     try {
       innerLoading.value = true;
+      emit('loadingDetail');
       const res = await props.getDetailFunc(activeDetailId.value);
       emit('loaded', res);
     } catch (error) {
