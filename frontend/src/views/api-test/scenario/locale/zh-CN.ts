@@ -228,9 +228,9 @@ export default {
   'apiScenario.setting.step.rule.ignore': '忽略错误，继续执行',
   'apiScenario.setting.step.rule.stop': '停止/结束执行',
   'apiScenario.setting.cookie.config.tip':
-    '同时存在全局变量cookie与场景变量cookie时，共享cookie会覆盖全局cookie与场景变量cookie',
+    '同时存在全局变量 Cookie 与场景变量 Cookie 时，共享 Cookie 会覆盖全局 Cookie 与场景变量 Cookie',
   'apiScenario.setting.share.cookie.tip':
-    '系统只要从某个步骤的结果内提取到返回的cookie信息，则后续步骤都会使用此 cookie ，如果请求添加了Cookie 变量也会被覆盖',
+    '系统只要从某个步骤的结果内提取到返回的 Cookie 信息，则后续步骤都会使用此 Cookie ，如果请求添加了 Cookie 变量也会被覆盖',
   'apiScenario.setting.waitTime.tip': '运行场景时，场景的每一个步骤执行后都会等待相应的时间再触发下一个步骤开始执行',
   // 定时任务
   'apiScenario.schedule.create': '创建定时任务',

@@ -241,9 +241,9 @@ export default {
   'apiScenario.setting.step.rule.ignore': 'Ignore Error and Continue Execution',
   'apiScenario.setting.step.rule.stop': 'Stop/End Execution',
   'apiScenario.setting.cookie.config.tip':
-    'When both global variable cookie and scenario variable cookie exist, shared cookie will override global cookie and scenario variable cookie',
+    'When both global variable Cookie and scenario variable cookie exist, shared Cookie will override global Cookie and scenario variable Cookie',
   'apiScenario.setting.share.cookie.tip':
-    'If the system extracts cookie information from the result of a certain step, subsequent steps will use this cookie. If the request adds a Cookie variable, it will be overridden',
+    'If the system extracts Cookie information from the result of a certain step, subsequent steps will use this Cookie. If the request adds a Cookie variable, it will be overridden',
   'apiScenario.setting.waitTime.tip':
     'When running a scenario, each step of the scenario will wait for the specified time before triggering the next step',
   // Scheduled Task
