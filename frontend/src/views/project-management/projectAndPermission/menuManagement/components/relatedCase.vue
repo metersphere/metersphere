@@ -131,6 +131,7 @@
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
     sessionStorage.removeItem('platformKey');
+    form.PLATFORM_KEY = '';
     fApi.value.clearValidateState();
   };
   const handlePlatformChange = async (value: SelectValue) => {

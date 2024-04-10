@@ -522,9 +522,6 @@
       :max-length="1000"
     ></a-textarea>
   </a-modal>
-  <!-- <a-modal v-model:visible="hostVisible" :title="t('project.environmental.host')" @close="hostModalClose">
-    <a-table :columns="hostColumn" :data="hostData" />
-  </a-modal> -->
   <DomainModal v-model:visible="hostVisible" :data="hostData" />
 </template>
 

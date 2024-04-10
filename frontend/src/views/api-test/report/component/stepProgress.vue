@@ -8,7 +8,7 @@
             <div>{{ t('report.detail.successCount') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reportDetail.successCount }}
+            {{ props.reportDetail.stepSuccessCount }}
           </td>
         </tr>
         <tr>
@@ -17,7 +17,7 @@
             <div>{{ t('report.detail.fakeErrorCount') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reportDetail.fakeErrorCount }}
+            {{ props.reportDetail.stepFakeErrorCount }}
           </td>
         </tr>
         <tr>
@@ -26,7 +26,7 @@
             <div>{{ t('report.detail.errorCount') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reportDetail.errorCount }}
+            {{ props.reportDetail.stepErrorCount }}
           </td>
         </tr>
         <tr>
@@ -35,7 +35,7 @@
             <div>{{ t('report.detail.pendingCount') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reportDetail.pendingCount }}
+            {{ props.reportDetail.stepPendingCount }}
           </td>
         </tr>
       </table>
@@ -65,16 +65,16 @@
   const { t } = useI18n();
 
   const getCountTotal = computed(() => {
-    const { successCount, errorCount, fakeErrorCount, pendingCount } = props.reportDetail;
-    return successCount + errorCount + fakeErrorCount + pendingCount;
+    const { stepSuccessCount, stepFakeErrorCount, stepErrorCount, stepPendingCount } = props.reportDetail;
+    return stepSuccessCount + stepFakeErrorCount + stepErrorCount + stepPendingCount;
   });
 
   const colorData = computed(() => {
     if (
-      props.reportDetail.successCount === 0 &&
-      props.reportDetail.errorCount === 0 &&
-      props.reportDetail.fakeErrorCount === 0 &&
-      props.reportDetail.pendingCount === 0
+      props.reportDetail.stepSuccessCount === 0 &&
+      props.reportDetail.stepErrorCount === 0 &&
+      props.reportDetail.stepFakeErrorCount === 0 &&
+      props.reportDetail.stepPendingCount === 0
     ) {
       return [
         {
@@ -85,19 +85,19 @@
     }
     return [
       {
-        percentage: (props.reportDetail.successCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepSuccessCount / getCountTotal.value) * 100,
         color: 'rgb(var(--success-6))',
       },
       {
-        percentage: (props.reportDetail.errorCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepFakeErrorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--danger-6))',
       },
       {
-        percentage: (props.reportDetail.fakeErrorCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepErrorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--warning-6))',
       },
       {
-        percentage: (props.reportDetail.pendingCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepPendingCount / getCountTotal.value) * 100,
         color: 'var(--color-text-input-border)',
       },
     ];

@@ -1,7 +1,7 @@
 <template>
   <div class="px-[16px]">
-    <div class="mb-4 flex items-center justify-between">
-      <span>{{ t('project.taskCenter.apiCaseList', { type: props.name }) }}</span>
+    <div class="mb-4 flex items-center justify-end">
+      <!-- <span>{{ t('project.taskCenter.apiCaseList', { type: props.name }) }}</span> -->
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('system.organization.searchIndexPlaceholder')"
@@ -25,6 +25,14 @@
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceNum }}</div
+        >
+      </template>
+      <template #resourceName="{ record }">
+        <div
+          type="text"
+          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          @click="showDetail(record.resourceId)"
+          >{{ record.resourceName }}</div
         >
       </template>
       <template #statusFilter="{ columnConfig }">
@@ -203,6 +211,7 @@
       sortIndex: 1,
       fixed: 'left',
       showTooltip: true,
+      showInTable: true,
       showDrag: false,
       columnSelectorDisabled: true,
     },
@@ -213,6 +222,7 @@
       width: 300,
       showDrag: false,
       showTooltip: true,
+      showInTable: true,
       columnSelectorDisabled: true,
     },
     {
@@ -222,7 +232,7 @@
       showTooltip: true,
       showDrag: true,
       width: 200,
-      showInTable: false,
+      showInTable: true,
     },
     {
       title: 'system.organization.organizationName',
@@ -231,7 +241,7 @@
       showTooltip: true,
       showDrag: true,
       width: 200,
-      showInTable: false,
+      showInTable: true,
     },
     {
       title: 'project.taskCenter.executionResult',

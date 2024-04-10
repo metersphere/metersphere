@@ -47,7 +47,7 @@
           <MsIcon type="icon-icon_logs_outlined" class="mr-1 font-[16px] text-[rgb(var(--primary-5))]" />
           {{ t('ms.message.make.as.read') }}
         </a-button>
-        <div class="mt-[26px] flex h-[calc(100%-150px)]">
+        <div class="mt-[26px] flex">
           <MsList
             v-model:data="messageHistoryList"
             mode="remote"
@@ -56,6 +56,9 @@
             class="w-full rounded-[var(--border-radius-small)]"
             :no-more-data="noMoreData"
             raggable
+            :virtual-list-props="{
+              height: 'calc(100vh - 160px)',
+            }"
             @reach-bottom="handleReachBottom"
           >
             <template #item="{ item }">
@@ -74,9 +77,11 @@
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
                     <MsButton @click="handleNameClick(item)">
-                      <div class="one-line-text">
-                        {{ item.resourceName }}
-                      </div>
+                      <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
+                        <div class="one-line-text max-w-[400px]">
+                          {{ item.resourceName }}
+                        </div>
+                      </a-tooltip>
                     </MsButton>
                   </div>
                   <div class="ml-[50px] flex items-center">
@@ -91,9 +96,11 @@
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
                     <MsButton @click="handleNameClick(item)">
-                      <div class="one-line-text">
-                        {{ item.resourceName }}
-                      </div>
+                      <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
+                        <div class="one-line-text max-w-[400px]">
+                          {{ item.resourceName }}
+                        </div>
+                      </a-tooltip>
                     </MsButton>
                   </div>
                   <div class="flex items-center">

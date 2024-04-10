@@ -62,7 +62,7 @@
             <div v-else class="splitBox">
               <div class="startStatus"> {{ t('system.orgTemplate.startState') }} </div>
               <div class="line"></div>
-              <div class="endStatus"> {{ t('system.orgTemplate.endState') }} </div>
+              <div class="endStatus"> {{ t('system.orgTemplate.flowState') }} </div>
             </div>
           </template>
           <template #cell="{ record }">

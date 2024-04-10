@@ -1,6 +1,6 @@
 <template>
-  <div class="rounded-2xl bg-white">
-    <div class="p-[24px] pb-[16px]">
+  <MsCard simple no-content-padding>
+    <div class="flex items-center border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
       <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" type="primary" @click="caseDetail">
         {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
@@ -11,8 +11,7 @@
         {{ t('caseManagement.featureCase.importXmind') }}
       </a-button> -->
     </div>
-    <a-divider class="!my-0" />
-    <div class="pageWrap">
+    <div class="pageWrap relative h-[calc(100%-73px)]">
       <MsSplitBox>
         <template #first>
           <div class="p-[24px] pb-0">
@@ -75,15 +74,19 @@
                 @init="setRootModules"
                 @drag-update="dragUpdate"
               ></FeatureCaseTree>
-              <div class="b-0 absolute w-[88%]">
-                <a-divider class="!my-0 !mb-2" />
-                <div class="case h-[38px]">
-                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
-                    <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                    <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div
-                  >
-                </div>
+            </div>
+          </div>
+          <div class="flex-1">
+            <a-divider class="!my-0 !mb-0" />
+            <div class="case">
+              <div
+                class="flex items-center px-[20px]"
+                :class="getActiveClass('recycle')"
+                @click="setActiveFolder('recycle')"
+              >
+                <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+                <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div>
               </div>
             </div>
           </div>
@@ -103,7 +106,8 @@
         </template>
       </MsSplitBox>
     </div>
-  </div>
+  </MsCard>
+  <!-- </div> -->
   <ExportExcelModal
     v-model:visible="showExcelModal"
     :validate-type="validateType"
@@ -136,6 +140,7 @@
   import { useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -404,7 +409,6 @@
 <style scoped lang="less">
   .pageWrap {
     min-width: 1000px;
-    height: calc(100vh - 166px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .case {

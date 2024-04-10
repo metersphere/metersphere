@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 pt-0">
-    <div class="mb-4 flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-end">
       <!-- TODO这个版本不上 -->
       <!--      <a-button type="primary">
         {{ t('project.taskCenter.createTask') }}
@@ -30,7 +30,12 @@
         >
       </template>
       <template #resourceName="{ record }">
-        <div type="text" class="flex w-full">{{ record.resourceName }}</div>
+        <div
+          type="text"
+          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          @click="showDetail(record.resourceId)"
+          >{{ record.resourceName }}</div
+        >
       </template>
       <template #resourceType="{ record }">
         <div type="text" class="flex w-full">{{ t(resourceTypeMap[record.resourceType].label) }}</div>
@@ -123,6 +128,7 @@
       width: 140,
       showInTable: true,
       showTooltip: true,
+      showDrag: false,
       columnSelectorDisabled: true,
     },
     {
@@ -130,9 +136,10 @@
       slotName: 'resourceName',
       dataIndex: 'resourceName',
       width: 200,
-      showDrag: true,
+      showDrag: false,
       showTooltip: true,
       columnSelectorDisabled: true,
+      showInTable: true,
     },
     {
       title: 'project.taskCenter.resourceClassification',

@@ -30,7 +30,7 @@
                   width="100%"
                   height="376px"
                   theme="MS-text"
-                  :read-only="false"
+                  :read-only="true"
                   :show-full-screen="false"
                 />
               </div>

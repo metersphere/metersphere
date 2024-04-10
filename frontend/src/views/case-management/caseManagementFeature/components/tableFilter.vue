@@ -7,7 +7,7 @@
       <icon-down :class="innerVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
     </a-button>
     <template #content>
-      <div class="arco-table-filters-content">
+      <div class="arco-table-filters-content max-w-[400px]">
         <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
           <a-checkbox-group v-model:model-value="innerStatusFilters" direction="vertical" size="small">
             <a-checkbox
@@ -15,7 +15,9 @@
               :key="item[props.valueKey || 'value']"
               :value="item[props.valueKey || 'value']"
             >
-              <slot name="item" :item="item" :index="index"></slot>
+              <div class="one-line-text max-w-[300px]">
+                <slot name="item" :item="item" :index="index"></slot>
+              </div>
             </a-checkbox>
           </a-checkbox-group>
         </div>
