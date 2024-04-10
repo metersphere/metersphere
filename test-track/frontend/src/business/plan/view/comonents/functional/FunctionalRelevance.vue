@@ -302,6 +302,7 @@ export default {
       param.ids = this.$refs.table.selectIds;
       param.request = this.page.condition;
       param.checked = item;
+      param.request.customNum = this.customNum;
       this.save(param, this);
     },
     nodeChange(node, nodeIds, nodeNames) {
