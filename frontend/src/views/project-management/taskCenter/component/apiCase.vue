@@ -203,6 +203,8 @@
       sortIndex: 1,
       fixed: 'left',
       showTooltip: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.taskCenter.resourceName',
@@ -211,6 +213,7 @@
       width: 300,
       showDrag: false,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'system.project.name',
@@ -219,6 +222,7 @@
       showTooltip: true,
       showDrag: true,
       width: 200,
+      showInTable: false,
     },
     {
       title: 'system.organization.organizationName',
@@ -227,6 +231,7 @@
       showTooltip: true,
       showDrag: true,
       width: 200,
+      showInTable: false,
     },
     {
       title: 'project.taskCenter.executionResult',
@@ -257,6 +262,7 @@
       showInTable: true,
       showDrag: true,
       showTooltip: true,
+      width: 200,
     },
     {
       title: 'project.taskCenter.operator',
@@ -265,6 +271,7 @@
       showInTable: true,
       showDrag: true,
       showTooltip: true,
+      width: 200,
     },
     {
       title: 'project.taskCenter.operating',
@@ -287,7 +294,7 @@
     {
       tableKey: TableKeyEnum.TASK_API_CASE,
       scroll: {
-        x: '100%',
+        x: 1400,
       },
       showSetting: true,
       selectable: true,

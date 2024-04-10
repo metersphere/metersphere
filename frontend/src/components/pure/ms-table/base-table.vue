@@ -33,6 +33,8 @@
               v-if="attrs.selectorType === 'checkbox'"
               :total="attrs.showPagination ? (attrs.msPagination as MsPaginationI).total : (attrs.data as MsTableDataItem<TableData>[]).length"
               :selected-keys="props.selectedKeys"
+              :selector-status="props.selectorStatus"
+              :exclude-keys="[...props.excludeKeys]"
               :current-data="attrs.data as Record<string,any>[]"
               :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
@@ -50,6 +52,7 @@
               v-model:model-value="record.tableChecked"
               @change="(val) => handleRadioChange(val as boolean, record)"
             />
+            <div v-if="attrs.showPagination" class="w-[16px]"></div>
           </template>
         </a-table-column>
         <a-table-column

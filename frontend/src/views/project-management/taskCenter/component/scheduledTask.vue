@@ -123,6 +123,7 @@
       width: 140,
       showInTable: true,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.taskCenter.resourceName',
@@ -131,6 +132,7 @@
       width: 200,
       showDrag: true,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.taskCenter.resourceClassification',
