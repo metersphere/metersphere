@@ -70,7 +70,7 @@ public class MessageDetailService {
         MessageTaskBlobExample blobExample = new MessageTaskBlobExample();
         blobExample.createCriteria()
                 .andIdIn(messageTaskIds);
-        List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(blobExample);
+        List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExampleWithBLOBs(blobExample);
         Map<String, MessageTaskBlob> messageTaskBlobMap = messageTaskBlobs.stream().collect(Collectors.toMap(MessageTaskBlob::getId, item -> item));
 
         List<String> robotIds = messageTaskLists.stream().map(MessageTask::getProjectRobotId).distinct().collect(Collectors.toList());
