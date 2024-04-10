@@ -10,7 +10,7 @@ export default {
   'caseManagement.caseReview.creator': 'Creator',
   'caseManagement.caseReview.reviewer': 'Reviewer',
   'caseManagement.caseReview.reviewerRequired': 'Please select at least one reviewer',
-  'caseManagement.caseReview.type': 'Review criteria',
+  'caseManagement.caseReview.type': 'Review mode',
   'caseManagement.caseReview.status': 'Review status',
   'caseManagement.caseReview.caseCount': 'Use case number',
   'caseManagement.caseReview.passRate': 'Passing rate',

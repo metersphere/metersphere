@@ -1,4 +1,10 @@
-import { RequestDefinitionStatus, RequestImportFormat, RequestImportType } from '@/enums/apiEnum';
+import {
+  RequestCaseStatus,
+  RequestDefinitionStatus,
+  RequestImportFormat,
+  RequestImportType,
+  RequestMethods,
+} from '@/enums/apiEnum';
 
 import { BatchApiParams, ModuleTreeNode, TableQueryParams } from '../common';
 import { ExecuteRequestParams, ResponseDefinition } from './common';
@@ -19,7 +25,6 @@ export interface ApiDefinitionCreateParams extends ExecuteRequestParams {
   customFields: ApiDefinitionCustomField[];
   moduleId: string;
   versionId: string;
-
   [key: string]: any; // 其他前端定义的参数
 }
 
@@ -55,7 +60,7 @@ export interface ApiDefinitionDetail extends ApiDefinitionCreateParams {
   id: string;
   name: string;
   protocol: string;
-  method: string;
+  method: RequestMethods;
   path: string;
   num: number;
   pos: number;
@@ -181,7 +186,7 @@ export interface ApiDefinitionBatchParams extends BatchApiParams {
 export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams {
   type?: string;
   append?: boolean;
-  method?: string;
+  method?: RequestMethods;
   status?: RequestDefinitionStatus;
   versionId?: string;
   tags?: string[];
@@ -300,7 +305,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   name: string;
   priority: string;
   num: number;
-  status: string;
+  status: RequestCaseStatus;
   protocol: string;
   lastReportStatus: string;
   lastReportId: string;
@@ -309,7 +314,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   environmentId: string;
   environmentName: string;
   follow: boolean;
-  method: string;
+  method: RequestMethods;
   path: string;
   tags: string[];
   passRate: string;
@@ -335,7 +340,7 @@ export interface ApiCaseBatchParams extends BatchApiParams {
 export interface ApiCaseBatchEditParams extends ApiCaseBatchParams {
   priority?: string;
   tags?: string[];
-  status?: string;
+  status?: RequestCaseStatus;
   environmentId?: string;
   type: string;
   append?: boolean;
@@ -344,7 +349,7 @@ export interface ApiCaseBatchEditParams extends ApiCaseBatchParams {
 export interface AddApiCaseParams extends ExecuteRequestParams {
   name: string;
   priority: string;
-  status: string;
+  status: RequestCaseStatus;
   tags: string[];
   deleteFileIds?: string[];
   unLinkFileIds?: string[];
@@ -393,7 +398,7 @@ export interface ApiCaseExecuteHistoryItem {
   operationUser: string;
   createUser: string;
   startTime: number;
-  status: string;
+  status: RequestCaseStatus;
   triggerMode: string;
   deleted: boolean;
 }

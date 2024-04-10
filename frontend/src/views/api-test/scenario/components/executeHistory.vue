@@ -1,15 +1,5 @@
 <template>
   <div>
-    <div class="mb-[8px] flex items-center justify-end">
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('apiScenario.executeHistory.searchPlaceholder')"
-        allow-clear
-        class="mr-[8px] w-[240px]"
-        @search="loadExecuteHistoryList"
-        @press-enter="loadExecuteHistoryList"
-      />
-    </div>
     <ms-base-table v-bind="propsRes" no-disable filter-icon-align-left v-on="propsEvent">
       <template #num="{ record }">
         <span type="text" class="px-0">{{ record.num }}</span>

@@ -245,11 +245,11 @@
       activeScenarioTab.value.executeFakeErrorCount = 0;
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
-      activeScenarioTab.value.isDebug = !isExecute;
       debugSocket(activeScenarioTab.value, executeType, localExecuteUrl); // 开启websocket
       let res;
       if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
         // 执行场景且非本地执行且非未保存场景
+        activeScenarioTab.value.isDebug = false;
         res = await executeScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
@@ -267,6 +267,7 @@
           }),
         });
       } else {
+        activeScenarioTab.value.isDebug = true;
         res = await debugScenario({
           id: activeScenarioTab.value.id,
           grouped: false,

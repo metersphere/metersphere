@@ -187,9 +187,6 @@
   }
 
   async function testApi() {
-    if (apiConfig.value.userUrl.trim() === '') {
-      return;
-    }
     try {
       testApiLoading.value = true;
       const res = await validLocalConfig(apiConfig.value.userUrl.trim());
@@ -217,6 +214,7 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      apiConfig.value.status = 2;
     } finally {
       testApiLoading.value = false;
     }

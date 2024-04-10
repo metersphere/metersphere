@@ -8,6 +8,12 @@
     @close="handleClose"
   >
     <template #title>
+      <div
+        v-if="activeStep"
+        class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] pr-[2px] !text-white"
+      >
+        {{ activeStep.sort }}
+      </div>
       <stepType v-if="activeStep?.stepType" :step="activeStep" class="mr-[4px]" />
       <a-input
         v-if="activeStep?.name"

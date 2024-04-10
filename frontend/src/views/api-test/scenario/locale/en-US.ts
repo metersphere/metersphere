@@ -191,6 +191,7 @@ export default {
   'apiScenario.sourceScenarioEnvTip': 'Runtime environment, including environment parameters',
   'apiScenario.setSuccess': 'Set Successful',
   'apiScenario.pleaseInputUrl': 'Please enter URL',
+  'apiScenario.syncSaveAsCase': 'Synchronously add test interface case',
   // Execution History
   'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
   'apiScenario.executeHistory.num': 'No.',

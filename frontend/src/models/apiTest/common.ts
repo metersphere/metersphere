@@ -19,6 +19,7 @@ import {
   ResponseBodyDocumentAssertionType,
   ResponseBodyFormat,
   ResponseBodyXPathAssertionFormat,
+  ScenarioExecuteStatus,
 } from '@/enums/apiEnum';
 
 // 获取插件表单选项参数
@@ -411,6 +412,8 @@ export interface RequestResult {
   responseResult: ResponseResult;
   isSuccessful?: boolean;
   console?: string;
+  status?: ScenarioExecuteStatus;
+  fakeErrorCode?: string;
   [key: string]: any;
 }
 export interface RequestTaskResult {

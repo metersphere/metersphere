@@ -29,6 +29,7 @@
   );
 
   const emit = defineEmits<{
+    (e: 'init', parseJson: string | Record<string, any>): void;
     (e: 'pick', path: string, parseJson: string | Record<string, any>, result: any[]): void;
   }>();
 
@@ -45,6 +46,7 @@
         }) as Record<string, any>;
       }
       JPPicker.jsonPathPicker(jr.value, json.value, [ip.value], props.opt);
+      emit('init', json.value);
     } catch (error) {
       JPPicker.jsonPathPicker(jr.value, props.data, [ip.value], props.opt);
     }

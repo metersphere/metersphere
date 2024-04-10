@@ -415,7 +415,13 @@
   </a-modal>
 
   <!--   表格批量操作-->
-  <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
+  <a-modal
+    v-model:visible="showBatchModal"
+    title-align="start"
+    class="ms-modal-upload ms-modal-medium"
+    :width="480"
+    @close="cancelBatch"
+  >
     <template #title>
       {{ t('common.batchEdit') }}
       <div class="text-[var(--color-text-4)]">
