@@ -339,16 +339,17 @@ export default {
       }
       param.results = JSON.stringify(param.results);
       param.actualResult = this.testCase.actualResult;
-      testPlanTestCaseEdit(param).then((response) => {
+      testPlanTestCaseEdit(param).then(() => {
         this.$success(this.$t("commons.save_success"));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
+        this.handleMdImages({
+          id: param.id,
+          actualResult: param.actualResult,
+          description: this.testCase.comment,
+        });
 
         if (this.testCase.comment) {
-          this.handleMdImages({
-            id: response.data.id,
-            description: this.testCase.comment,
-          });
           this.$refs.comment.getComments();
           this.testCase.comment = "";
         }
@@ -362,6 +363,7 @@ export default {
       // 解析富文本框中的图片
       let mdImages = [];
       mdImages.push(...parseMdImage(param.description));
+      mdImages.push(...parseMdImage(param.actualResult));
       // 将图片从临时目录移入正式目录
       saveMarkDownImg({
         projectId: getCurrentProjectID(),
