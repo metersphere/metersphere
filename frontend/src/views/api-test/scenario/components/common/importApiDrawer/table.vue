@@ -67,11 +67,18 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
-                    <apiStatus :status="val" />
-                  </a-checkbox>
+                  <div v-if="type === 'scenario'">
+                    <a-checkbox v-for="val of Object.values(ApiScenarioStatus)" :key="val" :value="val">
+                      <apiStatus :status="val" />
+                    </a-checkbox>
+                  </div>
+                  <div v-else>
+                    <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
+                      <apiStatus :status="val" />
+                    </a-checkbox>
+                  </div>
                 </a-checkbox-group>
               </div>
               <div class="filter-button">
@@ -98,11 +105,43 @@
       <template #priority="{ record }">
         <caseLevel :case-level="record.priority" />
       </template>
+      <template #priorityFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="priorityFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="priorityFilterVisible = true">
+            {{ t(columnConfig.title as string) }}
+            <icon-down :class="priorityFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </MsButton>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="priorityFilters" direction="vertical" size="small">
+                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                    <caseLevel :case-level="item.label as CaseLevel" />
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetPriorityFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
+      </template>
     </ms-base-table>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { RouteRecordName } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -110,6 +149,7 @@
   import { MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -121,9 +161,11 @@
 
   import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
-  import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
+  import { ApiScenarioStatus, RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { SelectAllEnum } from '@/enums/tableEnum';
+
+  import { casePriorityOptions } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     type: 'api' | 'case' | 'scenario';
@@ -146,7 +188,8 @@
 
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
-
+  const priorityFilterVisible = ref(false);
+  const priorityFilters = ref<string[]>([]);
   const keyword = ref('');
 
   const tableConfig = {
@@ -202,11 +245,6 @@
         showTooltip: true,
         width: 200,
       },
-      // {
-      //   title: 'apiTestManagement.version',
-      //   dataIndex: 'versionName',
-      //   width: 100,
-      // },
       {
         title: 'common.tag',
         dataIndex: 'tags',
@@ -247,8 +285,8 @@
       {
         title: 'case.caseLevel',
         dataIndex: 'priority',
-        slotName: 'caseLevel',
-        titleSlotName: 'caseLevelFilter',
+        slotName: 'priority',
+        titleSlotName: 'priorityFilter',
         sortable: {
           sortDirections: ['ascend', 'descend'],
           sorter: true,
@@ -313,7 +351,12 @@
         title: 'apiScenario.table.columns.level',
         dataIndex: 'priority',
         slotName: 'priority',
-        width: 100,
+        titleSlotName: 'priorityFilter',
+        width: 140,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
       },
       {
         title: 'apiScenario.table.columns.status',
@@ -321,6 +364,10 @@
         slotName: 'status',
         titleSlotName: 'statusFilter',
         width: 140,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
       },
       {
         title: 'apiScenario.table.columns.tags',
@@ -333,6 +380,7 @@
         title: 'apiScenario.table.columns.scenarioEnv',
         dataIndex: 'environmentName',
         width: 159,
+        showTooltip: true,
       },
       {
         title: 'apiScenario.table.columns.steps',
@@ -435,6 +483,7 @@
         filter: {
           status: statusFilters.value,
           method: methodFilters.value,
+          priority: priorityFilters.value,
         },
         excludeIds: [props.scenarioId || '', props.caseId || '', props.apiId || ''],
       });
@@ -466,12 +515,23 @@
       currentTable.value.propsRes.value.selectedKeys = new Set(arr);
     }
   );
-
+  function resetPriorityFilter() {
+    priorityFilterVisible.value = false;
+    priorityFilters.value = [];
+    loadPage();
+  }
+  function resetStatusFilter() {
+    statusFilterVisible.value = false;
+    statusFilters.value = [];
+    loadPage();
+  }
   function handleFilterHidden(val: boolean) {
     if (!val) {
-      loadPage();
+      statusFilterVisible.value = false;
+      priorityFilterVisible.value = false;
       methodFilterVisible.value = false;
       statusFilterVisible.value = false;
+      loadPage();
     }
   }
 
@@ -481,17 +541,12 @@
     loadPage();
   }
 
-  function resetStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    loadPage();
-  }
-
   function resetTable() {
     currentTable.value.resetSelector();
     keyword.value = '';
     methodFilters.value = [];
     statusFilters.value = [];
+    priorityFilters.value = [];
     loadPage();
   }
 
