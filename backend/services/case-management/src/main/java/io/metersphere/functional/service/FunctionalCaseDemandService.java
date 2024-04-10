@@ -240,16 +240,16 @@ public class FunctionalCaseDemandService {
             functionalCaseDemandRequest.setCaseId(t);
             functionalCaseDemandRequest.setDemandPlatform(request.getDemandPlatform());
             //过滤已存在的
-            insertDemand(demandDTOList, functionalCaseDemandRequest, userId, existDemands,  functionalCaseDemandMapper);
+            insertDemand(demandDTOList, functionalCaseDemandRequest, userId, existDemands, functionalCaseDemandMapper);
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     private void insertDemand(List<DemandDTO> demandDTOList, FunctionalCaseDemandRequest request, String userId, List<FunctionalCaseDemand> existDemands, FunctionalCaseDemandMapper functionalCaseDemandMapper) {
-        Map<String, List<FunctionalCaseDemand>> existMap = existDemands.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
-        Map<String, List<FunctionalCaseDemand>> existParentMap = existDemands.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getParent));
-        Map<String, List<DemandDTO>> insertMap = demandDTOList.stream().filter(t->StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(DemandDTO::getDemandId));
+        Map<String, List<FunctionalCaseDemand>> existMap = existDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
+        Map<String, List<FunctionalCaseDemand>> existParentMap = existDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getParent));
+        Map<String, List<DemandDTO>> insertMap = demandDTOList.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(DemandDTO::getDemandId));
 
         for (DemandDTO demandDTO : demandDTOList) {
             FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request.getCaseId(), request.getDemandPlatform(), userId, demandDTO);
@@ -334,7 +334,7 @@ public class FunctionalCaseDemandService {
 
     public PluginPager<PlatformDemandDTO> pageDemand(FunctionalThirdDemandPageRequest request) {
         DemandPageRequest demandPageRequest = new DemandPageRequest();
-        demandPageRequest.setQuery(request.getKeyword());
+        demandPageRequest.setQuery(StringUtils.replace(request.getKeyword(), "\\", ""));
         demandPageRequest.setFilter(request.getFilter());
         demandPageRequest.setStartPage(request.getCurrent());
         demandPageRequest.setPageSize(request.getPageSize());
