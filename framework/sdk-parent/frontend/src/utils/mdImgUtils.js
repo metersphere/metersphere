@@ -4,6 +4,9 @@
  * @returns {*[]}
  */
 export function parseMdImage(text) {
+  if (!text) {
+    return [];
+  }
   let regex = /\!\[.*?\]\(\/resource\/md\/get\?fileName=(.*?)\)/g;
   let fileNames = [];
   let match = regex.exec(text);
