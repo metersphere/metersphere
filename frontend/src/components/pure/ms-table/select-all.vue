@@ -41,6 +41,8 @@
       currentData: MsTableDataItem<Record<string, any>>[];
       showSelectAll: boolean;
       disabled: boolean;
+      selectorStatus: SelectAllEnum;
+      excludeKeys: string[];
     }>(),
     {
       current: 0,
@@ -52,7 +54,14 @@
 
   const checked = computed({
     get: () => {
-      return props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
+      if (props.selectorStatus !== 'all') {
+        return props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
+      }
+      if (props.selectorStatus === 'all') {
+        return !props.excludeKeys?.length
+          ? true
+          : props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
+      }
     },
     set: (value) => {
       return value;
@@ -60,7 +69,12 @@
   });
   const indeterminate = computed(() => {
     // 已选中的数量大于 0 且小于总数时是半选状态
-    return props.selectedKeys.size > 0 && props.selectedKeys.size < props.total;
+    if (props.selectorStatus === 'current') {
+      return props.selectedKeys.size > 0 && props.selectedKeys.size < props.total;
+    }
+    if (props.selectorStatus === 'all') {
+      return !props.excludeKeys?.length ? false : props.selectedKeys.size > 0 && props.selectedKeys.size < props.total;
+    }
   });
 
   const handleSelect = (v: string | number | Record<string, any> | undefined) => {
