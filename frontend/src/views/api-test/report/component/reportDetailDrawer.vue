@@ -17,38 +17,18 @@
   >
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
-        <a-dropdown position="br" @select="shareHandler">
-          <MsButton
-            v-permission="['PROJECT_API_REPORT:READ+SHARE']"
-            type="icon"
-            status="secondary"
-            class="mr-4 !rounded-[var(--border-radius-small)]"
-            :disabled="loading"
-            :loading="shareLoading"
-            @click="shareHandler"
-          >
-            <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
-            {{ t('common.share') }}
-          </MsButton>
-          <template #content>
-            <a-doption>
-              <span>{{ t('report.detail.api.copyLink') }}</span
-              ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: props.shareTime }) }}</span>
-            </a-doption>
-          </template>
-        </a-dropdown>
-        <!-- TODO 这个版本不上导出 -->
-        <!-- <MsButton
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
           :disabled="loading"
-          :loading="exportLoading"
-          @click="exportHandler"
+          :loading="shareLoading"
+          @click="shareHandler"
         >
-          <MsIcon type="icon-icon_move_outlined" class="mr-2 font-[16px]" />
-          {{ t('common.export') }}
-        </MsButton> -->
+          <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
+          {{ t('common.share') }}
+        </MsButton>
       </div>
     </template>
     <template #default="{ loading }">
