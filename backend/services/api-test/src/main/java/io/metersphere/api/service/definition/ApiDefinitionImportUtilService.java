@@ -247,6 +247,51 @@ public class ApiDefinitionImportUtilService {
         currentApiCaseOrder.remove();
         currentApiOrder.remove();
         currentModuleOrder.remove();
+        //获取需要新增的模块
+        getNeedAddModule(modulePathMap, idModuleMap, differenceSet, addModuleList);
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionModuleMapper moduleMapper = sqlSession.getMapper(ApiDefinitionModuleMapper.class);
+        ApiDefinitionMapper apiMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        ApiDefinitionBlobMapper apiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
+
+        //创建模块
+        insertModule(request, addModuleList, moduleMapper);
+
+        //取出需要更新的数据的id
+        List<String> updateModuleLists = updateModuleData.stream().map(ApiDefinitionImportDetail::getId).toList();
+
+        //更新模块数据
+        updateApiModule(modulePathMap, request, updateModuleData, apiMapper);
+
+        List<LogDTO> operationLogs = new ArrayList<>();
+        List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
+
+        //更新接口请求数据
+        updateApiRequest(request, updateRequestData, updateModuleLists, apiMapper, apiBlobMapper);
+
+        Map<String, ApiDefinitionImportDetail> logData = apiDetailWithDataUpdate.getLogData();
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
+        //获取更新的日志
+        getUpdateLog(request, logData, updateLists, project, operationLogs);
+
+        List<ApiDefinitionCaseDTO> createLists = new ArrayList<>();
+        //获取新增的数据和日志
+        addApiAndLog(modulePathMap, request, addModuleData, apiMapper, apiBlobMapper, project, operationLogs, createLists);
+
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        SubListUtils.dealForSubList(operationLogs, 500, operationLogService::batchAdd);
+        //发送通知
+        List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
+        User user = userMapper.selectByPrimaryKey(request.getUserId());
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
+        List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+    }
+
+    private static void getNeedAddModule(Map<String, BaseTreeNode> modulePathMap, Map<String, BaseTreeNode> idModuleMap, Set<String> differenceSet, List<BaseTreeNode> addModuleList) {
         differenceSet.forEach(item -> {
             //解析modulePath  格式为/a/b/c
             String[] split = item.split("/");
@@ -271,82 +316,9 @@ public class ApiDefinitionImportUtilService {
                 }
             }
         });
+    }
 
-        //创建模块
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionModuleMapper moduleMapper = sqlSession.getMapper(ApiDefinitionModuleMapper.class);
-        ApiDefinitionMapper apiMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        ApiDefinitionBlobMapper apiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
-
-        addModuleList.forEach(t -> {
-            ApiDefinitionModule module = new ApiDefinitionModule();
-            module.setId(t.getId());
-            module.setName(t.getName());
-            module.setParentId(t.getParentId());
-            module.setProjectId(request.getProjectId());
-            module.setCreateUser(request.getUserId());
-            module.setPos(getImportNextModuleOrder(request.getProjectId()));
-            module.setCreateTime(System.currentTimeMillis());
-            module.setUpdateUser(request.getUserId());
-            module.setUpdateTime(System.currentTimeMillis());
-            moduleMapper.insertSelective(module);
-        });
-
-        //取出需要更新的数据的id
-        List<String> updateModuleLists = updateModuleData.stream().map(ApiDefinitionImportDetail::getId).toList();
-
-        //更新模块数据
-        updateModuleData.forEach(t -> {
-            ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setId(t.getId());
-            apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
-            apiDefinition.setUpdateUser(request.getUserId());
-            apiDefinition.setUpdateTime(System.currentTimeMillis());
-            apiMapper.updateByPrimaryKeySelective(apiDefinition);
-        });
-        List<LogDTO> operationLogs = new ArrayList<>();
-        List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
-        updateRequestData.forEach(t -> {
-            ApiDefinition apiDefinition = new ApiDefinition();
-            if (CollectionUtils.isNotEmpty(updateModuleLists) && updateModuleLists.contains(t.getId())) {
-                apiDefinition.setId(t.getId());
-                apiDefinition.setUpdateUser(request.getUserId());
-            }
-            apiDefinition.setUpdateTime(System.currentTimeMillis());
-            apiMapper.updateByPrimaryKeySelective(apiDefinition);
-            //更新blob数据
-            ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
-            apiDefinitionBlob.setId(t.getId());
-            apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
-            apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
-            apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
-        });
-        Map<String, ApiDefinitionImportDetail> logData = apiDetailWithDataUpdate.getLogData();
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
-        if (MapUtils.isNotEmpty(logData)) {
-            logData.forEach((k, v) -> {
-                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
-                BeanUtils.copyBean(apiDefinitionDTO, v);
-                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
-                BeanUtils.copyBean(apiDefinitionCaseDTO, v);
-                updateLists.add(apiDefinitionCaseDTO);
-                LogDTO dto = new LogDTO(
-                        project.getId(),
-                        project.getOrganizationId(),
-                        v.getId(),
-                        request.getUserId(),
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
-                        v.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/import");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
-                operationLogs.add(dto);
-            });
-        }
-        List<ApiDefinitionCaseDTO> createLists = new ArrayList<>();
+    private void addApiAndLog(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> addModuleData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, Project project, List<LogDTO> operationLogs, List<ApiDefinitionCaseDTO> createLists) {
         addModuleData.forEach(t -> {
             ApiDefinition apiDefinition = new ApiDefinition();
             BeanUtils.copyBean(apiDefinition, t);
@@ -391,16 +363,76 @@ public class ApiDefinitionImportUtilService {
             BeanUtils.copyBean(apiDefinitionCaseDTO, t);
             createLists.add(apiDefinitionCaseDTO);
         });
+    }
 
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        SubListUtils.dealForSubList(operationLogs, 500, operationLogService::batchAdd);
-        //发送通知
-        List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
-        User user = userMapper.selectByPrimaryKey(request.getUserId());
-        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
-        List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
-        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+    private static void getUpdateLog(ImportRequest request, Map<String, ApiDefinitionImportDetail> logData, List<ApiDefinitionCaseDTO> updateLists, Project project, List<LogDTO> operationLogs) {
+        if (MapUtils.isNotEmpty(logData)) {
+            logData.forEach((k, v) -> {
+                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+                BeanUtils.copyBean(apiDefinitionDTO, v);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, v);
+                updateLists.add(apiDefinitionCaseDTO);
+                LogDTO dto = new LogDTO(
+                        project.getId(),
+                        project.getOrganizationId(),
+                        v.getId(),
+                        request.getUserId(),
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                        v.getName());
+                dto.setHistory(true);
+                dto.setPath("/api/definition/import");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
+                operationLogs.add(dto);
+            });
+        }
+    }
+
+    private static void updateApiRequest(ImportRequest request, List<ApiDefinitionImportDetail> updateRequestData, List<String> updateModuleLists, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper) {
+        updateRequestData.forEach(t -> {
+            ApiDefinition apiDefinition = new ApiDefinition();
+            if (CollectionUtils.isNotEmpty(updateModuleLists) && updateModuleLists.contains(t.getId())) {
+                apiDefinition.setId(t.getId());
+                apiDefinition.setUpdateUser(request.getUserId());
+            }
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiMapper.updateByPrimaryKeySelective(apiDefinition);
+            //更新blob数据
+            ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
+            apiDefinitionBlob.setId(t.getId());
+            apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
+            apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
+            apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+        });
+    }
+
+    private static void updateApiModule(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> updateModuleData, ApiDefinitionMapper apiMapper) {
+        updateModuleData.forEach(t -> {
+            ApiDefinition apiDefinition = new ApiDefinition();
+            apiDefinition.setId(t.getId());
+            apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
+            apiDefinition.setUpdateUser(request.getUserId());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiMapper.updateByPrimaryKeySelective(apiDefinition);
+        });
+    }
+
+    private void insertModule(ImportRequest request, List<BaseTreeNode> addModuleList, ApiDefinitionModuleMapper moduleMapper) {
+        addModuleList.forEach(t -> {
+            ApiDefinitionModule module = new ApiDefinitionModule();
+            module.setId(t.getId());
+            module.setName(t.getName());
+            module.setParentId(t.getParentId());
+            module.setProjectId(request.getProjectId());
+            module.setCreateUser(request.getUserId());
+            module.setPos(getImportNextModuleOrder(request.getProjectId()));
+            module.setCreateTime(System.currentTimeMillis());
+            module.setUpdateUser(request.getUserId());
+            module.setUpdateTime(System.currentTimeMillis());
+            moduleMapper.insertSelective(module);
+        });
     }
 
     private void getNeedUpdateData(ImportRequest request, ApiDetailWithData apiDetailWithData, ApiDetailWithDataUpdate apiDetailWithDataUpdate) {
