@@ -1,7 +1,7 @@
 <template>
   <div ref="treeContainerRef" :class="['ms-tree-container', containerStatusClass]">
     <a-tree
-      v-show="data.length > 0"
+      v-show="filterTreeData.length > 0"
       v-bind="props"
       ref="treeRef"
       v-model:expanded-keys="expandedKeys"
@@ -63,7 +63,7 @@
     </a-tree>
     <slot name="empty">
       <div
-        v-show="data.length === 0 && props.emptyText"
+        v-show="filterTreeData.length === 0 && props.emptyText"
         class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
       >
         {{ props.emptyText }}
@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
   import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
-  import { cloneDeep, debounce } from 'lodash-es';
+  import { debounce } from 'lodash-es';
 
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';

@@ -352,6 +352,7 @@ export interface ScenarioStepItem {
   // 页面渲染以及交互需要字段
   checked?: boolean; // 是否选中
   expanded?: boolean; // 是否展开
+  draggable?: boolean; // 是否可拖拽
   createActionsVisible?: boolean; // 是否展示创建步骤下拉
   responsePopoverVisible?: boolean; // 是否展示步骤响应 popover
   parent?: ScenarioStepItem; // 父级节点，第一层的父级节点为undefined

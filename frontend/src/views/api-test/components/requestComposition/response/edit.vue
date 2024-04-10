@@ -34,6 +34,7 @@
             :field-config="{ field: t(tab.label || tab.name) }"
             :all-names="responseTabs.map((e) => t(e.label || e.name))"
             :popup-offset="20"
+            :repeat-message="t('apiTestDebug.responseRepeatMessage')"
             @rename-finish="
               (val) => {
                 tab.label = val;

@@ -348,12 +348,13 @@
         :disabled="props.disabled"
         mode="button"
         :step="100"
-        :min="0"
+        :min="1"
         :precision="0"
         :max="600000"
         :default-value="1000"
         class="w-[160px]"
         model-event="input"
+        @blur="handleDelayBlur"
       />
     </div>
     <!-- 提取参数 -->
@@ -644,6 +645,7 @@ if (!result){
         try {
           emit('delete', condition.value.id);
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -739,6 +741,12 @@ if (!result){
     condition.value.extractParams = [...resultArr];
     if (!isInit) {
       emit('change');
+    }
+  }
+
+  function handleDelayBlur() {
+    if (!condition.value.delay) {
+      condition.value.delay = 1000;
     }
   }
 

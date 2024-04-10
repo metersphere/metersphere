@@ -10,7 +10,7 @@ export default {
   'caseManagement.caseReview.creator': '创建人',
   'caseManagement.caseReview.reviewer': '评审人',
   'caseManagement.caseReview.reviewerRequired': '请至少选择一位评审人',
-  'caseManagement.caseReview.type': '评审标准',
+  'caseManagement.caseReview.type': '评审模式',
   'caseManagement.caseReview.status': '评审状态',
   'caseManagement.caseReview.caseCount': '用例数量',
   'caseManagement.caseReview.passRate': '通过率',

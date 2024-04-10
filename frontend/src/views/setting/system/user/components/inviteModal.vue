@@ -23,12 +23,7 @@
         />
       </a-form-item>
       <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
-        <a-select
-          v-model="emailForm.userGroup"
-          multiple
-          :placeholder="t('system.user.createUserUserGroupPlaceholder')"
-          allow-clear
-        >
+        <a-select v-model="emailForm.userGroup" multiple :placeholder="t('system.user.createUserUserGroupPlaceholder')">
           <a-option
             v-for="item of userGroupOptions"
             :key="item.id"

@@ -6,7 +6,7 @@
         class="max-w-[500px] px-[8px]"
         size="mini"
         :step="1000"
-        :min="0"
+        :min="1"
         :max="600000"
         :precision="0"
         model-event="input"
@@ -46,6 +46,10 @@
   });
 
   function handleInputChange() {
+    console.log('innerData.value.delay', innerData.value.delay);
+    if (!innerData.value.delay) {
+      innerData.value.delay = 1;
+    }
     nextTick(() => {
       emit('change', innerData.value);
     });

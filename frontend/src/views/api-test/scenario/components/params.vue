@@ -20,7 +20,7 @@
     />
     <batchAddKeyVal
       :params="innerParams"
-      :default-param-item="defaultHeaderParamsItem"
+      :default-param-item="defaultParamItem"
       no-param-type
       @apply="handleBatchParamApply"
     />
@@ -44,7 +44,6 @@
 
   import { CommonVariable } from '@/models/apiTest/scenario';
 
-  import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
@@ -146,7 +145,7 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
-    const filterResult = filterKeyValParams(innerParams.value, defaultHeaderParamsItem);
+    const filterResult = filterKeyValParams(innerParams.value, defaultParamItem);
     if (filterResult.lastDataIsDefault) {
       innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
     } else {

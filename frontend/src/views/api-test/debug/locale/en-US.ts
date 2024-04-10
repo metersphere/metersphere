@@ -204,4 +204,5 @@ export default {
   'apiTestDebug.regexMatchRules': 'Expression matching rules',
   'apiTestDebug.extractValueTitleTip':
     'Enter the column name and corresponding value in column storage. If you want to extract the first value of the name column, enter name_1',
+  'apiTestDebug.responseRepeatMessage': 'The name is duplicated, please re-enter it.',
 };

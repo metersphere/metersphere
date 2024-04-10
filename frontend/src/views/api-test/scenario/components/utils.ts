@@ -5,15 +5,18 @@ import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 /**
  * 调试或执行结束后，调用本方法更新步骤的执行状态
  * @param steps 响应式的步骤列表
+ * @param stepResponses 步骤的执行结果
+ * @param singleStepId 单步骤执行时的步骤ID
  */
 export default function updateStepStatus(
   steps: ScenarioStepItem[],
-  stepResponses: Record<string | number, RequestResult[]>
+  stepResponses: Record<string | number, RequestResult[]>,
+  singleStepId?: string | number
 ) {
   for (let i = 0; i < steps.length; i++) {
     const node = steps[i];
-    if (node.enable) {
-      // 启用的步骤才计算
+    if (node.enable || singleStepId === node.uniqueId) {
+      // 启用的步骤才计算/如果是单步骤执行，无视顶层步骤的启用状态
       if (
         [
           ScenarioStepType.LOOP_CONTROLLER,
@@ -64,7 +67,6 @@ export default function updateStepStatus(
           }
         }
       } else if (node.stepType === ScenarioStepType.CONSTANT_TIMER) {
-        // 等待时间直接设置为成功
         node.executeStatus = ScenarioExecuteStatus.SUCCESS;
       } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
         // 非逻辑控制器直接更改本身状态
