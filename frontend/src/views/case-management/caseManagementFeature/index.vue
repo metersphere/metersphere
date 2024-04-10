@@ -210,6 +210,7 @@
   const confirmRef = ref();
   const addSubVisible = ref(false);
   const caseTreeRef = ref();
+  const caseTableRef = ref();
 
   // 添加子模块
   const confirmHandler = async () => {
@@ -365,7 +366,6 @@
     validateResultModal.value = false;
     caseTreeRef.value.initModules();
   }
-  const caseTableRef = ref();
   const importLoading = ref<boolean>(false);
   // 确定导入
   async function conFirmImport() {

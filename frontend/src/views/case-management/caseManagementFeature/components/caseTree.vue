@@ -273,7 +273,14 @@
       console.log(error);
     } finally {
       loading.value = false;
-      // initModules();
+      await initModules();
+      const treeNode = ref<MsTreeNodeData | null>(null);
+      treeNode.value = dropNode;
+      treeNode.value.children = [];
+      if (dropPosition === 0) {
+        treeNode.value.children.push(dragNode);
+      }
+      caseNodeSelect(dropNode.id, treeNode.value);
       emits('dragUpdate');
     }
   }

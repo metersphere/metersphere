@@ -30,7 +30,7 @@
     <template #right>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
         <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
-        <a-radio value="xMind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>
+        <!--        <a-radio value="xMind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>-->
       </a-radio-group>
     </template>
   </MsAdvanceFilter>
