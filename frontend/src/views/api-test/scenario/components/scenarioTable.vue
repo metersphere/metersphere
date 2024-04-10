@@ -551,19 +551,10 @@
   >
     <template #title>
       <div class="flex items-center">
-        <div v-if="isBatchCopy">
-          {{ t('common.batchCopy') }}
+        <div class="float-left">
+          {{ isBatchCopy ? t('common.batchCopy') : t('common.batchMove') }}
           <div
-            class="one-line-text ml-[4px] max-w-[100%] text-[var(--color-text-4)]"
-            :title="t('api_scenario.table.batchModalSubTitle', { count: tableSelected.length })"
-          >
-            {{ t('api_scenario.table.batchModalSubTitle', { count: tableSelected.length }) }}
-          </div>
-        </div>
-        <div v-else-if="isBatchMove" class="flex items-center">
-          {{ t('common.batchMove') }}
-          <div
-            class="one-line-text ml-[4px] max-w-[100%] text-[var(--color-text-4)]"
+            class="one-line-text float-right ml-[4px] max-w-[100%] text-[var(--color-text-4)]"
             :title="t('api_scenario.table.batchModalSubTitle', { count: batchOptionScenarioCount })"
           >
             {{ t('api_scenario.table.batchModalSubTitle', { count: batchOptionScenarioCount }) }}
@@ -606,8 +597,8 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
-  import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 

@@ -50,6 +50,9 @@
             :case-id="props.caseId"
             :api-id="props.apiId"
             :single-select="props.singleSelect"
+            :search-placeholder="
+              activeKey === 'scenario' ? t('apiScenario.quoteTableSearchTip2') : t('apiScenario.quoteTableSearchTip')
+            "
             @select="handleTableSelect"
           />
         </div>
