@@ -43,6 +43,14 @@
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetMethodFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
             </div>
           </template>
         </a-trigger>
@@ -65,6 +73,14 @@
                     <apiStatus :status="val" />
                   </a-checkbox>
                 </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
               </div>
             </div>
           </template>
@@ -454,7 +470,21 @@
   function handleFilterHidden(val: boolean) {
     if (!val) {
       loadPage();
+      methodFilterVisible.value = false;
+      statusFilterVisible.value = false;
     }
+  }
+
+  function resetMethodFilter() {
+    methodFilters.value = [];
+    methodFilterVisible.value = false;
+    loadPage();
+  }
+
+  function resetStatusFilter() {
+    statusFilters.value = [];
+    statusFilterVisible.value = false;
+    loadPage();
   }
 
   function resetTable() {
