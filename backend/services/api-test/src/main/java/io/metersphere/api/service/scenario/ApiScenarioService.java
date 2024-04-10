@@ -2212,7 +2212,9 @@ public class ApiScenarioService extends MoveNodeService {
         // 将 config 转换成对象
         steps.forEach(step -> {
             if (step.getConfig() != null && StringUtils.isNotBlank(step.getConfig().toString())) {
-                step.setConfig(JSON.parseObject(step.getConfig().toString()));
+                if (step.getConfig() instanceof String configVal) {
+                    step.setConfig(JSON.parseObject(configVal));
+                }
             }
         });
 
@@ -2595,72 +2597,84 @@ public class ApiScenarioService extends MoveNodeService {
         ScenarioSystemRequest scenarioRequest = request.getScenarioRequest();
 
         if (ObjectUtils.isNotEmpty(apiRequest)) {
-            if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds())) {
-                apiRequest.getSelectedIds().addAll(extApiDefinitionMapper.getIdsByModules(apiRequest));
-            }
-            apiRequest.getSelectedIds().removeAll(apiRequest.getUnselectedIds());
-            List<@NotBlank String> allApiIds = apiRequest.getSelectedIds().stream().distinct().toList();
-            SubListUtils.dealForSubList(allApiIds, 100, sublist -> {
-                ApiDefinitionExample example = new ApiDefinitionExample();
-                example.createCriteria().andIdIn(sublist);
-                List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-                apiDefinitions.forEach(item -> {
-                    ApiScenarioStepDTO step = new ApiScenarioStepDTO();
-                    step.setStepType(ApiScenarioStepType.API.name());
-                    step.setName(item.getName());
-                    step.setResourceId(item.getId());
-                    step.setRefType(request.getRefType());
-                    step.setProjectId(item.getProjectId());
-                    step.setResourceNum(item.getNum().toString());
-                    step.setVersionId(item.getVersionId());
-                    steps.add(step);
-                });
-            });
+            getApiStep(request, apiRequest, steps);
         }
         if (ObjectUtils.isNotEmpty(caseRequest)) {
-            if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds())) {
-                caseRequest.getSelectedIds().addAll(extApiTestCaseMapper.getIdsByModules(caseRequest));
-            }
-            caseRequest.getSelectedIds().removeAll(caseRequest.getUnselectedIds());
-            List<@NotBlank String> allCaseIds = caseRequest.getSelectedIds().stream().distinct().toList();
-            SubListUtils.dealForSubList(allCaseIds, 100, sublist -> {
-                ApiTestCaseExample example = new ApiTestCaseExample();
-                example.createCriteria().andIdIn(sublist);
-                List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
-                apiTestCases.forEach(item -> {
-                    ApiScenarioStepDTO step = new ApiScenarioStepDTO();
-                    step.setStepType(ApiScenarioStepType.API_CASE.name());
-                    step.setName(item.getName());
-                    step.setResourceId(item.getId());
-                    step.setRefType(request.getRefType());
-                    step.setProjectId(item.getProjectId());
-                    step.setResourceNum(item.getNum().toString());
-                    step.setVersionId(item.getVersionId());
-                    steps.add(step);
-                });
-            });
+            getCaseStep(request, caseRequest, steps);
         }
         if (ObjectUtils.isNotEmpty(scenarioRequest)) {
-            if (CollectionUtils.isNotEmpty(scenarioRequest.getModuleIds())) {
-                scenarioRequest.getSelectedIds().addAll(extApiScenarioMapper.getIdsByModules(scenarioRequest));
-            }
-            scenarioRequest.getSelectedIds().removeAll(scenarioRequest.getUnselectedIds());
-            List<@NotBlank String> allScenario = scenarioRequest.getSelectedIds().stream().distinct().toList();
-            allScenario.forEach(item -> {
-                ApiScenarioDetail apiScenarioDetail = get(item);
-                ApiScenarioStepDTO step = new ApiScenarioStepDTO();
-                step.setStepType(ApiScenarioStepType.API_SCENARIO.name());
-                step.setName(apiScenarioDetail.getName());
-                step.setResourceId(apiScenarioDetail.getId());
-                step.setRefType(request.getRefType());
-                step.setProjectId(apiScenarioDetail.getProjectId());
-                step.setResourceNum(apiScenarioDetail.getNum().toString());
-                step.setVersionId(apiScenarioDetail.getVersionId());
-                step.setChildren(apiScenarioDetail.getSteps());
-                steps.add(step);
-            });
+            getScenarioStep(request, scenarioRequest, steps);
         }
         return steps;
+    }
+
+    private void getScenarioStep(ApiScenarioSystemRequest request, ScenarioSystemRequest scenarioRequest, List<ApiScenarioStepDTO> steps) {
+        if (CollectionUtils.isNotEmpty(scenarioRequest.getModuleIds())) {
+            scenarioRequest.getSelectedIds().addAll(extApiScenarioMapper.getIdsByModules(scenarioRequest));
+        }
+        scenarioRequest.getSelectedIds().removeAll(scenarioRequest.getUnselectedIds());
+        List<@NotBlank String> allScenario = scenarioRequest.getSelectedIds().stream().distinct().toList();
+        allScenario.forEach(item -> {
+            ApiScenarioDetail apiScenarioDetail = get(item);
+            ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+            step.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+            step.setName(apiScenarioDetail.getName());
+            step.setResourceId(apiScenarioDetail.getId());
+            step.setRefType(request.getRefType());
+            step.setProjectId(apiScenarioDetail.getProjectId());
+            step.setResourceNum(apiScenarioDetail.getNum().toString());
+            step.setVersionId(apiScenarioDetail.getVersionId());
+            step.setChildren(apiScenarioDetail.getSteps());
+            steps.add(step);
+        });
+    }
+
+    private void getCaseStep(ApiScenarioSystemRequest request, ScenarioSystemRequest caseRequest, List<ApiScenarioStepDTO> steps) {
+        if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds())) {
+            caseRequest.getSelectedIds().addAll(extApiTestCaseMapper.getIdsByModules(caseRequest));
+        }
+        caseRequest.getSelectedIds().removeAll(caseRequest.getUnselectedIds());
+        List<@NotBlank String> allCaseIds = caseRequest.getSelectedIds().stream().distinct().toList();
+        SubListUtils.dealForSubList(allCaseIds, 100, sublist -> {
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.createCriteria().andIdIn(sublist);
+            List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+            apiTestCases.forEach(item -> {
+                ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+                step.setStepType(ApiScenarioStepType.API_CASE.name());
+                step.setName(item.getName());
+                step.setResourceId(item.getId());
+                step.setRefType(request.getRefType());
+                step.setProjectId(item.getProjectId());
+                step.setResourceNum(item.getNum().toString());
+                step.setVersionId(item.getVersionId());
+                steps.add(step);
+            });
+        });
+    }
+
+    private void getApiStep(ApiScenarioSystemRequest request, ScenarioSystemRequest apiRequest, List<ApiScenarioStepDTO> steps) {
+        if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds())) {
+            apiRequest.getSelectedIds().addAll(extApiDefinitionMapper.getIdsByModules(apiRequest));
+        }
+        apiRequest.getSelectedIds().removeAll(apiRequest.getUnselectedIds());
+        List<@NotBlank String> allApiIds = apiRequest.getSelectedIds().stream().distinct().toList();
+        SubListUtils.dealForSubList(allApiIds, 100, sublist -> {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(sublist);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            apiDefinitions.forEach(item -> {
+                ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+                step.setStepType(ApiScenarioStepType.API.name());
+                step.setName(item.getName());
+                step.setResourceId(item.getId());
+                step.setRefType(request.getRefType());
+                step.setProjectId(item.getProjectId());
+                step.setResourceNum(item.getNum().toString());
+                step.setVersionId(item.getVersionId());
+                steps.add(step);
+            });
+        });
     }
 
     @Override
