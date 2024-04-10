@@ -70,7 +70,7 @@
               <div class="flex items-center justify-between">
                 <div class="relative">
                   <MsTag class="relative" size="large" theme="light">{{ record.name }}</MsTag>
-                  <span v-if="record.statusDefinitions.join() === 'START'" class="absolute -top-6 left-7">
+                  <span v-if="record.statusDefinitions.join().includes('START')" class="absolute -top-6 left-7">
                     <svg-icon width="36px" height="36px" class="inline-block text-[white]" name="start"></svg-icon
                   ></span>
                 </div>
@@ -299,6 +299,7 @@
             ...item,
             [item.id]: item.name,
             index,
+            currentState: item.statusDefinitions.join().includes('END'),
           };
         }
         return {
@@ -308,6 +309,7 @@
           currentState: item.statusDefinitions.join().includes('END'),
         };
       });
+      console.log(dataList.value);
     } catch (error) {
       console.log(error);
     } finally {
