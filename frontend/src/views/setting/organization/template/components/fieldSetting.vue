@@ -61,7 +61,7 @@
               >{{ record.name }}</div
             >
           </a-tooltip>
-          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag></div
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isBuiltIn') }}</MsTag></div
         >
       </template>
       <template #updateTime="{ record }"> {{ dayjs(record.updateTime).format('YYYY-MM-DD HH:mm:ss') }} </template>

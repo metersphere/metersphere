@@ -164,7 +164,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
-            locale: 'menu.settings.organization.template',
+            locale: 'menu.projectManagement.templateManager',
           },
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
@@ -270,7 +270,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
-            locale: 'menu.settings.organization.bugTemplate',
+            locale: 'menu.projectManagement.templateManager',
           },
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,

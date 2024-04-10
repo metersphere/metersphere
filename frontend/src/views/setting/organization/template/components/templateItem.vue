@@ -16,7 +16,7 @@
               <a-divider direction="vertical" />
             </span>
             <span class="operation hover:text-[rgb(var(--primary-5))]">
-              <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
+              <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagementList') }}</span>
               <a-divider
                 v-if="(hasEnablePermission && isEnableProject) || props.cardItem.key === 'BUG'"
                 direction="vertical"

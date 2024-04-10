@@ -36,7 +36,7 @@
       <template #name="{ record }">
         <div class="flex items-center">
           <span class="ml-2">{{ record.name }}</span>
-          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isBuiltIn') }}</MsTag>
         </div>
       </template>
       <template #enableThirdPart="{ record }">
