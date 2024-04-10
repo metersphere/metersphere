@@ -55,7 +55,7 @@ public class ApiDefinitionLogService {
                 OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 request.getName());
 
-        dto.setHistory(false);
+        dto.setHistory(true);
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -161,7 +161,7 @@ public class ApiDefinitionLogService {
     }
 
     public void batchMoveLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), false, null);
+        saveBatchLog(projectId, ids, userId, OperationLogType.UPDATE.name(), true, null);
     }
 
     public LogDTO followLog(String id) {

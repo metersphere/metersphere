@@ -206,7 +206,7 @@ public class ApiScenarioLogService {
         return dto;
     }
 
-    public void saveBatchOperationLog(ApiScenarioBatchOperationResponse response, String projectId, String operationType, LogInsertModule logInsertModule, String logModule) {
+    public void saveBatchOperationLog(ApiScenarioBatchOperationResponse response, String projectId, String operationType, LogInsertModule logInsertModule, String logModule, boolean isHistory) {
 
         if (StringUtils.isBlank(logModule)) {
             logModule = OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO;
@@ -227,7 +227,7 @@ public class ApiScenarioLogService {
                             .content(item.getName())
                             .createUser(logInsertModule.getOperator())
                             .build().getLogDTO();
-                    dto.setHistory(false);
+                    dto.setHistory(isHistory);
                     logs.add(dto);
                 }
         );
