@@ -65,11 +65,11 @@ public class TaskCenterController {
         taskCenterService.enable(id);
     }
 
-    @PostMapping("/schedule/update/{id}/{cron}")
+    @PostMapping("/schedule/update/{id}")
     @Operation(summary = "系统-任务中心-修改定时任务")
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
-    public void update(@PathVariable String id, @PathVariable String cron) {
-        taskCenterService.update(id, cron);
+    public void update(@PathVariable String id, @RequestBody Object cron) {
+        taskCenterService.update(id, cron.toString());
     }
 
 
