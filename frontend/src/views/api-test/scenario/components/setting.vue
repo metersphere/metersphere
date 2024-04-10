@@ -43,7 +43,7 @@
       </a-tooltip>
     </div>
 
-    <a-form-item v-if="form.stepWaitTime" class="flex-1">
+    <a-form-item v-if="form.stepWaitTime !== null || form.stepWaitTime !== undefined" class="flex-1">
       <template #label>
         <div class="flex items-center">
           {{ t('apiScenario.setting.waitTime') }}
@@ -56,8 +56,9 @@
         :step="100"
         :min="0"
         :max="600000"
+        model-event="input"
         class="w-[160px]"
-        @change="emit('change')"
+        @blur="handleInputChange"
       />
     </a-form-item>
 
@@ -90,6 +91,12 @@
   const form = defineModel<OtherConfig>('otherConfig', {
     required: true,
   });
+
+  function handleInputChange() {
+    if (!form.value.stepWaitTime) {
+      form.value.stepWaitTime = 1000;
+    }
+  }
 </script>
 
 <style lang="less" scoped></style>

@@ -87,7 +87,7 @@
           v-if="columnConfig.inputType === 'autoComplete'"
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
-          :data="columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)"
+          :data="record[columnConfig.dataIndex as string] !== '' ? columnConfig.autoCompleteParams?.filter((e) => e.isShow === true) : columnConfig.autoCompleteParams"
           class="ms-form-table-input"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
           :filter-option="false"
@@ -99,11 +99,6 @@
           <template #option="{ data: opt }">
             <div class="w-[350px]">
               {{ t(opt.raw.label) }}
-              <!-- <a-tooltip :content="t(opt.raw.label)" position="bl" :mouse-enter-delay="300">
-                <div class="one-line-text max-w-full">
-                  {{ t(opt.raw.label) }}
-                </div>
-              </a-tooltip> -->
             </div>
           </template>
         </a-auto-complete>

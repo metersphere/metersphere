@@ -30,14 +30,12 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { responseHeaderOption } from '@/config/apiTest';
-  import { useI18n } from '@/hooks/useI18n';
 
   import { EnableKeyValueParam } from '@/models/apiTest/common';
 
   import { filterKeyValParams } from '../utils';
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
 
-  const { t } = useI18n();
   const props = defineProps<{
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';

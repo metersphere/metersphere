@@ -67,7 +67,9 @@ export default function updateStepStatus(
           }
         }
       } else if (node.stepType === ScenarioStepType.CONSTANT_TIMER) {
-        node.executeStatus = ScenarioExecuteStatus.SUCCESS;
+        node.executeStatus = stepResponses[node.uniqueId]
+          ? ScenarioExecuteStatus.SUCCESS
+          : ScenarioExecuteStatus.UN_EXECUTE;
       } else if (node.executeStatus === ScenarioExecuteStatus.EXECUTING) {
         // 非逻辑控制器直接更改本身状态
         if (stepResponses[node.uniqueId] && stepResponses[node.uniqueId].length > 0) {
