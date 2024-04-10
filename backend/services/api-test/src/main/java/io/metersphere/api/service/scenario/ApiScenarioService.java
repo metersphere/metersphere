@@ -2003,14 +2003,14 @@ public class ApiScenarioService extends MoveNodeService {
 
     public ApiScenarioDetail getForRun(String scenarioId) {
         ApiScenarioDetail apiScenarioDetail = get(scenarioId);
-        filerDisableSteps(apiScenarioDetail.getSteps());
+        apiScenarioDetail.setSteps(filerDisableSteps(apiScenarioDetail.getSteps()));
         return apiScenarioDetail;
     }
 
     /**
      * 过滤掉禁用的步骤
      */
-    public List<? extends ApiScenarioStepCommonDTO> filerDisableSteps(List<? extends ApiScenarioStepCommonDTO> steps) {
+    public List<ApiScenarioStepDTO> filerDisableSteps(List<ApiScenarioStepDTO> steps) {
         if (CollectionUtils.isEmpty(steps)) {
             return List.of();
         }

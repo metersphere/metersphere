@@ -27,6 +27,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -105,24 +106,25 @@ public class ApiTestCaseBatchRunService {
     public void serialExecute(ApiTestCaseBatchRunRequest request, String userId) throws Exception {
         List<String> ids = apiTestCaseService.doSelectIds(request, false);
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
-        // 初始化集成报告
+
         if (runModeConfig.isIntegratedReport()) {
+            // 初始化集成报告
             initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
+
+            List<ApiTestCase> apiTestCases = new ArrayList<>(ids.size());
+
+            // 分批查询
+            SubListUtils.dealForSubList(ids, 100, subIds -> apiTestCases.addAll(extApiTestCaseMapper.getApiCaseExecuteInfoByIds(subIds)));
+
+            Map<String, ApiTestCase> apiCaseMap = apiTestCases.stream()
+                    .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
+
+            // 初始化集成报告步骤
+            initApiReportSteps(ids, apiCaseMap, runModeConfig.getCollectionReport().getReportId());
         }
 
-        List<ApiTestCase> apiTestCases = new ArrayList<>(ids.size());
-
-        // 分批查询
-        SubListUtils.dealForSubList(ids, 100, subIds -> apiTestCases.addAll(extApiTestCaseMapper.getApiCaseExecuteInfoByIds(subIds)));
-
-        Map<String, ApiTestCase> apiCaseMap = apiTestCases.stream()
-                .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
-
-        // 初始化报告，返回用例和报告的 map
-        Map<String, String> caseReportMap = initReport(ids, runModeConfig, apiTestCases, apiCaseMap, userId);
-
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.API_CASE.name(), caseReportMap, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.API_CASE.name(), userId);
 
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
@@ -159,7 +161,7 @@ public class ApiTestCaseBatchRunService {
                 .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
 
         // 初始化报告，返回用例和报告的 map
-        Map<String, String> caseReportMap = initReport(ids, runModeConfig, apiTestCases, apiCaseMap, userId);
+        Map<String, String> caseReportMap = initParallelReport(ids, runModeConfig, apiTestCases, apiCaseMap, userId);
 
         // 集成报告，执行前先设置成 RUNNING
         setRunningIntegrateReport(runModeConfig);
@@ -219,7 +221,7 @@ public class ApiTestCaseBatchRunService {
         }
     }
 
-    private Map<String, String> initReport(List<String> ids, ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, Map<String, ApiTestCase> apiCaseMap, String userId) {
+    private Map<String, String> initParallelReport(List<String> ids, ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, Map<String, ApiTestCase> apiCaseMap, String userId) {
         // 先初始化所有报告
         if (runModeConfig.isIntegratedReport()) {
             // 获取集成报告ID
@@ -302,10 +304,17 @@ public class ApiTestCaseBatchRunService {
     public void executeNextTask(ExecutionQueue queue, ExecutionQueueDetail queueDetail) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
         String resourceId = queueDetail.getResourceId();
-        String reportId = queueDetail.getReportId();
 
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(resourceId);
+
+        String reportId;
+        if (runModeConfig.isIntegratedReport()) {
+            reportId = IDGenerator.nextStr();
+        } else {
+            // 独立报告，执行到当前任务时初始化报告
+            reportId = initApiReport(runModeConfig, List.of(apiTestCase), queue.getUserId()).get(0).getApiReportId();
+        }
 
         if (apiTestCase == null) {
             LogUtils.info("当前执行任务的用例已删除 {}", resourceId);

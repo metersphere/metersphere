@@ -23,22 +23,20 @@ public class ApiBatchRunBaseService {
      * @param runModeConfig
      * @return
      */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, Map<String, String> caseReportMap, String userId) {
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
-        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds, caseReportMap);
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;
     }
 
-    public List<ExecutionQueueDetail> getExecutionQueueDetails(List<String> resourceIds, Map<String, String> caseReportMap) {
+    public List<ExecutionQueueDetail> getExecutionQueueDetails(List<String> resourceIds) {
         List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
         AtomicInteger sort = new AtomicInteger(1);
         for (String resourceId : resourceIds) {
             ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
             queueDetail.setResourceId(resourceId);
             queueDetail.setSort(sort.getAndIncrement());
-            // caseReportMap 为 null ，说明是集合报告，生成一个虚拟的报告ID
-            queueDetail.setReportId(caseReportMap == null ? UUID.randomUUID().toString() : caseReportMap.get(resourceId));
             queueDetails.add(queueDetail);
         }
         return queueDetails;
