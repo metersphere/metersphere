@@ -6,6 +6,7 @@
     :show-continue="true"
     :footer="requestVModel.isNew === true"
     :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+    show-full-screen
     @confirm="handleSave"
     @continue="handleContinue"
     @close="handleClose"
@@ -23,21 +24,21 @@
         </a-tooltip>
       </div>
       <div
-        v-if="
-          props.step &&
-          !props.step.isQuoteScenarioStep &&
-          props.step.resourceId &&
-          props.step?.stepType !== ScenarioStepType.CUSTOM_REQUEST
-        "
-        class="ml-auto"
+        v-if="props.step && !props.step.isQuoteScenarioStep"
+        class="right-operation-button-icon ml-auto flex items-center"
       >
         <replaceButton
+          v-if="props.step.resourceId && props.step?.stepType !== ScenarioStepType.CUSTOM_REQUEST"
           :steps="props.steps"
           :step="props.step"
           :resource-id="props.step.resourceId"
           :scenario-id="scenarioId"
           @replace="handleReplace"
         />
+        <MsButton class="mr-4" type="icon" status="secondary" @click="emit('deleteStep')">
+          <MsIcon type="icon-icon_delete-trash_outlined" />
+          {{ t('common.delete') }}
+        </MsButton>
       </div>
       <div
         v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
@@ -330,6 +331,7 @@
   import { Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -437,6 +439,7 @@
     (e: 'applyStep', request: RequestParam): void;
     (e: 'execute', request: RequestParam, executeType?: 'localExec' | 'serverExec'): void;
     (e: 'stopDebug'): void;
+    (e: 'deleteStep'): void;
     (e: 'replace', newStep: ScenarioStepItem): void;
   }>();
 
@@ -446,7 +449,7 @@
   // 注入祖先组件提供的属性
   const scenarioId = inject<string | number>('scenarioId');
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const hasLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
+  const hasLocalExec = inject<Ref<boolean>>('hasLocalExec');
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
 
   const visible = defineModel<boolean>('visible', { required: true });

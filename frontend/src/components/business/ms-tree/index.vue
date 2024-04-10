@@ -197,21 +197,6 @@
     init(true);
   });
 
-  const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
-
-  watch(
-    () => data.value,
-    (val) => {
-      if (!props.keyword) {
-        filterTreeData.value = cloneDeep(val);
-      }
-    },
-    {
-      deep: true,
-      immediate: true,
-    }
-  );
-
   /**
    * 根据关键字过滤树节点
    * @param keyword 搜索关键字
@@ -240,6 +225,8 @@
     return search(data.value);
   }
 
+  const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
+
   // 防抖搜索
   const updateDebouncedSearch = debounce(() => {
     if (props.keyword) {
@@ -252,10 +239,25 @@
   }, props.searchDebounce);
 
   watch(
+    () => data.value,
+    (val) => {
+      if (!props.keyword) {
+        filterTreeData.value = val;
+      } else {
+        updateDebouncedSearch();
+      }
+    },
+    {
+      deep: true,
+      immediate: true,
+    }
+  );
+
+  watch(
     () => props.keyword,
     (val) => {
       if (!val) {
-        filterTreeData.value = cloneDeep(data.value);
+        filterTreeData.value = data.value;
       } else {
         updateDebouncedSearch();
       }

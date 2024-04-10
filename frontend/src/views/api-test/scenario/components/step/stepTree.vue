@@ -220,6 +220,7 @@
       :permission-map="permissionMap"
       :steps="steps"
       @add-step="addCustomApiStep"
+      @delete-step="deleteStep(activeStep)"
       @apply-step="applyApiStep"
       @stop-debug="handleStopExecute(activeStep)"
       @execute="handleApiExecute"
@@ -235,7 +236,7 @@
       :step-responses="scenario.stepResponses"
       :permission-map="permissionMap"
       @apply-step="applyApiStep"
-      @delete-step="deleteCaseStep(activeStep)"
+      @delete-step="deleteStep(activeStep)"
       @stop-debug="handleStopExecute(activeStep)"
       @execute="(request, executeType) => handleApiExecute((request as unknown as RequestParam), executeType)"
       @replace="handleReplaceStep"
@@ -1525,12 +1526,14 @@
   /**
    * 删除
    */
-  function deleteCaseStep(step?: ScenarioStepItem) {
+  function deleteStep(step?: ScenarioStepItem) {
     if (step) {
       customCaseDrawerVisible.value = false;
+      customApiDrawerVisible.value = false;
       deleteNode(steps.value, step.uniqueId, 'uniqueId');
       activeStep.value = undefined;
       scenario.value.unSaved = true;
+      Message.success(t('common.deleteSuccess'));
     }
   }
 
