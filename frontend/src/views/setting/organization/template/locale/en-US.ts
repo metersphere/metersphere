@@ -146,6 +146,7 @@ export default {
   'system.orgTemplate.example': 'example',
   'system.orgTemplate.startState': 'Start State',
   'system.orgTemplate.endState': 'End State',
+  'system.orgTemplate.flowState': 'flow State',
   'system.orgTemplate.iconTip': 'Icon to adjust state order',
   'system.orgTemplate.anyStateToAll': 'Any state may switch to change state',
   'system.orgTemplate.enableAnyStateToAll': 'enabled',

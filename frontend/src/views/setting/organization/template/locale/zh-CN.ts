@@ -138,6 +138,7 @@ export default {
   'system.orgTemplate.example': '示例',
   'system.orgTemplate.startState': '开始状态',
   'system.orgTemplate.endState': '结束状态',
+  'system.orgTemplate.flowState': '流转状态',
   'system.orgTemplate.iconTip': '图标可调整状态顺序',
   'system.orgTemplate.anyStateToAll': '任何状态可转换到该状态',
   'system.orgTemplate.enableAnyStateToAll': '开启',

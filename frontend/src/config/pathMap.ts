@@ -133,11 +133,33 @@ export const pathMap: PathMapItem[] = [
         ],
       },
       {
-        key: 'API_TEST_REPORT', // 接口测试-接口测试报告
+        key: 'API_TEST_REPORT', // 接口测试-报告
         locale: 'menu.apiTest.report',
         route: RouteEnum.API_TEST_REPORT,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'API_TEST_REPORT_SCENARIO', // 接口测试-场景报告
+            locale: 'report.api.scenario',
+            route: RouteEnum.API_TEST_REPORT,
+            permission: [],
+            level: MENU_LEVEL[2],
+            routeQuery: {
+              type: 'API_SCENARIO',
+            },
+          },
+          {
+            key: 'API_TEST_REPORT_CASE', // 接口测试-用例报告
+            locale: 'report.api.case',
+            route: RouteEnum.API_TEST_REPORT,
+            permission: [],
+            level: MENU_LEVEL[2],
+            routeQuery: {
+              type: 'API_CASE',
+            },
+          },
+        ],
       },
     ],
   },

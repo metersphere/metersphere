@@ -331,11 +331,19 @@
   }
 
   const virtualListProps = computed(() => {
+    if (props.isModal) {
+      return {
+        height: 'calc(60vh - 190px)',
+        threshold: 200,
+        fixedSize: true,
+        buffer: 15,
+      };
+    }
     return {
-      height: 'calc(100vh - 366px)',
+      height: 'calc(100vh - 325px)',
       threshold: 200,
       fixedSize: true,
-      buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
+      buffer: 15,
     };
   });
 

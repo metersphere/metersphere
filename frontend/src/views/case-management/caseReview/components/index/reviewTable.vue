@@ -66,6 +66,19 @@
           </template>
         </a-trigger>
       </template>
+      <template #reviewersFilter="{ columnConfig }">
+        <TableFilter
+          v-model:visible="reviewersFilterVisible"
+          v-model:status-filters="reviewersFilters"
+          :title="(columnConfig.title as string)"
+          :list="memberOptions"
+          @search="searchReview()"
+        >
+          <template #item="{ item }">
+            {{ item.label }}
+          </template>
+        </TableFilter>
+      </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
           {{ t('caseManagement.caseReview.passRate') }}
@@ -191,6 +204,7 @@
   import statusTag from '../statusTag.vue';
   import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import { getReviewList, getReviewUsers, moveReview } from '@/api/modules/case-management/caseReview';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
@@ -240,6 +254,9 @@
 
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
+  const reviewersFilters = ref<string[]>([]);
+  const reviewersFilterVisible = ref(false);
 
   onBeforeMount(async () => {
     try {
@@ -248,7 +265,7 @@
         getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
       ]);
       const userOptions = userRes.map((e) => ({ label: e.name, value: e.id }));
-      const memberOptions = memberRes.map((e) => ({ label: e.name, value: e.id }));
+      memberOptions.value = memberRes.map((e) => ({ label: e.name, value: e.id }));
       filterConfigList.value = [
         {
           title: 'ID',
@@ -329,7 +346,7 @@
           type: FilterType.SELECT,
           selectProps: {
             mode: 'static',
-            options: memberOptions,
+            options: memberOptions.value,
           },
         },
         {
@@ -426,6 +443,7 @@
       title: 'caseManagement.caseReview.reviewer',
       slotName: 'reviewers',
       dataIndex: 'reviewers',
+      titleSlotName: 'reviewersFilter',
       width: 150,
     },
     {
@@ -521,7 +539,7 @@
       moduleIds,
       createByMe: props.showType === 'createByMe' ? userStore.id : undefined,
       reviewByMe: props.showType === 'reviewByMe' ? userStore.id : undefined,
-      filter: { status: statusFilters.value },
+      filter: { status: statusFilters.value, reviewers: reviewersFilters.value },
       combine: filter
         ? {
             ...filter.combine,
