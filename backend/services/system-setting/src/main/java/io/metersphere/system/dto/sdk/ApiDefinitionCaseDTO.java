@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 public class ApiDefinitionCaseDTO {
@@ -28,121 +26,118 @@ public class ApiDefinitionCaseDTO {
     @Schema(description = "message.domain.description")
     private String description;
 
-    @Schema(description = "message.domain.create_time")
+    @Schema(description = "message.domain.createTime")
     private Long createTime;
 
-    @Schema(description = "message.domain.create_user")
+    @Schema(description = "message.domain.createUser")
     private String createUser;
 
-    @Schema(description = "message.domain.update_time")
+    @Schema(description = "message.domain.updateTime")
     private Long updateTime;
 
-    @Schema(description = "message.domain.update_user")
+    @Schema(description = "message.domain.updateUser")
     private String updateUser;
 
-    @Schema(description = "message.domain.delete_user")
+    @Schema(description = "message.domain.deleteUser")
     private String deleteUser;
 
-    @Schema(description = "message.domain.delete_time")
+    @Schema(description = "message.domain.deleteTime")
     private Long deleteTime;
 
-    @Schema(description = "message.domain.case_name")
+    @Schema(description = "message.domain.caseName")
     private String caseName;
 
     @Schema(description = "message.domain.priority")
     private String priority;
 
-    @Schema(description = "message.domain.case_status")
+    @Schema(description = "message.domain.caseStatus")
     private String caseStatus;
 
-    @Schema(description = "message.domain.last_report_status")
+    @Schema(description = "message.domain.lastReportStatus")
     private String lastReportStatus;
 
     @Schema(description = "message.domain.principal")
     private String principal;
 
-    @Schema(description = "message.domain.case_create_time")
+    @Schema(description = "message.domain.caseCreateTime")
     private Long caseCreateTime;
 
-    @Schema(description = "message.domain.case_create_user")
+    @Schema(description = "message.domain.caseCreateUser")
     private String caseCreateUser;
 
-    @Schema(description = "message.domain.case_update_time")
+    @Schema(description = "message.domain.caseUpdateTime")
     private Long caseUpdateTime;
 
-    @Schema(description = "message.domain.case_update_user")
+    @Schema(description = "message.domain.caseUpdateUser")
     private String caseUpdateUser;
 
-    @Schema(description = "message.domain.case_delete_time")
+    @Schema(description = "message.domain.caseDeleteTime")
     private Long caseDeleteTime;
 
-    @Schema(description = "message.domain.case_delete_user")
+    @Schema(description = "message.domain.caseDeleteUser")
     private String caseDeleteUser;
 
-    @Schema(description = "项目ID")
+    @Schema(description = "message.domain.projectId")
     private String projectId;
 
-    @Schema(description = "自定义字段的值")
-    private List<OptionDTO> fields;
-
-    @Schema(description = "message.domain.mock_name")
+    @Schema(description = "message.domain.mockName")
     private String mockName;
 
-    @Schema(description = "message.domain.scenario_report_url")
+    @Schema(description = "message.domain.reportUrl")
     private String reportUrl;
 
-    @Schema(description = "message.domain.scenario_report_share_url")
+    @Schema(description = "message.domain.shareUrl")
     private String shareUrl;
 
-    @Schema(description = "message.domain.scenario_report_name")
+    @Schema(description = "message.domain.reportName")
     private String reportName;
 
-    @Schema(description = "message.domain.scenario_report_start_time")
+    @Schema(description = "message.domain.startTime")
     private Long startTime;
 
-    @Schema(description = "message.domain.scenario_report_end_time")
+    @Schema(description = "message.domain.endTime")
     private Long endTime;
 
-    @Schema(description = "message.domain.scenario_report_request_duration")
+    @Schema(description = "message.domain.requestDuration")
     private Long requestDuration;
 
-    @Schema(description = "message.domain.scenario_report_status")
+    @Schema(description = "message.domain.reportStatus")
     private String reportStatus;
 
-    @Schema(description = "message.domain.scenario_report_environment")
+    @Schema(description = "message.domain.environment")
     private String environment;
 
-    @Schema(description = "message.domain.scenario_report_error_count")
+    @Schema(description = "message.domain.errorCount")
     private Long errorCount;
 
-    @Schema(description = "message.domain.scenario_report_fake_error_count")
+    @Schema(description = "message.domain.fakeErrorCount")
     private Long fakeErrorCount;
 
-    @Schema(description = "message.domain.scenario_report_pending_count")
+    @Schema(description = "message.domain.pendingCount")
     private Long pendingCount;
 
-    @Schema(description = "message.domain.scenario_report_success_count")
+    @Schema(description = "message.domain.successCount")
     private Long successCount;
 
-    @Schema(description = "message.domain.scenario_report_assertion_count")
+    @Schema(description = "message.domain.assertionCount")
     private Long assertionCount;
 
-    @Schema(description = "message.domain.scenario_report_assertion_success_count")
+    @Schema(description = "message.domain.assertionSuccessCount")
     private Long assertionSuccessCount;
 
-    @Schema(description = "message.domain.scenario_report_request_error_rate")
+    @Schema(description = "message.domain.requestErrorRate")
     private String requestErrorRate;
 
-    @Schema(description = "message.domain.scenario_report_request_pending_rate")
+    @Schema(description = "message.domain.requestPendingRate")
     private String requestPendingRate;
 
-    @Schema(description = "message.domain.scenario_report_request_fake_error_rate")
+    @Schema(description = "message.domain.requestFakeErrorRate")
     private String requestFakeErrorRate;
 
-    @Schema(description = "message.domain.scenario_report_request_pass_rate")
+    @Schema(description = "message.domain.requestPassRate")
     private String requestPassRate;
 
-    @Schema(description = "message.domain.scenario_report_assertion_pass_rate")
+    @Schema(description = "message.domain.assertionPassRate")
     private String assertionPassRate;
 
 }

@@ -23,6 +23,7 @@ import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.service.SystemParameterService;
 import jakarta.annotation.Resource;
@@ -62,7 +63,6 @@ public class ApiReportSendNoticeService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         BeanMap beanMap;
         String event;
-        String status;
         ApiReportShareService shareService = CommonBeanFactory.getBean(ApiReportShareService.class);
         ApiReportShareRequest shareRequest = new ApiReportShareRequest();
         shareRequest.setReportId(noticeDTO.getReportId());
@@ -81,16 +81,14 @@ public class ApiReportSendNoticeService {
             reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_SCENARIO, report.getId());
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
-                status = "成功";
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAKE_ERROR;
-                status = "误报";
             } else {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAILED;
-                status = "失败";
             }
             shareUrl = String.format(shareUrl, "shareReportScenario");
-        } else {
+        }
+        else {
             ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(testCase);
 
@@ -101,13 +99,10 @@ public class ApiReportSendNoticeService {
             BeanUtils.copyBean(report, apiReport);
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;
-                status = "成功";
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAKE_ERROR;
-                status = "误报";
             } else {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAILED;
-                status = "失败";
             }
             shareUrl = String.format(shareUrl, "shareReportCase");
         }
@@ -115,8 +110,8 @@ public class ApiReportSendNoticeService {
         String userId = noticeDTO.getUserId();
         User user = userMapper.selectByPrimaryKey(userId);
 
-        Map<String, Object> paramMap = new HashMap(beanMap);
-        paramMap.put("operator", user != null ? user.getName() : "");
+        Map paramMap = new HashMap<>(beanMap);
+        paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
         paramMap.put("status", noticeDTO.getReportStatus());
 
         paramMap.put("reportName", report.getName());
@@ -150,9 +145,13 @@ public class ApiReportSendNoticeService {
         paramMap.put("reportUrl", reportUrl);
 
         paramMap.put("scenarioShareUrl", shareUrl);
-        String context = "${operator}执行接口测试" + status + ": ${name}";
+
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        String template = defaultTemplateMap.get(noticeType + "_" + event);
+        Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        String subject = defaultSubjectMap.get(noticeType + "_" + event);
         NoticeModel noticeModel = NoticeModel.builder().operator(userId)
-                .context(context).subject("执行通知").paramMap(paramMap).event(event).build();
+                .context(template).subject(subject).paramMap(paramMap).event(event).build();
 
         noticeSendService.send(project, noticeType, noticeModel);
     }

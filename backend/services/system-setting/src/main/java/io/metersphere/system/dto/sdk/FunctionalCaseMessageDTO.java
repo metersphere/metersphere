@@ -11,37 +11,37 @@ public class FunctionalCaseMessageDTO {
     @Schema(description ="message.domain.name")
     private String name;
 
-    @Schema(description = "message.domain.test_plan_name")
+    @Schema(description = "message.domain.testPlanName")
     private String testPlanName;
 
-    @Schema(description = "message.domain.review_name")
+    @Schema(description = "message.domain.reviewName")
     private String reviewName;
 
-    @Schema(description = "message.domain.review_status")
+    @Schema(description = "message.domain.reviewStatus")
     private String reviewStatus;
 
-    @Schema(description = "message.domain.case_model")
+    @Schema(description = "message.domain.caseModel")
     private String caseEditType;
 
-    @Schema(description = "message.domain.last_execute_result")
+    @Schema(description = "message.domain.lastExecuteResult")
     private String lastExecuteResult;
 
-    @Schema(description = "message.domain.create_user")
+    @Schema(description = "message.domain.createUser")
     private String createUser;
 
-    @Schema(description = "message.domain.update_user")
+    @Schema(description = "message.domain.updateUser")
     private String updateUser;
 
-    @Schema(description = "message.domain.delete_user")
+    @Schema(description = "message.domain.deleteUser")
     private String deleteUser;
 
-    @Schema(description = "message.domain.create_time")
+    @Schema(description = "message.domain.createTime")
     private Long createTime;
 
-    @Schema(description = "message.domain.update_time")
+    @Schema(description = "message.domain.updateTime")
     private Long updateTime;
 
-    @Schema(description = "message.domain.delete_time")
+    @Schema(description = "message.domain.deleteTime")
     private Long deleteTime;
 
 }

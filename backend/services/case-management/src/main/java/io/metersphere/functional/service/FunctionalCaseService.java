@@ -281,6 +281,7 @@ public class FunctionalCaseService {
         functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
+        functionalCase.setUpdateUser(userId);
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));

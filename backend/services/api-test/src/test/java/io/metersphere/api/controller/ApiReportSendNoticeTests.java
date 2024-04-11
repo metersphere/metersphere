@@ -19,9 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,6 +48,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
     @Test
     @Order(0)
     public void sendNoticeTest() throws Exception {
+        LocaleContextHolder.setLocale(new Locale("zh", "CN"));
         Environment environment = new Environment();
         environment.setId("api-environment-id");
         environment.setName("api-environment-name");

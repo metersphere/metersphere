@@ -82,7 +82,7 @@ public class BaseCustomFieldService {
                 // 成员选项添加默认的选项
                 CustomFieldOption createUserOption = new CustomFieldOption();
                 createUserOption.setFieldId(item.getId());
-                createUserOption.setText(Translator.get("message.domain.create_user"));
+                createUserOption.setText(Translator.get("message.domain.createUser"));
                 createUserOption.setValue(CREATE_USER);
                 createUserOption.setInternal(false);
                 customFieldDTO.setOptions(List.of(createUserOption));
