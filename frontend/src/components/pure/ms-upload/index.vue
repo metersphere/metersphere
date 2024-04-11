@@ -95,6 +95,7 @@
     cutHeight: number; // 被剪切高度
     fileTypeTip?: string; // 上传文件类型错误提示
     limit: number; // 限制上传文件数量
+    allowRepeat?: boolean; // 自定义上传文件框，是否允许重复文件名替换
   }> & {
     accept: UploadType;
   };
@@ -104,6 +105,7 @@
     isLimit: true,
     isAllScreen: false,
     cutHeight: 110,
+    allowRepeat: false,
   });
 
   const emit = defineEmits(['update:fileList', 'change']);
@@ -126,10 +128,12 @@
   async function beforeUpload(file: File) {
     if (innerFileList.value.length > 0) {
       // 附件上传校验名称重复
-      const isRepeat = innerFileList.value.filter((item) => item.name === file.name && item.local).length >= 1;
-      if (isRepeat) {
-        Message.warning(t('ms.add.attachment.repeatFileTip'));
-        return Promise.resolve(false);
+      if (!props.allowRepeat) {
+        const isRepeat = innerFileList.value.filter((item) => item.name === file.name && item.local).length >= 1;
+        if (isRepeat) {
+          Message.warning(t('ms.add.attachment.repeatFileTip'));
+          return Promise.resolve(false);
+        }
       }
       if (!props.multiple) {
         // 单文件上传时，清空之前的文件
