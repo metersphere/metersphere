@@ -112,13 +112,14 @@
       title: 'caseManagement.featureCase.changeType',
       slotName: 'type',
       dataIndex: 'type',
-      width: 200,
+      width: 100,
     },
     {
       title: 'caseManagement.featureCase.operator',
       dataIndex: 'createUserName',
       slotName: 'createUserName',
       width: 150,
+      showTooltip: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateTime',

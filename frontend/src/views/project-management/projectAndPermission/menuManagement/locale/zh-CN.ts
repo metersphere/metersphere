@@ -63,6 +63,7 @@ export default {
   'project.menu.preview': '预览',
   'project.menu.pleaseInputJiraKey': '请输入 JIRA 项目 key',
   'project.menu.addFalseAlertRules': '新增误报规则',
+  'project.menu.updateFalseAlertRules': '更新误报规则',
   'project.menu.nameSearch': '通过名称搜索',
   // 同步缺陷
   'project.menu.defect.enableTip': '开启：平台创建的缺陷同步至第三方项目管理平台',

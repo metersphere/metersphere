@@ -224,8 +224,8 @@ export interface CaseModuleQueryParams extends TableQueryParams {
 export interface TabItemType {
   key: string;
   title: string;
-  enable: boolean;
-  total: number;
+  canHide: boolean;
+  isShow: boolean;
 }
 
 // 需求
@@ -354,4 +354,9 @@ export interface DeleteDependencyParams {
   id: string;
   caseId: string;
   type: string;
+}
+
+export interface ContentTabsMap {
+  tabList: TabItemType[];
+  backupTabList: TabItemType[];
 }

@@ -24,18 +24,20 @@
     >
       <template #resourceNum="{ record }">
         <div
-          v-if="!record.integrated && hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)"
+          v-if="!record.integrated"
           type="text"
-          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          class="one-line-text flex w-full"
+          :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceNum }}
         </div>
       </template>
       <template #resourceName="{ record }">
         <div
-          v-if="!record.integrated && hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)"
+          v-if="!record.integrated"
           type="text"
-          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          class="one-line-text flex max-w-[300px]"
+          :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceName }}
         </div>
@@ -171,7 +173,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
-  import { TaskStatus } from './utils';
+  import { ordAndProjectColumn, TaskStatus } from './utils';
 
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
@@ -243,6 +245,8 @@
       batchStop: batchStopRealProjectApi,
     },
   });
+  const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
+  const hasOperationPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].stop));
 
   const columns: MsTableColumn = [
     {
@@ -268,24 +272,6 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'project.belongProject',
-      dataIndex: 'projectName',
-      slotName: 'projectName',
-      showTooltip: true,
-      showDrag: true,
-      width: 200,
-      showInTable: true,
-    },
-    {
-      title: 'project.belongOrganization',
-      dataIndex: 'organizationName',
-      slotName: 'organizationName',
-      showTooltip: true,
-      showDrag: true,
-      width: 200,
-      showInTable: true,
-    },
-    {
       title: 'project.taskCenter.executionResult',
       dataIndex: 'status',
       slotName: 'status',
@@ -295,7 +281,7 @@
         sorter: true,
       },
       showInTable: true,
-      width: 150,
+      width: 200,
       showDrag: true,
     },
     {
@@ -336,15 +322,30 @@
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 180,
       fixed: 'right',
+      width: hasOperationPermission.value ? 180 : 50,
     },
   ];
+
+  const groupColumnsMap = {
+    system: {
+      key: TableKeyEnum.TASK_API_CASE_SYSTEM,
+      columns: [...ordAndProjectColumn, ...columns],
+    },
+    organization: {
+      key: TableKeyEnum.TASK_API_CASE_ORGANIZATION,
+      columns: [...ordAndProjectColumn.slice(-1), ...columns],
+    },
+    project: {
+      key: TableKeyEnum.TASK_API_CASE_PROJECT,
+      columns,
+    },
+  };
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,
     {
-      tableKey: TableKeyEnum.TASK_API_CASE,
+      tableKey: groupColumnsMap[props.group].key,
       scroll: {
         x: 1400,
       },
@@ -547,6 +548,9 @@
    * 跳转接口用例详情
    */
   function showDetail(id: string) {
+    if (!hasJumpPermission.value) {
+      return;
+    }
     if (props.moduleType === 'API_CASE') {
       openNewPage(RouteEnum.API_TEST_MANAGEMENT, {
         cId: id,
@@ -560,7 +564,7 @@
   }
 
   onMounted(async () => {
-    await tableStore.initColumn(TableKeyEnum.TASK_API_CASE, columns, 'drawer', true);
+    await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
   });
 </script>
 

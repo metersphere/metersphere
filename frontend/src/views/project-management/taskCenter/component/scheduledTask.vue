@@ -27,24 +27,20 @@
     >
       <template #resourceNum="{ record }">
         <div
-          v-if="
-            props.moduleType === TaskCenterEnum.API_SCENARIO &&
-            hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)
-          "
+          v-if="props.moduleType === TaskCenterEnum.API_SCENARIO"
           type="text"
-          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          class="one-line-text flex w-full"
+          :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceNum }}
         </div>
       </template>
       <template #resourceName="{ record }">
         <div
-          v-if="
-            props.moduleType === TaskCenterEnum.API_SCENARIO &&
-            hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)
-          "
+          v-if="props.moduleType === TaskCenterEnum.API_SCENARIO"
           type="text"
-          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
+          class="one-line-text flex max-w-[300px]"
+          :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceName }}
         </div>
@@ -136,7 +132,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
-  import { resourceTypeMap } from './utils';
+  import { ordAndProjectColumn, resourceTypeMap } from './utils';
 
   const { openNewPage } = useOpenNewPage();
 
@@ -151,74 +147,7 @@
   }>();
 
   const keyword = ref<string>('');
-  const columns: MsTableColumn = [
-    {
-      title: 'project.taskCenter.resourceID',
-      dataIndex: 'resourceNum',
-      slotName: 'resourceNum',
-      width: 140,
-      showInTable: true,
-      showTooltip: true,
-      showDrag: false,
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'project.taskCenter.resourceName',
-      slotName: 'resourceName',
-      dataIndex: 'resourceName',
-      width: 200,
-      showDrag: false,
-      showTooltip: true,
-      columnSelectorDisabled: true,
-      showInTable: true,
-    },
-    {
-      title: 'project.taskCenter.operationRule',
-      dataIndex: 'value',
-      slotName: 'value',
-      showInTable: true,
-      width: 300,
-      showDrag: true,
-      showTooltip: true,
-    },
-    {
-      title: 'project.taskCenter.operator',
-      slotName: 'createUserName',
-      dataIndex: 'createUserName',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-      showTooltip: true,
-    },
-    {
-      title: 'project.taskCenter.operating',
-      slotName: 'createTime',
-      dataIndex: 'createTime',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'project.taskCenter.nextExecutionTime',
-      slotName: 'nextTime',
-      dataIndex: 'nextTime',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-    },
-    {
-      title: 'common.operation',
-      slotName: 'operation',
-      dataIndex: 'operation',
-      width: 180,
-      fixed: 'right',
-      showDrag: false,
-    },
-  ];
+
   const syncFrequencyOptions = [
     { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
     { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
@@ -282,11 +211,102 @@
       },
     },
   };
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([...permissionsMap[props.group][props.moduleType].edit])
+  );
+
+  const columns: MsTableColumn = [
+    {
+      title: 'project.taskCenter.resourceID',
+      dataIndex: 'resourceNum',
+      slotName: 'resourceNum',
+      width: 140,
+      showInTable: true,
+      showTooltip: true,
+      showDrag: false,
+      sortIndex: 1,
+      columnSelectorDisabled: true,
+      fixed: 'left',
+    },
+    {
+      title: 'project.taskCenter.resourceName',
+      slotName: 'resourceName',
+      dataIndex: 'resourceName',
+      width: 300,
+      showDrag: false,
+      showTooltip: true,
+      sortIndex: 2,
+      columnSelectorDisabled: true,
+      showInTable: true,
+    },
+    {
+      title: 'project.taskCenter.operationRule',
+      dataIndex: 'value',
+      slotName: 'value',
+      showInTable: true,
+      width: 300,
+      showDrag: true,
+      showTooltip: true,
+    },
+    {
+      title: 'project.taskCenter.operator',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+      showTooltip: true,
+    },
+    {
+      title: 'project.taskCenter.operating',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'project.taskCenter.nextExecutionTime',
+      slotName: 'nextTime',
+      dataIndex: 'nextTime',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+    },
+    {
+      title: 'common.operation',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      fixed: 'right',
+      showDrag: false,
+      width: hasOperationPermission.value ? 180 : 50,
+    },
+  ];
+
+  const groupColumnsMap = {
+    system: {
+      key: TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM,
+      columns: [...ordAndProjectColumn, ...columns],
+    },
+    organization: {
+      key: TableKeyEnum.TASK_SCHEDULE_TASK_ORGANIZATION,
+      columns: [...ordAndProjectColumn.slice(-1), ...columns],
+    },
+    project: {
+      key: TableKeyEnum.TASK_SCHEDULE_TASK_PROJECT,
+      columns,
+    },
+  };
+  const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,
     {
-      tableKey: TableKeyEnum.TASK_SCHEDULE_TASK,
+      tableKey: groupColumnsMap[props.group].key,
       scroll: {
         x: 1200,
       },
@@ -388,6 +408,9 @@
    */
 
   function showDetail(id: string) {
+    if (!hasJumpPermission.value) {
+      return;
+    }
     if (props.moduleType === 'API_SCENARIO') {
       openNewPage(RouteEnum.API_TEST_SCENARIO, {
         id,
@@ -489,12 +512,11 @@
       if (val) {
         resetSelector();
         initData();
-        console.log(permissionsMap[props.group][props.moduleType].edit);
       }
     }
   );
   onMounted(async () => {
-    await tableStore.initColumn(TableKeyEnum.TASK_SCHEDULE_TASK, columns, 'drawer', true);
+    await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
   });
 </script>
 

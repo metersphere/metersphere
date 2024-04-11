@@ -44,15 +44,15 @@
           </div>
         </template>
         <template v-else>
-          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
+          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row items-center">
             <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
-            <a-divider direction="vertical" />
+            <a-divider class="h-[16px]" direction="vertical" />
           </span>
-          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
+          <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row items-center">
             <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
               t('common.disable')
             }}</MsButton>
-            <a-divider direction="vertical" />
+            <a-divider class="h-[16px]" direction="vertical" />
           </span>
           <MsTableMoreAction
             v-permission="['PROJECT_APPLICATION_API:UPDATE']"
@@ -66,7 +66,7 @@
   </MsCard>
   <MsDrawer
     v-model:visible="addVisible"
-    :title="t('project.menu.addFalseAlertRules')"
+    :title="ruleFormMode === 'create' ? t('project.menu.addFalseAlertRules') : t('project.menu.updateFalseAlertRules')"
     :destroy-on-close="true"
     :closable="true"
     :mask-closable="false"
@@ -171,8 +171,7 @@
     const relation = relationOptions.value.find((item) => item.value === record.relation)?.label;
     return `${header} ${relation} ${record.expression}`;
   };
-
-  const batchFormModels: Ref<FormItemModel[]> = ref([
+  const initBatchFormModels: FormItemModel[] = [
     {
       filed: 'name',
       type: 'input',
@@ -214,7 +213,9 @@
         },
       ],
     },
-  ]);
+  ];
+
+  const batchFormModels: Ref<FormItemModel[]> = ref([...initBatchFormModels]);
 
   const rulesColumn: MsTableColumn = [
     {
@@ -411,6 +412,8 @@
     if (shouldSearch) {
       fetchData();
     }
+    batchFormModels.value = [...initBatchFormModels];
+    currentList.value = [];
     addVisible.value = false;
   };
 

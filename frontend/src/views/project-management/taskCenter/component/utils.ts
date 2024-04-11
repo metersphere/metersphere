@@ -1,3 +1,5 @@
+import type { MsTableColumn } from '@/components/pure/ms-table/type';
+
 import { TaskCenterEnum } from '@/enums/taskCenter';
 
 export const TaskStatus = {
@@ -168,5 +170,26 @@ export const resourceTypeMap = {
     label: 'project.taskCenter.testPlan',
   },
 };
+
+export const ordAndProjectColumn: MsTableColumn = [
+  {
+    title: 'project.belongOrganization',
+    dataIndex: 'organizationName',
+    slotName: 'organizationName',
+    showTooltip: true,
+    showDrag: true,
+    width: 200,
+    showInTable: true,
+  },
+  {
+    title: 'project.belongProject',
+    dataIndex: 'projectName',
+    slotName: 'projectName',
+    showTooltip: true,
+    showDrag: true,
+    width: 200,
+    showInTable: true,
+  },
+];
 
 export default {};
