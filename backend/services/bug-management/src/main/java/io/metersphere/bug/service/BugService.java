@@ -524,7 +524,7 @@ public class BugService {
         try {
             XpackBugService bugService = CommonBeanFactory.getBean(XpackBugService.class);
             if (bugService != null) {
-                bugService.syncPlatformBugs(project, request, currentUser, language);
+                bugService.syncPlatformBugs(project, request, currentUser, language, Translator.get("sync_mode.manual"));
             }
         } catch (Exception e) {
             LogUtils.error(e);
@@ -542,7 +542,7 @@ public class BugService {
      * @param project 项目
      */
     @Async
-    public void syncPlatformBugs(List<Bug> remainBugs, Project project, String currentUser, String language) {
+    public void syncPlatformBugs(List<Bug> remainBugs, Project project, String currentUser, String language, String triggerMode) {
         try {
             // 分页同步
             SubListUtils.dealForSubList(remainBugs, 100, (subBugs) -> doSyncPlatformBugs(subBugs, project));
@@ -554,7 +554,7 @@ public class BugService {
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 发送同步通知
-            bugSyncNoticeService.sendNotice(remainBugs.size(), currentUser, language, project.getId());
+            bugSyncNoticeService.sendNotice(remainBugs.size(), currentUser, language, triggerMode, project.getId());
         }
     }
 

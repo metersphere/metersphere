@@ -28,6 +28,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
@@ -634,13 +635,13 @@ public class BugControllerTests extends BaseTest {
         List<Bug> remainBugs = bugMapper.selectByExample(example);
         Project defaultProject = projectMapper.selectByPrimaryKey("default-project-for-bug");
         // 同步第一次
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.manual"));
         // 同步第二次
         renameLocalFile(updateRequest2.getId()); // 重命名后, 同步时会删除本地文件
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.manual"));
         // 同步第三次
         deleteLocalFile(updateRequest2.getId()); // 手动删除关联的文件, 重新同步时会下载平台附件
-        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.manual"));
 
         // 全选删除所有Jira缺陷
         BugBatchRequest request = new BugBatchRequest();

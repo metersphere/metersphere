@@ -18,6 +18,7 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -146,7 +147,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void sync(@PathVariable String projectId) {
-        bugSyncService.syncBugs(projectId, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
+        bugSyncService.syncBugs(projectId, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage(), Translator.get("sync_mode.manual"));
     }
 
     @PostMapping("/sync/all")
