@@ -1084,10 +1084,21 @@
       });
       selectIds = tableSelected.value as string[];
     }
+    let content = t('api_scenario.table.deleteScenarioTip');
+    if (isBatch) {
+      content = `${t('api_scenario.table.deleteScenarioTip.schedule1')}${t(
+        'api_scenario.table.deleteScenarioTip.schedule2'
+      )}`;
+    } else if (record?.scheduleConfig) {
+      content = `${t('api_scenario.table.deleteScenarioTip.schedule1')}${t(
+        'api_scenario.table.deleteScenarioTip.schedule2'
+      )}`;
+    }
+
     openModal({
       type: 'error',
       title,
-      content: t('api_scenario.table.deleteScenarioTip'),
+      content,
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
