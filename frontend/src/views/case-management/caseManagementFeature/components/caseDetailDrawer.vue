@@ -100,14 +100,14 @@
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
                 <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
-                  <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
                   <a-menu-item v-for="tab of tabSetting" :key="tab.key">
                     <div class="flex items-center">
                       <span>{{ t(tab.title) }}</span>
                       <a-badge
+                        v-if="getTotal(tab.key)"
                         class="ml-1"
                         :class="activeTab === tab.key ? 'active' : ''"
-                        :text="getTotal(tab.total)"
+                        :text="getTotal(tab.key)"
                       /> </div
                   ></a-menu-item>
                   <a-menu-item key="setting">
@@ -252,7 +252,7 @@
       </div>
     </template>
   </MsDetailDrawer>
-  <SettingDrawer ref="settingDrawerRef" v-model:visible="showSettingDrawer" />
+  <SettingDrawer ref="settingDrawerRef" v-model:visible="showSettingDrawer" @init-data="initTab" />
 </template>
 
 <script setup lang="ts">
@@ -282,6 +282,7 @@
     getCaseDetail,
     getCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
+  import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -339,11 +340,12 @@
     showSettingDrawer.value = true;
   }
 
-  const tabSettingList = computed(() => {
-    return featureCaseStore.tabSettingList;
-  });
+  // const tabSettingList = computed(() => {
+  //   return featureCaseStore.tabSettingList;
+  // });
 
-  const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
+  // const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
+  const tabSetting = ref<TabItemType[]>([]);
   const activeTab = ref<string | number>('detail');
   function clickMenu(key: string | number) {
     activeTab.value = key;
@@ -565,21 +567,14 @@
     tabDetailRef.value.handleOK();
   }
 
-  function getTotal(total: number): string {
-    if (total === 0) {
-      return '0';
+  function getTotal(key: string) {
+    switch (key) {
+      case 'detail':
+        return '';
+      default:
+        break;
     }
-    if (total && total !== 0) {
-      if (total <= 99) {
-        return String(total);
-      }
-
-      if (total > 99) {
-        return `${total}+`;
-      }
-    }
-
-    return `${total}+`;
+    return featureCaseStore.countMap[key] > 99 ? '99+' : `${featureCaseStore.countMap[key]}` || '';
   }
 
   watch(
@@ -608,14 +603,6 @@
     (val) => {
       emit('update:visible', val);
     }
-  );
-
-  watch(
-    () => tabSettingList.value,
-    () => {
-      tabSetting.value = featureCaseStore.getTab();
-    },
-    { deep: true, immediate: true }
   );
 
   const content = ref('');
@@ -652,9 +639,83 @@
     tabDetailRef.value.handleOK();
   }, 300);
 
-  onMounted(() => {
-    settingDrawerRef.value.getTabModule();
-  });
+  const tabDefaultSettingList: TabItemType[] = [
+    {
+      key: 'detail',
+      title: 'caseManagement.featureCase.detail',
+      canHide: false,
+      isShow: true,
+    },
+    {
+      key: 'case',
+      title: 'caseManagement.featureCase.case',
+      canHide: true,
+
+      isShow: true,
+    },
+    {
+      key: 'dependency',
+      title: 'caseManagement.featureCase.dependency',
+      canHide: true,
+      isShow: true,
+    },
+    {
+      key: 'caseReview',
+      title: 'caseManagement.featureCase.caseReview',
+      canHide: true,
+      isShow: true,
+    },
+    {
+      key: 'comments',
+      title: 'caseManagement.featureCase.comments',
+      canHide: true,
+      isShow: true,
+    },
+    {
+      key: 'changeHistory',
+      title: 'caseManagement.featureCase.changeHistory',
+      canHide: true,
+      isShow: true,
+    },
+  ];
+  let buggerTab: TabItemType[] = [];
+  const moduleTabMap: Record<string, TabItemType[]> = {
+    bugManagement: [
+      {
+        key: 'requirement',
+        title: 'caseManagement.featureCase.requirement',
+        canHide: true,
+        isShow: true,
+      },
+      {
+        key: 'bug',
+        title: 'caseManagement.featureCase.bug',
+        canHide: true,
+        isShow: true,
+      },
+    ],
+  };
+
+  let newTabDefaultSettingList: TabItemType[] = [];
+  /**
+   * 获取开启的模块
+   */
+  async function getTabModule() {
+    buggerTab = [];
+    const result = await postTabletList({ projectId: currentProjectId.value });
+    const enableModuleArr = result.filter((item: any) => item.module === 'bugManagement');
+    enableModuleArr.forEach((item) => {
+      if (item.module === 'bugManagement') {
+        buggerTab.push(...moduleTabMap[item.module]);
+      }
+    });
+    newTabDefaultSettingList = [...tabDefaultSettingList.slice(0, 2), ...buggerTab, ...tabDefaultSettingList.slice(2)];
+  }
+
+  await getTabModule();
+
+  featureCaseStore.initContentTabList(newTabDefaultSettingList);
+  tabSetting.value = ((await featureCaseStore.getContentTabList()) || []).filter((item) => item.isShow);
 
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
@@ -662,6 +723,13 @@
     });
     return data;
   }
+
+  const initTab = async () => {
+    showSettingDrawer.value = false;
+    const tmpArr = (await featureCaseStore.getContentTabList()) || [];
+    tabSetting.value = tmpArr.filter((item) => item.isShow);
+    activeTab.value = 'detail';
+  };
 </script>
 
 <style scoped lang="less">

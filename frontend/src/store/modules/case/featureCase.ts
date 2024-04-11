@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import localforage from 'localforage';
 
 import {
   getCaseDefaultFields,
@@ -6,8 +7,9 @@ import {
   getCaseModulesCounts,
   getRecycleModulesCounts,
 } from '@/api/modules/case-management/featureCase';
+import { isArraysEqualWithOrder } from '@/utils/equal';
 
-import type { CaseModuleQueryParams, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
+import type { ContentTabsMap, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
 import { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
 import useAppStore from '../app';
@@ -20,7 +22,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     modulesCount: Record<string, any>; // 用例树模块数量
     recycleModulesCount: Record<string, any>; // 回收站模块数量
     operatingState: boolean; // 操作状态
-    tabSettingList: TabItemType[]; // 详情tab
+    countMap: Record<string, any>;
     activeTab: string; // 激活tab
     defaultFields: CustomAttributes[];
     defaultCount: Record<string, any>;
@@ -30,10 +32,19 @@ const useFeatureCaseStore = defineStore('featureCase', {
     modulesCount: {},
     recycleModulesCount: {},
     operatingState: false,
-    tabSettingList: [],
     activeTab: 'detail',
     defaultFields: [],
     defaultCount: {},
+    countMap: {
+      case: '0',
+      dependency: '0',
+      caseReview: '0',
+      testPlan: '0',
+      bug: '0',
+      requirement: '0',
+      comments: '0',
+      changeHistory: '0',
+    },
   }),
   actions: {
     // 设置选择moduleId
@@ -51,7 +62,6 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 获取模块数量
     async getCaseModulesCount(params: TableQueryParams) {
       try {
-        // this.modulesCount = {};
         this.modulesCount = await getCaseModulesCounts(params);
       } catch (error) {
         console.log(error);
@@ -65,40 +75,17 @@ const useFeatureCaseStore = defineStore('featureCase', {
         console.log(error);
       }
     },
-    // 设置菜单
-    setTab(list: TabItemType[]) {
-      this.tabSettingList = list;
-    },
-    // 获取显示的tab
-    getTab() {
-      return this.tabSettingList.filter((item) => item.enable);
-    },
     // 设置激活tab
     setActiveTab(active: string | number) {
       this.activeTab = active as string;
     },
     // 设置菜单模块列表数量
     setListCount(type: string, count = 0) {
-      this.tabSettingList = this.tabSettingList.map((item: any) => {
-        if (type === item.key) {
-          return {
-            ...item,
-            total: count,
-          };
-        }
-        return {
-          ...item,
-        };
-      });
+      this.countMap[type] = count;
     },
     // 初始化count
     initCountMap(countMap: Record<string, any>) {
-      this.tabSettingList = this.tabSettingList.map((item) => {
-        return {
-          ...item,
-          total: countMap[item.key] || 0,
-        };
-      });
+      this.countMap = { ...countMap };
     },
     // 获取默认模版
     async getDefaultTemplate() {
@@ -114,7 +101,6 @@ const useFeatureCaseStore = defineStore('featureCase', {
     getSystemCaseLevelFields() {
       return this.defaultFields.find((item: any) => item.internal && item.fieldName === '用例等级')?.options || [];
     },
-
     // 获取详情
     async getCaseCounts(caseId: string) {
       try {
@@ -142,6 +128,43 @@ const useFeatureCaseStore = defineStore('featureCase', {
         this.initCountMap(countMap);
       } catch (error) {
         console.log(error);
+      }
+    },
+    async initContentTabList(arr: TabItemType[]) {
+      try {
+        const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+        if (tabsMap) {
+          const { backupTabList } = tabsMap;
+          const isEqual = isArraysEqualWithOrder<TabItemType>(backupTabList, arr);
+          if (!isEqual) {
+            tabsMap.tabList = arr;
+            tabsMap.backupTabList = arr;
+            await localforage.setItem('caseTabsMap', tabsMap);
+          }
+        } else {
+          await localforage.setItem('caseTabsMap', { tabList: arr, backupTabList: arr });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getContentTabList() {
+      try {
+        const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+        if (tabsMap) {
+          return tabsMap.tabList;
+        }
+        return [];
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async setContentTabList(arr: TabItemType[]) {
+      const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+      if (tabsMap) {
+        const tmpArrList = JSON.parse(JSON.stringify(arr));
+        tabsMap.tabList = tmpArrList;
+        await localforage.setItem('caseTabsMap', tabsMap);
       }
     },
   },

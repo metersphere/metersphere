@@ -68,6 +68,7 @@ export default {
   'project.menu.preview': 'Preview',
   'project.menu.pleaseInputJiraKey': 'Please enter JIRA project key',
   'project.menu.addFalseAlertRules': 'Add False Alert Rules',
+  'project.menu.updateFalseAlertRules': 'update False Alert Rules',
   'project.menu.nameSearch': 'Search by Name',
   // Sync defects
   'project.menu.defect.enableTip':

@@ -62,8 +62,12 @@ export enum TableKeyEnum {
   PROJECT_MANAGEMENT_ENV_ALL_PARAM_HEADER = 'projectManagementEnvAllParamHeader',
   PROJECT_MANAGEMENT_ENV_ALL_PARAM_VARIABLE = 'projectManagementEnvAllParamVariable',
   TEST_PLAN_ALL_TABLE = 'testPlanAllTable',
-  TASK_API_CASE = 'taskCenterApiCase',
-  TASK_SCHEDULE_TASK = 'taskCenterSchedule',
+  TASK_API_CASE_SYSTEM = 'taskCenterApiCaseSystem',
+  TASK_API_CASE_ORGANIZATION = 'taskCenterApiCaseOrganization',
+  TASK_API_CASE_PROJECT = 'taskCenterApiCaseProject',
+  TASK_SCHEDULE_TASK_SYSTEM = 'taskCenterScheduleSystem',
+  TASK_SCHEDULE_TASK_ORGANIZATION = 'taskCenterScheduleOrganization',
+  TASK_SCHEDULE_TASK_PROJECT = 'taskCenterScheduleProject',
 }
 
 // 具有特殊功能的列

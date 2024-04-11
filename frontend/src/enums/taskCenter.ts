@@ -1,11 +1,11 @@
 // 模板展示字段icon
 export enum TaskCenterEnum {
   API_CASE = 'API_CASE', // 接口用例
-  API_SCENARIO = 'API_SCENARIO', // 接口场景
+  API_SCENARIO = 'API_SCENARIO', // 接口场景 API场景
   UI_TEST = 'UI_TEST', // ui测试
   LOAD_TEST = 'LOAD_TEST', // 性能测试
   TEST_PLAN = 'TEST_PLAN', // 测试计划
-  // TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
+  TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
   API_IMPORT = 'API_IMPORT', // API导入
 }
 

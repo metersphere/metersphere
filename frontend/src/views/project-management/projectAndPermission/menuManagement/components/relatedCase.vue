@@ -132,7 +132,7 @@
     emit('cancel', shouldSearch);
     sessionStorage.removeItem('platformKey');
     form.PLATFORM_KEY = '';
-    fApi.value.clearValidateState();
+    fApi.value?.clearValidateState();
   };
   const handlePlatformChange = async (value: SelectValue) => {
     platformRules.value = [];
