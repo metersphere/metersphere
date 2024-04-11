@@ -308,6 +308,8 @@ public class ApiScenarioReportService {
                     //需要把这些数据拿出来 如果没有子请求说明是最后一级的请求 不需要计算入状态
                     //获取所有的子请求的状态
                     List<String> requestStatus = children.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
+                    //获取为执行的状态
+                    List<String> pendingStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.PENDING.name(), status) || StringUtils.isBlank(status)).toList();
                     //过滤出来SUCCESS的状态
                     List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ApiReportStatus.SUCCESS.name(), status)).toList();
                     //只要包含ERROR 就是ERROR
@@ -315,7 +317,7 @@ public class ApiScenarioReportService {
                         step.setStatus(ApiReportStatus.ERROR.name());
                     } else if (requestStatus.contains(ApiReportStatus.FAKE_ERROR.name())) {
                         step.setStatus(ApiReportStatus.FAKE_ERROR.name());
-                    } else if (successStatus.size() == children.size()) {
+                    } else if (successStatus.size() + pendingStatus.size() == children.size() && !successStatus.isEmpty()) {
                         step.setStatus(ApiReportStatus.SUCCESS.name());
                     }
                 } else if (stepTypes.contains(step.getStepType())) {
