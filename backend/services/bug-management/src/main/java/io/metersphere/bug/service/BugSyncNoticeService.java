@@ -8,10 +8,13 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -30,6 +33,7 @@ public class BugSyncNoticeService {
     public void sendNotice(int total, String currentUser, String language, String projectId) {
         String platformName = projectApplicationService.getPlatformName(projectId);
         User user = userMapper.selectByPrimaryKey(currentUser);
+        setLanguage(user.getLanguage());
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(NoticeConstants.TemplateText.BUG_SYNC_TASK_EXECUTE_COMPLETED);
         Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
@@ -44,5 +48,15 @@ public class BugSyncNoticeService {
         NoticeModel noticeModel = NoticeModel.builder().operator(currentUser).excludeSelf(false)
                 .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_COMPLETED).build();
         noticeSendService.send(NoticeConstants.TaskType.BUG_SYNC_TASK, noticeModel);
+    }
+
+    private static void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
     }
 }

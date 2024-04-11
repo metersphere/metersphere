@@ -176,16 +176,7 @@ public class NoticeTemplateService {
         messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
         messageTemplateFieldOperator.setName(Translator.get("message.operator"));
         messageTemplateFieldDTOS.add(messageTemplateFieldOperator);
-        MessageTemplateFieldDTO messageTemplateFieldFollow = new MessageTemplateFieldDTO();
-        messageTemplateFieldFollow.setId(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
-        messageTemplateFieldFollow.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
-        messageTemplateFieldFollow.setName(Translator.get("message.follow_people"));
-        messageTemplateFieldDTOS.add(messageTemplateFieldFollow);
-        MessageTemplateFieldDTO messageTemplateFieldTriggerMode = new MessageTemplateFieldDTO();
-        messageTemplateFieldTriggerMode.setId("triggerMode");
-        messageTemplateFieldTriggerMode.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
-        messageTemplateFieldTriggerMode.setName(Translator.get("message.trigger_mode"));
-        messageTemplateFieldDTOS.add(messageTemplateFieldTriggerMode);
+
     }
 
     public MessageTemplateResultDTO getTemplateFields(String projectId, String taskType) {

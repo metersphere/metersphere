@@ -166,6 +166,9 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
       return JSON.parse(currentColumnData.defaultValue).join('，') || '-';
     }
     if (selectExcludes.includes(currentColumnData.type)) {
+      if (currentColumnData.defaultValue === 'CREATE_USER') {
+        currentColumnData.defaultValue = userId;
+      }
       return (
         (currentColumnData.options || [])
           .filter((item: any) => currentColumnData.defaultValue === item.value)

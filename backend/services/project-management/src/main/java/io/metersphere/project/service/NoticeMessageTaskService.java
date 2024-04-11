@@ -280,8 +280,7 @@ public class NoticeMessageTaskService {
      *
      * @return Map<String, String>
      */
-    public Map<String, String> getCustomFielddMap(String projectId) {
-        Map<String, String> customFielddMap = new HashMap<>();
+    public Map<String, List<CustomField>> getCustomFielddMap(String projectId) {
         List<String> sceneList = new ArrayList<>();
         sceneList.add(TemplateScene.API.toString());
         sceneList.add(TemplateScene.TEST_PLAN.toString());
@@ -291,10 +290,7 @@ public class NoticeMessageTaskService {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria().andScopeIdEqualTo(projectId).andSceneIn(sceneList);
         List<CustomField> customFields = customFieldMapper.selectByExample(example);
-        for (CustomField customField : customFields) {
-            customFielddMap.put(customField.getName(), StringUtils.isBlank(customField.getRemark()) ? "-" : customField.getRemark());
-        }
-        return customFielddMap;
+        return customFields.stream().collect(Collectors.groupingBy(CustomField::getScene));
     }
 
     /**
@@ -355,7 +351,7 @@ public class NoticeMessageTaskService {
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        Map<String, String> customFielddMap = getCustomFielddMap(projectId);
+        Map<String, List<CustomField>> customFielddMap = getCustomFielddMap(projectId);
         ProjectRobot projectRobot = getDefaultRobot(projectId, null);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
@@ -414,7 +410,7 @@ public class NoticeMessageTaskService {
         return messageTaskDTOList;
     }
 
-    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob, Map<String, String> customFielddMap) {
+    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob, Map<String, List<CustomField>> customFielddMap) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         if (StringUtils.equalsIgnoreCase(projectRobot.getName(), "robot_in_site") || StringUtils.equalsIgnoreCase(projectRobot.getName(), "robot_mail")) {
             projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
@@ -446,7 +442,7 @@ public class NoticeMessageTaskService {
         return projectRobotConfigDTO;
     }
 
-    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, Map<String, String> customFielddMap) {
+    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, Map<String, List<CustomField>> customFielddMap) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
@@ -486,7 +482,7 @@ public class NoticeMessageTaskService {
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        Map<String, String> customFielddMap = getCustomFielddMap(projectId);
+        Map<String, List<CustomField>> customFielddMap = getCustomFielddMap(projectId);
         ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(robotId);
         MessageTask messageTask;
         if (projectRobot == null) {

@@ -4,7 +4,9 @@ import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.BugMessageDTO;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
@@ -12,6 +14,7 @@ import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -197,7 +200,7 @@ public class MessageTemplateUtils {
         });
     }
 
-    public static String getTranslateTemplate(String taskType, String template, Map<String, String> customFielddMap) {
+    public static String getTranslateTemplate(String taskType, String template, Map<String, List<CustomField>> customFielddMap) {
         if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
             if (StringUtils.isNotBlank(template) && template.contains("${name}")) {
                 template = template.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
@@ -214,9 +217,25 @@ public class MessageTemplateUtils {
             }
             setMap(taskType, domainTemplateFields, map);
             Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+            defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
             map.putAll(defaultRelatedUserMap);
-            map.putAll(customFielddMap);
+            addCustomFiled(taskType, customFielddMap, map);
             return getContent(template, map);
+        }
+    }
+
+    private static void addCustomFiled(String taskType, Map<String, List<CustomField>> customFielddMap, Map<String, Object> map) {
+        for (TemplateScene value : TemplateScene.values()) {
+            if (taskType.contains(value.toString())) {
+                List<CustomField> customFields = customFielddMap.get(value.toString());
+                if (CollectionUtils.isNotEmpty(customFields)) {
+                    Map <String,String>customFielddNameMap = new HashMap<>();
+                    for (CustomField customField : customFields) {
+                        customFielddNameMap.put(customField.getName(), StringUtils.isBlank(customField.getName()) ? "-" : customField.getName());
+                    }
+                    map.putAll(customFielddNameMap);
+                }
+            }
         }
     }
 
@@ -253,7 +272,8 @@ public class MessageTemplateUtils {
                 String tableName = "schedule_";
                 putDomainName(domainTemplateFields, map, tableName);
             }
-            default ->{}
+            default -> {
+            }
         }
     }
 
@@ -261,11 +281,11 @@ public class MessageTemplateUtils {
         for (Field allField : domainTemplateFields) {
             Schema annotation = allField.getAnnotation(Schema.class);
             if (annotation != null) {
-               String description;
+                String description;
                 if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                    description = "{{" + Translator.get("message.domain."+ tableName +allField.getName()) + "}}";
+                    description = "{{" + Translator.get("message.domain." + tableName + allField.getName()) + "}}";
                 } else {
-                    description = "<" + Translator.get("message.domain."+ tableName +allField.getName()) + ">";
+                    description = "<" + Translator.get("message.domain." + tableName + allField.getName()) + ">";
                 }
                 map.put(allField.getName(), description);
             }
@@ -278,16 +298,16 @@ public class MessageTemplateUtils {
             if (annotation != null) {
                 String description;
                 if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                    description = "{{" + Translator.get("message.domain."+ allField.getName()) + "}}";
+                    description = "{{" + Translator.get("message.domain." + allField.getName()) + "}}";
                 } else {
-                    description = "<" + Translator.get("message.domain."+ allField.getName()) + ">";
+                    description = "<" + Translator.get("message.domain." + allField.getName()) + ">";
                 }
                 map.put(allField.getName(), description);
             }
         }
     }
 
-    public static String getTranslateSubject(String taskType, String subject, Map<String, String> customFielddMap) {
+    public static String getTranslateSubject(String taskType, String subject, Map<String, List<CustomField>> customFielddMap) {
         if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
             if (StringUtils.isNotBlank(subject) && subject.contains("${name}")) {
                 subject = subject.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
@@ -304,8 +324,9 @@ public class MessageTemplateUtils {
             }
             setMap(taskType, domainTemplateFields, map);
             Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+            defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
             map.putAll(defaultRelatedUserMap);
-            map.putAll(customFielddMap);
+            addCustomFiled(taskType, customFielddMap, map);
             return getContent(subject, map);
         }
     }
