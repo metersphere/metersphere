@@ -281,11 +281,20 @@
       },
       maskClosable: false,
       onBeforeOk: async () => {
-        deleteNodes(scenario.value.steps, checkedKeys.value, (node) => !node.isQuoteScenarioStep, 'uniqueId');
-        Message.success(t('common.deleteSuccess'));
-        if (scenario.value.steps.length === 0) {
-          checkedAll.value = false;
-          indeterminate.value = false;
+        const deleteResult = deleteNodes(
+          scenario.value.steps,
+          checkedKeys.value,
+          (node) => !node.isQuoteScenarioStep,
+          'uniqueId'
+        );
+        if (deleteResult) {
+          Message.success(t('common.deleteSuccess'));
+          if (scenario.value.steps.length === 0) {
+            checkedAll.value = false;
+            indeterminate.value = false;
+          }
+        } else {
+          Message.warning(t('apiScenario.quoteScenarioStepNotAllowDelete'));
         }
       },
       hideCancel: false,

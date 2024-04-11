@@ -33,7 +33,7 @@
         <slot name="title" v-bind="_props"></slot>
       </template>
       <template v-if="$slots['extra'] || props.nodeMoreActions" #extra="_props">
-        <div class="sticky right-0 flex items-center justify-between">
+        <div class="sticky right-[8px] flex items-center justify-between">
           <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
             <slot name="extra" v-bind="_props"></slot>
             <MsTableMoreAction

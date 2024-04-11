@@ -14,10 +14,8 @@ export function matchXMLWithXPath(xmlText: string, xpathQuery: string): xpath.Se
 
     // 创建一个命名空间解析器
     const resolver = (prefix: string) => {
-      // 获取 XML 文档的根元素
-      const root = xmlDoc.documentElement;
-      // 从根元素获取命名空间的 URI
-      const nsUri = root.getAttributeNS('http://www.w3.org/2000/xmlns/', prefix);
+      // 获取命名空间的 URI
+      const nsUri = xmlDoc.lookupNamespaceURI(prefix);
       return nsUri || null;
     };
 

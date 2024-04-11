@@ -183,6 +183,7 @@ export default {
   'apiScenario.syncSaveAsCase': '同步添加测试接口用例',
   'apiScenario.deleteStepConfirm': '确认删除 {name} 吗？',
   'apiScenario.deleteStepConfirmWithChildren': '确认删除所选步骤以及步骤内所有子步骤？',
+  'apiScenario.quoteScenarioStepNotAllowDelete': '引用场景的子步骤不能删除',
   // 执行历史
   'apiScenario.executeHistory.searchPlaceholder': '通过ID或名称搜索',
   'apiScenario.executeHistory.num': '序号',

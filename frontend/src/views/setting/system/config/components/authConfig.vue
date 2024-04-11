@@ -8,7 +8,11 @@
       </div>
       <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
         <template #name="{ record }">
-          <a-button type="text" class="px-0" @click="openAuthDetail(record.id)">{{ record.name }}</a-button>
+          <a-button type="text" class="w-full overflow-hidden px-0" @click="openAuthDetail(record.id)">
+            <div class="one-line-text">
+              {{ record.name }}
+            </div>
+          </a-button>
         </template>
         <template #action="{ record }">
           <MsButton v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="editAuth(record)">
@@ -637,28 +641,25 @@
       slotName: 'name',
       dataIndex: 'name',
       width: 200,
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.config.auth.status',
       slotName: 'enable',
       dataIndex: 'enable',
-      showInTable: true,
     },
     {
       title: 'system.config.auth.desc',
       dataIndex: 'description',
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.config.auth.createTime',
       dataIndex: 'createTime',
-      showInTable: true,
     },
     {
       title: 'system.config.auth.updateTime',
       dataIndex: 'updateTime',
-      showInTable: true,
     },
     {
       title: hasOperationPermission.value ? 'system.config.auth.action' : '',
@@ -785,7 +786,7 @@
     enable: true,
     description: '',
     name: '',
-    type: 'CAS',
+    type: 'LDAP',
     updateTime: 0,
     createTime: 0,
     configuration: {},
@@ -948,13 +949,14 @@
   const showDrawer = ref(false);
   const drawerLoading = ref(false);
   const authFormRef = ref<FormInstance>();
-  const authTypeList = ['CAS', 'OIDC', 'OAuth2', 'LDAP'];
+  // const authTypeList = ['CAS', 'OIDC', 'OAuth2', 'LDAP'];
+  const authTypeList = ['LDAP'];
   const defaultAuth = {
     id: '',
     enable: true,
     description: '',
     name: '',
-    type: 'CAS' as AuthType,
+    type: 'LDAP' as AuthType,
     configuration: {},
   };
   const activeAuthForm = ref<AuthForm>({

@@ -379,7 +379,7 @@
     return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
   const pageLoading = ref(false);
-  const pageConfig = ref({ ...appStore.pageConfig });
+  const pageConfig = ref({ ...appStore.pageConfig, slogan: t(appStore.pageConfig.slogan) });
   const loginPageFullRef = ref<HTMLElement | null>(null);
   const platformPageFullRef = ref<HTMLElement | null>(null);
   const { isFullScreen: isLoginPageFullscreen, toggleFullScreen: loginFullscreenToggle } =
