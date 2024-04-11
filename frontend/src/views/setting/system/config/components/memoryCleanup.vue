@@ -126,7 +126,7 @@
   const saveLoading = ref(false);
 
   async function saveConfig() {
-    if (!hasPermission) {
+    if (!hasPermission.value) {
       return;
     }
     saveLoading.value = true;
