@@ -201,33 +201,12 @@ public class EnvironmentService extends MoveNodeService {
         environmentInfoDTO.setMock(environment.getMock());
         BeanUtils.copyBean(environmentInfoDTO, environment);
         environmentInfoDTO.setConfig(getEnvironmentConfig(environmentId));
-        if (BooleanUtils.isTrue(environment.getMock())) {
-            SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-            if (systemParameterService != null) {
-                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-                String baseUrl = baseSystemConfigDTO.getUrl();
-                if (StringUtils.isNotEmpty(baseUrl)) {
-                    Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                    String domain = baseUrl.replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
-                    String protocol = baseUrl.substring(0, baseUrl.indexOf(domain) -3 );
-                    if (environmentInfoDTO.getConfig() != null && CollectionUtils.isNotEmpty(environmentInfoDTO.getConfig().getHttpConfig())) {
-                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setId(IDGenerator.nextStr());
-                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setProtocol(protocol);
-                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
-                        environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
-                    } else {
-                        List<HttpConfig> httpConfigs = new ArrayList<>();
-                        HttpConfig httpConfig = new HttpConfig();
-                        httpConfig.setId(IDGenerator.nextStr());
-                        httpConfig.setProtocol(protocol);
-                        httpConfig.setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
-                        httpConfig.setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
-                        httpConfigs.add(httpConfig);
-                        environmentInfoDTO.getConfig().setHttpConfig(httpConfigs);
-                    }
-                }
-            }
-        }
+
+        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        String baseUrl = baseSystemConfigDTO.getUrl();
+
+        handleMockEnv(baseUrl, environment, environmentInfoDTO);
 
         return environmentInfoDTO;
     }
@@ -466,15 +445,43 @@ public class EnvironmentService extends MoveNodeService {
                 environmentInfo.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
             }
 
-            if (BooleanUtils.isTrue(environment.getMock())) {
-                if (StringUtils.isNotEmpty(baseUrl)) {
-                    Long projectNum = projectMap.get(environment.getProjectId()).getNum();
-                    environmentInfo.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, projectNum));
-                }
-            }
+            handleMockEnv(baseUrl, environment, environmentInfo, projectMap);
+
             environmentInfos.add(environmentInfo);
         }
         return environmentInfos;
+    }
+
+    private void handleMockEnv(String baseUrl, Environment environment, EnvironmentInfoDTO environmentInfo) {
+        if (BooleanUtils.isTrue(environment.getMock())) {
+            Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
+            handleMockEnv(baseUrl, environment, environmentInfo, Map.of(project.getId(), project));
+        }
+    }
+
+    private void handleMockEnv(String baseUrl, Environment environment, EnvironmentInfoDTO environmentInfo, Map<String, Project> projectMap) {
+        if (BooleanUtils.isTrue(environment.getMock())) {
+            if (StringUtils.isNotEmpty(baseUrl)) {
+                Project project = projectMap.get(environment.getProjectId());
+                String domain = baseUrl.replace(HTTP, StringUtils.EMPTY).replace(HTTPS, StringUtils.EMPTY);
+                String protocol = baseUrl.substring(0, baseUrl.indexOf(domain) - 3);
+                if (environmentInfo.getConfig() != null && CollectionUtils.isNotEmpty(environmentInfo.getConfig().getHttpConfig())) {
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setId(IDGenerator.nextStr());
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setProtocol(protocol);
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                } else {
+                    List<HttpConfig> httpConfigs = new ArrayList<>();
+                    HttpConfig httpConfig = new HttpConfig();
+                    httpConfig.setId(IDGenerator.nextStr());
+                    httpConfig.setProtocol(protocol);
+                    httpConfig.setHostname(StringUtils.join(domain, MOCK_EVN_SOCKET, project.getNum()));
+                    httpConfig.setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    httpConfigs.add(httpConfig);
+                    environmentInfo.getConfig().setHttpConfig(httpConfigs);
+                }
+            }
+        }
     }
 
     private List<Project> getProjects(List<String> projectIds) {
