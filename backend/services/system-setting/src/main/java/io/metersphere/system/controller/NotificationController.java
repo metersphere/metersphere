@@ -41,8 +41,8 @@ public class NotificationController {
 
     @GetMapping(value = "/read/all")
     @Operation(summary = "消息中心-将消息中心所有信息设置为已读消息")
-    public Integer readAll() {
-        return notificationService.readAll(SessionUtils.getUserId());
+    public Integer readAll(@RequestParam(value = "resourceType", required = false) String resourceType) {
+        return notificationService.readAll(resourceType, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/count")

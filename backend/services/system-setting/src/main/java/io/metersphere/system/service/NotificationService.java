@@ -42,10 +42,13 @@ public class NotificationService {
         return notificationMapper.updateByExampleSelective(record, example);
     }
 
-    public int readAll(String userId) {
+    public int readAll(String resourceType, String userId) {
         Notification record = new Notification();
         record.setStatus(NotificationConstants.Status.READ.name());
         NotificationExample example = new NotificationExample();
+        if (StringUtils.isNotBlank(resourceType)) {
+            example.createCriteria().andResourceTypeEqualTo(resourceType);
+        }
         example.createCriteria().andReceiverEqualTo(userId);
         return notificationMapper.updateByExampleSelective(record, example);
     }
