@@ -48,13 +48,11 @@
   import { onClickOutside } from '@vueuse/core';
   import { debounce } from 'lodash-es';
 
-  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import { FormItemModel } from '@/components/business/ms-batch-form/types';
 
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-  import { getGenerateId } from '@/utils';
 
   import { EnvConfigItem } from '@/models/projectManagement/environmental';
 
@@ -104,6 +102,10 @@
   // 代码编辑器内容
   const editorContent = ref('');
 
+  function validateForm(cb?: () => void) {
+    return batchFormRef.value?.formValidate(cb);
+  }
+
   /**
    * 解析代码编辑器内容
    */
@@ -129,6 +131,10 @@
       }
     });
   }
+
+  defineExpose({
+    validateForm,
+  });
 
   watch(
     () => editorContent.value,

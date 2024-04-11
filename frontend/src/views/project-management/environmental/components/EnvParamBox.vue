@@ -48,7 +48,7 @@
       <EnvParamsTab v-if="activeKey === 'envParams'" />
       <HttpTab v-else-if="activeKey === 'http'" />
       <DataBaseTab v-else-if="activeKey === 'database'" />
-      <HostTab v-else-if="activeKey === 'host'" />
+      <HostTab v-else-if="activeKey === 'host'" ref="hostTabRef" />
       <!-- <PreTab v-else-if="activeKey === 'pre'" />
       <PostTab v-else-if="activeKey === 'post'" /> -->
       <div v-else-if="activeKey === 'pre' || activeKey === 'post'" class="h-full">
@@ -77,6 +77,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -114,6 +115,7 @@
   const loading = ref(false);
   const tabSettingVisible = ref(false);
   const appStore = useAppStore();
+  const hostTabRef = ref();
 
   const store = useProjectEnvStore();
   const envPluginList = ref<EnvPluginListItem[]>([]);
@@ -216,17 +218,27 @@
     };
   }
 
+  const saveCallBack = async () => {
+    // 校验通过回调保存
+    loading.value = true;
+    store.currentEnvDetailInfo.mock = true;
+    await updateOrAddEnv({ fileList: [], request: getParameters() });
+    setState(true);
+
+    Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
+    emit('ok', store.currentEnvDetailInfo.id);
+  };
+
   const handleSave = async () => {
     await envForm.value?.validate(async (valid) => {
       if (!valid) {
         try {
-          loading.value = true;
-          store.currentEnvDetailInfo.mock = true;
-          await updateOrAddEnv({ fileList: [], request: getParameters() });
-          setState(true);
-
-          Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
-          emit('ok', store.currentEnvDetailInfo.id);
+          // 保存Host-Tab的数据(目前只加了Host)
+          if (activeKey.value === 'host') {
+            hostTabRef.value?.validateForm(saveCallBack);
+          } else {
+            await saveCallBack();
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -236,6 +248,7 @@
       }
     });
   };
+
   watchEffect(() => {
     if (store.currentId) {
       store.initEnvDetail();
