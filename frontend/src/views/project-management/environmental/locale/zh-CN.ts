@@ -30,6 +30,8 @@ export default {
   'project.environmental.envDescPlaceholder': '请输入描述',
   'project.environmental.envDesc': '描述',
   'project.environmental.envNameRequired': '环境名称不能为空',
+  'project.environmental.scenario': '场景',
+  'project.environmental.request': '请求',
   'project.environmental.HTTP': 'HTTP',
   'project.environmental.HOST': 'HOST',
   'project.environmental.TCP': 'TCP',

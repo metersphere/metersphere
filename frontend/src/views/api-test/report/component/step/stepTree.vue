@@ -343,10 +343,10 @@
   }
 
   function showStatus(item: ScenarioItemType) {
-    if (showApiType.value.includes(item.stepType)) {
+    if (showApiType.value.includes(item.stepType) && item.status && item.status !== 'PENDING') {
       return true;
     }
-    return item.children && item.children.length > 0;
+    return item.children && item.children.length > 0 && item.status && item.status !== 'PENDING';
   }
 
   function handleStop(event: Event, step: ScenarioItemType) {

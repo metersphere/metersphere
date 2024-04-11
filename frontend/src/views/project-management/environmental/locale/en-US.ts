@@ -23,6 +23,8 @@ export default {
   'project.environmental.envDescPlaceholder': 'Please enter the description',
   'project.environmental.envDesc': 'description',
   'project.environmental.envNameRequired': 'Environment name cannot be empty',
+  'project.environmental.scenario': 'scenario',
+  'project.environmental.request': 'request',
   'project.environmental.database': 'Database',
   'project.environmental.HTTP': 'HTTP',
   'project.environmental.HOST': 'HOST',
@@ -129,4 +131,5 @@ export default {
   'project.environmental.http.noneDataExist': 'There is already a domain name with an enabled range of none!',
   'project.environmental.http.selectModule': 'Please select module',
   'script.delete.confirm': 'After deletion, it cannot be restored. Please exercise caution.',
+  'script.delete.scenario': 'scenario',
 };

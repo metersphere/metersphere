@@ -35,15 +35,24 @@
             v-model:pre-processor-config="scenario.scenarioConfig.preProcessorConfig"
           />
         </a-tab-pane>
-        <a-tab-pane
-          :key="ScenarioCreateComposition.ASSERTION"
-          :title="t('apiScenario.assertion')"
-          class="scenario-create-tab-pane"
-        >
+        <a-tab-pane :key="ScenarioCreateComposition.ASSERTION" class="scenario-create-tab-pane">
           <assertion
             v-if="activeKey === ScenarioCreateComposition.ASSERTION"
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
           />
+          <template #title>
+            <div class="flex items-center">
+              <div> {{ t('apiScenario.assertion') }}</div>
+              <a-badge
+                v-if="scenario.scenarioConfig.assertionConfig.assertions.length"
+                class="-mb-[2px] ml-2"
+                :class="activeKey === ScenarioCreateComposition.ASSERTION ? 'active-badge' : ''"
+                :max-count="99"
+                :text="assertCount"
+              >
+              </a-badge>
+            </div>
+          </template>
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioCreateComposition.SETTING"
@@ -159,6 +168,12 @@
     });
   }
 
+  const assertCount = computed(() => {
+    return scenario.value.scenarioConfig.assertionConfig.assertions.length > 99
+      ? '99+'
+      : `${scenario.value.scenarioConfig.assertionConfig.assertions.length}` || '';
+  });
+
   defineExpose({
     validScenarioForm,
   });
@@ -180,6 +195,12 @@
     }
     .scenario-create-tab-pane {
       padding: 8px 16px;
+    }
+  }
+  :deep(.active-badge) {
+    .arco-badge-text,
+    .arco-badge-number {
+      background-color: rgb(var(--primary-5));
     }
   }
 </style>

@@ -89,11 +89,11 @@
         color: 'rgb(var(--success-6))',
       },
       {
-        percentage: (props.reportDetail.stepFakeErrorCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepErrorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--danger-6))',
       },
       {
-        percentage: (props.reportDetail.stepErrorCount / getCountTotal.value) * 100,
+        percentage: (props.reportDetail.stepFakeErrorCount / getCountTotal.value) * 100,
         color: 'rgb(var(--warning-6))',
       },
       {

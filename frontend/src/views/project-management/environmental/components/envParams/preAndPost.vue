@@ -13,13 +13,13 @@
         }"
       >
         <PreTab
-          v-if="props.activeType === 'pre'"
+          v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE"
           :show-associated-scene="showAssociatedScene"
           :show-pre-post-request="!showAssociatedScene"
           :active-tab="activeTab"
         />
         <PostTab
-          v-if="props.activeType === 'post'"
+          v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_POST"
           :show-associated-scene="showAssociatedScene"
           :show-pre-post-request="!showAssociatedScene"
           :active-tab="activeTab"
@@ -29,14 +29,14 @@
     <div v-if="activeTab === 'requestProcessorConfig'" class="mt-4 h-full">
       <a-alert class="mb-4" closable> {{ t('project.environmental.requestAlertDesc') }} </a-alert>
       <PreTab
-        v-if="props.activeType === 'pre'"
+        v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE"
         :show-associated-scene="showAssociatedScene"
         :show-pre-post-request="!showAssociatedScene"
         :request-radio-text-props="requestPropsText"
         :active-tab="activeTab"
       />
       <PostTab
-        v-if="props.activeType === 'post'"
+        v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_POST"
         :show-associated-scene="showAssociatedScene"
         :show-pre-post-request="!showAssociatedScene"
         :request-radio-text-props="requestPropsText"
@@ -52,9 +52,10 @@
   import PostTab from './PostTab.vue';
   import PreTab from './PreTab.vue';
 
-  import { getEnvironment } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  import { EnvTabTypeEnum } from '@/enums/envEnum';
 
   const store = useProjectEnvStore();
 
@@ -67,11 +68,11 @@
   const tabList = ref<{ key: string; label: string }[]>([
     {
       key: 'scenarioProcessorConfig',
-      label: '场景',
+      label: t('project.environmental.scenario'),
     },
     {
       key: 'requestProcessorConfig',
-      label: '请求',
+      label: t('project.environmental.request'),
     },
   ]);
   const activeTab = ref<string>('scenarioProcessorConfig');
@@ -81,7 +82,7 @@
 
   const requestPropsText = computed(() => {
     if (activeTab.value === 'requestProcessorConfig') {
-      return props.activeType === 'pre'
+      return props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE
         ? {
             pre: t('project.environmental.preScriptBefore'),
             post: t('project.environmental.preScriptAfter'),
