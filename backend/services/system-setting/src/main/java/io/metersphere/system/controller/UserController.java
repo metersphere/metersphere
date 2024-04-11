@@ -90,7 +90,7 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public Pager<List<UserTableResponse>> list(@Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc,id desc");
         return PageUtils.setPageInfo(page, userService.list(request));
     }
 

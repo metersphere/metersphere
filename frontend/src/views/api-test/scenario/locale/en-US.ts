@@ -57,8 +57,9 @@ export default {
   'api_scenario.table.valueRequired': 'Attribute value cannot be empty',
   'api_scenario.table.deleteScenarioTipTitle': 'Confirm Delete {name}?',
   'api_scenario.table.batchDeleteScenarioTip': 'Confirm delete {count} selected scenarios?',
-  'api_scenario.table.deleteScenarioTip':
-    'Deleting may cause failure in resources referencing this scenario. Proceed with caution!',
+  'api_scenario.table.deleteScenarioTip': 'Scenarios are putted in recycle bin, please be cautious!',
+  'api_scenario.table.deleteScenarioTip.schedule1': 'Scenarios are putted in recycle bin;',
+  'api_scenario.table.deleteScenarioTip.schedule2': 'Scheduled task will stop and delete, please be cautious!',
   'api_scenario.table.apiStatus': 'Status',
   'api_scenario.table.status.underway': 'Underway',
   'api_scenario.table.status.completed': 'Completed',

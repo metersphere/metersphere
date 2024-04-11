@@ -41,4 +41,23 @@ public class BasePageRequest extends BaseCondition {
         }
         return sb.substring(0, sb.length() - 1);
     }
+
+    public String getSortString(String defaultColumn) {
+        if (sort == null || sort.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : sort.entrySet()) {
+            String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entry.getKey());
+            sb.append(column)
+                    .append(StringUtils.SPACE)
+                    .append(StringUtils.equalsIgnoreCase(entry.getValue(), "DESC") ? "DESC" : "ASC")
+                    .append(",")
+                    .append(defaultColumn)
+                    .append(StringUtils.SPACE)
+                    .append(StringUtils.equalsIgnoreCase(entry.getValue(), "DESC") ? "DESC" : "ASC");
+            return sb.toString();
+        }
+        return null;
+    }
 }
