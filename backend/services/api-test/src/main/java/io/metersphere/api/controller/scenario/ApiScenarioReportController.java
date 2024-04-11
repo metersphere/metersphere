@@ -77,7 +77,7 @@ public class ApiScenarioReportController {
     @GetMapping("/get/{id}")
     @Operation(summary = "接口测试-接口报告-报告获取")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE}, logical = Logical.OR)
     public ApiScenarioReportDTO get(@PathVariable String id) {
         return apiScenarioReportService.get(id);
     }
@@ -93,7 +93,7 @@ public class ApiScenarioReportController {
     @GetMapping("/get/detail/{reportId}/{stepId}")
     @Operation(summary = "接口测试-接口报告-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE}, logical = Logical.OR)
     public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String reportId,
                                                       @PathVariable String stepId) {
         return apiScenarioReportService.getDetail(reportId, stepId);

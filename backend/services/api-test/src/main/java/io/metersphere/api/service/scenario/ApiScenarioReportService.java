@@ -261,7 +261,9 @@ public class ApiScenarioReportService {
         example.createCriteria().andReportIdEqualTo(id);
         List<ApiScenarioReportLog> apiScenarioReportLogs = apiScenarioReportLogMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(apiScenarioReportLogs)) {
-            scenarioReportDTO.setConsole(new String(apiScenarioReportLogs.getFirst().getConsole()));
+            //获取所有的console,生成集合
+            List<String> consoleList = apiScenarioReportLogs.stream().map(c -> new String (c.getConsole())).toList();
+            scenarioReportDTO.setConsole(String.join("\n", consoleList));
         }
         //查询资源池名称
         scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());

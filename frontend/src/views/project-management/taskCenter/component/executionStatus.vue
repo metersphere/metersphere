@@ -2,11 +2,25 @@
   <div class="flex items-center justify-start">
     <MsIcon :type="getExecutionResult().icon" :class="getExecutionResult()?.color" size="14" />
     <span class="ml-1">{{ t(getExecutionResult().label) }}</span>
+    <a-tooltip v-if="props.scriptIdentifier" :content="t('report.detail.scenario.errorTip')">
+      <MsTag
+        class="ml-2"
+        :self-style="{
+          border: `1px solid ${methodColor}`,
+          color: methodColor,
+          backgroundColor: 'white',
+        }"
+      >
+        {{ t('report.detail.script.error') }}
+      </MsTag>
+    </a-tooltip>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
+
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -16,6 +30,7 @@
   const props = defineProps<{
     status: string;
     moduleType: keyof typeof TaskCenterEnum;
+    scriptIdentifier?: string;
   }>();
 
   export interface IconType {
@@ -173,6 +188,7 @@
   function getExecutionResult(): IconType {
     return iconTypeStatus.value[props.moduleType][props.status];
   }
+  const methodColor = 'rgb(var(--warning-7))';
 </script>
 
 <style scoped></style>

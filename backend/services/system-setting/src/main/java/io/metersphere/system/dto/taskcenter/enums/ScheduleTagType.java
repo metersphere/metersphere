@@ -9,9 +9,10 @@ import java.util.List;
  */
 public enum ScheduleTagType {
     API_IMPORT("API_IMPORT"),
-    TEST_RESOURCE("API_SCENARIO", "UI_SCENARIO", "LOAD_TEST", "TEST_PLAN"),
-
-    ORDER("CLEAN_REPORT", "BUG_SYNC");
+    API_SCENARIO("API_SCENARIO"),
+    UI_SCENARIO("UI_TEST"),
+    LOAD_TEST("LOAD_TEST"),
+    TEST_PLAN("TEST_PLAN");
 
     private List<String> names;
 

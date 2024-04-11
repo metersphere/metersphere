@@ -4,7 +4,7 @@ export const taskSysRealCenterListUrl = '/task/center/api/system/real-time/page'
 // 系统-任务中心-定时任务列表
 export const scheduleSysCenterListUrl = '/task/center/system/schedule/page';
 // 系统-任务中心-删除定时任务
-export const deleteScheduleSysTaskUrl = '/task/center/schedule/delete';
+// export const deleteScheduleSysTaskUrl = '/task/center/schedule/delete';
 // 系统接口用例和场景停止实时任务
 export const batchStopRealSystemApiUrl = '/task/center/api/system/stop';
 
@@ -38,3 +38,33 @@ export const stopRealOrdApiUrl = '/task/center/api/org/stop';
 export const stopRealProjectApiUrl = '/task/center/api/project/stop';
 // 更新定时任务运行规则
 export const updateRunRulesUrl = '/task/center/schedule/update';
+// 系统定时任务 删除
+export const deleteScheduleSysTaskUrl = '/task/center/system/schedule/delete/';
+// 组织定时任务 删除
+export const deleteScheduleOrgTaskUrl = '/task/center/org/schedule/delete/';
+// 项目定时任务 删除
+export const deleteScheduleProTaskUrl = '/task/center/project/schedule/delete/';
+// 系统定时任务 启用
+export const enableScheduleSysTaskUrl = '/task/center/system/schedule/switch/';
+// 组织定时任务 启用
+export const enableScheduleOrgTaskUrl = '/task/center/org/schedule/switch/';
+// 项目定时任务 启用
+export const enableScheduleProTaskUrl = '/task/center/project/schedule/switch/';
+// 系统定时任务 更新
+export const updateScheduleSysTaskUrl = '/task/center/system/schedule/update/';
+// 组织定时任务 更新
+export const updateScheduleOrgTaskUrl = '/task/center/org/schedule/update/';
+// 项目定时任务 更新
+export const updateScheduleProTaskUrl = '/task/center/project/schedule/update/';
+// 系统定时任务  批量开启
+export const batchEnableScheduleSysTaskUrl = '/task/center/system/schedule/batch-enable';
+// 组织定时任务  批量开启
+export const batchEnableScheduleOrgTaskUrl = '/task/center/org/schedule/batch-enable';
+// 项目定时任务  批量开启
+export const batchEnableScheduleProTaskUrl = '/task/center/project/schedule/batch-enable';
+// 系统定时任务  批量关闭
+export const batchDisableScheduleSysTaskUrl = '/task/center/system/schedule/batch-disable';
+// 组织定时任务  批量关闭
+export const batchDisableScheduleOrgTaskUrl = '/task/center/org/schedule/batch-disable';
+// 项目定时任务  批量关闭
+export const batchDisableScheduleProTaskUrl = '/task/center/project/schedule/batch-disable';

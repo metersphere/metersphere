@@ -5,7 +5,7 @@ export enum TaskCenterEnum {
   UI_TEST = 'UI_TEST', // ui测试
   LOAD_TEST = 'LOAD_TEST', // 性能测试
   TEST_PLAN = 'TEST_PLAN', // 测试计划
-  TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
+  // TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
   API_IMPORT = 'API_IMPORT', // API导入
 }
 

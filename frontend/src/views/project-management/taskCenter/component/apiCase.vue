@@ -1,15 +1,17 @@
 <template>
   <div class="px-[16px]">
-    <div class="mb-4 flex items-center justify-end">
-      <!-- <span>{{ t('project.taskCenter.apiCaseList', { type: props.name }) }}</span> -->
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('system.organization.searchIndexPlaceholder')"
-        allow-clear
-        class="mx-[8px] w-[240px]"
-        @search="searchList"
-        @press-enter="searchList"
-      ></a-input-search>
+    <div class="mb-[16px] flex items-center justify-between">
+      <div class="flex items-center"></div>
+      <div class="items-right flex gap-[8px]">
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('system.organization.searchIndexPlaceholder')"
+          allow-clear
+          class="mx-[8px] w-[240px]"
+          @search="searchList"
+          @press-enter="searchList"
+        ></a-input-search>
+      </div>
     </div>
 
     <ms-base-table
@@ -21,19 +23,21 @@
     >
       <template #resourceNum="{ record }">
         <div
+          v-if="!record.integrated && hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)"
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showDetail(record.resourceId)"
-          >{{ record.resourceNum }}</div
-        >
+          >{{ record.resourceNum }}
+        </div>
       </template>
       <template #resourceName="{ record }">
         <div
+          v-if="!record.integrated && hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)"
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showDetail(record.resourceId)"
-          >{{ record.resourceName }}</div
-        >
+          >{{ record.resourceName }}
+        </div>
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -73,7 +77,11 @@
         </a-trigger>
       </template>
       <template #status="{ record }">
-        <ExecutionStatus :module-type="props.moduleType" :status="record.status" />
+        <ExecutionStatus
+          :module-type="props.moduleType"
+          :status="record.status"
+          :script-identifier="record.scriptIdentifier"
+        />
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(ExecutionMethodsLabel[record.triggerMode]) }}</span>
@@ -95,16 +103,22 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record, rowIndex }">
-        <MsButton class="!mr-0" @click="viewReport(record.id, rowIndex)">{{
-          t('project.taskCenter.viewReport')
-        }}</MsButton>
+        <MsButton
+          class="!mr-0"
+          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].report)"
+          @click="viewReport(record.id, rowIndex)"
+          >{{ t('project.taskCenter.viewReport') }}
+        </MsButton>
         <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
-          v-if="['RUNNING', 'RERUNNING'].includes(record.status) && hasAnyPermission(permissionsMap[props.group].stop)"
+          v-if="
+            ['RUNNING', 'RERUNNING'].includes(record.status) &&
+            hasAnyPermission(permissionsMap[props.group][props.moduleType].stop)
+          "
           class="!mr-0"
           @click="stop(record)"
-          >{{ t('project.taskCenter.stop') }}</MsButton
-        >
+          >{{ t('project.taskCenter.stop') }}
+        </MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -165,7 +179,7 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    group: 'system' | 'organization' | 'project';
+    group: string;
     moduleType: keyof typeof TaskCenterEnum;
     name: string;
   }>();
@@ -174,13 +188,40 @@
 
   const permissionsMap = {
     organization: {
-      stop: ['ORGANIZATION_TASK_CENTER:READ+STOP'],
+      API_CASE: {
+        stop: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_DEFINITION_CASE:READ+EXECUTE'],
+        jump: ['PROJECT_API_DEFINITION_CASE:READ'],
+        report: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
+      API_SCENARIO: {
+        stop: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+        report: ['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
     },
     system: {
-      stop: ['ORGANIZATION_TASK_CENTER:READ+STOP'],
+      API_CASE: {
+        stop: ['SYSTEM_TASK_CENTER:READ'],
+        jump: ['PROJECT_API_DEFINITION_CASE:READ'],
+        report: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
+      API_SCENARIO: {
+        stop: ['SYSTEM_TASK_CENTER:READ'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+        report: ['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
     },
     project: {
-      stop: ['PROJECT_API_REPORT:READ'],
+      API_CASE: {
+        stop: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE'],
+        jump: ['PROJECT_API_DEFINITION_CASE:READ'],
+        report: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
+      API_SCENARIO: {
+        stop: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+        report: ['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'],
+      },
     },
   };
 
@@ -226,7 +267,7 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'system.project.name',
+      title: 'project.belongProject',
       dataIndex: 'projectName',
       slotName: 'projectName',
       showTooltip: true,
@@ -235,7 +276,7 @@
       showInTable: true,
     },
     {
-      title: 'system.organization.organizationName',
+      title: 'project.belongOrganization',
       dataIndex: 'organizationName',
       slotName: 'organizationName',
       showTooltip: true,
@@ -376,6 +417,7 @@
       {
         label: 'project.taskCenter.batchStop',
         eventTag: 'batchStop',
+        permission: permissionsMap[props.group][props.moduleType].stop,
       },
       // {
       // label: 'project.taskCenter.batchExecution',
@@ -389,6 +431,7 @@
     excludeIds: [] as string[],
     condition: {},
   });
+
   function batchStopRealTask() {
     openModal({
       type: 'warning',
@@ -478,6 +521,7 @@
   const activeReportIndex = ref<number>(0);
   const showDetailDrawer = ref<boolean>(false);
   const showCaseDetailDrawer = ref<boolean>(false);
+
   function viewReport(id: string, rowIndex: number) {
     if (props.moduleType === 'API_CASE') {
       showCaseDetailDrawer.value = true;
@@ -497,6 +541,7 @@
       }
     }
   );
+
   /**
    * 跳转接口用例详情
    */
@@ -508,7 +553,7 @@
     }
     if (props.moduleType === 'API_SCENARIO') {
       openNewPage(RouteEnum.API_TEST_SCENARIO, {
-        sId: id,
+        id,
       });
     }
   }

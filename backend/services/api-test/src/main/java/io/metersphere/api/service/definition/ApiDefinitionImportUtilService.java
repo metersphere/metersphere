@@ -274,7 +274,7 @@ public class ApiDefinitionImportUtilService {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
         //获取更新的日志
-        getUpdateLog(request, logData, updateLists, project, operationLogs);
+        apiUpdateLog(request, logData, updateLists, project, operationLogs);
 
         List<ApiDefinitionCaseDTO> createLists = new ArrayList<>();
         //获取新增的数据和日志
@@ -365,7 +365,7 @@ public class ApiDefinitionImportUtilService {
         });
     }
 
-    private static void getUpdateLog(ImportRequest request, Map<String, ApiDefinitionImportDetail> logData, List<ApiDefinitionCaseDTO> updateLists, Project project, List<LogDTO> operationLogs) {
+    private static void apiUpdateLog(ImportRequest request, Map<String, ApiDefinitionImportDetail> logData, List<ApiDefinitionCaseDTO> updateLists, Project project, List<LogDTO> operationLogs) {
         if (MapUtils.isNotEmpty(logData)) {
             logData.forEach((k, v) -> {
                 ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();

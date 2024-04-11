@@ -5,14 +5,17 @@
       <!--      <a-button type="primary">
         {{ t('project.taskCenter.createTask') }}
       </a-button>-->
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('system.organization.searchIndexPlaceholder')"
-        allow-clear
-        class="mx-[8px] w-[240px]"
-        @search="searchList"
-        @press-enter="searchList"
-      ></a-input-search>
+      <div class="flex items-center"></div>
+      <div class="items-right flex gap-[8px]">
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('system.organization.searchIndexPlaceholder')"
+          allow-clear
+          class="mx-[8px] w-[240px]"
+          @search="searchList"
+          @press-enter="searchList"
+        ></a-input-search>
+      </div>
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -23,19 +26,27 @@
     >
       <template #resourceNum="{ record }">
         <div
+          v-if="
+            props.moduleType === TaskCenterEnum.API_SCENARIO &&
+            hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)
+          "
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showDetail(record.resourceId)"
-          >{{ record.resourceNum }}</div
-        >
+          >{{ record.resourceNum }}
+        </div>
       </template>
       <template #resourceName="{ record }">
         <div
+          v-if="
+            props.moduleType === TaskCenterEnum.API_SCENARIO &&
+            hasAnyPermission(permissionsMap[props.group][props.moduleType].jump)
+          "
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
           @click="showDetail(record.resourceId)"
-          >{{ record.resourceName }}</div
-        >
+          >{{ record.resourceName }}
+        </div>
       </template>
       <template #resourceType="{ record }">
         <div type="text" class="flex w-full">{{ t(resourceTypeMap[record.resourceType].label) }}</div>
@@ -45,7 +56,7 @@
           v-model:model-value="record.value"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full min-w-[250px]"
-          :disabled="!record.enable"
+          :disabled="!record.enable || !hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
           @change="() => changeRunRules(record)"
         >
           <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
@@ -62,9 +73,15 @@
           size="small"
           type="line"
           :before-change="() => handleBeforeEnableChange(record)"
+          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
         />
         <a-divider direction="vertical" />
-        <MsButton class="!mr-0" @click="delSchedule(record)">{{ t('common.delete') }}</MsButton>
+        <MsButton
+          class="!mr-0"
+          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
+          @click="delSchedule(record)"
+          >{{ t('common.delete') }}
+        </MsButton>
         <!-- TODO这一版不上 -->
         <!-- <a-divider direction="vertical" />
         <MsButton class="!mr-0" @click="edit(record)">{{ t('common.edit') }}</MsButton>
@@ -86,20 +103,33 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
-  import { switchDefinitionSchedule } from '@/api/modules/api-test/management';
   import {
+    batchDisableScheduleOrgTask,
+    batchDisableScheduleProTask,
+    batchDisableScheduleSysTask,
+    batchEnableScheduleOrgTask,
+    batchEnableScheduleProTask,
+    batchEnableScheduleSysTask,
+    deleteScheduleOrgTask,
+    deleteScheduleProTask,
     deleteScheduleSysTask,
+    enableScheduleOrgTask,
+    enableScheduleProTask,
+    enableScheduleSysTask,
     getScheduleOrgApiCaseList,
     getScheduleProApiCaseList,
     getScheduleSysApiCaseList,
-    switchSchedule,
     updateRunRules,
+    updateRunRulesOrg,
+    updateRunRulesPro,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
+  import { BatchApiParams } from '@/models/common';
   import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -114,7 +144,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
-    group: 'system' | 'organization' | 'project';
+    group: string;
     moduleType: keyof typeof TaskCenterEnum;
     name: string;
   }>();
@@ -140,15 +170,6 @@
       showTooltip: true,
       columnSelectorDisabled: true,
       showInTable: true,
-    },
-    {
-      title: 'project.taskCenter.resourceClassification',
-      dataIndex: 'resourceType',
-      slotName: 'resourceType',
-      showInTable: true,
-      width: 150,
-      showDrag: true,
-      showTooltip: true,
     },
     {
       title: 'project.taskCenter.operationRule',
@@ -183,10 +204,10 @@
       showInTable: true,
       width: 200,
       showDrag: true,
-      // sortable: {
-      //   sortDirections: ['ascend', 'descend'],
-      //   sorter: true,
-      // },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'common.operation',
@@ -205,13 +226,64 @@
   ];
 
   const loadRealMap = ref({
-    system: getScheduleSysApiCaseList,
-    organization: getScheduleOrgApiCaseList,
-    project: getScheduleProApiCaseList,
+    system: {
+      list: getScheduleSysApiCaseList,
+      enable: enableScheduleSysTask,
+      delete: deleteScheduleSysTask,
+      edit: updateRunRules,
+      batchEnable: batchEnableScheduleSysTask,
+      batchDisable: batchDisableScheduleSysTask,
+    },
+    organization: {
+      list: getScheduleOrgApiCaseList,
+      enable: enableScheduleOrgTask,
+      delete: deleteScheduleOrgTask,
+      edit: updateRunRulesOrg,
+      batchEnable: batchEnableScheduleOrgTask,
+      batchDisable: batchDisableScheduleOrgTask,
+    },
+    project: {
+      list: getScheduleProApiCaseList,
+      enable: enableScheduleProTask,
+      delete: deleteScheduleProTask,
+      edit: updateRunRulesPro,
+      batchEnable: batchEnableScheduleProTask,
+      batchDisable: batchDisableScheduleProTask,
+    },
   });
 
+  const permissionsMap = {
+    organization: {
+      API_IMPORT: {
+        edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_DEFINITION:READ+IMPORT'],
+      },
+      API_SCENARIO: {
+        edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+      },
+    },
+    system: {
+      API_IMPORT: {
+        edit: ['SYSTEM_TASK_CENTER:READ', 'PROJECT_API_DEFINITION:READ+IMPORT'],
+      },
+      API_SCENARIO: {
+        edit: ['SYSTEM_TASK_CENTER:READ', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+      },
+    },
+    project: {
+      API_IMPORT: {
+        edit: ['PROJECT_API_DEFINITION:READ+IMPORT'],
+      },
+      API_SCENARIO: {
+        edit: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+        jump: ['PROJECT_API_SCENARIO:READ'],
+      },
+    },
+  };
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    loadRealMap.value[props.group],
+    loadRealMap.value[props.group].list,
     {
       tableKey: TableKeyEnum.TASK_SCHEDULE_TASK,
       scroll: {
@@ -242,21 +314,20 @@
     resetSelector();
     initData();
   }
-
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'project.taskCenter.batchStop',
-        eventTag: 'batchStop',
+        label: 'project.taskCenter.batchEnable',
+        eventTag: 'batchEnable',
+        // permission: permissionsMap[props.group][props.moduleType].edit,
       },
       {
-        label: 'project.taskCenter.batchExecution',
-        eventTag: 'batchExecution',
+        label: 'project.taskCenter.batchDisable',
+        eventTag: 'batchDisable',
+        // permission: permissionsMap[props.group][props.moduleType].edit,
       },
     ],
   };
-
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {}
 
   function edit(record: any) {}
 
@@ -273,7 +344,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteScheduleSysTask(record?.id as string);
+          await loadRealMap.value[props.group].delete(props.moduleType, record?.id as string);
           Message.success(t('project.taskCenter.delScheduleSuccess'));
           initData();
         } catch (error) {
@@ -287,7 +358,7 @@
 
   async function handleBeforeEnableChange(record: TimingTaskCenterApiCaseItem) {
     try {
-      await switchSchedule(record?.id as string);
+      await loadRealMap.value[props.group].enable(props.moduleType, record?.id as string);
       Message.success(
         t(record.enable ? 'project.taskCenter.disableScheduleSuccess' : 'project.taskCenter.enableScheduleSuccess')
       );
@@ -298,12 +369,13 @@
       return false;
     }
   }
+
   /**
    * 更新运行规则
    */
   async function changeRunRules(record: TimingTaskCenterApiCaseItem) {
     try {
-      await updateRunRules(record.id, record.value);
+      await loadRealMap.value[props.group].edit(props.moduleType, record.id, record.value);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       console.log(error);
@@ -315,9 +387,9 @@
    */
 
   function showDetail(id: string) {
-    if (props.moduleType === 'TEST_RESOURCE') {
+    if (props.moduleType === 'API_SCENARIO') {
       openNewPage(RouteEnum.API_TEST_SCENARIO, {
-        sId: id,
+        id,
       });
     }
   }
@@ -330,8 +402,82 @@
     },
   ];
 
-  function handleMoreActionSelect(item: ActionsItem) {}
+  const batchParams = ref<BatchApiParams>({
+    selectIds: [],
+    selectAll: false,
+    excludeIds: [] as string[],
+    condition: {},
+  });
 
+  function batchEnableTask() {
+    openModal({
+      type: 'warning',
+      title: t('project.taskCenter.batchEnableTask', { num: batchParams.value.selectIds.length }),
+      content: t('project.taskCenter.batchEnableTaskContent'),
+      okText: t('project.taskCenter.confirmEnable'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          const { selectIds, selectAll, excludeIds } = batchParams.value;
+          await loadRealMap.value[props.group].batchEnable({
+            selectIds: selectAll ? [] : selectIds,
+            selectAll,
+            scheduleTagType: props.moduleType,
+            excludeIds,
+          });
+          resetSelector();
+          Message.success(t('project.taskCenter.enableSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  function batchDisableTask() {
+    openModal({
+      type: 'warning',
+      title: t('project.taskCenter.batchDisableTask', { num: batchParams.value.selectIds.length }),
+      content: t('project.taskCenter.batchDisableTaskContent'),
+      okText: t('project.taskCenter.confirmDisable'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          const { selectIds, selectAll } = batchParams.value;
+          await loadRealMap.value[props.group].batchDisable({
+            selectIds: selectAll ? [] : selectIds,
+            selectAll,
+            scheduleTagType: props.moduleType,
+          });
+          resetSelector();
+          Message.success(t('project.taskCenter.disableSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
+    if (event.eventTag === 'batchEnable') {
+      batchEnableTask();
+    } else if (event.eventTag === 'batchDisable') {
+      batchDisableTask();
+    }
+  }
   onBeforeMount(() => {
     initData();
   });
@@ -342,6 +488,7 @@
       if (val) {
         resetSelector();
         initData();
+        console.log(permissionsMap[props.group][props.moduleType].edit);
       }
     }
   );

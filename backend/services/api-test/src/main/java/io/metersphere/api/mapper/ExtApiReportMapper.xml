@@ -142,6 +142,18 @@
                             and api_report.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='projectIds">
+                            and api_report.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='organizationIds'">
+                            and project.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -179,6 +191,7 @@
         LEFT JOIN api_test_case_record a ON api_report.id = a.api_report_id
         LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
         LEFT JOIN test_resource_pool t ON api_report.pool_id = t.id
+        left join project on api_report.project_id = project.id
         where  api_report.deleted = false
         and api_report.test_plan_id = 'NONE'
           and api_report.start_time BETWEEN #{startTime} AND #{endTime}
