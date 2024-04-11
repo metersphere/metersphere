@@ -51,7 +51,7 @@
             v-if="item.showDescInput"
             v-model:model-value="item.description"
             :placeholder="t('common.pleaseInput')"
-            :max-length="500"
+            :max-length="255"
             @blur="handleDescChange(item)"
           ></a-textarea>
           <div v-else class="desc-line api-item-value">
