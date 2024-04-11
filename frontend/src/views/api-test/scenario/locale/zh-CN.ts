@@ -191,7 +191,7 @@ export default {
   'apiScenario.executeHistory.execution.operator': '操作人',
   'apiScenario.executeHistory.execution.operatorTime': '操作时间',
   'apiScenario.executeHistory.execution.operation': '执行结果',
-  'apiScenario.executeHistory.status.pending': '排队中',
+  'apiScenario.executeHistory.status.pending': '未执行',
   'apiScenario.executeHistory.status.running': '执行中',
   'apiScenario.executeHistory.status.rerunning': '重跑中',
   'apiScenario.executeHistory.status.error': '失败',
