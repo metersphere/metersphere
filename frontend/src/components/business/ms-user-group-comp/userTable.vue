@@ -1,17 +1,19 @@
 <template>
-  <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
-    <template v-if="hasAnyPermission(props.updatePermission || [])" #quickCreate>
-      <MsConfirmUserSelector :ok-loading="okLoading" v-bind="userSelectorProps" @confirm="handleAddMember" />
-    </template>
-    <template v-if="hasAnyPermission(props.updatePermission || [])" #action="{ record }">
-      <MsRemoveButton
-        :title="t('system.userGroup.removeName', { name: characterLimit(record.name) })"
-        :sub-title-tip="t('system.userGroup.removeTip')"
-        :disabled="record.userId === 'admin'"
-        @ok="handleRemove(record)"
-      />
-    </template>
-  </MsBaseTable>
+  <div class="px-[24px]">
+    <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+      <template v-if="hasAnyPermission(props.updatePermission || [])" #quickCreate>
+        <MsConfirmUserSelector :ok-loading="okLoading" v-bind="userSelectorProps" @confirm="handleAddMember" />
+      </template>
+      <template v-if="hasAnyPermission(props.updatePermission || [])" #action="{ record }">
+        <MsRemoveButton
+          :title="t('system.userGroup.removeName', { name: characterLimit(record.name) })"
+          :sub-title-tip="t('system.userGroup.removeTip')"
+          :disabled="record.userId === 'admin'"
+          @ok="handleRemove(record)"
+        />
+      </template>
+    </MsBaseTable>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -33,7 +35,6 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useUserStore from '@/store/modules/user/index';
   import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -46,7 +47,6 @@
   const systemType = inject<AuthScopeEnum>('systemType');
   const { t } = useI18n();
   const appStore = useAppStore();
-  const userStore = useUserStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
   const okLoading = ref(false);
   const props = defineProps<{
@@ -114,7 +114,7 @@
     getRequestBySystemType(),
     {
       columns: userGroupUsercolumns,
-      scroll: { x: '100%', minWidth: 700 },
+      scroll: { x: '100%', minWidth: 700, y: '100%' },
       selectable: false,
       noDisable: true,
       showSetting: false,

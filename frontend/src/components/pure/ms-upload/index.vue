@@ -135,16 +135,16 @@
           return Promise.resolve(false);
         }
       }
-      if (!props.multiple) {
-        // 单文件上传时，清空之前的文件
-        innerFileList.value = [];
-      }
     }
     const maxSize = props.maxSize || defaultMaxSize;
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
     if (props.isLimit && file.size > _maxSize) {
       Message.warning(t('ms.upload.overSize'));
       return Promise.resolve(false);
+    }
+    if (!props.multiple) {
+      // 单文件上传时，清空之前的文件（得放到校验文件大小之后，避免文件大小限制后文件丢失）
+      innerFileList.value = [];
     }
     const fileFormatMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
     const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';

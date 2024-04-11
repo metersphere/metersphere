@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <MsCard simple no-content-padding>
     <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
       <template #first>
         <UserGroupLeft
@@ -12,8 +12,8 @@
         />
       </template>
       <template #second>
-        <div class="p-[24px]">
-          <div class="flex flex-row items-center justify-between">
+        <div class="h-full pt-[24px]">
+          <div class="flex flex-row items-center justify-between px-[24px]">
             <a-tooltip :content="currentUserGroupItem.name">
               <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
             </a-tooltip>
@@ -51,7 +51,6 @@
             <AuthTable
               v-if="currentTable === 'auth' && couldShowAuth"
               :current="currentUserGroupItem"
-              :width="bottomWidth"
               :save-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
               :disabled="!hasAnyPermission(['SYSTEM_USER_ROLE:READ+UPDATE'])"
             />
@@ -59,24 +58,22 @@
         </div>
       </template>
     </MsSplitBox>
-  </div>
+  </MsCard>
 </template>
 
 <script lang="ts" setup>
   /**
    * @description 系统设置-系统-用户组
    */
-  import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
 
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
   import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
-  import { addPixelValues } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
@@ -97,16 +94,8 @@
   });
 
   const userRef = ref();
-  const appStore = useAppStore();
   const leftCollapse = ref(true);
   const leftWidth = ref('300px');
-  const bottomWidth = computed(() => {
-    const width = appStore.menuCollapse ? '86px' : `${appStore.menuWidth}px`;
-    if (leftCollapse.value) {
-      return `calc(100% - ${addPixelValues(width, leftWidth.value, '20px')})`;
-    }
-    return `calc(100% - ${addPixelValues(width, '16px')})`;
-  });
 
   const tableSearch = () => {
     if (currentTable.value === 'user' && userRef.value) {
@@ -162,13 +151,4 @@
   });
 </script>
 
-<style lang="less" scoped>
-  .card {
-    @apply overflow-hidden bg-white;
-
-    position: relative;
-    height: calc(100vh - 88px);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
-  }
-</style>
+<style lang="less" scoped></style>

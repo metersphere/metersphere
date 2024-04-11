@@ -33,7 +33,9 @@
     <ms-base-table v-bind="propsRes" v-model:selected-key="innerCheckedKey" v-on="propsEvent">
       <template #name="{ record }">
         <div class="flex items-center">
-          <div class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]">{{ record.name }}</div>
+          <a-tooltip :content="record.name">
+            <div class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]">{{ record.name }}</div>
+          </a-tooltip>
           <a-popover :title="record.name" position="bottom">
             <a-button type="text" class="ml-2 px-0"> {{ t('project.commonScript.preview') }}</a-button>
             <template #title>
@@ -223,7 +225,6 @@
       slotName: 'name',
       width: 300,
       showInTable: true,
-      showTooltip: true,
     },
     {
       title: 'project.commonScript.description',

@@ -72,7 +72,7 @@
       columns,
       scroll: { x: '100%' },
       selectable: false,
-      heightUsed: 374,
+      heightUsed: 454,
     },
     (item) => ({
       ...item,

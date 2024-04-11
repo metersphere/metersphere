@@ -550,7 +550,8 @@ export function deleteNodes<T>(
   targetKeys: (string | number)[],
   deleteCondition?: (node: TreeNode<T>, parent?: TreeNode<T>) => boolean,
   customKey = 'key'
-): void {
+): boolean {
+  let hasDeleted = false;
   const targetKeysSet = new Set(targetKeys);
   function deleteNodesInTree(tree: TreeNode<T>[]): void {
     for (let i = tree.length - 1; i >= 0; i--) {
@@ -558,6 +559,7 @@ export function deleteNodes<T>(
       if (targetKeysSet.has(node[customKey])) {
         if (deleteCondition && deleteCondition(node, node.parent)) {
           tree.splice(i, 1); // 直接删除当前节点
+          hasDeleted = true;
           targetKeysSet.delete(node[customKey]); // 删除后从集合中移除
           // 重新调整剩余子节点的 sort 序号
           for (let j = i; j < tree.length; j++) {
@@ -571,6 +573,7 @@ export function deleteNodes<T>(
   }
 
   deleteNodesInTree(treeArr);
+  return hasDeleted;
 }
 
 /**

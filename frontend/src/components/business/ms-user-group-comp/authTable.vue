@@ -53,11 +53,11 @@
       </template>
     </a-table>
   </div>
-  <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer" :style="{ width: props.width }">
+  <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer">
     <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
-    <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">{{
-      t('system.userGroup.save')
-    }}</a-button>
+    <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">
+      {{ t('system.userGroup.save') }}
+    </a-button>
   </div>
 </template>
 
@@ -91,7 +91,6 @@
   export interface TableOperationColumn {
     name: OperationName | string;
     title?: string | RenderFunction;
-    width?: number;
     fixed?: boolean;
     render?: (record: TableData) => VNodeChild;
     isLastLeftFixed?: boolean;
@@ -101,7 +100,6 @@
     defineProps<{
       current: CurrentUserGroupItem;
       savePermission?: string[];
-      width?: string;
       showBottom?: boolean;
       disabled?: boolean;
       scroll?: {
@@ -117,7 +115,7 @@
       scroll() {
         return {
           x: '800px',
-          y: 'calc(100vh - 254px)',
+          y: 'calc(100vh - 264px)',
         };
       },
     }
@@ -492,7 +490,7 @@
 <style scoped lang="less">
   .group-auth-table {
     position: relative;
-    min-height: calc(100vh - 230px);
+    padding: 24px;
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-right: 1px solid var(--color-text-n8) !important;
@@ -509,10 +507,8 @@
     }
   }
   .footer {
-    position: fixed;
-    right: 17px;
-    bottom: 24px;
-    z-index: 999;
+    @apply w-full;
+
     display: flex;
     justify-content: flex-end;
     padding: 24px;

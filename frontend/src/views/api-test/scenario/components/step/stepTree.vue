@@ -943,10 +943,18 @@
     try {
       saveLoading.value = true;
       if (activeStep.value) {
+        let url;
+        let path = '';
+        try {
+          url = new URL(saveModalForm.value.path);
+          path = url.pathname + url.search + url.hash;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+          path = saveModalForm.value.path;
+        }
         const detail = stepDetails.value[activeStep.value.id] as RequestParam;
         const fileParams = scenario.value.stepFileParam[activeStep.value.id];
-        const url = new URL(saveModalForm.value.path);
-        const path = url.pathname + url.search + url.hash;
         const res = await addDefinition({
           ...saveModalForm.value,
           path,
@@ -1213,11 +1221,11 @@
   function applyStepNameChange(step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
-      realStep.name = tempStepName.value;
+      realStep.name = tempStepName.value || realStep.name;
       realStep.draggable = true; // 编辑完恢复拖拽
     }
     showStepNameEditInputStepId.value = '';
-    scenario.value.unSaved = true;
+    scenario.value.unSaved = !!tempStepName.value;
   }
 
   /**
@@ -1242,11 +1250,11 @@
   function applyStepDescChange(step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
-      realStep.name = tempStepDesc.value;
+      realStep.name = tempStepDesc.value || realStep.name;
       realStep.draggable = true; // 编辑完恢复拖拽
     }
     showStepDescEditInputStepId.value = '';
-    scenario.value.unSaved = true;
+    scenario.value.unSaved = !!tempStepDesc.value;
   }
 
   function handleStepContentChange($event, step: ScenarioStepItem) {

@@ -192,6 +192,7 @@ export default {
   'apiScenario.deleteStepConfirm': 'Are you sure you want to delete {name}?',
   'apiScenario.deleteStepConfirmWithChildren':
     'Are you sure you want to delete the selected step and all substeps within the step?',
+  'apiScenario.quoteScenarioStepNotAllowDelete': 'Substeps that reference a scenario cannot be deleted',
   // Execution History
   'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
   'apiScenario.executeHistory.num': 'No.',
