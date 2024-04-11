@@ -127,6 +127,7 @@
       width: 428px;
     }
   }
+
   :deep(.arco-picker-disabled) {
     border-color: var(--color-text-n8);
     background: var(--color-text-n8);
@@ -134,5 +135,9 @@
       border-color: var(--color-text-n8);
       background: var(--color-text-n8);
     }
+  }
+
+  :deep(.arco-form-item-layout-vertical > .arco-form-item-label-col) {
+    overflow-wrap: break-word;
   }
 </style>

@@ -834,4 +834,8 @@
       background: var(--color-text-n9);
     }
   }
+
+  :deep(.arco-form-item-layout-vertical > .arco-form-item-label-col) {
+    overflow-wrap: break-word;
+  }
 </style>
