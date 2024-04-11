@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -39,7 +40,7 @@ public class MessageTemplateUtilsTests {
         Assertions.assertTrue(MapUtils.isNotEmpty(defaultRelatedUserMap));
         Map<String, String> fieldSourceMap = MessageTemplateUtils.getFieldSourceMap();
         Assertions.assertTrue(MapUtils.isNotEmpty(fieldSourceMap));
-        Map<String, String> customFielddMap = getCustomFielddMap("100001100001");
+        Map<String, List<CustomField>> customFielddMap = getCustomFielddMap("100001100001");
         for (String type : typeList) {
             Field[] domainTemplateFields = MessageTemplateUtils.getDomainTemplateFields(type);
             Assertions.assertNotNull(domainTemplateFields);
@@ -49,7 +50,7 @@ public class MessageTemplateUtilsTests {
                 if (StringUtils.isNotBlank(template)) {
                     String translateTemplate = MessageTemplateUtils.getTranslateTemplate(type, template, customFielddMap);
                     Assertions.assertTrue(StringUtils.isNotBlank(translateTemplate));
-                    String translateSubject= MessageTemplateUtils.getTranslateSubject(type, template, customFielddMap);
+                    String translateSubject = MessageTemplateUtils.getTranslateSubject(type, template, customFielddMap);
                     Assertions.assertTrue(StringUtils.isNotBlank(translateSubject));
                 }
             });
@@ -63,8 +64,7 @@ public class MessageTemplateUtilsTests {
      *
      * @return Map<String, String>
      */
-    public Map<String, String> getCustomFielddMap(String projectId) {
-        Map<String, String> customFielddMap = new HashMap<>();
+    public Map<String, List<CustomField>> getCustomFielddMap(String projectId) {
         List<String> sceneList = new ArrayList<>();
         sceneList.add(TemplateScene.API.toString());
         sceneList.add(TemplateScene.TEST_PLAN.toString());
@@ -74,9 +74,6 @@ public class MessageTemplateUtilsTests {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria().andScopeIdEqualTo(projectId).andSceneIn(sceneList);
         List<CustomField> customFields = customFieldMapper.selectByExample(example);
-        for (CustomField customField : customFields) {
-            customFielddMap.put(customField.getName(), org.apache.commons.lang3.StringUtils.isBlank(customField.getRemark()) ? "-" : customField.getRemark());
-        }
-        return customFielddMap;
+        return customFields.stream().collect(Collectors.groupingBy(CustomField::getScene));
     }
 }

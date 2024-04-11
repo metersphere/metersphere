@@ -18,6 +18,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +58,7 @@ public class BugCommentNoticeService {
     @Async
     public void sendNotice(String event, BugCommentNoticeDTO noticeDTO, String currentUser) {
         User user = userMapper.selectByPrimaryKey(currentUser);
+        setLanguage(user.getLanguage());
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(NoticeConstants.TaskType.BUG_TASK + "_" + event);
         Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
@@ -75,6 +77,16 @@ public class BugCommentNoticeService {
                 .relatedUsers(getRelateUser(noticeDTO.getNotifier()))
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.BUG_TASK, noticeModel);
+    }
+
+    private static void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
     }
 
     /**
