@@ -250,4 +250,5 @@ export default {
   'apiScenario.schedule.table.tooltip.enable.two': '下次运行时间：{time}',
   'apiScenario.schedule.table.tooltip.disable': '定时任务未开启',
   'apiScenario.save.env': '场景保存的环境',
+  'apiScenario.execute.no.step.tips': '没有开启的步骤',
 };

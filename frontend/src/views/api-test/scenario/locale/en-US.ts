@@ -262,4 +262,5 @@ export default {
   'apiScenario.schedule.table.tooltip.enable.two': 'Next run time: {time}',
   'apiScenario.schedule.table.tooltip.disable': 'Scheduled task is disabled',
   'apiScenario.save.env': 'Scenario Environment',
+  'apiScenario.execute.no.step.tips': 'No open step',
 };

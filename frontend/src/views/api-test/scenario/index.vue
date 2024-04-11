@@ -313,6 +313,10 @@
       }
       return !!node.enable;
     });
+    if (waitTingDebugSteps.length === 0) {
+      Message.warning(t('apiScenario.execute.no.step.tips'));
+      return;
+    }
     realExecute(
       {
         steps: waitTingDebugSteps,
