@@ -180,16 +180,16 @@
         </template>
         <template #operation="{ record }">
           <MsButton
-            v-permission="['PROJECT_API_SCENARIO:READ+DELETED']"
+            v-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
             type="text"
             class="!mr-0"
             @click="recover(record)"
           >
             {{ t('api_scenario.recycle.recover') }}
           </MsButton>
-          <a-divider v-permission="['PROJECT_API_SCENARIO:READ+DELETED']" direction="vertical" :margin="8"></a-divider>
+          <a-divider v-permission="['PROJECT_API_SCENARIO:READ+DELETE']" direction="vertical" :margin="8"></a-divider>
           <MsButton
-            v-permission="['PROJECT_API_SCENARIO:READ+DELETED']"
+            v-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
             type="text"
             class="!mr-0"
             @click="deleteOperation(record)"

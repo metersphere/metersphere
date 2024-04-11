@@ -177,7 +177,7 @@
         :step="100"
         :min="0"
         :precision="0"
-        :max="600000"
+        :max="3600000"
         hide-button
         class="w-[110px] px-[8px]"
         model-event="input"
