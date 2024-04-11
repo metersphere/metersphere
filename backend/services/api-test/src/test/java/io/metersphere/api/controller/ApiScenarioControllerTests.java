@@ -456,7 +456,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         responseCodeAssertion.setName("test");
         scenarioConfig.getAssertionConfig().getAssertions().add(responseCodeAssertion);
         ScenarioOtherConfig scenarioOtherConfig = new ScenarioOtherConfig();
-        scenarioOtherConfig.setStepWaitTime(1000L);
         scenarioOtherConfig.setFailureStrategy(ScenarioOtherConfig.FailureStrategy.CONTINUE.name());
         scenarioOtherConfig.setEnableCookieShare(true);
         scenarioConfig.setOtherConfig(scenarioOtherConfig);

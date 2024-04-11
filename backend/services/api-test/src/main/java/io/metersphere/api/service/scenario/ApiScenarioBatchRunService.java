@@ -348,12 +348,11 @@ public class ApiScenarioBatchRunService {
     }
 
     private void updateReportWaitTime(String reportId, ApiScenarioParseParam parseParam) {
-        if (parseParam.getScenarioConfig() != null
-                && parseParam.getScenarioConfig().getOtherConfig() != null
-                && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
+        Long globalWaitTime = apiScenarioService.getGlobalWaitTime(parseParam.getScenarioConfig());
+        if (globalWaitTime != null) {
             ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
             apiScenarioReport.setId(reportId);
-            apiScenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
+            apiScenarioReport.setWaitingTime(globalWaitTime);
             apiScenarioReportMapper.updateByPrimaryKeySelective(apiScenarioReport);
         }
     }
