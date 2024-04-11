@@ -415,7 +415,13 @@ export default function useTableProps<T>(
       if (v === SelectAllEnum.NONE) {
         // 清空选中项
         resetSelector();
-      } else {
+      } else if (v === SelectAllEnum.CURRENT) {
+        // 先清空选中项，再选中当前页面所有数据
+        resetSelector();
+        collectIds(data as MsTableDataItem<T>[], rowKey);
+      } else if (v === SelectAllEnum.ALL) {
+        // 全选所有页的时候先清空排除项，再选中所有数据
+        propsRes.value.excludeKeys.clear();
         collectIds(data as MsTableDataItem<T>[], rowKey);
       }
     },

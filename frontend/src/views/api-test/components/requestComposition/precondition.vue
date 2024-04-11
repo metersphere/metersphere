@@ -57,7 +57,7 @@
     }
     // 接口场景
     if (props.isScenario) {
-      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL];
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.TIME_WAITING];
     }
     // 接口调试
     return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING];

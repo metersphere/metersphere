@@ -548,10 +548,11 @@
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
+  const isSwitchingContent = ref(false); // 是否正在切换显示内容，防止因切换显示内容导致触发更改
 
   function handleActiveDebugChange() {
-    if (!loading.value || (!isHttpProtocol.value && isInitPluginForm.value)) {
-      // 如果是因为加载详情触发的change则不需要标记为未保存；或者是插件协议的话需要等待表单初始化完毕
+    if ((!isSwitchingContent.value && !loading.value) || (!isHttpProtocol.value && isInitPluginForm.value)) {
+      // 如果是因为加载详情或切换显示内容触发的change则不需要标记为未保存；或者是插件协议的话需要等待表单初始化完毕
       requestVModel.value.unSaved = true;
     }
   }
@@ -1225,6 +1226,10 @@
   watch(
     () => requestVModel.value.id,
     async () => {
+      isSwitchingContent.value = true; // 正在切换内容
+      nextTick(() => {
+        isSwitchingContent.value = false; // 切换内容结束
+      });
       if (requestVModel.value.protocol !== 'HTTP') {
         requestVModel.value.activeTab = RequestComposition.PLUGIN;
         if (protocolOptions.value.length === 0) {

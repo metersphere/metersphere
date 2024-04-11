@@ -32,6 +32,7 @@
         :read-only="props.disabled"
         :show-full-screen="false"
         :show-theme-change="false"
+        @change="() => emit('change')"
       >
         <template #rightBox>
           <MsScriptMenu
@@ -99,6 +100,9 @@
       showHeader: true,
     }
   );
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
 
   const { t } = useI18n();
 

@@ -43,6 +43,7 @@
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     typeTitle?: string;
+    isDrawer?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:selectedKeys', value: string[]): void;
@@ -83,9 +84,9 @@
 
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return 428;
+      return props.isDrawer ? 328 : 428;
     }
-    return 428 + props.secondBoxHeight;
+    return (props.isDrawer ? 328 : 428) + props.secondBoxHeight;
   });
   const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
 

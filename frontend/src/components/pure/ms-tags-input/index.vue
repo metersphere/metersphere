@@ -151,6 +151,7 @@
       innerInputValue.value = '';
       tagsLength.value += 1;
       emit('update:modelValue', innerModelValue.value);
+      emit('change', innerModelValue.value);
     }
     emit('blur');
   }

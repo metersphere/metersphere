@@ -23,13 +23,31 @@
           v-if="props.step && [ScenarioStepType.API, ScenarioStepType.CUSTOM_REQUEST].includes(props.step?.stepType)"
           :step="props.step"
         />
-        <a-tooltip :content="title" position="bottom">
-          <div class="one-line-text">
-            {{ title }}
+        <a-tooltip v-if="!isShowEditStepNameInput" :content="title" position="bottom">
+          <div class="flex items-center gap-[4px]">
+            <div class="one-line-text">
+              {{ title }}
+            </div>
+            <MsIcon
+              type="icon-icon_edit_outlined"
+              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              @click="isShowEditStepNameInput = true"
+            />
           </div>
         </a-tooltip>
       </div>
-      <div class="ml-auto flex items-center gap-[16px]">
+      <a-input
+        v-if="isShowEditStepNameInput"
+        ref="stepNameInputRef"
+        v-model:model-value="requestVModel.name"
+        class="flex-1"
+        :placeholder="t('apiScenario.pleaseInputStepName')"
+        :max-length="255"
+        show-word-limit
+        @press-enter="updateStepName"
+        @blur="updateStepName"
+      />
+      <div v-show="!isShowEditStepNameInput" class="ml-auto flex items-center gap-[16px]">
         <div
           v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
           class="customApiDrawer-title-right flex items-center gap-[16px]"
@@ -184,7 +202,7 @@
           class="no-content relative mt-[8px] border-b"
         />
       </div>
-      <div ref="splitContainerRef" class="h-[calc(100%-87px)]">
+      <div ref="splitContainerRef" class="h-[calc(100%-97px)]">
         <MsSplitBox
           ref="verticalSplitBoxRef"
           v-model:size="splitBoxSize"
@@ -228,6 +246,7 @@
                     :disabled-except-param="!isEditableApi"
                     :layout="activeLayout"
                     :second-box-height="secondBoxHeight"
+                    is-drawer
                     @change="handleActiveDebugChange"
                   />
                   <httpBody
@@ -241,6 +260,7 @@
                     :file-save-as-source-id="scenarioId"
                     :file-save-as-api="transferFile"
                     :file-module-options-api="getTransferOptions"
+                    is-drawer
                     @change="handleActiveDebugChange"
                   />
                   <httpQuery
@@ -250,6 +270,7 @@
                     :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
+                    is-drawer
                     @change="handleActiveDebugChange"
                   />
                   <httpRest
@@ -259,6 +280,7 @@
                     :disabled-param-value="!isEditableApi && !isEditableParamValue"
                     :disabled-except-param="!isEditableApi"
                     :second-box-height="secondBoxHeight"
+                    is-drawer
                     @change="handleActiveDebugChange"
                   />
                   <precondition
@@ -542,9 +564,9 @@
       _stepType.value.isQuoteApi ||
       props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST
     ) {
-      return props.step?.name;
+      return requestVModel.value.name || props.step?.name;
     }
-    return t('apiScenario.customApi');
+    return requestVModel.value.name || t('apiScenario.customApi');
   });
   // 是否显示环境域名前缀
   const showEnvPrefix = computed(
@@ -589,14 +611,20 @@
   const isEditableParamValue = computed(() => !props.step?.isQuoteScenarioStep && _stepType.value.isQuoteApi);
   // 是否是 HTTP 协议
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
-
   const isInitPluginForm = ref(false);
+  const isSwitchingContent = ref(false); // 是否正在切换请求内容，当传入的详情数据变化时记录，避免触发未保存
 
   function handleActiveDebugChange() {
-    if (!loading.value || (!isHttpProtocol.value && isInitPluginForm.value)) {
+    if ((!isSwitchingContent.value && !loading.value) || (!isHttpProtocol.value && isInitPluginForm.value)) {
       // 如果是因为加载详情触发的change则不需要标记为未保存；或者是插件协议的话需要等待表单初始化完毕
       requestVModel.value.unSaved = true;
     }
+  }
+
+  const isShowEditStepNameInput = ref(false);
+
+  function updateStepName() {
+    isShowEditStepNameInput.value = false;
   }
 
   // 请求内容公共tabKey
@@ -1160,6 +1188,16 @@
   }
 
   watch(
+    () => props.request?.stepId,
+    () => {
+      isSwitchingContent.value = true;
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
     () => visible.value,
     async (val) => {
       if (val) {
@@ -1194,6 +1232,9 @@
           });
         }
         requestVModel.value.activeTab = contentTabList.value[0].value;
+        nextTick(() => {
+          isSwitchingContent.value = false;
+        });
       }
     },
     {

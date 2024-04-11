@@ -4,7 +4,7 @@
     class="flex items-center justify-between gap-[24px] text-[14px]"
   >
     <a-tooltip :content="props.requestResult.fakeErrorCode">
-      <executeStatus :status="props.requestResult.status" size="small" class="ml-[4px]" />
+      <executeStatus :status="finalStatus" size="small" class="ml-[4px]" />
     </a-tooltip>
     <a-popover position="left" content-class="response-popover-content">
       <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
@@ -52,6 +52,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { RequestResult } from '@/models/apiTest/common';
+  import { ScenarioExecuteStatus } from '@/enums/apiEnum';
 
   const props = defineProps<{
     requestResult?: RequestResult;
@@ -98,6 +99,12 @@
       return 'rgb(var(--danger-7)';
     }
     return '';
+  });
+  const finalStatus = computed(() => {
+    if (props.requestResult?.fakeErrorCode) {
+      return ScenarioExecuteStatus.FAKE_ERROR;
+    }
+    return props.requestResult?.isSuccessful ? ScenarioExecuteStatus.SUCCESS : ScenarioExecuteStatus.FAILED;
   });
 </script>
 

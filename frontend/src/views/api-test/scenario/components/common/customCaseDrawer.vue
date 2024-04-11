@@ -32,7 +32,11 @@
           <a-tooltip :content="activeStep?.name">
             <div class="one-line-text max-w-[300px]"> {{ characterLimit(activeStep?.name) }}</div>
           </a-tooltip>
-          <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
+          <MsIcon
+            type="icon-icon_edit_outlined"
+            class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+            @click="showEditScriptNameInput"
+          />
         </div>
         <div
           v-if="activeStep && !activeStep.isQuoteScenarioStep && activeStep.resourceId"
@@ -117,7 +121,7 @@
           class="relative mt-[8px] border-b"
         />
       </div>
-      <div ref="splitContainerRef" class="h-[calc(100%-87px)]">
+      <div ref="splitContainerRef" class="h-[calc(100%-97px)]">
         <MsSplitBox
           ref="verticalSplitBoxRef"
           v-model:size="splitBoxSize"
@@ -466,6 +470,7 @@
   const isEditableApi = computed(() => !activeStep.value?.isQuoteScenarioStep && _stepType.value.isCopyCase);
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
   const isInitPluginForm = ref(false);
+  const isSwitchingContent = ref(false); // 是否正在切换请求内容，当传入的详情数据变化时记录，避免触发未保存
   const loading = ref(false);
 
   function handleActiveDebugChange() {
@@ -992,6 +997,16 @@
   }
 
   watch(
+    () => props.request?.stepId,
+    () => {
+      isSwitchingContent.value = true;
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
     () => visible.value,
     async (val) => {
       if (val) {
@@ -1010,6 +1025,9 @@
           await initQuoteCaseDetail();
         }
         handleActiveDebugProtocolChange(requestVModel.value.protocol);
+        nextTick(() => {
+          isSwitchingContent.value = false;
+        });
       }
     }
   );

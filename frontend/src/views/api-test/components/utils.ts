@@ -1,7 +1,5 @@
 import { cloneDeep, isEqual } from 'lodash-es';
 
-import { RequestParam } from './requestComposition/index.vue';
-
 import { ExecuteBody } from '@/models/apiTest/common';
 import { RequestParamsType } from '@/enums/apiEnum';
 
@@ -11,6 +9,7 @@ import {
   defaultKeyValueParamItem,
   defaultRequestParamsItem,
 } from './config';
+import type { RequestParam } from './requestComposition/index.vue';
 
 export interface ParseResult {
   uploadFileIds: string[];

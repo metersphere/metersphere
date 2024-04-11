@@ -33,8 +33,7 @@
               v-if="attrs.selectorType === 'checkbox'"
               :total="attrs.showPagination ? (attrs.msPagination as MsPaginationI).total : (attrs.data as MsTableDataItem<TableData>[]).length"
               :selected-keys="props.selectedKeys"
-              :selector-status="props.selectorStatus"
-              :exclude-keys="[...props.excludeKeys]"
+              :exclude-keys="Array.from(props.excludeKeys)"
               :current-data="attrs.data as Record<string,any>[]"
               :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
@@ -781,6 +780,23 @@
     .arco-table-sorter-icon:not(.arco-table-sorter-icon-active) {
       .arco-icon-caret-up {
         color: var(--color-neutral-5);
+      }
+    }
+  }
+</style>
+
+<style lang="less">
+  .arco-table-filters-content {
+    @apply overflow-hidden;
+
+    max-width: 300px;
+    .arco-checkbox-group {
+      @apply flex w-full flex-col;
+      .arco-checkbox {
+        @apply w-full;
+        .arco-checkbox-label {
+          @apply flex-1 overflow-hidden;
+        }
       }
     }
   }

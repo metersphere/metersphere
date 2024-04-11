@@ -32,6 +32,7 @@
             :scenario="scenario as ScenarioDetail"
             :module-tree="props.moduleTree"
             class="w-[30%]"
+            @change="scenario.unSaved = true"
           />
         </a-tab-pane>
         <a-tab-pane

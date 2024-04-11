@@ -27,7 +27,7 @@ export default {
   'system.config.baseInfo.pageUrlPlaceholder': '请输入当前站点 URL',
   'system.config.baseInfo.prometheusSub': '例如：{prometheus}',
   'system.config.baseInfo.prometheusRequired': 'prometheus 不能为空',
-  'system.config.baseInfo.prometheusPlaceholder': ' 请输入 prometheus',
+  'system.config.baseInfo.prometheusPlaceholder': '请输入 prometheus',
   'system.config.email.updateTitle': '更新邮件设置',
   'system.config.email.update': '更新',
   'system.config.email.hostRequired': 'SMTP 主机不能为空',

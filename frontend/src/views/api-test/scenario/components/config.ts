@@ -54,8 +54,8 @@ export const defaultTimeController = {
 // 场景配置
 export const defaultScenarioStepConfig: ScenarioStepConfig = {
   enableScenarioEnv: false,
-  useBothScenarioParam: false,
-  useCurrentScenarioParam: true,
+  useOriginScenarioParamPreferential: true,
+  useOriginScenarioParam: false,
 };
 
 export const defaultStepItemCommon = {
