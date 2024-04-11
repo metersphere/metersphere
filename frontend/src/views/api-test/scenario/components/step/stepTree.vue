@@ -328,7 +328,7 @@
           </div>
         </a-form-item>
         <a-form-item v-show="scenarioConfigForm.useOriginScenarioParam" class="hidden-item">
-          <a-radio-group v-model:model-value="scenarioConfigForm.useOriginScenarioParamPreferential" type="button">
+          <a-radio-group v-model:model-value="scenarioConfigForm.useOriginScenarioParamPreferential">
             <a-radio :value="true">
               <div class="flex items-center gap-[4px]">
                 {{ t('apiScenario.sourceScenario') }}
@@ -530,6 +530,7 @@
   import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import {
     deleteNode,
@@ -594,6 +595,7 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const steps = defineModel<ScenarioStepItem[]>('steps', {
     required: true,
@@ -779,69 +781,45 @@
   });
   const showScenarioConfig = ref(false);
   const scenarioConfigParamTip = computed(() => {
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      !scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用当前场景参数-空值
-      return t('apiScenario.currentScenarioAndNull');
+    if (!scenarioConfigForm.value.useOriginScenarioParam && !scenarioConfigForm.value.enableScenarioEnv) {
+      // 非使用原场景参数-非选择源场景环境
+      return t('apiScenario.notSource');
     }
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用当前场景参数-空值-且选择源场景环境
-      return t('apiScenario.currentScenarioAndNullAndSourceEnv');
+    if (!scenarioConfigForm.value.useOriginScenarioParam && scenarioConfigForm.value.enableScenarioEnv) {
+      // 非使用原场景参数-选择源场景环境
+      return t('apiScenario.notSourceParamAndSourceEnv');
     }
     if (
       scenarioConfigForm.value.useOriginScenarioParam &&
       scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
-      // 使用当前场景参数-原场景参数
-      return t('apiScenario.currentScenarioAndSourceScenario');
+      // 使用原场景参数-优先使用原场景参数
+      return t('apiScenario.sourceParamAndSource');
     }
     if (
       scenarioConfigForm.value.useOriginScenarioParam &&
       scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
-      // 使用当前场景参数-原场景参数-且选择源场景环境
-      return t('apiScenario.currentScenarioAndSourceScenarioAndSourceEnv');
+      // 使用原场景参数-优先使用原场景参数-选择源场景环境
+      return t('apiScenario.sourceParamAndSourceEnv');
     }
     if (
-      !scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
       !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
-      // 使用原场景参数-空值
-      return t('apiScenario.sourceScenarioAndNull');
+      // 使用原场景参数-优先使用当前场景参数
+      return t('apiScenario.currentParamAndSource');
     }
     if (
-      !scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
       !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
-      // 使用原场景参数-空值-且选择源场景环境
-      return t('apiScenario.sourceScenarioAndNullAndSourceEnv');
-    }
-    if (
-      !scenarioConfigForm.value.useOriginScenarioParam &&
-      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      !scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-当前场景参数
-      return t('apiScenario.sourceScenarioAndCurrentScenario');
-    }
-    if (
-      !scenarioConfigForm.value.useOriginScenarioParam &&
-      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-当前场景参数-且选择源场景环境
-      return t('apiScenario.sourceScenarioAndCurrentScenarioAndSourceEnv');
+      // 使用原场景参数-优先使用当前场景参数-选择源场景环境
+      return t('apiScenario.currentParamAndSourceEnv');
     }
   });
 
@@ -1153,7 +1131,7 @@
               })[0]
             ),
             name: `copy_${node.name}`,
-            copyFromStepId: node.id,
+            copyFromStepId: stepDetail ? node.id : node.copyFromStepId,
             sort: node.sort + 1,
             isNew: true,
             id,
@@ -1174,8 +1152,25 @@
         showScenarioConfig.value = true;
         break;
       case 'delete':
-        deleteNode(steps.value, node.uniqueId, 'uniqueId');
-        scenario.value.unSaved = true;
+        openModal({
+          type: 'error',
+          title: t('common.tip'),
+          content:
+            node.children && node.children.length > 0
+              ? t('apiScenario.deleteStepConfirmWithChildren')
+              : t('apiScenario.deleteStepConfirm', { name: node.name }),
+          okText: t('common.confirmDelete'),
+          cancelText: t('common.cancel'),
+          okButtonProps: {
+            status: 'danger',
+          },
+          maskClosable: false,
+          onBeforeOk: async () => {
+            deleteNode(steps.value, node.uniqueId, 'uniqueId');
+            scenario.value.unSaved = true;
+          },
+          hideCancel: false,
+        });
         break;
       case 'saveAsApi':
         activeStep.value = node as ScenarioStepItem;
@@ -1321,7 +1316,7 @@
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
       if (
-        (stepDetails.value[step.id] === undefined && step.copyFromStepId && !step.isNew) ||
+        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
         (stepDetails.value[step.id] === undefined && !step.isNew)
       ) {
         // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
@@ -1332,7 +1327,7 @@
       activeStep.value = step;
       if (
         _stepType.isCopyCase &&
-        ((stepDetails.value[step.id] === undefined && step.copyFromStepId && !step.isNew) ||
+        ((stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
           (stepDetails.value[step.id] === undefined && !step.isNew))
       ) {
         // 只有复制的 case 需要查看步骤详情，引用的无法更改所以不需要在此初始化详情
@@ -1358,16 +1353,11 @@
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(
-    step: ScenarioStepItem,
-    _scenario: Scenario,
-    reportId: string | number,
-    executeType?: 'localExec' | 'serverExec'
-  ) {
+  function debugSocket(step: ScenarioStepItem, _scenario: Scenario, reportId: string | number) {
     websocketMap[reportId] = getSocket(
       reportId || '',
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl?.value : ''
+      scenario.value.executeType === 'localExec' ? '/ws/debug' : '',
+      scenario.value.executeType === 'localExec' ? localExecuteUrl?.value : ''
     );
     websocketMap[reportId].addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
@@ -1396,21 +1386,20 @@
   }
 
   async function realExecute(
-    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId' | 'stepFileParam'>,
-    executeType?: 'localExec' | 'serverExec'
+    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId' | 'stepFileParam'>
   ) {
     const [currentStep] = executeParams.steps;
     try {
       currentStep.isExecuting = true;
       currentStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      debugSocket(currentStep, scenario.value, executeParams.reportId, executeType); // 开启websocket
+      debugSocket(currentStep, scenario.value, executeParams.reportId); // 开启websocket
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
         environmentId: currentEnvConfig?.value?.id || '',
         projectId: appStore.currentProjectId,
         scenarioConfig: scenario.value.scenarioConfig,
-        frontendDebug: executeType === 'localExec',
+        frontendDebug: scenario.value.executeType === 'localExec',
         ...executeParams,
         steps: mapTree(executeParams.steps, (node) => {
           return {
@@ -1420,7 +1409,7 @@
           };
         }),
       });
-      if (executeType === 'localExec' && localExecuteUrl?.value) {
+      if (scenario.value.executeType === 'localExec' && localExecuteUrl?.value) {
         await localExecuteApiDebug(localExecuteUrl.value, res);
       }
     } catch (error) {
@@ -1461,17 +1450,15 @@
           return step.enable || step.uniqueId === realStep.uniqueId;
         }
       );
-      realExecute(
-        {
-          steps: [realStep as ScenarioStepItem],
-          stepDetails: _stepDetails,
-          reportId: realStep.reportId,
-          stepFileParam: {
-            [realStep.id]: stepFileParam,
-          },
+      scenario.value.executeType = isPriorityLocalExec?.value ? 'localExec' : 'serverExec';
+      realExecute({
+        steps: [realStep as ScenarioStepItem],
+        stepDetails: _stepDetails,
+        reportId: realStep.reportId,
+        stepFileParam: {
+          [realStep.id]: stepFileParam,
         },
-        isPriorityLocalExec?.value ? 'localExec' : 'serverExec'
-      );
+      });
     }
   }
 
@@ -1488,19 +1475,17 @@
       realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
       const stepFileParam = scenario.value.stepFileParam[realStep.id];
       request.executeLoading = true;
-      realExecute(
-        {
-          steps: [realStep as ScenarioStepItem],
-          stepDetails: {
-            [realStep.id]: request,
-          },
-          reportId: realStep.reportId,
-          stepFileParam: {
-            [realStep.uniqueId]: stepFileParam,
-          },
+      scenario.value.executeType = executeType;
+      realExecute({
+        steps: [realStep as ScenarioStepItem],
+        stepDetails: {
+          [realStep.id]: request,
         },
-        executeType
-      );
+        reportId: realStep.reportId,
+        stepFileParam: {
+          [realStep.uniqueId]: stepFileParam,
+        },
+      });
     } else {
       // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
       const reportId = getGenerateId();
@@ -1519,26 +1504,23 @@
         reportId,
         uniqueId: request.stepId,
       };
-      realExecute(
-        {
-          steps: [activeStep.value],
-          stepDetails: {
-            [request.stepId]: request,
-          },
-          reportId,
-          stepFileParam: {
-            [request.stepId]: {
-              uploadFileIds: request.uploadFileIds || [],
-              linkFileIds: request.linkFileIds || [],
-            },
+      realExecute({
+        steps: [activeStep.value],
+        stepDetails: {
+          [request.stepId]: request,
+        },
+        reportId,
+        stepFileParam: {
+          [request.stepId]: {
+            uploadFileIds: request.uploadFileIds || [],
+            linkFileIds: request.linkFileIds || [],
           },
         },
-        executeType
-      );
+      });
     }
   }
 
-  function handleStopExecute(step?: ScenarioStepItem) {
+  async function handleStopExecute(step?: ScenarioStepItem) {
     if (step?.reportId) {
       const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
       websocketMap[step.reportId].close();
@@ -1759,12 +1741,26 @@
    */
   function deleteStep(step?: ScenarioStepItem) {
     if (step) {
-      customCaseDrawerVisible.value = false;
-      customApiDrawerVisible.value = false;
-      deleteNode(steps.value, step.uniqueId, 'uniqueId');
-      activeStep.value = undefined;
-      scenario.value.unSaved = true;
-      Message.success(t('common.deleteSuccess'));
+      openModal({
+        type: 'error',
+        title: t('common.tip'),
+        content: t('apiScenario.deleteStepConfirm', { name: step.name }),
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        maskClosable: false,
+        onBeforeOk: async () => {
+          customCaseDrawerVisible.value = false;
+          customApiDrawerVisible.value = false;
+          deleteNode(steps.value, step.uniqueId, 'uniqueId');
+          activeStep.value = undefined;
+          scenario.value.unSaved = true;
+          Message.success(t('common.deleteSuccess'));
+        },
+        hideCancel: false,
+      });
     }
   }
 

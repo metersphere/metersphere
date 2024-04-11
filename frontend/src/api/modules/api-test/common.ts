@@ -6,6 +6,8 @@ import {
   GetPluginScriptUrl,
   GetProtocolListUrl,
   LocalExecuteApiDebugUrl,
+  StopExecuteUrl,
+  StopLocalExecuteUrl,
 } from '@/api/requrls/api-test/common';
 
 import {
@@ -16,6 +18,7 @@ import {
   ProtocolItem,
 } from '@/models/apiTest/common';
 import { EnvConfig, EnvironmentItem } from '@/models/projectManagement/environmental';
+import { ScenarioStepType } from '@/enums/apiEnum';
 
 // 获取协议列表
 export function getProtocolList(organizationId: string) {
@@ -45,4 +48,16 @@ export function getEnvList(projectId: string) {
 // 获取环境详情
 export function getEnvironment(envId: string) {
   return MSR.get<EnvConfig>({ url: GetEnvironmentUrl, params: envId });
+}
+
+// 停止本地执行
+export function stopLocalExecute(host: string, id: string | number, type?: ScenarioStepType) {
+  return MSR.post({
+    url: type ? `${host}${StopLocalExecuteUrl}/${type}/${id}` : `${host}${StopLocalExecuteUrl}/${id}`,
+  });
+}
+
+// 停止执行
+export function stopExecute(id: string | number, type?: ScenarioStepType) {
+  return MSR.get({ url: type ? `${StopExecuteUrl}/${type}/${id}` : `${StopExecuteUrl}/${id}` });
 }

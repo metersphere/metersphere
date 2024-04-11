@@ -87,8 +87,8 @@
             :max-length="255"
             :disabled="props.disabled"
             size="small"
-            @press-enter="isShowEditScriptNameInput = false"
-            @blur="isShowEditScriptNameInput = false"
+            @press-enter="handleScriptNameInputBlur"
+            @blur="handleScriptNameInputBlur"
             @change="() => emit('change')"
           />
         </div>
@@ -688,6 +688,13 @@ if (!result){
       disabledColumn: true,
     },
   ];
+
+  function handleScriptNameInputBlur() {
+    if (condition.value.name === '') {
+      condition.value.name = t('apiTestDebug.preconditionScriptName');
+    }
+    isShowEditScriptNameInput.value = false;
+  }
 
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {

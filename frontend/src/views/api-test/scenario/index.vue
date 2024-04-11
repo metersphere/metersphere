@@ -118,7 +118,7 @@
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { localExecuteApiDebug, stopExecute, stopLocalExecute } from '@/api/modules/api-test/common';
   import {
     addScenario,
     debugScenario,
@@ -246,14 +246,14 @@
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
       debugSocket(activeScenarioTab.value, executeType, localExecuteUrl); // 开启websocket
+      activeScenarioTab.value.isDebug = !isExecute;
       let res;
       if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
         // 执行场景且非本地执行且非未保存场景
-        activeScenarioTab.value.isDebug = false;
         res = await executeScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: currentEnvConfig.value?.id || '',
+          environmentId: activeScenarioTab.value.environmentId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           ...executeParams,
@@ -266,11 +266,10 @@
           }),
         });
       } else {
-        activeScenarioTab.value.isDebug = true;
         res = await debugScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: currentEnvConfig.value?.id || '',
+          environmentId: activeScenarioTab.value.environmentId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           stepFileParam: activeScenarioTab.value.stepFileParam,
@@ -329,7 +328,24 @@
     );
   }
 
-  function handleStopExecute() {
+  async function handleStopExecute() {
+    if (!activeScenarioTab.value.isDebug) {
+      // 调试模式不需要调停止执行接口
+      try {
+        if (activeScenarioTab.value.executeType === 'localExec') {
+          await stopLocalExecute(
+            executeButtonRef.value?.localExecuteUrl || '',
+            activeScenarioTab.value.reportId,
+            ScenarioStepType.API_SCENARIO
+          );
+        } else {
+          await stopExecute(activeScenarioTab.value.reportId, ScenarioStepType.API_SCENARIO);
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
     websocketMap[activeScenarioTab.value.reportId]?.close();
     activeScenarioTab.value.executeLoading = false;
     setStepExecuteStatus(activeScenarioTab.value);
@@ -479,7 +495,7 @@
             };
           }),
           projectId: appStore.currentProjectId,
-          environmentId: currentEnvConfig.value?.id || '',
+          environmentId: activeScenarioTab.value.environmentId || '',
         });
         const scenarioDetail = await getScenarioDetail(res.id);
         scenarioDetail.stepDetails = {};
@@ -519,7 +535,7 @@
       } else {
         await updateScenario({
           ...activeScenarioTab.value,
-          environmentId: currentEnvConfig.value?.id || '',
+          environmentId: activeScenarioTab.value.environmentId || '',
           steps: mapTree(activeScenarioTab.value.steps, (node) => {
             return {
               ...node,
@@ -554,7 +570,7 @@
     if (isLoadedTabIndex > -1 && action !== 'copy') {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeScenarioTab.value = scenarioTabs.value[isLoadedTabIndex];
-      // requestCompositionRef里监听的是id,所以id相等的时候需要单独调执行
+      // tab子组件里监听的是id变化,所以id相等的时候需要单独调执行
       if (action === 'execute') {
         handleExecute(executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
       }

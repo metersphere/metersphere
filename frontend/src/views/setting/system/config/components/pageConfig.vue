@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <!-- 风格、主题色配置 -->
-    <MsCard class="mb-[16px]" :loading="pageloading" simple auto-height>
+    <MsCard class="mb-[16px]" :loading="pageLoading" simple auto-height>
       <div class="config-title">
         {{ t('system.config.page.theme') }}
         <a-tooltip :content="t('system.config.page.themeTip')" position="tl" class="themeTip">
@@ -32,7 +32,7 @@
       </div>
     </MsCard>
     <!-- 登录页配置 -->
-    <MsCard class="mb-[16px]" :loading="pageloading" simple auto-height>
+    <MsCard class="mb-[16px]" :loading="pageLoading" simple auto-height>
       <div class="config-title">
         {{ t('system.config.page.loginPageConfig') }}
       </div>
@@ -194,6 +194,7 @@
                   v-model:model-value="pageConfig.slogan"
                   :placeholder="t('system.config.page.sloganPlaceholder')"
                   :max-length="255"
+                  :disabled="!hasAnyPermission(['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE'])"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.sloganTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -202,6 +203,7 @@
                   v-model:model-value="pageConfig.title"
                   :placeholder="t('system.config.page.titlePlaceholder')"
                   :max-length="255"
+                  :disabled="!hasAnyPermission(['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE'])"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.titleTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -212,7 +214,7 @@
       </div>
     </MsCard>
     <!-- 平台主页面配置 -->
-    <MsCard class="mb-[96px]" :loading="pageloading" simple auto-height>
+    <MsCard class="mb-[96px]" :loading="pageLoading" simple auto-height>
       <div class="config-title">
         {{ t('system.config.page.platformConfig') }}
       </div>
@@ -273,8 +275,8 @@
                 <MsUpload
                   v-model:file-list="pageConfig.logoPlatform"
                   accept="image"
-                  :max-size="1"
-                  size-unit="MB"
+                  :max-size="200"
+                  size-unit="KB"
                   :auto-upload="false"
                 >
                   <a-button
@@ -308,6 +310,7 @@
                   v-model:model-value="pageConfig.platformName"
                   :placeholder="t('system.config.page.platformNamePlaceholder')"
                   :max-length="255"
+                  :disabled="!hasAnyPermission(['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE'])"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.platformNameTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -316,6 +319,7 @@
                   v-model:model-value="pageConfig.helpDoc"
                   :placeholder="t('system.config.page.helpDocPlaceholder')"
                   :max-length="255"
+                  :disabled="!hasAnyPermission(['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE'])"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.helpDocTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -329,9 +333,9 @@
       class="fixed bottom-0 right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
       :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
     >
-      <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="secondary" @click="resetAll">{{
-        t('system.config.page.resetAll')
-      }}</a-button>
+      <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="secondary" @click="resetAll">
+        {{ t('system.config.page.resetAll') }}
+      </a-button>
       <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="primary" @click="beforeSave">
         {{ t('system.config.page.save') }}
       </a-button>
@@ -359,6 +363,7 @@
   import useAppStore from '@/store/modules/app';
   import { sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
+  import { hasAnyPermission } from '@/utils/permission';
   import { setCustomTheme, setPlatformColor, watchStyle, watchTheme } from '@/utils/theme';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
@@ -373,7 +378,7 @@
   const menuWidth = computed(() => {
     return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
-  const pageloading = ref(false);
+  const pageLoading = ref(false);
   const pageConfig = ref({ ...appStore.pageConfig });
   const loginPageFullRef = ref<HTMLElement | null>(null);
   const platformPageFullRef = ref<HTMLElement | null>(null);
@@ -554,39 +559,41 @@
    */
   async function save() {
     try {
-      pageloading.value = true;
+      pageLoading.value = true;
       await savePageConfig(makeParams());
       Message.success(t('system.config.page.saveSuccess'));
       await sleep(300);
       window.location.reload();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      pageloading.value = false;
+      pageLoading.value = false;
     }
   }
 
   /**
    * 保存前校验
    */
-  function beforeSave() {
+  async function beforeSave() {
     try {
-      loginConfigFormRef.value?.validate((errors: Record<string, ValidatedError> | undefined) => {
+      await loginConfigFormRef.value?.validate((errors: Record<string, ValidatedError> | undefined) => {
         if (errors) {
           throw new Error('登录页表单校验不通过');
         }
       });
-      platformConfigFormRef.value?.validate((errors: Record<string, ValidatedError> | undefined) => {
+      await platformConfigFormRef.value?.validate((errors: Record<string, ValidatedError> | undefined) => {
         if (errors) {
           throw new Error('平台页表单校验不通过');
         }
       });
       save();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+      const errDom = document.querySelector('.arco-form-item-message');
+      scrollIntoView(errDom, { block: 'center' });
     }
-    const errDom = document.querySelector('.arco-form-item-message');
-    scrollIntoView(errDom, { block: 'center' });
   }
 
   onBeforeUnmount(() => {

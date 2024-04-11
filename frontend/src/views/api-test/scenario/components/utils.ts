@@ -74,7 +74,11 @@ export default function updateStepStatus(
         // 非逻辑控制器直接更改本身状态
         if (stepResponses[node.uniqueId] && stepResponses[node.uniqueId].length > 0) {
           // 存在多个请求结果说明是循环控制器下的步骤，需要判断其子步骤的执行结果
-          if (stepResponses[node.uniqueId].some((report) => !report.isSuccessful)) {
+          if (
+            stepResponses[node.uniqueId].some(
+              (report) => !report.isSuccessful && report.status !== ScenarioExecuteStatus.FAKE_ERROR
+            )
+          ) {
             node.executeStatus = ScenarioExecuteStatus.FAILED;
           } else if (
             stepResponses[node.uniqueId].some((report) => report.status === ScenarioExecuteStatus.FAKE_ERROR)
