@@ -261,6 +261,9 @@ public class ApiTaskCenterService {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     TaskRunnerClient.stopApi(endpoint, subList);
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                } finally {
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                         extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
                         extApiReportMapper.updateApiCaseStatus(subList);
@@ -271,8 +274,6 @@ public class ApiTaskCenterService {
                         extApiScenarioReportMapper.updateApiScenario(subList);
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_SCENARIO.toString());
                     }
-                } catch (Exception e) {
-                    LogUtils.error(e);
                 }
             });
         });
