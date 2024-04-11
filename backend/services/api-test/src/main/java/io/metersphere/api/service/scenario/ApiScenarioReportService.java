@@ -235,6 +235,8 @@ public class ApiScenarioReportService {
                     step.setRequestTime(details.getFirst().getRequestTime());
                     step.setResponseSize(details.getFirst().getResponseSize());
                     step.setStatus(details.getFirst().getStatus());
+                    step.setCode(details.getFirst().getCode());
+                    step.setFakeCode(details.getFirst().getFakeCode());
                     step.setScriptIdentifier(details.getFirst().getScriptIdentifier());
                 }
             }
