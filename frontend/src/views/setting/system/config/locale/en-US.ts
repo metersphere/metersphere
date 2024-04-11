@@ -192,7 +192,7 @@ export default {
   'system.config.auth.testLoginPasswordNotNull': 'LDAP login password cannot be empty',
   'system.config.auth.testLoginSuccess': 'LDAP login successful',
   'system.config.auth.testLoginCancel': 'Cancel',
-  'system.config.memoryCleanup': 'Memory cleanup',
+  'system.config.memoryCleanup': 'Data cleanup',
   'system.config.memoryCleanup.log': 'Log',
   'system.config.memoryCleanup.history': 'Change history',
   'system.config.memoryCleanup.keepTime': 'Retention time',

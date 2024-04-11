@@ -187,7 +187,7 @@ export default {
   'system.config.auth.testLoginPasswordNotNull': 'LDAP 登录密码不能为空',
   'system.config.auth.testLoginCancel': '取消测试',
   'system.config.auth.testLoginSuccess': 'LDAP 登录成功',
-  'system.config.memoryCleanup': '内存清理',
+  'system.config.memoryCleanup': '数据清理',
   'system.config.memoryCleanup.log': '日志',
   'system.config.memoryCleanup.history': '变更历史',
   'system.config.memoryCleanup.keepTime': '保留时长',
