@@ -72,7 +72,7 @@ const useProjectEnvStore = defineStore(
       projectId: '',
       name: '',
       description: '',
-      config: envParamsDefaultConfig,
+      config: cloneDeep(envParamsDefaultConfig),
     });
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     const httpNoWarning = ref(true);
@@ -115,7 +115,9 @@ const useProjectEnvStore = defineStore(
         } else if (id !== ALL_PARAM && id) {
           const tmpObj = await getDetailEnv(id);
           currentEnvDetailInfo.value = { ...tmpObj };
-          backupEnvDetailInfo.value = cloneDeep(tmpObj);
+          nextTick(() => {
+            backupEnvDetailInfo.value = cloneDeep(currentEnvDetailInfo.value);
+          });
         }
       } catch (e) {
         // eslint-disable-next-line no-console

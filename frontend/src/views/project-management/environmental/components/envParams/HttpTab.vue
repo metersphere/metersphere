@@ -5,15 +5,18 @@
       t('project.environmental.httpNoWarning')
     }}</span>
   </div>
-  <div class="flex items-center justify-between">
-    <a-button
-      v-if="!store.currentEnvDetailInfo.mock"
-      v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-      type="outline"
-      @click="handleAddHttp"
-      >{{ t('project.environmental.addHttp') }}</a-button
-    >
-    <div class="flex flex-row gap-[8px]">
+  <div class="grid grid-cols-4">
+    <div class="col-start-1">
+      <a-button
+        v-if="!store.currentEnvDetailInfo.mock"
+        v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+        type="outline"
+        @click="handleAddHttp"
+        >{{ t('project.environmental.addHttp') }}</a-button
+      >
+    </div>
+
+    <div class="col-end-5 flex flex-row gap-[8px]">
       <a-input-number
         v-model:model-value="form.requestTimeout"
         :min="0"
@@ -141,6 +144,7 @@
       title: 'project.environmental.http.desc',
       dataIndex: 'description',
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'project.environmental.http.enableScope',

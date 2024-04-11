@@ -248,6 +248,7 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
+  import { isEqual } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -274,6 +275,7 @@
     listEnv,
   } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, {
@@ -282,11 +284,17 @@
     NEW_ENV_PARAM,
   } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { EnvListItem, PopVisible } from '@/models/projectManagement/environmental';
   import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
 
   import { SortableEvent } from 'sortablejs';
+
+  const { openModal } = useModal();
+
+  const { setState } = useLeaveUnSaveTip();
+  setState(false);
 
   const { t } = useI18n();
   const store = useProjectEnvStore();
@@ -530,7 +538,7 @@
   function searchData() {
     initData(keyword.value);
   }
-  const { openModal } = useModal();
+
   // 处理删除环境
   const handleDeleteEnv = async (id: string) => {
     if (store.currentId === NEW_ENV_PARAM) {
@@ -632,7 +640,29 @@
 
   const handleListItemClick = (element: EnvListItem) => {
     const { id } = element;
-    store.setCurrentId(id);
+    // 校验是否切换
+    if (store.currentId !== id) {
+      if (!hasAnyPermission(['PROJECT_ENVIRONMENT:READ+ADD', 'PROJECT_ENVIRONMENT:READ+UPDATE'])) {
+        store.setCurrentId(id);
+        return;
+      }
+      if (isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo)) {
+        store.setCurrentId(id);
+      } else {
+        // 如果有未保存的tab则提示用户
+        openModal({
+          type: 'warning',
+          title: t('common.tip'),
+          content: t('apiTestDebug.unsavedLeave'),
+          hideCancel: false,
+          cancelText: t('common.stay'),
+          okText: t('common.leave'),
+          onBeforeOk: async () => {
+            store.setCurrentId(id);
+          },
+        });
+      }
+    }
   };
 
   const handleListItemClickGroup = (element: EnvListItem) => {
@@ -686,16 +716,21 @@
   };
 
   function resetHandler() {
-    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length < 2;
-    // 如果未保存环境存在环境为NEW_ENV_PARAM的id类型
+    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length;
+    // @desc: 未保存环境存在环境为 NEW_ENV_PARAM 类型初次新增
     if (unSaveEnv) {
       envList.value = envList.value.filter((item: any) => item.id !== NEW_ENV_PARAM);
       const excludeMock = envList.value.filter((item) => !item.mock);
+      // @desc: 如果没有MOCK环境默认为全局参数
       if (showType.value === 'PROJECT' && !excludeMock.length) {
         store.setCurrentId(ALL_PARAM);
+        // @desc: 如果没有MOCK环境默认为MOCK环境
       } else if (excludeMock.length) {
         store.setCurrentId(excludeMock[0].id);
       }
+      // @desc: 已经创建恢复最初数据
+    } else {
+      store.initEnvDetail();
     }
   }
 
