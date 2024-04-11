@@ -1,9 +1,6 @@
 package io.metersphere.api.service.scenario;
 
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiScenarioRecord;
-import io.metersphere.api.domain.ApiScenarioReport;
-import io.metersphere.api.domain.ApiScenarioReportStep;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.ApiScenarioParseTmpParam;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
@@ -12,8 +9,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
 import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
-import io.metersphere.api.mapper.ApiScenarioReportMapper;
-import io.metersphere.api.mapper.ExtApiScenarioMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
@@ -64,6 +60,12 @@ public class ApiScenarioBatchRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ApiReportMapper apiReportMapper;
+    @Resource
+    private ApiReportDetailMapper apiReportDetailMapper;
+    @Resource
+    private ApiReportStepMapper apiReportStepMapper;
 
     /**
      * 异步批量执行
@@ -420,7 +422,7 @@ public class ApiScenarioBatchRunService {
         return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiScenario.getGrouped() : runModeConfig.getGrouped();
     }
 
-    public void UpdateStopOnFailureReport(ExecutionQueue queue) {
+    public void updateStopOnFailureReport(ExecutionQueue queue) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
         try {
             ExecutionQueueDetail queueDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
@@ -452,16 +454,37 @@ public class ApiScenarioBatchRunService {
                 Long pendingCount = requestCount + report.getPendingCount();
                 report.setPendingCount(pendingCount);
                 // 计算各种通过率
-                report = computeRequestRate(report);
+                long total = apiScenarioReportService.getRequestTotal(report);
+                report = computeRequestRate(report, total);
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             }
         } catch (Exception e) {
             LogUtils.error("失败停止，补充报告步骤失败：", e);
         }
     }
+    public void updateStopOnFailureApiReport(ExecutionQueue queue) {
+        ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
+        if (runModeConfig.isIntegratedReport()) {
+            // 获取未执行的请求数，更新统计指标
+            String reportId = runModeConfig.getCollectionReport().getReportId();
+            ApiReport report = apiReportMapper.selectByPrimaryKey(reportId);
+            ApiReportDetailExample example = new ApiReportDetailExample();
+            example.createCriteria().andReportIdEqualTo(reportId);
+            ApiReportStepExample stepExample = new ApiReportStepExample();
+            stepExample.createCriteria().andReportIdEqualTo(reportId);
+            long total = apiReportStepMapper.countByExample(stepExample);
+            long pendCount = total - apiReportDetailMapper.countByExample(example);
+            report.setPendingCount(pendCount);
+            ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
+            BeanUtils.copyBean(apiScenarioReport, report);
+            apiScenarioReport = computeRequestRate(apiScenarioReport, total);
+            BeanUtils.copyBean(report, apiScenarioReport);
+            apiReportMapper.updateByPrimaryKeySelective(report);
+        }
 
-    public ApiScenarioReport computeRequestRate(ApiScenarioReport report) {
-        long total = apiScenarioReportService.getRequestTotal(report);
+    }
+
+    public ApiScenarioReport computeRequestRate(ApiScenarioReport report , long total) {
         // 计算各个概率
         double successRate = calculateRate(report.getSuccessCount(), total);
         double errorRate = calculateRate(report.getErrorCount(), total);
