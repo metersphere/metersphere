@@ -26,13 +26,6 @@
           </div>
         </template>
       </a-popover>
-      <a-tooltip :content="t('system.orgTemplate.workFlowTip')">
-        <icon-exclamation-circle class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
-        <template #content>
-          <div class="whitespace-nowrap">{{ t('system.orgTemplate.workFlowToolTip') }}</div>
-          <div>{{ t('system.orgTemplate.workFlowToolTipHover') }}</div>
-        </template>
-      </a-tooltip>
     </div>
     <a-table
       :columns="workFlowColumns"
@@ -144,7 +137,7 @@
     <div class="mt-4 flex items-center text-[var(--color-text-4)]">
       <span>tips: </span>
       <MsIcon type="icon-icon_drag" class="mx-4 text-[16px] text-[var(--color-text-4)]" />
-      <span>{{ t('system.orgTemplate.anyStateToAll') }}</span>
+      <span>{{ t('system.orgTemplate.iconTip') }}</span>
       <a-popover title="" position="right">
         <MsButton class="!mr-0 ml-2">{{ t('system.orgTemplate.example') }}</MsButton>
         <template #content>
