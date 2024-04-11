@@ -18,4 +18,6 @@ public interface BaseOperationHistoryMapper {
     List<OperationHistoryDTO> list(@Param("request") OperationHistoryRequest request);
 
     List<OperationHistoryDTO> listWidthTable(@Param("request") OperationHistoryRequest request, @Param("table") String table);
+
+    Long selectLatestIdByOperationId(String bugId);
 }

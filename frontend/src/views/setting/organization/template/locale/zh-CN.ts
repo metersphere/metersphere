@@ -31,6 +31,7 @@ export default {
   'system.orgTemplate.fieldLimit': '最多可新增 20 个字段',
   'system.orgTemplate.isSystem': '系统',
   'system.orgTemplate.isBuiltIn': '内置',
+  'system.orgTemplate.must.open.one': '项目必须有一个开启的默认模版',
   'system.orgTemplate.fieldList': '字段列表',
   'system.orgTemplate.addOptions': '添加一个选项',
   'system.orgTemplate.deleteTip': '该字段在模板中已使用，删除后数据将会丢失，请谨慎操作！',
