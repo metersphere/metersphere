@@ -201,7 +201,7 @@ export default {
   'apiScenario.executeHistory.execution.operator': 'Operator',
   'apiScenario.executeHistory.execution.operatorTime': 'Operation Time',
   'apiScenario.executeHistory.execution.operation': 'Execution Result',
-  'apiScenario.executeHistory.status.pending': 'Queued',
+  'apiScenario.executeHistory.status.pending': 'Unexecuted',
   'apiScenario.executeHistory.status.running': 'Running',
   'apiScenario.executeHistory.status.rerunning': 'Rerunning',
   'apiScenario.executeHistory.status.error': 'Failed',
