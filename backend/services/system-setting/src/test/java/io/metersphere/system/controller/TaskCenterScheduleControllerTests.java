@@ -9,6 +9,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterScheduleBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import io.metersphere.system.mapper.ExtSwaggerMapper;
 import io.metersphere.system.mapper.ScheduleMapper;
@@ -68,12 +69,12 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_IMPORT.toString());
         doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_IMPORT.toString());
 
-        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_PROJECT_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
-        doTaskCenterSchedulePage("FILTER", SCHEDULED_PROJECT_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
-        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_ORG_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
-        doTaskCenterSchedulePage("FILTER", SCHEDULED_ORG_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
-        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
-        doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_RESOURCE.toString());
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_PROJECT_PAGE, ScheduleTagType.API_SCENARIO.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_PROJECT_PAGE, ScheduleTagType.API_SCENARIO.toString());
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_ORG_PAGE, ScheduleTagType.API_SCENARIO.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_ORG_PAGE, ScheduleTagType.API_SCENARIO.toString());
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_SCENARIO.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_SCENARIO.toString());
     }
 
     private void doTaskCenterSchedulePage(String search, String url, String scheduleTagType) throws Exception {
@@ -160,14 +161,16 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         String scheduleId = "1";
         Schedule oldSchedule = scheduleMapper.selectByPrimaryKey(scheduleId);
         // @@请求成功
-        this.requestGet(SCHEDULED_DELETE + scheduleId);
+        this.requestGet("/task/center/system/schedule/delete/" + "API_IMPORT/" + scheduleId);
         Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
         Assertions.assertNull(schedule);
         if (ScheduleTagType.API_IMPORT.getNames().contains(oldSchedule.getType())) {
             int count = extSwaggerMapper.selectByPrimaryKey(oldSchedule.getResourceId());
             Assertions.assertTrue(count > 0);
         }
-        this.requestGet(SCHEDULED_DELETE + "schedule-121", ERROR_REQUEST_MATCHER);
+        this.requestGet("/task/center/org/schedule/delete/" + "API_IMPORT/" + "4");
+        this.requestGet("/task/center/project/schedule/delete/" + "API_SCENARIO/" + "2");
+        this.requestGet("/task/center/system/schedule/delete/" + "API_SCENARIO/" + "schedule-121", ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -191,8 +194,25 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         scheduleService.getSchedule(schedule.getId());
         scheduleService.editSchedule(schedule);
         scheduleService.getScheduleByResource(schedule.getResourceId(), schedule.getJob());
-        this.requestGet("/task/center/schedule/switch" + "test-schedule-switch");
-        this.requestGet("/task/center/schedule/switch" + "test-schedule-switch");
-        this.requestPost("/task/center/schedule/update/" + "test-schedule-switch" ,"/0 0/2 * * * ?");
+        this.requestGet("/task/center/system/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
+        this.requestGet("/task/center/org/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
+        this.requestGet("/task/center/project/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
+        this.requestPost("/task/center/system/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
+        this.requestPost("/task/center/org/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
+        this.requestPost("/task/center/project/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
+
+        //批量操作
+        TaskCenterScheduleBatchRequest request = new TaskCenterScheduleBatchRequest();
+        request.setSelectIds(List.of("test-schedule-switch"));
+        request.setSelectAll(false);
+        this.requestPost("/task/center/system/schedule/batch-enable", request);
+        request.setSelectAll(true);
+        this.requestPost("/task/center/system/schedule/batch-disable", request);
+        this.requestPost("/task/center/org/schedule/batch-enable", request);
+        this.requestPost("/task/center/org/schedule/batch-disable", request);
+        this.requestPost("/task/center/project/schedule/batch-enable", request);
+        this.requestPost("/task/center/project/schedule/batch-disable", request);
+
+
     }
 }

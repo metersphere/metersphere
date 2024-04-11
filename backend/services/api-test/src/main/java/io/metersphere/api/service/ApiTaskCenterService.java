@@ -203,7 +203,7 @@ public class ApiTaskCenterService {
     }
 
     public void systemStop(TaskCenterBatchRequest request, String userId) {
-        stopApiTask(request, null, userId, SYSTEM_STOP, HttpMethodConstants.POST.name(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        stopApiTask(request, getSystemProjectList().stream().map(OptionDTO::getId).toList(), userId, SYSTEM_STOP, HttpMethodConstants.POST.name(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String path, String method, String module) {
@@ -261,15 +261,17 @@ public class ApiTaskCenterService {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     TaskRunnerClient.stopApi(endpoint, subList);
-                } catch (Exception e) {
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                         extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
+                        extApiReportMapper.updateApiCaseStatus(subList);
                         //记录日志
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_CASE.toString());
                     } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                         extApiScenarioReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
+                        extApiScenarioReportMapper.updateApiScenario(subList);
                         saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_SCENARIO.toString());
                     }
+                } catch (Exception e) {
                     LogUtils.error(e);
                 }
             });

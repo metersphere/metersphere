@@ -46,6 +46,9 @@ public class TaskCenterDTO implements Serializable {
     @Schema(description = "执行状态/SUCCESS/ERROR")
     private String status;
 
+    @Schema(description = "脚本标识")
+    private String scriptIdentifier;
+
     @Schema(description = "操作人")
     private String operationName;
 

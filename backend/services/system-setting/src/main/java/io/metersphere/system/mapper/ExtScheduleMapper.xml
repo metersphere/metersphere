@@ -2,29 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtScheduleMapper">
     <select id="taskCenterSchedulelist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO">
-    SELECT  task.* from (
+   select task.*, QRTZ_TRIGGERS.TRIGGER_NAME as triggerName from (
+    <if test="request.scheduleTagType == 'API_IMPORT'">
         SELECT
         schedule.id,
         schedule.name as taskname,
         schedule.project_id,
-        'API_SCENARIO' as resource_type,
-        api_scenario.num as resource_num,
-        api_scenario.name as resource_name,
-        api_scenario.id as resource_id,
-        schedule.value,
-        schedule.enable,
-        schedule.create_user AS createUserName,
-        schedule.create_time
-        FROM
-        schedule
-        inner join api_scenario on schedule.resource_id = api_scenario.id
-
-        union all
-        SELECT
-        schedule.id,
-        schedule.name as taskname,
-        schedule.project_id,
-        'API_IMPORT' as resource_type,
+        resource_type,
         ads.num as resource_num,
         ads.name as resource_name,
         ads.id as resource_id,
@@ -36,12 +20,29 @@
         schedule
         inner join api_definition_swagger ads on schedule.resource_id = ads.id
 
-    ) task
+    </if>
+        <if test="request.scheduleTagType == 'API_SCENARIO'">
+            SELECT
+            schedule.id,
+            schedule.name as taskname,
+            schedule.project_id,
+            resource_type,
+            api_scenario.num as resource_num,
+            api_scenario.name as resource_name,
+            api_scenario.id as resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.create_user AS createUserName,
+            schedule.create_time
+            FROM
+            schedule
+            inner join api_scenario on schedule.resource_id = api_scenario.id
+        </if>
+
+    ) task left join project on task.project_id = project.id
+            left join QRTZ_TRIGGERS on task.resource_id = QRTZ_TRIGGERS.TRIGGER_NAME
         where
-        task.resource_type in
-        <foreach collection="resourceTypes" item="resourceType" separator="," open="(" close=")">
-            #{resourceType}
-        </foreach>
+        task.resource_type =#{request.scheduleTagType}
         and task.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
@@ -66,6 +67,18 @@
                         <when test="key=='resourceType'">
                             and task.resource_type in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='projectIds">
+                            and task.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='organizationIds'">
+                            and project.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
                         </when>
                     </choose>
                 </if>
@@ -120,6 +133,73 @@
 
     <select id="getScheduleByLimit" resultType="io.metersphere.system.domain.Schedule">
         SELECT * FROM schedule ORDER BY create_time LIMIT #{start}, #{limit}
+    </select>
+    <select id="getOrgListByProjectIds" resultType="io.metersphere.system.dto.ProjectDTO">
+        select
+        p.id ,
+        o.id as organizationId
+        from project p
+        inner join organization o on p.organization_id = o.id
+        where p.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getSchedule" resultType="io.metersphere.system.domain.Schedule">
+   select task.* from (
+        <if test="request.scheduleTagType == 'API_IMPORT'">
+            SELECT
+            schedule.id,
+            schedule.name as taskname,
+            schedule.project_id,
+            resource_type,
+            ads.num as resource_num,
+            ads.name as resource_name,
+            ads.id as resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.create_user AS createUserName,
+            schedule.create_time
+            FROM
+            schedule
+            inner join api_definition_swagger ads on schedule.resource_id = ads.id
+
+        </if>
+        <if test="request.scheduleTagType == 'API_SCENARIO'">
+            SELECT
+            schedule.id,
+            schedule.name as taskname,
+            schedule.project_id,
+            resource_type,
+            api_scenario.num as resource_num,
+            api_scenario.name as resource_name,
+            api_scenario.id as resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.create_user AS createUserName,
+            schedule.create_time
+            FROM
+            schedule
+            inner join api_scenario on schedule.resource_id = api_scenario.id
+        </if>
+
+        ) task left join project on task.project_id = project.id
+        where
+        task.resource_type =#{request.scheduleTagType}
+        and task.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            task.resource_name like concat('%', #{request.condition.keyword},'%')
+            or
+            task.resource_num like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <include refid="taskCenterScheduleFilters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
     </select>
 
 </mapper>

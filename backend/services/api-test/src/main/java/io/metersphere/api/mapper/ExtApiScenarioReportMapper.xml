@@ -148,6 +148,7 @@
         api_scenario_report.start_time as operationTime,
         api_scenario_report.create_user as operationName,
         api_scenario_report.trigger_mode,
+        api_scenario_report.script_identifier,
 
         CASE
         WHEN api_scenario_report.integrated = 0 THEN
@@ -169,6 +170,7 @@
         left join api_scenario_record a on api_scenario_report.id = a.api_scenario_report_id
         left JOIN api_scenario s on a.api_scenario_id = s.id
         left JOIN test_resource_pool t on api_scenario_report.pool_id = t.id
+        left join project on api_scenario_report.project_id = project.id
         where api_scenario_report.deleted = false
         and api_scenario_report.test_plan_id = 'NONE'
           and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
@@ -264,6 +266,18 @@
                         <when test="key=='updateUSer'">
                             and api_scenario_report.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='projectIds">
+                            and api_scenario_report.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='organizationIds'">
+                            and project.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
                         </when>
                     </choose>
                 </if>

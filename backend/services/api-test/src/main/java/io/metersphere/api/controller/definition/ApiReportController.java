@@ -78,7 +78,7 @@ public class ApiReportController {
     @GetMapping("/get/{id}")
     @Operation(summary = "接口测试-接口报告-报告获取")
     @CheckOwner(resourceId = "#id", resourceType = "api_report")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE}, logical = Logical.OR)
     public ApiReportDTO get(@PathVariable String id) {
         return apiReportService.get(id);
     }
@@ -94,7 +94,7 @@ public class ApiReportController {
     @GetMapping("/get/detail/{reportId}/{stepId}")
     @Operation(summary = "接口测试-接口报告-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_report")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE}, logical = Logical.OR)
     public List<ApiReportDetailDTO> getDetail(@PathVariable String reportId,
                                               @PathVariable String stepId) {
         return apiReportService.getDetail(reportId, stepId);

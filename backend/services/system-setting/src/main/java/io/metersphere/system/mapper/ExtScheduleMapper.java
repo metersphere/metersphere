@@ -3,7 +3,9 @@ package io.metersphere.system.mapper;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterScheduleBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,7 +19,7 @@ public interface ExtScheduleMapper {
      * @param request 列表请求参数
      * @return 定时任务列表数据
      */
-    List<TaskCenterScheduleDTO> taskCenterSchedulelist(@Param("request") TaskCenterSchedulePageRequest request, @Param("projectIds") List<String> projectIds, @Param("resourceTypes") List<String> resourceTypes);
+    List<TaskCenterScheduleDTO> taskCenterSchedulelist(@Param("request") TaskCenterSchedulePageRequest request, @Param("projectIds") List<String> projectIds);
 
     List<ApiTestCase> getApiTestCaseListByIds(@Param("ids") List<String> ids);
 
@@ -32,4 +34,9 @@ public interface ExtScheduleMapper {
     long countQuartzCronTriggersByResourceId(String scheduleId);
 
     List<Schedule> getScheduleByLimit(@Param("start") int start, @Param("limit") int limit);
+
+    List<ProjectDTO> getOrgListByProjectIds(List<String> ids);
+
+    List<Schedule> getSchedule(@Param("request") TaskCenterScheduleBatchRequest request, @Param("projectIds") List<String> projectIds);
+
 }

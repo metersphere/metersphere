@@ -39,7 +39,7 @@ public class ApiScenarioReportLogService {
                 scenarioReport.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_REPORT,
+                OperationLogModule.API_TEST_REPORT_SCENARIO,
                 scenarioReport.getName());
 
         dto.setPath("/api/report/scenario/delete/" + scenarioReport.getId());
@@ -57,7 +57,7 @@ public class ApiScenarioReportLogService {
                 scenarioReport.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_REPORT,
+                OperationLogModule.API_TEST_REPORT_SCENARIO,
                 scenarioReport.getName());
 
         dto.setPath("/api/report/scenario/rename/" + scenarioReport.getId() + "/" + scenarioReport.getName());
@@ -77,7 +77,7 @@ public class ApiScenarioReportLogService {
                     apiReport.getId(),
                     userId,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.API_REPORT,
+                    OperationLogModule.API_TEST_REPORT_SCENARIO,
                     apiReport.getName());
 
             dto.setPath("/api/report/scenario/batch/delete");

@@ -64,8 +64,8 @@
 
   const timingTabList = ref([
     {
-      value: TaskCenterEnum.TEST_RESOURCE,
-      label: t('project.taskCenter.testResource'),
+      value: TaskCenterEnum.API_SCENARIO,
+      label: t('project.taskCenter.apiScenario'),
     },
     {
       value: TaskCenterEnum.API_IMPORT,
@@ -84,7 +84,7 @@
     if (activeTask.value === 'real') {
       activeTab.value = TaskCenterEnum.API_CASE;
     } else {
-      activeTab.value = TaskCenterEnum.TEST_RESOURCE;
+      activeTab.value = TaskCenterEnum.API_SCENARIO;
     }
   }
 
