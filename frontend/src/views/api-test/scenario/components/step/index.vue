@@ -142,6 +142,7 @@
 
   import { getScenarioDetail } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import { deleteNodes, filterTree, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
@@ -156,6 +157,7 @@
   }>();
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const scenario = defineModel<Scenario>('scenario', {
     required: true,
@@ -268,12 +270,26 @@
   }
 
   function batchDelete() {
-    deleteNodes(scenario.value.steps, checkedKeys.value, (node) => !node.isQuoteScenarioStep, 'uniqueId');
-    Message.success(t('common.deleteSuccess'));
-    if (scenario.value.steps.length === 0) {
-      checkedAll.value = false;
-      indeterminate.value = false;
-    }
+    openModal({
+      type: 'error',
+      title: t('common.tip'),
+      content: t('apiScenario.deleteStepConfirmWithChildren'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        deleteNodes(scenario.value.steps, checkedKeys.value, (node) => !node.isQuoteScenarioStep, 'uniqueId');
+        Message.success(t('common.deleteSuccess'));
+        if (scenario.value.steps.length === 0) {
+          checkedAll.value = false;
+          indeterminate.value = false;
+        }
+      },
+      hideCancel: false,
+    });
   }
 
   const showScenarioReportVisible = ref(false);

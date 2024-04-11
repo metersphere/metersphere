@@ -1,19 +1,18 @@
 <template>
   <a-scrollbar class="overflow-y-auto" :style="{ height: '300px' }">
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <MsFormTable :data="props.requestResult?.responseResult.assertions" :columns="columns" :selectable="false">
       <template #status="{ record }">
         <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
           {{ record.pass === true ? t('common.success') : t('common.fail') }}
         </MsTag>
       </template>
-    </MsBaseTable>
+    </MsFormTable>
   </a-scrollbar>
 </template>
 
 <script setup lang="ts">
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import MsFormTable from '@/components/pure/ms-form-table/index.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -43,22 +42,6 @@
       showTooltip: true,
     },
   ];
-  const { propsRes, propsEvent } = useTable(undefined, {
-    scroll: { x: '100%' },
-    columns,
-  });
-
-  watch(
-    () => props.requestResult?.responseResult.assertions,
-    (val) => {
-      if (val) {
-        propsRes.value.data = props.requestResult?.responseResult.assertions || [];
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 </script>
 
 <style scoped></style>

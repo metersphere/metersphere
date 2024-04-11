@@ -408,6 +408,7 @@ export interface Scenario {
   stepResponses: Record<string | number, Array<RequestResult>>; // 步骤响应集合，key 为步骤 id，value 为步骤响应内容
   isExecute?: boolean; // 是否从列表执行进去场景详情
   isDebug?: boolean; // 是否调试，区分执行场景和批量调试步骤
+  executeType?: 'localExec' | 'serverExec'; // 执行类型
 }
 // 场景详情
 export interface ScenarioDetail extends Scenario {

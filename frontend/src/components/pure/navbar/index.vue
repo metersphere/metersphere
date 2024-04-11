@@ -4,7 +4,11 @@
       <a-space>
         <div class="one-line-text flex max-w-[145px] items-center">
           <img :src="props.logo" class="mr-[4px] h-[34px] w-[32px]" />
-          <div class="font-['Helvetica_Neue'] text-[16px] font-bold text-[rgb(var(--primary-5))]">{{ props.name }}</div>
+          <a-tooltip :content="props.name">
+            <div class="one-line-text font-['Helvetica_Neue'] text-[16px] font-bold text-[rgb(var(--primary-5))]">
+              {{ props.name }}
+            </div>
+          </a-tooltip>
         </div>
       </a-space>
     </div>

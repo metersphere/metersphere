@@ -82,7 +82,7 @@
             :scenario-id="scenarioId"
             @replace="handleReplace"
           />
-          <MsButton type="icon" status="secondary" @click="emit('deleteStep')">
+          <MsButton type="icon" status="secondary" class="mr-4" @click="emit('deleteStep')">
             <MsIcon type="icon-icon_delete-trash_outlined" />
             {{ t('common.delete') }}
           </MsButton>

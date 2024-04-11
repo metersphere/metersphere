@@ -170,21 +170,17 @@ export default {
   'apiScenario.sourceScenarioParams': 'Source Scenario Parameters',
   'apiScenario.sourceScenarioEnv': 'Use source Scenario Environment',
   'apiScenario.valuePriority': 'Value Priority:',
-  'apiScenario.currentScenarioAndNull':
-    'Current Step Parameters > Current Scenario Parameters > Current Environment Parameters > Empty Value',
-  'apiScenario.currentScenarioAndNullAndSourceEnv':
-    'Current Step Parameters > Current Scenario Parameters > Source Environment Parameters > Empty Value',
-  'apiScenario.currentScenarioAndSourceScenario':
-    'Current Step Parameters > Current Scenario Parameters > Current Environment Parameters > Source Scenario Parameters',
-  'apiScenario.currentScenarioAndSourceScenarioAndSourceEnv':
-    'Current Step Parameters > Current Scenario Parameters > Source Scenario Parameters > Source Environment Parameters',
-  'apiScenario.sourceScenarioAndNull': 'Source Scenario Parameters > Empty Value',
-  'apiScenario.sourceScenarioAndNullAndSourceEnv':
-    'Source Scenario Parameters > Source Environment Parameters > Empty Value',
-  'apiScenario.sourceScenarioAndCurrentScenario':
-    'Source Scenario Parameters > Current Step Parameters > Current Scenario Parameters > Current Environment Parameters',
-  'apiScenario.sourceScenarioAndCurrentScenarioAndSourceEnv':
-    'Source Scenario Parameters > Source Environment Parameters > Current Step Parameters > Current Scenario Parameters',
+  'apiScenario.notSource': 'Current Step Parameters > Current Scenario Parameters > Current Environment Parameters',
+  'apiScenario.notSourceParamAndSourceEnv':
+    'Current Step Parameters > Current Scenario Parameters > Original Environment Parameters',
+  'apiScenario.currentParamAndSource':
+    'Current Step Parameters > Current Scenario Parameters > Current Environment Parameters > Original Scenario Parameters',
+  'apiScenario.currentParamAndSourceEnv':
+    'Current Step Parameters > Current Scenario Parameters > Original Scenario Parameters > Original Environment Parameters',
+  'apiScenario.sourceParamAndSource':
+    'Original Scenario Parameters > Current Step Parameters > Current Scenario Parameters > Current Environment Parameters',
+  'apiScenario.sourceParamAndSourceEnv':
+    'Original Scenario Parameters > Original Environment Parameters > Current Step Parameters > Current Scenario Parameters',
   'apiScenario.fullQuoteTip':
     'Full Quote: Follows the original step content and step status changes. Step status cannot be adjusted.',
   'apiScenario.stepQuoteTip':
@@ -193,6 +189,9 @@ export default {
   'apiScenario.setSuccess': 'Set Successful',
   'apiScenario.pleaseInputUrl': 'Please enter URL',
   'apiScenario.syncSaveAsCase': 'Synchronously add test interface case',
+  'apiScenario.deleteStepConfirm': 'Are you sure you want to delete {name}?',
+  'apiScenario.deleteStepConfirmWithChildren':
+    'Are you sure you want to delete the selected step and all substeps within the step?',
   // Execution History
   'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
   'apiScenario.executeHistory.num': 'No.',

@@ -5,14 +5,16 @@
         <img :src="innerLogo" class="h-[60px] w-[290px]" />
       </div>
       <div class="title-0 mt-[16px] flex justify-center">
-        <span class="title-welcome">{{ t(innerSlogan || '') || t('login.form.title') }}</span>
+        <span class="title-welcome one-line-text max-w-[300px]">
+          {{ t(innerSlogan || '') || t('login.form.title') }}
+        </span>
       </div>
     </div>
 
     <div class="form mt-[32px] min-w-[416px]">
-      <div v-if="userInfo.authenticate === 'LOCAL'" class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">{{
-        t('login.form.accountLogin')
-      }}</div>
+      <div v-if="userInfo.authenticate === 'LOCAL'" class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">
+        {{ t('login.form.accountLogin') }}
+      </div>
       <div
         v-if="isShowLDAP && userInfo.authenticate !== 'LOCAL'"
         class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]"

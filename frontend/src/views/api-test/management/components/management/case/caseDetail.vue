@@ -104,7 +104,7 @@
   import TabCaseDependency from '@/views/api-test/management/components/management/case/tabContent/tabCaseDependency.vue';
   import TabCaseExecuteHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseExecuteHistory.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
+  import { localExecuteApiDebug, stopExecute, stopLocalExecute } from '@/api/modules/api-test/common';
   import { debugCase, deleteCase, runCase, toggleFollowCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import useModal from '@/hooks/useModal';
@@ -112,7 +112,7 @@
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { EnvConfig } from '@/models/projectManagement/environmental';
-  import { RequestMethods } from '@/enums/apiEnum';
+  import { RequestMethods, ScenarioStepType } from '@/enums/apiEnum';
 
   import { defaultResponse } from '@/views/api-test/components/config';
 
@@ -299,7 +299,17 @@
       executeCase.value = false;
     }
   }
-  function stopDebug() {
+  async function stopDebug() {
+    try {
+      if (caseDetail.value.frontendDebug) {
+        await stopLocalExecute(executeRef.value?.localExecuteUrl || '', reportId.value, ScenarioStepType.API_CASE);
+      } else {
+        await stopExecute(reportId.value, ScenarioStepType.API_CASE);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
     websocket.value?.close();
     caseDetail.value.executeLoading = false;
     executeCase.value = false;
