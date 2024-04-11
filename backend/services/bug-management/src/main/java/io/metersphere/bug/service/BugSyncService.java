@@ -12,6 +12,7 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
 import io.metersphere.system.mapper.TemplateMapper;
@@ -73,7 +74,7 @@ public class BugSyncService {
      * 开源用户 (同步存量缺陷)
      * @param projectId 项目ID
      */
-    public void syncBugs(String projectId, String currentUser, String language) {
+    public void syncBugs(String projectId, String currentUser, String language, String triggerMode) {
         try {
             String syncValue = bugSyncExtraService.getSyncKey(projectId);
             if (StringUtils.isEmpty(syncValue)) {
@@ -99,7 +100,7 @@ public class BugSyncService {
                     Map<String, Template> templateMap = templates.stream().collect(Collectors.toMap(Template::getId, t -> t));
                     // 非插件默认模板且模板不存在, 无需同步
                     bugs.removeIf(bug -> !templateMap.containsKey(bug.getTemplateId()) && !StringUtils.equals(bug.getTemplateId(), pluginTemplate.getId()));
-                    bugService.syncPlatformBugs(bugs, project, currentUser, language);
+                    bugService.syncPlatformBugs(bugs, project, currentUser, language, triggerMode);
                 }
             }
         } catch (Exception e) {
@@ -134,7 +135,7 @@ public class BugSyncService {
      * 定时任务同步缺陷(存量-默认中文环境通知)
      */
     public void syncPlatformBugBySchedule(String projectId, String scheduleUser) {
-        syncBugs(projectId, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage());
+        syncBugs(projectId, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.auto"));
     }
 
     /**

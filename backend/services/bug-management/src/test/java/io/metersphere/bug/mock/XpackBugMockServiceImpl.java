@@ -14,7 +14,7 @@ public class XpackBugMockServiceImpl implements XpackBugService {
     }
 
     @Override
-    public void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language) {
+    public void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language, String triggerMode) {
 
     }
 }

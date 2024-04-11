@@ -81,8 +81,9 @@ public class NoticeTemplateService {
             }
             case NoticeConstants.TaskType.BUG_SYNC_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(BugSyncNoticeDTO.class);
+                // TODO: 待修改, 同步仅需的字段{操作人, 触发方式}
+                // 该方法提供了统一的内置通知模板字段; {操作人, 关注人, 触发方式}
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(UiScenario.class);

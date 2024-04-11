@@ -21,7 +21,8 @@ public interface XpackBugService {
      * @param request 同步请求参数
      * @param currentUser 当前用户
      * @param language 语言环境
+     * @param triggerMode 同步触发方式
      */
-    void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language);
+    void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language, String triggerMode);
 
 }

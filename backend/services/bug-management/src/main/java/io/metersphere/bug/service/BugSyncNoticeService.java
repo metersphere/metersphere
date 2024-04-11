@@ -27,7 +27,7 @@ public class BugSyncNoticeService {
     @Resource
     private ProjectApplicationService projectApplicationService;
 
-    public void sendNotice(int total, String currentUser, String language, String projectId) {
+    public void sendNotice(int total, String currentUser, String language, String triggerMode, String projectId) {
         String platformName = projectApplicationService.getPlatformName(projectId);
         User user = userMapper.selectByPrimaryKey(currentUser);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
@@ -41,6 +41,7 @@ public class BugSyncNoticeService {
         paramMap.put("projectId", projectId);
         paramMap.put("Language", language);
         paramMap.put("platform", platformName);
+        paramMap.put("triggerMode", triggerMode);
         NoticeModel noticeModel = NoticeModel.builder().operator(currentUser).excludeSelf(false)
                 .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_COMPLETED).build();
         noticeSendService.send(NoticeConstants.TaskType.BUG_SYNC_TASK, noticeModel);
