@@ -317,35 +317,49 @@
             <a-radio :value="ScenarioStepRefType.PARTIAL_REF">{{ t('apiScenario.stepQuote') }}</a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item :label="t('apiScenario.runRule')">
-          <a-radio-group v-model:model-value="scenarioConfigForm.useCurrentScenarioParam" type="button">
-            <a-radio :value="true">{{ t('apiScenario.currentScenario') }}</a-radio>
-            <a-radio :value="false">{{ t('apiScenario.sourceScenario') }}</a-radio>
-          </a-radio-group>
+        <a-form-item label="" class="hidden-item">
+          <div class="flex items-center gap-[8px]">
+            <a-switch
+              v-model:model-value="scenarioConfigForm.useOriginScenarioParam"
+              class="ml-[6px]"
+              size="small"
+            ></a-switch>
+            {{ t('apiScenario.sourceScenarioParams') }}
+          </div>
         </a-form-item>
-        <a-form-item
-          :label="
-            scenarioConfigForm.useCurrentScenarioParam
-              ? t('apiScenario.currentScenarioTip')
-              : t('apiScenario.sourceScenarioTip')
-          "
-        >
-          <a-radio-group v-model:model-value="scenarioConfigForm.useBothScenarioParam">
-            <a-radio :value="false">{{ t('apiScenario.empty') }}</a-radio>
+        <a-form-item v-show="scenarioConfigForm.useOriginScenarioParam" class="hidden-item">
+          <a-radio-group v-model:model-value="scenarioConfigForm.useOriginScenarioParamPreferential" type="button">
             <a-radio :value="true">
-              {{
-                t(
-                  scenarioConfigForm.useCurrentScenarioParam
-                    ? 'apiScenario.sourceScenarioParams'
-                    : 'apiScenario.currentScenarioParams'
-                )
-              }}
+              <div class="flex items-center gap-[4px]">
+                {{ t('apiScenario.sourceScenario') }}
+                <a-tooltip :content="t('apiScenario.sourceScenarioTip')" position="right">
+                  <icon-question-circle
+                    class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                    size="16"
+                  />
+                </a-tooltip>
+              </div>
+            </a-radio>
+            <a-radio :value="false">
+              <div class="flex items-center gap-[4px]">
+                {{ t('apiScenario.currentScenario') }}
+                <a-tooltip :content="t('apiScenario.currentScenarioTip')" position="right">
+                  <icon-question-circle
+                    class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                    size="16"
+                  />
+                </a-tooltip>
+              </div>
             </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="" class="hidden-item !mb-0">
           <div class="flex items-center gap-[8px]">
-            <a-checkbox v-model:model-value="scenarioConfigForm.enableScenarioEnv" class="ml-[6px]"></a-checkbox>
+            <a-switch
+              v-model:model-value="scenarioConfigForm.enableScenarioEnv"
+              class="ml-[6px]"
+              size="small"
+            ></a-switch>
             <div class="flex items-center gap-[4px]">
               {{ t('apiScenario.sourceScenarioEnv') }}
               <a-tooltip :content="t('apiScenario.sourceScenarioEnvTip')" position="right">
@@ -760,70 +774,70 @@
   >({
     refType: ScenarioStepRefType.REF,
     enableScenarioEnv: false,
-    useBothScenarioParam: false,
-    useCurrentScenarioParam: true,
+    useOriginScenarioParamPreferential: true,
+    useOriginScenarioParam: false,
   });
   const showScenarioConfig = ref(false);
   const scenarioConfigParamTip = computed(() => {
     if (
-      scenarioConfigForm.value.useCurrentScenarioParam &&
-      !scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用当前场景参数-空值
       return t('apiScenario.currentScenarioAndNull');
     }
     if (
-      scenarioConfigForm.value.useCurrentScenarioParam &&
-      !scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用当前场景参数-空值-且选择源场景环境
       return t('apiScenario.currentScenarioAndNullAndSourceEnv');
     }
     if (
-      scenarioConfigForm.value.useCurrentScenarioParam &&
-      scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用当前场景参数-原场景参数
       return t('apiScenario.currentScenarioAndSourceScenario');
     }
     if (
-      scenarioConfigForm.value.useCurrentScenarioParam &&
-      scenarioConfigForm.value.useBothScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用当前场景参数-原场景参数-且选择源场景环境
       return t('apiScenario.currentScenarioAndSourceScenarioAndSourceEnv');
     }
     if (
-      !scenarioConfigForm.value.useCurrentScenarioParam &&
-      !scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用原场景参数-空值
       return t('apiScenario.sourceScenarioAndNull');
     }
     if (
-      !scenarioConfigForm.value.useCurrentScenarioParam &&
-      !scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用原场景参数-空值-且选择源场景环境
       return t('apiScenario.sourceScenarioAndNullAndSourceEnv');
     }
     if (
-      !scenarioConfigForm.value.useCurrentScenarioParam &&
-      scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       !scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用原场景参数-当前场景参数
       return t('apiScenario.sourceScenarioAndCurrentScenario');
     }
     if (
-      !scenarioConfigForm.value.useCurrentScenarioParam &&
-      scenarioConfigForm.value.useBothScenarioParam &&
+      !scenarioConfigForm.value.useOriginScenarioParam &&
+      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
       scenarioConfigForm.value.enableScenarioEnv
     ) {
       // 使用原场景参数-当前场景参数-且选择源场景环境
@@ -837,8 +851,8 @@
     scenarioConfigForm.value = {
       refType: ScenarioStepRefType.REF,
       enableScenarioEnv: false,
-      useBothScenarioParam: false,
-      useCurrentScenarioParam: true,
+      useOriginScenarioParamPreferential: true,
+      useOriginScenarioParam: false,
     };
   }
 
@@ -1382,10 +1396,7 @@
   }
 
   async function realExecute(
-    executeParams: Pick<
-      ApiScenarioDebugRequest,
-      'steps' | 'stepDetails' | 'reportId' | 'uploadFileIds' | 'linkFileIds'
-    >,
+    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId' | 'stepFileParam'>,
     executeType?: 'localExec' | 'serverExec'
   ) {
     const [currentStep] = executeParams.steps;
@@ -1455,8 +1466,9 @@
           steps: [realStep as ScenarioStepItem],
           stepDetails: _stepDetails,
           reportId: realStep.reportId,
-          uploadFileIds: stepFileParam?.uploadFileIds || [],
-          linkFileIds: stepFileParam?.linkFileIds || [],
+          stepFileParam: {
+            [realStep.id]: stepFileParam,
+          },
         },
         isPriorityLocalExec?.value ? 'localExec' : 'serverExec'
       );
@@ -1474,6 +1486,7 @@
       delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
       realStep.reportId = getGenerateId();
       realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
+      const stepFileParam = scenario.value.stepFileParam[realStep.id];
       request.executeLoading = true;
       realExecute(
         {
@@ -1482,15 +1495,15 @@
             [realStep.id]: request,
           },
           reportId: realStep.reportId,
-          uploadFileIds: request.uploadFileIds || [],
-          linkFileIds: request.linkFileIds || [],
+          stepFileParam: {
+            [realStep.uniqueId]: stepFileParam,
+          },
         },
         executeType
       );
     } else {
       // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
       const reportId = getGenerateId();
-      delete scenario.value.stepResponses[request.stepId]; // 先移除上一次的执行结果
       request.executeLoading = true;
       activeStep.value = {
         id: request.stepId,
@@ -1513,8 +1526,12 @@
             [request.stepId]: request,
           },
           reportId,
-          uploadFileIds: request.uploadFileIds || [],
-          linkFileIds: request.linkFileIds || [],
+          stepFileParam: {
+            [request.stepId]: {
+              uploadFileIds: request.uploadFileIds || [],
+              linkFileIds: request.linkFileIds || [],
+            },
+          },
         },
         executeType
       );
@@ -1668,7 +1685,7 @@
       handleCreateStep(
         {
           stepType: ScenarioStepType.CUSTOM_REQUEST,
-          name: t('apiScenario.customApi'),
+          name: request.name || t('apiScenario.customApi'),
           config: {
             protocol: request.protocol,
             method: request.method,
@@ -1694,7 +1711,7 @@
         sort: steps.value.length + 1,
         stepType: ScenarioStepType.CUSTOM_REQUEST,
         refType: ScenarioStepRefType.DIRECT,
-        name: t('apiScenario.customApi'),
+        name: request.name || t('apiScenario.customApi'),
         projectId: appStore.currentProjectId,
       });
     }
@@ -1731,6 +1748,7 @@
         ...activeStep.value.config,
         method: request.method,
       };
+      activeStep.value.name = request.name;
       emit('updateResource', request.uploadFileIds, request.linkFileIds);
       activeStep.value = undefined;
     }
@@ -1788,11 +1806,14 @@
     scenario.value.unSaved = true;
   }
 
-  function saveScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
+  function saveScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor, unSaved = false) {
     if (activeStep.value) {
       stepDetails.value[activeStep.value.id] = cloneDeep(scriptProcessor);
       activeStep.value.name = name;
       activeStep.value = undefined;
+      if (unSaved) {
+        scenario.value.unSaved = true;
+      }
     }
   }
 

@@ -798,6 +798,16 @@
         // 如果是更改了下拉框导致添加新的一列，需要将更改后的下拉框的值应用到下一行（产品为了方便统一输入参数类型）
         if (key) {
           nextLine[key] = lastLineData[key];
+          // 根据参数类型自动推断 Content-Type 类型！！！特殊处理，这里contentType会随前面的参数类型变化，这里也需要变化
+          if (nextLine.contentType) {
+            if (lastLineData[key] === 'file') {
+              nextLine.contentType = RequestContentTypeEnum.OCTET_STREAM;
+            } else if (lastLineData[key] === 'json') {
+              nextLine.contentType = RequestContentTypeEnum.JSON;
+            } else {
+              nextLine.contentType = RequestContentTypeEnum.TEXT;
+            }
+          }
         }
       });
       paramsData.value.push(nextLine);

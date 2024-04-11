@@ -136,6 +136,7 @@
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     secondBoxHeight: number;
+    isDrawer?: boolean;
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
@@ -267,7 +268,8 @@
   watch(
     () => props.layout,
     (val) => {
-      heightUsed.value = val === 'horizontal' ? 428 : 430 + props.secondBoxHeight;
+      const otherHeight = props.isDrawer ? 328 : 430;
+      heightUsed.value = val === 'horizontal' ? otherHeight : otherHeight + props.secondBoxHeight;
     },
     {
       immediate: true,
@@ -278,7 +280,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = 430 + val;
+        heightUsed.value = (props.isDrawer ? 328 : 430) + val;
       }
     },
     {

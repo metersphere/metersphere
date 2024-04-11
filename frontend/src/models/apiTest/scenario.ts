@@ -317,8 +317,8 @@ export interface LoopStepDetail extends StepDetailsCommon {
 }
 // 场景引用配置
 export interface ScenarioStepConfig {
-  useCurrentScenarioParam: boolean; // 是否优先使用当前场景参数
-  useBothScenarioParam: boolean; // 是否当前场景参数和源场景参数都应用（勾选非空值时为 true）
+  useOriginScenarioParam: boolean; // 是否优先使用当前场景参数
+  useOriginScenarioParamPreferential: boolean; // 是否当前场景参数和源场景参数都应用（勾选非空值时为 true）
   enableScenarioEnv: boolean; // 是否应用源场景环境
 }
 // 场景步骤详情
@@ -436,8 +436,7 @@ export interface ApiScenarioDebugRequest {
   reportId: string | number;
   steps: ScenarioStepItem[];
   projectId: string;
-  uploadFileIds: string[];
-  linkFileIds: string[];
+  stepFileParam: Record<string, ScenarioStepFileParams>;
   frontendDebug?: boolean;
 }
 

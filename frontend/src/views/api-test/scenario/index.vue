@@ -256,9 +256,8 @@
           environmentId: currentEnvConfig.value?.id || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
-          uploadFileIds: activeScenarioTab.value.uploadFileIds,
-          linkFileIds: activeScenarioTab.value.linkFileIds,
           ...executeParams,
+          stepFileParam: activeScenarioTab.value.stepFileParam,
           steps: mapTree(executeParams.steps, (node) => {
             return {
               ...node,
@@ -274,8 +273,7 @@
           environmentId: currentEnvConfig.value?.id || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
-          uploadFileIds: activeScenarioTab.value.uploadFileIds,
-          linkFileIds: activeScenarioTab.value.linkFileIds,
+          stepFileParam: activeScenarioTab.value.stepFileParam,
           frontendDebug: executeType === 'localExec',
           ...executeParams,
           steps: mapTree(executeParams.steps, (node) => {

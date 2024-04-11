@@ -348,7 +348,6 @@
     sortDefinition,
     updateDefinition,
   } from '@/api/modules/api-test/management';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';

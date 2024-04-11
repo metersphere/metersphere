@@ -167,7 +167,7 @@ export default {
   'apiScenario.empty': 'Empty Value',
   'apiScenario.currentScenarioParams': 'Current Scenario Parameters',
   'apiScenario.sourceScenarioParams': 'Source Scenario Parameters',
-  'apiScenario.sourceScenarioEnv': 'Source Scenario Environment',
+  'apiScenario.sourceScenarioEnv': 'Use source Scenario Environment',
   'apiScenario.valuePriority': 'Value Priority:',
   'apiScenario.currentScenarioAndNull':
     'Current Step Parameters > Current Scenario Parameters > Current Environment Parameters > Empty Value',

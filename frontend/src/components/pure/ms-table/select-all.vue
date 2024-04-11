@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-  import MsIcon from '../ms-icon-font/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -41,7 +41,6 @@
       currentData: MsTableDataItem<Record<string, any>>[];
       showSelectAll: boolean;
       disabled: boolean;
-      selectorStatus: SelectAllEnum;
       excludeKeys: string[];
     }>(),
     {
@@ -52,32 +51,31 @@
     }
   );
 
+  const selectAllStatus = ref<SelectAllEnum>(SelectAllEnum.NONE);
   const checked = computed({
     get: () => {
-      if (props.selectorStatus !== 'all') {
-        return props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
-      }
-      if (props.selectorStatus === 'all') {
-        return !props.excludeKeys?.length
-          ? true
-          : props.selectedKeys.size > 0 && props.selectedKeys.size === props.total;
-      }
+      // 如果是选中所有页则是全选状态（选中所有页分两种情况：一是直接通过下拉选项选中所有页；二是当前已选的数量等于表格总数）
+      return (
+        selectAllStatus.value === SelectAllEnum.ALL ||
+        (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total)
+      );
     },
     set: (value) => {
       return value;
     },
   });
   const indeterminate = computed(() => {
-    // 已选中的数量大于 0 且小于总数时是半选状态
-    if (props.selectorStatus === 'current') {
-      return props.selectedKeys.size > 0 && props.selectedKeys.size < props.total;
-    }
-    if (props.selectorStatus === 'all') {
-      return !props.excludeKeys?.length ? false : props.selectedKeys.size > 0 && props.selectedKeys.size < props.total;
-    }
+    // 有无勾选的 key，或非全选所有页且已选中的数量大于 0 且小于总数时是半选状态
+    return (
+      props.excludeKeys.length > 0 ||
+      (selectAllStatus.value !== SelectAllEnum.ALL &&
+        props.selectedKeys.size > 0 &&
+        props.selectedKeys.size < props.total)
+    );
   });
 
   const handleSelect = (v: string | number | Record<string, any> | undefined) => {
+    selectAllStatus.value = v as SelectAllEnum;
     emit('change', v as SelectAllEnum);
   };
 

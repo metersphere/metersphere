@@ -27,40 +27,6 @@
         </div>
       </a-tooltip>
     </div>
-    <div style="font-weight: bold">
-      {{ t('apiScenario.setting.run.config') }}
-    </div>
-    <div class="mb-[16px] mt-[10px] flex items-center gap-[8px]">
-      <a-switch v-model:model-value="form.enableStepWait" type="line" size="small" @change="emit('change')" />
-      {{ t('apiScenario.setting.step.waitTime') }}
-      <a-tooltip :content="t('apiScenario.setting.waitTime.tip')">
-        <div>
-          <MsIcon
-            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-            type="icon-icon-maybe_outlined"
-          />
-        </div>
-      </a-tooltip>
-    </div>
-
-    <a-form-item v-if="form.stepWaitTime !== null || form.stepWaitTime !== undefined" class="flex-1">
-      <template #label>
-        <div class="flex items-center">
-          {{ t('apiScenario.setting.waitTime') }}
-          <div class="text-[var(--color-text-brand)]">(ms)</div>
-        </div>
-      </template>
-      <a-input-number
-        v-model:model-value="form.stepWaitTime"
-        mode="button"
-        :step="100"
-        :min="0"
-        :max="600000"
-        model-event="input"
-        class="w-[160px]"
-        @blur="handleInputChange"
-      />
-    </a-form-item>
 
     <a-form-item class="flex-1">
       <template #label>

@@ -89,6 +89,7 @@
             size="small"
             @press-enter="isShowEditScriptNameInput = false"
             @blur="isShowEditScriptNameInput = false"
+            @change="() => emit('change')"
           />
         </div>
         <div class="flex items-center justify-between px-[12px] pt-[12px]">
@@ -195,6 +196,7 @@
             :disabled="props.disabled"
             show-type="commonScript"
             :show-header="false"
+            @change="() => emit('change')"
           />
         </div>
       </div>
@@ -230,6 +232,7 @@
               :columns="scriptColumns"
               :height-used="heightUsed"
               :selectable="false"
+              @change="() => emit('change')"
             />
             <MsCodeEditor
               v-else-if="commonScriptShowType === 'scriptContent' && condition.commonScriptInfo"
@@ -703,6 +706,7 @@ if (!result){
     };
     scriptParams.value = (condition.value.commonScriptInfo?.params as any[]) || [];
     showQuoteDrawer.value = false;
+    Message.success(t('apiTestDebug.introduceSourceApplySuccess'));
   }
 
   const showAddScriptDrawer = ref(false);
