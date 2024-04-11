@@ -27,6 +27,8 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.api.processor.MsProcessor;
+import io.metersphere.project.api.processor.TimeWaitingProcessor;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
@@ -1390,11 +1392,8 @@ public class ApiScenarioService extends MoveNodeService {
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(poolId);
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
-        if (parseParam.getScenarioConfig() != null
-                && parseParam.getScenarioConfig().getOtherConfig() != null
-                && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
-            scenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
-        }
+        scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
+
         initApiReport(apiScenario, scenarioReport);
 
         // 初始化报告步骤
@@ -2849,5 +2848,30 @@ public class ApiScenarioService extends MoveNodeService {
         apiStepResourceInfo.setProjectId(project.getId());
         apiStepResourceInfo.setProjectName(project.getName());
         return apiStepResourceInfo;
+    }
+
+    /**
+     * 获取场景前置的总等待时间
+     * @param scenarioConfig
+     * @return
+     */
+    public Long getGlobalWaitTime(ScenarioConfig scenarioConfig) {
+        Long waitTime = null;
+        if (scenarioConfig != null
+                && scenarioConfig.getPreProcessorConfig() != null
+                && scenarioConfig.getPreProcessorConfig().getProcessors() != null) {
+            waitTime = 0L;
+            for (MsProcessor processor : scenarioConfig
+                    .getPreProcessorConfig()
+                    .getProcessors()) {
+                if (processor instanceof TimeWaitingProcessor timeWaitingProcessor
+                        && timeWaitingProcessor.getEnable()
+                        && timeWaitingProcessor.getDelay() != null) {
+                    waitTime += timeWaitingProcessor.getDelay();
+                }
+            }
+            waitTime = waitTime > 0 ? waitTime : null;
+        }
+        return waitTime;
     }
 }

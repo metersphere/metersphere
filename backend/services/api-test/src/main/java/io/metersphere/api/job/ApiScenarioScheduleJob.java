@@ -7,8 +7,11 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
+import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.project.api.processor.MsProcessor;
+import io.metersphere.project.api.processor.TimeWaitingProcessor;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.TaskTriggerMode;
@@ -22,9 +25,13 @@ import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.jetbrains.annotations.Nullable;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ApiScenarioScheduleJob extends BaseScheduleJob {
     @Override
@@ -74,11 +81,8 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
         scenarioReport.setPoolId(apiRunModeConfigDTO.getPoolId());
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
-        if (parseParam.getScenarioConfig() != null
-                && parseParam.getScenarioConfig().getOtherConfig() != null
-                && BooleanUtils.isTrue(parseParam.getScenarioConfig().getOtherConfig().getEnableStepWait())) {
-            scenarioReport.setWaitingTime(parseParam.getScenarioConfig().getOtherConfig().getStepWaitTime());
-        }
+        scenarioReport.setWaitingTime(apiScenarioService.getGlobalWaitTime(parseParam.getScenarioConfig()));
+
         apiScenarioService.initApiReport(apiScenarioDetail, scenarioReport);
 
         // 初始化报告步骤
@@ -86,6 +90,8 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
 
         apiExecuteService.execute(runRequest, taskRequest, parseConfig);
     }
+
+
 
     public static JobKey getJobKey(String scenarioId) {
         return new JobKey(scenarioId, ApiScenarioScheduleJob.class.getName());
