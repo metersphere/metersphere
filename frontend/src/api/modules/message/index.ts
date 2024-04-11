@@ -85,6 +85,6 @@ export function queryMessageHistoryCount(data: historyQueryParams) {
   return MSR.post<OptionItem[]>({ url: '/notification/count', data });
 }
 
-export function getMessageReadAll() {
-  return MSR.get<number>({ url: '/notification/read/all' });
+export function getMessageReadAll(resourceType?: string) {
+  return MSR.get<number>({ url: '/notification/read/all', params: { resourceType } });
 }

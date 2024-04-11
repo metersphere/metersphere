@@ -1,27 +1,31 @@
 package io.metersphere.system.notice.sender;
 
 
-import io.metersphere.api.domain.ApiDefinitionFollower;
-import io.metersphere.api.domain.ApiDefinitionFollowerExample;
-import io.metersphere.api.domain.ApiScenarioFollower;
-import io.metersphere.api.domain.ApiScenarioFollowerExample;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.ApiDefinitionFollowerMapper;
+import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugFollower;
 import io.metersphere.bug.domain.BugFollowerExample;
 import io.metersphere.bug.mapper.BugFollowerMapper;
-import io.metersphere.functional.domain.CaseReviewFollower;
-import io.metersphere.functional.domain.CaseReviewFollowerExample;
-import io.metersphere.functional.domain.FunctionalCaseFollower;
-import io.metersphere.functional.domain.FunctionalCaseFollowerExample;
+import io.metersphere.bug.mapper.BugMapper;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.CaseReviewFollowerMapper;
+import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.load.domain.LoadTest;
 import io.metersphere.load.domain.LoadTestFollower;
 import io.metersphere.load.domain.LoadTestFollowerExample;
 import io.metersphere.load.mapper.LoadTestFollowerMapper;
+import io.metersphere.load.mapper.LoadTestMapper;
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFollower;
 import io.metersphere.plan.domain.TestPlanFollowerExample;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.User;
@@ -39,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNoticeSender implements NoticeSender {
@@ -46,17 +51,31 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     private BugFollowerMapper bugFollowerMapper;
     @Resource
+    private BugMapper bugMapper;
+    @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
     @Resource
     private FunctionalCaseFollowerMapper functionalCaseFollowerMapper;
     @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
     private ApiScenarioFollowerMapper apiScenarioFollowerMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiDefinitionFollowerMapper apiDefinitionFollowerMapper;
     @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
     private LoadTestFollowerMapper loadTestFollowerMapper;
     @Resource
+    private LoadTestMapper loadTestMapper;
+    @Resource
     private CaseReviewFollowerMapper caseReviewFollowerMapper;
+    @Resource
+    private CaseReviewMapper caseReviewMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
 
@@ -116,7 +135,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     if (StringUtils.isNotBlank(createUser)) {
                         toUsers.add(new Receiver(createUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     } else {
-                        toUsers.add(new Receiver((String) paramMap.get(NoticeConstants.RelatedUser.OPERATOR), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                        Receiver receiver = handleCreateUser(messageDetail, noticeModel);
+                        toUsers.add(Objects.requireNonNullElseGet(receiver, () -> new Receiver((String) paramMap.get(NoticeConstants.RelatedUser.OPERATOR), NotificationConstants.Type.SYSTEM_NOTICE.name())));
                     }
                 }
                 case NoticeConstants.RelatedUser.OPERATOR -> {
@@ -152,7 +172,64 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         LogUtils.info("userIds: ", JSON.toJSONString(userIds));
         List<User> users = getUsers(userIds, messageDetail.getProjectId());
         List<String> realUserIds = users.stream().map(User::getId).toList();
-        return toUsers;
+        return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
+    }
+
+    private Receiver handleCreateUser(MessageDetail messageDetail, NoticeModel noticeModel) {
+        String id = (String) noticeModel.getParamMap().get("id");
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        String taskType = messageDetail.getTaskType();
+
+        Receiver receiver = null;
+        switch (taskType) {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
+                TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+                if (testPlan != null) {
+                    receiver = new Receiver(testPlan.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
+                CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(id);
+                if (caseReview != null) {
+                    receiver = new Receiver(caseReview.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
+                ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+                if (apiScenario != null) {
+                    receiver = new Receiver(apiScenario.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
+                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+                if (apiDefinition != null) {
+                    receiver = new Receiver(apiDefinition.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
+                LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+                if (loadTest != null) {
+                    receiver = new Receiver(loadTest.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
+                FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
+                if (functionalCase != null) {
+                    receiver = new Receiver(functionalCase.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.BUG_TASK -> {
+                Bug bug = bugMapper.selectByPrimaryKey(id);
+                if (bug != null) {
+                    receiver = new Receiver(bug.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            default -> {
+            }
+        }
+        return receiver;
     }
 
     private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
