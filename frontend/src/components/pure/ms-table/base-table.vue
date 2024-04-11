@@ -51,7 +51,7 @@
               v-model:model-value="record.tableChecked"
               @change="(val) => handleRadioChange(val as boolean, record)"
             />
-            <div v-if="attrs.showPagination" class="w-[16px]"></div>
+            <div v-if="attrs.showPagination && props.showSelectorAll" class="w-[16px]"></div>
           </template>
         </a-table-column>
         <a-table-column

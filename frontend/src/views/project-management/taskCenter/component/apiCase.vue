@@ -10,6 +10,7 @@
           class="mx-[8px] w-[240px]"
           @search="searchList"
           @press-enter="searchList"
+          @clear="searchList"
         ></a-input-search>
       </div>
     </div>
@@ -179,7 +180,7 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    group: string;
+    group: 'system' | 'organization' | 'project';
     moduleType: keyof typeof TaskCenterEnum;
     name: string;
   }>();

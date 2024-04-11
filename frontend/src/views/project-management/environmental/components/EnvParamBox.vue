@@ -32,30 +32,27 @@
           />
         </a-form-item>
       </a-form>
-
-      <a-tabs v-if="contentTabList.length" v-model:active-key="activeKey" class="no-content" @change="handleTabChange">
-        <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="t(item.label)" />
-        <a-tab-pane key="displaySetting" :title="t('project.environmental.displaySetting')" />
-      </a-tabs>
+      <MsTab
+        v-model:active-key="activeKey"
+        :content-tab-list="contentTabList"
+        :get-text-func="getTabBadge"
+        class="no-content relative mb-[16px] border-b"
+        @change="handleTabChange"
+      />
     </div>
-    <a-divider
-      :margin="0"
-      :class="{
-        '!mb-[16px]': !(activeKey === 'pre' || activeKey === 'post'),
-      }"
-    />
     <div class="content h-full">
-      <EnvParamsTab v-if="activeKey === 'envParams'" />
-      <HttpTab v-else-if="activeKey === 'http'" />
-      <DataBaseTab v-else-if="activeKey === 'database'" />
-      <HostTab v-else-if="activeKey === 'host'" ref="hostTabRef" />
-      <!-- <PreTab v-else-if="activeKey === 'pre'" />
-      <PostTab v-else-if="activeKey === 'post'" /> -->
-      <div v-else-if="activeKey === 'pre' || activeKey === 'post'" class="h-full">
+      <EnvParamsTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM" />
+      <HttpTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
+      <DataBaseTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_DATABASE" />
+      <HostTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HOST" ref="hostTabRef" />
+      <div
+        v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PRE || activeKey === EnvTabTypeEnum.ENVIRONMENT_POST"
+        class="h-full"
+      >
         <PreAndPostTab :active-type="activeKey" />
       </div>
 
-      <AssertTab v-else-if="activeKey === 'assert'" />
+      <AssertTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_ASSERT" />
       <template v-for="item in envPluginList" :key="item.pluginId">
         <PluginTab
           v-if="activeKey === item.pluginId"
@@ -81,6 +78,7 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import TabSettingDrawer from './common/TabSettingDrawer.vue';
   import AssertTab from './envParams/AssertTab.vue';
   import DataBaseTab from './envParams/DatabaseTab.vue';
@@ -98,6 +96,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
+  import { EnvTabTypeEnum } from '@/enums/envEnum';
 
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
@@ -109,7 +108,7 @@
     (e: 'resetEnv'): void;
   }>();
 
-  const activeKey = ref('envParams');
+  const activeKey = ref<string>(EnvTabTypeEnum.ENVIRONMENT_PARAM);
   const envForm = ref();
   const { t } = useI18n();
   const loading = ref(false);
@@ -136,46 +135,55 @@
   const contentTabList = ref<ContentTabItem[]>([]);
   const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
 
+  const settingList = [
+    {
+      value: EnvTabTypeEnum.ENVIRONMENT_SETTING,
+      label: t('project.environmental.displaySetting'),
+      canHide: false,
+      isShow: true,
+    },
+  ];
+
   const sourceTabList = [
     {
-      value: 'envParams',
-      label: 'project.environmental.envParams',
+      value: EnvTabTypeEnum.ENVIRONMENT_PARAM,
+      label: t('project.environmental.envParams'),
       canHide: false,
       isShow: true,
     },
     {
-      value: 'http',
-      label: 'project.environmental.HTTP',
+      value: EnvTabTypeEnum.ENVIRONMENT_HTTP,
+      label: t('project.environmental.HTTP'),
       canHide: true,
       isShow: true,
     },
     {
-      value: 'database',
-      label: 'project.environmental.database',
+      value: EnvTabTypeEnum.ENVIRONMENT_DATABASE,
+      label: t('project.environmental.database'),
       canHide: true,
       isShow: true,
     },
     {
-      value: 'host',
-      label: 'project.environmental.HOST',
+      value: EnvTabTypeEnum.ENVIRONMENT_HOST,
+      label: t('project.environmental.HOST'),
       canHide: true,
       isShow: true,
     },
     {
-      value: 'pre',
-      label: 'project.environmental.pre',
+      value: EnvTabTypeEnum.ENVIRONMENT_PRE,
+      label: t('project.environmental.pre'),
       canHide: true,
       isShow: true,
     },
     {
-      value: 'post',
-      label: 'project.environmental.post',
+      value: EnvTabTypeEnum.ENVIRONMENT_POST,
+      label: t('project.environmental.post'),
       canHide: true,
       isShow: true,
     },
     {
-      value: 'assert',
-      label: 'project.environmental.assert',
+      value: EnvTabTypeEnum.ENVIRONMENT_ASSERT,
+      label: t('project.environmental.assert'),
       canHide: true,
       isShow: true,
     },
@@ -191,7 +199,7 @@
     }
   };
   await initPlugin();
-  await store.initContentTabList([...sourceTabList, ...pluginTabList.value]);
+  await store.initContentTabList([...sourceTabList, ...pluginTabList.value, ...settingList]);
   contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
   // 插件状态存储
 
@@ -274,10 +282,20 @@
   };
 
   const handleTabChange = (key: string | number) => {
-    if (key === 'displaySetting') {
+    if (key === 'SETTING') {
       tabSettingVisible.value = true;
     }
   };
+
+  function getTabBadge(tabKey: string) {
+    switch (tabKey) {
+      case EnvTabTypeEnum.ENVIRONMENT_ASSERT:
+        const assertLength = store.currentEnvDetailInfo.config.assertionConfig.assertions.length;
+        return `${assertLength > 99 ? '99+' : assertLength || ''}`;
+      default:
+        return '';
+    }
+  }
 </script>
 
 <style lang="less" scoped>

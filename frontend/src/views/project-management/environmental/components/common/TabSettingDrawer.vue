@@ -73,7 +73,7 @@
 
   const loadColumn = async () => {
     const res = (await store.getContentTabList()) || [];
-    nonCloseColumn.value = res.filter((item) => !item.canHide);
+    nonCloseColumn.value = res.filter((item) => !item.canHide && item.value !== 'SETTING');
     couldCloseColumn.value = res.filter((item) => item.canHide);
   };
 
