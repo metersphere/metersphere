@@ -41,6 +41,7 @@
         "
         :show-file-list="false"
         :auto-upload="false"
+        :allow-repeat="true"
         :disabled="confirmLoading"
         :file-type-tip="fileTypeTip"
       ></MsUpload>
