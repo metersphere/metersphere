@@ -7,4 +7,5 @@ public class FileAssociationSource {
     private String sourceId;
     private String sourceNum;
     private String sourceName;
+    private String redirectId;
 }

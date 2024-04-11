@@ -15,19 +15,24 @@ public class FileAssociationSourceUtil {
     public static final String SOURCE_TYPE_FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
     public static final String SOURCE_TYPE_API_DEBUG = "API_DEBUG";
     public static final String SOURCE_TYPE_API_SCENARIO= "API_SCENARIO";
+    public static final String SOURCE_TYPE_API_SCENARIO_STEP = "API_SCENARIO_STEP";
     public static final String SOURCE_TYPE_API_TEST_CASE = "API_TEST_CASE";
     public static final String SOURCE_TYPE_API_DEFINITION = "API_DEFINITION";
     public static final String SOURCE_TYPE_API_DEFINITION_MOCK = "API_DEFINITION_MOCK";
     public static final Map<String, String> QUERY_SQL = new HashMap<>();
 
     static {
-        QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId, num AS sourceNum, title AS sourceName FROM bug");
-        QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM functional_case");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId, id AS sourceNum, name AS sourceName FROM api_debug");
-        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_scenario");
-        QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_test_case");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_definition");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION_MOCK, "SELECT id AS sourceId, expect_num AS sourceNum, name AS sourceName FROM api_definition_mock");
+        QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId, id AS redirectId, num AS sourceNum, title AS sourceName FROM bug t");
+        QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId, id AS redirectId, num AS sourceNum, name AS sourceName FROM functional_case t");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId, id AS redirectId, id AS sourceNum, name AS sourceName FROM api_debug t");
+        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO, "SELECT id AS sourceId, id AS redirectId, num AS sourceNum, name AS sourceName FROM api_scenario t");
+        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO_STEP, """
+                SELECT t.id AS sourceId, scenario.id AS redirectId, scenario.num AS sourceNum, CONCAT(scenario.name, ' (', t.name, ')') AS sourceName 
+                FROM api_scenario_step t JOIN api_scenario scenario ON t.scenario_id = scenario.id
+                """);
+        QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId, id AS redirectId, num AS sourceNum, name AS sourceName FROM api_test_case t");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId, id AS redirectId, num AS sourceNum, name AS sourceName FROM api_definition t");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION_MOCK, "SELECT id AS sourceId, id AS redirectId, expect_num AS sourceNum, name AS sourceName FROM api_definition_mock t");
     }
 
     public static void validate(String type) {

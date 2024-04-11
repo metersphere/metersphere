@@ -175,6 +175,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioReportService scenarioReportService;
 
     private static String fileMetadataId;
+    private static String fileMetadataStepId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
     private static List<ApiScenarioStepRequest> addApiScenarioSteps;
@@ -627,6 +628,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
         steptDetailMap.put(steps.get(0).getId(), getMsHttpElementStr(msHttpElement));
         steptDetailMap.put(steps.get(1).getId(), getMsHttpElementStr(msHttpElement));
+        fileMetadataStepId = steps.get(0).getId();
 
         request.setSteps(steps);
         request.setStepDetails(steptDetailMap);
@@ -682,14 +684,12 @@ public class ApiScenarioControllerTests extends BaseTest {
     private List<ApiFile> getApiFiles(String fileId) {
         ApiScenarioStepBlobExample example = new ApiScenarioStepBlobExample();
         example.createCriteria().andScenarioIdEqualTo(addApiScenario.getId());
-        List<ApiScenarioStepBlob> apiScenarioStepBlobs = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example);
+        ApiScenarioStepBlob apiScenarioStepBlob = apiScenarioStepBlobMapper.selectByPrimaryKey(fileMetadataStepId);
         List<ApiFile> apiFiles = new ArrayList<>();
-        for (ApiScenarioStepBlob apiScenarioStepBlob : apiScenarioStepBlobs) {
-            try {
-                AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
-                apiFiles.addAll(apiCommonService.getApiFilesByFileId(fileId, msTestElement));
-            } catch (Exception e) {
-            }
+        try {
+            AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
+            apiFiles.addAll(apiCommonService.getApiFilesByFileId(fileId, msTestElement));
+        } catch (Exception e) {
         }
         return apiFiles;
     }

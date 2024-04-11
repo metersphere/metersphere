@@ -77,6 +77,7 @@ public class FileAssociationService {
                 response.setFileId(item.getFileId());
                 response.setSourceName(sourceIdNameMap.get(item.getSourceId()).getSourceName());
                 response.setSourceNum(sourceIdNameMap.get(item.getSourceId()).getSourceNum());
+                response.setRedirectId(sourceIdNameMap.get(item.getSourceId()).getRedirectId());
                 response.setSourceType(item.getSourceType());
                 response.setFileVersion(fileIdMap.get(item.getFileId()).getFileVersion());
                 responseList.add(response);

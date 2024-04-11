@@ -490,6 +490,7 @@ public class ApiScenarioService extends MoveNodeService {
             stepFileParam.forEach((stepId, fileParam) -> {
                 // 处理步骤文件
                 ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(stepId, scenario.getProjectId(), creator);
+                resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO_STEP);
                 resourceUpdateRequest.setUploadFileIds(fileParam.getUploadFileIds());
                 resourceUpdateRequest.setLinkFileIds(fileParam.getLinkFileIds());
                 apiFileResourceService.addFileResource(resourceUpdateRequest);
@@ -692,14 +693,14 @@ public class ApiScenarioService extends MoveNodeService {
 
         ApiScenario originScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
 
+        // 更新场景步骤
+        updateApiScenarioStep(request, originScenario, updater);
+
         // 处理步骤文件
         handleStepFiles(request, updater, originScenario);
 
         // 处理场景文件
         handleScenarioFiles(request, updater, originScenario);
-
-        // 更新场景步骤
-        updateApiScenarioStep(request, originScenario, updater);
 
         return scenario;
     }
@@ -728,8 +729,9 @@ public class ApiScenarioService extends MoveNodeService {
             stepFileParam.forEach((stepId, fileParam) -> {
                 // 处理步骤文件
                 ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(stepId, scenario.getProjectId(), updater);
+                resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO_STEP);
                 resourceUpdateRequest = BeanUtils.copyBean(resourceUpdateRequest, fileParam);
-                apiFileResourceService.addFileResource(resourceUpdateRequest);
+                apiFileResourceService.updateFileResource(resourceUpdateRequest);
             });
         }
     }
@@ -740,7 +742,7 @@ public class ApiScenarioService extends MoveNodeService {
     private void updateApiScenarioStep(ApiScenarioUpdateRequest request, ApiScenario scenario, String userId) {
         List<ApiScenarioStepRequest> steps = request.getSteps();
         // steps 不为 null 则修改
-        if (steps!= null) {
+        if (steps != null) {
             if (CollectionUtils.isEmpty(steps)) {
                 // 如果是空数组，则删除所有步骤
                 deleteStepByScenarioId(scenario.getId());
@@ -808,6 +810,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     /**
      * 检测循环依赖
+     *
      * @param scenarioId
      * @param steps
      */
@@ -1299,6 +1302,8 @@ public class ApiScenarioService extends MoveNodeService {
 
         ApiResourceRunRequest runRequest = getApiResourceRunRequest(msScenario, tmpParam);
 
+        runRequest = setFileParam(request, runRequest);
+
         TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(), request.getProjectId(),
                 apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         taskRequest.setSaveResult(false);
@@ -1311,6 +1316,39 @@ public class ApiScenarioService extends MoveNodeService {
         return apiExecuteService.execute(runRequest, taskRequest, parseConfig);
     }
 
+    /**
+     * 执行时设置临时文件的相关参数
+     *
+     * @param request
+     * @param runRequest
+     */
+    private ApiResourceRunRequest setFileParam(ApiScenarioDebugRequest request, ApiResourceRunRequest runRequest) {
+        runRequest.getLinkFileIds().addAll(getLinkFileIds(request.getFileParam()));
+        runRequest.getUploadFileIds().addAll(getUploadFileIds(request.getFileParam()));
+        Map<String, ResourceAddFileParam> stepFileParam = request.getStepFileParam();
+        if (MapUtils.isNotEmpty(stepFileParam)) {
+            stepFileParam.values().forEach(fileParam -> {
+                runRequest.getLinkFileIds().addAll(getLinkFileIds(fileParam));
+                runRequest.getUploadFileIds().addAll(getUploadFileIds(fileParam));
+            });
+        }
+        return runRequest;
+    }
+
+    public List<String> getLinkFileIds(ResourceAddFileParam fileParam) {
+        if (fileParam != null && CollectionUtils.isNotEmpty(fileParam.getLinkFileIds())) {
+            return fileParam.getLinkFileIds();
+        }
+        return List.of();
+    }
+
+    public List<String> getUploadFileIds(ResourceAddFileParam fileParam) {
+        if (fileParam != null && CollectionUtils.isNotEmpty(fileParam.getUploadFileIds())) {
+            return fileParam.getUploadFileIds();
+        }
+        return List.of();
+    }
+
     public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
 
@@ -1319,7 +1357,7 @@ public class ApiScenarioService extends MoveNodeService {
 
         ApiScenarioParseParam parseParam = getApiScenarioParseParam(apiScenarioDetail);
 
-        return executeRun(apiScenarioDetail, msScenario, apiScenarioDetail.getSteps(), parseParam, reportId, userId);
+        return executeRun(apiScenarioDetail, msScenario, apiScenarioDetail.getSteps(), parseParam, new ApiResourceRunRequest(), reportId, userId);
     }
 
     public ApiScenarioParseParam getApiScenarioParseParam(ApiScenarioDetail apiScenarioDetail) {
@@ -1351,19 +1389,24 @@ public class ApiScenarioService extends MoveNodeService {
         // 处理特殊的步骤详情
         addSpecialStepDetails(request.getSteps(), request.getStepDetails());
 
-        return executeRun(apiScenario, msScenario, request.getSteps(), request, request.getReportId(), userId);
+        ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
+        runRequest = setFileParam(request, runRequest);
+
+        return executeRun(apiScenario, msScenario, request.getSteps(), request, runRequest, request.getReportId(), userId);
     }
 
     public TaskRequestDTO executeRun(ApiScenario apiScenario,
                                      MsScenario msScenario,
                                      List<? extends ApiScenarioStepCommonDTO> steps,
                                      ApiScenarioParseParam parseParam,
-                                     String reportId, String userId) {
+                                     ApiResourceRunRequest runRequest,
+                                     String reportId,
+                                     String userId) {
 
         // 解析生成场景树，并保存临时变量
         ApiScenarioParseTmpParam tmpParam = parse(msScenario, steps, parseParam);
 
-        ApiResourceRunRequest runRequest = getApiResourceRunRequest(msScenario, tmpParam);
+        runRequest = setApiResourceRunRequestParam(msScenario, tmpParam, runRequest);
 
         String poolId = apiExecuteService.getProjectApiResourcePoolId(apiScenario.getProjectId());
 
@@ -1511,6 +1554,10 @@ public class ApiScenarioService extends MoveNodeService {
 
     public ApiResourceRunRequest getApiResourceRunRequest(MsScenario msScenario, ApiScenarioParseTmpParam tmpParam) {
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
+        return setApiResourceRunRequestParam(msScenario, tmpParam, runRequest);
+    }
+
+    private ApiResourceRunRequest setApiResourceRunRequestParam(MsScenario msScenario, ApiScenarioParseTmpParam tmpParam, ApiResourceRunRequest runRequest) {
         runRequest.setRefResourceIds(tmpParam.getRefResourceIds());
         runRequest.setRefProjectIds(tmpParam.getRefProjectIds());
         runRequest.setTestElement(msScenario);
@@ -1575,6 +1622,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     /**
      * 设置 MsHTTPElement 中的 method 等信息
+     *
      * @param httpElements
      * @param getDefinitionInfoFunc
      */
@@ -1889,6 +1937,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     /**
      * 查询部分引用的步骤的详情
+     *
      * @param steps
      * @return
      */
@@ -2775,31 +2824,29 @@ public class ApiScenarioService extends MoveNodeService {
         return operationHistoryService.listWidthTable(request, SCENARIO_TABLE);
     }
 
-    public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
-        // 查询有步骤详情的请求类型的步骤
-        List<String> stepIds = extApiScenarioStepMapper.getHasBlobRequestStepIds(originFileAssociation.getSourceId());
+    public void handleStepFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
         // 查询步骤详情
-        ApiScenarioStepBlobExample blobExample = new ApiScenarioStepBlobExample();
-        blobExample.createCriteria().andIdIn(stepIds);
-        List<ApiScenarioStepBlob> apiScenarioStepBlobs = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(blobExample);
+        ApiScenarioStepBlob apiScenarioStepBlob = apiScenarioStepBlobMapper.selectByPrimaryKey(originFileAssociation.getSourceId());
 
-        for (ApiScenarioStepBlob apiScenarioStepBlob : apiScenarioStepBlobs) {
-            AbstractMsTestElement msTestElement = null;
-            try {
-                msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
-                // 如果插件删除，会转换异常
-            } catch (Exception e) {
-                LogUtils.error(e);
-            }
-            if (msTestElement instanceof MsHTTPElement msHTTPElement) {
-                List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msHTTPElement);
-                // 替换文件的Id和name
-                apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
-                // 如果有需要更新的文件，则更新步骤详情
-                if (CollectionUtils.isNotEmpty(updateFiles)) {
-                    apiScenarioStepBlob.setContent(ApiDataUtils.toJSONString(msTestElement).getBytes());
-                    apiScenarioStepBlobMapper.updateByPrimaryKeySelective(apiScenarioStepBlob);
-                }
+        if (apiScenarioStepBlob == null || apiScenarioStepBlob.getContent() == null) {
+            return;
+        }
+
+        AbstractMsTestElement msTestElement = null;
+        try {
+            msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
+            // 如果插件删除，会转换异常
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        if (msTestElement instanceof MsHTTPElement msHTTPElement) {
+            List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msHTTPElement);
+            // 替换文件的Id和name
+            apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+            // 如果有需要更新的文件，则更新步骤详情
+            if (CollectionUtils.isNotEmpty(updateFiles)) {
+                apiScenarioStepBlob.setContent(ApiDataUtils.toJSONString(msTestElement).getBytes());
+                apiScenarioStepBlobMapper.updateByPrimaryKeySelective(apiScenarioStepBlob);
             }
         }
     }
@@ -2852,6 +2899,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     /**
      * 获取场景前置的总等待时间
+     *
      * @param scenarioConfig
      * @return
      */

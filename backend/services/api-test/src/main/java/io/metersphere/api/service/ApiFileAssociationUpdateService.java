@@ -34,8 +34,8 @@ public class ApiFileAssociationUpdateService implements FileAssociationUpdateSer
                     CommonBeanFactory.getBean(ApiDefinitionService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             case FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE ->
                     CommonBeanFactory.getBean(ApiTestCaseService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
-            case FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO ->
-                    CommonBeanFactory.getBean(ApiScenarioService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+            case FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO_STEP ->
+                    CommonBeanFactory.getBean(ApiScenarioService.class).handleStepFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             default -> {
             }
         }
