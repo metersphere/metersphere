@@ -32,15 +32,19 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #defaultTemplate="{ record }">
-        <!-- <a-switch
-          v-model="record.enableDefault"
-          :disabled="record.enableDefault || isEnableOrdTemplate"
-          size="small"
-          type="line"
-          @change="(value) => changeDefault(value, record)"
-        /> -->
-        <!-- TODO 这个版本不允许修改默认模版也不允许创建用例模版 -->
+        <div v-if="record.enableDefault || isEnableOrdTemplate">
+          <a-tooltip :content="t('system.orgTemplate.must.open.one')" :mouse-enter-delay="500">
+            <a-switch
+              v-model="record.enableDefault"
+              :disabled="true"
+              size="small"
+              type="line"
+              @change="(value) => changeDefault(value, record)"
+            />
+          </a-tooltip>
+        </div>
         <a-switch
+          v-else
           v-model="record.enableDefault"
           :disabled="record.enableDefault || isEnableOrdTemplate"
           size="small"

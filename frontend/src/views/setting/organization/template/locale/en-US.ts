@@ -31,6 +31,7 @@ export default {
   'system.orgTemplate.fieldLimit': 'You can add a maximum of 20 fields',
   'system.orgTemplate.isSystem': 'System',
   'system.orgTemplate.isBuiltIn': 'Built-in',
+  'system.orgTemplate.must.open.one': 'Must have one open default template',
   'system.orgTemplate.fieldList': 'Field list',
   'system.orgTemplate.addOptions': 'Add an option',
   'system.orgTemplate.deleteTip':

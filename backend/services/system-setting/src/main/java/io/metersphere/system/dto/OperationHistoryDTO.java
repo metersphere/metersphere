@@ -23,4 +23,6 @@ public class OperationHistoryDTO extends OperationHistory implements Serializabl
     // 版本
     private String versionName;
 
+    //是否是最新
+    private boolean isLatest;
 }

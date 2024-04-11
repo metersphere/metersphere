@@ -67,4 +67,11 @@
             </if>
         </where>
     </select>
+    <select id="selectLatestIdByOperationId" resultType="java.lang.Long">
+        select id
+        from operation_history
+        where source_id = #{0}
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>

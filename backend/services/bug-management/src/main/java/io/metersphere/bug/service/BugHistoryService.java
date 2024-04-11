@@ -10,6 +10,7 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.BaseOperationHistoryMapper;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
@@ -31,6 +32,8 @@ public class BugHistoryService {
 
     @Resource
     private OperationHistoryMapper operationHistoryMapper;
+    @Resource
+    private BaseOperationHistoryMapper baseOperationHistoryMapper;
 
     /**
      * 缺陷变更历史分页列表
@@ -50,6 +53,7 @@ public class BugHistoryService {
         userExample.createCriteria().andIdIn(userIds);
         List<User> users = userMapper.selectByExample(userExample);
         Map<String, String> userMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
+        Long latestVersionId = baseOperationHistoryMapper.selectLatestIdByOperationId(request.getSourceId());
         return history.stream().map(h -> {
             OperationHistoryDTO dto = new OperationHistoryDTO();
             BeanUtils.copyBean(dto, h);
@@ -61,7 +65,7 @@ public class BugHistoryService {
             } else if (StringUtils.equals(dto.getType(), OperationLogType.DELETE.name())) {
                 dto.setType(Translator.get("delete"));
             }
-
+            dto.setLatest(latestVersionId != null && latestVersionId.longValue() == dto.getId().longValue());
             return dto;
         }).toList();
     }

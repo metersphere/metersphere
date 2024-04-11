@@ -2,6 +2,7 @@
   <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #changeNumber="{ record }">
       <span>{{ record.id }}</span>
+      <MsTag v-if="record.latest" size="small" class="ml-2">{{ t('bugManagement.history.current') }}</MsTag>
     </template>
   </ms-base-table>
 </template>
@@ -10,6 +11,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { getChangeHistoryList } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
