@@ -331,7 +331,7 @@
   }
 
   function getReceiverOptions(options, event: string) {
-    if (event === 'CREATE') {
+    if (event === 'CREATE' || event === 'CASE_CREATE' || event === 'MOCK_CREATE') {
       // 创建事件的接收人不包含操作人、创建人、关注人
       options = options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
     }

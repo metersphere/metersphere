@@ -133,7 +133,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         LogUtils.error("查询关注人失败：{}", e);
                     }
                 }
-                default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.MENTIONED_ME.name()));
+                default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()));
             }
             //TODO：接口同步时通知的接收人特殊处理（v2接口同步的通知，v3这里待讨论）
 
