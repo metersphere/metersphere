@@ -1,5 +1,5 @@
 <template>
-  <a-tooltip :content="allTagText" :disabled="innerModelValue.length === 0" :mouse-enter-delay="300">
+  <a-tooltip :content="allTagText" :disabled="(innerModelValue || []).length === 0" :mouse-enter-delay="300">
     <div :class="`flex w-full items-center ${props.class}`">
       <a-input-tag
         v-model:model-value="innerModelValue"

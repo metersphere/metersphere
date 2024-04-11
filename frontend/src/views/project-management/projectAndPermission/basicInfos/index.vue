@@ -19,10 +19,12 @@
           <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-000)]">{{
             projectDetail?.name
           }}</span>
-          <span v-if="!projectDetail?.deleted && projectDetail?.enable" class="button enable-button mr-1">{{
-            t('project.basicInfo.enable')
-          }}</span>
-          <span v-else class="button delete-button">{{ t('project.basicInfo.deleted') }}</span>
+          <span
+            v-if="!projectDetail?.deleted && projectDetail?.enable"
+            class="button mr-1"
+            :class="[projectDetail?.enable ? 'enable-button' : 'delete-button']"
+            >{{ projectDetail?.enable ? t('project.basicInfo.enable') : t('project.basicInfo.enable') }}</span
+          >
         </div>
         <div class="one-line-text text-xs text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>

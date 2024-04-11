@@ -67,7 +67,7 @@
 
   const defaultParamItem = {
     key: '',
-    paramType: '',
+    paramType: 'CONSTANT',
     value: '',
     description: '',
     tags: [],

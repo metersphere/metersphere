@@ -1,16 +1,20 @@
 <template>
-  <div class="flex items-center justify-between">
-    <a-button v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" type="outline" @click="handleAdd">{{
-      t('project.environmental.database.addDatabase')
-    }}</a-button>
-    <a-input-search
-      v-model="keyword"
-      class="w-[240px]"
-      allow-clear
-      :placeholder="t('project.menu.nameSearch')"
-      @press-enter="fetchData"
-      @search="fetchData"
-    ></a-input-search>
+  <div class="grid grid-cols-4">
+    <div class="col-start-1">
+      <a-button v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" type="outline" @click="handleAdd">{{
+        t('project.environmental.database.addDatabase')
+      }}</a-button>
+    </div>
+    <div class="col-end-5 text-right">
+      <a-input-search
+        v-model="keyword"
+        class="w-[240px]"
+        allow-clear
+        :placeholder="t('project.menu.nameSearch')"
+        @press-enter="fetchData"
+        @search="fetchData"
+      ></a-input-search>
+    </div>
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #driverId="{ record }">
