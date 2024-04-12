@@ -57,4 +57,6 @@ export default {
   'project.taskCenter.confirmDisable': '确认关闭',
   'project.taskCenter.enableSuccess': '开启成功',
   'project.taskCenter.disableSuccess': '关闭成功',
+  'project.taskCenter.filterProPlaceholderText': '请选择所属项目',
+  'project.taskCenter.filterOrgPlaceholderText': '请选择所属组织',
 };

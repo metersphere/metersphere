@@ -9,7 +9,12 @@
     <template #content>
       <div class="arco-table-filters-content">
         <div class="ml-[6px] flex w-full items-center justify-start overflow-hidden px-[6px] py-[2px]">
-          <a-checkbox-group v-model:model-value="innerStatusFilters" direction="vertical" size="small">
+          <a-checkbox-group
+            v-if="props.mode === 'static' && props.list?.length"
+            v-model:model-value="innerStatusFilters"
+            direction="vertical"
+            size="small"
+          >
             <a-checkbox
               v-for="(item, index) of props.list"
               :key="item[props.valueKey || 'value']"
@@ -23,7 +28,15 @@
             </a-checkbox>
           </a-checkbox-group>
         </div>
-        <div class="filter-button">
+        <div v-if="props.mode === 'remote'" class="min-h-[100px] w-[200px] p-4">
+          <MsUserSelector
+            v-model="innerStatusFilters"
+            :load-option-params="props.loadOptionParams"
+            :type="props.type"
+            :placeholder="props.placeholderText"
+          />
+        </div>
+        <div class="flex items-center p-4" :class="[props.mode === 'static' ? 'justify-between' : 'justify-end']">
           <a-button size="mini" class="mr-[8px]" @click="resetFilter">
             {{ t('common.reset') }}
           </a-button>
@@ -39,6 +52,9 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import type { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
@@ -47,14 +63,23 @@
     [key: string]: any;
   }
 
-  const props = defineProps<{
-    visible: boolean;
-    title: string;
-    statusFilters: string[];
-    list: FilterListItem[];
-    valueKey?: string;
-    labelKey?: string;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      mode?: 'static' | 'remote';
+      visible: boolean;
+      title: string;
+      statusFilters: string[];
+      list?: FilterListItem[];
+      valueKey?: string;
+      labelKey?: string;
+      type?: UserRequestTypeEnum; // 加载选项的类型
+      loadOptionParams?: Record<string, any>; // 请求下拉的参数
+      placeholderText?: string;
+    }>(),
+    {
+      mode: 'static',
+    }
+  );
 
   const emit = defineEmits<{
     (e: 'update:visible', visible: boolean): void;

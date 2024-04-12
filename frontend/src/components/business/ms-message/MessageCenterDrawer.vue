@@ -97,7 +97,11 @@
                 </div>
                 <div v-else>
                   <div class="flex items-center">
-                    <div class="font-medium text-[var(--color-text-1)]">{{ t('ms.message.notice.title') }}</div>
+                    <a-badge :count="9" dot :offset="[6, -2]">
+                      <div class="one-line-text max-w-[400px] font-medium text-[var(--color-text-1)]">{{
+                        t('ms.message.notice.title')
+                      }}</div>
+                    </a-badge>
                   </div>
                   <div class="flex items-center">
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
@@ -375,7 +379,6 @@
     box-sizing: border-box;
     line-height: 1.8715;
   }
-
   .case {
     /* 底部样式 */
     position: fixed;
@@ -383,7 +386,6 @@
     padding: 20px;
     text-align: center;
   }
-
   .clickable {
     cursor: pointer;
     transition: background-color 0.3s ease;
