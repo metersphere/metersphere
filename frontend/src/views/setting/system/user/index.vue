@@ -322,7 +322,7 @@
   import useLocale from '@/locale/useLocale';
   import { useTableStore } from '@/store';
   import { characterLimit, formatPhoneNumber } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
   import { validateEmail, validatePhone } from '@/utils/validate';
 
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
@@ -387,7 +387,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
-      selectable: !!hasAnyPermission(['SYSTEM_USER:READ+ADD', 'SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']),
+      selectable: !!hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']),
       showSetting: true,
       heightUsed: 288,
     },
@@ -877,7 +877,7 @@
   }
 
   function handleTagClick(record: UserListItem & Record<string, any>) {
-    if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER_ROLE:READ'])) {
+    if (hasAllPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER_ROLE:READ'])) {
       record.selectUserGroupVisible = true;
     }
   }

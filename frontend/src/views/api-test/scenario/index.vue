@@ -308,7 +308,7 @@
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
         waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
       } else {
-        node.executeStatus = ScenarioExecuteStatus.UN_EXECUTE;
+        node.executeStatus = undefined;
       }
       return !!node.enable;
     });

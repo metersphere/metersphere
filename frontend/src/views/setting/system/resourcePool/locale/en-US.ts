@@ -121,4 +121,5 @@ export default {
   'system.resourcePool.jobTemplateReset': 'Reset Template',
   'system.resourcePool.addSuccess': 'Added resource pool successfully',
   'system.resourcePool.updateSuccess': 'Resource pool updated successfully',
+  'system.resourcePool.atLeastOnePool': 'Reserve at least one resource pool',
 };

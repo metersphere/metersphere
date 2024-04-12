@@ -119,7 +119,6 @@
   import { cloneDeep } from 'lodash-es';
 
   import result from '@/views/api-test/components/requestComposition/response/result.vue';
-  import loopPagination from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
 
   import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
@@ -292,6 +291,7 @@
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;

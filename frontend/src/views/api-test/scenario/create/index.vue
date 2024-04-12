@@ -10,7 +10,6 @@
           <step
             v-if="activeKey === ScenarioCreateComposition.STEP"
             v-model:scenario="scenario"
-            is-new
             @batch-debug="emit('batchDebug', $event)"
           />
         </a-tab-pane>

@@ -273,71 +273,73 @@
           {{ t('apiTestDebug.introduceSource') }}
         </MsButton>
       </div>
-      <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.sqlScript') }}</div>
-      <div class="mb-[8px] h-[300px]">
-        <MsCodeEditor
-          v-model:model-value="condition.script"
-          :read-only="props.disabled"
-          theme="vs"
-          height="120px"
-          :language="LanguageEnum.SQL"
-          :show-full-screen="false"
-          :show-theme-change="false"
-          @change="() => emit('change')"
-        >
-        </MsCodeEditor>
-      </div>
-      <div class="mb-[8px]">
-        <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
-          {{ t('apiTestDebug.storageByCol') }}
-          <a-tooltip position="right" :content="t('apiTestDebug.storageColTip')">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
+      <template v-if="condition.dataSourceId">
+        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.sqlScript') }}</div>
+        <div class="mb-[8px] h-[300px]">
+          <MsCodeEditor
+            v-model:model-value="condition.script"
+            :read-only="props.disabled"
+            theme="vs"
+            height="120px"
+            :language="LanguageEnum.SQL"
+            :show-full-screen="false"
+            :show-theme-change="false"
+            @change="() => emit('change')"
+          >
+          </MsCodeEditor>
         </div>
-        <a-input
-          v-model:model-value="condition.variableNames"
-          :max-length="255"
-          :disabled="props.disabled"
-          :placeholder="
-            t('apiTestDebug.storageByColPlaceholder', { a: 'id', b: 'email', c: '${id_1}', d: '${email_1}' })
-          "
-          @input="() => emit('change')"
-        />
-      </div>
-      <div class="sql-table-container">
-        <div class="mb-[8px] text-[var(--color-text-1)]">
-          {{ t('apiTestDebug.extractParameter') }}
+        <div class="mb-[8px]">
+          <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
+            {{ t('apiTestDebug.storageByCol') }}
+            <a-tooltip position="right" :content="t('apiTestDebug.storageColTip')">
+              <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+          <a-input
+            v-model:model-value="condition.variableNames"
+            :max-length="255"
+            :disabled="props.disabled"
+            :placeholder="
+              t('apiTestDebug.storageByColPlaceholder', { a: 'id', b: 'email', c: '${id_1}', d: '${email_1}' })
+            "
+            @input="() => emit('change')"
+          />
         </div>
-        <paramTable
-          :params="condition.extractParams"
-          :disabled-except-param="props.disabled"
-          :columns="sqlSourceColumns"
-          :selectable="false"
-          :default-param-item="defaultKeyValueParamItem"
-          @change="handleSqlSourceParamTableChange"
-        />
-      </div>
-      <div class="mt-[8px]">
-        <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
-          {{ t('apiTestDebug.storageByResult') }}
-          <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
+        <div class="sql-table-container">
+          <div class="mb-[8px] text-[var(--color-text-1)]">
+            {{ t('apiTestDebug.extractParameter') }}
+          </div>
+          <paramTable
+            :params="condition.extractParams"
+            :disabled-except-param="props.disabled"
+            :columns="sqlSourceColumns"
+            :selectable="false"
+            :default-param-item="defaultKeyValueParamItem"
+            @change="handleSqlSourceParamTableChange"
+          />
         </div>
-        <a-input
-          v-model:model-value="condition.resultVariable"
-          :disabled="props.disabled"
-          :max-length="255"
-          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: 'result', b: '${result}' })"
-          @input="() => emit('change')"
-        />
-      </div>
+        <div class="mt-[8px]">
+          <div class="mb-[8px] flex items-center text-[var(--color-text-1)]">
+            {{ t('apiTestDebug.storageByResult') }}
+            <a-tooltip position="right" :content="t('apiTestDebug.storageResultTip')">
+              <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+          <a-input
+            v-model:model-value="condition.resultVariable"
+            :disabled="props.disabled"
+            :max-length="255"
+            :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: 'result', b: '${result}' })"
+            @input="() => emit('change')"
+          />
+        </div>
+      </template>
     </template>
     <!-- 等待时间 -->
     <div v-else-if="condition.processorType === RequestConditionProcessor.TIME_WAITING">

@@ -19,13 +19,17 @@
             {{ t('system.config.auth.edit') }}
           </MsButton>
           <MsButton
-            v-if="record.enable"
+            v-show="record.enable"
             v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']"
             @click="disabledAuth(record)"
           >
             {{ t('system.config.auth.disable') }}
           </MsButton>
-          <MsButton v-else v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="enableAuth(record)">
+          <MsButton
+            v-show="!record.enable"
+            v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']"
+            @click="enableAuth(record)"
+          >
             {{ t('system.config.auth.enable') }}
           </MsButton>
           <MsTableMoreAction
@@ -49,7 +53,13 @@
       show-description
     >
       <template #tbutton>
-        <a-button type="outline" size="mini" :disabled="detailDrawerLoading" @click="editAuth(activeAuthDetail, true)">
+        <a-button
+          v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']"
+          type="outline"
+          size="mini"
+          :disabled="detailDrawerLoading"
+          @click="editAuth(activeAuthDetail, true)"
+        >
           {{ t('system.config.auth.edit') }}
         </a-button>
       </template>
@@ -584,6 +594,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -619,6 +630,7 @@
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
+  const route = useRoute();
   const { t } = useI18n();
   const { openModal } = useModal();
   const loading = ref(false);
@@ -703,6 +715,7 @@
           Message.success(t('system.config.auth.enableSuccess'));
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -730,6 +743,7 @@
           Message.success(t('system.config.auth.disableSuccess'));
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -939,7 +953,9 @@
       }
       activeAuthDesc.value = description;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+      showDetailDrawer.value = false;
     } finally {
       detailDrawerLoading.value = false;
     }
@@ -1030,6 +1046,7 @@
             });
             Message.success(t('system.config.auth.testLinkSuccess'));
           } catch (error) {
+            // eslint-disable-next-line no-console
             console.log(error);
           } finally {
             LDAPTestLoading.value = false;
@@ -1056,6 +1073,7 @@
           });
           Message.success(t('system.config.auth.testLinkSuccess'));
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           LDAPTestLoading.value = false;
@@ -1185,21 +1203,12 @@
     authFormRef.value?.resetFields();
   }
 
-  defineExpose({
-    openAuthDetail, // 暴露给父组件以实现页面携带 ID 时自动打开详情抽屉
+  onBeforeMount(() => {
+    if (route.query.id) {
+      openAuthDetail(route.query.id as string);
+    }
   });
 
-  declare const _default: import('vue').DefineComponent<
-    unknown,
-    unknown,
-    import('vue').ComponentOptionsMixin,
-    import('vue').ComponentOptionsMixin,
-    {
-      openAuthDetail: (id: string) => void;
-    }
-  >;
-
-  export declare type AuthConfigInstance = InstanceType<typeof _default>;
   await tableStore.initColumn(TableKeyEnum.SYSTEM_AUTH, columns, 'drawer');
 </script>
 

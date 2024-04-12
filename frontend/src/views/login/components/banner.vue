@@ -21,10 +21,9 @@
 
 <style lang="less" scoped>
   .banner-wrap {
-    width: 55%;
     .img {
       width: 100%;
-      object-fit: fill;
+      object-fit: cover;
     }
   }
 </style>

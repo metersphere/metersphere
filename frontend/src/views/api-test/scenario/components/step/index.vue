@@ -80,7 +80,7 @@
               allow-clear
               class="w-[200px]"
             /> -->
-            <a-tooltip v-if="!props.isNew" position="left" :content="t('apiScenario.refreshRefScenario')">
+            <a-tooltip position="left" :content="t('apiScenario.refreshRefScenario')">
               <a-button type="outline" class="arco-btn-outline--secondary !mr-0 !p-[8px]" @click="refreshStepInfo">
                 <template #icon>
                   <icon-refresh class="text-[var(--color-text-4)]" />
@@ -149,9 +149,6 @@
   import { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
-  const props = defineProps<{
-    isNew?: boolean; // 是否新建
-  }>();
   const emit = defineEmits<{
     (e: 'batchDebug', data: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>): void;
   }>();

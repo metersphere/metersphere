@@ -97,6 +97,7 @@
   /**
    * @description 接口测试-接口调试
    */
+  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -138,6 +139,7 @@
   import { defaultBodyParams, defaultResponse } from '../components/config';
   import { parseRequestBodyFiles } from '../components/utils';
 
+  const route = useRoute();
   const { t } = useI18n();
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
@@ -235,8 +237,9 @@
     activeDebug.value = debugTabs.value[debugTabs.value.length - 1];
   }
 
-  async function openApiTab(apiInfo: ModuleTreeNode) {
-    const isLoadedTabIndex = debugTabs.value.findIndex((e) => e.id === apiInfo.id);
+  async function openApiTab(apiInfo: ModuleTreeNode | string) {
+    const id = typeof apiInfo === 'string' ? apiInfo : apiInfo.id;
+    const isLoadedTabIndex = debugTabs.value.findIndex((e) => e.id === id);
     if (isLoadedTabIndex > -1) {
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeDebug.value = debugTabs.value[isLoadedTabIndex];
@@ -244,17 +247,17 @@
     }
     try {
       loading.value = true;
-      const res = await getDebugDetail(apiInfo.id);
+      const res = await getDebugDetail(id);
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
       addDebugTab({
-        label: apiInfo.name,
         ...res,
         response: cloneDeep(defaultResponse),
         ...res.request,
         url: res.path,
+        label: res.name,
         name: res.name, // request里面还有个name但是是null
         moduleId: res.moduleId, // request里面还有个moduleId但是是null
         ...parseRequestBodyResult,
@@ -344,6 +347,12 @@
       }
     }
   }
+
+  onMounted(() => {
+    if (route.query.id) {
+      openApiTab(route.query.id as string);
+    }
+  });
 
   useLeaveTabUnSaveCheck(debugTabs.value, ['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+UPDATE']);
 </script>

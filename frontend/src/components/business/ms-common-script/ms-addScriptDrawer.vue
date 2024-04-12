@@ -6,6 +6,7 @@
     :footer="true"
     unmount-on-close
     :ok-loading="props.confirmLoading"
+    :mask-closable="false"
     save-continue-text="project.commonScript.saveAsDraft"
     ok-text="project.commonScript.apply"
     @confirm="handleDrawerConfirm"
