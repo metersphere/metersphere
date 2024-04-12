@@ -12,4 +12,5 @@ export default {
   'ms.message.make.as.read': 'Mark all as read',
   'ms.message.notice.title': 'Notification Title',
   'ms.message.me': ' {var}Me',
+  'ms.message.setting': 'message setting',
 };

@@ -12,4 +12,5 @@ export default {
   'ms.message.make.as.read': '全部标为已读',
   'ms.message.notice.title': '通知标题',
   'ms.message.me': ' {var}我',
+  'ms.message.setting': '消息设置',
 };
