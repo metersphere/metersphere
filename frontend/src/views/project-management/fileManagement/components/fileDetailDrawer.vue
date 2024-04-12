@@ -154,12 +154,12 @@
         </div>
         <div class="file-relation">
           <a-tabs v-model:active-key="activeTab" :disabled="loading" class="no-content" @change="() => loadTable()">
-            <a-tab-pane key="case" :title="t('project.fileManagement.cases')" />
+            <a-tab-pane key="case" :title="t('project.fileManagement.resource')" />
             <a-tab-pane key="version" :title="t('project.fileManagement.versionHistory')" />
           </a-tabs>
           <div class="h-[16px] bg-[var(--color-text-n9)]"></div>
           <div v-if="activeTab === 'case'" class="flex items-center justify-between px-[16px] pt-[16px]">
-            <div class="text-[var(--color-text-1)]">{{ t('project.fileManagement.caseList') }}</div>
+            <div class="text-[var(--color-text-1)]">{{ t('project.fileManagement.resourceList') }}</div>
             <a-input-search
               v-model:model-value="keyword"
               :placeholder="t('project.fileManagement.search')"
@@ -180,7 +180,7 @@
               >
                 <template #id="{ record }">
                   <a-tooltip :content="`${record.sourceNum}`">
-                    <a-button type="text" class="px-0" @click="goCaseDetail(record.sourceId)">
+                    <a-button type="text" class="px-0" @click="goCaseDetail(record.redirectId, record.sourceType)">
                       <div class="one-line-text max-w-[168px]">{{ record.sourceNum }}</div>
                     </a-button>
                   </a-tooltip>
@@ -253,7 +253,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociationItem, FileDetail } from '@/models/projectManagement/file';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { ApiTestRouteEnum, BugManagementRouteEnum, CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { UploadAcceptEnum } from '@/enums/uploadEnum';
 
   const props = defineProps<{
@@ -408,7 +408,7 @@
       title: 'project.fileManagement.caseId',
       dataIndex: 'sourceId',
       slotName: 'id',
-      showTooltip: true,
+      showTooltip: false,
       width: 150,
     },
     {
@@ -479,12 +479,35 @@
     }
   }
 
-  function goCaseDetail(id: string) {
+  function goCaseDetail(id: string, type: string) {
+    let routerName = '';
+    const routeQuery = ref<{
+      id?: string;
+      dId?: string;
+      cId?: string;
+    }>();
+
+    routeQuery.value = { id };
+    if (type === 'FUNCTIONAL_CASE') {
+      routerName = CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL;
+    } else if (type === 'BUG') {
+      routerName = BugManagementRouteEnum.BUG_MANAGEMENT;
+    } else if (type === 'API_DEBUG') {
+      routerName = ApiTestRouteEnum.API_TEST;
+    } else if (type === 'API_SCENARIO') {
+      routerName = ApiTestRouteEnum.API_TEST_SCENARIO;
+    } else if (type === 'API_SCENARIO_STEP') {
+      routerName = ApiTestRouteEnum.API_TEST_SCENARIO;
+    } else if (type === 'API_DEFINITION') {
+      routerName = ApiTestRouteEnum.API_TEST_MANAGEMENT;
+      routeQuery.value = { dId: id };
+    } else if (type === 'API_TEST_CASE') {
+      routerName = ApiTestRouteEnum.API_TEST_MANAGEMENT;
+      routeQuery.value = { cId: id };
+    }
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-      query: {
-        id,
-      },
+      name: routerName,
+      query: routeQuery.value,
     });
   }
 

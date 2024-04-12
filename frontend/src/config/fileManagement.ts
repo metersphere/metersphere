@@ -7,6 +7,7 @@ export const associateFileSourceLocaleMap = {
   API_TEST_CASE: 'project.fileManagement.caseTypeApiCase',
   API_DEFINITION: 'project.fileManagement.caseTypeApiDefine',
   API_DEFINITION_MOCK: 'project.fileManagement.caseTypeApiMock',
+  API_SCENARIO_STEP: 'project.fileManagement.scenarioStep',
 };
 
 export default {};

@@ -107,6 +107,7 @@ export default {
   'project.fileManagement.gitPath': 'Git path',
   'project.fileManagement.gitVersion': 'Git version',
   'project.fileManagement.cases': 'Related Use Cases',
+  'project.fileManagement.resource': 'Related resource',
   'project.fileManagement.versionHistory': 'Version history',
   'project.fileManagement.updateCaseFile': 'Update use case file',
   'project.fileManagement.updateCaseFileSuccess': 'Use case file updated successfully',
@@ -116,6 +117,7 @@ export default {
   'project.fileManagement.operator': 'Operator',
   'project.fileManagement.operatorTime': 'Operating time',
   'project.fileManagement.caseList': 'Use case list',
+  'project.fileManagement.resourceList': 'Resource list',
   'project.fileManagement.search': 'Enter name to search',
   'project.fileManagement.storagePlaceholder': 'Please select a repository',
   'project.fileManagement.storageNotNull': 'Repository cannot be empty',
@@ -143,4 +145,5 @@ export default {
   'project.fileManagement.caseTypeApiCase': 'Api case',
   'project.fileManagement.caseTypeApiDefine': 'Api definition',
   'project.fileManagement.caseTypeApiMock': 'Api Mock',
+  'project.fileManagement.scenarioStep': 'Scenario step',
 };
