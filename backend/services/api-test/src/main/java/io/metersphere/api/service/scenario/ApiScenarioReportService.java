@@ -345,7 +345,7 @@ public class ApiScenarioReportService {
         apiReportDetails.forEach(apiReportDetail -> {
             ApiScenarioReportDetailDTO apiReportDetailDTO = new ApiScenarioReportDetailDTO();
             BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
-            apiReportDetailDTO.setContent(ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class));
+            apiReportDetailDTO.setContent(apiReportDetail.getContent() != null ? ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class) : null);
             results.add(apiReportDetailDTO);
         });
         return results;

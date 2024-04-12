@@ -194,7 +194,7 @@
   };
   const activeIndex = ref<number>(0);
 
-  const total = computed(() => (activeStepDetail.value?.content.subRequestResults || []).length);
+  const total = computed(() => (activeStepDetail.value?.content?.subRequestResults || []).length);
   const current = ref(1);
   const pageSize = ref(1);
 

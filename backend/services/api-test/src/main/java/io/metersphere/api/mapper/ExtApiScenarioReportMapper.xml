@@ -140,51 +140,52 @@
     </select>
 
     <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
+        select * from (
         select
-        distinct api_scenario_report.id,
-        api_scenario_report.project_id,
-        api_scenario_report.integrated,
-        api_scenario_report.status,
-        api_scenario_report.start_time as operationTime,
-        api_scenario_report.create_user as operationName,
-        api_scenario_report.trigger_mode,
-        api_scenario_report.script_identifier,
+        distinct asr.id,
+        asr.project_id,
+        asr.integrated,
+        asr.status,
+        asr.start_time as operationTime,
+        asr.create_user as operationName,
+        asr.trigger_mode,
+        asr.script_identifier,
+        asr.start_time,
 
         CASE
-        WHEN api_scenario_report.integrated = 0 THEN
-        s.num ELSE api_scenario_report.id
+        WHEN asr.integrated = 0 THEN
+        s.num ELSE asr.id
         END AS resourceNum,
 
         CASE
-        WHEN api_scenario_report.integrated = 0 THEN
-        s.NAME ELSE api_scenario_report.NAME
+        WHEN asr.integrated = 0 THEN
+        s.NAME ELSE asr.NAME
         END AS resourceName,
 
         CASE
-        WHEN api_scenario_report.integrated = 0 THEN
-        s.id ELSE api_scenario_report.id
+        WHEN asr.integrated = 0 THEN
+        s.id ELSE asr.id
         END AS resourceId,
 
         t.name as poolName
-        from api_scenario_report
-        left join api_scenario_record a on api_scenario_report.id = a.api_scenario_report_id
+        from api_scenario_report asr
+        left join api_scenario_record a on asr.id = a.api_scenario_report_id
         left JOIN api_scenario s on a.api_scenario_id = s.id
-        left JOIN test_resource_pool t on api_scenario_report.pool_id = t.id
-        left join project on api_scenario_report.project_id = project.id
-        where api_scenario_report.deleted = false
-        and api_scenario_report.test_plan_id = 'NONE'
-          and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
-          and api_scenario_report.project_id IN
+        left JOIN test_resource_pool t on asr.pool_id = t.id
+        left join project on asr.project_id = project.id
+        where asr.deleted = false
+        and asr.test_plan_id = 'NONE'
+          and asr.start_time BETWEEN #{startTime} AND #{endTime} ) api_scenario_report
+        where
+           api_scenario_report.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            (api_scenario_report.name like concat('%', #{request.keyword},'%')
-            and s.name like concat('%', #{request.keyword},'%'))
-                or (api_scenario_report.id like concat('%', #{request.keyword},'%')
-                and s.num like concat('%', #{request.keyword},'%'))
-            )
+            api_scenario_report.resourceName like concat('%', #{request.keyword},'%')
+                or api_scenario_report.resourceId like concat('%', #{request.keyword},'%')
+               )
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>

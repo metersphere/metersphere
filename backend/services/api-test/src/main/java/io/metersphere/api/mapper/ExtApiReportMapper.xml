@@ -161,49 +161,52 @@
     </sql>
 
     <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
-        SELECT
-        distinct api_report.id,
-        api_report.project_id,
-        api_report.integrated,
-        api_report.STATUS,
-        api_report.start_time AS operationTime,
-        api_report.create_user AS operationName,
-        api_report.trigger_mode,
+        SELECT api_report.* from (
+        select
+        distinct ar.id,
+        ar.project_id,
+        ar.integrated,
+        ar.STATUS,
+        ar.start_time AS operationTime,
+        ar.create_user AS operationName,
+        ar.trigger_mode,
+        ar.start_time,
 
         CASE
-        WHEN api_report.integrated = 0 THEN
-        c.num ELSE api_report.id
+        WHEN ar.integrated = 0 THEN
+        c.num ELSE ar.id
         END AS resourceNum,
 
         CASE
-        WHEN api_report.integrated = 0 THEN
-        c.id ELSE api_report.id
+        WHEN ar.integrated = 0 THEN
+        c.id ELSE ar.id
         END AS resourceId,
 
         CASE
-        WHEN api_report.integrated = 0 THEN
-        c.NAME ELSE api_report.NAME
+        WHEN ar.integrated = 0 THEN
+        c.NAME ELSE ar.NAME
         END AS resourceName,
 
         t.NAME AS poolName
         FROM
-        api_report
-        LEFT JOIN api_test_case_record a ON api_report.id = a.api_report_id
+        api_report ar
+        LEFT JOIN api_test_case_record a ON ar.id = a.api_report_id
         LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
-        LEFT JOIN test_resource_pool t ON api_report.pool_id = t.id
-        left join project on api_report.project_id = project.id
-        where  api_report.deleted = false
-        and api_report.test_plan_id = 'NONE'
-          and api_report.start_time BETWEEN #{startTime} AND #{endTime}
-          and api_report.project_id IN
+        LEFT JOIN test_resource_pool t ON ar.pool_id = t.id
+        left join project on ar.project_id = project.id
+        where  ar.deleted = false
+        and ar.test_plan_id = 'NONE'
+        and ar.start_time BETWEEN #{startTime} AND #{endTime}
+        ) as api_report
+        where
+        api_report.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
-            and ( (api_report.name like concat('%', #{request.keyword},'%')
-            and c.name like concat('%', #{request.keyword},'%'))
-            or (api_report.id like concat('%', #{request.keyword},'%')
-            and c.num like concat('%', #{request.keyword},'%'))
+            and ( api_report.resourceName like concat('%', #{request.keyword},'%')
+
+            or api_report.resourceNum like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="filters">

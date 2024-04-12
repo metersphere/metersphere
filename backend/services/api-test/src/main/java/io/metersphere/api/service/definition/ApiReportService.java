@@ -187,7 +187,9 @@ public class ApiReportService {
         consoleExample.createCriteria().andReportIdEqualTo(id);
         List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(consoleExample);
         if (CollectionUtils.isNotEmpty(apiReportLogs)) {
-            apiReportDTO.setConsole(new String(apiReportLogs.getFirst().getConsole()));
+            //获取所有的console,生成集合
+            List<String> consoleList = apiReportLogs.stream().map(c -> new String (c.getConsole())).toList();
+            apiReportDTO.setConsole(String.join("\n", consoleList));
         }
         //查询资源池名称
         apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
@@ -251,7 +253,7 @@ public class ApiReportService {
         apiReportDetails.forEach(apiReportDetail -> {
             ApiReportDetailDTO apiReportDetailDTO = new ApiReportDetailDTO();
             BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
-            apiReportDetailDTO.setContent(ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class));
+            apiReportDetailDTO.setContent(apiReportDetail.getContent() != null ? ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class): null);
             results.add(apiReportDetailDTO);
         });
         return results;
