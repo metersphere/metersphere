@@ -134,19 +134,24 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 处理环境中，步骤前处理器
-        beforeStepProcessors.forEach(processor -> {
+        beforeStepProcessors.stream()
+                .filter(MsProcessor::getEnable)
+                .forEach(processor -> {
             processor.setProjectId(msCommonElement.getProjectId());
             getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
         });
 
-        processorConfig.getProcessors()
+        processorConfig.getProcessors().stream()
+                .filter(MsProcessor::getEnable)
                 .forEach(processor -> {
                     processor.setProjectId(msCommonElement.getProjectId());
                     getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
                 });
 
         // 处理环境中，步骤后处理器
-        afterStepProcessors.forEach(processor -> {
+        afterStepProcessors.stream()
+                .filter(MsProcessor::getEnable)
+                .forEach(processor -> {
             processor.setProjectId(msCommonElement.getProjectId());
             getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
         });

@@ -18,6 +18,9 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.CONSTANT_TI
 public class TimeWaitingProcessorConverter extends MsProcessorConverter<TimeWaitingProcessor> {
     @Override
     public void parse(HashTree hashTree, TimeWaitingProcessor processor, ParameterConfig config) {
+        if (!needParse(processor, config)) {
+            return;
+        }
         hashTree.add(getConstantTimer(processor));
     }
 

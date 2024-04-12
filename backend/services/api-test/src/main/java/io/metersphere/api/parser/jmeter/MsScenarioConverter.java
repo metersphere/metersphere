@@ -242,7 +242,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 添加前后置
-        envScenarioProcessors.forEach(processor -> {
+        envScenarioProcessors.stream()
+                .filter(MsProcessor::getEnable)
+                .forEach(processor -> {
             processor.setProjectId(msScenario.getProjectId());
             getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
         });
@@ -289,7 +291,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 添加场景前置处理器
-        scenarioPreProcessors.forEach(processor -> {
+        scenarioPreProcessors.stream()
+                .filter(MsProcessor::getEnable)
+                .forEach(processor -> {
             processor.setProjectId(msScenario.getProjectId());
             getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
         });
