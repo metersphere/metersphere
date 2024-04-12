@@ -474,7 +474,7 @@
           >
             <a-input-password
               v-model:model-value="activeAuthForm.configuration.password"
-              :max-length="255"
+              :max-length="64"
               :placeholder="t('system.config.auth.LDAPPasswordPlaceholder')"
               allow-clear
               autocomplete="new-password"
