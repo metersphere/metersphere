@@ -1,7 +1,10 @@
 import type { MsTableColumn } from '@/components/pure/ms-table/type';
 
+import { useAppStore } from '@/store';
+
 import { TaskCenterEnum } from '@/enums/taskCenter';
 
+const appStore = useAppStore();
 export const TaskStatus = {
   [TaskCenterEnum.API_CASE]: {
     SUCCESS: {
@@ -176,6 +179,7 @@ export const ordAndProjectColumn: MsTableColumn = [
     title: 'project.belongOrganization',
     dataIndex: 'organizationName',
     slotName: 'organizationName',
+    titleSlotName: 'orgFilterName',
     showTooltip: true,
     showDrag: true,
     width: 200,
@@ -185,6 +189,7 @@ export const ordAndProjectColumn: MsTableColumn = [
     title: 'project.belongProject',
     dataIndex: 'projectName',
     slotName: 'projectName',
+    titleSlotName: 'projectFilterName',
     showTooltip: true,
     showDrag: true,
     width: 200,

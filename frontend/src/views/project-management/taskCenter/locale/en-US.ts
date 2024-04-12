@@ -59,4 +59,6 @@ export default {
   'project.taskCenter.confirmDisable': 'Confirm disable',
   'project.taskCenter.enableSuccess': 'Enable successfully',
   'project.taskCenter.disableSuccess': 'Disable successfully',
+  'project.taskCenter.filterPlaceholderText': 'Please select a project',
+  'project.taskCenter.filterOrgPlaceholderText': 'Please select an organization',
 };

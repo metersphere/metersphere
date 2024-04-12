@@ -64,6 +64,33 @@
           </a-option>
         </a-select>
       </template>
+      <template v-if="appStore.packageType === 'enterprise'" #orgFilterName="{ columnConfig }">
+        <TableFilter
+          v-model:visible="orgFilterVisible"
+          v-model:status-filters="orgFiltersMap[props.moduleType]"
+          :title="(columnConfig.title as string)"
+          mode="remote"
+          value-key="id"
+          label-key="name"
+          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_LIST"
+          :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
+          @search="initData()"
+        >
+        </TableFilter>
+      </template>
+      <template #projectFilterName="{ columnConfig }">
+        <TableFilter
+          v-model:visible="projectFilterVisible"
+          v-model:status-filters="projectFiltersMap[props.moduleType]"
+          :title="(columnConfig.title as string)"
+          mode="remote"
+          :load-option-params="{ organizationId: appStore.currentOrgId }"
+          :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
+          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+          @search="initData()"
+        >
+        </TableFilter>
+      </template>
       <template #operation="{ record }">
         <a-switch
           v-model="record.enable"
@@ -99,6 +126,8 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDisableScheduleOrgTask,
@@ -123,7 +152,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
@@ -133,6 +162,8 @@
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   import { ordAndProjectColumn, resourceTypeMap } from './utils';
+
+  const appStore = useAppStore();
 
   const { openNewPage } = useOpenNewPage();
 
@@ -301,6 +332,23 @@
       columns,
     },
   };
+  const orgFilterVisible = ref<boolean>(false);
+  const projectFilterVisible = ref<boolean>(false);
+  const orgApiCaseFilter = ref([]);
+  const orgApiScenarioFilter = ref([]);
+
+  const orgFiltersMap = ref<Record<string, string[]>>({
+    API_IMPORT: orgApiCaseFilter.value,
+    API_SCENARIO: orgApiScenarioFilter.value,
+  });
+
+  const projectApiCaseFilter = ref([]);
+  const projectApiScenarioFilter = ref([]);
+  const projectFiltersMap = ref<Record<string, string[]>>({
+    API_CASE: projectApiCaseFilter.value,
+    API_SCENARIO: projectApiScenarioFilter.value,
+  });
+
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -327,6 +375,8 @@
     setLoadListParams({
       keyword: keyword.value,
       scheduleTagType: props.moduleType,
+      organizationIds: orgFiltersMap.value[props.moduleType],
+      projectIds: projectFiltersMap.value[props.moduleType],
     });
     loadList();
   }
@@ -340,12 +390,12 @@
       {
         label: 'project.taskCenter.batchEnable',
         eventTag: 'batchEnable',
-        // permission: permissionsMap[props.group][props.moduleType].edit,
+        permission: permissionsMap[props.group][props.moduleType].edit,
       },
       {
         label: 'project.taskCenter.batchDisable',
         eventTag: 'batchDisable',
-        // permission: permissionsMap[props.group][props.moduleType].edit,
+        permission: permissionsMap[props.group][props.moduleType].edit,
       },
     ],
   };
