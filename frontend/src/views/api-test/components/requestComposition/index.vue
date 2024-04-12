@@ -496,6 +496,12 @@
     () => import('@/views/api-test/management/components/addDependencyDrawer.vue')
   );
 
+  export interface TabErrorMessage {
+    value: string;
+    label: string;
+    messageList: string[];
+  }
+
   export interface RequestCustomAttr {
     type: 'api' | 'case' | 'mock' | 'doc'; // 展示的请求 tab 类型；api包含了接口调试和接口定义
     isNew: boolean;
@@ -505,6 +511,9 @@
     executeLoading: boolean; // 执行中loading
     isCopy?: boolean; // 是否是复制
     isExecute?: boolean; // 是否是执行
+    errorMessageInfo?: {
+      [key: string]: Record<string, any>;
+    };
   }
   export type RequestParam = ExecuteApiRequestFullParams & {
     responseDefinition?: ResponseItem[];
@@ -1346,6 +1355,59 @@
     }
   }
 
+  function initErrorMessageInfoItem(key) {
+    if (requestVModel.value.errorMessageInfo && !requestVModel.value.errorMessageInfo[key]) {
+      requestVModel.value.errorMessageInfo[key] = {};
+    }
+  }
+
+  function changeTabErrorMessageList(tabKey: string, formErrorMessageList: string[]) {
+    if (!requestVModel.value.errorMessageInfo) return;
+    const label = contentTabList.value.find((item) => item.value === tabKey)?.label ?? '';
+    const listItem: TabErrorMessage = {
+      value: tabKey,
+      label,
+      messageList: formErrorMessageList,
+    };
+    // TODO: 处理前置的sql 后置的sql和提取 断言的响应头和变量
+    if (requestVModel.value.activeTab === RequestComposition.BODY) {
+      initErrorMessageInfoItem(RequestComposition.BODY);
+      requestVModel.value.errorMessageInfo[RequestComposition.BODY][requestVModel.value.body.bodyType] =
+        cloneDeep(listItem);
+    } else {
+      requestVModel.value.errorMessageInfo[requestVModel.value.activeTab] = cloneDeep(listItem);
+    }
+  }
+
+  const setErrorMessageList = debounce((list: string[]) => {
+    changeTabErrorMessageList(requestVModel.value.activeTab, list);
+  }, 300);
+  provide('setErrorMessageList', setErrorMessageList);
+
+  // 需要最终提示的信息
+  function getFlattenedMessages() {
+    if (!requestVModel.value.errorMessageInfo) return;
+    const flattenedMessages: { label: string; messageList: string[] }[] = [];
+    const { errorMessageInfo } = requestVModel.value;
+    Object.values(errorMessageInfo).forEach((item) => {
+      const label = item.label || (Object.values(item)[0] && Object.values(item)[0].label);
+      const messageList: string[] =
+        item.messageList || [...new Set(Object.values(item).flatMap((bodyType) => bodyType.messageList))] || [];
+      if (messageList.length) {
+        flattenedMessages.push({ label, messageList: [...new Set(messageList)] });
+      }
+    });
+    return flattenedMessages;
+  }
+
+  function showMessage() {
+    getFlattenedMessages()?.forEach(({ label, messageList }) => {
+      messageList?.forEach((message) => {
+        Message.error(`${label}${message}`);
+      });
+    });
+  }
+
   function handleSave(done: (closed: boolean) => void) {
     saveModalFormRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -1367,6 +1429,11 @@
       if (!isHttpProtocol.value) {
         // 插件需要校验动态表单
         await fApi.value?.validate();
+      }
+      // 检查全部的校验信息
+      if (getFlattenedMessages()?.length) {
+        showMessage();
+        return;
       }
       if (!requestVModel.value.isNew) {
         // 更新接口不需要弹窗，直接更新保存
@@ -1487,6 +1554,11 @@
       if (errors) {
         requestVModel.value.activeTab = RequestComposition.BASE_INFO;
       } else {
+        // 检查全部的校验信息
+        if (getFlattenedMessages()?.length) {
+          showMessage();
+          return;
+        }
         switch (value) {
           case 'save':
             handleSaveShortcut();
@@ -1565,6 +1637,8 @@
     execute,
     makeRequestParams,
     changeVerticalExpand,
+    getFlattenedMessages,
+    showMessage,
   });
 </script>
 

@@ -237,6 +237,11 @@
   function handleDrawerConfirm(isContinue: boolean) {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
+        // 检查全部的校验信息
+        if (requestCompositionRef.value?.getFlattenedMessages()?.length) {
+          requestCompositionRef.value?.showMessage();
+          return;
+        }
         drawerLoading.value = true;
         // 给后端传的参数
         if (!requestCompositionRef.value?.makeRequestParams()) return;

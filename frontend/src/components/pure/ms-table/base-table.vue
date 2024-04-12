@@ -331,6 +331,7 @@
     (e: 'clearSelector'): void;
     (e: 'filterChange', dataIndex: string, value: (string | number)[], multiple: boolean, isCustomParam: boolean): void;
     (e: 'moduleChange'): void;
+    (e: 'initEnd'): void;
   }>();
   const attrs = useAttrs();
 
@@ -408,6 +409,7 @@
         scrollObj.value = {};
         currentColumns.value = arr || tmpArr;
       }
+      emit('initEnd');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('InitColumn failed', error);
