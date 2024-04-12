@@ -34,7 +34,8 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
     public boolean isHeaderAssertionValid(MsResponseHeaderAssertion.ResponseHeaderAssertionItem headerAssertionItem) {
         return StringUtils.isNotBlank(headerAssertionItem.getHeader())
                 && StringUtils.isNotBlank(headerAssertionItem.getCondition())
-                && StringUtils.isNotBlank(headerAssertionItem.getExpectedValue());
+                && StringUtils.isNotBlank(headerAssertionItem.getExpectedValue())
+                && BooleanUtils.isTrue(headerAssertionItem.getEnable());
     }
 
     private ResponseAssertion parse2ResponseAssertion(MsResponseHeaderAssertion.ResponseHeaderAssertionItem msAssertion,
