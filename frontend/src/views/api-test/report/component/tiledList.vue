@@ -100,16 +100,13 @@
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1];
-    const requestType = ['API', 'API_CASE', 'CUSTOM_REQUEST'];
-    const stepType = splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {
         const isStepChildren = item.children && item?.children.length && showApiType.value.includes(item.stepType);
         if (
-          stepType.includes(item.stepType) &&
-          ((item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
-            (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier))
+          (item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
+          (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier)
         ) {
           const resItem = {
             ...item,
@@ -118,7 +115,7 @@
             children: isStepChildren ? [] : item.children,
           };
           result.push(resItem);
-        } else if (item.children) {
+        } else if (item.children && splitLevel[0] === ScenarioStepType.CUSTOM_REQUEST) {
           const filterData = search(item.children);
           if (filterData.length) {
             const filterItem = {

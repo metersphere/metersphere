@@ -242,7 +242,7 @@
       if (!valid) {
         try {
           // 保存Host-Tab的数据(目前只加了Host)
-          if (activeKey.value === 'host') {
+          if (activeKey.value === EnvTabTypeEnum.ENVIRONMENT_HOST) {
             hostTabRef.value?.validateForm(saveCallBack);
           } else {
             await saveCallBack();
