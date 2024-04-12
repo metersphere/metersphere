@@ -104,11 +104,19 @@
     }
   }
 
+  async function initFileTree() {
+    try {
+      transCategory.value = await getTransferFileTree(currentProjectId.value);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   watch(
     () => props.visible,
     async (val) => {
       if (val) {
-        transCategory.value = await getTransferFileTree(currentProjectId.value);
+        initFileTree();
       }
     }
   );

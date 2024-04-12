@@ -187,6 +187,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
+    (e: 'ok');
   }>();
 
   const resetForm = () => {
@@ -232,6 +233,7 @@
         await postSaveDefectSync({ ...form, BUG_PLATFORM_CONFIG: JSON.stringify(formData) }, currentProjectId.value);
         Message.success(t('common.createSuccess'));
         handleCancel(true);
+        emit('ok');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
