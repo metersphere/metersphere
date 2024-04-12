@@ -36,7 +36,7 @@ public class CleanHistoryJob {
     /**
      * 清理变更历史 每天凌晨两点执行
      */
-    @QuartzScheduled(cron = "0 0 2 * * ?")
+    @QuartzScheduled(cron = "0 34 13 * * ?")
     public void cleanupLog() {
         LogUtils.info("clean up history start.");
         SystemParameter parameter = systemParameterMapper.selectByPrimaryKey(ParamConstants.CleanConfig.OPERATION_HISTORY.getValue());
@@ -56,12 +56,16 @@ public class CleanHistoryJob {
     }
 
     private void doCleanupHistory(int limit) {
-        //变更历史处理
-        List<String> sourceIds = baseOperationHistoryMapper.selectSourceIds();
-        int size = 100;
-        List<List<String>> batchList = splitList(sourceIds, size);
+        try {
+            //变更历史处理
+            List<String> sourceIds = baseOperationHistoryMapper.selectSourceIds();
+            int size = 100;
+            List<List<String>> batchList = splitList(sourceIds, size);
+            batchList.forEach(batch -> cleanupHistory(batch, limit));
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
 
-        batchList.forEach(batch -> cleanupHistory(batch, limit));
     }
 
     private List<List<String>> splitList(List<String> list, int size) {
@@ -75,13 +79,15 @@ public class CleanHistoryJob {
     public void cleanupHistory(List<String> batch, int limit) {
         batch.forEach(sourceId -> {
             List<Long> ids = baseOperationHistoryMapper.selectIdsBySourceId(sourceId, limit);
-            baseOperationHistoryMapper.deleteByIds(sourceId, ids);
-            List<Long> logIds = baseOperationLogMapper.selectIdByHistoryIds(ids);
-            ids.removeAll(logIds);
             if (CollectionUtils.isNotEmpty(ids)) {
-                OperationLogBlobExample blobExample = new OperationLogBlobExample();
-                blobExample.createCriteria().andIdIn(ids);
-                operationLogBlobMapper.deleteByExample(blobExample);
+                baseOperationHistoryMapper.deleteByIds(sourceId, ids);
+                List<Long> logIds = baseOperationLogMapper.selectIdByHistoryIds(ids);
+                ids.removeAll(logIds);
+                if (CollectionUtils.isNotEmpty(ids)) {
+                    OperationLogBlobExample blobExample = new OperationLogBlobExample();
+                    blobExample.createCriteria().andIdIn(ids);
+                    operationLogBlobMapper.deleteByExample(blobExample);
+                }
             }
         });
     }
