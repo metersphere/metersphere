@@ -100,7 +100,8 @@
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1];
-    const stepType = splitLevel[0] !== 'REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
+    const requestType = ['API', 'API_CASE', 'CUSTOM_REQUEST'];
+    const stepType = splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {

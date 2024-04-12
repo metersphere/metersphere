@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-4">
     <div class="flex items-center justify-between">
       <a-button type="primary" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">{{
         t('caseManagement.featureCase.linkCase')

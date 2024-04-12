@@ -102,6 +102,33 @@
           </template>
         </TableFilter>
       </template>
+      <template v-if="appStore.packageType === 'enterprise'" #orgFilterName="{ columnConfig }">
+        <TableFilter
+          v-model:visible="orgFilterVisible"
+          v-model:status-filters="orgFiltersMap[props.moduleType]"
+          :title="(columnConfig.title as string)"
+          mode="remote"
+          value-key="id"
+          label-key="name"
+          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_LIST"
+          :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
+          @search="initData()"
+        >
+        </TableFilter>
+      </template>
+      <template #projectFilterName="{ columnConfig }">
+        <TableFilter
+          v-model:visible="projectFilterVisible"
+          v-model:status-filters="projectFiltersMap[props.moduleType]"
+          :title="(columnConfig.title as string)"
+          mode="remote"
+          :load-option-params="{ organizationId: appStore.currentOrgId }"
+          :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
+          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+          @search="initData()"
+        >
+        </TableFilter>
+      </template>
       <template #operationTime="{ record }">
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
@@ -145,6 +172,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import ExecutionStatus from './executionStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
@@ -164,7 +192,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -177,7 +205,7 @@
 
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
-
+  const appStore = useAppStore();
   const { openModal } = useModal();
 
   const { t } = useI18n();
@@ -391,6 +419,23 @@
     API_SCENARIO: statusFilterApiScenario.value,
   });
 
+  const orgFilterVisible = ref<boolean>(false);
+  const projectFilterVisible = ref<boolean>(false);
+  const orgApiCaseFilter = ref([]);
+  const orgApiScenarioFilter = ref([]);
+
+  const orgFiltersMap = ref<Record<string, string[]>>({
+    API_CASE: orgApiCaseFilter.value,
+    API_SCENARIO: orgApiScenarioFilter.value,
+  });
+
+  const projectApiCaseFilter = ref([]);
+  const projectApiScenarioFilter = ref([]);
+  const projectFiltersMap = ref<Record<string, string[]>>({
+    API_CASE: projectApiCaseFilter.value,
+    API_SCENARIO: projectApiScenarioFilter.value,
+  });
+
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
@@ -398,6 +443,8 @@
       filter: {
         status: statusFiltersMap.value[props.moduleType],
         triggerMode: triggerModeFiltersMap.value[props.moduleType],
+        organizationIds: orgFiltersMap.value[props.moduleType],
+        projectIds: projectFiltersMap.value[props.moduleType],
       },
     });
     loadList();
@@ -502,7 +549,7 @@
 
   function execution(record: any) {}
 
-  onBeforeMount(() => {
+  onBeforeMount(async () => {
     initData();
   });
 

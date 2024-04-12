@@ -91,18 +91,24 @@
       </div>
     </template>
     <template #default="{ loading }">
-      <a-spin :loading="detailLoading" class="w-full">
-        <div ref="wrapperRef" class="h-full bg-white">
-          <MsSplitBox
-            ref="wrapperRef"
-            expand-direction="right"
-            :max="0.7"
-            :min="0.7"
-            :size="900"
-            :class="{ 'left-bug-detail': activeTab === 'comment' }"
-          >
-            <template #first>
-              <div class="leftWrapper h-full">
+      <div
+        ref="wrapperRef"
+        class="wrapperRef bg-white"
+        :style="{
+          height: 'calc(100% - 86px)',
+        }"
+      >
+        <MsSplitBox
+          expand-direction="right"
+          :max="0.7"
+          :min="0.7"
+          :size="900"
+          direction="horizontal"
+          :class="{ 'left-bug-detail': activeTab === 'comment' }"
+        >
+          <template #first>
+            <div class="leftWrapper h-full">
+              <a-spin :loading="detailLoading" class="w-full">
                 <div class="header h-[50px]">
                   <MsTab
                     v-model:active-key="activeTab"
@@ -110,96 +116,96 @@
                     :get-text-func="getTabBadge"
                     class="no-content relative mb-[8px]"
                   />
-                  <div class="tab-pane-container">
-                    <BugDetailTab
-                      v-if="activeTab === 'detail'"
-                      ref="bugDetailTabRef"
-                      :form-item="formItem"
-                      :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                      :detail-info="detailInfo"
-                      :is-platform-default-template="isPlatformDefaultTemplate"
-                      :platform-system-fields="platformSystemFields"
-                      :current-platform="props.currentPlatform"
-                      @update-success="updateSuccess"
-                    />
-
-                    <BugCaseTab
-                      v-else-if="activeTab === 'case'"
-                      :bug-id="detailInfo.id"
-                      @update-case-success="updateSuccess"
-                    />
-
-                    <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
-
-                    <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
-                  </div>
                 </div>
-              </div>
-            </template>
-            <template #second>
-              <a-spin :loading="rightLoading" class="w-full">
-                <!-- 所属平台一致, 详情展示 -->
-                <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper p-[24px]">
-                  <!-- 自定义字段开始 -->
-                  <div class="inline-block w-full break-words">
-                    <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
-                      <a-space direction="vertical" class="w-[100%]" size="large">
-                        <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
-                      </a-space>
-                    </a-skeleton>
-                    <div v-if="!loading" class="mb-4 font-medium">
-                      <strong>
-                        {{ t('bugManagement.detail.basicInfo') }}
-                      </strong>
-                    </div>
-                    <MsFormCreate
-                      v-if="!loading"
-                      ref="formCreateRef"
-                      v-model:form-item="formItem"
-                      v-model:api="fApi"
-                      :form-rule="formRules"
-                      class="w-full"
-                      :option="options"
-                      @change="handelFormCreateChange"
-                    />
-                    <!-- 自定义字段结束 -->
-                    <div
-                      v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
-                      class="baseItem"
-                    >
-                      <a-form
-                        :model="{}"
-                        :label-col-props="{
-                          span: 9,
-                        }"
-                        :wrapper-col-props="{
-                          span: 15,
-                        }"
-                        label-align="left"
-                        content-class="tags-class"
-                      >
-                        <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                          <MsTagsInput
-                            v-model:model-value="tags"
-                            :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                            @blur="changeTag"
-                          />
-                        </a-form-item>
-                      </a-form>
-                    </div>
-                  </div>
+                <div class="tab-pane-container">
+                  <BugDetailTab
+                    v-if="activeTab === 'detail'"
+                    ref="bugDetailTabRef"
+                    :form-item="formItem"
+                    :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                    :detail-info="detailInfo"
+                    :is-platform-default-template="isPlatformDefaultTemplate"
+                    :platform-system-fields="platformSystemFields"
+                    :current-platform="props.currentPlatform"
+                    @update-success="updateSuccess"
+                  />
 
-                  <!-- 内置基础信息结束 -->
-                </div>
-                <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
-                <div v-else>
-                  <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
+                  <BugCaseTab
+                    v-else-if="activeTab === 'case'"
+                    :bug-id="detailInfo.id"
+                    @update-case-success="updateSuccess"
+                  />
+
+                  <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
+
+                  <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
                 </div>
               </a-spin>
-            </template>
-          </MsSplitBox>
-        </div>
-      </a-spin>
+            </div>
+          </template>
+          <template #second>
+            <a-spin :loading="rightLoading" class="w-full">
+              <!-- 所属平台一致, 详情展示 -->
+              <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper h-full p-[24px]">
+                <!-- 自定义字段开始 -->
+                <div class="inline-block w-full break-words">
+                  <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
+                    <a-space direction="vertical" class="w-[100%]" size="large">
+                      <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
+                    </a-space>
+                  </a-skeleton>
+                  <div v-if="!loading" class="mb-4 font-medium">
+                    <strong>
+                      {{ t('bugManagement.detail.basicInfo') }}
+                    </strong>
+                  </div>
+                  <MsFormCreate
+                    v-if="!loading"
+                    ref="formCreateRef"
+                    v-model:form-item="formItem"
+                    v-model:api="fApi"
+                    :form-rule="formRules"
+                    class="w-full"
+                    :option="options"
+                    @change="handelFormCreateChange"
+                  />
+                  <!-- 自定义字段结束 -->
+                  <div
+                    v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
+                    class="baseItem"
+                  >
+                    <a-form
+                      :model="{}"
+                      :label-col-props="{
+                        span: 9,
+                      }"
+                      :wrapper-col-props="{
+                        span: 15,
+                      }"
+                      label-align="left"
+                      content-class="tags-class"
+                    >
+                      <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
+                        <MsTagsInput
+                          v-model:model-value="tags"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                          @blur="changeTag"
+                        />
+                      </a-form-item>
+                    </a-form>
+                  </div>
+                </div>
+
+                <!-- 内置基础信息结束 -->
+              </div>
+              <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
+              <div v-else>
+                <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
+              </div>
+            </a-spin>
+          </template>
+        </MsSplitBox>
+      </div>
       <CommentInput
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
         :content="commentContent"
