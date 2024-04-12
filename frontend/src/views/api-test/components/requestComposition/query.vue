@@ -68,6 +68,7 @@
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'apiTestDebug.paramType',

@@ -275,6 +275,7 @@
     executeLoading: false,
     preDependency: [], // 前置依赖
     postDependency: [], // 后置依赖
+    errorMessageInfo: {},
   };
 
   function addApiTab(defaultProps?: Partial<TabItem>) {

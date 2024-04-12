@@ -205,6 +205,7 @@
     executeLoading: false,
     preDependency: [], // 前置依赖
     postDependency: [], // 后置依赖
+    errorMessageInfo: {},
   };
 
   // 监听模块树的激活节点变化，记录表格数据的模块 id

@@ -212,6 +212,7 @@
     response: cloneDeep(defaultResponse),
     isNew: true,
     executeLoading: false,
+    errorMessageInfo: {},
   };
   const debugTabs = ref<RequestParam[]>([cloneDeep(defaultDebugParams)]);
   const activeDebug = ref<RequestParam>(debugTabs.value[0]);
