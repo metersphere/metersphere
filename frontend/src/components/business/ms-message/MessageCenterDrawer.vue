@@ -33,6 +33,13 @@
             </div>
           </a-menu-item>
         </a-menu>
+        <div class="case flex-1">
+          <a-divider direction="horizontal" margin="8px" />
+          <div class="flex items-center px-[20px]" :class="{ clickable: 'hovered' }" @click="openMessageManage">
+            <MsIcon type="icon-icon_setting_filled" class="folder-icon" />
+            <div class="folder-name mx-[4px]">{{ t('ms.message.setting') }}</div>
+          </div>
+        </div>
       </div>
       <a-divider direction="vertical" margin="8px"></a-divider>
       <div class="flex-1 justify-between p-[24px]">
@@ -118,6 +125,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import { useVModel } from '@vueuse/core';
   import dayjs from 'dayjs';
 
@@ -139,6 +147,7 @@
   import usePathMap from '@/hooks/usePathMap';
 
   import { MessageItem } from '@/models/projectManagement/message';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   import useAppStore from '../../../store/modules/app';
   import useUserStore from '../../../store/modules/user';
@@ -154,7 +163,7 @@
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
   }>();
-
+  const router = useRouter();
   const { t } = useI18n();
   const { jumpRouteByMapKey, getRouteMapByAlias } = usePathMap();
   const innerVisible = useVModel(props, 'visible', emit);
@@ -247,6 +256,14 @@
     pageNation.value.current = 1;
     currentResourceType.value = key;
     loadMessageHistoryList('all', key);
+  }
+
+  function openMessageManage() {
+    window.open(
+      `${window.location.origin}#${
+        router.resolve({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT }).fullPath
+      }?orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
+    );
   }
 
   // 切换消息状态
@@ -357,5 +374,18 @@
     flex-direction: column;
     box-sizing: border-box;
     line-height: 1.8715;
+  }
+
+  .case {
+    /* 底部样式 */
+    position: fixed;
+    bottom: 0;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .clickable {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
 </style>
