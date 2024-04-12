@@ -283,7 +283,6 @@
       if (res) {
         activePool.value = res;
         const poolUses = [
-          activePool.value.loadTest ? t('system.resourcePool.usePerformance') : '',
           activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
           activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
         ];
