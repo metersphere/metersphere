@@ -389,7 +389,7 @@
       />
     </template>
   </MsBaseTable>
-  <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" />
+  <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" @ok="initMenuData()" />
   <RelatedCase v-model:visible="relatedCaseDrawerVisible" @cancel="relatedCaseDrawerVisible = false" />
 </template>
 
@@ -835,14 +835,19 @@
     }
   };
 
-  onMounted(() => {
+  function initMenuData() {
     setLoadListParams({ projectId: currentProjectId.value });
     fetchData();
     initExpendKeys();
+  }
+
+  onMounted(() => {
+    initMenuData();
   });
   watch(currentProjectId, () => {
     fetchData();
   });
+
   watch(
     () => expandedKeys.value.length,
     (val) => {
