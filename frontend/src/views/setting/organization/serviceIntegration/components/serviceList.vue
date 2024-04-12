@@ -272,9 +272,6 @@
         border-radius: 4px;
         background: white;
         @apply flex flex-col justify-between;
-        .icon {
-          border: 1px solid var(--color-text-n9);
-        }
         .ms-enable {
           font-size: 12px;
           border-radius: var(--border-radius-small);
