@@ -314,7 +314,7 @@
       dataIndex: 'operation',
       fixed: 'right',
       showDrag: false,
-      width: hasOperationPermission.value ? 180 : 50,
+      width: hasOperationPermission.value ? 180 : 80,
     },
   ];
 
