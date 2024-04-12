@@ -1542,6 +1542,7 @@ public class ApiScenarioService extends MoveNodeService {
         parseConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         parseConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
         parseConfig.setGrouped(request.getGrouped());
+        parseConfig.setRootScenarioConfig(request.getScenarioConfig());
         if (BooleanUtils.isTrue(request.getGrouped())) {
             // 设置环境组 map
             parseConfig.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, request.getEnvironmentId()));
