@@ -2,7 +2,7 @@
   <MsTabCard v-model:active-tab="activeTab" :title="t('system.config.parameterConfig')" :tab-list="tabList" />
   <baseConfig v-if="activeTab === 'baseConfig'" v-show="activeTab === 'baseConfig'" />
   <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
-  <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" ref="authConfigRef" />
+  <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" />
   <memoryCleanup v-if="isInitMemoryCleanup" v-show="activeTab === 'memoryCleanup'" />
 </template>
 
@@ -10,7 +10,6 @@
   /**
    * @description 系统设置-系统参数
    */
-  import { onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
 
   import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
@@ -19,7 +18,6 @@
   import useLicenseStore from '@/store/modules/setting/license';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { AuthConfigInstance } from './components/authConfig.vue';
   // 异步组件加载
   const baseConfig = defineAsyncComponent(() => import('./components/baseConfig.vue'));
   const pageConfig = defineAsyncComponent(() => import('./components/pageConfig.vue'));
@@ -33,7 +31,6 @@
   const isInitPageConfig = ref(activeTab.value === 'pageConfig');
   const isInitAuthConfig = ref(activeTab.value === 'authConfig');
   const isInitMemoryCleanup = ref(activeTab.value === 'memoryCleanup');
-  const authConfigRef = ref<AuthConfigInstance | null>();
   const tabList = ref([
     { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
     { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
@@ -73,13 +70,7 @@
   onBeforeMount(() => {
     getXpackTab();
     const firstHasPermissionTab = tabList.value.find((item: any) => hasAnyPermission(item.permission));
-    activeTab.value = firstHasPermissionTab?.key || 'baseConfig';
-  });
-
-  onMounted(() => {
-    if (route.query.tab === 'authConfig' && route.query.id) {
-      authConfigRef.value?.openAuthDetail(route.query.id as string);
-    }
+    activeTab.value = (route.query.tab as string) || firstHasPermissionTab?.key || 'baseConfig';
   });
 </script>
 

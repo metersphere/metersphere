@@ -527,7 +527,7 @@
     getDefinitionDetail,
     getModuleTreeOnlyModules,
   } from '@/api/modules/api-test/management';
-  import { debugScenario, getScenarioStep } from '@/api/modules/api-test/scenario';
+  import { debugScenario, getScenarioDetail, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -834,8 +834,36 @@
     };
   }
 
+  /**
+   * 刷新引用场景的步骤数据
+   */
+  async function refreshScenarioStepInfo(step: ScenarioStepItem, id: string | number) {
+    try {
+      loading.value = true;
+      const res = await getScenarioDetail(id);
+      if (step.children) {
+        step.children = mapTree(res.steps || [], (child) => {
+          child.uniqueId = getGenerateId();
+          child.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+          child.isRefScenarioStep = true; // 标记为完全引用场景
+          child.draggable = false; // 引用场景下的任何步骤不可拖拽
+          if (selectedKeys.value.includes(step.uniqueId) && !selectedKeys.value.includes(child.uniqueId)) {
+            // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
+            selectedKeys.value.push(child.uniqueId);
+          }
+          return child;
+        }) as ScenarioStepItem[];
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // 应用场景配置
-  function saveScenarioConfig() {
+  async function saveScenarioConfig() {
     if (activeStep.value) {
       const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
       if (realStep) {
@@ -844,16 +872,16 @@
           ...realStep.config,
           ...scenarioConfigForm.value,
         };
-        realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
-          // 更新子孙步骤是否完全引用
-          if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
-            child.isRefScenarioStep = true;
-            child.enable = true;
-          } else {
+        if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
+          // 更新子孙步骤完全引用
+          await refreshScenarioStepInfo(realStep as ScenarioStepItem, realStep.resourceId);
+        } else {
+          realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
+            // 更新子孙步骤-步骤引用
             child.isRefScenarioStep = false;
-          }
-          return child;
-        });
+            return child;
+          });
+        }
         Message.success(t('apiScenario.setSuccess'));
         scenario.value.unSaved = true;
         cancelScenarioConfig();
@@ -1138,7 +1166,7 @@
                 };
               })[0]
             ),
-            name: `copy_${node.name}`,
+            name: `copy_${node.name}`.substring(0, 255),
             copyFromStepId: stepDetail ? node.id : node.copyFromStepId,
             sort: node.sort + 1,
             isNew: true,
@@ -1481,7 +1509,6 @@
       delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
       realStep.reportId = getGenerateId();
       realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      const stepFileParam = scenario.value.stepFileParam[realStep.id];
       request.executeLoading = true;
       scenario.value.executeType = executeType;
       realExecute({
@@ -1491,7 +1518,10 @@
         },
         reportId: realStep.reportId,
         stepFileParam: {
-          [realStep.uniqueId]: stepFileParam,
+          [realStep.uniqueId]: {
+            uploadFileIds: request.uploadFileIds || [],
+            linkFileIds: request.linkFileIds || [],
+          },
         },
       });
     } else {

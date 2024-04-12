@@ -116,4 +116,5 @@ export default {
   'system.resourcePool.jobTemplateReset': '重置 Job 模板',
   'system.resourcePool.addSuccess': '添加资源池成功',
   'system.resourcePool.updateSuccess': '更新资源池成功',
+  'system.resourcePool.atLeastOnePool': '至少保留一个资源池',
 };

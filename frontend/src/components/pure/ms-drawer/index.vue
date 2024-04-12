@@ -149,6 +149,7 @@
     noTitle?: boolean; // 是否不显示标题栏
     drawerStyle?: Record<string, string>; // 抽屉样式
     showFullScreen?: boolean; // 是否显示全屏按钮
+    maskClosable?: boolean; // 点击遮罩是否关闭
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -160,6 +161,7 @@
     popupContainer: 'body',
     disabledWidthDrag: false,
     showFullScreen: false,
+    maskClosable: true,
     okPermission: () => [], // 确认按钮权限
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue', 'close']);

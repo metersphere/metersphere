@@ -19,9 +19,9 @@
         <a-button type="text" class="px-0" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
       </template>
       <template #action="{ record }">
-        <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">{{
-          t('system.resourcePool.editPool')
-        }}</MsButton>
+        <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">
+          {{ t('system.resourcePool.editPool') }}
+        </MsButton>
         <MsButton
           v-if="record.enable"
           v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
@@ -30,9 +30,9 @@
         >
           {{ t('system.resourcePool.tableDisable') }}
         </MsButton>
-        <MsButton v-else v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" v-xpack @click="enablePool(record)">{{
-          t('system.resourcePool.tableEnable')
-        }}</MsButton>
+        <MsButton v-else v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" v-xpack @click="enablePool(record)">
+          {{ t('system.resourcePool.tableEnable') }}
+        </MsButton>
         <MsTableMoreAction
           v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+DELETE']"
           :list="tableActions"
@@ -215,6 +215,7 @@
           Message.success(t('system.resourcePool.disablePoolSuccess'));
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -226,6 +227,10 @@
    * 删除资源池
    */
   function deletePool(record: any) {
+    if (propsRes.value.data.length === 1) {
+      Message.warning(t('system.resourcePool.atLeastOnePool'));
+      return;
+    }
     openModal({
       type: 'error',
       title: t('system.resourcePool.deletePoolTip', { name: characterLimit(record.name) }),
@@ -242,6 +247,7 @@
           Message.success(t('system.resourcePool.deletePoolSuccess'));
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
