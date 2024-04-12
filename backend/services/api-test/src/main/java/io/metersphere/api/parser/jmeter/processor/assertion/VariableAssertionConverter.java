@@ -64,7 +64,8 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
     public boolean isValid(MsVariableAssertion.VariableAssertionItem variableAssertionItem) {
         return StringUtils.isNotBlank(variableAssertionItem.getVariableName())
                 && StringUtils.isNotBlank(variableAssertionItem.getCondition())
-                && BooleanUtils.isTrue(variableAssertionItem.getEnable());
+                && BooleanUtils.isTrue(variableAssertionItem.getEnable())
+                && !StringUtils.equals(variableAssertionItem.getCondition(), MsAssertionCondition.UNCHECK.name());
     }
 
     private static String parse2BeanshellJSR233Script(MsVariableAssertion.VariableAssertionItem variableAssertionItem) {
