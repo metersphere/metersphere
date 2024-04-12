@@ -39,23 +39,23 @@ export const stopRealProjectApiUrl = '/task/center/api/project/stop';
 // 更新定时任务运行规则
 export const updateRunRulesUrl = '/task/center/schedule/update';
 // 系统定时任务 删除
-export const deleteScheduleSysTaskUrl = '/task/center/system/schedule/delete/';
+export const deleteScheduleSysTaskUrl = '/task/center/system/schedule/delete';
 // 组织定时任务 删除
-export const deleteScheduleOrgTaskUrl = '/task/center/org/schedule/delete/';
+export const deleteScheduleOrgTaskUrl = '/task/center/org/schedule/delete';
 // 项目定时任务 删除
-export const deleteScheduleProTaskUrl = '/task/center/project/schedule/delete/';
+export const deleteScheduleProTaskUrl = '/task/center/project/schedule/delete';
 // 系统定时任务 启用
-export const enableScheduleSysTaskUrl = '/task/center/system/schedule/switch/';
+export const enableScheduleSysTaskUrl = '/task/center/system/schedule/switch';
 // 组织定时任务 启用
-export const enableScheduleOrgTaskUrl = '/task/center/org/schedule/switch/';
+export const enableScheduleOrgTaskUrl = '/task/center/org/schedule/switch';
 // 项目定时任务 启用
-export const enableScheduleProTaskUrl = '/task/center/project/schedule/switch/';
+export const enableScheduleProTaskUrl = '/task/center/project/schedule/switch';
 // 系统定时任务 更新
-export const updateScheduleSysTaskUrl = '/task/center/system/schedule/update/';
+export const updateScheduleSysTaskUrl = '/task/center/system/schedule/update';
 // 组织定时任务 更新
-export const updateScheduleOrgTaskUrl = '/task/center/org/schedule/update/';
+export const updateScheduleOrgTaskUrl = '/task/center/org/schedule/update';
 // 项目定时任务 更新
-export const updateScheduleProTaskUrl = '/task/center/project/schedule/update/';
+export const updateScheduleProTaskUrl = '/task/center/project/schedule/update';
 // 系统定时任务  批量开启
 export const batchEnableScheduleSysTaskUrl = '/task/center/system/schedule/batch-enable';
 // 组织定时任务  批量开启
