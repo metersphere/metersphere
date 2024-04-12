@@ -31,6 +31,7 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,7 +48,8 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
     @Override
     public void toHashTree(HashTree tree, MsScenario msScenario, ParameterConfig msParameter) {
-        ApiScenarioParamConfig config = (ApiScenarioParamConfig) msParameter;
+        // 获取生效的环境配置
+        ApiScenarioParamConfig config = getEnableConfig(msScenario, (ApiScenarioParamConfig) msParameter);
         EnvironmentInfoDTO envInfo = config.getEnvConfig(msScenario.getProjectId());
 
         if (isRootScenario(msScenario.getRefType()) && msScenario.getScenarioConfig().getOtherConfig().getEnableGlobalCookie()) {
@@ -56,7 +58,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         }
 
         // 添加场景和环境变量
-        addArguments(tree, msScenario, envInfo);
+        addArguments(tree, msScenario, envInfo, config);
 
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
@@ -64,8 +66,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         addScenarioProcessor(tree, msScenario, config, true);
 
         // 解析子步骤
-        ApiScenarioParamConfig chileConfig = getChileConfig(msScenario, config);
-        parseChild(tree, msScenario, chileConfig);
+        parseChild(tree, msScenario, config);
 
         // 添加场景后置
         addScenarioProcessor(tree, msScenario, config, false);
@@ -78,21 +79,46 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
     /**
      * 添加场景和环境变量
+     *
      * @param tree
      * @param msScenario
      * @param envInfo
      */
-    private void addArguments(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo) {
-        if (envInfo == null) {
-            return;
+    private void addArguments(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo, ApiScenarioParamConfig config) {
+        // 如果是根场景获取场景变量
+        List<CommonVariables> commonVariables = getCommonVariables(msScenario.getScenarioConfig());
+
+        if (!isRootScenario(msScenario.getRefType())) {
+            // 不是根场景，从步骤配置中获取是否使用场景变量
+            ScenarioStepConfig scenarioStepConfig = msScenario.getScenarioStepConfig();
+            if (scenarioStepConfig != null) {
+                if (BooleanUtils.isTrue(scenarioStepConfig.getUseOriginScenarioParam())) {
+                    if (BooleanUtils.isNotTrue(scenarioStepConfig.getUseOriginScenarioParamPreferential())) {
+                        // 如果不是源场景变量优先，则跟根场景比较，去掉重名的变量
+                        Set<String> rootVariableKeys = getCommonVariables(config.getRootScenarioConfig())
+                                .stream()
+                                .filter(CommonVariables::getEnable)
+                                .filter(variable -> variable.getEnable() && (variable.isListValid() ? variable.isListValid() : variable.isConstantValid()))
+                                .map(variable -> variable.getParamType() + variable.getKey())
+                                .collect(Collectors.toSet());
+
+                        commonVariables = commonVariables.stream().filter(variable -> {
+                            if (rootVariableKeys.contains(variable.getParamType() + variable.getKey())) {
+                                // 当前场景变量优先，过滤掉当前场景变量中存在的变量
+                                return false;
+                            }
+                            return true;
+                        }).collect(Collectors.toList());
+                    }
+                } else {
+                    // 如果没有启用源场景环境，则置空
+                    commonVariables = List.of();
+                }
+            }
         }
-        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
-        ScenarioVariable scenarioVariable = scenarioConfig == null ? new ScenarioVariable() : scenarioConfig.getVariable();
-        scenarioVariable = scenarioVariable == null ? new ScenarioVariable() : scenarioVariable;
-        List<CommonVariables> commonVariables = scenarioVariable.getCommonVariables();
 
         List<CommonVariables> envCommonVariables = List.of();
-        if (needParseEnv(msScenario) && envInfo.getConfig() != null) {
+        if (envInfo != null && needParseEnv(msScenario) && envInfo.getConfig() != null) {
             // 获取环境变量
             envCommonVariables = envInfo.getConfig().getCommonVariables();
             // 获取后，将环境变量置空，避免请求重复设置
@@ -112,8 +138,16 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         tree.add(arguments);
     }
 
+    private List<CommonVariables> getCommonVariables(ScenarioConfig scenarioConfig) {
+        ScenarioVariable scenarioVariable = scenarioConfig == null ? new ScenarioVariable() : scenarioConfig.getVariable();
+        scenarioVariable = scenarioVariable == null ? new ScenarioVariable() : scenarioVariable;
+        List<CommonVariables> commonVariables = scenarioVariable.getCommonVariables();
+        return commonVariables;
+    }
+
     /**
      * 合并环境变量和场景变量
+     *
      * @param scenarioVariables
      * @param envCommonVariables
      * @param filter
@@ -216,6 +250,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
     /**
      * 是否需要解析环境
+     *
      * @param msScenario
      * @return
      */
@@ -273,45 +308,45 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
     }
 
     /**
-     * 获取子步骤的配置信息
-     * 如果使用源场景环境，则使用当前场景的环境信息
+     * 获取生效的环境
+     * 如果使用源场景环境，则使用源场景的环境信息
      *
      * @param msScenario
      * @param config
      * @return
      */
-    private ApiScenarioParamConfig getChileConfig(MsScenario msScenario, ApiScenarioParamConfig config) {
-        ApiScenarioParamConfig childConfig = config;
+    private ApiScenarioParamConfig getEnableConfig(MsScenario msScenario, ApiScenarioParamConfig config) {
+        ApiScenarioParamConfig enableConfig = config;
         if (!isRef(msScenario.getRefType())) {
             // 非引用的场景，使用当前环境参数
-            return childConfig;
+            return enableConfig;
         }
         ScenarioStepConfig scenarioStepConfig = msScenario.getScenarioStepConfig();
         if (scenarioStepConfig != null && BooleanUtils.isTrue(scenarioStepConfig.getEnableScenarioEnv())) {
             // 使用源场景环境
-            childConfig = BeanUtils.copyBean(new ApiScenarioParamConfig(), config);
-            childConfig.setGrouped(msScenario.getGrouped());
+            enableConfig = BeanUtils.copyBean(new ApiScenarioParamConfig(), config);
+            enableConfig.setGrouped(msScenario.getGrouped());
             // 清空环境信息
-            childConfig.setEnvConfig(null);
-            childConfig.setProjectEnvMap(null);
+            enableConfig.setEnvConfig(null);
+            enableConfig.setProjectEnvMap(null);
             if (BooleanUtils.isTrue(msScenario.getGrouped())) {
                 // 环境组设置环境Map
                 Map<String, EnvironmentInfoDTO> projectEnvMap = msScenario.getProjectEnvMap();
-                childConfig.setProjectEnvMap(projectEnvMap);
+                enableConfig.setProjectEnvMap(projectEnvMap);
             } else {
                 // 设置环境信息
                 EnvironmentInfoDTO environmentInfo = msScenario.getEnvironmentInfo();
-                childConfig.setEnvConfig(environmentInfo);
+                enableConfig.setEnvConfig(environmentInfo);
             }
         }
 
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         if (scenarioConfig != null) {
             // 设置是否使用全局cookie
-            childConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableCookieShare());
+            enableConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableCookieShare());
         }
 
-        return childConfig;
+        return enableConfig;
     }
 
     private CookieManager getCookieManager() {

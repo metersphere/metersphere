@@ -107,8 +107,8 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
     private void addProcessors(HashTree tree, MsCommonElement msCommonElement, ParameterConfig config,
                                EnvironmentInfoDTO envInfo, boolean isPre) {
         MsProcessorConfig processorConfig = isPre ? msCommonElement.getPreProcessorConfig() : msCommonElement.getPostProcessorConfig();
-        if (processorConfig == null || processorConfig.getProcessors() == null) {
-            return;
+        if (processorConfig == null) {
+            processorConfig = new MsProcessorConfig();
         }
         AbstractMsTestElement parent = msCommonElement.getParent();
         String protocol = null;

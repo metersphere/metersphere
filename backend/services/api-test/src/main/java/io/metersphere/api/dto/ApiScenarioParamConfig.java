@@ -1,5 +1,6 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import lombok.Data;
@@ -19,6 +20,10 @@ public class ApiScenarioParamConfig extends ApiParamConfig {
      * value 为环境信息
      */
     private Map<String, EnvironmentInfoDTO> projectEnvMap;
+    /**
+     * 当前场景的场景配置
+     */
+    private ScenarioConfig rootScenarioConfig;
     /**
      * 是否为环境组
      * 是则使用 projectEnvMap
