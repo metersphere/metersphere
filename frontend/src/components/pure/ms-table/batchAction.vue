@@ -4,7 +4,7 @@
     <template v-for="(element, idx) in baseAction" :key="element.label">
       <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
       <a-button
-        v-if="!element.isDivider && !element.children && hasAllPermission(element.permission as string[])"
+        v-if="!element.isDivider && !element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
         class="ml-[12px]"
         :class="{
           'arco-btn-outline--danger': element.danger,
@@ -16,7 +16,7 @@
       >
       <!-- baseAction多菜单选择 -->
       <a-dropdown
-        v-if="!element.isDivider && element.children && hasAllPermission(element.permission as string[])"
+        v-if="!element.isDivider && element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
         position="tr"
         @select="handleSelect"
       >
@@ -67,7 +67,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { getNodeWidth } from '@/utils/dom';
-  import { hasAllPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { BatchActionConfig, BatchActionParams } from './type';
   import ResizeObserver from 'resize-observer-polyfill';
