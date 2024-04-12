@@ -16,6 +16,6 @@ public class MsRegexAssertionItem extends MsBodyAssertionItem {
     private String expression;
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(expression);
+        return StringUtils.isNotBlank(expression) && Boolean.TRUE.equals(this.getEnable());
     }
 }

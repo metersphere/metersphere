@@ -21,6 +21,6 @@ public class MsXPathAssertionItem extends MsBodyAssertionItem {
     private String expectedValue;
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(expression);
+        return StringUtils.isNotBlank(expression) && Boolean.TRUE.equals(this.getEnable());
     }
 }

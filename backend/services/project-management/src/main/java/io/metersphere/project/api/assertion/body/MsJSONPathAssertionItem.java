@@ -3,6 +3,7 @@ package io.metersphere.project.api.assertion.body;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -30,7 +31,7 @@ public class MsJSONPathAssertionItem extends MsBodyAssertionItem {
     private String expectedValue;
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(expression) && StringUtils.isNotBlank(condition);
+        return StringUtils.isNotBlank(expression) && StringUtils.isNotBlank(condition) && BooleanUtils.isTrue(this.getEnable());
     }
 }
 
