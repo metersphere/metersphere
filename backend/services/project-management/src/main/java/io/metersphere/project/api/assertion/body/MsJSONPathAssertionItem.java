@@ -1,5 +1,6 @@
 package io.metersphere.project.api.assertion.body;
 
+import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -31,7 +32,10 @@ public class MsJSONPathAssertionItem extends MsBodyAssertionItem {
     private String expectedValue;
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(expression) && StringUtils.isNotBlank(condition) && BooleanUtils.isTrue(this.getEnable());
+        return StringUtils.isNotBlank(expression)
+                && StringUtils.isNotBlank(condition)
+                && BooleanUtils.isTrue(this.getEnable()
+                && !StringUtils.equals(condition, MsAssertionCondition.UNCHECK.name()));
     }
 }
 
