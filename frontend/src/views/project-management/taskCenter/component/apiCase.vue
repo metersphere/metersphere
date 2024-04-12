@@ -419,7 +419,7 @@
       {
         label: 'project.taskCenter.batchStop',
         eventTag: 'batchStop',
-        permission: permissionsMap[props.group][props.moduleType].stop,
+        anyPermission: permissionsMap[props.group][props.moduleType].stop,
       },
       // {
       // label: 'project.taskCenter.batchExecution',

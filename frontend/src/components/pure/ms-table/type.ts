@@ -131,6 +131,7 @@ export interface BatchActionParams {
   danger?: boolean;
   children?: BatchActionParams[];
   permission?: string[];
+  anyPermission?: string[];
 }
 export interface BatchActionConfig {
   baseAction: BatchActionParams[];
