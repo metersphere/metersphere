@@ -44,6 +44,7 @@ PersonalCenterController {
     @Operation(summary = "个人中心-修改密码")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePasswordLog(#request)", msClass = UserLogService.class)
     public boolean updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
+        request.setId(SessionUtils.getUserId());
         this.checkPermission(request.getId());
         return userService.updatePassword(request);
     }
