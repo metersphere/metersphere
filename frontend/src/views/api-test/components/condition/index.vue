@@ -22,7 +22,7 @@
       <conditionList
         v-model:list="data"
         :disabled="props.disabled"
-        :active-id="activeItem.id"
+        :active-id="activeItemId"
         :show-associated-scene="props.showAssociatedScene"
         :show-pre-post-request="props.showPrePostRequest"
         @active-change="handleListActiveChange"
@@ -87,6 +87,7 @@
     required: true,
   });
   const activeItem = ref<ExecuteConditionProcessor>(data.value[0]);
+  const activeItemId = computed(() => activeItem.value?.id);
 
   function handleListActiveChange(item: ExecuteConditionProcessor) {
     activeItem.value = item;
@@ -109,8 +110,8 @@
    * 删除列表项
    */
   function deleteListItem(id: string | number) {
-    data.value = data.value.filter((precondition) => precondition.id !== activeItem.value.id);
-    if (activeItem.value.id === id) {
+    data.value = data.value.filter((precondition) => precondition.id !== activeItemId.value);
+    if (activeItemId.value === id) {
       [activeItem.value] = data.value;
     }
     emit('change');
@@ -243,6 +244,10 @@
       data.value = tempArr.map((e) => e);
       [activeItem.value] = data.value;
     }
+  });
+
+  defineExpose({
+    activeItemId,
   });
 </script>
 

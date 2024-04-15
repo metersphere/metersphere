@@ -1,5 +1,6 @@
 <template>
   <condition
+    ref="conditionRef"
     v-model:list="innerConfig.processors"
     :disabled="props.disabled"
     :condition-types="conditionTypes"
@@ -62,6 +63,14 @@
     // 接口调试
     return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING];
   });
+
+  const conditionRef = ref<InstanceType<typeof condition>>();
+  watch(
+    () => conditionRef.value?.activeItemId,
+    (val) => {
+      innerConfig.value.activeItemId = val;
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>

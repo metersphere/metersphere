@@ -305,6 +305,7 @@ export type ExecuteConditionProcessor = Partial<
 export interface ExecuteConditionConfig {
   enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
   processors: ExecuteConditionProcessor[];
+  activeItemId?: number;
 }
 // 执行请求-断言配置子项
 export type ExecuteAssertionItem = ResponseAssertionCommon &

@@ -727,6 +727,7 @@ if (!result){
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
       slotName: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'apiTestDebug.extractValueByColumn',
@@ -767,6 +768,7 @@ if (!result){
       title: 'apiTestDebug.paramName',
       dataIndex: 'variableName',
       slotName: 'key',
+      needValidRepeat: true,
       width: 150,
     },
     {

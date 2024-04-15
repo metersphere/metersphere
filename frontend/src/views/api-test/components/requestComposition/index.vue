@@ -1361,6 +1361,12 @@
     }
   }
 
+  function setChildErrorMessage(key: number | string, listItem: TabErrorMessage) {
+    if (requestVModel.value.errorMessageInfo) {
+      requestVModel.value.errorMessageInfo[requestVModel.value.activeTab][key] = cloneDeep(listItem);
+    }
+  }
+
   function changeTabErrorMessageList(tabKey: string, formErrorMessageList: string[]) {
     if (!requestVModel.value.errorMessageInfo) return;
     const label = contentTabList.value.find((item) => item.value === tabKey)?.label ?? '';
@@ -1369,11 +1375,13 @@
       label,
       messageList: formErrorMessageList,
     };
-    // TODO: 处理前置的sql 后置的sql和提取 断言的响应头和变量
+    initErrorMessageInfoItem(requestVModel.value.activeTab);
     if (requestVModel.value.activeTab === RequestComposition.BODY) {
-      initErrorMessageInfoItem(RequestComposition.BODY);
-      requestVModel.value.errorMessageInfo[RequestComposition.BODY][requestVModel.value.body.bodyType] =
-        cloneDeep(listItem);
+      setChildErrorMessage(requestVModel.value.body.bodyType, listItem);
+    } else if (requestVModel.value.activeTab === RequestComposition.POST_CONDITION) {
+      setChildErrorMessage(requestVModel.value.children[0].postProcessorConfig.activeItemId as number, listItem);
+    } else if (requestVModel.value.activeTab === RequestComposition.PRECONDITION) {
+      setChildErrorMessage(requestVModel.value.children[0].preProcessorConfig.activeItemId as number, listItem);
     } else {
       requestVModel.value.errorMessageInfo[requestVModel.value.activeTab] = cloneDeep(listItem);
     }
@@ -1389,10 +1397,21 @@
     if (!requestVModel.value.errorMessageInfo) return;
     const flattenedMessages: { label: string; messageList: string[] }[] = [];
     const { errorMessageInfo } = requestVModel.value;
-    Object.values(errorMessageInfo).forEach((item) => {
-      const label = item.label || (Object.values(item)[0] && Object.values(item)[0].label);
+    Object.entries(errorMessageInfo).forEach(([key, item]) => {
+      const label = item.label || Object.values(item)[0]?.label;
+      // 处理前后置已删除的
+      if ([RequestComposition.POST_CONDITION as string, RequestComposition.PRECONDITION as string].includes(key)) {
+        const processorIds = requestVModel.value.children[0][
+          key === RequestComposition.POST_CONDITION ? 'postProcessorConfig' : 'preProcessorConfig'
+        ].processors.map((processorItem) => String(processorItem.id));
+        Object.entries(item).forEach(([childKey, childItem]) => {
+          if (!processorIds.includes(childKey)) {
+            childItem.messageList = [];
+          }
+        });
+      }
       const messageList: string[] =
-        item.messageList || [...new Set(Object.values(item).flatMap((bodyType) => bodyType.messageList))] || [];
+        item.messageList || [...new Set(Object.values(item).flatMap((child) => child.messageList))] || [];
       if (messageList.length) {
         flattenedMessages.push({ label, messageList: [...new Set(messageList)] });
       }

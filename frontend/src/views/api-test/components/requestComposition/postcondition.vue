@@ -1,5 +1,6 @@
 <template>
   <condition
+    ref="conditionRef"
     v-model:list="innerConfig.processors"
     :condition-types="conditionTypes"
     add-text="apiTestDebug.postCondition"
@@ -71,6 +72,14 @@
     }
     return [RequestConditionProcessor.SCRIPT];
   });
+
+  const conditionRef = ref<InstanceType<typeof condition>>();
+  watch(
+    () => conditionRef.value?.activeItemId,
+    (val) => {
+      innerConfig.value.activeItemId = val;
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>
