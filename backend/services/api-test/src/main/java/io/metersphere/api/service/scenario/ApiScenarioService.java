@@ -1540,7 +1540,7 @@ public class ApiScenarioService extends MoveNodeService {
     public ApiScenarioParamConfig getApiScenarioParamConfig(ApiScenarioParseParam request, ApiScenarioParseEnvInfo scenarioParseEnvInfo) {
         ApiScenarioParamConfig parseConfig = new ApiScenarioParamConfig();
         parseConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
-        parseConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
+        parseConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());
         parseConfig.setGrouped(request.getGrouped());
         parseConfig.setRootScenarioConfig(request.getScenarioConfig());
         if (BooleanUtils.isTrue(request.getGrouped())) {

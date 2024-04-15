@@ -1207,7 +1207,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(apiScenarioDetail.getUpdateUserName(), userMapper.selectByPrimaryKey(apiScenarioDetail.getUpdateUser()).getName());
         Assertions.assertFalse(apiScenarioDetail.getFollow());
         // 验证数据
-        asserGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
+        assertGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
 
         apiScenarioService.follow(anOtherAddApiScenario.getId(), "admin");
         mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, anOtherAddApiScenario.getId());
@@ -1274,7 +1274,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         }
     }
 
-    private void asserGetApiScenarioSteps(List<? extends ApiScenarioStepCommonDTO> addApiScenarioSteps, List<? extends ApiScenarioStepCommonDTO> steps) {
+    private void assertGetApiScenarioSteps(List<? extends ApiScenarioStepCommonDTO> addApiScenarioSteps, List<? extends ApiScenarioStepCommonDTO> steps) {
         if (addApiScenarioSteps == null || steps == null) {
             Assertions.assertEquals(addApiScenarioSteps, null);
             Assertions.assertEquals(steps, null);
@@ -1285,7 +1285,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             ApiScenarioStepRequest stepRequest = (ApiScenarioStepRequest) addApiScenarioSteps.get(i);
             ApiScenarioStepDTO stepDTO = (ApiScenarioStepDTO) steps.get(i);
             Assertions.assertEquals(BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepRequest), BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepDTO));
-            asserGetApiScenarioSteps(stepRequest.getChildren(), stepDTO.getChildren());
+            assertGetApiScenarioSteps(stepRequest.getChildren(), stepDTO.getChildren());
         }
     }
 
