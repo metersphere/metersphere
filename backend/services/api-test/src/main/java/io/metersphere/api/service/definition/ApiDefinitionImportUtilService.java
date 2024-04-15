@@ -348,7 +348,7 @@ public class ApiDefinitionImportUtilService {
             LogDTO dto = new LogDTO(
                     project.getId(),
                     project.getOrganizationId(),
-                    t.getId(),
+                    apiDefinition.getId(),
                     request.getUserId(),
                     OperationLogType.IMPORT.name(),
                     OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,

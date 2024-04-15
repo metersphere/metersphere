@@ -42,6 +42,7 @@ public class ProjectController {
 
     @GetMapping("/list/options/{organizationId}")
     @Operation(summary = "根据组织ID获取所有有权限的项目")
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<Project> getUserProject(@PathVariable String organizationId) {
         return projectService.getUserProject(organizationId, SessionUtils.getUserId());
     }
@@ -49,6 +50,7 @@ public class ProjectController {
     @PostMapping("/switch")
     @Operation(summary = "切换项目")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public UserDTO switchProject(@RequestBody ProjectSwitchRequest request) {
         return projectService.switchProject(request, SessionUtils.getUserId());
     }
@@ -65,6 +67,7 @@ public class ProjectController {
     @GetMapping("/pool-options/{type}/{projectId}")
     @Operation(summary = "项目管理-获取项目下的资源池")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<OptionDTO> getPoolOptions(@PathVariable String type, @PathVariable String projectId) {
         return projectService.getPoolOptions(projectId, type);
     }
@@ -79,6 +82,7 @@ public class ProjectController {
     @GetMapping("/get-member/option/{projectId}")
     @Operation(summary = "项目管理-获取成员下拉选项")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
                                                @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                                @RequestParam(value = "keyword", required = false) String keyword) {

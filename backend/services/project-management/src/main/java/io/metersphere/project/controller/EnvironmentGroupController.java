@@ -60,6 +60,7 @@ public class EnvironmentGroupController {
     @PostMapping("/list")
     @Operation(summary = "项目管理-环境组-列表")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<EnvironmentGroup> list(@RequestBody EnvironmentFilterRequest request) {
         return environmentGroupService.list(request);
     }
@@ -75,6 +76,7 @@ public class EnvironmentGroupController {
     @GetMapping("/get-project/{organizationId}")
     @Operation(summary = "项目管理-环境组-获取项目")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<OptionDTO> getProject(@PathVariable String organizationId) {
         return environmentGroupService.getProject(SessionUtils.getUserId(), organizationId);
     }

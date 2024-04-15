@@ -8,6 +8,7 @@ import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -37,6 +38,7 @@ public class ApiDefinitionScheduleController {
     @PostMapping(value = "/update")
     @Operation(summary = "接口测试-接口管理-定时同步-更新")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_definition_swagger")
     public String updateSchedule(@RequestBody @Validated({Updated.class}) ApiScheduleRequest request) {
         return apiDefinitionScheduleService.updateSchedule(request, SessionUtils.getUserId());
     }
@@ -51,6 +53,7 @@ public class ApiDefinitionScheduleController {
     @GetMapping(value = "/switch/{id}")
     @Operation(summary = "接口测试-接口管理-定时同步-开启/关闭")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_swagger")
     public void updateScheduleEnable(@PathVariable String id) {
         apiDefinitionScheduleService.switchSchedule(id);
     }
@@ -58,12 +61,15 @@ public class ApiDefinitionScheduleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "接口测试-接口管理-定时同步-删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_swagger")
     public void deleteSchedule(@PathVariable String id) {
         apiDefinitionScheduleService.deleteSchedule(id);
     }
 
     @GetMapping(value = "/get/{id}")
     @Operation(summary = "接口测试-接口管理-定时同步-查询")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_swagger")
     public ApiScheduleDTO getResourceId(@PathVariable String id) {
         return apiDefinitionScheduleService.getSchedule(id);
     }

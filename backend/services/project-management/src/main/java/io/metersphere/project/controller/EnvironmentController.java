@@ -42,6 +42,7 @@ public class EnvironmentController {
     @PostMapping("/list")
     @Operation(summary = "项目管理-环境-环境目录-列表")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<Environment> list(@Validated @RequestBody EnvironmentFilterRequest request) {
         return environmentService.list(request);
     }
@@ -57,6 +58,7 @@ public class EnvironmentController {
     @GetMapping("/scripts/{projectId}")
     @Operation(summary = "项目管理-环境-环境目录-接口插件前端配置脚本列表")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<EnvironmentPluginScriptDTO> getPluginScripts(@PathVariable String projectId) {
         return environmentService.getPluginScripts(projectId);
     }
@@ -99,6 +101,7 @@ public class EnvironmentController {
     @GetMapping("/database/driver-options/{organizationId}")
     @Operation(summary = "项目管理-环境-数据库配置-数据库驱动选项")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ, PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<OptionDTO> driverOptions(@PathVariable String organizationId) {
         return environmentService.getDriverOptions(organizationId);
     }
