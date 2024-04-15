@@ -55,6 +55,7 @@ public class ApiDefinitionScheduleService {
         BeanUtils.copyBean(apiSwagger, request);
         apiSwagger.setId(IDGenerator.nextStr());
         apiSwagger.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_IMPORT));
+        checkSwaggerUrl(request.getProjectId(), request.getSwaggerUrl());
         // 设置鉴权信息
         SwaggerBasicAuth basicAuth = new SwaggerBasicAuth();
         basicAuth.setUserName(request.getAuthUsername());
@@ -103,11 +104,13 @@ public class ApiDefinitionScheduleService {
         return apiDefinitionSwagger;
     }
 
-    public Boolean checkSwaggerUrl(String projectId, String url) {
+    public void checkSwaggerUrl(String projectId, String url) {
         ApiDefinitionSwaggerExample example = new ApiDefinitionSwaggerExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andSwaggerUrlEqualTo(url);
         List<ApiDefinitionSwagger> apiDefinitionSwaggers = apiDefinitionSwaggerMapper.selectByExample(example);
-        return CollectionUtils.isNotEmpty(apiDefinitionSwaggers);
+        if (CollectionUtils.isNotEmpty(apiDefinitionSwaggers)) {
+            throw  new MSException(Translator.get("api_import_url_is_exist"));
+        }
     }
 
     public String updateSchedule(ApiScheduleRequest request, String userId) {
