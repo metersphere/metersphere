@@ -4,22 +4,23 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.log.vo.OperationLogRequest;
-import io.metersphere.system.log.vo.OperationLogResponse;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
-import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
+import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.log.vo.OperationLogResponse;
+import io.metersphere.system.log.vo.OrgOperationLogRequest;
+import io.metersphere.system.log.vo.SystemOperationLogRequest;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -66,21 +67,20 @@ public class OrganizationLogController {
     public List<User> getLogUserList(@PathVariable(value = "organizationId") String organizationId,
                                      @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                      @RequestParam(value = "keyword", required = false) String keyword) {
-        return userService.getUserListByOrgId(organizationId,keyword);
+        return userService.getUserListByOrgId(organizationId, keyword);
     }
 
 
     @PostMapping("/list")
     @Operation(summary = "系统设置-组织-日志-组织菜单下操作日志列表查询")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_LOG_READ)
-    public Pager<List<OperationLogResponse>> organizationLogList(@Validated @RequestBody OperationLogRequest request) {
+    public Pager<List<OperationLogResponse>> organizationLogList(@Validated @RequestBody OrgOperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        if (CollectionUtils.isEmpty(request.getOrganizationIds())) {
-            //未传组织id 获取登录用户当前组织id
-            request.setOrganizationIds(Arrays.asList(SessionUtils.getCurrentOrganizationId()));
-        }
-        return PageUtils.setPageInfo(page, operationLogService.list(request));
+        SystemOperationLogRequest operationLogRequest = new SystemOperationLogRequest();
+        BeanUtils.copyBean(operationLogRequest, request);
+        operationLogRequest.setOrganizationIds(Arrays.asList(SessionUtils.getCurrentOrganizationId()));
+        return PageUtils.setPageInfo(page, operationLogService.list(operationLogRequest));
     }
 
 }

@@ -5,7 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.log.vo.OperationLogRequest;
+import io.metersphere.system.log.vo.SystemOperationLogRequest;
 import io.metersphere.system.log.vo.OperationLogResponse;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -65,7 +65,7 @@ public class OperationLogController {
     @PostMapping("/list")
     @Operation(summary = "系统设置-系统-日志-系统操作日志列表查询")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
-    public Pager<List<OperationLogResponse>> list(@Validated @RequestBody OperationLogRequest request) {
+    public Pager<List<OperationLogResponse>> list(@Validated @RequestBody SystemOperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, operationLogService.list(request));

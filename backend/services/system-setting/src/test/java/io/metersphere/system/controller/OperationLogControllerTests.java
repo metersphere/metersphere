@@ -4,7 +4,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.log.vo.OperationLogRequest;
+import io.metersphere.system.log.vo.SystemOperationLogRequest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
@@ -54,7 +54,7 @@ public class OperationLogControllerTests extends BaseTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testSystemOperationLogList() throws Exception {
         //系统级别  全部
-        OperationLogRequest request = buildParam(SYSTEM);
+        SystemOperationLogRequest request = buildParam(SYSTEM);
         this.requestPostWithOkAndReturn(OPERATION_LOG_LIST, request);
 
         //其他查询条件
@@ -80,7 +80,7 @@ public class OperationLogControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testOrganizationOperationLogList() throws Exception {
-        OperationLogRequest request = buildParam(ORGANIZATION);
+        SystemOperationLogRequest request = buildParam(ORGANIZATION);
         //组织级别 全部
         this.requestPostWithOkAndReturn(OPERATION_LOG_LIST, request);
 
@@ -111,7 +111,7 @@ public class OperationLogControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testProjectOperationLogList() throws Exception {
-        OperationLogRequest request = buildParam(PROJECT);
+        SystemOperationLogRequest request = buildParam(PROJECT);
         //项目级别 全部
         this.requestPostWithOkAndReturn(OPERATION_LOG_LIST, request);
 
@@ -155,7 +155,7 @@ public class OperationLogControllerTests extends BaseTest {
     @Test
     @Order(6)
     public void testGetOperationLogParamsError() throws Exception {
-        OperationLogRequest request = buildParam(SYSTEM);
+        SystemOperationLogRequest request = buildParam(SYSTEM);
         request.setStartTime(1689149059000l);
         request.setEndTime(1689131059000l);
         ResultActions resultActions = this.requestPost(OPERATION_LOG_LIST, request);
@@ -163,8 +163,8 @@ public class OperationLogControllerTests extends BaseTest {
     }
 
 
-    private OperationLogRequest buildParam(String level) {
-        OperationLogRequest request = new OperationLogRequest();
+    private SystemOperationLogRequest buildParam(String level) {
+        SystemOperationLogRequest request = new SystemOperationLogRequest();
         request.setCurrent(1);
         request.setPageSize(10);
         request.setStartTime(1689131059000l);
