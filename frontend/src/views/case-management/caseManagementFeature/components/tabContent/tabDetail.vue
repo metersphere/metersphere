@@ -182,20 +182,9 @@
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferVisible = true">
+              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFileHandler(item)">
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
-              <TransferModal
-                v-model:visible="transferVisible"
-                :request-fun="transferFileRequest"
-                :params="{
-                  projectId: currentProjectId,
-                  caseId: detailForm.id,
-                  fileId: item.uid,
-                  local: true,
-                }"
-                @success="emit('updateSuccess')"
-              />
               <MsButton
                 v-if="item.status === 'done'"
                 type="button"
@@ -270,6 +259,12 @@
     />
   </div>
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
+  <TransferModal
+    v-model:visible="transferVisible"
+    :request-fun="transferFileRequest"
+    :params="activeTransferFileParams"
+    @success="emit('updateSuccess')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -308,7 +303,7 @@
   import { downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, DetailCase, OperationFile, StepList } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
 
   import { convertToFile } from '../utils';
@@ -672,6 +667,22 @@
     await sleep(300);
     console.log('ooo');
     fileListRef.value?.startUpload();
+  }
+
+  const activeTransferFileParams = ref<OperationFile>({
+    projectId: '',
+    caseId: '',
+    fileId: '',
+    local: true,
+  });
+  function transferFileHandler(item: MsFileItem) {
+    activeTransferFileParams.value = {
+      projectId: currentProjectId.value,
+      caseId: props.form.id,
+      fileId: item.uid,
+      local: true,
+    };
+    transferVisible.value = true;
   }
 
   watch(

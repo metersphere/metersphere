@@ -108,21 +108,10 @@
                 type="button"
                 status="primary"
                 class="!mr-[4px]"
-                @click="transferFile"
+                @click="transferFile(item)"
               >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
-              <TransferModal
-                v-model:visible="transferVisible"
-                :request-fun="transferFileRequest"
-                :params="{
-                  projectId: currentProjectId,
-                  caseId: props.caseId,
-                  fileId: item.uid,
-                  local: true,
-                }"
-                @success="getCaseInfo()"
-              />
               <MsButton
                 v-if="item.status !== 'init'"
                 type="button"
@@ -250,6 +239,12 @@
     @save="saveSelectAssociatedFile"
   />
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
+  <TransferModal
+    v-model:visible="transferVisible"
+    :request-fun="transferFileRequest"
+    :params="activeTransferFileParams"
+    @success="getCaseInfo()"
+  />
 </template>
 
 <script setup lang="ts">
@@ -296,6 +291,7 @@
     CreateOrUpdateCase,
     CustomAttributes,
     DetailCase,
+    OperationFile,
     OptionsFieldId,
     StepList,
   } from '@/models/caseManagement/featureCase';
@@ -695,10 +691,25 @@
   });
 
   const transferVisible = ref<boolean>(false);
+
+  const activeTransferFileParams = ref<OperationFile>({
+    projectId: '',
+    caseId: '',
+    fileId: '',
+    local: true,
+  });
+
   // 转存
-  function transferFile() {
+  function transferFile(item: MsFileItem) {
+    activeTransferFileParams.value = {
+      projectId: currentProjectId.value,
+      caseId: form.value.id,
+      fileId: item.uid,
+      local: true,
+    };
     transferVisible.value = true;
   }
+
   // 下载
   async function downloadFile(item: MsFileItem) {
     try {
