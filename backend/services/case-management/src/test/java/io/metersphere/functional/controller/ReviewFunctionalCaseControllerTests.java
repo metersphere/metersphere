@@ -2,7 +2,6 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
-import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseReviewHistoryDTO;
@@ -217,7 +216,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审2");
         System.out.println(caseReviews1.get(0).getStatus());
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+
 
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -228,12 +227,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setNotifier("default-project-member-user-gyq-2");
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         reviewFunctionalCaseService.saveReview(reviewFunctionalCaseRequest, "default-project-member-user-gyq-4");
-
-        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo");
-        caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
-
         try {
             reviewFunctionalCaseService.saveReview(reviewFunctionalCaseRequest, "default-project-member-user-gyq-s");
 

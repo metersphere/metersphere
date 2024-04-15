@@ -2,10 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
-import io.metersphere.functional.domain.CaseReviewFunctionalCase;
-import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
-import io.metersphere.functional.domain.CaseReviewHistory;
-import io.metersphere.functional.domain.CaseReviewHistoryExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
@@ -61,6 +58,8 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     public static final String REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS = "/case/review/detail/reviewer/status/";
 
+
+    public static final String GET_CASE_REVIEWER_LIST = "/case/review/detail/reviewer/list";
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
@@ -559,6 +558,20 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
         Assertions.assertTrue(moduleCount.containsKey("TEST_MODULE_ID_COUNT_three"));
 
+    }
+
+    @Test
+    @Order(13)
+    public void getReviewerList() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_LIST + "/wx_review_id_1/gyq_case_id_5").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<CaseReviewFunctionalCaseUser> optionDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), CaseReviewFunctionalCaseUser.class);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(optionDTOS));
     }
 
     private List<OptionDTO> getOptionDTOS(String reviewId, String caseId) throws Exception {

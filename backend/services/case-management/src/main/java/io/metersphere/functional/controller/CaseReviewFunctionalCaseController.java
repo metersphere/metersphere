@@ -4,6 +4,7 @@ package io.metersphere.functional.controller;
 import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.functional.domain.CaseReviewFunctionalCaseUser;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
@@ -48,6 +49,8 @@ public class CaseReviewFunctionalCaseController {
     public List<String> getCaseIds(@PathVariable String reviewId) {
         return caseReviewFunctionalCaseService.getCaseIdsByReviewId(reviewId);
     }
+
+
 
 
     @PostMapping("/page")
@@ -127,12 +130,21 @@ public class CaseReviewFunctionalCaseController {
     @GetMapping("/reviewer/status/{reviewId}/{caseId}")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-评审结果的气泡数据")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
-    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public List<OptionDTO> getUserStatus(@Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
                                          @PathVariable("reviewId") String reviewId, @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
                                          @PathVariable("caseId") String caseId) {
         return caseReviewFunctionalCaseService.getUserStatus(reviewId, caseId);
     }
 
+    @GetMapping("/reviewer/list/{reviewId}/{caseId}")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-获取单个用例的评审人")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    public List<CaseReviewFunctionalCaseUser> getReviewerList(@Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("reviewId") String reviewId, @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("caseId") String caseId) {
+        return caseReviewFunctionalCaseService.getReviewerList(reviewId, caseId);
+    }
 
 }

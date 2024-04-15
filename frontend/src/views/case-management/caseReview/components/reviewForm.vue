@@ -79,20 +79,22 @@
 </template>
 
 <script setup lang="ts">
+  import { onMounted } from 'vue';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
 
-  import { saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
+  import { getCaseReviewerList, saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
+  import { CaseReviewFunctionalCaseUserItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
 
   const props = defineProps<{
     reviewId: string;
@@ -102,9 +104,13 @@
   const emit = defineEmits(['done']);
 
   const appStore = useAppStore();
+
+  const userStore = useUserStore();
+
   const { t } = useI18n();
 
   const dialogFormRef = ref<FormInstance>();
+  const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const caseResultForm = ref({
     result: 'PASS' as ReviewResult,
     reason: '',
@@ -119,12 +125,18 @@
   );
   const modalVisible = ref(false);
 
+  const singleAdmin = ref(false);
+
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
       fileList: [file],
     });
     return data;
   }
+
+  onMounted(async () => {
+    caseReviewerList.value = await getCaseReviewerList(props.reviewId, props.caseId);
+  });
 
   // 提交评审
   function submitReview(done?: (close: boolean) => void) {
@@ -143,7 +155,17 @@
           };
           await saveCaseReviewResult(params);
           modalVisible.value = false;
-          Message.success(t('caseManagement.caseReview.reviewSuccess'));
+          caseReviewerList.value.forEach((child) => {
+            if (child.userId === userStore.id) {
+              singleAdmin.value = true;
+            }
+          });
+          if (userStore.isAdmin && !singleAdmin.value) {
+            Message.warning(t('caseManagement.caseReview.reviewSuccess.widthAdmin'));
+          } else {
+            Message.success(t('caseManagement.caseReview.reviewSuccess'));
+          }
+
           caseResultForm.value = {
             result: 'PASS' as ReviewResult,
             reason: '',

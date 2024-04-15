@@ -844,4 +844,10 @@ public class CaseReviewFunctionalCaseService {
         extCaseReviewHistoryMapper.batchUpdateAbandoned(null, caseIds);
         caseReviewHistoryMapper.batchInsertSelective(historyList);
     }
+
+    public List<CaseReviewFunctionalCaseUser> getReviewerList(String reviewId, String caseId) {
+        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+        caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdEqualTo(caseId).andReviewIdEqualTo(reviewId);
+        return caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
+    }
 }
