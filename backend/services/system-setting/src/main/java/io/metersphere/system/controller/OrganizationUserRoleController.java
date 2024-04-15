@@ -14,6 +14,7 @@ import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOrgOwner;
 import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
 import io.metersphere.system.service.UserRoleService;
@@ -70,6 +71,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-修改用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = OrganizationUserRoleLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getId()", resourceType = "user_role", resourceCol = "scope_id")
     public UserRole update(@Validated({Updated.class}) @RequestBody OrganizationUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
@@ -81,6 +83,7 @@ public class OrganizationUserRoleController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE)
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationUserRoleLogService.class)
+    @CheckOrgOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public void delete(@PathVariable String id) {
         organizationUserRoleService.delete(id, SessionUtils.getUserId());
     }
@@ -89,6 +92,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-获取用户组对应的权限配置")
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
+    @CheckOrgOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return organizationUserRoleService.getPermissionSetting(id);
     }
@@ -97,6 +101,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-修改用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePermissionSettingLog(#request)", msClass = OrganizationUserRoleLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         organizationUserRoleService.updatePermissionSetting(request);
     }
@@ -127,6 +132,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-添加用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void addMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.addMember(request, SessionUtils.getUserId());
     }
@@ -135,6 +141,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-删除用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void removeMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.removeMember(request);
     }

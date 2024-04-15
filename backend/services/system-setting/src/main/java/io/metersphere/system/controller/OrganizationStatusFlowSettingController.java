@@ -9,6 +9,7 @@ import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOrgOwner;
 import io.metersphere.system.service.OrganizationStatusFlowSettingLogService;
 import io.metersphere.system.service.OrganizationStatusFlowSettingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,7 @@ public class OrganizationStatusFlowSettingController {
     @Operation(summary = "系统设置-组织-状态流设置-设置状态定义，即起始状态，结束状态")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusDefinitionLog(#request)", msClass = OrganizationStatusFlowSettingLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getStatusId()", resourceType = "status_item", resourceCol = "scope_id")
     public void updateStatusDefinition(@Validated @RequestBody StatusDefinitionUpdateRequest request) {
         organizationStatusFlowSettingService.updateStatusDefinition(request);
     }
@@ -64,6 +66,7 @@ public class OrganizationStatusFlowSettingController {
     @Operation(summary = "系统设置-组织-状态流设置-修改状态项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusItemLog(#request)", msClass = OrganizationStatusFlowSettingLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getId()", resourceType = "status_item", resourceCol = "scope_id")
     public StatusItem updateStatusItem(@Validated @RequestBody StatusItemUpdateRequest request) {
         return organizationStatusFlowSettingService.updateStatusItem(request);
     }
@@ -71,6 +74,7 @@ public class OrganizationStatusFlowSettingController {
     @PostMapping("/status/sort/{organizationId}/{scene}")
     @Operation(summary = "系统设置-组织-状态流设置-状态项排序")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
+    @CheckOrgOwner(resourceId = "#statusIds", resourceType = "status_item", resourceCol = "scope_id")
     public void sortStatusItem(@PathVariable
                                String organizationId, @PathVariable String scene,
                                @RequestBody
@@ -83,6 +87,7 @@ public class OrganizationStatusFlowSettingController {
     @Operation(summary = "系统设置-组织-状态流设置-删除状态项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteStatusItemLog(#id)", msClass = OrganizationStatusFlowSettingLogService.class)
+    @CheckOrgOwner(resourceId = "#id", resourceType = "status_item", resourceCol = "scope_id")
     public void deleteStatusItem(@PathVariable String id) {
         organizationStatusFlowSettingService.deleteStatusItem(id);
     }
@@ -91,6 +96,7 @@ public class OrganizationStatusFlowSettingController {
     @Operation(summary = "系统设置-组织-状态流设置-设置状态流转")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusFlowLog(#request)", msClass = OrganizationStatusFlowSettingLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getFromId()", resourceType = "status_item", resourceCol = "scope_id")
     public void updateStatusFlow(@Validated @RequestBody StatusFlowUpdateRequest request) {
         organizationStatusFlowSettingService.updateStatusFlow(request);
     }

@@ -37,4 +37,28 @@
         </foreach>)
         AND user_id = #{userId}
     </select>
+
+    <select id="checkoutOrganizationOwnerByScope" resultType="boolean">
+        SELECT count(1) > 0
+        FROM user_role_relation
+        WHERE source_id IN (SELECT ${column}
+        FROM ${table} JOIN organization ON ${table}.${column} = organization.id AND organization.enable = TRUE
+        WHERE ${table}.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>)
+        AND user_id = #{userId}
+    </select>
+
+    <select id="checkoutProjectOwnerByScope" resultType="boolean">
+        SELECT count(1) > 0
+        FROM user_role_relation
+        WHERE source_id IN (SELECT ${column}
+        FROM ${table} JOIN project ON ${table}.${column} = project.id AND project.enable = TRUE
+        WHERE ${table}.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>)
+        AND user_id = #{userId}
+    </select>
 </mapper>

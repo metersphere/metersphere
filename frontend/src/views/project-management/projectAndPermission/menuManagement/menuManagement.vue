@@ -268,7 +268,7 @@
             v-model="allValueMap['BUG_SYNC_SYNC_ENABLE']"
             checked-value="true"
             unchecked-value="false"
-            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:UPDATE'])"
+            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:UPDATE']) || !allValueMap['BUG_SYNC_SYNC_ENABLE']"
             :value="allValueMap['BUG_SYNC_SYNC_ENABLE']"
             size="small"
             type="line"
@@ -302,7 +302,9 @@
           <a-switch
             checked-value="true"
             unchecked-value="false"
-            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:UPDATE'])"
+            :disabled="
+              !hasAnyPermission(['PROJECT_APPLICATION_CASE:UPDATE']) || !allValueMap['CASE_RELATED_CASE_ENABLE']
+            "
             :value="allValueMap['CASE_RELATED_CASE_ENABLE']"
             size="small"
             type="line"

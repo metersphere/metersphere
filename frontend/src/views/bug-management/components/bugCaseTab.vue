@@ -301,6 +301,7 @@
   }
 
   onMounted(async () => {
+    getEnabledModules();
     getFetch();
   });
 
