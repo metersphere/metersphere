@@ -264,7 +264,7 @@
                             and api_scenario_report.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='updateUSer'">
+                        <when test="key=='updateUser'">
                             and api_scenario_report.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
