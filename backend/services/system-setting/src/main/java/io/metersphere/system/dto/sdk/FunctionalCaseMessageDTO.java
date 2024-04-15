@@ -11,9 +11,9 @@ public class FunctionalCaseMessageDTO {
     @Schema(description ="message.domain.name")
     private String name;
 
-    @Schema(description = "message.domain.testPlanName")
+  /*  @Schema(description = "message.domain.testPlanName")
     private String testPlanName;
-
+*/
     @Schema(description = "message.domain.reviewName")
     private String reviewName;
 
@@ -23,8 +23,8 @@ public class FunctionalCaseMessageDTO {
     @Schema(description = "message.domain.caseModel")
     private String caseEditType;
 
-    @Schema(description = "message.domain.lastExecuteResult")
-    private String lastExecuteResult;
+   /* @Schema(description = "message.domain.lastExecuteResult")
+    private String lastExecuteResult;*/
 
     @Schema(description = "message.domain.createUser")
     private String createUser;
@@ -43,5 +43,8 @@ public class FunctionalCaseMessageDTO {
 
     @Schema(description = "message.domain.deleteTime")
     private Long deleteTime;
+
+    @Schema(description = "message.domain.deleteTime")
+    private String triggerMode;
 
 }

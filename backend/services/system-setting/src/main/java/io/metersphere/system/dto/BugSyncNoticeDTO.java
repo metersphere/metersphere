@@ -17,4 +17,7 @@ public class BugSyncNoticeDTO {
 
     @Schema(description ="message.domain.bug_sync_total_count")
     private Integer total;
+
+    @Schema(description ="message.domain.triggerMode")
+    private String triggerMode;
 }

@@ -62,7 +62,7 @@ public class NoticeSendService {
     /**
      * 在线操作发送通知
      */
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void send(String taskType, NoticeModel noticeModel) {
         setLanguage(noticeModel);
         try {
@@ -96,7 +96,7 @@ public class NoticeSendService {
     /**
      * jenkins 和定时任务触发的发送
      */
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void sendJenkins(String triggerMode, NoticeModel noticeModel) {
         // api和定时任务调用不排除自己
         noticeModel.setExcludeSelf(false);
@@ -127,7 +127,7 @@ public class NoticeSendService {
     /**
      * 后台触发的发送，没有session
      */
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void send(Project project, String taskType, NoticeModel noticeModel) {
         setLanguage(noticeModel);
         try {

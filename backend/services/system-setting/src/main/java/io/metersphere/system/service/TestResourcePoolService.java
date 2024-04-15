@@ -246,7 +246,7 @@ public class TestResourcePoolService {
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
-                    "更新资源池配置");
+                    pool.getName());
 
             dto.setPath("/update");
             dto.setMethod(HttpMethodConstants.POST.name());

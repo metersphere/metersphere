@@ -12,6 +12,7 @@ import io.metersphere.system.dto.request.OrganizationRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -43,6 +44,7 @@ public class OrganizationController {
     @PostMapping("/member/list")
     @Operation(summary = "系统设置-组织-成员-获取组织成员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public Pager<List<OrgUserExtend>> getMemberList(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
         return PageUtils.setPageInfo(page, organizationService.getMemberListByOrg(organizationRequest));
