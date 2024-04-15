@@ -181,7 +181,7 @@
   const exportLoading = ref<boolean>(false);
   function exportHandler() {}
 
-  const detailDrawerRef = ref();
+  const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
 
   watch(
     () => showDrawer.value,

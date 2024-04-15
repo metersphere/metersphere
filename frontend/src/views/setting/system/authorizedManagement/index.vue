@@ -42,7 +42,7 @@
             <li>
               <span>{{ t('system.authorized.authorizationsCount') }}</span>
               <div
-                ><span>{{ licenseInfo?.license?.count }}</span></div
+                ><span>{{ addCommasToNumber(licenseInfo?.license?.count || 0) }}</span></div
               >
             </li>
             <li>
@@ -99,7 +99,7 @@
               :auto-size="{
                 minRows: 3,
               }"
-              :rules="[{ required: true }]"
+              :rules="[{ required: true, message: t('system.authorized.LicenseIsRequired') }]"
               :max-length="1000"
             ></a-textarea>
           </a-form-item>
@@ -124,6 +124,7 @@
   import { addLicense, getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { addCommasToNumber } from '@/utils';
 
   import type { LicenseInfo } from '@/models/setting/authorizedManagement';
 
@@ -149,10 +150,17 @@
       loading.value = false;
     }
   };
+
   const authDrawer = ref<boolean>(false);
   const drawerLoading = ref<boolean>(false);
   const authFormRef = ref<FormInstance | null>(null);
   const fileList = ref([]);
+
+  const cancelHandler = () => {
+    authDrawer.value = false;
+    fileList.value = [];
+    authFormRef.value?.resetFields();
+  };
 
   const confirmHandler = () => {
     authFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
@@ -163,6 +171,7 @@
           authDrawer.value = false;
           Message.success(t('system.authorized.licenseSuccessTip'));
           getLicenseDetail();
+          cancelHandler();
         } catch (error) {
           console.log(error);
         } finally {
@@ -172,12 +181,6 @@
         return false;
       }
     });
-  };
-
-  const cancelHandler = () => {
-    authDrawer.value = false;
-    fileList.value = [];
-    authFormRef.value?.resetFields();
   };
 
   const authChecking = () => {
@@ -192,6 +195,7 @@
     reader.readAsText((fileList.value[0] as any)?.file, 'UTF-8');
     reader.onload = (e) => {
       authorizedForm.licenseCode = e.target?.result;
+      authFormRef.value?.validate();
     };
   };
 
@@ -203,6 +207,15 @@
       }
     }
   );
+
+  // watch(
+  //   () => authorizedForm.value.licenseCode,
+  //   (val) => {
+  //     if (val.trim().length) {
+  //       authFormRef.value?.validate();
+  //     }
+  //   }
+  // );
 
   onBeforeMount(() => {
     getLicenseDetail();

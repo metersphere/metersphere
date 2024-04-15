@@ -21,13 +21,15 @@
     <template #title> {{ t('settings.navbar.task') }}</template>
 
     <div class="divider h-full">
-      <TaskCenter group="project" mode="modal"></TaskCenter>
+      <Suspense>
+        <TaskCenter group="project" mode="modal"></TaskCenter>
+      </Suspense>
     </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, Suspense } from 'vue';
   import { useVModel } from '@vueuse/core';
 
   import TaskCenter from '@/views/project-management/taskCenter/component/taskCom.vue';

@@ -35,23 +35,23 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
   },
   {
     title: t('project.processor.codeTemplateGetVariable'),
-    value: 'vars.get("variable_name")',
+    value: 'vars.get("variable_name");',
   },
   {
     title: t('project.processor.codeTemplateSetVariable'),
-    value: 'vars.put("variable_name", "variable_value")',
+    value: 'vars.put("variable_name", "variable_value");',
   },
   {
     title: t('project.processor.codeTemplateGetResponseHeader'),
-    value: 'prev.getResponseHeaders()',
+    value: 'prev.getResponseHeaders();',
   },
   {
     title: t('project.processor.codeTemplateGetResponseCode'),
-    value: 'prev.getResponseCode()',
+    value: 'prev.getResponseCode();',
   },
   {
     title: t('project.processor.codeTemplateGetResponseResult'),
-    value: 'prev.getResponseDataAsString()',
+    value: 'prev.getResponseDataAsString();',
   },
   {
     title: t('project.processor.paramEnvironmentSetGlobalVariable'),
