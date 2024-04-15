@@ -9,6 +9,9 @@
         :placeholder="t('project.commonScript.searchByNameAndId')"
         allow-clear
         class="mx-[8px] w-[240px]"
+        @search="searchList"
+        @press-enter="searchList"
+        @clear="searchList"
       />
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
@@ -128,6 +131,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -337,8 +341,6 @@
     }
   }
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT, columns, 'drawer');
-
   const showScriptDrawer = ref<boolean>(false);
   const scriptId = ref<string>('');
   const isEditId = ref<string>('');
@@ -418,6 +420,12 @@
   onMounted(() => {
     initData();
   });
+
+  const searchList = debounce(() => {
+    initData();
+  }, 300);
+
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT, columns, 'drawer');
 </script>
 
 <style lang="less" scoped>

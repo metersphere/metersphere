@@ -351,7 +351,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 180 : 80,
+      width: hasOperationPermission.value ? 180 : 100,
     },
   ];
 

@@ -56,20 +56,20 @@
             {{ t('login.form.login') }}
           </a-button>
         </div>
-        <a-divider orientation="center" type="dashed" class="m-0 mb-2">
+        <a-divider v-if="isShowLDAP || isShowOIDC || isShowOAUTH" orientation="center" type="dashed" class="m-0 mb-2">
           <span class="text-xs font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
         </a-divider>
-        <div class="mt-4 flex items-center justify-center">
+        <div v-if="userStore.loginType.length" class="mt-4 flex items-center justify-center">
           <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
             <span class="type-text text-[10px]">LDAP</span>
           </div>
           <div v-if="userInfo.authenticate !== 'LOCAL'" class="loginType" @click="switchLoginType('LOCAL')">
             <svg-icon width="18px" height="18px" name="userLogin"></svg-icon
           ></div>
-          <div class="loginType">
+          <div v-if="isShowOIDC && userInfo.authenticate !== 'OIDC'" class="loginType">
             <span class="type-text text-[10px]">OIDC</span>
           </div>
-          <div class="loginType">
+          <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAuth2'" class="loginType">
             <span class="type-text text-[7px]">OAUTH</span>
           </div>
         </div>
@@ -211,6 +211,12 @@
 
   const isShowLDAP = computed(() => {
     return userStore.loginType.includes('LDAP');
+  });
+  const isShowOIDC = computed(() => {
+    return userStore.loginType.includes('OIDC');
+  });
+  const isShowOAUTH = computed(() => {
+    return userStore.loginType.includes('OAuth2');
   });
 
   onMounted(() => {

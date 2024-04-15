@@ -160,6 +160,9 @@
   :deep(.arco-scrollbar-container) {
     width: 100% !important;
   }
+  :deep(.arco-collapse-item-header-right + .arco-collapse-item-content) {
+    padding: 0;
+  }
   .item {
     padding: 16px;
     width: calc(50% - 10px);
