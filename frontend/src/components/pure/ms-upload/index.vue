@@ -12,7 +12,7 @@
     :disabled="props.disabled"
     :class="getAllScreenClass"
     :style="{
-      width: props.isAllScreen ? `calc(90% - ${menuWidth}px - 16px)` : '',
+      width: props.isAllScreen ? `calc(100% - 32px)` : '',
     }"
     @change="handleChange"
     @before-upload="beforeUpload"
@@ -170,7 +170,7 @@
     (val) => {
       if (val) {
         total.value = '100vh';
-        other.value = `${props.cutHeight}px`;
+        other.value = `32px`;
         showDropArea.value = false;
       } else {
         total.value = '154px';
@@ -182,7 +182,9 @@
   );
 
   const getAllScreenClass = computed(() => {
-    return props.isAllScreen ? ['!fixed', 'right-[16px]', '-bottom-[10px]', 'z-[999]', 'opacity-90'] : [];
+    return props.isAllScreen
+      ? ['!fixed', 'right-0', 'left-0', 'bottom-0', 'top-4', 'm-auto', 'z-[999]', 'opacity-90']
+      : [];
   });
 
   // 禁用默认拖拽事件
