@@ -3,6 +3,9 @@
     :loading="loading"
     :title="title"
     :is-edit="isEdit"
+    :save-text="t('system.resourcePool.add')"
+    :save-and-continue-text="t('system.resourcePool.addAndContinue')"
+    :handle-back="handleBack"
     has-breadcrumb
     @save="beforeSave"
     @save-and-continue="beforeSave(true)"
@@ -19,6 +22,7 @@
           v-model:model-value="form.name"
           :placeholder="t('system.resourcePool.namePlaceholder')"
           :max-length="255"
+          @change="() => setIsSave(false)"
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.desc')" field="description" class="form-item">
@@ -26,6 +30,7 @@
           v-model:model-value="form.description"
           :placeholder="t('system.resourcePool.descPlaceholder')"
           :max-length="1000"
+          @change="() => setIsSave(false)"
         ></a-textarea>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.serverUrl')" field="serverUrl" class="form-item">
@@ -33,10 +38,11 @@
           v-model:model-value="form.serverUrl"
           :placeholder="t('system.resourcePool.rootUrlPlaceholder')"
           :max-length="255"
+          @change="() => setIsSave(false)"
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.orgRange')" field="orgType" class="form-item">
-        <a-radio-group v-model:model-value="form.orgType">
+        <a-radio-group v-model:model-value="form.orgType" @change="() => setIsSave(false)">
           <a-radio value="allOrg">
             {{ t('system.resourcePool.orgAll') }}
             <a-tooltip :content="t('system.resourcePool.orgRangeTip')" position="top" mini>
@@ -59,6 +65,7 @@
           :placeholder="t('system.resourcePool.orgPlaceholder')"
           multiple
           allow-clear
+          @change="() => setIsSave(false)"
         >
           <a-option v-for="org of orgOptions" :key="org.id" :value="org.id">{{ org.name }}</a-option>
         </a-select>
@@ -70,7 +77,7 @@
         :rules="[{ required: true, message: t('system.resourcePool.useRequired') }]"
         asterisk-position="end"
       >
-        <a-checkbox-group v-model:model-value="form.use">
+        <a-checkbox-group v-model:model-value="form.use" @change="() => setIsSave(false)">
           <a-checkbox v-for="use of useList" :key="use.value" :value="use.value">{{ t(use.label) }}</a-checkbox>
         </a-checkbox-group>
         <MsFormItemSub
@@ -191,6 +198,7 @@
           :default-vals="defaultVals"
           :hide-add="!isXpack"
           max-height="250px"
+          @change="() => setIsSave(false)"
         ></MsBatchForm>
         <!-- TODO:代码编辑器懒加载 -->
         <div v-show="form.addType === 'multiple'">
@@ -200,6 +208,7 @@
             height="400px"
             theme="MS-text"
             :show-theme-change="false"
+            @change="() => setIsSave(false)"
           >
             <template #leftTitle>
               <a-form-item
@@ -228,6 +237,7 @@
             v-model:model-value="form.testResourceDTO.ip"
             :placeholder="t('system.resourcePool.testResourceDTO.ipPlaceholder')"
             :max-length="255"
+            @change="() => setIsSave(false)"
           ></a-input>
           <div class="mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.testResourceDTO.ipSubTip', { ip: '100.0.0.100', domain: 'example.com' }) }}
@@ -245,6 +255,7 @@
             :placeholder="t('system.resourcePool.testResourceDTO.tokenPlaceholder')"
             :max-length="1500"
             autocomplete="new-password"
+            @change="() => setIsSave(false)"
           />
         </a-form-item>
         <a-form-item
@@ -259,6 +270,7 @@
             :placeholder="t('system.resourcePool.testResourceDTO.nameSpacesPlaceholder')"
             :max-length="255"
             class="mr-[8px] flex-1"
+            @change="() => setIsSave(false)"
           ></a-input>
           <a-tooltip
             :content="t('system.resourcePool.testResourceDTO.downloadRoleYamlTip')"
@@ -284,6 +296,7 @@
             :placeholder="t('system.resourcePool.testResourceDTO.deployNamePlaceholder')"
             :max-length="255"
             class="mr-[8px] flex-1"
+            @change="() => setIsSave(false)"
           ></a-input>
           <a-tooltip
             :content="t('system.resourcePool.testResourceDTO.downloadDeployYamlTip')"
@@ -314,6 +327,8 @@
             :step="1"
             mode="button"
             class="w-[160px]"
+            model-event="input"
+            @change="() => setIsSave(false)"
           ></a-input-number>
         </a-form-item>
         <a-form-item
@@ -328,6 +343,8 @@
             :step="1"
             mode="button"
             class="w-[160px]"
+            model-event="input"
+            @change="() => setIsSave(false)"
           ></a-input-number>
         </a-form-item>
       </template>
@@ -351,19 +368,20 @@
   import { computed, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
-  import { isEmpty } from 'lodash-es';
+  import { cloneDeep, isEmpty } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
-  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import type { FormItemModel } from '@/components/business/ms-batch-form/types';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
@@ -371,6 +389,7 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import type { NodesListItem, UpdateResourcePoolParams } from '@/models/setting/resourcePool';
+  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import { getYaml, job, YamlType } from './template';
 
@@ -380,6 +399,7 @@
   const router = useRouter();
   const { t } = useI18n();
   const appStore = useAppStore();
+  const { setIsSave } = useLeaveUnSaveTip();
 
   const title = ref('');
   const loading = ref(false);
@@ -390,7 +410,7 @@
     description: '',
     serverUrl: '',
     orgType: 'allOrg',
-    use: ['performance', 'API'],
+    use: ['API'],
     type: 'Node',
     addType: 'single',
     testResourceDTO: {
@@ -409,7 +429,7 @@
       orgIds: [] as string[],
     },
   };
-  const form = ref({ ...defaultForm });
+  const form = ref({ ...cloneDeep(defaultForm) });
   const formRef = ref<FormInstance | null>(null);
   const orgOptions = ref<SelectOptionData>([]);
   // TODO:第一版只有接口测试
@@ -427,7 +447,7 @@
     //   value: 'UI',
     // },
   ]);
-  const defaultGrid = 'http://selenium-hub:4444';
+  // const defaultGrid = 'http://selenium-hub:4444';
   const maxConcurrentNumber = computed(() => {
     if (isXpack.value) {
       return 9999999;
@@ -482,10 +502,10 @@
     }
   });
 
-  const defaultHeap = '-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m';
-  function fillHeapByDefault() {
-    form.value.testResourceDTO.loadTestHeap = defaultHeap;
-  }
+  // const defaultHeap = '-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m';
+  // function fillHeapByDefault() {
+  //   form.value.testResourceDTO.loadTestHeap = defaultHeap;
+  // }
 
   const visitedKey = 'changeAddResourceType';
   const { addVisited, getIsVisited } = useVisit(visitedKey);
@@ -534,7 +554,7 @@
     }
   );
 
-  const batchFormRef = ref<MsBatchFormInstance | null>(null);
+  const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
       filed: 'ip',
@@ -580,7 +600,7 @@
   // 动态表单默认值
   const defaultVals = computed(() => {
     const { nodesList } = form.value.testResourceDTO;
-    return nodesList.map((node) => node);
+    return nodesList.map((node) => cloneDeep(node));
   });
 
   // 代码编辑器内容
@@ -606,9 +626,9 @@
    * 提取动态表单项输入的内容
    */
   function setBatchFormRes() {
-    const res = batchFormRef.value?.getFormResult<NodesListItem>();
+    const res = batchFormRef.value?.getFormResult();
     if (res?.length) {
-      form.value.testResourceDTO.nodesList = res.map((e) => e);
+      form.value.testResourceDTO.nodesList = res.map((e) => e) as NodesListItem[];
     }
   }
 
@@ -652,12 +672,14 @@
       // 从单个添加切换到批量添加，需要先提取组件的输入框内容
       setBatchFormRes();
     }
+    setIsSave(false);
   }
 
   function changeResourceType(val: string | number | boolean) {
     if (val === 'Kubernetes') {
       setBatchFormRes();
     }
+    setIsSave(false);
   }
 
   /**
@@ -699,7 +721,7 @@
    * 重置表单信息
    */
   function resetForm() {
-    form.value = { ...defaultForm };
+    form.value = { ...cloneDeep(defaultForm) };
   }
 
   /**
@@ -840,6 +862,10 @@
       }
       return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
     });
+  }
+
+  function handleBack() {
+    router.replace({ name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL });
   }
 </script>
 

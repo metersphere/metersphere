@@ -151,4 +151,5 @@ export default {
     'The content of some tabs has not been saved. The unsaved content will be lost after leaving. Are you sure you want to leave?',
   'common.image': 'Image',
   'common.text': 'Text',
+  'common.resourceDeleted': 'Resource has been deleted',
 };

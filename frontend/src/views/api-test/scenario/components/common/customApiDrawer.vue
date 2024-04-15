@@ -1209,6 +1209,7 @@
           requestVModel.value = cloneDeep({
             ...defaultApiParams,
             ...props.request,
+            name: props.step?.name || props.request.name,
             url: props.request.path, // 后台字段是 path
             activeTab: contentTabList.value[0].value,
             responseActiveTab: ResponseComposition.BODY,

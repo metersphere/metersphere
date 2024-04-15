@@ -430,7 +430,6 @@
 
   async function getFetch() {
     if (!hasAnyPermission(['FUNCTIONAL_CASE:READ', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])) {
-      Message.error(t('common.noPermission'));
       return;
     }
     if (showType.value === 'link') {

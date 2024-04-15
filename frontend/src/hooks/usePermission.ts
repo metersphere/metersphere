@@ -1,5 +1,4 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import { includes } from 'lodash-es';
 
 import { firstLevelMenu } from '@/config/permission';
 import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission';

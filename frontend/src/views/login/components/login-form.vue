@@ -33,7 +33,11 @@
             v-model="userInfo.username"
             :max-length="64"
             size="large"
-            :placeholder="t('login.form.userName.placeholder')"
+            :placeholder="
+              userInfo.authenticate !== 'LOCAL'
+                ? t('login.form.userName.placeholderOther')
+                : t('login.form.userName.placeholder')
+            "
           />
         </a-form-item>
         <a-form-item
@@ -91,6 +95,7 @@
   import useLoading from '@/hooks/useLoading';
   import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { encrypted } from '@/utils';
   import { setLoginExpires } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
@@ -103,6 +108,7 @@
   const { t } = useI18n();
   const userStore = useUserStore();
   const appStore = useAppStore();
+  const licenseStore = useLicenseStore();
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -181,7 +187,7 @@
           ![NO_RESOURCE_ROUTE_NAME, NO_PROJECT_ROUTE_NAME].includes(redirect as string) &&
           routerNameHasPermission(redirect as string, router.getRoutes());
         const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
-        const res = await getProjectInfo(appStore.currentProjectId);
+        const [res] = await Promise.all([getProjectInfo(appStore.currentProjectId), licenseStore.getValidateLicense()]); // 登录前校验 license 避免进入页面后无license状态
         if (!res || res.deleted) {
           router.push({
             name: NO_PROJECT_ROUTE_NAME,

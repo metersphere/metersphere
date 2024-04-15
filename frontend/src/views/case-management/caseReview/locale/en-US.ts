@@ -6,6 +6,7 @@ export default {
   'caseManagement.caseReview.list.searchPlaceholder': 'Search by ID, name, or tag',
   'caseManagement.caseReview.archive': 'Archive',
   'caseManagement.caseReview.tableNoData': 'No data yet, please',
+  'caseManagement.caseReview.tableNoDataNoPermission': 'No data yet',
   'caseManagement.caseReview.name': 'Review name',
   'caseManagement.caseReview.creator': 'Creator',
   'caseManagement.caseReview.reviewer': 'Reviewer',

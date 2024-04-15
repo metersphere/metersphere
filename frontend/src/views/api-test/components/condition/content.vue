@@ -525,7 +525,6 @@
   const appStore = useAppStore();
   const props = withDefaults(
     defineProps<{
-      data: ExecuteConditionProcessor;
       disabled?: boolean;
       response?: string; // 响应内容
       heightUsed?: number;
@@ -542,7 +541,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
     (e: 'delete', id: number): void;
     (e: 'change'): void;
@@ -551,34 +549,47 @@
   const { t } = useI18n();
 
   const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const condition = useVModel(props, 'data', emit);
+  const condition = defineModel<ExecuteConditionProcessor>('data', {
+    required: true,
+  });
+
+  function filterDataSource() {
+    if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
+      // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
+      const dataSourceItem = currentEnvConfig?.value.dataSources.find(
+        (item) => item.dataSource === condition.value.dataSourceName
+      );
+      if (currentEnvConfig?.value.dataSources.length === 0) {
+        // 如果没有数据源，就清除已选的数据源
+        condition.value.dataSourceName = '';
+        condition.value.dataSourceId = '';
+      } else if (dataSourceItem) {
+        // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
+        condition.value.dataSourceName = dataSourceItem.dataSource;
+        condition.value.dataSourceId = dataSourceItem.id;
+      } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
+        // 如果没有找到，就默认取第一个数据源
+        condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
+        condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
+      }
+    }
+  }
 
   watch(
     () => currentEnvConfig?.value,
     () => {
-      if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
-        // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
-        const dataSourceItem = currentEnvConfig?.value.dataSources.find(
-          (item) => item.dataSource === condition.value.dataSourceName
-        );
-        if (currentEnvConfig?.value.dataSources.length === 0) {
-          // 如果没有数据源，就清除已选的数据源
-          condition.value.dataSourceName = '';
-          condition.value.dataSourceId = '';
-        } else if (dataSourceItem) {
-          // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
-          condition.value.dataSourceName = dataSourceItem.dataSource;
-          condition.value.dataSourceId = dataSourceItem.id;
-        } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
-          // 如果没有找到，就默认取第一个数据源
-          condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
-          condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
-        }
-      }
+      filterDataSource();
     },
     {
       immediate: true,
       deep: true,
+    }
+  );
+
+  watch(
+    () => condition.value.id,
+    () => {
+      filterDataSource();
     }
   );
 
@@ -1003,12 +1014,14 @@ if (!result){
 
   const protocolList = ref<ProtocolItem[]>([]);
   onBeforeMount(async () => {
-    try {
-      // TODO:数据从外面传进来
-      protocolList.value = await getProtocolList(appStore.currentOrgId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+    if (props.showPrePostRequest) {
+      try {
+        // TODO:数据从外面传进来
+        protocolList.value = await getProtocolList(appStore.currentOrgId);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
     }
   });
   watch(

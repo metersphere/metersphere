@@ -92,6 +92,7 @@ export default {
   'system.config.page.unsave': '未保存',
   'system.config.page.saveSuccess': '保存成功',
   'system.config.auth.add': '添加认证',
+  'system.config.auth.searchTip': '输入名称搜索',
   'system.config.auth.enable': '启用',
   'system.config.auth.enableSuccess': '启用成功',
   'system.config.auth.enableTipTitle': '启用认证 {name}',

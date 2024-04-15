@@ -58,10 +58,10 @@
           <div class="flex justify-end gap-[16px]">
             <a-button type="secondary" @click="back">{{ t('mscard.defaultCancelText') }}</a-button>
             <a-button v-if="!props.hideContinue && !props.isEdit" type="secondary" @click="emit('saveAndContinue')">
-              {{ t('mscard.defaultSaveAndContinueText') }}
+              {{ props.saveAndContinueText || t('mscard.defaultSaveAndContinueText') }}
             </a-button>
             <a-button type="primary" @click="emit('save')">
-              {{ t(props.isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
+              {{ props.saveText || t(props.isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
             </a-button>
           </div>
         </slot>
@@ -102,6 +102,8 @@
         handleBack: () => void; // 自定义返回按钮触发事件
         dividerHasPX: boolean; // 分割线是否有左右padding;
         showFullScreen: boolean; // 是否显示全屏按钮
+        saveText?: string; // 保存按钮文案
+        saveAndContinueText?: string; // 保存并继续按钮文案
       }>
     >(),
     {
@@ -150,6 +152,10 @@
     if (props.simple) {
       // 简单模式没有标题、没有底部
       return props.noContentPadding ? 66 + _specialHeight : 114 + _specialHeight;
+    }
+    if (props.hideFooter) {
+      // 没有底部
+      return props.noContentPadding ? 120 + _specialHeight : 168 + _specialHeight;
     }
     return 230 + _specialHeight;
   });

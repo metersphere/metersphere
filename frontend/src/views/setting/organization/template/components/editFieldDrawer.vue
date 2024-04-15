@@ -150,7 +150,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { FormItemType } from '@/components/pure/ms-form-create/types';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
-  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import type { FormItemModel } from '@/components/business/ms-batch-form/types';
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -252,7 +252,7 @@
     },
   ]);
   const optionsModels: Ref<FormItemModel[]> = ref([]);
-  const batchFormRef = ref<MsBatchFormInstance | null>(null);
+  const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
 
   const resetForm = () => {
     fieldForm.value = { ...initFieldForm };

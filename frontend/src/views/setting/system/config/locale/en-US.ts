@@ -96,6 +96,7 @@ export default {
   'system.config.page.unsave': 'Unsaved',
   'system.config.page.saveSuccess': 'Saved successfully',
   'system.config.auth.add': 'Add authentication',
+  'system.config.auth.searchTip': 'Search by name',
   'system.config.auth.enable': 'Enable',
   'system.config.auth.enableSuccess': 'Enabled successfully',
   'system.config.auth.enableTipTitle': 'Enable authentication {name}',

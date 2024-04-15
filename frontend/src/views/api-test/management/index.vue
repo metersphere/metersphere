@@ -107,7 +107,7 @@
   function handleNodeSelect(keys: string[], _offspringIds: string[]) {
     [activeModule.value] = keys;
     offspringIds.value = _offspringIds;
-    managementRef.value?.changeActiveApiTabTofirst();
+    managementRef.value?.changeActiveApiTabToFirst();
   }
 
   function handleApiNodeClick(node: ModuleTreeNode) {

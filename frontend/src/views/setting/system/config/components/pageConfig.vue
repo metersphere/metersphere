@@ -50,10 +50,10 @@
         <div :class="['config-preview', currentLocale === 'en-US' ? 'config-preview--en' : '']">
           <div ref="loginPageFullRef" class="login-preview">
             <div :class="['config-preview-head', isLoginPageFullscreen ? 'full-preview-head' : '']">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between overflow-hidden">
                 <img v-if="pageConfig.icon[0]?.url" :src="pageConfig.icon[0].url" class="h-[18px] w-[18px]" />
                 <svg-icon v-else name="logo" class="h-[18px] w-[18px]"></svg-icon>
-                <div class="ml-[4px] text-[10px]">{{ pageConfig.title }}</div>
+                <div class="one-line-text ml-[4px] text-[10px]">{{ pageConfig.title }}</div>
               </div>
               <div
                 class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
