@@ -1,6 +1,7 @@
 package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import lombok.Data;
@@ -44,6 +45,10 @@ public class ApiScenarioParseTmpParam {
      * 场景中所有的 MsCommonElement 列表
      */
     private List<MsCommonElement> commonElements = new ArrayList<>();
+    /**
+     * 场景中所有的脚本步骤列表
+     */
+    private List<MsScriptElement> scriptElements = new ArrayList<>();
     /**
      * 执行的资源ID列表
      * 场景执行时，为关联的所有用例和场景列表

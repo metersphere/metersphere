@@ -6,6 +6,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -13,6 +14,7 @@ import io.metersphere.api.dto.request.http.body.FormDataBody;
 import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.domain.CustomFunction;
@@ -27,6 +29,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -180,11 +183,38 @@ public class ApiCommonService {
 
     /**
      * 设置使用脚本前后置的公共脚本信息
+     *
      * @param msTestElement
      */
     public void setEnableCommonScriptProcessorInfo(AbstractMsTestElement msTestElement) {
         MsCommonElement msCommonElement = getMsCommonElement(msTestElement);
-        Optional.ofNullable(msCommonElement).ifPresent(item -> setEnableCommonScriptProcessorInfo(List.of(item)));
+        Optional.ofNullable(msCommonElement).ifPresent(item -> setCommonElementEnableCommonScriptInfo(List.of(item)));
+    }
+
+    /**
+     * 设置使用脚本步骤的公共脚本信息
+     *
+     * @param msScriptElement
+     */
+    public void setEnableCommonScriptProcessorInfo(MsScriptElement msScriptElement) {
+        CommonScriptInfo commonScriptInfo = msScriptElement.getCommonScriptInfo();
+        if (BooleanUtils.isTrue(msScriptElement.getEnableCommonScript()) && commonScriptInfo != null) {
+            setEnableCommonScriptInfo(List.of(commonScriptInfo));
+        }
+    }
+
+    /**
+     * 设置使用脚本步骤的公共脚本信息
+     *
+     * @param msScriptElements
+     */
+    public void setScriptElementEnableCommonScriptInfo(List<MsScriptElement> msScriptElements) {
+        List<CommonScriptInfo> commonScriptInfos = msScriptElements.stream()
+                .filter(msScriptElement -> BooleanUtils.isTrue(msScriptElement.getEnableCommonScript()) && msScriptElement.getEnableCommonScript() != null)
+                .map(MsScriptElement::getCommonScriptInfo)
+                .toList();
+
+        setEnableCommonScriptInfo(commonScriptInfos);
     }
 
     /**
@@ -192,11 +222,24 @@ public class ApiCommonService {
      *
      * @param commonElements
      */
-    public void setEnableCommonScriptProcessorInfo(List<MsCommonElement> commonElements) {
+    public void setCommonElementEnableCommonScriptInfo(List<MsCommonElement> commonElements) {
         List<ScriptProcessor> scriptsProcessors = getEnableCommonScriptProcessors(commonElements);
+        List<MsScriptAssertion> scriptAssertions = getEnableCommonScriptAssertion(commonElements);
 
-        List<String> commonScriptIds = scriptsProcessors.stream()
-                .map(processor -> processor.getCommonScriptInfo().getId())
+        List<CommonScriptInfo> commonScriptInfos = scriptsProcessors.stream()
+                .map(ScriptProcessor::getCommonScriptInfo).collect(Collectors.toList());
+
+        List<CommonScriptInfo> assertionsCommonScriptInfos = scriptAssertions.stream()
+                .map(MsScriptAssertion::getCommonScriptInfo).toList();
+
+        commonScriptInfos.addAll(assertionsCommonScriptInfos);
+
+        setEnableCommonScriptInfo(commonScriptInfos);
+    }
+
+    private void setEnableCommonScriptInfo(List<CommonScriptInfo> commonScriptInfos) {
+        List<String> commonScriptIds = commonScriptInfos.stream()
+                .map(CommonScriptInfo::getId)
                 .toList();
 
         Map<String, CustomFunctionBlob> customFunctionBlobMap = customFunctionService.getBlobByIds(commonScriptIds).stream()
@@ -205,8 +248,7 @@ public class ApiCommonService {
         Map<String, CustomFunction> customFunctionMap = customFunctionService.getByIds(commonScriptIds).stream()
                 .collect(Collectors.toMap(CustomFunction::getId, Function.identity()));
 
-        for (ScriptProcessor processor : scriptsProcessors) {
-            CommonScriptInfo commonScriptInfo = processor.getCommonScriptInfo();
+        for (CommonScriptInfo commonScriptInfo : commonScriptInfos) {
             CustomFunctionBlob customFunctionBlob = customFunctionBlobMap.get(commonScriptInfo.getId());
 
             CustomFunction customFunction = customFunctionMap.get(commonScriptInfo.getId());
@@ -214,9 +256,9 @@ public class ApiCommonService {
             if (customFunction == null || customFunctionBlob == null) {
                 if (customFunction == null) {
                     // 公共脚本被删除，就改成非公共脚本
-                    processor.getCommonScriptInfo().setDeleted(true);
+                    commonScriptInfo.setDeleted(true);
                 }
-                continue;
+                return;
             }
 
             // 设置公共脚本信息
@@ -225,10 +267,10 @@ public class ApiCommonService {
                 // 替换用户输入值
                 commonParams.forEach(commonParam ->
                         Optional.ofNullable(commonScriptInfo.getParams()).ifPresent(params ->
-                            params.stream()
-                                    .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
-                                    .findFirst()
-                                    .ifPresent(param -> commonParam.setValue(param.getValue()))
+                                params.stream()
+                                        .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
+                                        .findFirst()
+                                        .ifPresent(param -> commonParam.setValue(param.getValue()))
                         )
                 );
                 commonScriptInfo.setParams(commonParams);
@@ -251,7 +293,7 @@ public class ApiCommonService {
 
         for (MsCommonElement commonElement : commonElements) {
             if (commonElement.getPreProcessorConfig() == null) {
-               continue;
+                continue;
             }
             processors.addAll(commonElement.getPreProcessorConfig().getProcessors());
             processors.addAll(commonElement.getPostProcessorConfig().getProcessors());
@@ -261,11 +303,35 @@ public class ApiCommonService {
         List<ScriptProcessor> scriptsProcessors = processors.stream()
                 .filter(processor -> processor instanceof ScriptProcessor)
                 .map(processor -> (ScriptProcessor) processor)
-                .filter(ScriptProcessor::getEnable)
                 .filter(ScriptProcessor::isEnableCommonScript)
                 .filter(ScriptProcessor::isValid)
                 .collect(Collectors.toList());
         return scriptsProcessors;
+    }
+
+    /**
+     * 获取使用公共脚本的前后置
+     *
+     * @param commonElements
+     * @return
+     */
+    private List<MsScriptAssertion> getEnableCommonScriptAssertion(List<MsCommonElement> commonElements) {
+        List<MsScriptAssertion> assertions = new ArrayList<>();
+
+        for (MsCommonElement commonElement : commonElements) {
+            if (commonElement.getAssertionConfig() == null) {
+                continue;
+            }
+            List<MsScriptAssertion> scriptAssertions = commonElement.getAssertionConfig().getAssertions()
+                    .stream()
+                    .filter(assertion -> assertion instanceof MsScriptAssertion)
+                    .map(msAssertion -> (MsScriptAssertion) msAssertion)
+                    .filter(MsScriptAssertion::isEnableCommonScript)
+                    .filter(MsScriptAssertion::isValid)
+                    .toList();
+            assertions.addAll(scriptAssertions);
+        }
+        return assertions;
     }
 
     public MsCommonElement getMsCommonElement(AbstractMsTestElement msTestElement) {
@@ -281,6 +347,7 @@ public class ApiCommonService {
 
     /**
      * 获取资源 ID 和接口定义信息 的 Map
+     *
      * @param getDefinitionInfoFunc
      * @param resourceIds
      * @return
@@ -294,6 +361,7 @@ public class ApiCommonService {
 
     /**
      * 设置 MsHTTPElement 中的 method 等信息
+     *
      * @param msTestElement
      * @param definitionExecuteInfo
      */
@@ -307,6 +375,7 @@ public class ApiCommonService {
 
     /**
      * 给 httpElement 设置接口定义参数
+     *
      * @param apiDefinition
      * @param msTestElement
      */

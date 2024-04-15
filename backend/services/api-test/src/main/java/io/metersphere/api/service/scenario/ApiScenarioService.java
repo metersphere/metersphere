@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
@@ -1597,7 +1598,8 @@ public class ApiScenarioService extends MoveNodeService {
         setApiDefinitionExecuteInfo(tmpParam.getUniqueIdStepMap(), tmpParam.getStepTypeHttpElementMap());
 
         // 设置使用脚本前后置的公共脚本信息
-        apiCommonService.setEnableCommonScriptProcessorInfo(tmpParam.getCommonElements());
+        apiCommonService.setCommonElementEnableCommonScriptInfo(tmpParam.getCommonElements());
+        apiCommonService.setScriptElementEnableCommonScriptInfo(tmpParam.getScriptElements());
 
         return tmpParam;
     }
@@ -1790,6 +1792,8 @@ public class ApiScenarioService extends MoveNodeService {
                     // 暂存http类型的步骤
                     stepTypeHttpElementMap.putIfAbsent(step.getStepType(), new LinkedList<>());
                     stepTypeHttpElementMap.get(step.getStepType()).add(msHTTPElement);
+                } else if (msTestElement instanceof MsScriptElement msScriptElement) {
+                    parseParam.getScriptElements().add(msScriptElement);
                 }
                 msTestElement.setProjectId(step.getProjectId());
                 msTestElement.setResourceId(step.getResourceId());
@@ -2354,6 +2358,8 @@ public class ApiScenarioService extends MoveNodeService {
                 apiCommonService.setLinkFileInfo(step.getScenarioId(), msTestElement);
             }
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
+        } if (stepDetail instanceof MsScriptElement msScriptElement) {
+            apiCommonService.setEnableCommonScriptProcessorInfo(msScriptElement);
         }
         return JSON.parseObject(JSON.toJSONString(stepDetail));
     }
