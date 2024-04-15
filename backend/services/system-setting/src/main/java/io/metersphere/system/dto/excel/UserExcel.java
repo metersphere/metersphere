@@ -14,7 +14,7 @@ public class UserExcel {
     @ExcelProperty(index = 0)
     private String name;
 
-    @NotBlank(message = "{cannot_be_null}")
+    @NotBlank(message = "{user.email.not_blank}")
     @Size(min = 1, max = 64, message = "{user.email.length_range}")
     @Email(message = "{user.email.invalid}")
     @ExcelProperty(index = 1)

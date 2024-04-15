@@ -18,7 +18,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.excel.ExcelValidateHelper;
+import io.metersphere.system.dto.excel.FunctionalCaseExcelValidateHelper;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.excel.domain.ExcelErrData;
 import org.apache.commons.collections.CollectionUtils;
@@ -171,7 +171,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         StringBuilder errMsg;
         try {
             //根据excel数据实体中的javax.validation + 正则表达式来校验excel数据
-            errMsg = new StringBuilder(ExcelValidateHelper.validateEntity(functionalCaseExcelData));
+            errMsg = new StringBuilder(FunctionalCaseExcelValidateHelper.validateEntity(functionalCaseExcelData));
             //自定义校验规则
             if (StringUtils.isEmpty(errMsg)) {
                 //开始校验
