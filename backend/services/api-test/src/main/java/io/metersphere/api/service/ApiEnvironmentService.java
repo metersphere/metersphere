@@ -111,6 +111,7 @@ public class ApiEnvironmentService {
                     JsonNode jsonObj = elements.next();
                     if (jsonObj.has(NAME) && jsonObj.has(VALUE)
                             && jsonObj.get(NAME).asText().equals(entry.getKey())) {
+                        contains = true;
                         if (jsonObj.get(VALUE).asText().equals(entry.getValue())) {
                             break;
                         }
@@ -118,17 +119,31 @@ public class ApiEnvironmentService {
                         envNeedUpdate = true;
                         break;
                     } else {
-                        contains = true;
                         envNeedUpdate = true;
                     }
                 }
 
-                if (contains) {
+                if (!contains) {
+                    // 不包含则添加
                     ObjectNode itemObj = objectMapper.createObjectNode();
                     itemObj.put(NAME, entry.getKey());
                     itemObj.put(VALUE, entry.getValue());
                     itemObj.put(ENABLE, true);
-                    ((ArrayNode) variables).set(length - 1, itemObj);
+                    ArrayNode arrayNode = ((ArrayNode) variables);
+                    JsonNode lastNode = arrayNode.get(arrayNode.size() - 1);
+                    boolean isBlankLine = isBlankLine(lastNode);
+                    if (isBlankLine) {
+                        // 如果最后一行是空行，则替换最后一行
+                        ((ArrayNode) variables).set(length - 1, itemObj);
+                    } else {
+                        ((ArrayNode) variables).add(itemObj);
+                    }
+                    // 新增一个空行
+                    ObjectNode blankItem = objectMapper.createObjectNode();
+                    blankItem.put(NAME, StringUtils.EMPTY);
+                    blankItem.put(VALUE, StringUtils.EMPTY);
+                    blankItem.put(ENABLE, true);
+                    ((ArrayNode) variables).add(blankItem);
                     ((ObjectNode) configObj).set(VARIABLES, variables);
                 }
             }
@@ -140,6 +155,15 @@ public class ApiEnvironmentService {
         } catch (JsonProcessingException ex) {
             LogUtils.error("Setting environment variables exception", ex);
         }
+    }
+
+    private boolean isBlankLine(JsonNode lastNode) {
+        boolean nameBlank = lastNode.get(NAME) == null ? true : StringUtils.isBlank(lastNode.get(NAME).asText());
+        boolean valueBlank = lastNode.get(VALUE) == null ? true : StringUtils.isBlank(lastNode.get(VALUE).asText());
+        if (nameBlank && valueBlank) {
+            return true;
+        }
+        return false;
     }
 
     private List<JsonNode> createArray(Map<String, String> varMap) {
