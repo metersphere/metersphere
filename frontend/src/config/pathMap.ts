@@ -184,6 +184,13 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
+      {
+        key: 'BUG_MANAGEMENT_BUG_DETAIL', // 缺陷管理-回收站
+        locale: 'menu.bugManagement.bugDetail',
+        route: RouteEnum.BUG_MANAGEMENT_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
     ],
   },
   {
@@ -201,9 +208,23 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
+        key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-用例评审
+        locale: 'menu.caseManagement.featureCaseDetail',
+        route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
         key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
         locale: 'menu.caseManagement.caseManagementReview',
         route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-用例评审
+        locale: 'menu.caseManagement.caseManagementReviewDetail',
+        route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
         permission: [],
         level: MENU_LEVEL[2],
       },
