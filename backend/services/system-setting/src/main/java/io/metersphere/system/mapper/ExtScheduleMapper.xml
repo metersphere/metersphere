@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtScheduleMapper">
     <select id="taskCenterSchedulelist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO">
-   select task.*, QRTZ_TRIGGERS.TRIGGER_NAME as triggerName from (
+   select task.*, QRTZ_TRIGGERS.NEXT_FIRE_TIME AS nextTime  from (
     <if test="request.scheduleTagType == 'API_IMPORT'">
         SELECT
         schedule.id,
