@@ -14,6 +14,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +65,7 @@ public class ApiDefinitionModuleController {
     @PostMapping("/move")
     @Operation(summary = "接口测试-接口管理-模块-移动模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.dragNodeId", resourceType = "api_definition_module")
     public void moveNode(@Validated @RequestBody NodeMoveRequest request) {
         apiDefinitionModuleService.moveNode(request, SessionUtils.getUserId());
     }
@@ -94,6 +96,8 @@ public class ApiDefinitionModuleController {
 
     @PostMapping("/env/tree")
     @Operation(summary = "获取环境中的接口树和选中的模块")
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ, PermissionConstants.PROJECT_ENVIRONMENT_READ}, logical = Logical.OR)
     public EnvApiTreeDTO envTree(@RequestBody @Validated EnvApiModuleRequest request) {
         return apiDefinitionModuleService.envTree(request);
     }

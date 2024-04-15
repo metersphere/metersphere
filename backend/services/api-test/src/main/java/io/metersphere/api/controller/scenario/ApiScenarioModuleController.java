@@ -62,6 +62,7 @@ public class ApiScenarioModuleController {
     @PostMapping("/move")
     @Operation(summary = "接口测试-接口场景-模块-移动模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
+    @CheckOwner(resourceId = "#request.getDragNodeId()", resourceType = "api_scenario_module")
     public void moveNode(@Validated @RequestBody NodeMoveRequest request) {
         apiScenarioModuleService.moveNode(request, SessionUtils.getUserId());
     }

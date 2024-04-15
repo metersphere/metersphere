@@ -62,6 +62,7 @@ public class OrganizationProjectController {
     @PostMapping("/page")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-组织-项目-获取项目列表")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public Pager<List<ProjectDTO>> getProjectList(@Validated @RequestBody OrganizationProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -120,6 +121,7 @@ public class OrganizationProjectController {
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-组织-项目-成员列表")
+    @CheckOwner(resourceId = "#reuqest.projectId", resourceType = "project")
     public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, organizationProjectService.getProjectMember(request));
@@ -150,6 +152,7 @@ public class OrganizationProjectController {
     @GetMapping("/user-admin-list/{organizationId}")
     @Operation(summary = "系统设置-组织-项目-获取管理员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<UserExtendDTO> getUserAdminList(@PathVariable String organizationId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationProjectService.getUserAdminList(organizationId, keyword);
@@ -158,6 +161,7 @@ public class OrganizationProjectController {
     @GetMapping("/user-member-list/{organizationId}/{projectId}")
     @Operation(summary = "系统设置-组织-项目-获取成员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<UserExtendDTO> getUserMemberList(@PathVariable String organizationId, @PathVariable String projectId,
                                                  @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                                  @RequestParam(value = "keyword", required = false) String keyword) {
@@ -167,6 +171,7 @@ public class OrganizationProjectController {
     @PostMapping("/pool-options")
     @Operation(summary = "系统设置-组织-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
+    @CheckOwner(resourceId = "#request.organizationId", resourceType = "organization")
     public List<OptionDTO> getProjectOptions(@Validated @RequestBody ProjectPoolRequest request) {
         return organizationProjectService.getTestResourcePoolOptions(request);
     }

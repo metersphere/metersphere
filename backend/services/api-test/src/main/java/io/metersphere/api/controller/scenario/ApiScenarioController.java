@@ -137,6 +137,7 @@ public class ApiScenarioController {
     @GetMapping("/step/get/{stepId}")
     @Operation(summary = "接口测试-接口场景管理-获取场景步骤详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @CheckOwner(resourceId = "#stepId", resourceType = "api_scenario_step")
     public Object getStepDetail(@PathVariable String stepId) {
         return apiScenarioService.getStepDetail(stepId);
     }
@@ -176,6 +177,7 @@ public class ApiScenarioController {
     @GetMapping("/run/{id}")
     @Operation(summary = "接口测试-接口场景管理-场景执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
         return apiScenarioService.run(id, reportId, SessionUtils.getUserId());
     }
@@ -242,6 +244,7 @@ public class ApiScenarioController {
     @PostMapping("/edit/pos")
     @Operation(summary = "接口测试-接口场景管理-场景-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "api_scenario")
     public void editPos(@Validated @RequestBody PosRequest request) {
         apiScenarioService.moveNode(request);
     }

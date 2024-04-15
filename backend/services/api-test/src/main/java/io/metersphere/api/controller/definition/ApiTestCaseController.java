@@ -152,6 +152,7 @@ public class ApiTestCaseController {
     @PostMapping(value = "/page")
     @Operation(summary = "接口测试-接口管理-接口用例-分页查询")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
@@ -195,6 +196,7 @@ public class ApiTestCaseController {
     @PostMapping(value = "/trash/page")
     @Operation(summary = "接口测试-接口管理-接口用例-回收站-分页查询")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiTestCaseDTO>> pageTrash(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "delete_time desc");
@@ -204,6 +206,7 @@ public class ApiTestCaseController {
     @PostMapping("/edit/pos")
     @Operation(summary = "接口测试-接口管理-接口用例-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "api_test_case")
     public void editPos(@Validated @RequestBody PosRequest request) {
         apiTestCaseService.moveNode(request);
     }
@@ -261,6 +264,7 @@ public class ApiTestCaseController {
     @GetMapping("/run/{id}")
     @Operation(summary = "用例执行, 传ID执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public TaskRequestDTO run(@PathVariable String id,
                               @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
                               @RequestParam(required = false) String reportId) {
@@ -277,6 +281,7 @@ public class ApiTestCaseController {
     @PostMapping("/batch/run")
     @Operation(summary = "批量执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRun(@Validated @RequestBody ApiTestCaseBatchRunRequest request) {
         apiTestCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }

@@ -214,6 +214,16 @@ public class ProjectControllerTests extends BaseTest {
         example.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID).andEnableEqualTo(true);
         Assertions.assertEquals(projectMapper.countByExample(example), list.size());
 
+        UserRoleRelation userRoleRelation = new UserRoleRelation();
+        userRoleRelation.setUserId("admin1");
+        userRoleRelation.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        userRoleRelation.setSourceId(DEFAULT_ORGANIZATION_ID);
+        userRoleRelation.setRoleId("1");
+        userRoleRelation.setCreateTime(System.currentTimeMillis());
+        userRoleRelation.setCreateUser("admin");
+        userRoleRelation.setId(IDGenerator.nextStr());
+        userRoleRelationMapper.insertSelective(userRoleRelation);
+
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", "admin1", "admin1@metersphere.io"))
                         .contentType(MediaType.APPLICATION_JSON))
