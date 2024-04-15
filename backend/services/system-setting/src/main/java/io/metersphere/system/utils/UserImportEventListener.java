@@ -2,13 +2,13 @@ package io.metersphere.system.utils;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.excel.ExcelValidateHelper;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.excel.UserExcelValidateHelper;
+import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +25,7 @@ public class UserImportEventListener extends AnalysisEventListener<UserExcel> {
         Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
         try {
             //使用javax.validation校验excel数据
-            errMsg = ExcelValidateHelper.validateEntity(data);
+            errMsg = UserExcelValidateHelper.validateEntity(data);
             if (StringUtils.isEmpty(errMsg)) {
                 errMsg = businessValidate(data);
             }
