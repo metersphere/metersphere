@@ -43,9 +43,12 @@ PersonalCenterController {
     @PostMapping("/update-password")
     @Operation(summary = "个人中心-修改密码")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePasswordLog(#request)", msClass = UserLogService.class)
-    public boolean updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
+    public String updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
         this.checkPermission(request.getId());
-        return userService.updatePassword(request);
+        if (userService.updatePassword(request)) {
+            SessionUtils.kickOutUser(SessionUtils.getUser().getId());
+        }
+        return "OK";
     }
 
     private void checkPermission(String id) {
