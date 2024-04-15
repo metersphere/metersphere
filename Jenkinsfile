@@ -131,7 +131,7 @@ pipeline {
             }
             steps {
                 script {
-                    build job: "../metersphere-standalone/${BRANCH_NAME}", quietPeriod: 10
+                    build job: "../metersphere-standalone/${BRANCH_NAME}", quietPeriod: 10, wait: false
                 }
             }
         }
