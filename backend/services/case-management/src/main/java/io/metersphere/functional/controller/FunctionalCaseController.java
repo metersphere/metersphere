@@ -68,8 +68,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public TemplateDTO getDefaultTemplateField(@PathVariable String projectId) {
-        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
-        return defaultTemplateDTO;
+        return projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
     }
 
 
@@ -99,7 +98,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-更新用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request,  #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCase updateFunctionalCase(@Validated @RequestPart("request") FunctionalCaseEditRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
@@ -159,7 +158,6 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-批量删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchDeleteFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDeleteFunctionalCaseToGc(@Validated @RequestBody FunctionalCaseBatchRequest request) {
         String userId = SessionUtils.getUserId();
@@ -199,7 +197,6 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-批量编辑用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchEditFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchEditFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchEditFunctionalCase(@Validated @RequestBody FunctionalCaseBatchEditRequest request) {
         String userId = SessionUtils.getUserId();

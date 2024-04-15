@@ -231,7 +231,7 @@ public class MessageTemplateUtils {
                 if (CollectionUtils.isNotEmpty(customFields)) {
                     Map <String,String>customFielddNameMap = new HashMap<>();
                     for (CustomField customField : customFields) {
-                        customFielddNameMap.put(customField.getName(), StringUtils.isBlank(customField.getName()) ? "-" : customField.getName());
+                        customFielddNameMap.put(customField.getName(), StringUtils.isBlank(customField.getName()) ? "-" : "<"+customField.getName()+">");
                     }
                     map.putAll(customFielddNameMap);
                 }

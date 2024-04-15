@@ -213,7 +213,7 @@
     <select id="getProjectMemberByUserId" resultType="io.metersphere.system.domain.User">
         select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
         where
-        u.deleted = 0 and u.enable = 1
+        u.deleted = 0
         <if test="projectId != null and projectId != ''">
             and urr.source_id = #{projectId}
         </if>
