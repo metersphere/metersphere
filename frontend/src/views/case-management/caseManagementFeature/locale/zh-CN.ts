@@ -235,7 +235,7 @@ export default {
   'caseManagement.featureCase.defaultSelectNewVersion': '默认选择最新版本',
   'caseManagement.featureCase.isRecoverOriginCase': '用例 ID 相同时覆盖原用例',
   'caseManagement.featureCase.importingUseCase': '正在导入用例',
-  'caseManagement.featureCase.verifyingTemplate': '正在校验模板正确性',
+  'caseManagement.featureCase.verifyingTemplate': '正在校验文件正确性',
   'caseManagement.featureCase.successfulCheck': '成功校验',
   'caseManagement.featureCase.failCheck': '校验失败',
   'caseManagement.featureCase.caseCount': '条用例；',

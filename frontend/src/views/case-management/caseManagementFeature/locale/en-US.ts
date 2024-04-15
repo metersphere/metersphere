@@ -239,7 +239,7 @@ export default {
   'caseManagement.featureCase.defaultSelectNewVersion': 'The latest version is selected by default',
   'caseManagement.featureCase.isRecoverOriginCase': 'Whether or not covered',
   'caseManagement.featureCase.importingUseCase': 'Importing a use case',
-  'caseManagement.featureCase.verifyingTemplate': 'The template is being verified',
+  'caseManagement.featureCase.verifyingTemplate': 'The file is being verified',
   'caseManagement.featureCase.successfulCheck': 'Successful check',
   'caseManagement.featureCase.failCheck': 'Check failure',
   'caseManagement.featureCase.caseCount': 'Strip use cases',
