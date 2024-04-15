@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ApiExecutionQueueService {
@@ -26,7 +27,7 @@ public class ApiExecutionQueueService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void insertQueue(ExecutionQueue queue, List<ExecutionQueueDetail> queues) {
         // 保存队列信息
-        redisTemplate.opsForValue().setIfAbsent(QUEUE_PREFIX + queue.getQueueId(), JSON.toJSONString(queue));
+        redisTemplate.opsForValue().setIfAbsent(QUEUE_PREFIX + queue.getQueueId(), JSON.toJSONString(queue), 1, TimeUnit.DAYS);
         // 保存队列详情信息
         queues.forEach(n -> redisTemplate.opsForList().rightPush(QUEUE_DETAIL_PREFIX + queue.getQueueId(), JSON.toJSONString(n)));
     }

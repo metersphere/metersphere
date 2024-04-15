@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ApiExecutionSetService {
@@ -21,7 +22,11 @@ public class ApiExecutionSetService {
      * @param resourceIds
      */
     public void initSet(String setId, List<String> resourceIds) {
-        resourceIds.forEach(resourceId -> redisTemplate.opsForSet().add(SET_PREFIX + setId, resourceId));
+        resourceIds.forEach(resourceId -> {
+            String key = SET_PREFIX + setId;
+            redisTemplate.opsForSet().add(key, resourceId);
+            redisTemplate.expire(key, 1, TimeUnit.DAYS);
+        });
     }
 
     /**
