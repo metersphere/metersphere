@@ -105,21 +105,10 @@
               type="button"
               status="primary"
               class="!mr-[4px]"
-              @click="transferVisible = true"
+              @click="transferHandler(item)"
             >
               {{ t('caseManagement.featureCase.storage') }}
             </MsButton>
-            <TransferModal
-              v-model:visible="transferVisible"
-              :request-fun="transferFileRequest"
-              :params="{
-                projectId: currentProjectId,
-                bugId: bugId,
-                fileId: item.uid,
-                local: true,
-              }"
-              @success="emit('updateSuccess')"
-            />
             <MsButton
               v-if="item.status === 'done'"
               type="button"
@@ -197,6 +186,12 @@
     @save="saveSelectAssociatedFile"
   />
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
+  <TransferModal
+    v-model:visible="transferVisible"
+    :request-fun="transferFileRequest"
+    :params="activeTransferFileParams"
+    @success="emit('updateSuccess')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -235,6 +230,7 @@
   import { findParents, Option } from '@/utils/recursion';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
+  import type { OperationFile } from '@/models/caseManagement/featureCase';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
@@ -539,6 +535,22 @@
     const attachments = await getAttachmentList(bugId.value);
     await handleFileFunc(attachments);
     Message.success(t('common.linkSuccess'));
+  }
+  const activeTransferFileParams = ref<OperationFile>({
+    projectId: '',
+    bugId: '',
+    fileId: '',
+    local: true,
+  });
+
+  function transferHandler(item: MsFileItem) {
+    activeTransferFileParams.value = {
+      projectId: currentProjectId.value,
+      fileId: item.uid,
+      bugId: props.detailInfo.id,
+      local: true,
+    };
+    transferVisible.value = true;
   }
 
   watchEffect(() => {

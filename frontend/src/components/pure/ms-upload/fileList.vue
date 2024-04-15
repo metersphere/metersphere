@@ -212,7 +212,6 @@
   watch(
     () => props.fileList,
     (val) => {
-      console.log(props.initFileSaveTips);
       innerFileList.value = val.sort((a, b) => {
         if (a.status === UploadStatus.init && b.status !== UploadStatus.init) {
           return -1; // "init" 排在前面
