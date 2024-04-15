@@ -224,6 +224,7 @@ export default {
   'caseManagement.featureCase.onlyEXcelTip': '仅支持 xls/xlsx，单个大小不超过 100M',
   'caseManagement.featureCase.onlyXmindTip': '仅支持 xmind/类型 单个大小不超过 100M',
   'caseManagement.featureCase.checkTemplate': '校验模板',
+  'caseManagement.featureCase.checkImportFile': '校验文件',
   'caseManagement.featureCase.selectedRecoverCase': '勾选，ID相同时覆盖原用例',
   'caseManagement.featureCase.notSelectedRecoverCase': '不勾选，ID已存在时，跳过该用例',
   'caseManagement.featureCase.cancelValidate': '取消校验',

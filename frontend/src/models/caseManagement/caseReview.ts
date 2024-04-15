@@ -243,3 +243,10 @@ export interface ReviewHistoryItem {
   userName: string;
   contentText: string;
 }
+
+// 评审详情-用例列表项
+export interface CaseReviewFunctionalCaseUserItem {
+  caseId: string;
+  reviewId: string;
+  userId: string;
+}

@@ -71,14 +71,14 @@
               /> </a-tooltip></span
         ></a-checkbox>
         <div>
-          <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
+          <!--          <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>-->
           <a-button
             class="ml-3"
             type="primary"
             :loading="props.confirmLoading"
             :disabled="fileList.length < 1"
             @click="saveConfirm"
-            >{{ t('caseManagement.featureCase.checkTemplate') }}</a-button
+            >{{ t('caseManagement.featureCase.checkImportFile') }}</a-button
           >
         </div>
       </div>

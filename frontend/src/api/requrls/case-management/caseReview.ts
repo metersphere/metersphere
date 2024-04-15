@@ -26,3 +26,4 @@ export const GetReviewDetailModuleCountUrl = '/case/review/detail/module/count';
 export const GetReviewDetailModuleTreeUrl = '/case/review/detail/tree'; // 评审详情-已关联用例模块树
 export const GetCaseReviewHistoryListUrl = '/review/functional/case/get/list'; // 评审详情-获取用例评审历史
 export const SaveCaseReviewResultUrl = '/review/functional/case/save'; // 评审详情-提交评审
+export const getCaseReviewerListUrl = '/case/review/detail/reviewer/list/'; // 评审详情-获取用例的评审人

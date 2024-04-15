@@ -226,6 +226,7 @@ export default {
     'Only xls and xlsx are supported, and the size of each device cannot exceed 100 MB',
   'caseManagement.featureCase.onlyXmindTip': 'Only xmind/ type single size up to 100M is supported',
   'caseManagement.featureCase.checkTemplate': 'Check template',
+  'caseManagement.featureCase.checkImportFile': 'Check file',
   'caseManagement.featureCase.selectedRecoverCase':
     'Check, the original use case will be overwritten when the ID is the same',
   'caseManagement.featureCase.notSelectedRecoverCase': 'If the ID already exists, the use case is skipped',

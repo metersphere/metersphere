@@ -133,4 +133,6 @@ export default {
   'caseManagement.caseReview.crateCase': 'Create case',
   'caseManagement.caseReview.demandCases': 'Requirements association list',
   'caseManagement.caseReview.demandSearchPlaceholder': 'Search by name',
+  'caseManagement.caseReview.reviewSuccess.widthAdmin':
+    'Submitted successfully! You are not the designated reviewer for the current project. The system will only record your review and will not affect the final review result.',
 };
