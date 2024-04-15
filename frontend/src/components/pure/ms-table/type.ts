@@ -1,5 +1,5 @@
 import type { TableQueryParams } from '@/models/common';
-import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
+import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
 import type { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
 
@@ -65,7 +65,7 @@ export type MsTableDataItem<T> = T & {
 export interface MsTableProps<T> {
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
   data: MsTableDataItem<T>[];
-  tableKey: string; // 表格key, 用于存储表格列配置,pageSize等
+  tableKey?: TableKeyEnum; // 表格key, 用于存储表格列配置,pageSize等
   rowKey: string; // 表格行的key rowId
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];

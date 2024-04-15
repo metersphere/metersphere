@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash-es';
 import localforage from 'localforage';
 
 import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
+import useLocalForage from '@/hooks/useLocalForage';
 import { useAppStore } from '@/store';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
@@ -128,7 +129,8 @@ const useProjectEnvStore = defineStore(
     // 初始化内容tab列表
     async function initContentTabList(arr: ContentTabItem[]) {
       try {
-        const tabsMap = await localforage.getItem<ContentTabsMap>('bugTabsMap');
+        const { getItem, setItem } = useLocalForage();
+        const tabsMap = await getItem<ContentTabsMap>('bugTabsMap');
         if (tabsMap) {
           // 初始化过了
           const { backupTabList } = tabsMap;
@@ -136,11 +138,11 @@ const useProjectEnvStore = defineStore(
           if (!isEqual) {
             tabsMap.tabList = arr;
             tabsMap.backupTabList = arr;
-            await localforage.setItem('bugTabsMap', tabsMap);
+            await setItem('bugTabsMap', tabsMap);
           }
         } else {
           // 没初始化过
-          await localforage.setItem('bugTabsMap', { tabList: arr, backupTabList: arr });
+          await setItem('bugTabsMap', { tabList: arr, backupTabList: arr });
         }
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -150,7 +152,8 @@ const useProjectEnvStore = defineStore(
     // 获取Tab列表
     async function getContentTabList() {
       try {
-        const tabsMap = await localforage.getItem<ContentTabsMap>('bugTabsMap');
+        const { getItem } = useLocalForage();
+        const tabsMap = await getItem<ContentTabsMap>('bugTabsMap');
         if (tabsMap) {
           return tabsMap.tabList;
         }
@@ -163,11 +166,12 @@ const useProjectEnvStore = defineStore(
 
     // 设置Tab列表
     async function setContentTabList(arr: ContentTabItem[]) {
-      const tabsMap = await localforage.getItem<ContentTabsMap>('bugTabsMap');
+      const { getItem, setItem } = useLocalForage();
+      const tabsMap = await getItem<ContentTabsMap>('bugTabsMap');
       if (tabsMap) {
         const tmpArrList = JSON.parse(JSON.stringify(arr));
         tabsMap.tabList = tmpArrList;
-        await localforage.setItem('bugTabsMap', tabsMap);
+        await setItem('bugTabsMap', tabsMap);
       }
     }
 

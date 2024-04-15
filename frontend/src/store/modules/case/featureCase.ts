@@ -7,6 +7,7 @@ import {
   getCaseModulesCounts,
   getRecycleModulesCounts,
 } from '@/api/modules/case-management/featureCase';
+import useLocalForage from '@/hooks/useLocalForage';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
 import type { ContentTabsMap, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
@@ -132,17 +133,18 @@ const useFeatureCaseStore = defineStore('featureCase', {
     },
     async initContentTabList(arr: TabItemType[]) {
       try {
-        const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+        const { getItem, setItem } = useLocalForage();
+        const tabsMap = await getItem<ContentTabsMap>('caseTabsMap');
         if (tabsMap) {
           const { backupTabList } = tabsMap;
           const isEqual = isArraysEqualWithOrder<TabItemType>(backupTabList, arr);
           if (!isEqual) {
             tabsMap.tabList = arr;
             tabsMap.backupTabList = arr;
-            await localforage.setItem('caseTabsMap', tabsMap);
+            await setItem('caseTabsMap', tabsMap);
           }
         } else {
-          await localforage.setItem('caseTabsMap', { tabList: arr, backupTabList: arr });
+          await setItem('caseTabsMap', { tabList: arr, backupTabList: arr });
         }
       } catch (e) {
         console.log(e);
@@ -150,7 +152,8 @@ const useFeatureCaseStore = defineStore('featureCase', {
     },
     async getContentTabList() {
       try {
-        const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+        const { getItem } = useLocalForage();
+        const tabsMap = await getItem<ContentTabsMap>('caseTabsMap');
         if (tabsMap) {
           return tabsMap.tabList;
         }
@@ -160,11 +163,12 @@ const useFeatureCaseStore = defineStore('featureCase', {
       }
     },
     async setContentTabList(arr: TabItemType[]) {
-      const tabsMap = await localforage.getItem<ContentTabsMap>('caseTabsMap');
+      const { getItem, setItem } = useLocalForage();
+      const tabsMap = await getItem<ContentTabsMap>('caseTabsMap');
       if (tabsMap) {
         const tmpArrList = JSON.parse(JSON.stringify(arr));
         tabsMap.tabList = tmpArrList;
-        await localforage.setItem('caseTabsMap', tabsMap);
+        await setItem('caseTabsMap', tabsMap);
       }
     },
   },
