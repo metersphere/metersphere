@@ -670,7 +670,6 @@
       }
 
       if (!hasAuth) {
-        Message.error(t('common.noPermission'));
         return;
       }
 
@@ -773,7 +772,6 @@
       }
 
       if (!hasAuth) {
-        Message.error(t('common.noPermission'));
         return;
       }
       await postUpdateMenu(

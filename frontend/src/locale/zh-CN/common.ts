@@ -151,4 +151,5 @@ export default {
   'common.unsavedLeave': '有标签页的内容未保存，离开后未保存的内容将丢失，确定要离开吗？',
   'common.image': '图片',
   'common.text': '文本',
+  'common.resourceDeleted': '资源已被删除',
 };

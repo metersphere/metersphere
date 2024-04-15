@@ -284,7 +284,7 @@
     NEW_ENV_PARAM,
   } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
-  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { EnvListItem, PopVisible } from '@/models/projectManagement/environmental';
   import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
@@ -293,8 +293,8 @@
 
   const { openModal } = useModal();
 
-  const { setState } = useLeaveUnSaveTip();
-  setState(false);
+  const { setIsSave } = useLeaveUnSaveTip();
+  setIsSave(false);
 
   const { t } = useI18n();
   const store = useProjectEnvStore();

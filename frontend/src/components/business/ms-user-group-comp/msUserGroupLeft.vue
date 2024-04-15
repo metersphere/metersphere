@@ -445,7 +445,13 @@
         if (isSelect) {
           // leftCollapse 切换时不重复数据请求
           if (id) {
-            handleListItemClick(res.find((i) => i.id === id) || res[0]);
+            const item = res.find((i) => i.id === id);
+            if (item) {
+              handleListItemClick(item);
+            } else {
+              Message.warning(t('common.resourceDeleted'));
+              handleListItemClick(res[0]);
+            }
           } else {
             handleListItemClick(res[0]);
           }
@@ -465,8 +471,8 @@
 
   // 点击更多操作
   const handleMoreAction = (item: ActionsItem, id: string, authScope: AuthScopeEnum) => {
+    const tmpObj = userGroupList.value.filter((ele) => ele.id === id)[0];
     if (item.eventTag === 'rename') {
-      const tmpObj = userGroupList.value.filter((ele) => ele.id === id)[0];
       const visibleItem: PopVisibleItem = { visible: true, authScope, defaultName: tmpObj.name, id };
       popVisible.value[id] = visibleItem;
     }
@@ -485,7 +491,7 @@
       }
       openModal({
         type: 'error',
-        title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(currentName.value) }),
+        title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(tmpObj.name) }),
         content,
         okText: t('system.userGroup.confirmDelete'),
         cancelText: t('system.userGroup.cancel'),

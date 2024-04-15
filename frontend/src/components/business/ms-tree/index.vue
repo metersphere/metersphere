@@ -458,7 +458,7 @@
           .arco-tree-node-drag-icon {
             @apply cursor-move;
 
-            right: 6px;
+            right: 16px;
             .arco-icon {
               font-size: 14px;
             }

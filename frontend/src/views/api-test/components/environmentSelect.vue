@@ -1,12 +1,12 @@
 <template>
   <div>
     <a-select
-      v-model:model-value="currentEnv"
+      v-model:model-value="innerCurrentEnv"
       :options="envOptions"
       class="!w-[200px] pl-0 pr-[8px]"
       :loading="envLoading"
       allow-search
-      @change="initEnvironment"
+      @change="(val) => initEnvironment(val as string)"
       @popup-visible-change="popupVisibleChange"
     >
       <template #prefix>
@@ -28,23 +28,36 @@
   import { EnvConfig } from '@/models/projectManagement/environmental';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
+  const props = withDefaults(
+    defineProps<{
+      currentEnv?: string;
+      setDefaultEnv?: boolean; // 是否设置默认选中环境，当传入的currentEnv为空时根据此属性判断是否需要将currentEnv设置为第一个环境
+    }>(),
+    {
+      setDefaultEnv: true,
+    }
+  );
+  const emit = defineEmits<{
+    (e: 'update:currentEnv', val: string): void;
+  }>();
+
   const appStore = useAppStore();
   const { openNewPage } = useOpenNewPage();
 
-  const currentEnv = defineModel<string>('currentEnv', { default: '' });
+  const innerCurrentEnv = ref(props.currentEnv || '');
   const currentEnvConfig = defineModel<EnvConfig>('currentEnvConfig', {
     default: {},
   });
   const envLoading = ref(false);
   const envOptions = ref<SelectOptionData[]>([]);
 
-  async function initEnvironment() {
+  async function initEnvironment(id: string) {
     try {
-      const res = await getEnvironment(currentEnv.value);
+      const res = await getEnvironment(id);
       currentEnvConfig.value = {
         ...res,
-        id: currentEnv.value,
-        name: envOptions.value.find((item) => item.value === currentEnv.value)?.label || '',
+        id,
+        name: envOptions.value.find((item) => item.value === id)?.label || '',
       };
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -60,12 +73,10 @@
         label: item.name,
         value: item.id,
       }));
-      currentEnv.value = currentEnv.value.length ? currentEnv.value : res[0]?.id;
-      nextTick(() => {
-        if (currentEnv.value) {
-          initEnvironment();
-        }
-      });
+      if (!innerCurrentEnv.value) {
+        innerCurrentEnv.value = res[0]?.id;
+      }
+      initEnvironment(innerCurrentEnv.value || res[0]?.id);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -85,14 +96,24 @@
   }
 
   watch(
-    () => currentEnv.value,
+    () => props.currentEnv,
     (val) => {
       if (!val) {
-        currentEnv.value = (envOptions.value[0]?.value as string) || '';
+        if (props.setDefaultEnv) {
+          innerCurrentEnv.value = (envOptions.value[0]?.value as string) || '';
+          initEnvironment((envOptions.value[0]?.value as string) || '');
+        }
+      } else {
+        innerCurrentEnv.value = val;
+        initEnvironment(val);
       }
-      nextTick(() => {
-        initEnvironment();
-      });
+    }
+  );
+
+  watch(
+    () => innerCurrentEnv.value,
+    (val) => {
+      emit('update:currentEnv', val);
     }
   );
 

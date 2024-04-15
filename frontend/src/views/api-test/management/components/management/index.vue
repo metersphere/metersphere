@@ -28,7 +28,11 @@
         </a-tooltip>
       </template>
     </MsEditableTab>
-    <environmentSelect ref="environmentSelectRef" v-model:current-env="activeApiTab.environmentId" />
+    <environmentSelect
+      ref="environmentSelectRef"
+      v-model:current-env="activeApiTab.environmentId"
+      :set-default-env="false"
+    />
   </div>
   <api
     v-show="(activeApiTab.id === 'all' && currentTab === 'api') || activeApiTab.type === 'api'"
@@ -220,14 +224,14 @@
   );
 
   // 切换到第一个tab
-  function changeActiveApiTabTofirst() {
+  function changeActiveApiTabToFirst() {
     activeApiTab.value = apiTabs.value[0] as RequestParam;
   }
 
   // 下拉框切换
   function currentTabChange(val: any) {
     apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
-    changeActiveApiTabTofirst();
+    changeActiveApiTabToFirst();
   }
 
   watch(
@@ -327,7 +331,7 @@
     refreshApiTable,
     handleApiUpdateFromModuleTree,
     handleDeleteApiFromModuleTree,
-    changeActiveApiTabTofirst,
+    changeActiveApiTabToFirst,
   });
 </script>
 

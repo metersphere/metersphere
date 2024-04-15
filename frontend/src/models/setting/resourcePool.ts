@@ -51,6 +51,7 @@ export interface ResourcePoolItem extends ResourcePoolInfo {
 
 export type ResourcePoolDetail = Omit<ResourcePoolInfo, 'testResourceDTO'> & {
   id: string;
+  deleted: boolean;
   testResourceReturnDTO: TestResourceDTO;
 };
 

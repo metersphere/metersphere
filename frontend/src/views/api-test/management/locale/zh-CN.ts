@@ -33,6 +33,7 @@ export default {
   'apiTestManagement.closeOther': '关闭其他tab',
   'apiTestManagement.showSubdirectory': '显示子目录用例',
   'apiTestManagement.searchPlaceholder': '输入 ID/名称/api路径搜索',
+  'apiTestManagement.searchTaskPlaceholder': '输入资源ID/名称搜索',
   'apiTestManagement.apiName': '接口名称',
   'apiTestManagement.apiType': '请求类型',
   'apiTestManagement.apiStatus': '状态',

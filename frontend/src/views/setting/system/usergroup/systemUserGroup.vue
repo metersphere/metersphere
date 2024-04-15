@@ -84,7 +84,7 @@
   const router = useRouter();
   const { t } = useI18n();
   const currentKeyword = ref('');
-  const ugLeftRef = ref();
+  const ugLeftRef = ref<InstanceType<typeof UserGroupLeft>>();
 
   const currentUserGroupItem = ref<CurrentUserGroupItem>({
     id: '',
@@ -147,7 +147,7 @@
     }
   });
   onMounted(() => {
-    ugLeftRef.value?.initData(router.currentRoute.value.query.id, true);
+    ugLeftRef.value?.initData(router.currentRoute.value.query.id as string, true);
   });
 </script>
 

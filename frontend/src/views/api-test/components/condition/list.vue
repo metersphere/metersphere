@@ -2,7 +2,7 @@
   <MsList
     v-model:active-item-key="activeItem.id"
     v-model:focus-item-key="focusItemKey"
-    v-model:data="data"
+    v-model:data="list"
     mode="static"
     item-key-field="id"
     :disabled="props.disabled"
@@ -59,7 +59,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
   import { cloneDeep } from 'lodash-es';
 
   import MsList from '@/components/pure/ms-list/index.vue';
@@ -74,20 +73,20 @@
   import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    list: ExecuteConditionProcessor[];
     activeId?: string | number;
     showAssociatedScene?: boolean;
     disabled?: boolean;
     showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
   }>();
   const emit = defineEmits<{
-    (e: 'update:list', list: ExecuteConditionProcessor[]): void;
     (e: 'activeChange', item: ExecuteConditionProcessor): void;
     (e: 'change'): void;
   }>();
 
   const { t } = useI18n();
-  const data = useVModel(props, 'list', emit);
+  const list = defineModel<ExecuteConditionProcessor[]>('list', {
+    required: true,
+  });
   const { openModal } = useModal();
 
   // 当前聚焦的列表项
@@ -98,11 +97,11 @@
   const hasPreAndPost = computed(() => {
     if (props.showPrePostRequest) {
       const hasPre =
-        data.value.filter(
+        list.value.filter(
           (item) => item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
         ).length > 0;
       const hasPost =
-        data.value.filter(
+        list.value.filter(
           (item) => !item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
         ).length > 0;
       if (hasPre && hasPost) {
@@ -114,12 +113,12 @@
   });
 
   const hasEXTRACT = computed(() => {
-    return data.value.filter((item: any) => item.processorType === RequestConditionProcessor.EXTRACT).length > 0;
+    return list.value.filter((item: any) => item.processorType === RequestConditionProcessor.EXTRACT).length > 0;
   });
 
   const hasSql = computed(
     () =>
-      data.value.filter((item: any) => item.processorType === RequestConditionProcessor.SQL).length > 0 &&
+      list.value.filter((item: any) => item.processorType === RequestConditionProcessor.SQL).length > 0 &&
       props.showPrePostRequest
   );
 
@@ -139,7 +138,7 @@
   let moreActions: ActionsItem[] = [...itemMoreActions];
 
   watchEffect(() => {
-    activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
+    activeItem.value = list.value.find((item) => item.id === props.activeId) || list.value[0] || {};
     emit('activeChange', activeItem.value);
     if (hasPreAndPost.value || hasEXTRACT.value || hasSql.value) {
       moreActions = itemMoreActions.slice(-1);
@@ -162,10 +161,10 @@
       ...cloneDeep(item),
       id: new Date().getTime(),
     };
-    const isExistPre = data.value.filter(
+    const isExistPre = list.value.filter(
       (current) => current.beforeStepScript && current.processorType === RequestConditionProcessor.REQUEST_SCRIPT
     ).length;
-    const isExistPost = data.value.filter(
+    const isExistPost = list.value.filter(
       (current) => !current.beforeStepScript && current.processorType === RequestConditionProcessor.REQUEST_SCRIPT
     ).length;
     // 如果是场景或者是请求类型的 需要限制前后脚本类型只能为一前一后
@@ -180,9 +179,9 @@
       id: new Date().getTime(),
     };
 
-    const copyIndex = data.value.findIndex((e: ExecuteConditionProcessor) => e.id === item.id);
+    const copyIndex = list.value.findIndex((e: ExecuteConditionProcessor) => e.id === item.id);
     if (copyIndex > -1) {
-      data.value.splice(copyIndex, 0, copyItem);
+      list.value.splice(copyIndex, 0, copyItem);
       activeItem.value = copyItem;
       emit('activeChange', activeItem.value);
     }
@@ -193,9 +192,9 @@
    * @param item 列表项
    */
   function deleteListItem(item: ExecuteConditionProcessor) {
-    data.value = data.value.filter((precondition) => precondition.id !== item.id);
+    list.value = list.value.filter((precondition) => precondition.id !== item.id);
     if (activeItem.value.id === item.id) {
-      [activeItem.value] = data.value;
+      [activeItem.value] = list.value;
     }
     emit('activeChange', activeItem.value);
   }

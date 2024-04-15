@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsPasswordInput from '@/components/pure/ms-password-input/index.vue';
@@ -39,13 +40,12 @@
 
   import { updatePsw } from '@/api/modules/user';
   import { useI18n } from '@/hooks/useI18n';
-  import useUser from '@/hooks/useUser';
   import useUserStore from '@/store/modules/user';
   import { encrypted } from '@/utils';
   import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
 
+  const router = useRouter();
   const userStore = useUserStore();
-  const { logout } = useUser();
   const { t } = useI18n();
 
   const form = ref({
@@ -111,7 +111,13 @@
           }, 1000);
           setTimeout(() => {
             clearInterval(timer);
-            logout();
+            router.push({
+              name: 'login',
+              query: {
+                ...router.currentRoute.value.query,
+                redirect: router.currentRoute.value.name as string,
+              },
+            });
           }, 3000);
         } catch (error) {
           // eslint-disable-next-line no-console

@@ -8,7 +8,7 @@
         <MsRemoveButton
           :title="t('system.userGroup.removeName', { name: characterLimit(record.name) })"
           :sub-title-tip="t('system.userGroup.removeTip')"
-          :disabled="record.userId === 'admin'"
+          :disabled="systemType === AuthScopeEnum.SYSTEM && record.userId === 'admin'"
           @ok="handleRemove(record)"
         />
       </template>
@@ -77,7 +77,7 @@
     };
   });
 
-  const userGroupUsercolumns: MsTableColumn = [
+  const userGroupUserColumns: MsTableColumn = [
     {
       title: 'system.userGroup.name',
       dataIndex: 'name',
@@ -113,7 +113,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
     getRequestBySystemType(),
     {
-      columns: userGroupUsercolumns,
+      columns: userGroupUserColumns,
       scroll: { x: '100%', minWidth: 700, y: '100%' },
       selectable: false,
       noDisable: true,
@@ -130,7 +130,6 @@
 
   const handlePermission = (permission: string[], cb: () => void) => {
     if (!hasAnyPermission(permission)) {
-      Message.error(t('common.noPermission'));
       return false;
     }
     cb();

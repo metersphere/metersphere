@@ -270,8 +270,8 @@
   import { convertToFileByBug } from './utils';
 
   defineOptions({ name: 'BugEditPage' });
-  const { setState } = useLeaveUnSaveTip();
-  setState(false);
+  const { setIsSave } = useLeaveUnSaveTip();
+  setIsSave(false);
 
   const { t } = useI18n();
   interface TemplateOption {
@@ -609,7 +609,7 @@
               // 执行保存操作
               const res = await createOrUpdateBug({ request: tmpObj, fileList: localFiles as unknown as File[] });
               if (isEdit.value) {
-                setState(true);
+                setIsSave(true);
                 Message.success(t('common.updateSuccess'));
                 router.push({
                   name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
@@ -617,7 +617,7 @@
               } else {
                 Message.success(t('common.createSuccess'));
                 if (isContinue) {
-                  setState(false);
+                  setIsSave(false);
                   // 如果是保存并继续创建
                   const { templateId } = form.value;
                   // 用当前模板初始化自定义字段
@@ -632,7 +632,7 @@
                   // 清空文件列表
                   fileList.value = [];
                 } else {
-                  setState(true);
+                  setIsSave(true);
                   // 否则跳转到成功页
                   if (getIsVisited()) {
                     router.push({

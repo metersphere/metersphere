@@ -3,14 +3,14 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { useI18n } from '@/hooks/useI18n';
 import useModal from '@/hooks/useModal';
 
-const isSave = ref(false);
-
 // 离开页面确认提示
 export default function useLeaveUnSaveTip() {
   const { openModal } = useModal();
   const { t } = useI18n();
 
-  const setState = (flag: boolean) => {
+  const isSave = ref(true);
+
+  const setIsSave = (flag: boolean) => {
     isSave.value = flag;
   };
   onBeforeRouteLeave((to, from, next) => {
@@ -40,6 +40,6 @@ export default function useLeaveUnSaveTip() {
     }
   });
   return {
-    setState,
+    setIsSave,
   };
 }

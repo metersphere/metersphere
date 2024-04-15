@@ -147,7 +147,11 @@
       </template>
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
+          {{
+            hasAllPermission(['CASE_REVIEW:READ+ADD'])
+              ? t('caseManagement.caseReview.tableNoData')
+              : t('caseManagement.caseReview.tableNoDataNoPermission')
+          }}
           <MsButton v-permission="['CASE_REVIEW:READ+ADD']" class="ml-[8px]" @click="() => emit('goCreate')">
             {{ t('caseManagement.caseReview.create') }}
           </MsButton>
@@ -214,7 +218,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import {
     ReviewDetailReviewersItem,

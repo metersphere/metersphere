@@ -34,7 +34,7 @@
       title: 'apiTestDebug.status',
       dataIndex: 'pass',
       slotName: 'status',
-      width: 100,
+      width: 120,
     },
     {
       title: 'apiTestDebug.reason',
