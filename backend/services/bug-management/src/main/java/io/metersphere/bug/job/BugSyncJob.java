@@ -1,5 +1,6 @@
 package io.metersphere.bug.job;
 
+import io.metersphere.bug.service.BugSyncExtraService;
 import io.metersphere.bug.service.BugSyncService;
 import io.metersphere.bug.service.XpackBugService;
 import io.metersphere.project.service.ProjectApplicationService;
@@ -23,12 +24,14 @@ public class BugSyncJob extends BaseScheduleJob {
     private final LicenseService licenseService;
     private final BugSyncService bugSyncService;
     private final XpackBugService xpackBugService;
+    private final BugSyncExtraService bugSyncExtraService;
     private final ProjectApplicationService projectApplicationService;
 
     public BugSyncJob() {
         licenseService = CommonBeanFactory.getBean(LicenseService.class);
         xpackBugService = CommonBeanFactory.getBean(XpackBugService.class);
         bugSyncService = CommonBeanFactory.getBean(BugSyncService.class);
+        bugSyncExtraService = CommonBeanFactory.getBean(BugSyncExtraService.class);
         projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
     }
 
@@ -49,19 +52,31 @@ public class BugSyncJob extends BaseScheduleJob {
             return;
         }
         LogUtils.info("bug sync job start......");
-        if (licenseService == null) {
-            LogUtils.info("license is null, sync remain bug");
-            bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
-        } else {
-            LicenseDTO licenseDTO = licenseService.validate();
-            if (licenseDTO != null && licenseDTO.getLicense() != null
-                    && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
-                LogUtils.info("license is valid, sync all bug");
-                xpackBugService.syncPlatformBugsBySchedule(resourceId, userId);
-            } else {
-                LogUtils.info("license is invalid, sync remain bug");
-                bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
+        // 获取当前项目同步缺陷唯一Key
+        try{
+            String syncValue = bugSyncExtraService.getSyncKey(resourceId);
+            if (StringUtils.isEmpty(syncValue)) {
+                // 不存在, 设置保证唯一性, 并开始同步
+                bugSyncExtraService.setSyncKey(resourceId);
+                if (licenseService == null) {
+                    LogUtils.info("license is null, sync remain bug");
+                    bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
+                } else {
+                    LicenseDTO licenseDTO = licenseService.validate();
+                    if (licenseDTO != null && licenseDTO.getLicense() != null
+                            && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
+                        LogUtils.info("license is valid, sync all bug");
+                        xpackBugService.syncPlatformBugsBySchedule(resourceId, userId);
+                    } else {
+                        LogUtils.info("license is invalid, sync remain bug");
+                        bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
+                    }
+                }
+                bugSyncExtraService.deleteSyncKey(resourceId);
             }
+        } catch (Exception e) {
+            bugSyncExtraService.deleteSyncKey(resourceId);
+            LogUtils.error(e.getMessage());
         }
         LogUtils.info("bug sync job end......");
     }

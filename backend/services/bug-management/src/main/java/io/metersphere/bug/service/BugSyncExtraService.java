@@ -15,7 +15,7 @@ public class BugSyncExtraService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "MS:BUG:SYNC";
+    private static final String SYNC_THIRD_PARTY_BUG_KEY = "MS:BUG:SYNC";
     private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "MS:BUG:SYNC:ERROR";
 
     /**
@@ -23,7 +23,7 @@ public class BugSyncExtraService {
      * @param projectId 项目ID
      */
     public void setSyncKey(String projectId) {
-        stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId, UUID.randomUUID().toString(), 60 * 10L, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_BUG_KEY + ":" + projectId, UUID.randomUUID().toString(), 60 * 10L, TimeUnit.SECONDS);
     }
 
     /**
@@ -31,7 +31,7 @@ public class BugSyncExtraService {
      * @param projectId 项目ID
      */
     public String getSyncKey(String projectId) {
-        return stringRedisTemplate.opsForValue().get(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+        return stringRedisTemplate.opsForValue().get(SYNC_THIRD_PARTY_BUG_KEY + ":" + projectId);
     }
 
     /**
@@ -39,7 +39,7 @@ public class BugSyncExtraService {
      * @param projectId 项目ID
      */
     public void deleteSyncKey(String projectId) {
-        stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+        stringRedisTemplate.delete(SYNC_THIRD_PARTY_BUG_KEY + ":" + projectId);
     }
 
     /**
