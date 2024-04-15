@@ -126,6 +126,12 @@ public abstract class BaseTest {
         }
     }
 
+    public void login(String user, String password) throws Exception {
+        this.adminAuthInfo = initAuthInfo(user, password);
+        this.sessionId = this.adminAuthInfo.getSessionId();
+        this.csrfToken = this.adminAuthInfo.getCsrfToken();
+    }
+
     private AuthInfo initAuthInfo(String username, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password))

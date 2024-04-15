@@ -19,6 +19,7 @@ import io.metersphere.system.service.UserService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.user.PersonalRequestUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +52,7 @@ public class PersonalControllerTests extends BaseTest {
     }
 
     private UserDTO selectUserDTO(String id) throws Exception {
-        MvcResult result = this.requestGetAndReturn(String.format(PersonalRequestUtils.URL_PERSONAL_GET, loginUser));
+        MvcResult result = this.requestGetAndReturn(String.format(PersonalRequestUtils.URL_PERSONAL_GET, id));
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), UserDTO.class);
     }
@@ -174,7 +175,15 @@ public class PersonalControllerTests extends BaseTest {
         request.setId(loginUser);
         request.setOldPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         request.setNewPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
-        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
+        try {
+            this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
+        } catch (IllegalStateException e) {
+            if (!StringUtils.equals(e.getMessage(), "creationTime key must not be null")) {
+                throw e;
+            }
+        }
+        //成功之后重新登陆
+        super.login("admin", "metersphere222");
 
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(loginUser).andPasswordEqualTo(CodingUtils.md5("metersphere222"));
@@ -185,7 +194,15 @@ public class PersonalControllerTests extends BaseTest {
         request.setId(loginUser);
         request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
         request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
-        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
+        try {
+            this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
+        } catch (IllegalStateException e) {
+            if (!StringUtils.equals(e.getMessage(), "creationTime key must not be null")) {
+                throw e;
+            }
+        }
+        //成功之后重新登陆
+        super.login("admin", "metersphere");
         example.clear();
         example.createCriteria().andIdEqualTo(loginUser).andPasswordEqualTo(CodingUtils.md5("metersphere"));
         Assertions.assertEquals(userMapper.countByExample(example), 1L);
