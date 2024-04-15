@@ -13,6 +13,7 @@ import {
   EditReviewUrl,
   FollowReviewUrl,
   GetAssociatedIdsUrl,
+  getCaseReviewerListUrl,
   GetCaseReviewHistoryListUrl,
   GetReviewDetailCasePageUrl,
   GetReviewDetailModuleCountUrl,
@@ -36,6 +37,7 @@ import {
   BatchChangeReviewerParams,
   BatchMoveReviewParams,
   BatchReviewCaseParams,
+  CaseReviewFunctionalCaseUserItem,
   CommitReviewResultParams,
   CopyReviewParams,
   CopyReviewResponse,
@@ -194,4 +196,9 @@ export const getCaseReviewHistoryList = (reviewId: string, caseId: string) => {
 // 评审详情-提交用例评审结果
 export const saveCaseReviewResult = (data: CommitReviewResultParams) => {
   return MSR.post({ url: SaveCaseReviewResultUrl, data });
+};
+
+// 评审详情-获取用例的评审人
+export const getCaseReviewerList = (reviewId: string, caseId: string) => {
+  return MSR.get<CaseReviewFunctionalCaseUserItem[]>({ url: `${getCaseReviewerListUrl}/${reviewId}/${caseId}` });
 };

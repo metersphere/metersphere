@@ -47,7 +47,7 @@ public class NotificationService {
         record.setStatus(NotificationConstants.Status.READ.name());
         NotificationExample example = new NotificationExample();
         if (StringUtils.isNotBlank(resourceType)) {
-            example.createCriteria().andResourceTypeEqualTo("%" + resourceType + "%");
+            example.createCriteria().andResourceTypeLike("%" + resourceType + "%");
         }
         example.createCriteria().andReceiverEqualTo(userId);
         return notificationMapper.updateByExampleSelective(record, example);

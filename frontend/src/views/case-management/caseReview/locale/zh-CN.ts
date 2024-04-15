@@ -133,4 +133,6 @@ export default {
   'caseManagement.caseReview.associateSuccess': '关联成功',
   'caseManagement.caseReview.reviewSuccess': '评审成功',
   'caseManagement.caseReview.updateCase': '更新用例',
+  'caseManagement.caseReview.reviewSuccess.widthAdmin':
+    '提交成功！ 您不是当前项目指定的评审人，系统只会记录您的评审，不影响最终评审结果',
 };

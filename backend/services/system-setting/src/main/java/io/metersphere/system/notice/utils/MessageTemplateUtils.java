@@ -5,12 +5,15 @@ import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.BugMessageDTO;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -182,6 +185,8 @@ public class MessageTemplateUtils {
         });
         // 处理时间格式的数据
         handleTime(context);
+        // 处理人相关的数据
+        handleUser(context);
         StringSubstitutor sub = new StringSubstitutor(context);
         return sub.replace(template);
     }
@@ -194,6 +199,20 @@ public class MessageTemplateUtils {
                     long time = Long.parseLong(value);
                     v = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
                     context.put(k, v);
+                } catch (Exception ignore) {
+                }
+            }
+        });
+    }
+    public static void handleUser(Map<String, Object> context) {
+        UserMapper userMapper = CommonBeanFactory.getBean(UserMapper.class);
+        context.forEach((k, v) -> {
+            if (StringUtils.endsWithIgnoreCase(k, "User")) {
+                try {
+                    String value = v.toString();
+                    assert userMapper != null;
+                    User user = userMapper.selectByPrimaryKey(value);
+                    context.put(k, user.getName());
                 } catch (Exception ignore) {
                 }
             }

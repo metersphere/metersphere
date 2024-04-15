@@ -6,6 +6,7 @@
     :ok-text="t('common.confirm')"
     :cancel-text="t('common.cancel')"
     unmount-on-close
+    :footer="false"
     @close="handleCancel"
   >
     <template #title> {{ t('caseManagement.featureCase.importingUseCase') }} </template>
@@ -20,9 +21,6 @@
         <a-progress :percent="props.percent" size="large" />
       </div>
     </div>
-    <template #footer>
-      <a-button type="text" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-    </template>
   </a-modal>
 </template>
 
