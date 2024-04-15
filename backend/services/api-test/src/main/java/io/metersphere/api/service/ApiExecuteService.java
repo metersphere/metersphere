@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
@@ -151,7 +152,7 @@ public class ApiExecuteService {
 
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(taskRequest.getReportId(), taskRequest.getResourceId());
-        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
+        stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript, 1, TimeUnit.DAYS);
 
         if (StringUtils.equals(taskRequest.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
             // 清空mino和kafka配置信息，避免前端获取
