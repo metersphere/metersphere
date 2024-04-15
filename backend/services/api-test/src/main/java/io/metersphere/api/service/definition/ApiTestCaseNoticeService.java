@@ -36,13 +36,9 @@ public class ApiTestCaseNoticeService {
 
     public ApiDefinitionCaseDTO getCaseDTO(ApiTestCaseUpdateRequest request) {
         ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
+        ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        BeanUtils.copyBean(caseDTO, testCase);
         BeanUtils.copyBean(caseDTO, request);
-        caseDTO.setName(null);
-        caseDTO.setStatus(null);
-        caseDTO.setCaseCreateUser(null);
-        caseDTO.setCaseUpdateUser(null);
-        caseDTO.setCaseName(request.getName());
-        caseDTO.setCaseStatus(request.getStatus());
         return caseDTO;
     }
 

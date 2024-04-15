@@ -149,17 +149,9 @@
    select task.* from (
         <if test="request.scheduleTagType == 'API_IMPORT'">
             SELECT
-            schedule.id,
-            schedule.name as taskname,
-            schedule.project_id,
-            resource_type,
+            schedule.*,
             ads.num as resource_num,
-            ads.name as resource_name,
-            ads.id as resource_id,
-            schedule.value,
-            schedule.enable,
-            schedule.create_user AS createUserName,
-            schedule.create_time
+            ads.name as resource_name
             FROM
             schedule
             inner join api_definition_swagger ads on schedule.resource_id = ads.id
@@ -167,17 +159,9 @@
         </if>
         <if test="request.scheduleTagType == 'API_SCENARIO'">
             SELECT
-            schedule.id,
-            schedule.name as taskname,
-            schedule.project_id,
-            resource_type,
+            schedule.*,
             api_scenario.num as resource_num,
-            api_scenario.name as resource_name,
-            api_scenario.id as resource_id,
-            schedule.value,
-            schedule.enable,
-            schedule.create_user AS createUserName,
-            schedule.create_time
+            api_scenario.name as resource_name
             FROM
             schedule
             inner join api_scenario on schedule.resource_id = api_scenario.id

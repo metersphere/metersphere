@@ -534,5 +534,6 @@ public interface NoticeConstants {
         String platformBugId = "platformBugId";
         String handleUsers = "handleUsers";
         String groupId = "groupId";
+        String job = "job";
     }
 }

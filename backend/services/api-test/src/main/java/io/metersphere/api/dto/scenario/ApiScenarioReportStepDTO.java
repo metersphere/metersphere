@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -27,7 +28,7 @@ public class ApiScenarioReportStepDTO {
     private String parentId;
 
     @Schema(description = "结果状态")
-    private String status;
+    private String status = ApiReportStatus.PENDING.name();
 
     @Schema(description = "误报编号/误报状态独有")
     private String fakeCode;
