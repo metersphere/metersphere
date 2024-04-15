@@ -351,16 +351,20 @@ export default {
       return true;
     },
     remove: function (index) {
-      const dataIndex = this.pageData.findIndex((d) => d.name === index.name);
+      const dataIndex = this.pageData.findIndex((d) => d.name === index.name && d.id === index.id);
+      //如果是最后一个数据 删除后需要添加一个空行
+      if (dataIndex === this.pageData.length -1) {
+        index.name = '';
+        return;
+      }
       if (dataIndex !== -1) {
         this.pageData.splice(dataIndex, 1);
       }
-
-      const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
+      const allDataIndex = this.allData.findIndex((d) => d.name === index.name && d.id === index.id);
       if (allDataIndex !== -1) {
         this.allData.splice(allDataIndex, 1);
       }
-      const itemsIndex = this.items.findIndex((d) => d.name === index.name);
+      const itemsIndex = this.items.findIndex((d) => d.name === index.name && d.id === index.id);
       if (itemsIndex !== -1) {
         this.items.splice(itemsIndex, 1);
       }
