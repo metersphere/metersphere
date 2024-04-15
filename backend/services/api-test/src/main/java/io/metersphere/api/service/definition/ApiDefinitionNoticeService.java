@@ -36,6 +36,8 @@ public class ApiDefinitionNoticeService {
 
     public ApiDefinitionCaseDTO getUpdateApiDTO(ApiDefinitionUpdateRequest request) {
         ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        BeanUtils.copyBean(caseDTO, apiDefinition);
         BeanUtils.copyBean(caseDTO, request);
         return caseDTO;
     }
