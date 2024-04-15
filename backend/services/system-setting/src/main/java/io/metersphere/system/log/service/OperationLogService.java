@@ -12,7 +12,7 @@ import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.vo.OperationLogRequest;
+import io.metersphere.system.log.vo.SystemOperationLogRequest;
 import io.metersphere.system.log.vo.OperationLogResponse;
 import io.metersphere.system.mapper.*;
 import jakarta.annotation.Resource;
@@ -90,7 +90,7 @@ public class OperationLogService {
         operationLogBlobMapper.insert(getBlob(log));
     }
 
-    public List<OperationLogResponse> list(OperationLogRequest request) {
+    public List<OperationLogResponse> list(SystemOperationLogRequest request) {
         int compare = Long.compare(request.getStartTime(), request.getEndTime());
         if (compare > 0) {
             throw new MSException(Translator.get("startTime_must_be_less_than_endTime"));

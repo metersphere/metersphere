@@ -1,9 +1,9 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.log.vo.OperationLogRequest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;
+import io.metersphere.system.log.vo.OrgOperationLogRequest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Arrays;
 import java.util.HashMap;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrganizationLogControllerTests extends BaseTest {
@@ -41,14 +41,14 @@ public class OrganizationLogControllerTests extends BaseTest {
     @Order(2)
     public void testOrganizationUserList() throws Exception {
         String keyword = "o";
-        this.requestGetWithOkAndReturn(ORGANIZATION_USER_LIST+ "/organization_id_001" + "?keyword=" + keyword);
+        this.requestGetWithOkAndReturn(ORGANIZATION_USER_LIST + "/organization_id_001" + "?keyword=" + keyword);
     }
 
 
     @Test
     @Order(3)
     public void testOrganizationLogList() throws Exception {
-        OperationLogRequest request = buildParam(ORGANIZATION);
+        OrgOperationLogRequest request = buildParam(ORGANIZATION);
         //项目级别 全部
         this.requestPostWithOkAndReturn(ORGANIZATION_LOG_LIST, request);
 
@@ -57,7 +57,6 @@ public class OrganizationLogControllerTests extends BaseTest {
         request.setType("add");
         request.setModule("SYSTEM_PARAMETER_SETTING");
         request.setContent("认证配置");
-        request.setOrganizationIds(Arrays.asList("organization_id_001", "organization_id_002"));
         this.requestPostWithOkAndReturn(ORGANIZATION_LOG_LIST, request);
 
         //项目级别 指定项目查询
@@ -74,8 +73,8 @@ public class OrganizationLogControllerTests extends BaseTest {
 
     }
 
-    private OperationLogRequest buildParam(String level) {
-        OperationLogRequest request = new OperationLogRequest();
+    private OrgOperationLogRequest buildParam(String level) {
+        OrgOperationLogRequest request = new OrgOperationLogRequest();
         request.setCurrent(1);
         request.setPageSize(10);
         request.setStartTime(1689131059000l);

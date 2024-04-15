@@ -3,7 +3,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.log.vo.OperationLogRequest;
+import io.metersphere.system.log.vo.ProOperationLogRequest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -11,10 +11,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ProjectLogControllerTests extends BaseTest {
@@ -34,7 +33,7 @@ public class ProjectLogControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testProjectLogList() throws Exception {
-        OperationLogRequest request = buildParam(PROJECT);
+        ProOperationLogRequest request = buildParam(PROJECT);
         //项目级别 全部
         this.requestPostWithOkAndReturn(PROJECT_LOG_LIST, request);
 
@@ -43,7 +42,6 @@ public class ProjectLogControllerTests extends BaseTest {
         request.setType("add");
         request.setModule("SYSTEM_PARAMETER_SETTING");
         request.setContent("认证配置");
-        request.setProjectIds(Arrays.asList("project_id_001", "project_id_002"));
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
@@ -54,8 +52,8 @@ public class ProjectLogControllerTests extends BaseTest {
     }
 
 
-    private OperationLogRequest buildParam(String level) {
-        OperationLogRequest request = new OperationLogRequest();
+    private ProOperationLogRequest buildParam(String level) {
+        ProOperationLogRequest request = new ProOperationLogRequest();
         request.setCurrent(1);
         request.setPageSize(10);
         request.setStartTime(1689131059000l);
