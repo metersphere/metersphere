@@ -610,9 +610,7 @@
     }
   }
 
-  onMounted(async () => {
-    await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
-  });
+  await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
 </script>
 
 <style scoped></style>

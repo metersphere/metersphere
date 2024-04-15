@@ -14,4 +14,5 @@ export default {
   'system.authorized.license': 'License',
   'system.authorized.licenseCode': 'License Code',
   'system.authorized.licenseSuccessTip': 'Authorized Successfully！',
+  'system.authorized.LicenseIsRequired': 'License Code is required',
 };

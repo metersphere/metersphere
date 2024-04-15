@@ -14,4 +14,5 @@ export default {
   'system.authorized.license': 'License',
   'system.authorized.licenseCode': 'License Code',
   'system.authorized.licenseSuccessTip': '授权成功',
+  'system.authorized.LicenseIsRequired': 'License Code 是必填项',
 };
