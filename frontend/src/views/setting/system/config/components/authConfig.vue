@@ -577,6 +577,7 @@
             v-model:model-value="LDAPForm.password"
             :placeholder="t('system.config.auth.testLoginPasswordPlaceholder')"
             autocomplete="new-password"
+            :max-length="64"
           />
         </a-form-item>
       </a-form>
