@@ -188,6 +188,8 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiScenarioNoticeService apiScenarioNoticeService;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -2667,6 +2669,7 @@ public class ApiScenarioService extends MoveNodeService {
                 .resourceType(ScheduleResourceType.API_SCENARIO.name())
                 .config(JSON.toJSONString(scheduleRequest.getConfig()))
                 .build();
+        apiScenarioNoticeService.sendScheduleNotice(scheduleRequest, operator);
 
         return scheduleService.scheduleConfig(
                 scheduleConfig,
