@@ -7,7 +7,7 @@ import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseDemandService;
-import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLog;

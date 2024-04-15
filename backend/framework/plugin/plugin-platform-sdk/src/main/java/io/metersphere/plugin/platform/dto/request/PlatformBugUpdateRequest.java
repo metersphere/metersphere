@@ -1,7 +1,7 @@
 package io.metersphere.plugin.platform.dto.request;
 
-import io.metersphere.plugin.platform.dto.reponse.PlatformBugDTO;
-import io.metersphere.plugin.platform.dto.reponse.PlatformStatusDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformBugDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
 

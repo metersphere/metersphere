@@ -2,10 +2,10 @@ package io.metersphere.plugin.platform.spi;
 
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
-import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
-import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
-import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
 import io.metersphere.plugin.platform.dto.request.*;
+import io.metersphere.plugin.platform.dto.response.PlatformBugUpdateDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformCustomFieldItemDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import org.pf4j.ExtensionPoint;
 
