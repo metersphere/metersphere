@@ -314,11 +314,12 @@
         {{ t('apiTestManagement.timeTaskList') }}
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('apiTestManagement.searchPlaceholder')"
+          :placeholder="t('apiTestManagement.searchTaskPlaceholder')"
           allow-clear
           class="mr-[8px] w-[240px]"
           @search="loadTaskList"
           @press-enter="loadTaskList"
+          @clear="loadTaskList"
         />
       </div>
       <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
@@ -437,7 +438,7 @@
     { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
     { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
   ];
-  const cronValue = ref('0 0 0/1 * * ? ');
+  const cronValue = ref('0 0 0/1 * * ?');
   const importLoading = ref(false);
   const taskDrawerVisible = ref(false);
 

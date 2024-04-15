@@ -419,14 +419,9 @@
   .arco-checkbox-icon {
     border: 1px solid var(--color-text-input-border);
   }
-  &:hover {
-    .arco-checkbox-icon-hover::before {
-      background-color: rgb(var(--primary-9)) !important;
-    }
-  }
   .arco-checkbox-icon-hover {
     &:hover::before {
-      background-color: rgb(var(--primary-9)) !important;
+      @apply hidden;
     }
   }
 }

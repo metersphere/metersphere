@@ -4,7 +4,7 @@
     :popup-visible="currentVisible"
     position="bl"
     trigger="click"
-    class="w-[277px]"
+    class="w-[350px]"
     :content-class="props.id ? 'move-left' : ''"
   >
     <template #content>
@@ -18,13 +18,12 @@
             :label-col-props="{ span: 0 }"
             :wrapper-col-props="{ span: 24 }"
           >
-            <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{
-              props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
-            }}</div>
+            <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">
+              {{ props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup') }}
+            </div>
             <a-form-item field="name" :rules="[{ validator: validateName }]">
               <a-input
                 v-model="form.name"
-                class="w-[243px]"
                 :max-length="255"
                 :placeholder="t('system.userGroup.searchHolder')"
                 allow-clear
@@ -107,7 +106,7 @@
           callback(t('system.userGroup.userGroupNameIsExist', { name: value }));
         }
       }
-      if (value.length === 255) {
+      if (value.length > 255) {
         callback(t('common.nameIsTooLang'));
       }
       callback();

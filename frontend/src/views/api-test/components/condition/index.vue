@@ -17,10 +17,10 @@
       <slot name="titleRight"></slot>
     </div>
   </div>
-  <div v-if="data.length > 0 && activeItem" class="flex h-[calc(100%-40px)] w-full gap-[8px]">
+  <div v-if="list.length > 0 && activeItem" class="flex h-[calc(100%-40px)] w-full gap-[8px]">
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
-        v-model:list="data"
+        v-model:list="list"
         :disabled="props.disabled"
         :active-id="activeItemId"
         :show-associated-scene="props.showAssociatedScene"
@@ -32,7 +32,7 @@
     <conditionContent
       v-model:data="activeItem"
       :disabled="props.disabled"
-      :total-list="data"
+      :total-list="list"
       :response="props.response"
       :height-used="props.heightUsed"
       :show-associated-scene="props.showAssociatedScene"
@@ -57,12 +57,11 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ConditionType, ExecuteConditionProcessor, RegexExtract } from '@/models/apiTest/common';
-  import { RequestConditionProcessor, RequestExtractExpressionEnum, RequestExtractScope } from '@/enums/apiEnum';
+  import { RequestConditionProcessor, RequestExtractScope } from '@/enums/apiEnum';
 
   const props = withDefaults(
     defineProps<{
       disabled?: boolean;
-      list: ExecuteConditionProcessor[];
       conditionTypes: Array<ConditionType>;
       addText: string;
       requestRadioTextProps?: Record<string, any>;
@@ -77,16 +76,15 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:list', list: ExecuteConditionProcessor[]): void;
     (e: 'change'): void;
   }>();
 
   const { t } = useI18n();
 
-  const data = defineModel<ExecuteConditionProcessor[]>('list', {
+  const list = defineModel<ExecuteConditionProcessor[]>('list', {
     required: true,
   });
-  const activeItem = ref<ExecuteConditionProcessor>(data.value[0]);
+  const activeItem = ref<ExecuteConditionProcessor>(list.value[0]);
   const activeItemId = computed(() => activeItem.value?.id);
 
   function handleListActiveChange(item: ExecuteConditionProcessor) {
@@ -101,8 +99,8 @@
       ...cloneDeep(activeItem.value),
       id: new Date().getTime(),
     };
-    data.value.push(copyItem as ExecuteConditionProcessor);
-    activeItem.value = copyItem as ExecuteConditionProcessor;
+    list.value.push(copyItem as ExecuteConditionProcessor);
+    activeItem.value = list.value[list.value.length - 1];
     emit('change');
   }
 
@@ -110,9 +108,9 @@
    * 删除列表项
    */
   function deleteListItem(id: string | number) {
-    data.value = data.value.filter((precondition) => precondition.id !== activeItemId.value);
+    list.value = list.value.filter((precondition) => precondition.id !== activeItemId.value);
     if (activeItemId.value === id) {
-      [activeItem.value] = data.value;
+      [activeItem.value] = list.value;
     }
     emit('change');
   }
@@ -131,10 +129,10 @@
         } else if (props.showPrePostRequest) {
           type = RequestConditionProcessor.REQUEST_SCRIPT;
         }
-        const isExistPre = data.value.filter(
+        const isExistPre = list.value.filter(
           (item) => item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
         ).length;
-        const isExistPost = data.value.filter(
+        const isExistPost = list.value.filter(
           (item) => !item.beforeStepScript && item.processorType === RequestConditionProcessor.REQUEST_SCRIPT
         ).length;
         // 如果是场景或者是请求类型的 需要限制前后脚本类型只能为一前一后
@@ -142,7 +140,7 @@
         if (isExistPre && isExistPost && props.showPrePostRequest) {
           return;
         }
-        data.value.push({
+        list.value.push({
           id,
           processorType: type,
           name: t('apiTestDebug.preconditionScriptName'),
@@ -165,12 +163,12 @@
 
         break;
       case RequestConditionProcessor.SQL:
-        const isSQL = data.value.find((item) => item.processorType === RequestConditionProcessor.SQL);
+        const isSQL = list.value.find((item) => item.processorType === RequestConditionProcessor.SQL);
 
         if (props.showPrePostRequest && isSQL) {
           return;
         }
-        data.value.push({
+        list.value.push({
           id,
           processorType: RequestConditionProcessor.SQL,
           enableCommonScript: false,
@@ -189,7 +187,7 @@
 
         break;
       case RequestConditionProcessor.TIME_WAITING:
-        data.value.push({
+        list.value.push({
           id,
           processorType: RequestConditionProcessor.TIME_WAITING,
           associateScenarioResult: false,
@@ -200,11 +198,11 @@
         });
         break;
       case RequestConditionProcessor.EXTRACT:
-        const isEXTRACT = data.value.find((item) => item.processorType === RequestConditionProcessor.EXTRACT);
+        const isEXTRACT = list.value.find((item) => item.processorType === RequestConditionProcessor.EXTRACT);
         if (isEXTRACT) {
           return;
         }
-        data.value.push({
+        list.value.push({
           id,
           processorType: RequestConditionProcessor.EXTRACT,
           enableCommonScript: false,
@@ -218,14 +216,14 @@
       default:
         break;
     }
-    activeItem.value = data.value[data.value.length - 1];
+    activeItem.value = list.value[list.value.length - 1];
     emit('change');
   }
 
   watchEffect(() => {
     // 后台存储无id，渲染时需要手动添加一次
     let hasNoIdItem = false;
-    const tempArr = props.list.map((item, i) => {
+    const tempArr = list.value.map((item, i) => {
       if (!item.id) {
         hasNoIdItem = true;
         return {
@@ -241,8 +239,8 @@
       return item;
     });
     if (hasNoIdItem) {
-      data.value = tempArr.map((e) => e);
-      [activeItem.value] = data.value;
+      list.value = tempArr;
+      [activeItem.value] = list.value;
     }
   });
 

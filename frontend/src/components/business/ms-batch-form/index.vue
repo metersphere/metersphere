@@ -62,7 +62,7 @@
                 @change="emit('change')"
               />
               <a-input-number
-                v-if="model.type === 'inputNumber'"
+                v-else-if="model.type === 'inputNumber'"
                 v-model:model-value="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
@@ -73,7 +73,7 @@
                 @change="emit('change')"
               />
               <MsTagsInput
-                v-if="model.type === 'tagInput'"
+                v-else-if="model.type === 'tagInput'"
                 v-model:model-value="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || 'common.tagPlaceholder')"
@@ -84,7 +84,7 @@
                 @change="emit('change')"
               />
               <a-select
-                v-if="model.type === 'select'"
+                v-else-if="model.type === 'select'"
                 v-model="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
@@ -92,7 +92,7 @@
                 :field-names="model.filedNames"
                 @change="emit('change')"
               />
-              <div v-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
+              <div v-else-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
                 <a-form-item
                   v-for="(child, childIndex) in model.children"
                   :key="`${child.filed}${childIndex}${index}`"
@@ -114,7 +114,7 @@
                     @change="emit('change')"
                   />
                   <a-select
-                    v-if="child.type === 'select'"
+                    v-else-if="child.type === 'select'"
                     v-model="element[child.filed]"
                     :class="child.className"
                     :placeholder="t(child.placeholder || '')"

@@ -838,10 +838,12 @@
           }
           return item;
         });
+        const lastTwoIsSame =
+          arr.length >= 2 && filterKeyValParams([arr[arr.length - 2]], arr[arr.length - 1]).lastDataIsDefault;
         if (
           !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
           !props.isTreeTable &&
-          !filterKeyValParams([arr[arr.length - 2], arr[arr.length - 1]], arr[arr.length - 1]).lastDataIsDefault // 为了判断最后俩行是否一致（因为下拉框切换会新增一行一样的数据，此时最后一条数据与默认数据是不一样的）
+          !lastTwoIsSame // 为了判断最后俩行是否一致（因为下拉框切换会新增一行一样的数据，此时最后一条数据与默认数据是不一样的）
         ) {
           addTableLine(arr.length - 1, false, true);
         }

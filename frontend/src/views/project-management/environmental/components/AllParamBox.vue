@@ -20,7 +20,6 @@
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
 
-  import AllPrams from './allParams/index.vue';
   import RequestHeader from './requestHeader/index.vue';
 
   import { updateOrAddGlobalParam } from '@/api/modules/project-management/envManagement';
@@ -38,8 +37,8 @@
   const headerParams = ref<EnvConfigItem[]>([]);
   const GlobalVariable = ref<EnvConfigItem[]>([]);
   const { t } = useI18n();
-  const { setState } = useLeaveUnSaveTip();
-  setState(true);
+  const { setIsSave } = useLeaveUnSaveTip();
+  setIsSave(true);
   const canSave = ref(false);
 
   const loading = ref(false);
@@ -64,7 +63,7 @@
 
   function change() {
     canSave.value = true;
-    setState(false);
+    setIsSave(false);
   }
   const handleSave = async () => {
     try {
@@ -85,7 +84,7 @@
         },
       };
       await updateOrAddGlobalParam(params);
-      setState(true);
+      setIsSave(true);
       Message.success(t('common.saveSuccess'));
       canSave.value = false;
       initEnvDetail();

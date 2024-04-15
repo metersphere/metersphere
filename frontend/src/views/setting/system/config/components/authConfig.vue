@@ -5,6 +5,15 @@
         <a-button v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+ADD']" type="primary" @click="createAuth">
           {{ t('system.config.auth.add') }}
         </a-button>
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('system.config.auth.searchTip')"
+          class="w-[230px]"
+          allow-clear
+          @search="searchAuth"
+          @press-enter="searchAuth"
+          @clear="searchAuth"
+        />
       </div>
       <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
         <template #name="{ record }">
@@ -684,7 +693,7 @@
     },
   ];
   const tableStore = useTableStore();
-  const { propsRes, propsEvent, loadList } = useTable(getAuthList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getAuthList, {
     tableKey: TableKeyEnum.SYSTEM_AUTH,
     columns,
     scroll: { y: 'auto' },
@@ -695,6 +704,15 @@
   onBeforeMount(() => {
     loadList();
   });
+
+  const keyword = ref('');
+
+  function searchAuth() {
+    setLoadListParams({
+      keyword: keyword.value,
+    });
+    loadList();
+  }
 
   /**
    * 启用认证源

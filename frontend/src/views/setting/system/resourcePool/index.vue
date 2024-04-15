@@ -287,6 +287,12 @@
     try {
       const res = await getPoolInfo(id);
       if (res) {
+        if (res.deleted) {
+          Message.warning(t('common.resourceDeleted'));
+          drawerLoading.value = false;
+          showDetailDrawer.value = false;
+          return;
+        }
         activePool.value = res;
         const poolUses = [
           activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',

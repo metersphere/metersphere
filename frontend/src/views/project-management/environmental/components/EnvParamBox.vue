@@ -101,8 +101,8 @@
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
-  const { setState } = useLeaveUnSaveTip();
-  setState(false);
+  const { setIsSave } = useLeaveUnSaveTip();
+  setIsSave(false);
   const emit = defineEmits<{
     (e: 'ok', envId: string | undefined): void;
     (e: 'resetEnv'): void;
@@ -231,7 +231,7 @@
     loading.value = true;
     store.currentEnvDetailInfo.mock = true;
     await updateOrAddEnv({ fileList: [], request: getParameters() });
-    setState(true);
+    setIsSave(true);
 
     Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
     emit('ok', store.currentEnvDetailInfo.id);

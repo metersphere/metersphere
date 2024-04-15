@@ -5,7 +5,7 @@
     <a-form-item
       field="name"
       :label="t('apiTestManagement.apiName')"
-      class="mb-[16px] w-[80%]"
+      class="mb-[16px] w-[60%]"
       :rules="[{ required: true, message: t('apiTestManagement.apiNameRequired') }]"
     >
       <a-input
@@ -16,7 +16,7 @@
         @change="handleActiveApiChange"
       />
     </a-form-item>
-    <a-form-item :label="t('common.desc')" class="mb-[16px] w-[80%]">
+    <a-form-item :label="t('common.desc')" class="mb-[16px] w-[60%]">
       <a-textarea v-model:model-value="requestVModel.description" :max-length="1000" @change="handleActiveApiChange" />
     </a-form-item>
     <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px] w-[436px]">

@@ -26,22 +26,3 @@ export interface FormItemModel {
   defaultValue?: string | string[] | number | number[] | boolean; // 默认值
   hasRedStar?: boolean; // 是否有红星
 }
-
-declare const _default: import('vue').DefineComponent<
-  {
-    models: FormItemModel[];
-    formMode: FormMode;
-    addText: string;
-    maxHeight?: string;
-    defaultVals?: Record<string, string[] | string>; // 当外层是编辑状态时，可传入已填充的数据
-  },
-  unknown,
-  import('vue').ComponentOptionsMixin,
-  import('vue').ComponentOptionsMixin,
-  {
-    formValidate: (cb: (res?: Record<string, any>) => void, isSubmit = true) => void;
-    getFormResult: <T>() => T[];
-  }
->;
-
-export declare type MsBatchFormInstance = InstanceType<typeof _default>;

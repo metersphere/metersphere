@@ -13,10 +13,10 @@
     </a-tooltip>
     <div ref="tabNav" class="ms-editable-tab-nav">
       <div
-        v-for="tab in props.tabs"
+        v-for="tab in tabs"
         :key="tab.id"
         class="ms-editable-tab"
-        :class="{ active: innerActiveTab?.id === tab.id }"
+        :class="{ active: activeTab?.id === tab.id }"
         @click="handleTabClick(tab)"
       >
         <div :draggable="!!tab.draggable" class="flex items-center">
@@ -29,7 +29,7 @@
           </slot>
           <div v-if="tab.unSaved" class="ml-[8px] h-[8px] w-[8px] rounded-full bg-[rgb(var(--primary-5))]"></div>
           <MsButton
-            v-if="props.atLeastOne ? props.tabs.length > 1 && tab.closable : tab.closable !== false"
+            v-if="props.atLeastOne ? tabs.length > 1 && tab.closable : tab.closable !== false"
             type="icon"
             status="secondary"
             class="ms-editable-tab-close-button"
@@ -54,20 +54,20 @@
     <a-tooltip
       v-if="!props.readonly && showAdd"
       :content="t('ms.editableTab.limitTip', { max: props.limit })"
-      :disabled="!props.limit || props.tabs.length >= props.limit"
+      :disabled="!props.limit || tabs.length >= props.limit"
     >
       <MsButton
         type="icon"
         status="secondary"
         class="ms-editable-tab-button !mr-[4px]"
-        :disabled="!!props.limit && props.tabs.length >= props.limit"
+        :disabled="!!props.limit && tabs.length >= props.limit"
         @click="addTab"
       >
         <MsIcon type="icon-icon_add_outlined" />
       </MsButton>
     </a-tooltip>
     <MsMoreAction
-      v-if="!props.hideMoreAction && !props.readonly"
+      v-if="!props.hideMoreAction && !props.readonly && mergedMoreActionList.length > 0"
       :list="mergedMoreActionList"
       @select="handleMoreActionSelect"
     >
@@ -95,8 +95,6 @@
 
   const props = withDefaults(
     defineProps<{
-      tabs: TabItem[];
-      activeTab?: TabItem;
       moreActionList?: ActionsItem[];
       showAdd?: boolean; // 是否展示增加tab按钮
       limit?: number; // 最多可打开的tab数量
@@ -109,8 +107,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:tabs', tabs: TabItem[]): void;
-    (e: 'update:activeTab', activeTab: TabItem): void;
     (e: 'add'): void;
     (e: 'close', item: TabItem): void;
     (e: 'change', item: TabItem): void;
@@ -120,8 +116,12 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const innerActiveTab = useVModel(props, 'activeTab', emit);
-  const innerTabs = useVModel(props, 'tabs', emit);
+  const activeTab = defineModel<TabItem | undefined>('activeTab', {
+    default: undefined,
+  });
+  const tabs = defineModel<TabItem[]>('tabs', {
+    required: true,
+  });
   const tabNav = ref<HTMLElement>();
   const { arrivedState } = useScroll(tabNav);
   const isNotOverflow = computed(() => arrivedState.left && arrivedState.right); // 内容是否溢出，用于判断左右滑动按钮是否展示
@@ -178,6 +178,9 @@
     const dl = props.atLeastOne
       ? defaultMoreActionList.filter((e) => e.eventTag !== 'closeAll')
       : defaultMoreActionList;
+    if (tabs.value.filter((item) => item.closable === true).length === 0) {
+      return props.moreActionList ? [...props.moreActionList] : [];
+    }
     return props.moreActionList ? [...dl, ...props.moreActionList] : dl;
   });
 
@@ -185,9 +188,9 @@
    * 监听激活的tab变化，滚动到激活的tab
    */
   watch(
-    () => props.activeTab,
+    () => activeTab.value,
     () => {
-      useDraggable('.ms-editable-tab-nav', innerTabs, {
+      useDraggable('.ms-editable-tab-nav', tabs, {
         ghostClass: 'ms-editable-tab-ghost',
       });
       nextTick(() => {
@@ -211,11 +214,11 @@
    * 关闭一个tab
    */
   function closeOneTab(item: TabItem) {
-    const index = innerTabs.value.findIndex((e) => e.id === item.id);
-    innerTabs.value.splice(index, 1);
-    if (innerActiveTab.value?.id === item.id && innerTabs.value[0]) {
-      [innerActiveTab.value] = innerTabs.value;
-      emit('change', innerTabs.value[0]);
+    const index = tabs.value.findIndex((e) => e.id === item.id);
+    tabs.value.splice(index, 1);
+    if (activeTab.value?.id === item.id && tabs.value[0]) {
+      [activeTab.value] = tabs.value;
+      emit('change', tabs.value[0]);
     }
   }
 
@@ -241,8 +244,8 @@
   }
 
   function handleTabClick(item: TabItem) {
-    if (innerActiveTab.value?.id !== item.id) {
-      innerActiveTab.value = item;
+    if (activeTab.value?.id !== item.id) {
+      activeTab.value = item;
       nextTick(() => {
         tabNav.value?.querySelector('.tab.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -256,14 +259,12 @@
   function executeAction(event: ActionsItem) {
     switch (event.eventTag) {
       case 'closeAll':
-        innerTabs.value = innerTabs.value.filter((item) => item.closable === false);
-        [innerActiveTab.value] = innerTabs.value;
-        emit('change', innerActiveTab.value);
+        tabs.value = tabs.value.filter((item) => item.closable === false);
+        [activeTab.value] = tabs.value;
+        emit('change', activeTab.value);
         break;
       case 'closeOther':
-        innerTabs.value = innerTabs.value.filter(
-          (item) => item.id === innerActiveTab.value?.id || item.closable === false
-        );
+        tabs.value = tabs.value.filter((item) => item.id === activeTab.value?.id || item.closable === false);
         break;
       default:
         emit('moreActionSelect', event);
@@ -276,9 +277,8 @@
    */
   function handleMoreActionSelect(event: ActionsItem) {
     if (
-      (event.eventTag === 'closeAll' && innerTabs.value.some((item) => item.unSaved)) ||
-      (event.eventTag === 'closeOther' &&
-        innerTabs.value.some((item) => item.unSaved && item.id !== innerActiveTab.value?.id))
+      (event.eventTag === 'closeAll' && tabs.value.some((item) => item.unSaved)) ||
+      (event.eventTag === 'closeOther' && tabs.value.some((item) => item.unSaved && item.id !== activeTab.value?.id))
     ) {
       openModal({
         title: t('common.tip'),

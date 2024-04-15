@@ -145,7 +145,7 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" :disabled="loading" @click="cancelCreate">
+      <a-button type="secondary" :disabled="loading" @click="handleBeforeClose">
         {{ t('system.user.editUserModalCancelCreate') }}
       </a-button>
       <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">
@@ -302,7 +302,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
-  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import type { FormItemModel } from '@/components/business/ms-batch-form/types';
   import MsSelect from '@/components/business/ms-select';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
@@ -816,7 +816,7 @@
     }
   }
 
-  const batchFormRef = ref<MsBatchFormInstance | null>(null);
+  const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
       filed: 'name',
@@ -933,7 +933,7 @@
     } else {
       Message.success(t('system.user.addUserSuccess'));
       if (!isContinue) {
-        visible.value = false;
+        cancelCreate();
       }
       loadList();
     }
@@ -981,6 +981,7 @@
     userFormValidate(async () => {
       await createUser(true);
       resetUserForm();
+      batchFormRef.value?.resetForm();
     });
   }
 

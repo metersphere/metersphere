@@ -10,11 +10,10 @@
 <script lang="ts" setup>
   import { useRouter } from 'vue-router';
 
-  import { WorkbenchRouteEnum } from '@/enums/routeEnum';
+  import { getFirstRouteNameByPermission } from '@/utils/permission';
 
   const router = useRouter();
   const back = () => {
-    // warning： Go to the node that has the permission
-    router.push({ name: WorkbenchRouteEnum.WORKBENCH });
+    router.push({ name: getFirstRouteNameByPermission(router.getRoutes()) });
   };
 </script>

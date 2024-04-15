@@ -1,5 +1,5 @@
 <template>
-  <MsCard :min-width="1100" simple has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
+  <MsCard :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
         <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">

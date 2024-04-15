@@ -277,22 +277,24 @@
     const { url, headers, queryParameters } = parseCurlScript(curlCode.value);
     addDebugTab({
       url,
-      headers: headers?.map((e) => ({
-        contentType: RequestContentTypeEnum.TEXT,
-        description: '',
-        enable: true,
-        ...e,
-      })),
-      query: queryParameters?.map((e) => ({
-        paramType: RequestParamsType.STRING,
-        description: '',
-        required: false,
-        maxLength: undefined,
-        minLength: undefined,
-        encode: false,
-        enable: true,
-        ...e,
-      })),
+      headers:
+        headers?.map((e) => ({
+          contentType: RequestContentTypeEnum.TEXT,
+          description: '',
+          enable: true,
+          ...e,
+        })) || [],
+      query:
+        queryParameters?.map((e) => ({
+          paramType: RequestParamsType.STRING,
+          description: '',
+          required: false,
+          maxLength: undefined,
+          minLength: undefined,
+          encode: false,
+          enable: true,
+          ...e,
+        })) || [],
     });
     curlCode.value = '';
     importDrawerVisible.value = false;

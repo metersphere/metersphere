@@ -113,7 +113,7 @@
             </a-tooltip>
           </template>
           <template #caseLevel="{ record }">
-            <span>{{ t(record.priority) }}</span>
+            <caseLevel :case-level="getCaseLevel(record)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -168,6 +168,7 @@
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
+  import type { CaseLevel } from './types';
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
 
   const router = useRouter();
@@ -328,7 +329,8 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 200,
+      width: 150,
+      fixed: 'left',
     },
     {
       title: 'ms.case.associate.caseName',
@@ -338,7 +340,7 @@
         sorter: true,
       },
       showTooltip: true,
-      width: 300,
+      width: 250,
     },
     {
       title: 'ms.case.associate.caseLevel',
@@ -357,6 +359,7 @@
     props.getTableFunc,
     {
       columns,
+      scroll: { x: '100%' },
       showSetting: false,
       selectable: true,
       showSelectAll: true,
@@ -374,6 +377,11 @@
       };
     }
   );
+
+  // 用例等级
+  function getCaseLevel(record: CaseManagementTable) {
+    return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
+  }
 
   const searchParams = ref<TableQueryParams>({
     moduleIds: [],

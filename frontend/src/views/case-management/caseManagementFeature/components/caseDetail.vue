@@ -49,12 +49,12 @@
 
   import Message from '@arco-design/web-vue/es/message';
 
-  const { setState } = useLeaveUnSaveTip();
+  const { setIsSave } = useLeaveUnSaveTip();
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
 
-  setState(false);
+  setIsSave(false);
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -87,7 +87,7 @@
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
           query: { orgId: route.query.orgId, pId: route.query.pId },
         });
-        setState(true);
+        setIsSave(true);
         // 创建用例
       } else {
         // 创建并关联
@@ -104,7 +104,7 @@
         isShowTip.value = !getIsVisited();
         if (isReview) {
           Message.success(t('caseManagement.featureCase.createAndLinkSuccess'));
-          setState(true);
+          setIsSave(true);
           router.back();
           return;
         }
@@ -126,7 +126,7 @@
             },
           });
         }
-        setState(true);
+        setIsSave(true);
       }
     } catch (error) {
       // eslint-disable-next-line no-console

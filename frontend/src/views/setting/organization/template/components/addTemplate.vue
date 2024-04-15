@@ -267,9 +267,9 @@
   const currentOrgId = computed(() => appStore.currentOrgId);
   const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const { setState } = useLeaveUnSaveTip();
+  const { setIsSave } = useLeaveUnSaveTip();
 
-  setState(false);
+  setIsSave(false);
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
@@ -405,7 +405,7 @@
           router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT, query: route.query });
         }
 
-        setState(true);
+        setIsSave(true);
       }
     } catch (error) {
       console.log(error);
@@ -834,7 +834,6 @@
       background: var(--color-text-n9);
     }
   }
-
   :deep(.arco-form-item-layout-vertical > .arco-form-item-label-col) {
     overflow-wrap: break-word;
   }
