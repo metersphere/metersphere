@@ -13,10 +13,10 @@ import io.metersphere.bug.mapper.*;
 import io.metersphere.bug.utils.ExportUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
-import io.metersphere.plugin.platform.dto.reponse.PlatformBugDTO;
-import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
-import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
 import io.metersphere.plugin.platform.dto.request.*;
+import io.metersphere.plugin.platform.dto.response.PlatformBugDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformBugUpdateDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformCustomFieldItemDTO;
 import io.metersphere.plugin.platform.enums.PlatformCustomFieldType;
 import io.metersphere.plugin.platform.enums.SyncAttachmentType;
 import io.metersphere.plugin.platform.spi.Platform;
@@ -836,10 +836,10 @@ public class BugService {
             bugContent.setDescription(StringUtils.isEmpty(request.getDescription()) ? StringUtils.EMPTY : request.getDescription());
             bugContentMapper.insert(bugContent);
         } else {
-            Bug orignalBug = checkBugExist(request.getId());
+            Bug originalBug = checkBugExist(request.getId());
             // 追加处理人
-            if (!StringUtils.equals(orignalBug.getHandleUser(), bug.getHandleUser())) {
-                bug.setHandleUsers(orignalBug.getHandleUsers() + "," + bug.getHandleUser());
+            if (!StringUtils.equals(originalBug.getHandleUser(), bug.getHandleUser())) {
+                bug.setHandleUsers(originalBug.getHandleUsers() + "," + bug.getHandleUser());
             }
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());

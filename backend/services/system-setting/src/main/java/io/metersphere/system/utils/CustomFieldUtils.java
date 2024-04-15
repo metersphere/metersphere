@@ -96,10 +96,10 @@ public class CustomFieldUtils {
         if (StringUtils.isEmpty(originalVal)) {
             return appendVal;
         }
-        List<String> orignalList = JSON.parseArray(originalVal, String.class);
+        List<String> originalList = JSON.parseArray(originalVal, String.class);
         List<String> appendList = JSON.parseArray(appendVal, String.class);
-        orignalList.addAll(appendList);
+        originalList.addAll(appendList);
         // 追加后需去重
-        return JSON.toJSONString(orignalList.stream().distinct().toList());
+        return JSON.toJSONString(originalList.stream().distinct().toList());
     }
 }

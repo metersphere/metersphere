@@ -1,7 +1,7 @@
 package io.metersphere.plugin.platform.dto.request;
 
 import io.metersphere.plugin.platform.dto.PlatformAttachment;
-import io.metersphere.plugin.platform.dto.reponse.PlatformBugDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformBugDTO;
 import lombok.Data;
 
 import java.util.List;

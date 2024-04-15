@@ -1,4 +1,4 @@
-package io.metersphere.plugin.platform.dto.reponse;
+package io.metersphere.plugin.platform.dto.response;
 
 import lombok.Data;
 

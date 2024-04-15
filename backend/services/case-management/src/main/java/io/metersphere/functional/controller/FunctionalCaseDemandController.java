@@ -9,7 +9,7 @@ import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
 import io.metersphere.functional.service.FunctionalCaseDemandService;
 import io.metersphere.functional.service.FunctionalCaseLogService;
-import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
+import io.metersphere.plugin.platform.dto.response.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;

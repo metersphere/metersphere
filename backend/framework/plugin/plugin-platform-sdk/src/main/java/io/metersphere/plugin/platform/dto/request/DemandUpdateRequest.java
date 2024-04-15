@@ -1,6 +1,6 @@
 package io.metersphere.plugin.platform.dto.request;
 
-import io.metersphere.plugin.platform.dto.reponse.TestCaseDemandDTO;
+import io.metersphere.plugin.platform.dto.response.TestCaseDemandDTO;
 import lombok.Getter;
 import lombok.Setter;
 
