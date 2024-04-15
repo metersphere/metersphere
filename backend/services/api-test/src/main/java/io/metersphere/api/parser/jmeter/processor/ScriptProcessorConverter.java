@@ -4,6 +4,7 @@ import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
+import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.constants.ElementProperty;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.KeyValueParam;
@@ -92,7 +93,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
 
         Arguments arguments = JmeterTestElementParserHelper.getArguments(scriptProcessor.getName());
         for (KeyValueParam param : params) {
-            arguments.addArgument(param.getKey(), param.getValue(), "=");
+            arguments.addArgument(param.getKey(), Mock.buildFunctionCallString(param.getValue()), "=");
         }
         return arguments;
     }
