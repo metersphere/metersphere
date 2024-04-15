@@ -116,7 +116,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
             protocol = ApiConstants.HTTP_PROTOCOL;
         } else {
             if (config instanceof ApiParamConfig apiParamConfig) {
-                protocol = apiParamConfig.getTestElementClassProtocalMap().get(parent.getClass());
+                protocol = apiParamConfig.getTestElementClassProtocolMap().get(parent.getClass());
             }
         }
 

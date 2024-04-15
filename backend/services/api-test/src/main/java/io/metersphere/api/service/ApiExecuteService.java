@@ -521,7 +521,7 @@ public class ApiExecuteService {
     public ApiParamConfig getApiParamConfig(String reportId) {
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
-        paramConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
+        paramConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());
         paramConfig.setReportId(reportId);
         return paramConfig;
     }

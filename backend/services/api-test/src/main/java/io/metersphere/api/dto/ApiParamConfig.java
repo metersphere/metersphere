@@ -43,7 +43,7 @@ public class ApiParamConfig extends ParameterConfig {
      * value 为对应的接口协议
      * 环境前后置忽略协议需要使用
      */
-    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassProtocalMap = HashMap.newHashMap(0);
+    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassProtocolMap = HashMap.newHashMap(0);
 
 
     @Override
