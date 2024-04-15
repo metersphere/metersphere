@@ -33,7 +33,7 @@ public class ProcessResultDTO {
     private String lastScriptIdentifier;
 
     public void computerTotal() {
-        this.total = this.pendingCount + this.errorCount + this.successCount;
+        this.total = this.pendingCount + this.errorCount + this.successCount + this.fakeErrorCount;
     }
 
     public void computerFakeError(long fakeErrorCount) {

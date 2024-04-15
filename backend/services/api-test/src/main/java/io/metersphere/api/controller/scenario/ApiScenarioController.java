@@ -207,7 +207,6 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#request.getScenarioId())", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#request.getScenarioId()", resourceType = "api_scenario")
-    @SendNotice(taskType = NoticeConstants.TaskType.SCHEDULE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScheduleNotice(#request)", targetClass = ApiScenarioNoticeService.class)
     public String scheduleConfig(@Validated @RequestBody ApiScenarioScheduleConfigRequest request) {
         apiValidateService.validateApiMenuInProject(request.getScenarioId(), ApiResource.API_SCENARIO.name());
         return apiScenarioService.scheduleConfig(request, SessionUtils.getUserId());
