@@ -314,7 +314,7 @@
       dataIndex: 'operation',
       fixed: 'right',
       showDrag: false,
-      width: hasOperationPermission.value ? 180 : 80,
+      width: hasOperationPermission.value ? 180 : 100,
     },
   ];
 
@@ -565,9 +565,8 @@
       }
     }
   );
-  onMounted(async () => {
-    await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
-  });
+
+  await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
 </script>
 
 <style scoped lang="less">

@@ -362,6 +362,7 @@
     () => {
       const res = stepData.value.map((item, index) => {
         return {
+          id: item.id,
           num: index,
           desc: item.step,
           result: item.expected,
@@ -538,6 +539,7 @@
     if (steps) {
       stepData.value = JSON.parse(steps).map((item: any) => {
         return {
+          id: item.id,
           step: item.desc,
           expected: item.result,
         };

@@ -30,7 +30,11 @@
       </div>
       <div class="flex flex-row gap-6 text-center">
         <a-popover position="left" content-class="response-popover-content">
-          <div class="one-line-text max-w-[200px]" :style="{ color: statusCodeColor }">
+          <div
+            v-if="activeStepDetailCopy?.content?.responseResult.responseCode"
+            class="one-line-text max-w-[200px]"
+            :style="{ color: statusCodeColor }"
+          >
             {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
           </div>
           <template #content>
@@ -43,7 +47,9 @@
           </template>
         </a-popover>
         <a-popover position="left" content-class="w-[400px]">
-          <div class="one-line-text text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime || 0 }} ms </div>
+          <div v-if="timingInfo?.responseTime" class="one-line-text text-[rgb(var(--success-7))]">
+            {{ timingInfo?.responseTime || 0 }} ms
+          </div>
           <template #content>
             <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
@@ -53,7 +59,10 @@
           </template>
         </a-popover>
         <a-popover position="left" content-class="response-popover-content">
-          <div class="one-line-text text-[rgb(var(--success-7))]">
+          <div
+            v-if="activeStepDetail?.content?.responseResult.responseSize"
+            class="one-line-text text-[rgb(var(--success-7))]"
+          >
             {{ activeStepDetail?.content?.responseResult.responseSize || '-' }} bytes
           </div>
           <template #content>
