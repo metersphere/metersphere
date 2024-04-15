@@ -84,7 +84,7 @@
                   props.showSetting &&
                   (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION)
                 "
-                :table-key="(attrs.tableKey as string)"
+                :table-key="(attrs.tableKey as TableKeyEnum)"
                 :is-simple="(attrs.isSimpleSetting as boolean)"
                 @show-setting="handleShowSetting"
                 @init-data="handleInitColumn"
@@ -245,7 +245,7 @@
       v-if="props.showSetting"
       v-model:visible="columnSelectorVisible"
       :show-jump-method="(attrs.showJumpMethod as boolean)"
-      :table-key="(attrs.tableKey as string)"
+      :table-key="(attrs.tableKey as TableKeyEnum)"
       :show-pagination="!!attrs.showPagination"
       :show-subdirectory="!!attrs.showSubdirectory"
       @init-data="handleInitColumn"
@@ -273,7 +273,7 @@
   import { useAppStore, useTableStore } from '@/store';
 
   import { DragSortParams } from '@/models/common';
-  import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum } from '@/enums/tableEnum';
+  import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import type {
     BatchActionConfig,
@@ -376,7 +376,7 @@
     try {
       let tmpArr: MsTableColumn = [];
       if (props.showSetting) {
-        tmpArr = await tableStore.getShowInTableColumns(attrs.tableKey as string);
+        tmpArr = await tableStore.getShowInTableColumns(attrs.tableKey as TableKeyEnum);
       } else {
         tmpArr = props.columns;
       }

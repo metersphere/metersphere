@@ -116,6 +116,8 @@
   import { useTableStore } from '@/store';
   import { TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 
+  import { TableKeyEnum } from '@/enums/tableEnum';
+
   import { MsTableColumn } from './type';
 
   const tableStore = useTableStore();
@@ -139,7 +141,7 @@
 
   const props = defineProps<{
     visible: boolean;
-    tableKey: string;
+    tableKey: TableKeyEnum;
     showJumpMethod: boolean;
     showPagination: boolean;
     showSubdirectory: boolean;
@@ -156,7 +158,7 @@
     emit('initData');
   };
 
-  const loadColumn = (key: string) => {
+  const loadColumn = (key: TableKeyEnum) => {
     tableStore.getColumns(key).then((res) => {
       const { nonSort, couldSort } = res;
       nonSortColumn.value = nonSort;

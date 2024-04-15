@@ -10,13 +10,11 @@ export interface MsTableSelectorItem {
   column: MsTableColumn;
   // 列配置的备份，用于比较当前定义的列配置是否和备份的列配置相同
   columnBackup: MsTableColumn;
+  pageSize: number;
 }
 
 export interface SelectorColumnMap {
   [key: string]: MsTableSelectorItem;
-}
-export interface PageSizeMap {
-  [key: string]: number;
 }
 export interface MsTableState {
   // 列配置， 持久化
@@ -25,6 +23,4 @@ export interface MsTableState {
   baseSortIndex: number;
   // 操作列基数
   operationBaseIndex: number;
-  // 分页大小
-  pageSizeMap: PageSizeMap;
 }

@@ -1,33 +1,21 @@
 import { filter, orderBy, sortBy } from 'lodash-es';
-import localforage from 'localforage';
 
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
-import { useAppStore } from '@/store';
-import { MsTableSelectorItem, PageSizeMap, TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
+import useAppStore from '@/store/modules/app';
+import { MsTableSelectorItem, TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
-import { SpecialColumnEnum } from '@/enums/tableEnum';
+import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
+
+import useLocalForage from './useLocalForage';
 
 export default function useTableStore() {
   const state = reactive({
     baseSortIndex: 10,
     operationBaseIndex: 100,
   });
-
-  const getPageSizeMap = async () => {
-    try {
-      const pageSizeMap = await localforage.getItem<PageSizeMap>('pageSizeMap');
-      if (!pageSizeMap) {
-        return {};
-      }
-      return pageSizeMap;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
-      return {};
-    }
-  };
+  const { getItem, setItem } = useLocalForage();
 
   const columnsTransform = (columns: MsTableColumn) => {
     columns.forEach((item, idx) => {
@@ -58,36 +46,49 @@ export default function useTableStore() {
   };
 
   async function initColumn(
-    tableKey: string,
+    tableKey: TableKeyEnum,
     column: MsTableColumn,
     mode?: TableOpenDetailMode,
     showSubdirectory?: boolean
   ) {
     try {
-      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(tableKey);
+      const tableColumnsMap = await getItem<MsTableSelectorItem>(
+        tableKey,
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
       if (!tableColumnsMap) {
         // 如果没有在indexDB里初始化
         column = columnsTransform(column);
-        localforage.setItem(tableKey, {
-          mode,
-          showSubdirectory,
-          column,
-          columnBackup: JSON.parse(JSON.stringify(column)),
-        });
-      } else {
-        // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
-        column = columnsTransform(column);
-        const { columnBackup: oldColumn } = tableColumnsMap;
-        // 比较页面上定义的 column 和 浏览器备份的column 是否相同
-        const isEqual = isArraysEqualWithOrder(oldColumn, column);
-        if (!isEqual) {
-          // 如果不相等，说明有变动将新的column存入indexDB
-          localforage.setItem(tableKey, {
+        setItem(
+          tableKey,
+          {
             mode,
             showSubdirectory,
             column,
             columnBackup: JSON.parse(JSON.stringify(column)),
-          });
+            pageSize: useAppStore().pageSize,
+          },
+          tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+        );
+      } else {
+        // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
+        column = columnsTransform(column);
+        const { columnBackup: oldColumn, pageSize } = tableColumnsMap;
+        // 比较页面上定义的 column 和 浏览器备份的column 是否相同
+        const isEqual = isArraysEqualWithOrder(oldColumn, column);
+        if (!isEqual) {
+          // 如果不相等，说明有变动将新的column存入indexDB
+          setItem(
+            tableKey,
+            {
+              mode,
+              showSubdirectory,
+              column,
+              columnBackup: JSON.parse(JSON.stringify(column)),
+              pageSize: pageSize || useAppStore().pageSize,
+            },
+            tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+          );
         }
       }
     } catch (e) {
@@ -95,12 +96,16 @@ export default function useTableStore() {
       console.log(e);
     }
   }
-  async function setMode(key: string, mode: TableOpenDetailMode) {
+
+  async function setSubdirectory(tableKey: string, val: boolean) {
     try {
-      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+      const tableColumnsMap = await getItem<MsTableSelectorItem>(
+        tableKey,
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
       if (tableColumnsMap) {
-        tableColumnsMap.mode = mode;
-        await localforage.setItem(key, tableColumnsMap);
+        tableColumnsMap.showSubdirectory = val;
+        await setItem(tableKey, tableColumnsMap, tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION'));
       }
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -108,21 +113,19 @@ export default function useTableStore() {
     }
   }
 
-  async function setSubdirectory(key: string, val: boolean) {
-    try {
-      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
-      if (tableColumnsMap) {
-        tableColumnsMap.showSubdirectory = val;
-        await localforage.setItem(key, tableColumnsMap);
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
+  async function getSubShow(tableKey: TableKeyEnum) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
+    if (tableColumnsMap) {
+      return tableColumnsMap.showSubdirectory;
     }
+    return true as boolean;
   }
 
   async function setColumns(
-    key: string,
+    tableKey: TableKeyEnum,
     columns: MsTableColumn,
     mode?: TableOpenDetailMode,
     showSubdirectory?: boolean,
@@ -134,7 +137,10 @@ export default function useTableStore() {
           item.sortIndex = state.baseSortIndex + idx;
         }
       });
-      const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+      const tableColumnsMap = await getItem<MsTableSelectorItem>(
+        tableKey,
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
       if (!tableColumnsMap) {
         return;
       }
@@ -144,41 +150,28 @@ export default function useTableStore() {
         if (operationColumn) columns.push(operationColumn);
       }
 
-      await localforage.setItem(key, {
-        mode,
-        showSubdirectory,
-        column: JSON.parse(JSON.stringify(columns)),
-        columnBackup: tableColumnsMap.columnBackup,
-      });
+      await setItem(
+        tableKey,
+        {
+          mode,
+          showSubdirectory,
+          column: JSON.parse(JSON.stringify(columns)),
+          columnBackup: tableColumnsMap.columnBackup,
+          pageSize: tableColumnsMap.pageSize || useAppStore().pageSize,
+        },
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('tableStore.setColumns', e);
     }
   }
-  async function setPageSize(key: string, pageSize: number) {
-    const pageSizeMap = await getPageSizeMap();
-    pageSizeMap[key] = pageSize;
-    await localforage.setItem('pageSizeMap', pageSizeMap);
-  }
 
-  async function getMode(key: string) {
-    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
-    if (tableColumnsMap) {
-      return tableColumnsMap.mode;
-    }
-    return 'drawer';
-  }
-
-  async function getSubShow(key: string) {
-    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
-    if (tableColumnsMap) {
-      return tableColumnsMap.showSubdirectory;
-    }
-    return true as boolean;
-  }
-
-  async function getColumns(key: string, isSimple?: boolean) {
-    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+  async function getColumns(tableKey: TableKeyEnum, isSimple?: boolean) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
     if (tableColumnsMap) {
       const tmpArr = tableColumnsMap.column;
       const { nonSortableColumns, couldSortableColumns } = tmpArr.reduce(
@@ -199,8 +192,39 @@ export default function useTableStore() {
     }
     return { nonSort: [], couldSort: [] };
   }
-  async function getShowInTableColumns(key: string) {
-    const tableColumnsMap = await localforage.getItem<MsTableSelectorItem>(key);
+
+  async function getMode(tableKey: TableKeyEnum) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
+    if (tableColumnsMap) {
+      return tableColumnsMap.mode;
+    }
+    return 'drawer';
+  }
+
+  async function setMode(tableKey: string, mode: TableOpenDetailMode) {
+    try {
+      const tableColumnsMap = await getItem<MsTableSelectorItem>(
+        tableKey,
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
+      if (tableColumnsMap) {
+        tableColumnsMap.mode = mode;
+        await setItem(tableKey, tableColumnsMap, tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION'));
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  }
+
+  async function getShowInTableColumns(tableKey: TableKeyEnum) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
     if (tableColumnsMap) {
       const tmpArr: MsTableColumn = tableColumnsMap.column;
       return orderBy(
@@ -211,12 +235,31 @@ export default function useTableStore() {
     }
     return [];
   }
-  async function getPageSize(key: string) {
-    const pageSizeMap = await getPageSizeMap();
-    if (pageSizeMap[key]) {
-      return pageSizeMap[key];
+
+  async function getPageSize(tableKey: TableKeyEnum) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
+    if (tableColumnsMap) {
+      return tableColumnsMap.pageSize;
     }
     return useAppStore().pageSize;
+  }
+  async function setPageSize(tableKey: TableKeyEnum, pageSize: number) {
+    try {
+      const tableColumnsMap = await getItem<MsTableSelectorItem>(
+        tableKey,
+        tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+      );
+      if (tableColumnsMap) {
+        tableColumnsMap.pageSize = pageSize;
+        await setItem(tableKey, tableColumnsMap, tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION'));
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
   }
 
   return {

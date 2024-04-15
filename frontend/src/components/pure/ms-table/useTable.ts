@@ -38,9 +38,7 @@ export default function useTableProps<T>(
 ) {
   const defaultHeightUsed = 286;
   // 底部操作栏的height和marginTop
-  const footerActionWrapHeight = 48;
   const defaultProps: MsTableProps<T> = {
-    tableKey: '', // 缓存pageSize 或 column 的 key
     bordered: true, // 是否显示边框
     showPagination: true, // 是否显示分页
     showSubdirectory: false, // 是否显示子目录开关

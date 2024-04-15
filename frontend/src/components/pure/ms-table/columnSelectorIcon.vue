@@ -61,7 +61,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
 
-  import { SpecialColumnEnum } from '@/enums/tableEnum';
+  import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { MsTableColumn } from './type';
 
@@ -81,7 +81,7 @@
   };
 
   const props = defineProps<{
-    tableKey: string;
+    tableKey: TableKeyEnum;
     isSimple: boolean;
   }>();
 
@@ -102,7 +102,7 @@
     emit('initData');
   };
 
-  const loadColumn = (key: string) => {
+  const loadColumn = (key: TableKeyEnum) => {
     tableStore.getColumns(key, true).then((res) => {
       const { nonSort, couldSort } = res;
       nonSortColumn.value = nonSort;
