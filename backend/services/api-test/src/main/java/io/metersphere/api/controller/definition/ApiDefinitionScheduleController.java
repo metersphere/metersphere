@@ -1,7 +1,6 @@
 package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
-import io.metersphere.api.dto.definition.SwaggerUrlCheck;
 import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
@@ -41,13 +40,6 @@ public class ApiDefinitionScheduleController {
     @CheckOwner(resourceId = "#request.id", resourceType = "api_definition_swagger")
     public String updateSchedule(@RequestBody @Validated({Updated.class}) ApiScheduleRequest request) {
         return apiDefinitionScheduleService.updateSchedule(request, SessionUtils.getUserId());
-    }
-
-    @PostMapping(value = "/check")
-    @Operation(summary = "接口测试-接口管理-定时同步-校验url是否存在")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    public Boolean checkSchedule(@RequestBody SwaggerUrlCheck swaggerUrlCheck) {
-        return apiDefinitionScheduleService.checkSwaggerUrl(swaggerUrlCheck.getProjectId(), swaggerUrlCheck.getSwaggerUrl());
     }
 
     @GetMapping(value = "/switch/{id}")

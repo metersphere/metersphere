@@ -3,7 +3,6 @@ package io.metersphere.api.controller;
 import io.metersphere.api.domain.ApiDefinitionSwagger;
 import io.metersphere.api.domain.ApiDefinitionSwaggerExample;
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
-import io.metersphere.api.dto.definition.SwaggerUrlCheck;
 import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
 import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -139,15 +138,6 @@ public class ApiDefinitionScheduleControllerTests extends BaseTest {
         schedule = scheduleMapper.selectByPrimaryKey(SCHEDULE_ID);
         //断言为true
         assert schedule.getEnable();
-    }
-
-    @Order(5)
-    @Test
-    public void checkSchedule() throws Exception {
-        SwaggerUrlCheck swaggerUrlCheck = new SwaggerUrlCheck();
-        swaggerUrlCheck.setProjectId(DEFAULT_PROJECT_ID);
-        swaggerUrlCheck.setSwaggerUrl("https://petstore3.swagger.io/api/v3/openapi.json");
-        this.requestPost(BASE_PATH + "check", swaggerUrlCheck);
     }
 
     @Order(6)

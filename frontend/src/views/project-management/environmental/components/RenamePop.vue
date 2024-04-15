@@ -19,7 +19,7 @@
             <a-input
               v-model="form.name"
               class="w-[245px]"
-              :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
+              :placeholder="t('system.userGroup.searchHolder')"
               allow-clear
               :max-length="255"
               @press-enter="handleBeforeOk(undefined)"

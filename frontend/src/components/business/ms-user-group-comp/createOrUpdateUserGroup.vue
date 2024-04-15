@@ -26,7 +26,7 @@
                 v-model="form.name"
                 class="w-[243px]"
                 :max-length="255"
-                :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
+                :placeholder="t('system.userGroup.searchHolder')"
                 allow-clear
                 @press-enter="handleBeforeOk"
                 @keyup.esc="handleCancel"
