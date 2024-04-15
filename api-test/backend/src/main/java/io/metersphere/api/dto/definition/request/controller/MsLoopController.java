@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
-import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.LoopConstants;
@@ -14,7 +13,6 @@ import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.control.*;
 import org.apache.jmeter.modifiers.CounterConfig;
@@ -26,11 +24,8 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,31 +48,10 @@ public class MsLoopController extends MsTestElement {
         
         final HashTree groupTree = controller(tree);
         // 自身场景
-        if (CollectionUtils.isNotEmpty(config.getVariables())) {
+        if (CollectionUtils.isNotEmpty(config.getVariables()) || CollectionUtils.isNotEmpty(config.getTransferVariables())) {
             ElementUtil.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
             ElementUtil.addCounter(groupTree, config.getVariables());
             ElementUtil.addRandom(groupTree, config.getVariables());
-        }
-        // 当前引用场景
-        if (CollectionUtils.isNotEmpty(config.getTransferVariables())) {
-            final List<ScenarioVariable> variables = new LinkedList<>();
-            if (CollectionUtils.isEmpty(config.getVariables())) {
-                variables.addAll(config.getTransferVariables());
-            } else {
-                // 合并处理
-                Map<String, ScenarioVariable> variableMap = config.getVariables().stream().collect(Collectors.toMap(ScenarioVariable::getId, a -> a, (k1, k2) -> k1));
-                config.getTransferVariables().forEach(item -> {
-                    if (!variableMap.containsKey(item.getId())) {
-                        variables.add(item);
-                    }
-                });
-            }
-
-            if (CollectionUtils.isNotEmpty(variables)) {
-                ElementUtil.addCsvDataSet(groupTree, variables, config, "shareMode.thread");
-                ElementUtil.addCounter(groupTree, variables);
-                ElementUtil.addRandom(groupTree, variables);
-            }
         }
         // 循环下都增加一个计数器，用于结果统计
         groupTree.add(addCounterConfig());
