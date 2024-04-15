@@ -9,6 +9,7 @@ import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckProjectOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -48,6 +49,7 @@ public class ProjectTemplateController {
     @GetMapping("/get/{id}")
     @Operation(summary = "获取模版详情")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public TemplateDTO get(@PathVariable String id) {
         return projectTemplateservice.getTemplateDTOWithCheck(id);
     }
@@ -64,6 +66,7 @@ public class ProjectTemplateController {
     @Operation(summary = "更新模版")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectTemplateLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getId()", resourceType = "template", resourceCol = "scope_id")
     public Template update(@Validated({Updated.class}) @RequestBody TemplateUpdateRequest request) {
         return projectTemplateservice.update(request);
     }
@@ -72,6 +75,7 @@ public class ProjectTemplateController {
     @Operation(summary = "删除模版")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ProjectTemplateLogService.class)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public void delete(@PathVariable String id) {
         projectTemplateservice.delete(id);
     }
@@ -80,6 +84,7 @@ public class ProjectTemplateController {
     @Operation(summary = "设置默认模板")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = ProjectTemplateLogService.class)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public void setDefaultTemplate(@PathVariable String projectId, @PathVariable String id) {
         projectTemplateservice.setDefaultTemplate(projectId, id);
     }

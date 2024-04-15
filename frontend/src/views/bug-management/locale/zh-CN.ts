@@ -25,7 +25,7 @@ export default {
     syncBugTipRowTwo: '新增缺陷和更新已有的缺陷？',
     bugAutoSync: '系统将按照项目应用设置频率自动同步',
     syncTime: '同步时间',
-    deleteLabel: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
+    deleteLabel: '删除后, Local 的缺陷进入回收站; 第三方平台同步的缺陷将不做回收',
     nameIsIncorrect: '缺陷名称不正确',
     selectedCount: '(已选 {count} 条缺陷)',
     batchEdit: '批量编辑',
@@ -35,7 +35,7 @@ export default {
     deleteCount: '确认删除 {count} 个缺陷吗？',
     deleteTipInternal: '删除后，{count} 条 MeterSphere 创建的缺陷进入回收站',
     deleteTipExternal: '{count} 条第三方平台同步的缺陷将不做回收',
-    deleteTip: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
+    deleteTip: '删除后, Local 的缺陷进入回收站; 第三方平台同步的缺陷将不做回收',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',
@@ -80,7 +80,7 @@ export default {
       comment: '评论',
       shareTip: '分享链接已复制到剪贴板',
       deleteTitle: '确认删除 {name} 吗？',
-      deleteContent: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
+      deleteContent: '删除后, Local 的缺陷进入回收站; 第三方平台同步的缺陷将不做回收',
       platform_no_active: '该缺陷平台未对接, 无法正常预览及编辑详情相关内容',
     },
     batchUpdate: {

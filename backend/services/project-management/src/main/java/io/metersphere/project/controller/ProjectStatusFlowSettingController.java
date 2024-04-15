@@ -11,6 +11,7 @@ import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckProjectOwner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,6 +49,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-设置状态定义，即起始状态，结束状态")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusDefinitionLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getStatusId()", resourceType = "status_item", resourceCol = "scope_id")
     public void updateStatusDefinition(@Validated @RequestBody StatusDefinitionUpdateRequest request) {
         projectStatusFlowSettingService.updateStatusDefinition(request);
     }
@@ -55,6 +57,7 @@ public class ProjectStatusFlowSettingController {
     @PostMapping("/status/sort/{projectId}/{scene}")
     @Operation(summary = "系统设置-组织-状态流设置-状态项排序")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
+    @CheckProjectOwner(resourceId = "#statusIds", resourceType = "status_item", resourceCol = "scope_id")
     public void sortStatusItem(@PathVariable
                                String projectId,
                                @PathVariable
@@ -77,6 +80,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-修改状态项")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusItemLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getId()", resourceType = "status_item", resourceCol = "scope_id")
     public StatusItem updateStatusItem(@Validated @RequestBody StatusItemUpdateRequest request) {
         return projectStatusFlowSettingService.updateStatusItem(request);
     }
@@ -85,6 +89,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-删除状态项")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteStatusItemLog(#id)", msClass = ProjectStatusFlowSettingLogService.class)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "status_item", resourceCol = "scope_id")
     public void deleteStatusItem(@PathVariable String id) {
         projectStatusFlowSettingService.deleteStatusItem(id);
     }
@@ -93,6 +98,7 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "项目管理-模板-状态流设置-设置状态流转")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusFlowLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getFromId()", resourceType = "status_item", resourceCol = "scope_id")
     public void updateStatusFlow(@Validated @RequestBody StatusFlowUpdateRequest request) {
         projectStatusFlowSettingService.updateStatusFlow(request);
     }

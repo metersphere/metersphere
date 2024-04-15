@@ -25,7 +25,7 @@ export default {
     syncBugTipRowTwo: 'Create bug and sync bug？',
     bugAutoSync: 'System will auto sync by the project application setting frequency',
     syncTime: 'Sync time',
-    deleteLabel: 'Bug witch created by MeterSphere will in recycle bin and third plant bug will be deleted',
+    deleteLabel: 'Local bug will in recycle bin and third plant bug will be deleted',
     nameIsIncorrect: 'Bug name error',
     selectedCount: '( {count} selected)',
     batchEdit: 'Batch edit',
@@ -35,7 +35,7 @@ export default {
     deleteCount: 'delete {count} bugs？',
     deleteTipInternal: ' {count} numbers of bug witch created by MeterSphere will in recycle bin',
     deleteTipExternal: '{count} numbers of bug will be deleted',
-    deleteTip: 'Bug witch created by MeterSphere will in recycle bin and third plant bug will be deleted',
+    deleteTip: 'Local bug will in recycle bin and third plant bug will be deleted',
     edit: {
       defaultSystemTemplate: 'System template is defaulted',
       content: 'Bug content',
@@ -80,7 +80,7 @@ export default {
       comment: 'Comment',
       shareTip: 'Share link has been copied to clipboard',
       deleteTitle: 'Delete {name} ？',
-      deleteContent: 'Bug witch created by MeterSphere will in recycle bin and third plant bug will be deleted',
+      deleteContent: 'Local bug will in recycle bin and third plant bug will be deleted',
       platform_no_active: 'The bug platform has not been integrated, can not preview and edit details normally',
     },
     batchUpdate: {

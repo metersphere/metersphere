@@ -6,6 +6,7 @@ import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOrgOwner;
 import io.metersphere.system.service.OrganizationTemplateLogService;
 import io.metersphere.system.service.OrganizationTemplateService;
 import io.metersphere.system.utils.SessionUtils;
@@ -47,6 +48,7 @@ public class OrganizationTemplateController {
     @GetMapping("/get/{id}")
     @Operation(summary = "获取模版详情")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
+    @CheckOrgOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public TemplateDTO get(@PathVariable String id) {
         return organizationTemplateService.geDTOWithCheck(id);
     }
@@ -63,6 +65,7 @@ public class OrganizationTemplateController {
     @Operation(summary = "更新模版")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.updateLog(#request)", msClass = OrganizationTemplateLogService.class)
+    @CheckOrgOwner(resourceId = "#request.getId()", resourceType = "template", resourceCol = "scope_id")
     public Template update(@Validated({Updated.class}) @RequestBody TemplateUpdateRequest request) {
         return organizationTemplateService.update(request);
     }
@@ -71,6 +74,7 @@ public class OrganizationTemplateController {
     @Operation(summary = "删除模版")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationTemplateLogService.class)
+    @CheckOrgOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public void delete(@PathVariable String id) {
         organizationTemplateService.delete(id);
     }

@@ -18,6 +18,7 @@ import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckProjectOwner;
 import io.metersphere.system.service.UserRoleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -50,6 +51,7 @@ public class ProjectUserRoleController {
     @PostMapping("/list")
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组列表")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_READ)
+    @CheckProjectOwner(resourceId = "#request.getProjectId()", resourceType = "user_role", resourceCol = "scope_id")
     public Pager<List<ProjectUserRoleDTO>> list(@Validated @RequestBody ProjectUserRoleRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, projectUserRoleService.list(request));
@@ -59,6 +61,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-添加用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getScopeId()", resourceType = "user_role", resourceCol = "scope_id")
     public UserRole add(@Validated({Created.class}) @RequestBody ProjectUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
@@ -70,6 +73,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-修改用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getId()", resourceType = "user_role", resourceCol = "scope_id")
     public UserRole update(@Validated({Updated.class}) @RequestBody ProjectUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
@@ -81,6 +85,7 @@ public class ProjectUserRoleController {
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_DELETE)
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public void delete(@PathVariable String id) {
         projectUserRoleService.delete(id, SessionUtils.getUserId());
     }
@@ -89,6 +94,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组对应的权限配置")
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_READ)
+    @CheckProjectOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return projectUserRoleService.getPermissionSetting(id);
     }
@@ -97,6 +103,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-修改用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePermissionSettingLog(#request)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         projectUserRoleService.updatePermissionSetting(request);
     }
@@ -127,6 +134,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-添加用户组成员")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void addMember(@Validated @RequestBody ProjectUserRoleMemberEditRequest request) {
         projectUserRoleService.addMember(request, SessionUtils.getUserId());
     }
@@ -135,6 +143,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-删除用户组成员")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = ProjectUserRoleLogService.class)
+    @CheckProjectOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void removeMember(@Validated @RequestBody ProjectUserRoleMemberEditRequest request) {
         projectUserRoleService.removeMember(request);
     }

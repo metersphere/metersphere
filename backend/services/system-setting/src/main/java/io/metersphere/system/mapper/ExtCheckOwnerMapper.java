@@ -10,4 +10,8 @@ public interface ExtCheckOwnerMapper {
     boolean checkoutOrganizationOwner(@Param("table") String resourceType, @Param("userId") String userId, @Param("ids") List<String> ids);
 
     boolean checkoutOrganization(@Param("userId") String userId, @Param("ids") List<String> ids);
+
+    boolean checkoutOrganizationOwnerByScope(@Param("table") String resourceType, @Param("column") String resourceColumn, @Param("userId") String userId, @Param("ids") List<String> ids);
+
+    boolean checkoutProjectOwnerByScope(@Param("table") String resourceType, @Param("column") String resourceColumn, @Param("userId") String userId, @Param("ids") List<String> ids);
 }
