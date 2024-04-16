@@ -14,5 +14,5 @@ import java.util.List;
 public class BugNoticeDTO extends BugMessageDTO{
 
     @Schema(description = "自定义字段内容")
-    private List<OptionDTO> customFields;
+    private List<OptionDTO> fields;
 }
