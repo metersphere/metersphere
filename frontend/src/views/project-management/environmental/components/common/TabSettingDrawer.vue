@@ -25,12 +25,12 @@
         }}</span></a-divider
       >
       <VueDraggable
-        v-model="couldCloseColumn"
+        v-model="couldCloseColumnExcludeSetting"
         class="ms-assertion-body-left"
         ghost-class="ghost"
         handle=".column-drag-item"
       >
-        <div v-for="element in couldCloseColumn" :key="element.value" class="column-drag-item">
+        <div v-for="element in couldCloseColumnExcludeSetting" :key="element.value" class="column-drag-item">
           <div class="flex w-[90%] items-center">
             <span class="ml-[8px]">{{ t(element.label) }}</span>
           </div>
@@ -73,9 +73,13 @@
 
   const loadColumn = async () => {
     const res = (await store.getContentTabList()) || [];
-    nonCloseColumn.value = res.filter((item) => !item.canHide && item.value !== 'SETTING');
+    nonCloseColumn.value = res.filter((item) => !item.canHide);
     couldCloseColumn.value = res.filter((item) => item.canHide);
   };
+
+  const couldCloseColumnExcludeSetting = computed(() => {
+    return couldCloseColumn.value.filter((item) => item.canHide && item.value !== 'SETTING');
+  });
 
   const handleReset = () => {
     loadColumn();
@@ -85,6 +89,15 @@
   const handleSwitchChange = () => {
     hasChange.value = true;
   };
+
+  watch(
+    () => innerVisible.value,
+    (value) => {
+      if (value) {
+        hasChange.value = false;
+      }
+    }
+  );
 
   onBeforeMount(() => {
     loadColumn();
@@ -115,7 +128,7 @@
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px 8px 36px;
+    padding: 8px 12px 8px 16px;
     &:hover {
       border-radius: 6px;
       background: var(--color-text-n9);

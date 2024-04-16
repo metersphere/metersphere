@@ -136,6 +136,15 @@
     hasChange.value = true;
   };
 
+  watch(
+    () => props.visible,
+    (value) => {
+      if (value) {
+        hasChange.value = false;
+      }
+    }
+  );
+
   onBeforeMount(() => {
     loadTab();
   });

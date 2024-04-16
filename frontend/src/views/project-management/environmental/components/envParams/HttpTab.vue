@@ -124,6 +124,7 @@
   import type { ModuleTreeNode } from '@/models/common';
   import type { CommonParams } from '@/models/projectManagement/environmental';
   import { HttpForm } from '@/models/projectManagement/environmental';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -139,6 +140,8 @@
       dataIndex: 'url',
       slotName: 'url',
       showTooltip: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.environmental.http.desc',
@@ -167,12 +170,14 @@
       width: 170,
     },
   ];
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_DATASTORES, columns);
   const { propsRes, propsEvent } = useTable(undefined, {
+    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ENV_DATASTORES,
     columns,
     scroll: { x: '100%' },
     selectable: false,
     noDisable: true,
-    showSetting: false,
+    showSetting: true,
     showPagination: false,
     enableDrag: true,
     showMode: false,

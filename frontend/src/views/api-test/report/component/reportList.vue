@@ -515,6 +515,7 @@
 
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
+    resetSelector();
     initData();
   }
 

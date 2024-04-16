@@ -87,8 +87,9 @@
       title: 'project.environmental.database.name',
       dataIndex: 'dataSource',
       showTooltip: true,
-      showDrag: true,
+      showDrag: false,
       showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.environmental.database.driver',
@@ -142,7 +143,6 @@
     showPagination: false,
     heightUsed: 590,
     showMode: false,
-    isSimpleSetting: true,
   });
 
   const moreActionList: ActionsItem[] = [
