@@ -338,6 +338,7 @@
       showSetting: true,
       heightUsed: 380,
       enableDrag: true,
+      showSubdirectory: true,
     },
     (record) => ({
       ...record,
@@ -569,11 +570,15 @@
   // 用例树节点选中事件
   const caseNodeSelect = (selectedNodeKeys: (string | number)[] | string[], node: MsTreeNodeData) => {
     [activeFolder.value] = selectedNodeKeys as string[];
+    console.log('node');
+    console.log(node);
     offspringIds.value = [];
     mapTree(node.children || [], (e) => {
       offspringIds.value.push(e.id);
       return e;
     });
+    console.log('offspringIds');
+    console.log(offspringIds);
     focusNodeKey.value = '';
   };
 
