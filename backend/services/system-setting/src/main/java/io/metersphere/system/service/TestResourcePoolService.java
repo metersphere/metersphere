@@ -9,10 +9,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.pool.TestResourceDTO;
-import io.metersphere.system.dto.pool.TestResourcePoolDTO;
-import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
-import io.metersphere.system.dto.pool.TestResourceReturnDTO;
+import io.metersphere.system.dto.pool.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -236,8 +233,8 @@ public class TestResourcePoolService {
         return testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
     }
 
-    public LogDTO updateLog(String resourcePoolId) {
-        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
+    public LogDTO updateLog(TestResourcePoolRequest request) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getId());
         if (pool != null) {
             LogDTO dto = new LogDTO(
                     OperationLogConstants.SYSTEM,
@@ -246,7 +243,7 @@ public class TestResourcePoolService {
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
-                    pool.getName());
+                    request.getName());
 
             dto.setPath("/update");
             dto.setMethod(HttpMethodConstants.POST.name());
