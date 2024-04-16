@@ -4,6 +4,7 @@ import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.definition.ApiReportStepDTO;
+import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
@@ -41,4 +42,6 @@ public interface ExtApiReportMapper {
     void updateApiCaseStatus(@Param("ids") List<String> ids);
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> ids);
+
+    List<ExecuteReportDTO> getHistoryDeleted(@Param("ids") List<String> ids);
 }

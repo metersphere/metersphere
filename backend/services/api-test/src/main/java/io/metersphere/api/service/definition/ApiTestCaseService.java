@@ -102,6 +102,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private EnvironmentService environmentService;
     @Resource
     private ApiTestCaseNoticeService apiTestCaseNoticeService;
+    @Resource
+    private ExtApiReportMapper extApiReportMapper;
 
     private static final String CASE_TABLE = "api_test_case";
     private static final int MAX_TAG_SIZE = 10;
@@ -557,10 +559,16 @@ public class ApiTestCaseService extends MoveNodeService {
                 .collect(Collectors.toSet());
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        //执行历史列表
+        List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
+        List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
+        Map<String, ExecuteReportDTO> historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
+            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(apiReport.getId()));
         });
         return executeList;
     }
@@ -754,7 +762,19 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
 
         apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
+        //初始化步骤
+        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase, reportId, 1L)));
         return apiTestCaseRecord;
+    }
+
+    private ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId, long sort) {
+        ApiReportStep apiReportStep = new ApiReportStep();
+        apiReportStep.setReportId(reportId);
+        apiReportStep.setStepId(apiTestCase.getId());
+        apiReportStep.setSort(sort);
+        apiReportStep.setName(apiTestCase.getName());
+        apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
+        return apiReportStep;
     }
 
     public ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {

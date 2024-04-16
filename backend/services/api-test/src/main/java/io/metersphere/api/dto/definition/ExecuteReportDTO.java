@@ -33,6 +33,12 @@ public class ExecuteReportDTO implements Serializable {
     @Schema(description = "是否删除")
     private boolean deleted;
 
+    @Schema(description = "执行历史是否被清理")
+    private boolean historyDeleted = false;
+
+    @Schema(description = "是否集成")
+    private boolean integrated;
+
     private static final long serialVersionUID = 1L;
 
 }

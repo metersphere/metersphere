@@ -246,7 +246,8 @@
         api_report.create_user,
         api_report.trigger_mode,
         api_report.test_plan_id,
-        api_report.deleted
+        api_report.deleted,
+        api_report.integrated
         from api_report
         left join api_test_case_record atc on atc.api_report_id = api_report.id
         where

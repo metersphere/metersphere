@@ -75,9 +75,30 @@
         <executeStatus :status="record.status" />
       </template>
       <template #operation="{ record }">
-        <MsButton class="!mr-0" @click="showResult(record)"
-          >{{ t('apiScenario.executeHistory.execution.operation') }}
-        </MsButton>
+        <div v-if="record.historyDeleted">
+          <a-tooltip :content="t('project.executionHistory.cleared')" position="top">
+            <MsButton
+              :disabled="
+                record.historyDeleted ||
+                hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+              "
+              class="!mr-0"
+              @click="showResult(record)"
+              >{{ t('apiScenario.executeHistory.execution.operation') }}
+            </MsButton>
+          </a-tooltip>
+        </div>
+        <div v-else>
+          <MsButton
+            :disabled="
+              record.historyDeleted ||
+              hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+            "
+            class="!mr-0"
+            @click="showResult(record)"
+            >{{ t('apiScenario.executeHistory.execution.operation') }}
+          </MsButton>
+        </div>
       </template>
     </ms-base-table>
     <!-- 场景报告抽屉 -->
@@ -98,6 +119,7 @@
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ExecuteHistoryItem } from '@/models/apiTest/scenario';
   import { ExecuteStatusFilters } from '@/enums/apiEnum';

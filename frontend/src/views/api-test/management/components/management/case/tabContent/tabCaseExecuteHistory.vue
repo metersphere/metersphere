@@ -83,11 +83,30 @@
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
       </template>
       <template #operation="{ record, rowIndex }">
-        <a-tooltip :disabled="!record.deleted" :content="t('case.detail.report.delete')" position="top">
-          <MsButton :disabled="record.deleted" class="!mr-0" @click="showResult(record, rowIndex)"
+        <div v-if="record.historyDeleted">
+          <a-tooltip :content="t('project.executionHistory.cleared')" position="top">
+            <MsButton
+              :disabled="
+                record.historyDeleted ||
+                hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+              "
+              class="!mr-0"
+              @click="showResult(record, rowIndex)"
+              >{{ t('apiScenario.executeHistory.execution.operation') }}
+            </MsButton>
+          </a-tooltip>
+        </div>
+        <div v-else>
+          <MsButton
+            :disabled="
+              record.historyDeleted ||
+              hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+            "
+            class="!mr-0"
+            @click="showResult(record, rowIndex)"
             >{{ t('apiScenario.executeHistory.execution.operation') }}
           </MsButton>
-        </a-tooltip>
+        </div>
       </template>
     </ms-base-table>
   </div>
@@ -107,6 +126,7 @@
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';

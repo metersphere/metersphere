@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -23,7 +22,6 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -215,41 +213,14 @@ public class ApiReportService {
         apiReportDTO.setEnvironmentName(environmentName);
         apiReportDTO.setCreatUserName(userMapper.selectByPrimaryKey(apiReportDTO.getCreateUser()).getName());
         //需要查询出所有的步骤
-        if (BooleanUtils.isTrue(apiReport.getIntegrated())) {
-            List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
-            if (CollectionUtils.isEmpty(apiReportSteps)) {
-                throw new MSException(Translator.get("api_case_report_not_exist"));
-            }
-            apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
-            apiReportDTO.setChildren(apiReportSteps);
-            apiReportDTO.setTotal((long) apiReportSteps.size());
-            apiReportDTO.setPendingCount(apiReportSteps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
-            return apiReportDTO;
-        }
-        ApiTestCaseRecordExample example = new ApiTestCaseRecordExample();
-        example.createCriteria().andApiReportIdEqualTo(id);
-        List<ApiTestCaseRecord> apiTestCaseRecords = apiTestCaseRecordMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(apiTestCaseRecords)) {
+        List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
+        if (CollectionUtils.isEmpty(apiReportSteps)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
-        ApiReportDetailExample apiReportDetailExample = new ApiReportDetailExample();
-        apiReportDetailExample.createCriteria().andReportIdEqualTo(id).andStepIdEqualTo(apiTestCaseRecords.getFirst().getApiTestCaseId());
-        List<ApiReportDetail> apiReportDetails = apiReportDetailMapper.selectByExampleWithBLOBs(apiReportDetailExample);
-        if (CollectionUtils.isNotEmpty(apiReportDetails)) {
-            ApiReportStepDTO apiReportStepDTO = new ApiReportStepDTO();
-            BeanUtils.copyBean(apiReportStepDTO, apiReportDetails.getFirst());
-            apiReportStepDTO.setStepId(apiTestCaseRecords.getFirst().getApiTestCaseId());
-            apiReportStepDTO.setReportId(id);
-            apiReportStepDTO.setSort(1L);
-            apiReportStepDTO.setName(apiReport.getName());
-            apiReportStepDTO.setStepType(ApiExecuteResourceType.API_CASE.name());
-            List<ApiReportStepDTO> apiReportSteps = new ArrayList<>();
-            apiReportSteps.add(apiReportStepDTO);
-            apiReportDTO.setChildren(apiReportSteps);
-        } else {
-            apiReportDTO.setTotal(1L);
-            apiReportDTO.setPendingCount(1L);
-        }
+        apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
+        apiReportDTO.setChildren(apiReportSteps);
+        apiReportDTO.setTotal((long) apiReportSteps.size());
+        apiReportDTO.setPendingCount(apiReportSteps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
         return apiReportDTO;
     }
 

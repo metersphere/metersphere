@@ -366,6 +366,7 @@ public class ApiTestCaseBatchRunService {
     public List<ApiTestCaseRecord> initApiReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
+        List<ApiReportStep> apiReportSteps = new ArrayList<>();
         for (ApiTestCase apiTestCase : apiTestCases) {
             // 初始化报告
             ApiReport apiReport = getApiReport(runModeConfig, apiTestCase, userId);
@@ -373,8 +374,10 @@ public class ApiTestCaseBatchRunService {
             // 创建报告和用例的关联关系
             ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
+            apiReportSteps.add(getApiReportStep(apiTestCase, apiReport.getId(), 1));
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
+        apiReportService.insertApiReportStep(apiReportSteps);
         return apiTestCaseRecords;
     }
 

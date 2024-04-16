@@ -194,8 +194,8 @@
         LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
         LEFT JOIN test_resource_pool t ON ar.pool_id = t.id
         left join project on ar.project_id = project.id
-        where  ar.deleted = false
-        and ar.test_plan_id = 'NONE'
+        where
+         ar.test_plan_id = 'NONE'
         and ar.start_time BETWEEN #{startTime} AND #{endTime}
         ) as api_report
         where
@@ -263,6 +263,15 @@
                 #{id}
             </foreach>
 
+        </if>
+    </select>
+    <select id="getHistoryDeleted" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
+        select ar.* from api_report ar INNER JOIN api_report_step ars on ar.id = ars.report_id
+        <if test="ids != null and ids.size() > 0">
+            where ar.id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
         </if>
     </select>
 

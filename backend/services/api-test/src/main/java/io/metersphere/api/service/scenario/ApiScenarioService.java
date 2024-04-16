@@ -192,6 +192,8 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioNoticeService apiScenarioNoticeService;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -2823,12 +2825,18 @@ public class ApiScenarioService extends MoveNodeService {
         Set<String> userSet = executeList.stream()
                 .flatMap(apiReport -> Stream.of(apiReport.getCreateUser()))
                 .collect(Collectors.toSet());
+        //执行历史列表
+        List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
+        List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
+        Map<String, ExecuteReportDTO> historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
+            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(apiReport.getId()));
         });
         return executeList;
     }

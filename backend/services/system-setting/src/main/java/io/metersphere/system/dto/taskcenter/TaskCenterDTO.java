@@ -58,5 +58,8 @@ public class TaskCenterDTO implements Serializable {
     @Schema(description = "是否为集合报告")
     private boolean integrated;
 
+    @Schema(description = "执行历史是否被清理")
+    private boolean historyDeleted = false;
+
 
 }

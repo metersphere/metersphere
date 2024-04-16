@@ -352,54 +352,6 @@ public class ApiReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        reports = new ArrayList<>();
-        apiReport = new ApiReport();
-        apiReport.setId("test-report-id-no-step");
-        apiReport.setProjectId(DEFAULT_PROJECT_ID);
-        apiReport.setName("test-report-name");
-        apiReport.setStartTime(System.currentTimeMillis());
-        apiReport.setCreateUser("admin");
-        apiReport.setUpdateUser("admin");
-        apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId(testResourcePools.getFirst().getId());
-        apiReport.setEnvironmentId(environments.getFirst().getId());
-        apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
-        apiReport.setTriggerMode("api-trigger-mode");
-        apiReport.setIntegrated(false);
-        reports.add(apiReport);
-        record = new ApiTestCaseRecord();
-        record.setApiTestCaseId("api-resource-id");
-        record.setApiReportId(apiReport.getId());
-        apiReportService.insertApiReport(reports, List.of(record));
-
-        mockMvc.perform(getRequestBuilder(GET + "test-report-id-no-step"))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful());
-
-        reports = new ArrayList<>();
-        apiReport = new ApiReport();
-        apiReport.setId("test-report-id-no-step-no-record");
-        apiReport.setProjectId(DEFAULT_PROJECT_ID);
-        apiReport.setName("test-report-name");
-        apiReport.setStartTime(System.currentTimeMillis());
-        apiReport.setCreateUser("admin");
-        apiReport.setUpdateUser("admin");
-        apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setPoolId(testResourcePools.getFirst().getId());
-        apiReport.setEnvironmentId(environments.getFirst().getId());
-        apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
-        apiReport.setTriggerMode("api-trigger-mode");
-        apiReport.setIntegrated(false);
-        reports.add(apiReport);
-        apiReportService.insertApiReport(reports, new ArrayList<>());
-
-        mockMvc.perform(getRequestBuilder(GET + "test-report-id-no-step-no-record"))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
-
-
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, GET + "api-report-id0");
