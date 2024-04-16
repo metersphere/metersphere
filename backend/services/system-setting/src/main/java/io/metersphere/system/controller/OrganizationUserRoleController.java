@@ -92,7 +92,6 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-获取用户组对应的权限配置")
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
-    @CheckOrgOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return organizationUserRoleService.getPermissionSetting(id);
     }

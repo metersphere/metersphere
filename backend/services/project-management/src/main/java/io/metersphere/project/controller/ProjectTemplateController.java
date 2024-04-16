@@ -84,7 +84,6 @@ public class ProjectTemplateController {
     @Operation(summary = "设置默认模板")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = ProjectTemplateLogService.class)
-    @CheckProjectOwner(resourceId = "#id", resourceType = "template", resourceCol = "scope_id")
     public void setDefaultTemplate(@PathVariable String projectId, @PathVariable String id) {
         projectTemplateservice.setDefaultTemplate(projectId, id);
     }

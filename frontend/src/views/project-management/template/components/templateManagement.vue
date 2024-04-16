@@ -129,7 +129,7 @@
   import PreviewTemplate from '@/views/setting/organization/template/components/viewTemplate.vue';
 
   import {
-    deleteOrdTemplate,
+    deleteProjectTemplate,
     getProjectFieldList,
     getProjectTemplateInfo,
     getProjectTemplateList,
@@ -273,7 +273,7 @@
       },
       onBeforeOk: async () => {
         try {
-          if (record.id) await deleteOrdTemplate(record.id);
+          if (record.id) await deleteProjectTemplate(record.id);
           Message.success(t('common.deleteSuccess'));
           loadList();
         } catch (error) {
