@@ -392,7 +392,11 @@
     </template>
   </MsBaseTable>
   <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" @ok="initMenuData()" />
-  <RelatedCase v-model:visible="relatedCaseDrawerVisible" @cancel="relatedCaseDrawerVisible = false" />
+  <RelatedCase
+    v-model:visible="relatedCaseDrawerVisible"
+    @cancel="relatedCaseDrawerVisible = false"
+    @ok="initMenuData()"
+  />
 </template>
 
 <script setup lang="ts">
@@ -727,7 +731,6 @@
   };
 
   const handleMenuStatusChange = async (type: string, typeValue: string | boolean, suffix: string) => {
-    debugger;
     try {
       let hasAuth = false;
       switch (suffix) {

@@ -73,10 +73,10 @@
       <a-form-item field="CRON_EXPRESSION" :label="t('project.menu.CRON_EXPRESSION')">
         <a-select v-model="form.CRON_EXPRESSION">
           <a-option v-for="data in frequencyOption" :key="data.value" :value="data.value">
-            <span class="text-[var(--color-text-1)]">
-              {{ data.label }}
+            <span class="text-[var(--color-text-2)]"> {{ data.label }}</span
+            ><span class="ml-1 text-[var(--color-text-n4)] hover:text-[rgb(var(--primary-5))]">
+              {{ data.extra }}
             </span>
-            <span v-if="data.extra" class="text-[var(--color-text-4)]"> {{ data.extra }} </span>
           </a-option>
           <!--          <a-option value="custom">
             <div class="border-t-1 cursor-pointer text-[rgb(var(&#45;&#45;primary-5))]">{{

@@ -19,6 +19,15 @@
         :virtual-list-props="{ height: 200 }"
         :placeholder="t('report.detail.api.filterPlaceholder')"
       >
+        <template #label="{ data }">
+          <a-tooltip
+            :content="`${cascaderOptions.find((item: any) => innerKeyword.includes(item.value))?.label} / ${data.label}`"
+          >
+            <div class="one-line-text inline-flex w-full items-center justify-between pr-[8px]" title="">
+              {{ cascaderOptions.find((item: any) => innerKeyword.includes(item.value))?.label }} / {{ data.label }}
+            </div>
+          </a-tooltip>
+        </template>
         <template #option="{ data }">
           <div title="">
             <a-tooltip :content="t(data.label)">

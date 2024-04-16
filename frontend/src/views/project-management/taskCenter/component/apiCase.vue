@@ -48,7 +48,7 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
+          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="statusFilterVisible = true">
             <div class="font-medium">
               {{ t(columnConfig.title as string) }}
             </div>
