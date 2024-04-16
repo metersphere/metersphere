@@ -208,11 +208,11 @@
       </div>
       <CommentInput
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
+        v-model:notice-user-ids="noticeUserIds"
         :content="commentContent"
         is-show-avatar
         :upload-image="handleUploadImage"
         is-use-bottom
-        :notice-user-ids="noticeUserIds"
         :preview-url="EditorPreviewFileUrl"
         @publish="publishHandler"
       />
@@ -612,20 +612,14 @@
   };
 
   async function publishHandler(currentContent: string) {
-    const regex = /data-id="([^"]*)"/g;
-    const matchesNotifier = currentContent.match(regex);
-    let notifiers = '';
-    if (matchesNotifier?.length) {
-      notifiers = matchesNotifier.map((match) => match.replace('data-id="', '').replace('"', '')).join(';');
-    }
     try {
       const params = {
         bugId: detailInfo.value.id,
-        notifier: notifiers,
+        notifier: noticeUserIds.value.join(';'),
         replyUser: '',
         parentId: '',
         content: currentContent,
-        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)
+        event: noticeUserIds.value.join(';') ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)
       };
       await createOrUpdateComment(params as CommentParams);
       Message.success(t('common.publishSuccessfully'));
