@@ -97,6 +97,9 @@
     ScenarioStepType.SCRIPT,
   ]);
 
+  /**
+   * 查询步骤默认节点不展开
+   */
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1];
