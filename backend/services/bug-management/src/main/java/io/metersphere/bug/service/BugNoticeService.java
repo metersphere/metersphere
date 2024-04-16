@@ -69,7 +69,7 @@ public class BugNoticeService {
                         fields.add(fieldDTO);
                     }
                 });
-                notice.setCustomFields(fields);
+                notice.setFields(fields);
             }
             return notice;
         } else {
@@ -101,7 +101,7 @@ public class BugNoticeService {
                 fieldDTO.setName(field.getValue());
                 fields.add(fieldDTO);
             });
-            notice.setCustomFields(fields);
+            notice.setFields(fields);
         }
         return notice;
     }
