@@ -108,6 +108,7 @@
       popupContainer?: string;
       fieldConfig?: FieldConfig; // 表单配置项
       allNames?: string[]; // 添加或者重命名名称重复
+      nodeId?: string; // 节点 id
     }>(),
     {
       type: 'warning',
@@ -116,7 +117,7 @@
     }
   );
   const emits = defineEmits<{
-    (e: 'confirm', formValue?: { field: string }, cancel?: () => void): void;
+    (e: 'confirm', formValue?: { field: string; id?: string }, cancel?: () => void): void;
     (e: 'cancel'): void;
     (e: 'update:visible', visible: boolean): void;
   }>();
@@ -164,7 +165,7 @@
     if (props.isDelete) {
       emits('confirm', undefined, handleCancel);
     } else {
-      emits('confirm', form.value, handleCancel);
+      emits('confirm', { ...form.value, id: props.nodeId }, handleCancel);
     }
   };
   // 获取当前标题的样式

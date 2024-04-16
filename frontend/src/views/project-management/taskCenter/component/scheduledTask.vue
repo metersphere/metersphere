@@ -359,7 +359,7 @@
         x: 1200,
       },
       showSetting: true,
-      selectable: true,
+      selectable: hasOperationPermission.value,
       heightUsed: 300,
       enableDrag: false,
       showSelectorAll: true,

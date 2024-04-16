@@ -378,7 +378,7 @@
         x: 1400,
       },
       showSetting: true,
-      selectable: true,
+      selectable: hasOperationPermission.value,
       heightUsed: 330,
       enableDrag: false,
       showSelectAll: true,

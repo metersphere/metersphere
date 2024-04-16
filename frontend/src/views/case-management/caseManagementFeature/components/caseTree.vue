@@ -51,6 +51,7 @@
           :title="t('caseManagement.featureCase.rename')"
           :all-names="[]"
           :is-delete="false"
+          :node-id="nodeData.id"
           :ok-text="t('common.confirm')"
           :field-config="{ field: renameCaseName }"
           :loading="confirmLoading"
@@ -310,19 +311,21 @@
   }
 
   // 更新子模块
-  async function updateNameModule(formValue?: { field: string }, cancel?: () => void) {
+  async function updateNameModule(formValue?: { field: string; id?: string }, cancel?: () => void) {
     try {
       confirmLoading.value = true;
-      const params: UpdateModule = {
-        id: focusNodeKey.value,
-        name: formValue?.field as string,
-      };
-      await updateCaseModuleTree(params);
-      Message.success(t('common.updateSuccess'));
-      if (cancel) {
-        cancel();
+      if (formValue && formValue.id) {
+        const params: UpdateModule = {
+          id: formValue.id,
+          name: formValue?.field as string,
+        };
+        await updateCaseModuleTree(params);
+        Message.success(t('common.updateSuccess'));
+        if (cancel) {
+          cancel();
+        }
+        initModules();
       }
-      initModules();
     } catch (error) {
       console.log(error);
     } finally {
