@@ -539,7 +539,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.mapping"
               :max-length="255"
-              :placeholder="t('system.config.auth.LDAPPropertyMapPlaceholder')"
+              :placeholder="t('system.config.auth.LDAPPropertyMapPlaceholder', { map: '{key:value}' })"
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.LDAPPropertyMapTip')" :show-fill-icon="false" />

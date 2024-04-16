@@ -179,7 +179,7 @@ export default {
   'system.config.auth.userFilterTip': 'cn or uid or sAMAccountName=%(user)s',
   'system.config.auth.LDAPPropertyMap': 'LDAP attribute mapping',
   'system.config.auth.LDAPPropertyMapRequired': 'LDAP attribute map cannot be empty',
-  'system.config.auth.LDAPPropertyMapPlaceholder': 'Please enter {"key":"value"} format parameters',
+  'system.config.auth.LDAPPropertyMapPlaceholder': 'Please enter {map} format parameters',
   'system.config.auth.LDAPPropertyMapTip':
     'The left key is the MeterSphere user attribute, and the right value is the authentication platform user attribute',
   'system.config.auth.testLink': 'Test Connection',

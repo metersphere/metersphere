@@ -175,7 +175,7 @@ export default {
   'system.config.auth.userFilterTip': 'cn or uid or sAMAccountName=%(user)s',
   'system.config.auth.LDAPPropertyMap': 'LDAP 属性映射',
   'system.config.auth.LDAPPropertyMapRequired': 'LDAP 属性映射不能为空',
-  'system.config.auth.LDAPPropertyMapPlaceholder': '请输入 {"key":"value"} 键值对格式参数',
+  'system.config.auth.LDAPPropertyMapPlaceholder': '请输入 {map} 键值对格式参数',
   'system.config.auth.LDAPPropertyMapTip': '左侧键为 MeterSphere 用户属性，右侧值为认证平台用户属性',
   'system.config.auth.testLink': '测试连接',
   'system.config.auth.testLinkSuccess': 'LDAP 连接成功',
