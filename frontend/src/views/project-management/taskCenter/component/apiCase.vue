@@ -495,8 +495,18 @@
         try {
           const { selectIds, selectAll } = batchParams.value;
           await loadRealMap.value[props.group].batchStop({
+            moduleType: props.moduleType,
             selectIds: selectAll ? [] : selectIds,
             selectAll,
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                status: statusFiltersMap.value[props.moduleType],
+                triggerMode: triggerModeFiltersMap.value[props.moduleType],
+                organizationIds: orgFiltersMap.value[props.moduleType],
+                projectIds: projectFiltersMap.value[props.moduleType],
+              },
+            },
           });
           resetSelector();
           Message.success(t('project.taskCenter.stopSuccess'));
@@ -511,7 +521,7 @@
   }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
+    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: params?.condition || {} };
     if (event.eventTag === 'batchStop') {
       batchStopRealTask();
     }
