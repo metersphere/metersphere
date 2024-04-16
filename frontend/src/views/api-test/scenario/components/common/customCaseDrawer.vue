@@ -68,7 +68,7 @@
     <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
       <div class="flex items-center gap-[16px] p-[16px] pb-[8px]">
         <a-input
-          v-if="activeStep?.stepType && (_stepType.isCopyCase || _stepType.isQuoteCase)"
+          v-if="activeStep?.stepType && _stepType.isQuoteCase"
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :show-word-limit="isEditableApi"

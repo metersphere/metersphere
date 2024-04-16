@@ -184,7 +184,7 @@
           </div>
         </div>
         <a-input
-          v-if="props.step?.stepType && (_stepType.isCopyApi || _stepType.isQuoteApi) && isHttpProtocol"
+          v-if="props.step?.stepType && _stepType.isQuoteApi && isHttpProtocol"
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :placeholder="t('apiTestManagement.apiNamePlaceholder')"

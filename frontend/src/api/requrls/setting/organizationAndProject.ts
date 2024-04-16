@@ -45,8 +45,6 @@ export const postAddProjectMemberUrl = '/system/project/add-member';
 export const getRevokeProjectUrl = '/system/project/revoke/';
 // 移除项目成员
 export const getDeleteProjectMemberUrl = '/system/project/remove-member/';
-// 根据ID获取项目信息
-export const getProjectInfoUrl = '/system/project/get/';
 // 删除项目
 export const getDeleteProjectUrl = '/system/project/delete/';
 // 系统-组织及项目，获取用户下拉选项

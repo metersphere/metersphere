@@ -153,4 +153,5 @@ export default {
   'common.image': 'Image',
   'common.text': 'Text',
   'common.resourceDeleted': 'Resource has been deleted',
+  'common.refresh': 'Refresh',
 };

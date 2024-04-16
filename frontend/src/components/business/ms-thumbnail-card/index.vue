@@ -1,29 +1,65 @@
 <template>
-  <div :class="['ms-thumbnail-card', `ms-thumbnail-card--${props.mode}`]" @click="handleCardClick">
+  <div :class="['ms-thumbnail-card', `ms-thumbnail-card--${props.mode}`]" @click.stop="handleCardClick">
     <div class="ms-thumbnail-card-content">
-      <div v-if="props.moreActions" class="ms-thumbnail-card-more">
-        <MsTableMoreAction :list="props.moreActions" @select="handleMoreActionSelect" />
-      </div>
-      <a-image
-        v-if="fileType === 'image'"
-        :src="props.url"
-        fit="contain"
-        class="absolute top-0 h-full w-full"
-        :preview="false"
-        width="100%"
-        height="100%"
-        hide-footer
-      />
-      <MsIcon
-        v-else
-        :type="FileIconMap[fileType][UploadStatus.done]"
-        class="absolute top-0 h-full w-full p-[24px] text-[var(--color-text-4)]"
-      />
-      <a-tooltip v-if="props.footerText" :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
-        <div class="ms-thumbnail-card-footer one-line-text">
-          {{ props.footerText }}
+      <MsUpload
+        v-if="props.useUpload"
+        accept="none"
+        :show-file-list="false"
+        :limit="50"
+        size-unit="MB"
+        :auto-upload="false"
+        :multiple="false"
+        @change="handleChange"
+      >
+        <div v-if="props.moreActions" class="ms-thumbnail-card-more">
+          <MsTableMoreAction :list="props.moreActions" @select="handleMoreActionSelect" />
         </div>
-      </a-tooltip>
+        <a-image
+          v-if="fileType === 'image'"
+          :src="props.url"
+          fit="contain"
+          class="absolute top-0 h-full w-full"
+          :preview="false"
+          width="100%"
+          height="100%"
+          hide-footer
+        />
+        <MsIcon
+          v-else
+          :type="FileIconMap[fileType][UploadStatus.done]"
+          class="absolute top-0 h-full w-full p-[24px] text-[var(--color-text-4)]"
+        />
+        <a-tooltip v-if="props.footerText" :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
+          <div class="ms-thumbnail-card-footer one-line-text">
+            {{ props.footerText }}
+          </div>
+        </a-tooltip>
+      </MsUpload>
+      <template v-else>
+        <div v-if="props.moreActions" class="ms-thumbnail-card-more">
+          <MsTableMoreAction :list="props.moreActions" @select="handleMoreActionSelect" />
+        </div>
+        <a-image
+          v-if="fileType === 'image'"
+          :src="props.url"
+          fit="contain"
+          class="absolute top-0 h-full w-full"
+          :preview="false"
+          width="100%"
+          height="100%"
+          hide-footer
+        />
+        <MsIcon
+          v-else
+          :type="FileIconMap[fileType][UploadStatus.done]"
+          class="absolute top-0 h-full w-full p-[24px] text-[var(--color-text-4)]"
+        />
+        <a-tooltip v-if="props.footerText" :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
+          <div class="ms-thumbnail-card-footer one-line-text">
+            {{ props.footerText }}
+          </div>
+        </a-tooltip>
+      </template>
     </div>
   </div>
 </template>
@@ -35,6 +71,8 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { FileIconMap, getFileEnum } from '@/components/pure/ms-upload/iconMap';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
 
   import { UploadStatus } from '@/enums/uploadEnum';
 
@@ -45,6 +83,7 @@
       url?: string;
       footerText?: string;
       moreActions?: ActionsItem[];
+      useUpload?: boolean; // 是否使用上传
     }>(),
     {
       mode: 'default',
@@ -53,6 +92,7 @@
   const emit = defineEmits<{
     (e: 'click'): void;
     (e: 'actionSelect', item: ActionsItem): void;
+    (e: 'change', fileItem: MsFileItem): void;
   }>();
 
   const fileType = computed(() => {
@@ -68,6 +108,10 @@
 
   function handleMoreActionSelect(item: ActionsItem) {
     emit('actionSelect', item);
+  }
+
+  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    emit('change', fileItem);
   }
 </script>
 

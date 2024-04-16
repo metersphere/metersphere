@@ -57,9 +57,9 @@
   const innerConfig = useVModel(props, 'config', emit);
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return 428;
+      return 328;
     }
-    return 428 + (props.secondBoxHeight || 0);
+    return 328 + (props.secondBoxHeight || 0);
   });
 
   const conditionTypes = computed(() => {

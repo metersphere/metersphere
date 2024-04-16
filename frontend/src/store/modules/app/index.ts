@@ -246,34 +246,11 @@ const useAppStore = defineStore('app', {
         console.log(error);
       }
     },
-    async validateUserProjectPermission() {
-      try {
-        const router = useRouter();
-        const HasProjectPermission = await getUserHasProjectPermission(this.currentProjectId);
-        if (!HasProjectPermission) {
-          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-          return false;
-        }
-
-        const res = await getProjectInfo(this.currentProjectId);
-        if (res.deleted) {
-          // 如果项目被删除或者被禁用，跳转到无项目页面
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-          return false;
-        }
-        return true;
-      } catch (error) {
-        console.log(error);
-        return false;
-      }
-    },
     async getProjectInfos() {
       try {
+        if (!this.currentProjectId) {
+          return;
+        }
         const res = await getProjectInfo(this.currentProjectId);
         if (!res || res.deleted) {
           const router = useRouter();
@@ -285,6 +262,7 @@ const useAppStore = defineStore('app', {
           this.setCurrentMenuConfig(res?.moduleIds || []);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },

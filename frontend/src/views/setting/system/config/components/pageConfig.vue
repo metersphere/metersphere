@@ -455,6 +455,7 @@
     pageConfig.value = {
       ...pageConfig.value,
       ...appStore.defaultLoginConfig,
+      slogan: t(appStore.defaultLoginConfig.slogan),
     };
   }
 
@@ -469,7 +470,7 @@
    * 全部重置
    */
   function resetAll() {
-    pageConfig.value = { ...appStore.getDefaultPageConfig };
+    pageConfig.value = { ...appStore.getDefaultPageConfig, slogan: t(appStore.defaultLoginConfig.slogan) };
   }
 
   function makeParams() {

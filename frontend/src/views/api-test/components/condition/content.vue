@@ -373,7 +373,7 @@
         :selectable="false"
         :scroll="{ x: '700px' }"
         :response="props.response"
-        :height-used="(props.heightUsed || 0) + 68"
+        :height-used="props.heightUsed"
         @change="handleExtractParamTableChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >

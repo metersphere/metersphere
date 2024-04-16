@@ -274,6 +274,7 @@
         </MsButton>
         <a-divider v-permission="['PROJECT_API_SCENARIO:READ+ADD']" direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction
+          v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_SCENARIO:READ+DELETE']"
           :list="getTableMoreActionList(record)"
           @select="handleTableMoreActionSelect($event, record)"
         />

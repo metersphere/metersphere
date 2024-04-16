@@ -8,6 +8,9 @@
 <script lang="ts" setup>
   import { useRoute, useRouter } from 'vue-router';
   import { useEventListener, useWindowSize } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
+
+  import MsSysUpgradeTip from '@/components/pure/ms-sys-upgrade-tip/index.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { saveBaseUrl } from '@/api/modules/setting/config';
@@ -125,6 +128,35 @@
     // @desc: TODO待优化主要是为了拿到初始化配置的项目模块方便接下来过滤菜单权限 解决刷新菜单空白问题
     appStore.getProjectInfos();
   });
+
+  function showUpdateMessage() {
+    Message.clear();
+    Message.warning({
+      content: () => h(MsSysUpgradeTip),
+      duration: 0,
+      closable: false,
+    });
+  }
+
+  onMounted(() => {
+    window.onerror = (message) => {
+      if (typeof message === 'string' && message.includes('Failed to fetch dynamically imported')) {
+        showUpdateMessage();
+      }
+    };
+
+    window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+      if (
+        event &&
+        event.reason &&
+        event.reason.message &&
+        event.reason.message.includes('Failed to fetch dynamically imported')
+      ) {
+        showUpdateMessage();
+      }
+    };
+  });
+
   /** 屏幕大小改变时重新赋值innerHeight */
   useEventListener(window, 'resize', () => {
     const { height } = useWindowSize();

@@ -91,11 +91,11 @@
     }
   );
 
-  async function initDetail() {
+  async function initDetail(id?: string) {
     try {
       innerLoading.value = true;
       emit('loadingDetail');
-      const res = await props.getDetailFunc(activeDetailId.value);
+      const res = await props.getDetailFunc(id || activeDetailId.value);
       emit('loaded', res);
     } catch (error) {
       // eslint-disable-next-line no-console

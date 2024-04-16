@@ -78,8 +78,8 @@
   import { decodeStringToCharset } from '@/utils';
 
   import './userWorker';
-  import MsCodeEditorTheme from './themes';
-  import { CustomTheme, editorProps, Language, LanguageEnum, Theme } from './types';
+  // import MsCodeEditorTheme from './themes';
+  import { editorProps, Language, LanguageEnum, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
   import XmlBeautify from 'xml-beautify';
 
@@ -103,10 +103,11 @@
         { label: 'vs-dark', value: 'vs-dark' },
         { label: 'hc-black', value: 'hc-black' },
       ].concat(
-        Object.keys(MsCodeEditorTheme).map((item) => ({
-          label: item,
-          value: item,
-        }))
+        []
+        // Object.keys(MsCodeEditorTheme).map((item) => ({
+        //   label: item,
+        //   value: item,
+        // }))
       );
       function handleThemeChange(val: Theme) {
         editor.updateOptions({
@@ -254,9 +255,9 @@
 
       const init = () => {
         // 注册自定义主题 TODO:自定义主题高亮色还没配置
-        Object.keys(MsCodeEditorTheme).forEach((e) => {
-          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
-        });
+        // Object.keys(MsCodeEditorTheme).forEach((e) => {
+        //   monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
+        // });
         editor = monaco.editor.create(codeContainerRef.value, {
           value: props.modelValue,
           automaticLayout: true,
@@ -361,11 +362,11 @@
 
     width: v-bind(width);
     height: v-bind(height);
-    &.MS-text[data-mode-id='plaintext'] {
-      :deep(.mtk1) {
-        color: rgb(var(--primary-5));
-      }
-    }
+    // &.MS-text[data-mode-id='plaintext'] {
+    //   :deep(.mtk1) {
+    //     color: rgb(var(--primary-5));
+    //   }
+    // }
     :deep(.overflowingContentWidgets) {
       z-index: 9999;
     }

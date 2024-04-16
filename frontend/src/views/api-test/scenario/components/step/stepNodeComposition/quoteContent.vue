@@ -23,7 +23,10 @@
             </div>
             <div>
               <div class="mb-[2px] text-[var(--color-text-4)]">{{ t('apiScenario.detailName') }}</div>
-              <div class="cursor-pointer text-[14px] text-[rgb(var(--primary-5))]" @click="goDetail">
+              <div v-if="originProjectInfo?.delete" class="text-[14px] text-[var(--color-text-1)]">
+                {{ t('common.resourceDeleted') }}
+              </div>
+              <div v-else class="cursor-pointer text-[14px] text-[rgb(var(--primary-5))]" @click="goDetail">
                 {{ `【${originProjectInfo?.num}】${originProjectInfo?.name}` }}
               </div>
             </div>
