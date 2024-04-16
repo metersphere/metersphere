@@ -97,7 +97,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseReview/create.vue'),
       meta: {
         locale: 'menu.caseManagement.caseManagementReviewCreate',
-        roles: ['CASE_REVIEW:READ+ADD'],
+        roles: ['CASE_REVIEW:READ+ADD', 'CASE_REVIEW:READ+UPDATE'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
