@@ -55,7 +55,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-新增")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiTestCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, target = "#targetClass.getCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, target = "#targetClass.addCaseDto(#request)", targetClass = ApiTestCaseNoticeService.class)
     public ApiTestCase add(@Validated @RequestBody ApiTestCaseAddRequest request) {
         return apiTestCaseService.addCase(request, SessionUtils.getUserId());
     }
@@ -171,7 +171,6 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchEditApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
     }
@@ -180,7 +179,6 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-批量编辑")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchEditApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public void batchUpdate(@Validated @RequestBody ApiCaseBatchEditRequest request) {
         apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
     }

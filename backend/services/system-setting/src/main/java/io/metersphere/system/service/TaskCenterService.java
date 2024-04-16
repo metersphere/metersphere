@@ -6,6 +6,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Schedule;
@@ -21,11 +22,14 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.schedule.ApiScheduleNoticeService;
 import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -36,10 +40,7 @@ import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,6 +83,10 @@ public class TaskCenterService {
     OperationLogService operationLogService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    ApiScheduleNoticeService apiScheduleNoticeService;
+    @Resource
+    UserMapper userMapper;
 
 
     private static final String CREATE_TIME_SORT = "create_time desc";
@@ -207,6 +212,7 @@ public class TaskCenterService {
         scheduleService.editSchedule(schedule);
         scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
                 new TriggerKey(schedule.getKey(), schedule.getJob()), BaseScheduleJob.class);
+        apiScheduleNoticeService.sendScheduleNotice(schedule, userId);
         saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.UPDATE.name());
     }
 
@@ -247,18 +253,18 @@ public class TaskCenterService {
         operationLogService.batchAdd(logs);
     }
 
-    public void batchEnable(TaskCenterScheduleBatchRequest request, String userId, String path, String module, boolean enable) {
+    public void batchEnable(TaskCenterScheduleBatchRequest request, String userId, String path, String module, boolean enable, String projectId) {
         List<OptionDTO> projectList = getSystemProjectList();
-        batchOperation(request, userId, path, module, projectList, enable);
+        batchOperation(request, userId, path, module, projectList, enable, projectId);
     }
 
-    public void batchEnableOrg(TaskCenterScheduleBatchRequest request, String userId, String orgId, String path, String module, boolean enable) {
+    public void batchEnableOrg(TaskCenterScheduleBatchRequest request, String userId, String orgId, String path, String module, boolean enable, String projectId) {
         List<OptionDTO> projectList = getOrgProjectList(orgId);
-        batchOperation(request, userId, path, module, projectList, enable);
+        batchOperation(request, userId, path, module, projectList, enable, projectId);
 
     }
 
-    private void batchOperation(TaskCenterScheduleBatchRequest request, String userId, String path, String module, List<OptionDTO> projectList, boolean enable) {
+    private void batchOperation(TaskCenterScheduleBatchRequest request, String userId, String path, String module, List<OptionDTO> projectList, boolean enable, String projectId) {
         List<Schedule> scheduleList = new ArrayList<>();
         if (request.isSelectAll()) {
             List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
@@ -269,23 +275,29 @@ public class TaskCenterService {
             scheduleList = scheduleMapper.selectByExample(example);
         }
         //过滤掉不需要的 和已经开启过的
-        scheduleList = scheduleList.stream().filter(s -> s.getEnable() != enable || !request.getExcludeIds().contains(s.getId())).collect(Collectors.toList());
+        scheduleList = scheduleList.stream().filter(s -> s.getEnable() != enable).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+            scheduleList.removeAll(request.getExcludeIds());
+        }
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ScheduleMapper batchMapper = sqlSession.getMapper(ScheduleMapper.class);
-        scheduleList.forEach(s -> {
-            s.setEnable(enable);
-            batchMapper.updateByPrimaryKeySelective(s);
-            scheduleService.addOrUpdateCronJob(s, new JobKey(s.getKey(), s.getJob()),
-                    new TriggerKey(s.getKey(), s.getJob()), BaseScheduleJob.class);
+        SubListUtils.dealForSubList(scheduleList, 100, list -> {
+            list.forEach(s -> {
+                s.setEnable(enable);
+                batchMapper.updateByPrimaryKeySelective(s);
+                scheduleService.addOrUpdateCronJob(s, new JobKey(s.getKey(), s.getJob()),
+                        new TriggerKey(s.getKey(), s.getJob()), BaseScheduleJob.class);
+            });
+            sqlSession.flushStatements();
         });
-        sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        apiScheduleNoticeService.batchSendNotice(projectId, scheduleList, userMapper.selectByPrimaryKey(userId), enable ? NoticeConstants.Event.OPEN : NoticeConstants.Event.CLOSE);
         saveLog(scheduleList, userId, path, HttpMethodConstants.POST.name(), module, OperationLogType.UPDATE.name());
     }
 
     public void batchEnableProject(TaskCenterScheduleBatchRequest request, String userId, String projectId, String path, String module, boolean enable) {
         List<OptionDTO> projectList = getProjectOption(projectId);
-        batchOperation(request, userId, path, module, projectList, enable);
+        batchOperation(request, userId, path, module, projectList, enable, projectId);
     }
 }

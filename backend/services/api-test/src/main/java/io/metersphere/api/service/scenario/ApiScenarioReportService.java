@@ -19,8 +19,10 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -64,6 +66,8 @@ public class ApiScenarioReportService {
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ApiScenarioReportNoticeService apiScenarioReportNoticeService;
     private static final String SPLITTER = "_";
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -151,6 +155,7 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+        User user = userMapper.selectByPrimaryKey(userId);
         SubListUtils.dealForSubList(ids, 500, subList -> {
             ApiScenarioReportExample example = new ApiScenarioReportExample();
             example.createCriteria().andIdIn(subList);
@@ -161,6 +166,7 @@ public class ApiScenarioReportService {
             apiScenarioReportMapper.updateByExampleSelective(scenarioReport, example);
             //TODO 记录日志
             apiScenarioReportLogService.batchDeleteLog(subList, userId, request.getProjectId());
+            apiScenarioReportNoticeService.batchSendNotice(subList, user, request.getProjectId(), NoticeConstants.Event.DELETE);
         });
     }
 

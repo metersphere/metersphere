@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiReportListDTO;
+import io.metersphere.api.service.definition.ApiReportNoticeService;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.definition.ApiReportLogService;
 import io.metersphere.api.service.definition.ApiReportService;
@@ -15,6 +16,8 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -63,6 +66,7 @@ public class ApiReportController {
     @CheckOwner(resourceId = "#id", resourceType = "api_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#id)", msClass = ApiReportLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDto(#id)", targetClass = ApiReportNoticeService.class)
     public void delete(@PathVariable String id) {
         apiReportService.delete(id, SessionUtils.getUserId());
     }

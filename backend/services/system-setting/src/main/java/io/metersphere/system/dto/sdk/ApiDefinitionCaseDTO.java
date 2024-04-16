@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class ApiDefinitionCaseDTO {
+    @Schema(description = "message.domain.id")
+    private String id;
 
     @Schema(description = "message.domain.name")
     private String name;

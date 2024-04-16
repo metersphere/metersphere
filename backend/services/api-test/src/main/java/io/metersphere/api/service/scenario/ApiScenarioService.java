@@ -22,6 +22,8 @@ import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.schedule.ApiScheduleNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -320,6 +322,7 @@ public class ApiScenarioService extends MoveNodeService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         List<ApiScenario> scenarioInfoByIds = extApiScenarioMapper.getInfoByIds(ids, false);
         apiScenarioLogService.batchEditLog(scenarioInfoByIds, userId, projectId);
+        apiScenarioNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.UPDATE);
     }
 
     private void batchUpdateEnvironment(ApiScenarioExample example, ApiScenario updateScenario,
@@ -2614,6 +2617,7 @@ public class ApiScenarioService extends MoveNodeService {
                 sublist -> operationGC(sublist, isDeleteOperation, deleteTime, logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(),
                 isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule, OperationLogModule.API_TEST_SCENARIO_RECYCLE, false);
+        apiScenarioNoticeService.batchSendNotice(scenarioIds, logInsertModule.getOperator(), request.getProjectId(), NoticeConstants.Event.DELETE);
         return response;
     }
 
@@ -2669,7 +2673,6 @@ public class ApiScenarioService extends MoveNodeService {
                 .resourceType(ScheduleResourceType.API_SCENARIO.name())
                 .config(JSON.toJSONString(scheduleRequest.getConfig()))
                 .build();
-        apiScenarioNoticeService.sendScheduleNotice(scheduleRequest, operator);
 
         return scheduleService.scheduleConfig(
                 scheduleConfig,

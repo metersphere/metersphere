@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
+import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
@@ -51,4 +52,6 @@ public interface ExtApiScenarioReportMapper {
     void updateApiScenario(List<String> ids);
 
     List<ApiScenarioReportStepDTO> selectStepDeatilByReportId(String id);
+
+    List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> ids);
 }

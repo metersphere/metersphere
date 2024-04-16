@@ -85,7 +85,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-创建场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiScenarioLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getScenarioDTO(#request)", targetClass = ApiScenarioNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.addScenarioDTO(#request)", targetClass = ApiScenarioNoticeService.class)
     public ApiScenario add(@Validated @RequestBody ApiScenarioAddRequest request) {
         return apiScenarioService.add(request, SessionUtils.getUserId());
     }
@@ -149,7 +149,6 @@ public class ApiScenarioController {
         return apiScenarioService.getStepResourceInfo(resourceId, resourceType);
     }
 
-    //需求补充：回收站里的相关操作都不需要发通知
     @GetMapping("/recover/{id}")
     @Operation(summary = "接口测试-接口场景管理-恢复场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
@@ -217,7 +216,6 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#request.getScenarioId())", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#scenarioId", resourceType = "api_scenario")
-    @SendNotice(taskType = NoticeConstants.TaskType.SCHEDULE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScheduleNotice(#request)", targetClass = ApiScenarioNoticeService.class)
     public void deleteScheduleConfig(@PathVariable String scenarioId) {
         apiValidateService.validateApiMenuInProject(scenarioId, ApiResource.API_SCENARIO.name());
         apiScenarioService.deleteScheduleConfig(scenarioId);

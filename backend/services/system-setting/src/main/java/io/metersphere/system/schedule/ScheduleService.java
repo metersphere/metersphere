@@ -25,6 +25,8 @@ public class ScheduleService {
     private ScheduleMapper scheduleMapper;
     @Resource
     private ScheduleManager scheduleManager;
+    @Resource
+    private ApiScheduleNoticeService apiScheduleNoticeService;
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(IDGenerator.nextStr());
@@ -121,6 +123,7 @@ public class ScheduleService {
             schedule.setUpdateTime(System.currentTimeMillis());
             schedule.setJob(clazz.getName());
             scheduleMapper.updateByExampleSelective(schedule, example);
+            apiScheduleNoticeService.sendScheduleNotice(schedule, operator);
         } else {
             schedule = scheduleConfig.genCronSchedule(null);
             schedule.setJob(clazz.getName());
