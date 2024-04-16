@@ -4,7 +4,7 @@
     :title="t('project.menu.CASE_RELATED')"
     :destroy-on-close="true"
     :closable="true"
-    :mask-closable="false"
+    :mask-closable="true"
     :get-container="false"
     :body-style="{ padding: '0px' }"
     :width="680"

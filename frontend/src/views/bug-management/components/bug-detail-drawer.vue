@@ -516,6 +516,7 @@
           ? t('caseManagement.featureCase.cancelFollowSuccess')
           : t('caseManagement.featureCase.followSuccess')
       );
+      detailInfo.value.followFlag = !detailInfo.value.followFlag;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
