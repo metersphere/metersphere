@@ -1,8 +1,5 @@
 <template>
   <MsCard
-    :special-height="10"
-    no-content-padding
-    divider-has-p-x
     has-breadcrumb
     :title="title"
     :loading="loading"
@@ -22,7 +19,7 @@
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
       <div class="flex flex-row">
-        <div class="left mt-[16px] min-w-[732px] grow pl-[24px]">
+        <div class="left mt-[16px] min-w-[732px] grow">
           <!-- 平台默认模板不展示缺陷名称, 描述 -->
           <a-form-item
             v-if="!isPlatformDefaultTemplate"

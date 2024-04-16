@@ -258,13 +258,29 @@
   const batchVisible = ref<boolean>(false);
   const batchAction = ref('');
   const batchModalRef = ref();
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
 
   // 添加到用户组
   const addUserGroup = async (target: string[]) => {
+    const { selectedIds, excludeIds, selectAll } = batchParams.value;
     const params = {
       projectId: lastProjectId.value,
       userIds: selectData.value,
       roleIds: target,
+      selectAll: !!selectAll,
+      excludeIds: excludeIds || [],
+      selectIds: selectedIds || [],
+      keyword: props.keyword,
+      condition: {
+        keyword: props.keyword,
+        filter: propsRes.value.filter,
+        combine: batchParams.value.condition,
+      },
     };
     try {
       await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
@@ -277,6 +293,7 @@
 
   // 表格批量处理
   const handleTableBatch = (event: BatchActionParams, params: BatchActionQueryParams) => {
+    batchParams.value = params;
     selectData.value = params.selectedIds;
     if (event.eventTag === 'batchActionRemove') {
       batchRemoveHandler();

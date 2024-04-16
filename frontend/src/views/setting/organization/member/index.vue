@@ -147,6 +147,7 @@
   import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import type { TableQueryParams } from '@/models/common';
   import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -313,13 +314,30 @@
   ];
 
   const batchAction = ref('');
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
 
   // 添加到项目和用户组
   const addProjectOrAddUserGroup = async (target: string[], type: string) => {
     const currentType = batchList.find((item) => item.type === type);
-    const params: BatchAddProjectModel = {
+
+    const { selectedIds, excludeIds, selectAll } = batchParams.value;
+    const params: TableQueryParams = {
       organizationId: lastOrganizationId.value,
       memberIds: selectedData.value,
+      selectAll: !!selectAll,
+      excludeIds: excludeIds || [],
+      selectIds: selectedIds || [],
+      keyword: keyword.value,
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        combine: batchParams.value.condition,
+      },
     };
     if (type === 'project') {
       params.projectIds = target;
@@ -334,6 +352,7 @@
   // 批量操作
   const handleTableBatch = (event: BatchActionParams, params: BatchActionQueryParams) => {
     showBatchModal.value = true;
+    batchParams.value = params;
     selectedData.value = params.selectedIds;
     if (event.eventTag) batchAction.value = event.eventTag;
     if (event.eventTag === 'batchAddProject') getData(getProjectList);

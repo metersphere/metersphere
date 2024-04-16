@@ -108,14 +108,11 @@
     }
   }
 
-  watch(
-    () => props.showType,
-    (val) => {
-      if (val === 'Storage') {
-        initRepositories();
-      }
+  watchEffect(() => {
+    if (props.showType === 'Storage') {
+      initRepositories();
     }
-  );
+  });
 
   /**
    * 初始化模块文件数量
