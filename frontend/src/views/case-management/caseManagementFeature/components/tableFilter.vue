@@ -28,7 +28,7 @@
             </a-checkbox>
           </a-checkbox-group>
         </div>
-        <div v-if="props.mode === 'remote'" class="min-h-[100px] w-[200px] p-4">
+        <div v-if="props.mode === 'remote'" class="w-[200px] p-4 pb-0">
           <MsUserSelector
             v-model="innerStatusFilters"
             :load-option-params="props.loadOptionParams"

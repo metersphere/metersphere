@@ -5,7 +5,13 @@
     </a-tabs>
     <a-divider margin="0"></a-divider>
     <div v-if="activeTab === 'scenarioProcessorConfig'" class="h-[calc(100vh - 100px)] mt-4">
-      <a-alert class="mb-4" closable> {{ t('project.environmental.sceneAlertDesc') }} </a-alert>
+      <a-alert class="mb-4" closable>
+        {{
+          props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE
+            ? t('project.environmental.scenePreAlertDesc')
+            : t('project.environmental.scenePostAlertDesc')
+        }}
+      </a-alert>
       <a-scrollbar
         :style="{
           overflow: 'auto',
@@ -27,7 +33,13 @@
       </a-scrollbar>
     </div>
     <div v-if="activeTab === 'requestProcessorConfig'" class="mt-4 h-full">
-      <a-alert class="mb-4" closable> {{ t('project.environmental.requestAlertDesc') }} </a-alert>
+      <a-alert class="mb-4" closable>
+        {{
+          props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE
+            ? t('project.environmental.requestPreAlertDesc')
+            : t('project.environmental.requestPostAlertDesc')
+        }}
+      </a-alert>
       <PreTab
         v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE"
         :show-associated-scene="showAssociatedScene"

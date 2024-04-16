@@ -68,9 +68,10 @@ export const MEMBER = {
   value: '',
   options: [],
   props: {
-    multiple: false,
+    'multiple': false,
     // 'placeholder': t('formCreate.PleaseSelect'),
-    modelValue: '',
+    'modelValue': '',
+    'allow-clear': true,
   },
 };
 
@@ -81,10 +82,11 @@ export const MULTIPLE_MEMBER = {
   value: [],
   options: [],
   props: {
-    multiple: true,
+    'multiple': true,
     // 'placeholder': t('formCreate.PleaseSelect'),
-    options: [],
-    modelValue: [],
+    'options': [],
+    'modelValue': [],
+    'allow-clear': true,
   },
 };
 
