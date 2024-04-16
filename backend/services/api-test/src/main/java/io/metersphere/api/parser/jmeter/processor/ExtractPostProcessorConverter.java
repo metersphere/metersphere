@@ -45,10 +45,11 @@ public class ExtractPostProcessorConverter extends MsProcessorConverter<ExtractP
         List<MsExtract> list = processor.getExtractors().stream()
                 .filter(extract -> StringUtils.equals(extract.getVariableType(), MsExtract.MsExtractType.ENVIRONMENT.name())
                         && extract.isValid() && extract.getEnable()).toList();
-        if (CollectionUtils.isNotEmpty(list)) {
+
+        ApiParamConfig apiParamConfig = (ApiParamConfig) config;
+        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(processor.getProjectId());
+        if (CollectionUtils.isNotEmpty(list) && envConfig != null) {
             //需要生成一个后置脚本
-            ApiParamConfig apiParamConfig = (ApiParamConfig) config;
-            EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(processor.getProjectId());
             String envId = envConfig.getId();
             JSR223PostProcessor jsr223PostProcessor = new JSR223PostProcessor();
             jsr223PostProcessor.setName("Set Environment Variable");

@@ -79,6 +79,7 @@
           v-model:model-value="expressionForm.resultMatchingRuleNum"
           :default-value="1"
           :min="1"
+          :max="2147483647"
           :precision="0"
           class="w-[80px]"
           @blur="inputNotNull"
