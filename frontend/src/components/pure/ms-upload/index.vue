@@ -11,9 +11,6 @@
     :multiple="props.multiple"
     :disabled="props.disabled"
     :class="getAllScreenClass"
-    :style="{
-      width: props.isAllScreen ? `calc(100% - 0px)` : '',
-    }"
     @change="handleChange"
     @before-upload="beforeUpload"
     @exceed-limit="() => Message.warning(t('ms.upload.overLimit', { limit: props.limit }))"
