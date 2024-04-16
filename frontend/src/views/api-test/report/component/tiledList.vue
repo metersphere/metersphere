@@ -131,7 +131,6 @@
           }
         }
       });
-      result.forEach((item: any) => expandedKeys.value.push(item.stepId)); // 搜索时，匹配的节点需要自动展开
       return result;
     };
 
