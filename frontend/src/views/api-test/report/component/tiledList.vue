@@ -100,6 +100,7 @@
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1];
+    expandedKeys.value = [];
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {

@@ -139,7 +139,7 @@
     {
       value: EnvTabTypeEnum.ENVIRONMENT_SETTING,
       label: t('project.environmental.displaySetting'),
-      canHide: false,
+      canHide: true,
       isShow: true,
     },
   ];
