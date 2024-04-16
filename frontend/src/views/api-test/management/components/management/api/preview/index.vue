@@ -7,16 +7,25 @@
         :simple-show-count="4"
       >
         <template #titleAppend>
-          <MsIcon
-            v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
-            :loading="followLoading"
-            :type="previewDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-            :class="`${previewDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-            class="cursor-pointer"
-            :size="16"
-            @click="toggleFollowReview"
-          />
-          <MsIcon type="icon-icon_share1" class="cursor-pointer text-[var(--color-text-4)]" :size="16" @click="share" />
+          <a-tooltip :content="t(previewDetail.follow ? 'common.forked' : 'common.notForked')">
+            <MsIcon
+              v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
+              :loading="followLoading"
+              :type="previewDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+              :class="`${previewDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+              class="cursor-pointer"
+              :size="16"
+              @click="toggleFollowReview"
+            />
+          </a-tooltip>
+          <a-tooltip :content="t('report.detail.api.copyLink')">
+            <MsIcon
+              type="icon-icon_share1"
+              class="cursor-pointer text-[var(--color-text-4)]"
+              :size="16"
+              @click="share"
+            />
+          </a-tooltip>
           <apiStatus :status="previewDetail.status" size="small" />
         </template>
         <template #type="{ value }">

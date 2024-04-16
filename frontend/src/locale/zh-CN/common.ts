@@ -85,6 +85,7 @@ export default {
   'common.copySuccess': '复制成功',
   'common.copyNotSupport': '您的浏览器不支持自动复制，请手动复制',
   'common.fork': '关注',
+  'common.notForked': '未关注',
   'common.forked': '已关注',
   'common.more': '更多',
   'common.recycle': '回收站',

@@ -84,6 +84,7 @@ export default {
   'common.copySuccess': 'Copy successfully',
   'common.copyNotSupport': 'Your browser does not support automatic copying. Please copy manually.',
   'common.fork': 'Fork',
+  'common.notForked': 'Not Forked',
   'common.forked': 'Forked',
   'common.more': 'More',
   'common.recycle': 'Recycle Bin',
