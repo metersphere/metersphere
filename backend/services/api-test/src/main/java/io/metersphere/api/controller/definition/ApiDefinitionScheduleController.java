@@ -45,7 +45,7 @@ public class ApiDefinitionScheduleController {
     @GetMapping(value = "/switch/{id}")
     @Operation(summary = "接口测试-接口管理-定时同步-开启/关闭")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    @CheckOwner(resourceId = "#id", resourceType = "api_definition_swagger")
+    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void updateScheduleEnable(@PathVariable String id) {
         apiDefinitionScheduleService.switchSchedule(id);
     }
@@ -53,7 +53,7 @@ public class ApiDefinitionScheduleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "接口测试-接口管理-定时同步-删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    @CheckOwner(resourceId = "#id", resourceType = "api_definition_swagger")
+    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void deleteSchedule(@PathVariable String id) {
         apiDefinitionScheduleService.deleteSchedule(id);
     }
