@@ -554,6 +554,7 @@
           @apply cursor-default;
         }
       }
+      overflow-y: auto;
     }
   }
 </style>
