@@ -70,7 +70,7 @@ public class FileAssociationService {
         //组装返回参数
         List<FileAssociationResponse> responseList = new ArrayList<>();
         associationList.forEach(item -> {
-            if(fileIdMap.containsKey(item.getFileId())){
+            if (fileIdMap.containsKey(item.getFileId()) && sourceIdNameMap.containsKey(item.getSourceId())) {
                 FileAssociationResponse response = new FileAssociationResponse();
                 response.setId(item.getId());
                 response.setSourceId(item.getSourceId());
