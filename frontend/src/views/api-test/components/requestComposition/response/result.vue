@@ -15,7 +15,11 @@
         :active-tab="activeTab"
         :request-result="props.requestResult"
       />
-      <ResAssertion v-else-if="activeTab === 'ASSERTION'" :request-result="props.requestResult" />
+      <ResAssertion
+        v-else-if="activeTab === 'ASSERTION'"
+        :request-result="props.requestResult"
+        :scroll="{ x: '100%' }"
+      />
     </div>
   </div>
   <a-empty

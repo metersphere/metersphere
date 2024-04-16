@@ -22,7 +22,7 @@
             @click="showDetail(record)"
             >{{ record.name }}
           </div>
-          <a-popover :title="t('project.commonScript.publicScriptName')" position="right">
+          <a-popover :title="characterLimit(record.name)" position="right">
             <a-button type="text" class="ml-2 px-0">{{ t('project.commonScript.preview') }}</a-button>
             <template #content>
               <div class="w-[436px] bg-[var(--color-bg-3)] px-2 pb-2">

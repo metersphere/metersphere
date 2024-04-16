@@ -1,6 +1,11 @@
 <template>
   <a-scrollbar class="overflow-y-auto" :style="{ height: '300px' }">
-    <MsFormTable :data="props.requestResult?.responseResult.assertions" :columns="columns" :selectable="false">
+    <MsFormTable
+      :data="props.requestResult?.responseResult.assertions"
+      :columns="columns"
+      :selectable="false"
+      :scroll="props.scroll"
+    >
       <template #status="{ record }">
         <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
           {{ record.pass === true ? t('common.success') : t('common.fail') }}
@@ -22,6 +27,12 @@
   const { t } = useI18n();
   const props = defineProps<{
     requestResult?: RequestResult;
+    scroll?: {
+      x?: number | string;
+      y?: number | string;
+      maxHeight?: number | string;
+      minWidth?: number | string;
+    };
   }>();
 
   const columns: MsTableColumn = [
@@ -29,6 +40,7 @@
       title: 'apiTestDebug.content',
       dataIndex: 'content',
       showTooltip: true,
+      width: 300,
     },
     {
       title: 'apiTestDebug.status',
@@ -40,6 +52,7 @@
       title: 'apiTestDebug.reason',
       dataIndex: 'message',
       showTooltip: true,
+      width: 300,
     },
   ];
 </script>
