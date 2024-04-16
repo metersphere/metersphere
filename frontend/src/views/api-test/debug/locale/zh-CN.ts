@@ -185,7 +185,7 @@ export default {
   'apiTestDebug.importByCURLTip': '支持快速导入 Chrome、Charles 或 Fiddler 等工具中的抓包数据',
   'apiTestDebug.noPluginTip': '该插件已卸载，无法查看插件详情',
   'apiTestDebug.noPlugin': '插件已卸载',
-  'apiTestDebug.unsavedLeave': '有标签页的内容未保存，离开后后未保存的内容将丢失，确定要离开吗？',
+  'apiTestDebug.unsavedLeave': '有标签页的内容未保存，离开后未保存的内容将丢失，确定要离开吗？',
   'apiTestDebug.testSuccess': '测试成功',
   'apiTestDebug.searchByDataBaseName': '按数据源名称搜索',
   'apiTestDebug.regexMatchRules': '表达式匹配规则',

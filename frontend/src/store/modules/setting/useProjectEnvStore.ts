@@ -55,6 +55,14 @@ const envParamsDefaultConfig: EnvConfig = {
   },
 };
 
+const defaultAllParams = {
+  projectId: '',
+  globalParams: {
+    headers: [],
+    commonVariables: [],
+  },
+};
+
 const useProjectEnvStore = defineStore(
   'projectEnv',
   () => {
@@ -75,7 +83,9 @@ const useProjectEnvStore = defineStore(
       description: '',
       config: cloneDeep(envParamsDefaultConfig),
     });
-    const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
+    const allParamDetailInfo = ref<GlobalParams>(defaultAllParams); // 全局参数详情
+
+    const backupAllParamDetailInfo = ref<GlobalParams>(defaultAllParams);
     const httpNoWarning = ref(true);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
 
@@ -112,7 +122,11 @@ const useProjectEnvStore = defineStore(
             config: cloneDeep(envParamsDefaultConfig),
           };
         } else if (id === ALL_PARAM) {
-          allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
+          const res = await getGlobalParamDetail(appStore.currentProjectId);
+          allParamDetailInfo.value = cloneDeep(res || defaultAllParams);
+          nextTick(() => {
+            backupAllParamDetailInfo.value = cloneDeep(allParamDetailInfo.value);
+          });
         } else if (id !== ALL_PARAM && id) {
           const tmpObj = await getDetailEnv(id);
           currentEnvDetailInfo.value = { ...tmpObj };
@@ -187,6 +201,7 @@ const useProjectEnvStore = defineStore(
       setCurrentGroupId,
       setHttpNoWarning,
       setAllParamDetailInfo,
+      backupAllParamDetailInfo,
       initEnvDetail,
       initContentTabList,
       getContentTabList,

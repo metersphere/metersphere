@@ -31,10 +31,14 @@ export default {
   'project.environmental.TCP': 'TCP',
   'project.environmental.pre': 'Pre',
   'project.environmental.post': 'Post',
-  'project.environmental.sceneAlertDesc':
+  'project.environmental.scenePreAlertDesc':
     'Perform this operation once before scenario execution, such as obtaining a token and scenario initialization',
-  'project.environmental.requestAlertDesc':
+  'project.environmental.scenePostAlertDesc':
+    'Perform this operation once after scenario execution, such as obtaining a token and scenario initialization',
+  'project.environmental.requestPreAlertDesc':
     'Each API step is executed once before execution, such as request content encryption',
+  'project.environmental.requestPostAlertDesc':
+    'Each API step is executed once after execution, such as request content encryption',
   'project.environmental.host': 'Host',
   'project.environmental.assert': 'Assertion',
   'project.environmental.displaySetting': 'Display Setting',

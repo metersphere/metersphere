@@ -4,6 +4,7 @@
       v-model:model-value="selectValue"
       :placeholder="t(props.placeholder || 'common.pleaseSelect')"
       allow-search
+      allow-clear
       :multiple="props.multiple"
       @search="searchHandler"
     >

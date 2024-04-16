@@ -646,7 +646,11 @@
         store.setCurrentId(id);
         return;
       }
-      if (isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo)) {
+      const isChangeEnvValue =
+        store.currentId === ALL_PARAM
+          ? isEqual(store.allParamDetailInfo, store.backupAllParamDetailInfo)
+          : isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo);
+      if (isChangeEnvValue) {
         store.setCurrentId(id);
       } else {
         // 如果有未保存的tab则提示用户

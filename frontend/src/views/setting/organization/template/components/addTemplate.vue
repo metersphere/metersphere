@@ -375,7 +375,7 @@
   }
 
   function changeHandler(value: string, api: any) {
-    api.validateField(value);
+    api?.validateField(value);
   }
 
   // 保存回调
@@ -539,7 +539,10 @@
   const confirmHandler = (dataList: DefinedFieldItem[]) => {
     const selectFieldIds = selectData.value.map((e) => e.id);
     const newData = dataList.filter((item) => !selectFieldIds.includes(item.id));
-    selectData.value = [...selectData.value, ...newData];
+    const newIds = dataList.map((item) => item.id);
+    // @desc 原先已经选择过的选项value值不能再次添加的时候置空
+    const selectDataValue = selectData.value.filter((item) => newIds.includes(item.id));
+    selectData.value = [...selectDataValue, ...newData];
   };
 
   function changeState(value: boolean | (string | number | boolean)[], formItem) {

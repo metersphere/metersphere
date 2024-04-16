@@ -19,6 +19,7 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import RequestHeader from './requestHeader/index.vue';
 
@@ -34,7 +35,6 @@
   const appStore = useAppStore();
 
   const activeKey = ref('requestHeader');
-  const headerParams = ref<EnvConfigItem[]>([]);
   const GlobalVariable = ref<EnvConfigItem[]>([]);
   const { t } = useI18n();
   const { setIsSave } = useLeaveUnSaveTip();
@@ -54,25 +54,35 @@
     },
   ];
 
+  const headerParams = computed({
+    get() {
+      return projectEnvStore.allParamDetailInfo?.globalParams.headers || [];
+    },
+    set(val) {
+      projectEnvStore.allParamDetailInfo.globalParams.headers = val;
+    },
+  });
+
   function initEnvDetail() {
-    projectEnvStore.initEnvDetail().then(() => {
-      headerParams.value = projectEnvStore.allParamDetailInfo?.globalParams.headers || [];
-      GlobalVariable.value = projectEnvStore.allParamDetailInfo?.globalParams.commonVariables || [];
-    });
+    projectEnvStore.initEnvDetail();
+    headerParams.value = projectEnvStore.allParamDetailInfo.globalParams.headers || [];
   }
 
   function change() {
     canSave.value = true;
+    projectEnvStore.allParamDetailInfo.globalParams.headers = cloneDeep(headerParams.value);
     setIsSave(false);
   }
+
   const handleSave = async () => {
     try {
       loading.value = true;
+      const headerParamsFilter = headerParams.value.filter((item) => item.key);
       const params = {
         id: projectEnvStore.allParamDetailInfo?.id,
         projectId: appStore.currentProjectId,
         globalParams: {
-          headers: headerParams.value,
+          headers: headerParamsFilter,
           commonVariables: GlobalVariable.value.map((item) => {
             return {
               key: item.key,
