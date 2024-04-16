@@ -148,15 +148,10 @@
   // 不可编辑的权限
   const systemAdminDisabled = computed(() => {
     const adminArr = ['admin', 'org_admin', 'project_admin'];
-    const memberArr = ['member', 'org_member', 'project_member'];
     const { id } = props.current;
     if (adminArr.includes(id)) {
       // 系统管理员,组织管理员，项目管理员都不可编辑
       return true;
-    }
-    if (memberArr.includes(id)) {
-      // 系统管理员角色可以编辑 系统成员 组织成员 项目成员
-      return !userStore.isAdmin;
     }
 
     return props.disabled;

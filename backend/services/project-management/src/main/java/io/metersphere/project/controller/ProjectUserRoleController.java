@@ -51,7 +51,6 @@ public class ProjectUserRoleController {
     @PostMapping("/list")
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组列表")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_READ)
-    @CheckProjectOwner(resourceId = "#request.getProjectId()", resourceType = "user_role", resourceCol = "scope_id")
     public Pager<List<ProjectUserRoleDTO>> list(@Validated @RequestBody ProjectUserRoleRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, projectUserRoleService.list(request));
@@ -61,7 +60,6 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-添加用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ProjectUserRoleLogService.class)
-    @CheckProjectOwner(resourceId = "#request.getScopeId()", resourceType = "user_role", resourceCol = "scope_id")
     public UserRole add(@Validated({Created.class}) @RequestBody ProjectUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
@@ -94,7 +92,6 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组对应的权限配置")
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_READ)
-    @CheckProjectOwner(resourceId = "#id", resourceType = "user_role", resourceCol = "scope_id")
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return projectUserRoleService.getPermissionSetting(id);
     }
