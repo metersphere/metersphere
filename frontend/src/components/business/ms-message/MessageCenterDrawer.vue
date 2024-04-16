@@ -97,11 +97,14 @@
                 </div>
                 <div v-else>
                   <div class="flex items-center">
-                    <a-badge :count="9" dot :offset="[6, -2]">
+                    <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[6, -2]">
                       <div class="one-line-text max-w-[400px] font-medium text-[var(--color-text-1)]">{{
                         t('ms.message.notice.title')
                       }}</div>
                     </a-badge>
+                    <div v-else class="one-line-text max-w-[400px] font-medium text-[var(--color-text-1)]">{{
+                      t('ms.message.notice.title')
+                    }}</div>
                   </div>
                   <div class="flex items-center">
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
@@ -225,8 +228,9 @@
   async function loadTotalCount(key: string) {
     const res = await queryMessageHistoryCount({
       resourceType: key,
-      status: 'UNREAD',
+      status: position.value === 'all' || position.value === 'mentioned_me' ? '' : position.value,
       receiver: userStore.id,
+      type: position.value === 'mentioned_me' ? 'MENTIONED_ME' : '',
       current: 1,
       pageSize: 10,
     });
@@ -260,6 +264,7 @@
     pageNation.value.current = 1;
     currentResourceType.value = key;
     loadMessageHistoryList('all', key);
+    loadTotalCount(key);
   }
 
   function openMessageManage() {
@@ -275,6 +280,7 @@
     messageHistoryList.value = [];
     pageNation.value.current = 1;
     loadMessageHistoryList(value as string, currentResourceType.value);
+    loadTotalCount(currentResourceType.value);
   }
 
   // 滚动翻页
@@ -284,6 +290,7 @@
       return;
     }
     loadMessageHistoryList(position.value, currentResourceType.value);
+    loadTotalCount(currentResourceType.value);
   }
 
   // 获取动态模块count
