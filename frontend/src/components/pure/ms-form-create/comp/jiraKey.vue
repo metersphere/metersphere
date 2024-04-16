@@ -7,7 +7,7 @@
     @blur="handleBlur"
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
-    <span class="text-[var(--color-text-4)]">{{ attrs.subDesc }}</span>
+    <span class="mt-2 text-[var(--color-text-4)]">{{ attrs.subDesc }}</span>
     <a-popover position="rt">
       <template #title>
         {{ null }}
@@ -17,7 +17,7 @@
           <img class="w-full" :src="previewIcon" />
         </div>
       </template>
-      <span class="cursor-pointer text-[rgb(var(--primary-5))]">{{ t('project.menu.preview') }}</span>
+      <span class="mt-2 cursor-pointer text-[rgb(var(--primary-5))]">{{ t('project.menu.preview') }}</span>
     </a-popover>
   </div>
 </template>

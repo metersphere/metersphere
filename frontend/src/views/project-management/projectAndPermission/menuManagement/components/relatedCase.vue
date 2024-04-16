@@ -33,6 +33,8 @@
         v-model:api="fApi"
         v-model:form-item="platformItem"
         :form-rule="platformRules"
+        @change="changeHandler"
+        @mounted="handleMounted"
       />
     </a-form>
     <template v-if="platformOption.length" #footerLeft>
@@ -118,6 +120,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
+    (e: 'ok'): void;
   }>();
 
   const resetForm = () => {
@@ -167,6 +170,7 @@
           currentProjectId.value
         );
         handleCancel(true);
+        emit('ok');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -204,6 +208,26 @@
       console.log(e);
     }
   };
+
+  /**
+   * 初始化回显字段值
+   */
+  function setValue() {
+    const tempObj: Record<string, any> = {};
+    platformRules.value.forEach((item) => {
+      tempObj[item.name] = item.value;
+    });
+    fApi.value?.setValue({ ...tempObj });
+  }
+
+  function changeHandler(a: string, formValue: Record<string, any>) {
+    fApi.value.validateField(formValue.field);
+    fApi.value.refreshValidate();
+  }
+
+  function handleMounted() {
+    setValue();
+  }
 
   watch(
     () => props.visible,
