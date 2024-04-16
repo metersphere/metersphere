@@ -16,8 +16,10 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -64,6 +66,8 @@ public class ApiReportService {
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentGroupMapper environmentGroupMapper;
+    @Resource
+    private ApiReportNoticeService apiReportNoticeService;
 
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -151,6 +155,7 @@ public class ApiReportService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+        User user = userMapper.selectByPrimaryKey(userId);
         SubListUtils.dealForSubList(ids, 500, subList -> {
             ApiReportExample example = new ApiReportExample();
             example.createCriteria().andIdIn(subList);
@@ -161,6 +166,7 @@ public class ApiReportService {
             apiReportMapper.updateByExampleSelective(apiReport, example);
             //TODO 记录日志
             apiReportLogService.batchDeleteLog(subList, userId, request.getProjectId());
+            apiReportNoticeService.batchSendNotice(subList, user, request.getProjectId(), NoticeConstants.Event.DELETE);
         });
     }
 

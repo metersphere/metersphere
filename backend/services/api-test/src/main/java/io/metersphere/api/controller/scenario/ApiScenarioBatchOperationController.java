@@ -42,7 +42,6 @@ public class ApiScenarioBatchOperationController {
     @Operation(summary = "接口测试-接口场景批量操作-批量编辑")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchOptionScenarios(#request)", targetClass = ApiScenarioNoticeService.class)
     public void batchUpdate(@Validated @RequestBody ApiScenarioBatchEditRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         apiScenarioService.batchEdit(request, SessionUtils.getUserId());
@@ -52,8 +51,7 @@ public class ApiScenarioBatchOperationController {
     @Operation(summary = "接口测试-接口场景批量操作-回收站列表-批量删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchOptionScenarios(#request)", targetClass = ApiScenarioNoticeService.class)
-    public ApiScenarioBatchOperationResponse deleteFromGc(@Validated @RequestBody ApiScenarioBatchRequest request) {
+   public ApiScenarioBatchOperationResponse deleteFromGc(@Validated @RequestBody ApiScenarioBatchRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         return apiScenarioService.batchGCOperation(request, true, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/delete-gc", HttpMethodConstants.POST.name()));
     }

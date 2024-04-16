@@ -138,14 +138,14 @@ public class TaskCenterController {
     @Operation(summary = "系统-任务中心-定时任务批量开启")
     public void batchEnable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
         hasPermission(SYSTEM, request.getScheduleTagType());
-        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-enable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, true);
+        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-enable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/org/schedule/batch-enable")
     @Operation(summary = "组织-任务中心-定时任务批量开启")
     public void batchOrgEnable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
         hasPermission(ORG, request.getScheduleTagType());
-        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true);
+        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/project/schedule/batch-enable")
@@ -159,14 +159,14 @@ public class TaskCenterController {
     @Operation(summary = "系统-任务中心-定时任务批量关闭")
     public void batchDisable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
         hasPermission(SYSTEM, request.getScheduleTagType());
-        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-disable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, false);
+        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-disable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/org/schedule/batch-disable")
     @Operation(summary = "组织-任务中心-定时任务批量关闭")
     public void batchOrgDisable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
         hasPermission(ORG, request.getScheduleTagType());
-        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false);
+        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/project/schedule/batch-disable")

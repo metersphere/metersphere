@@ -236,6 +236,15 @@
         from api_scenario_report_detail
         where api_scenario_report_detail.report_id = #{reportId}
     </select>
+    <select id="getNoticeList" resultType="io.metersphere.system.dto.sdk.ApiReportMessageDTO">
+        select id ,name from api_scenario_report
+        <if test="ids != null and ids.size() > 0">
+            where id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
 
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">

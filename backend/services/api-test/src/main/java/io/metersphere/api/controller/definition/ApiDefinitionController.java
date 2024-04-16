@@ -79,7 +79,6 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-批量更新接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchEditApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public void batchUpdate(@Validated @RequestBody ApiDefinitionBatchUpdateRequest request) {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
     }
@@ -141,7 +140,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiDefinitionLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_definition")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getEditApiDTO(#id)", targetClass = ApiDefinitionNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDeleteApiDTO(#id)", targetClass = ApiDefinitionNoticeService.class)
     public void deleteToGc(@PathVariable String id, @RequestParam(required = false) boolean deleteAllVersion) {
         apiDefinitionService.deleteToGc(id, deleteAllVersion, SessionUtils.getUserId());
     }
@@ -150,7 +149,6 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchEditApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public void batchDeleteToGc(@Validated @RequestBody ApiDefinitionBatchDeleteRequest request) {
         apiDefinitionService.batchDeleteToGc(request, SessionUtils.getUserId());
     }

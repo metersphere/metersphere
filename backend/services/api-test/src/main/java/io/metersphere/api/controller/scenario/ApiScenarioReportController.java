@@ -9,11 +9,14 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.scenario.ApiScenarioReportLogService;
+import io.metersphere.api.service.scenario.ApiScenarioReportNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -62,6 +65,7 @@ public class ApiScenarioReportController {
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioReportLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDto(#id)", targetClass = ApiScenarioReportNoticeService.class)
     public void delete(@PathVariable String id) {
         apiScenarioReportService.delete(id, SessionUtils.getUserId());
     }

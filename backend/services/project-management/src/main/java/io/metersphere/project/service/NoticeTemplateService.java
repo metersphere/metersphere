@@ -14,10 +14,7 @@ import io.metersphere.system.dto.BugMessageDTO;
 import io.metersphere.system.dto.BugSyncNoticeDTO;
 import io.metersphere.system.dto.request.DefaultBugCustomField;
 import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
-import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
-import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
-import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
-import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.*;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
@@ -53,6 +50,11 @@ public class NoticeTemplateService {
             }
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields, null);
+                //TODO：获取报告
+            }
+            case NoticeConstants.TaskType.API_REPORT_TASK -> {
+                Field[] allFields = FieldUtils.getAllFields(ApiReportMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 //TODO：获取报告
             }

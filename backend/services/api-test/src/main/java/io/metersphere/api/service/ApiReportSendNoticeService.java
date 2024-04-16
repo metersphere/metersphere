@@ -1,5 +1,7 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioReport;
@@ -18,6 +20,7 @@ import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.mapper.UserMapper;
@@ -32,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -62,7 +66,7 @@ public class ApiReportSendNoticeService {
         assert systemParameterService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         BeanMap beanMap;
-        String event;
+        String event = null;
         ApiReportShareService shareService = CommonBeanFactory.getBean(ApiReportShareService.class);
         ApiReportShareRequest shareRequest = new ApiReportShareRequest();
         shareRequest.setReportId(noticeDTO.getReportId());
@@ -83,7 +87,7 @@ public class ApiReportSendNoticeService {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAKE_ERROR;
-            } else {
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.ERROR.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAILED;
             }
             shareUrl = String.format(shareUrl, "shareReportScenario");
@@ -101,7 +105,7 @@ public class ApiReportSendNoticeService {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAKE_ERROR;
-            } else {
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.ERROR.name())){
                 event = NoticeConstants.Event.CASE_EXECUTE_FAILED;
             }
             shareUrl = String.format(shareUrl, "shareReportCase");
@@ -112,13 +116,36 @@ public class ApiReportSendNoticeService {
 
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
-        paramMap.put("status", noticeDTO.getReportStatus());
+        // TODO 是否需要国际化   根据状态判断给不同的key
+        String status = paramMap.containsKey("status") ? paramMap.get("status").toString() : null;
+        if (StringUtils.isNotBlank(status)) {
+            if (List.of(ApiScenarioStatus.UNDERWAY.name(), ApiDefinitionStatus.PROCESSING.name()).contains(status)) {
+                status = Translator.get("api_definition.status.ongoing");
+            } else if (List.of(ApiScenarioStatus.COMPLETED.name(), ApiDefinitionStatus.DONE.name()).contains(status)){
+                status = Translator.get("api_definition.status.completed");
+            } else if (StringUtils.equals(ApiScenarioStatus.DEPRECATED.name(), status)){
+                status = Translator.get("api_definition.status.abandoned");
+            } else if (StringUtils.equals(ApiDefinitionStatus.DEBUGGING.name(), status)){
+                status = Translator.get("api_definition.status.continuous");
+            }
+        }
 
+
+        String reportStatus = report.getStatus();
+        if (StringUtils.endsWithIgnoreCase(reportStatus, ApiReportStatus.SUCCESS.name())) {
+            reportStatus = Translator.get("report.status.success");
+        } else if (StringUtils.endsWithIgnoreCase(reportStatus, ApiReportStatus.FAKE_ERROR.name())) {
+            reportStatus = Translator.get("report.status.fake_error");
+        } else {
+            reportStatus = Translator.get("report.status.error");
+        }
+
+        paramMap.put("status", status);
         paramMap.put("reportName", report.getName());
         paramMap.put("startTime", report.getStartTime());
         paramMap.put("endTime", report.getEndTime());
         paramMap.put("requestDuration", report.getRequestDuration());
-        paramMap.put("reportStatus", report.getStatus());
+        paramMap.put("reportStatus", reportStatus);
         paramMap.put("errorCount", report.getErrorCount());
         paramMap.put("fakeErrorCount", report.getFakeErrorCount());
         paramMap.put("pendingCount", report.getPendingCount());

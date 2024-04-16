@@ -360,7 +360,7 @@ public class ApiDefinitionImportUtilService {
             operationLogs.add(dto);
 
             ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
-            BeanUtils.copyBean(apiDefinitionCaseDTO, t);
+            BeanUtils.copyBean(apiDefinitionCaseDTO, apiDefinitionDTO);
             createLists.add(apiDefinitionCaseDTO);
         });
     }

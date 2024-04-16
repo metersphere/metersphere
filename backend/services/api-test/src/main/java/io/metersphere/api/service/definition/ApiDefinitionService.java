@@ -45,6 +45,7 @@ import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -134,7 +135,8 @@ public class ApiDefinitionService extends MoveNodeService {
     private OperationLogBlobMapper operationLogBlobMapper;
     @Resource
     private ApiExecuteService apiExecuteService;
-    private static final int MAX_TAG_SIZE = 10;
+    @Resource
+    private ApiDefinitionNoticeService apiDefinitionNoticeService;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
@@ -324,6 +326,8 @@ public class ApiDefinitionService extends MoveNodeService {
                 apiDefinitionExample.createCriteria().andIdIn(ids);
                 apiDefinitionMapper.updateByExampleSelective(apiDefinition, apiDefinitionExample);
             }
+            //发送通知
+            apiDefinitionNoticeService.batchSendNotice(ids, userId, request.getProjectId(), NoticeConstants.Event.UPDATE);
         }
     }
 
@@ -649,6 +653,7 @@ public class ApiDefinitionService extends MoveNodeService {
                     // 记录删除到回收站的日志, 单条注解记录
                     if (isBatch) {
                         apiDefinitionLogService.batchDelLog(delApiIds, userId, projectId);
+                        apiDefinitionNoticeService.batchSendNotice(delApiIds, userId, projectId, NoticeConstants.Event.DELETE);
                     }
                     extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
                 });

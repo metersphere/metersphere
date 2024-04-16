@@ -32,6 +32,7 @@ import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -99,6 +100,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ApiReportService apiReportService;
     @Resource
     private EnvironmentService environmentService;
+    @Resource
+    private ApiTestCaseNoticeService apiTestCaseNoticeService;
 
     private static final String CASE_TABLE = "api_test_case";
     private static final int MAX_TAG_SIZE = 10;
@@ -437,6 +440,7 @@ public class ApiTestCaseService extends MoveNodeService {
             List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getCaseInfoByIds(ids, true);
             apiTestCaseLogService.batchToGcLog(apiTestCases, userId, projectId);
         }
+        apiTestCaseNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.CASE_DELETE);
     }
 
     public void batchEdit(ApiCaseBatchEditRequest request, String userId) {
@@ -466,6 +470,7 @@ public class ApiTestCaseService extends MoveNodeService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         List<ApiTestCase> caseInfoByIds = extApiTestCaseMapper.getCaseInfoByIds(ids, false);
         apiTestCaseLogService.batchEditLog(caseInfoByIds, userId, projectId);
+        apiTestCaseNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.CASE_UPDATE);
     }
 
     private void batchUpdateEnvironment(ApiTestCaseExample example, ApiTestCase updateCase, String envId, ApiTestCaseMapper mapper) {
