@@ -127,7 +127,7 @@
                     :is-platform-default-template="isPlatformDefaultTemplate"
                     :platform-system-fields="platformSystemFields"
                     :current-platform="props.currentPlatform"
-                    @update-success="detailDrawerRef?.initDetail()"
+                    @update-success="updateSuccess"
                   />
 
                   <BugCaseTab
