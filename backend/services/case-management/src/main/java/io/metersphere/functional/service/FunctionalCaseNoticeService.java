@@ -7,6 +7,7 @@ import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.sdk.util.BeanUtils;
@@ -126,6 +127,12 @@ public class FunctionalCaseNoticeService {
             });
         }
         return optionDTOList;
+    }
+
+    public FunctionalCaseDTO getAddMainFunctionalCaseDTO(FunctionalCaseAddRequest request, List<CaseCustomFieldDTO> customFields){
+        FunctionalCaseEditRequest editRequest = new FunctionalCaseEditRequest();
+        BeanUtils.copyBean(editRequest, request);
+        return getMainFunctionalCaseDTO(editRequest,customFields);
     }
 
     public FunctionalCaseDTO getMainFunctionalCaseDTO(FunctionalCaseEditRequest request, List<CaseCustomFieldDTO> customFields) {

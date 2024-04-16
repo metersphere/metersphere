@@ -74,18 +74,38 @@
                   <div class="flex items-center">
                     <MSAvatar :avatar="item.avatar" />
                     <div class="ml-[8px] flex">
-                      <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+                      <a-tooltip v-if="translateTextToPX(item.subject) > 300">
+                        <template #content>
+                          <span>
+                            {{ item.subject }}
+                          </span>
+                        </template>
+                        <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
+                          item.subject
+                        }}</div>
+                      </a-tooltip>
+                      <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.subject }}</div>
                       <div class="font-medium text-[rgb(var(--primary-5))]"
                         >&nbsp;&nbsp;{{ t('ms.message.me', { var: '@' }) }}</div
                       >
                     </div>
                   </div>
                   <div class="ml-[50px] flex items-center">
-                    <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
+                    <a-tooltip v-if="translateTextToPX(item.userName) > 300">
+                      <template #content>
+                        <span>
+                          {{ item.userName }}
+                        </span>
+                      </template>
+                      <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
+                        item.userName
+                      }}</div>
+                    </a-tooltip>
+                    <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.userName }}</div>
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
                     <MsButton @click="handleNameClick(item)">
                       <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
-                        <div class="one-line-text max-w-[400px]">
+                        <div class="one-line-text max-w-[300px]">
                           {{ item.resourceName }}
                         </div>
                       </a-tooltip>
@@ -98,20 +118,53 @@
                 <div v-else>
                   <div class="flex items-center">
                     <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[6, -2]">
-                      <div class="one-line-text max-w-[400px] font-medium text-[var(--color-text-1)]">{{
-                        t('ms.message.notice.title')
+                      <a-tooltip v-if="translateTextToPX(item.subject) > 300">
+                        <template #content>
+                          <span>
+                            {{ item.subject }}
+                          </span>
+                        </template>
+                        <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
+                          item.subject
+                        }}</div>
+                      </a-tooltip>
+                      <div v-else class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
+                        item.subject
                       }}</div>
                     </a-badge>
-                    <div v-else class="one-line-text max-w-[400px] font-medium text-[var(--color-text-1)]">{{
-                      t('ms.message.notice.title')
-                    }}</div>
+                    <a-tooltip v-if="item.status === 'READ' && translateTextToPX(item.subject) > 300">
+                      <template #content>
+                        <span>
+                          {{ item.subject }}
+                        </span>
+                      </template>
+                      <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
+                        item.subject
+                      }}</div>
+                    </a-tooltip>
+                    <div
+                      v-if="item.status === 'READ' && translateTextToPX(item.subject) <= 300"
+                      class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]"
+                    >
+                      {{ item.subject }}</div
+                    >
                   </div>
                   <div class="flex items-center">
-                    <div class="font-medium text-[var(--color-text-2)]">{{ item.userName }}&nbsp;&nbsp;</div>
+                    <a-tooltip v-if="translateTextToPX(item.userName) > 300">
+                      <template #content>
+                        <span>
+                          {{ item.userName }}
+                        </span>
+                      </template>
+                      <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
+                        item.userName
+                      }}</div>
+                    </a-tooltip>
+                    <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.userName }}</div>
                     <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
                     <MsButton @click="handleNameClick(item)">
                       <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
-                        <div class="one-line-text max-w-[400px]">
+                        <div class="one-line-text max-w-[300px]">
                           {{ item.resourceName }}
                         </div>
                       </a-tooltip>
@@ -152,6 +205,7 @@
   import { getMessageList } from '@/api/modules/project-management/messageManagement';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
+  import { translateTextToPX } from '@/utils/css';
 
   import { MessageItem } from '@/models/projectManagement/message';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
