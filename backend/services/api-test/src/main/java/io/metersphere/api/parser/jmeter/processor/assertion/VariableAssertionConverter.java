@@ -8,6 +8,7 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jmeter.assertions.JSR223Assertion;
 import org.apache.jorphan.collections.HashTree;
 
@@ -75,7 +76,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
                 variableValue = vars.get("%s");
                 expectation = "%s";
                 flag = true;
-                """, variableAssertionItem.getVariableName(), variableAssertionItem.getExpectedValue());
+                """, StringEscapeUtils.escapeJava(variableAssertionItem.getVariableName()), StringEscapeUtils.escapeJava(variableAssertionItem.getExpectedValue())); // 转义一下再填充
 
         handleMap.put(MsAssertionCondition.REGEX.name(),
                 """
