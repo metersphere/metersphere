@@ -142,7 +142,7 @@
                             and api_report.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='projectIds">
+                        <when test="key=='projectIds'">
                             and api_report.project_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}

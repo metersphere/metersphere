@@ -375,8 +375,10 @@
     setLoadListParams({
       keyword: keyword.value,
       scheduleTagType: props.moduleType,
-      organizationIds: orgFiltersMap.value[props.moduleType],
-      projectIds: projectFiltersMap.value[props.moduleType],
+      filter: {
+        organizationIds: orgFiltersMap.value[props.moduleType],
+        projectIds: projectFiltersMap.value[props.moduleType],
+      },
     });
     loadList();
   }
@@ -501,6 +503,13 @@
             selectAll,
             scheduleTagType: props.moduleType,
             excludeIds,
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                organizationIds: orgFiltersMap.value[props.moduleType],
+                projectIds: projectFiltersMap.value[props.moduleType],
+              },
+            },
           });
           resetSelector();
           Message.success(t('project.taskCenter.enableSuccess'));
@@ -531,6 +540,13 @@
             selectIds: selectAll ? [] : selectIds,
             selectAll,
             scheduleTagType: props.moduleType,
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                organizationIds: orgFiltersMap.value[props.moduleType],
+                projectIds: projectFiltersMap.value[props.moduleType],
+              },
+            },
           });
           resetSelector();
           Message.success(t('project.taskCenter.disableSuccess'));
