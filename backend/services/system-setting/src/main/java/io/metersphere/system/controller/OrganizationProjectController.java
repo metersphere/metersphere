@@ -121,7 +121,7 @@ public class OrganizationProjectController {
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-组织-项目-成员列表")
-    @CheckOwner(resourceId = "#reuqest.projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, organizationProjectService.getProjectMember(request));
@@ -130,7 +130,7 @@ public class OrganizationProjectController {
     @PostMapping("/add-members")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_ADD)
     @Operation(summary = "系统设置-组织-项目-添加成员")
-    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
@@ -171,7 +171,7 @@ public class OrganizationProjectController {
     @PostMapping("/pool-options")
     @Operation(summary = "系统设置-组织-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    @CheckOwner(resourceId = "#request.organizationId", resourceType = "organization")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public List<OptionDTO> getProjectOptions(@Validated @RequestBody ProjectPoolRequest request) {
         return organizationProjectService.getTestResourcePoolOptions(request);
     }
@@ -180,7 +180,7 @@ public class OrganizationProjectController {
     @Operation(summary = "系统设置-组织-项目-修改项目名称")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.renameLog(#request)", msClass = OrganizationProjectLogService.class)
-    @CheckOwner(resourceId = "#request.id", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "project")
     public void rename(@RequestBody @Validated({Updated.class}) UpdateProjectNameRequest request) {
         organizationProjectService.rename(request, SessionUtils.getUserId());
     }
