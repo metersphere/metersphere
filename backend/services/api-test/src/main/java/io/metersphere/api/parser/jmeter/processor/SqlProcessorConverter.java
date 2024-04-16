@@ -90,15 +90,13 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
             processor.setProperty(JmeterProperty.SCRIPT_LANGUAGE, ScriptLanguageType.BEANSHELL.name().toLowerCase());
 
             StringBuilder scriptBuilder = new StringBuilder();
-            for (KeyValueParam keyValue : extractParams) {
-                if (keyValue.isValid()) {
-                    String script = "vars.put(\"%s\", \"%s\");\n";
-                    scriptBuilder.append(String.format(script, keyValue.getKey(), keyValue.getValue()));
-                }
-            }
-
+            extractParams.forEach(keyValue -> {
+                        String script = """
+                                        vars.put("%s","${%s}");
+                                        """;
+                        scriptBuilder.append(String.format(script, keyValue.getKey(), keyValue.getValue()));
+                    });
             processor.setProperty(JmeterProperty.SCRIPT, scriptBuilder.toString());
-
             return processor;
         }
 
