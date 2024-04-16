@@ -83,8 +83,8 @@
   const loading = ref(false);
   const detail = ref<any>({});
 
-  function initDetail() {
-    prevNextButtonRef.value?.initDetail();
+  function initDetail(id?: string) {
+    prevNextButtonRef.value?.initDetail(id);
   }
 
   function openPrevDetail() {
@@ -118,7 +118,7 @@
 
   watch(
     () => props.detailId,
-    (val) => {
+    () => {
       nextTick(() => {
         // 为了确保 prevNextButtonRef 已渲染
         openNextDetail();

@@ -3,7 +3,7 @@
     :loading="loading"
     :title="title"
     :is-edit="isEdit"
-    :save-text="t('system.resourcePool.add')"
+    :save-text="isEdit ? t('common.update') : t('system.resourcePool.add')"
     :save-and-continue-text="t('system.resourcePool.addAndContinue')"
     :handle-back="handleBack"
     has-breadcrumb
@@ -180,13 +180,13 @@
             <div id="typeRadioGroupRef" class="relative">
               <a-radio-group v-model:model-value="form.addType" type="button" @change="handleTypeChange">
                 <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
-                <a-radio value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
+                <a-radio v-xpack value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
               </a-radio-group>
             </div>
           </a-popconfirm>
           <a-radio-group v-else v-model:model-value="form.addType" type="button" @change="handleTypeChange">
             <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
-            <a-radio value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
+            <a-radio v-xpack value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
           </a-radio-group>
         </a-form-item>
         <MsBatchForm
@@ -809,10 +809,12 @@
       if (isContinueAdd.value) {
         resetForm();
       } else {
+        setIsSave(true);
         await sleep(300);
         router.push({ name: 'settingSystemResourcePool' });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;

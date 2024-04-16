@@ -403,7 +403,7 @@ export default function useTableProps<T>(
     // 重置筛选
     clearSelector: () => {
       propsRes.value.selectorStatus = SelectAllEnum.NONE; // 重置选择器状态
-      resetSelector();
+      resetSelector(true);
     },
 
     // 表格SelectAll change

@@ -56,7 +56,7 @@
     get: () => {
       // 如果是选中所有页则是全选状态（选中所有页分两种情况：一是直接通过下拉选项选中所有页；二是当前已选的数量等于表格总数）
       return (
-        selectAllStatus.value === SelectAllEnum.ALL ||
+        (props.selectedKeys.size > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
         (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total)
       );
     },

@@ -85,9 +85,9 @@
 
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return props.isDrawer ? 328 : 428;
+      return props.isDrawer ? 328 : 372;
     }
-    return (props.isDrawer ? 328 : 428) + props.secondBoxHeight;
+    return (props.isDrawer ? 328 : 372) + props.secondBoxHeight;
   });
   const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
 

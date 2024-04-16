@@ -230,8 +230,6 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { hasAllPermission } from '../../../../../../.history/src/utils/permission_20240205094418';
-
   const props = defineProps<{
     activeFolder: string;
     moduleTree: ModuleTreeNode[];

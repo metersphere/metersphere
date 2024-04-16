@@ -71,13 +71,8 @@
                   :type="detail.fileType || ''"
                   :url="`${CompressImgUrl}/${userStore.id}/${detail.id}`"
                   :footer-text="detail.storage === 'GIT' ? undefined : t('project.fileManagement.replaceFile')"
-                  @click="
-                    () => {
-                      if (detail.storage !== 'GIT') {
-                        handleFileIconClick();
-                      }
-                    }
-                  "
+                  :use-upload="detail.storage !== 'GIT'"
+                  @change="handleFileChange"
                 />
               </a-spin>
             </div>
@@ -217,7 +212,6 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { useFileSystemAccess } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -227,6 +221,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsPaginationI, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
   import popConfirm from './popConfirm.vue';
@@ -267,7 +262,6 @@
 
   const emit = defineEmits(['update:visible']);
 
-  const { file: newFile, open } = useFileSystemAccess();
   const { t } = useI18n();
   const { currentLocale } = useLocale();
   const userStore = useUserStore();
@@ -325,37 +319,25 @@
   const renameTitle = ref(''); // 重命名的文件名称
 
   const fileLoading = ref(false);
-  watch(
-    () => newFile.value,
-    async (data) => {
-      if (data) {
-        try {
-          fileLoading.value = true;
-          await reuploadFile({
-            request: {
-              fileId: innerFileId.value,
-              enable: false,
-            },
-            file: data,
-          });
-          Message.success(t('project.fileManagement.replaceFileSuccess'));
-          detailDrawerRef.value?.initDetail();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          fileLoading.value = false;
-        }
+  async function handleFileChange(file: MsFileItem) {
+    if (file.file) {
+      try {
+        fileLoading.value = true;
+        const res = await reuploadFile({
+          request: {
+            fileId: innerFileId.value,
+            enable: false,
+          },
+          file: file.file,
+        });
+        Message.success(t('project.fileManagement.replaceFileSuccess'));
+        detailDrawerRef.value?.initDetail(res.data);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        fileLoading.value = false;
       }
-    }
-  );
-
-  async function handleFileIconClick() {
-    try {
-      await open();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
     }
   }
 

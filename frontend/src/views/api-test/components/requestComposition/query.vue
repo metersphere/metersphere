@@ -124,7 +124,7 @@
   watch(
     () => props.layout,
     (val) => {
-      const otherHeight = props.isDrawer ? 328 : 430;
+      const otherHeight = props.isDrawer ? 328 : 372;
       heightUsed.value = val === 'horizontal' ? otherHeight : otherHeight + props.secondBoxHeight;
     },
     {
@@ -136,7 +136,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = (props.isDrawer ? 328 : 430) + val;
+        heightUsed.value = (props.isDrawer ? 328 : 372) + val;
       }
     },
     {

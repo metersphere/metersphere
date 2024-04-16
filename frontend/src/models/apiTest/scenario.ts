@@ -486,4 +486,5 @@ export interface ScenarioStepResourceInfo {
   name: string;
   projectId: string;
   projectName: string;
+  delete: boolean;
 }

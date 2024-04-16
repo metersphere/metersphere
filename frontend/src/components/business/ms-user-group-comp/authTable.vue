@@ -1,63 +1,65 @@
 <template>
-  <div class="group-auth-table">
-    <a-table
-      :span-method="dataSpanMethod"
-      :scroll="props.scroll"
-      :data="tableData"
-      :loading="loading"
-      :bordered="{ wrapper: true, cell: true }"
-      size="small"
-      :pagination="false"
-    >
-      <template #columns>
-        <a-table-column :width="100" :title="t('system.userGroup.function')" data-index="ability" />
-        <a-table-column :width="150" :title="t('system.userGroup.operationObject')" data-index="operationObject" />
-        <a-table-column>
-          <template #title>
-            <div class="flex w-full flex-row justify-between">
-              <div>{{ t('system.userGroup.auth') }}</div>
-              <a-checkbox
-                v-if="tableData && tableData?.length > 0"
-                :model-value="allChecked"
-                :indeterminate="allIndeterminate"
-                :disabled="systemAdminDisabled || disabled"
-                class="mr-[7px]"
-                @change="handleAllAuthChangeByCheckbox"
-              ></a-checkbox>
-            </div>
-          </template>
-          <template #cell="{ record, rowIndex }">
-            <div class="flex flex-row items-center justify-between">
-              <a-checkbox-group
-                :model-value="record.perChecked"
-                @change="(v, e) => handleCellAuthChange(v, rowIndex, record, e)"
-              >
+  <div>
+    <div class="group-auth-table">
+      <a-table
+        :span-method="dataSpanMethod"
+        :scroll="props.scroll"
+        :data="tableData"
+        :loading="loading"
+        :bordered="{ wrapper: true, cell: true }"
+        size="small"
+        :pagination="false"
+      >
+        <template #columns>
+          <a-table-column :width="100" :title="t('system.userGroup.function')" data-index="ability" />
+          <a-table-column :width="150" :title="t('system.userGroup.operationObject')" data-index="operationObject" />
+          <a-table-column>
+            <template #title>
+              <div class="flex w-full flex-row justify-between">
+                <div>{{ t('system.userGroup.auth') }}</div>
                 <a-checkbox
-                  v-for="item in record.permissions"
-                  :key="item.id"
-                  :disabled="item.license || systemAdminDisabled || disabled"
-                  :value="item.id"
-                  >{{ t(item.name) }}</a-checkbox
+                  v-if="tableData && tableData?.length > 0"
+                  :model-value="allChecked"
+                  :indeterminate="allIndeterminate"
+                  :disabled="systemAdminDisabled || disabled"
+                  class="mr-[7px]"
+                  @change="handleAllAuthChangeByCheckbox"
+                ></a-checkbox>
+              </div>
+            </template>
+            <template #cell="{ record, rowIndex }">
+              <div class="flex flex-row items-center justify-between">
+                <a-checkbox-group
+                  :model-value="record.perChecked"
+                  @change="(v, e) => handleCellAuthChange(v, rowIndex, record, e)"
                 >
-              </a-checkbox-group>
-              <a-checkbox
-                class="mr-[7px]"
-                :model-value="record.enable"
-                :indeterminate="record.indeterminate"
-                :disabled="systemAdminDisabled || disabled"
-                @change="(value) => handleRowAuthChange(value, rowIndex)"
-              />
-            </div>
-          </template>
-        </a-table-column>
-      </template>
-    </a-table>
-  </div>
-  <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer">
-    <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
-    <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">
-      {{ t('system.userGroup.save') }}
-    </a-button>
+                  <a-checkbox
+                    v-for="item in record.permissions"
+                    :key="item.id"
+                    :disabled="item.license || systemAdminDisabled || disabled"
+                    :value="item.id"
+                    >{{ t(item.name) }}</a-checkbox
+                  >
+                </a-checkbox-group>
+                <a-checkbox
+                  class="mr-[7px]"
+                  :model-value="record.enable"
+                  :indeterminate="record.indeterminate"
+                  :disabled="systemAdminDisabled || disabled"
+                  @change="(value) => handleRowAuthChange(value, rowIndex)"
+                />
+              </div>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+    </div>
+    <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer">
+      <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
+      <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">
+        {{ t('system.userGroup.save') }}
+      </a-button>
+    </div>
   </div>
 </template>
 
@@ -386,10 +388,10 @@
     if (!tableData.value) return;
     const tmpArr = tableData.value;
     const length = tmpArr[rowIndex].permissions?.length || 0;
-    if (values.length === length) {
+    if (record.perChecked.length === length) {
       tmpArr[rowIndex].enable = true;
       tmpArr[rowIndex].indeterminate = false;
-    } else if (values.length === 0) {
+    } else if (record.perChecked.length === 0) {
       tmpArr[rowIndex].enable = false;
       tmpArr[rowIndex].indeterminate = false;
     } else {
@@ -502,7 +504,7 @@
     }
   }
   .footer {
-    @apply w-full;
+    @apply absolute bottom-0 left-0 w-full;
 
     display: flex;
     justify-content: flex-end;

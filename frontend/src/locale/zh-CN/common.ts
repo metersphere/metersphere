@@ -153,4 +153,5 @@ export default {
   'common.image': '图片',
   'common.text': '文本',
   'common.resourceDeleted': '资源已被删除',
+  'common.refresh': '刷新',
 };
