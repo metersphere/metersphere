@@ -82,7 +82,7 @@ export function composePermissions(userRoleRelations: UserRoleRelation[], type: 
 }
 
 // 判断当前一级菜单是否有权限
-export async function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
+export function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
   const userStore = useUserStore();
   const appStore = useAppStore();
   const { currentMenuConfig } = appStore;
