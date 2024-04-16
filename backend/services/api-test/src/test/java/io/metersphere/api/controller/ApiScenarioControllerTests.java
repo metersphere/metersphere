@@ -1257,6 +1257,20 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(apiStepResourceInfo.getName(), addApiScenario.getName());
         Assertions.assertEquals(apiStepResourceInfo.getProjectName(), projectMapper.selectByPrimaryKey(addApiScenario.getProjectId()).getName());
 
+        // 测试资源在回收站
+        ApiScenario scenario = new ApiScenario();
+        scenario.setId(addApiScenario.getId());
+        scenario.setDeleted(true);
+        apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+        mvcResult = this.requestGetAndReturn(STEP_RESOURCE_INFO, addApiScenario.getId(), ApiScenarioStepType.API_SCENARIO.name());
+        Assertions.assertTrue(getResultData(mvcResult, ApiStepResourceInfo.class).getDelete());
+        scenario.setDeleted(false);
+        apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+
+        // 测试资源彻底删除
+        mvcResult = this.requestGetAndReturn(STEP_RESOURCE_INFO, "aaaa", ApiScenarioStepType.API_SCENARIO.name());
+        Assertions.assertNull(getResultData(mvcResult, ApiStepResourceInfo.class));
+
         this.requestGetAndReturn(STEP_RESOURCE_INFO, addApiScenario.getId(), "AAA");
 
         // @@校验权限

@@ -2360,7 +2360,7 @@ public class ApiScenarioService extends MoveNodeService {
                 apiCommonService.setLinkFileInfo(step.getScenarioId(), msTestElement);
             }
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
-        } if (stepDetail instanceof MsScriptElement msScriptElement) {
+        } else if (stepDetail instanceof MsScriptElement msScriptElement) {
             apiCommonService.setEnableCommonScriptProcessorInfo(msScriptElement);
         }
         return JSON.parseObject(JSON.toJSONString(stepDetail));
@@ -2871,39 +2871,45 @@ public class ApiScenarioService extends MoveNodeService {
 
     public ApiStepResourceInfo getStepResourceInfo(String resourceId, String resourceType) {
         ApiResourceType apiResourceType = EnumValidator.validateEnum(ApiResourceType.class, resourceType);
+        ApiStepResourceInfo apiStepResourceInfo = null;
+        switch (apiResourceType) {
+            case API_SCENARIO ->
+                    apiStepResourceInfo = getApiStepResourceInfo(apiScenarioMapper::selectByPrimaryKey, resourceId, (resourceInfo, apiScenario) -> {
+                        resourceInfo.setNum(apiScenario.getNum());
+                        resourceInfo.setName(apiScenario.getName());
+                        resourceInfo.setDelete(apiScenario.getDeleted());
+                        resourceInfo.setProjectId(apiScenario.getProjectId());
+                    });
+            case API ->
+                    apiStepResourceInfo = getApiStepResourceInfo(apiDefinitionMapper::selectByPrimaryKey, resourceId, (resourceInfo, apiDefinition) -> {
+                        resourceInfo.setNum(apiDefinition.getNum());
+                        resourceInfo.setName(apiDefinition.getName());
+                        resourceInfo.setDelete(apiDefinition.getDeleted());
+                        resourceInfo.setProjectId(apiDefinition.getProjectId());
+                    });
+            case API_CASE ->
+                    apiStepResourceInfo = getApiStepResourceInfo(apiTestCaseMapper::selectByPrimaryKey, resourceId, (resourceInfo, apiTestCase) -> {
+                        resourceInfo.setNum(apiTestCase.getNum());
+                        resourceInfo.setName(apiTestCase.getName());
+                        resourceInfo.setDelete(apiTestCase.getDeleted());
+                        resourceInfo.setProjectId(apiTestCase.getProjectId());
+                    });
+        }
+       Optional.ofNullable(apiStepResourceInfo).ifPresent(resourceInfo -> {
+           Project project = projectMapper.selectByPrimaryKey(resourceInfo.getProjectId());
+           resourceInfo.setProjectName(project.getName());
+       });
+        return apiStepResourceInfo;
+    }
+
+    private <T> ApiStepResourceInfo getApiStepResourceInfo(Function<String, T> getResourceFunc, String resourceId, BiConsumer<ApiStepResourceInfo, T> setParamFunc) {
+        T resource = getResourceFunc.apply(resourceId);
+        if (resource == null) {
+            return null;
+        }
         ApiStepResourceInfo apiStepResourceInfo = new ApiStepResourceInfo();
         apiStepResourceInfo.setId(resourceId);
-        String projectId;
-
-        switch (apiResourceType) {
-            case API_SCENARIO -> {
-                ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(resourceId);
-                apiStepResourceInfo.setId(apiScenario.getId());
-                apiStepResourceInfo.setNum(apiScenario.getNum());
-                apiStepResourceInfo.setName(apiScenario.getName());
-                projectId = apiScenario.getProjectId();
-            }
-            case API -> {
-                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(resourceId);
-                apiStepResourceInfo.setId(apiDefinition.getId());
-                apiStepResourceInfo.setNum(apiDefinition.getNum());
-                apiStepResourceInfo.setName(apiDefinition.getName());
-                projectId = apiDefinition.getProjectId();
-            }
-            case API_CASE -> {
-                ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
-                apiStepResourceInfo.setId(apiTestCase.getId());
-                apiStepResourceInfo.setNum(apiTestCase.getNum());
-                apiStepResourceInfo.setName(apiTestCase.getName());
-                projectId = apiTestCase.getProjectId();
-            }
-            default -> {
-                return apiStepResourceInfo;
-            }
-        }
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        apiStepResourceInfo.setProjectId(project.getId());
-        apiStepResourceInfo.setProjectName(project.getName());
+        setParamFunc.accept(apiStepResourceInfo, resource);
         return apiStepResourceInfo;
     }
 
