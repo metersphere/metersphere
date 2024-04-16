@@ -450,9 +450,29 @@ public class OrganizationService {
     public void addMemberByOrg(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
+        Map<String, User> userMap;
+        userMap = getUserMap(organizationMemberExtendRequest);
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, createUserId, userMap, userRoleMap, true);
+    }
+
+    private Map<String, User> getUserMap(OrganizationMemberExtendRequest organizationMemberExtendRequest) {
+        Map<String, User> userMap;
+        if(organizationMemberExtendRequest.isSelectAll()) {
+            OrganizationRequest organizationRequest = new OrganizationRequest();
+            BeanUtils.copyBean(organizationRequest, organizationMemberExtendRequest);
+            List<OrgUserExtend> orgUserExtends = extOrganizationMapper.listMemberByOrg(organizationRequest);
+            List<String> excludeIds = organizationMemberExtendRequest.getExcludeIds();
+            if (CollectionUtils.isNotEmpty(excludeIds)) {
+                userMap = orgUserExtends.stream().filter(user->!excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
+            } else {
+                userMap = orgUserExtends.stream().collect(Collectors.toMap(User::getId, user -> user));
+            }
+
+        } else {
+            userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
+        }
+        return userMap;
     }
 
     private void setRelationByMemberAndGroupIds(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId, Map<String, User> userMap, Map<String, UserRole> userRoleMap, boolean add) {
@@ -460,7 +480,7 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
-        organizationMemberExtendRequest.getMemberIds().forEach(memberId -> {
+        userMap.keySet().forEach(memberId -> {
             if (userMap.get(memberId) == null) {
                 throw new MSException("id:" + memberId + Translator.get("user.not.exist"));
             }
@@ -512,7 +532,8 @@ public class OrganizationService {
     public void addMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
+        Map<String, User> userMap;
+        userMap = getUserMap(organizationMemberExtendRequest);
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         //在新增组织成员与用户组和组织的关系
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, userId, userMap, userRoleMap, false);
@@ -526,7 +547,20 @@ public class OrganizationService {
         List<LogDTO> logDTOList = new ArrayList<>();
         List<String> projectIds = orgMemberExtendProjectRequest.getProjectIds();
         //用户不在当前组织内过掉
-        Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getMemberIds());
+        Map<String, User> userMap;
+        if(orgMemberExtendProjectRequest.isSelectAll()) {
+            OrganizationRequest organizationRequest = new OrganizationRequest();
+            BeanUtils.copyBean(organizationRequest, orgMemberExtendProjectRequest);
+            List<OrgUserExtend> orgUserExtends = extOrganizationMapper.listMemberByOrg(organizationRequest);
+            List<String> excludeIds = orgMemberExtendProjectRequest.getExcludeIds();
+            if (CollectionUtils.isNotEmpty(excludeIds)) {
+                userMap = orgUserExtends.stream().filter(user->!excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
+            } else {
+                userMap = orgUserExtends.stream().collect(Collectors.toMap(User::getId, user -> user));
+            }
+        } else {
+            userMap = checkUserExist(orgMemberExtendProjectRequest.getMemberIds());
+        }
         List<String> userIds = userMap.values().stream().map(User::getId).toList();
         userIds.forEach(memberId -> {
             projectIds.forEach(projectId -> {
@@ -875,6 +909,9 @@ public class OrganizationService {
      */
     private Map<String, User> checkUserExist(List<String> userIds) {
         UserExample userExample = new UserExample();
+        if (CollectionUtils.isEmpty(userIds)) {
+            throw new MSException(Translator.get("user.not.empty"));
+        }
         userExample.createCriteria().andIdIn(userIds);
         List<User> users = userMapper.selectByExample(userExample);
         if (CollectionUtils.isEmpty(users)) {

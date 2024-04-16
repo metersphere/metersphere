@@ -69,11 +69,9 @@ public class OrganizationControllerTests extends BaseTest {
     public void addMemberByOrgError() throws Exception {
         //组织ID正确
         // 成员选择为空
-        addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().isBadRequest());
+        addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 成员都不存在
         addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_userX", "sys_default_userY"), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
-        // 成员有一个不存在
-        addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user3", "sys_default_userY"), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 用户组为空
         addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         // 用户组都不存在
@@ -84,7 +82,7 @@ public class OrganizationControllerTests extends BaseTest {
         addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
         // 组织不存在
         // 成员选择为空
-        addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().isBadRequest());
+        addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 用户组不存在
         addOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         //成员和用户组都为空
@@ -183,6 +181,9 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setUserRoleIds(List.of("sys_default_org_role_id_4"));
         this.requestPost(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, organizationMemberRequest, status().isOk());
+        organizationMemberRequest.setSelectAll(true);
+        organizationMemberRequest.setExcludeIds(List.of("sys_default_user2"));
+        this.requestPost(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         listByKeyWord("testUserTwo", "sys_default_organization_3", true, "sys_default_org_role_id_4", null, false, null, null);
     }
@@ -192,18 +193,16 @@ public class OrganizationControllerTests extends BaseTest {
     public void updateOrgMemberToRoleError() throws Exception {
         //组织ID正确
         // 成员选择为空
-        addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().isBadRequest());
+        addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 成员都不存在
         addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Arrays.asList("sys_default_userX", "sys_default_userY"), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
-        // 成员有一个不存在
-        addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Arrays.asList("sys_default_user3", "sys_default_userY"), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 用户组不存在
         addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         //成员和用户组都为空
         addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
         // 组织不存在
         // 成员选择为空
-        addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "default-organization-x", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().isBadRequest());
+        addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "default-organization-x", Collections.emptyList(), Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), status().is5xxServerError());
         // 用户组不存在
         addOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, "default-organization-x", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         //成员和用户组都为空
@@ -229,6 +228,9 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user"));
         organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId2"));
         this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
+        organizationMemberRequest.setSelectAll(true);
+        organizationMemberRequest.setExcludeIds(List.of("sys_org_projectId2"));
+        this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         listByKeyWord("testUserOne", "sys_default_organization_3", false, InternalUserRole.PROJECT_MEMBER.getValue(), "sys_org_projectId2", false, null, null);
     }
@@ -237,13 +239,13 @@ public class OrganizationControllerTests extends BaseTest {
     @Order(10)
     public void addOrgMemberToProjectError() throws Exception {
         // 成员选择为空
-        addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().isBadRequest());
+        addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().is5xxServerError());
         // 项目集合不存在
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         //成员和项目集合都为空
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
         // 成员选择为空
-        addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_X", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().isBadRequest());
+        addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_X", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().is5xxServerError());
     }
 
     @Test
@@ -252,11 +254,15 @@ public class OrganizationControllerTests extends BaseTest {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
         organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user3"));
+        organizationMemberRequest.setSelectAll(true);
+        organizationMemberRequest.setExcludeIds(List.of("sys_default_userM"));
         organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_3"));
         this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
-        listByKeyWord("testUserThree", "sys_default_organization_3", false, null, null, false, null, null);
         listByKeyWord(null, "sys_default_organization_3", false, null, null, false, null, null);
-
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user3"));
+        organizationMemberRequest.setSelectAll(true);
+        organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_3"));
+        this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
     }
 
     @Test

@@ -104,7 +104,7 @@ public class OrganizationController {
 
     @GetMapping("/not-exist/user/list/{organizationId}")
     @Operation(summary = "系统设置-组织-成员-获取不在当前组织的所有用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_ADD)
     public List<OptionDisabledDTO> getUserList(@PathVariable(value = "organizationId") String organizationId, @Schema(description = "查询关键字，根据用户名查询", requiredMode = Schema.RequiredMode.REQUIRED)
     @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationService.getUserList(organizationId, keyword);
