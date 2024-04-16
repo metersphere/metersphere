@@ -3,15 +3,24 @@
     <div class="px-[24px] pt-[16px]">
       <MsDetailCard :title="`【${scenario.num}】${scenario.name}`" :description="description" class="!py-[8px]">
         <template #titleAppend>
-          <MsIcon
-            :loading="followLoading"
-            :type="scenario.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-            :class="`${scenario.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-            class="cursor-pointer"
-            :size="16"
-            @click="toggleFollowReview"
-          />
-          <MsIcon type="icon-icon_share1" class="cursor-pointer text-[var(--color-text-4)]" :size="16" @click="share" />
+          <a-tooltip :content="t(scenario.follow ? 'common.forked' : 'common.notForked')">
+            <MsIcon
+              :loading="followLoading"
+              :type="scenario.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+              :class="`${scenario.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+              class="cursor-pointer"
+              :size="16"
+              @click="toggleFollowReview"
+            />
+          </a-tooltip>
+          <a-tooltip :content="t('report.detail.api.copyLink')">
+            <MsIcon
+              type="icon-icon_share1"
+              class="cursor-pointer text-[var(--color-text-4)]"
+              :size="16"
+              @click="share"
+            />
+          </a-tooltip>
           <apiStatus :status="scenario.status" size="small" />
         </template>
         <template #priority="{ value }">

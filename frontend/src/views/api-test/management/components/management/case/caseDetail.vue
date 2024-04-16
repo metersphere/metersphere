@@ -33,21 +33,25 @@
       <a-tab-pane key="detail" :title="t('case.detail')" class="px-[18px] py-[16px]">
         <MsDetailCard :title="`【${caseDetail.num}】${caseDetail.name}`" :description="description" class="mb-[8px]">
           <template v-if="!props.isDrawer" #titleAppend>
-            <MsIcon
-              v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
-              :loading="followLoading"
-              :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-              :class="`${caseDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-              class="cursor-pointer"
-              :size="16"
-              @click="follow"
-            />
-            <MsIcon
-              type="icon-icon_share1"
-              class="cursor-pointer text-[var(--color-text-4)]"
-              :size="16"
-              @click="share"
-            />
+            <a-tooltip :content="t(caseDetail.follow ? 'common.forked' : 'common.notForked')">
+              <MsIcon
+                v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+                :loading="followLoading"
+                :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+                :class="`${caseDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
+                class="cursor-pointer"
+                :size="16"
+                @click="follow"
+              />
+            </a-tooltip>
+            <a-tooltip :content="t('report.detail.api.copyLink')">
+              <MsIcon
+                type="icon-icon_share1"
+                class="cursor-pointer text-[var(--color-text-4)]"
+                :size="16"
+                @click="share"
+              />
+            </a-tooltip>
           </template>
           <template #type="{ value }">
             <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
