@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
@@ -36,14 +37,13 @@ import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -131,17 +131,25 @@ public class ApiTaskCenterService {
         List<TaskCenterDTO> list = new ArrayList<>();
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
         if (request != null && !projectIds.isEmpty()) {
+            Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
             if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                 list = extApiReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+                //执行历史列表
+                List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
+                List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
+                historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
             } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                 list = extApiScenarioReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+                List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
+                List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
+                historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
             }
-            processTaskCenter(list, projectList, projectIds);
+            processTaskCenter(list, projectList, projectIds, historyDeletedMap);
         }
         return list;
     }
 
-    private void processTaskCenter(List<TaskCenterDTO> list, List<OptionDTO> projectList, List<String> projectIds) {
+    private void processTaskCenter(List<TaskCenterDTO> list, List<OptionDTO> projectList, List<String> projectIds, Map<String, ExecuteReportDTO> historyDeletedMap) {
         if (!list.isEmpty()) {
             // 取所有的userid
             Set<String> userSet = list.stream()
@@ -158,6 +166,7 @@ public class ApiTaskCenterService {
                 item.setOperationName(userMap.getOrDefault(item.getOperationName(), StringUtils.EMPTY));
                 item.setProjectName(projectMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
+                item.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(item.getId()));
             });
         }
     }

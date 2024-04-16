@@ -133,12 +133,27 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record, rowIndex }">
-        <MsButton
-          class="!mr-0"
-          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].report)"
-          @click="viewReport(record.id, rowIndex)"
-          >{{ t('project.taskCenter.viewReport') }}
-        </MsButton>
+        <div v-if="record.historyDeleted">
+          <a-tooltip :content="t('project.executionHistory.cleared')">
+            <MsButton
+              class="!mr-0"
+              :disabled="
+                record.historyDeleted || !hasAnyPermission(permissionsMap[props.group][props.moduleType].report)
+              "
+              @click="viewReport(record.id, rowIndex)"
+              >{{ t('project.taskCenter.viewReport') }}
+            </MsButton>
+          </a-tooltip>
+        </div>
+        <div v-else>
+          <MsButton
+            class="!mr-0"
+            :disabled="record.historyDeleted || !hasAnyPermission(permissionsMap[props.group][props.moduleType].report)"
+            @click="viewReport(record.id, rowIndex)"
+            >{{ t('project.taskCenter.viewReport') }}
+          </MsButton>
+        </div>
+
         <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton
           v-if="
@@ -177,6 +192,7 @@
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
+  import TemplateItem from '@/views/setting/organization/template/components/templateItem.vue';
 
   import {
     batchStopRealOrdApi,

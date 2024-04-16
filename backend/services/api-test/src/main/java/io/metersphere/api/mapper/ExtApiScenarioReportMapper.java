@@ -4,6 +4,7 @@ import io.metersphere.api.domain.ApiScenarioBlob;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
@@ -54,4 +55,7 @@ public interface ExtApiScenarioReportMapper {
     List<ApiScenarioReportStepDTO> selectStepDeatilByReportId(String id);
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> ids);
+
+
+    List<ExecuteReportDTO> getHistoryDeleted(@Param("ids") List<String> ids);
 }
