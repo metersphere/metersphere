@@ -105,8 +105,9 @@
           value: 'JSON',
         }, */
       ],
-      titleSlotName: 'typeTitle',
-      typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
+      // TODO 这个版本暂时不展示
+      // titleSlotName: 'typeTitle',
+      // typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
     },
     {
       title: 'project.environmental.paramValue',

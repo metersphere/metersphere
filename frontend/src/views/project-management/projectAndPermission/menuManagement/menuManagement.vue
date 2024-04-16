@@ -1,14 +1,13 @@
 <template>
   <div class="flex flex-row items-center">
     <div class="text-[var(--color-text-1)]"> {{ t('project.menu.management') }}</div>
-    <a-tooltip :content="t('project.menu.manageTip')" position="bl">
-      <div>
-        <MsIcon
-          class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-          type="icon-icon-maybe_outlined"
-        />
-      </div>
-    </a-tooltip>
+
+    <div>
+      <MsIcon
+        class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+        type="icon-icon-maybe_outlined"
+      />
+    </div>
   </div>
   <MsBaseTable
     ref="tableRef"
@@ -178,6 +177,7 @@
           v-model="allValueMap['UI_CLEAN_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
+          @blur="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
         />
       </div>
       <div v-if="record.type === 'UI_SHARE_REPORT'">
@@ -727,6 +727,7 @@
   };
 
   const handleMenuStatusChange = async (type: string, typeValue: string | boolean, suffix: string) => {
+    debugger;
     try {
       let hasAuth = false;
       switch (suffix) {

@@ -8,7 +8,7 @@
       size="small"
       :disabled="props.disabled"
       @press-enter="handleEnter(false)"
-      @blur="handleEnter(true)"
+      @blur="handleEnter(false)"
     >
       <template #suffix>
         <a-select
@@ -18,7 +18,6 @@
           :disabled="props.disabled"
           :options="option"
           :trigger-props="{ autoFitPopupMinWidth: true }"
-          @change="handleEnter(false)"
         />
       </template>
     </a-input-number>
