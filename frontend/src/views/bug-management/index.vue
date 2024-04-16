@@ -397,6 +397,7 @@
       title: 'bugManagement.status',
       dataIndex: 'statusName',
       width: 100,
+      showTooltip: true,
       slotName: 'status',
       titleSlotName: 'statusFilter',
       showDrag: true,
