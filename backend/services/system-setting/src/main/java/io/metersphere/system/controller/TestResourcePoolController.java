@@ -36,7 +36,7 @@ public class TestResourcePoolController {
     @CacheNode // 把监控节点缓存起来
     @Operation(summary = "系统设置-系统-资源池-更新资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = TestResourcePoolService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = TestResourcePoolService.class)
     public void updateTestResourcePool(@Validated({Updated.class}) @RequestBody TestResourcePoolRequest request) {
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         BeanUtils.copyBean(testResourcePool, request);
