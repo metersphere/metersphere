@@ -776,6 +776,10 @@
   .left-bug-detail {
     height: 88%;
   }
+  .tab-pane-container {
+    @apply flex-1 overflow-y-auto px-4;
+    .ms-scroll-bar();
+  }
   //:deep(.w-full .arco-form-item-label) {
   //  display: inline-block;
   //  width: 100%;

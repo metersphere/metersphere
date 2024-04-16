@@ -851,18 +851,6 @@
     checkSyncStatus();
   });
 
-  onMounted(() => {
-    setLoadListParams({ projectId: projectId.value });
-    setCurrentPlatform();
-    setExportOptionData();
-    initFilterOptions();
-    fetchData();
-    if (route.query.id) {
-      // 分享或成功进来的页面
-      handleShowDetail(route.query.id as string, 0);
-    }
-  });
-
   let customColumns: MsTableColumn = [];
   async function getColumnHeaders() {
     try {
@@ -883,6 +871,19 @@
   await getColumnHeaders();
 
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
+
+  onMounted(() => {
+    setLoadListParams({ projectId: projectId.value });
+    setCurrentPlatform();
+    setExportOptionData();
+    initFilterOptions();
+    fetchData();
+    if (route.query.id) {
+      // 分享或成功进来的页面
+      handleShowDetail(route.query.id as string, 0);
+    }
+  });
+
   onUnmounted(() => {
     // 组件销毁时关闭轮询
     pause();

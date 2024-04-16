@@ -369,20 +369,6 @@
     return customFieldToColumns(res);
   };
 
-  const customColumns = await getCustomFieldColumns();
-
-  customColumns.forEach((item) => {
-    if (item.title === '严重程度' || item.title === 'Bug Degree') {
-      item.showInTable = true;
-      item.titleSlotName = 'severityFilter';
-      item.slotName = 'severity';
-    } else {
-      item.showInTable = false;
-    }
-  });
-
-  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT_RECYCLE, columns.concat(customColumns), 'drawer');
-
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps } = useTable(
     getRecycleList,
     {
@@ -533,6 +519,28 @@
     handleUserFilterOptions.value = res.handleUserOption;
     statusFilterOptions.value = res.statusOption;
   }
+
+  let customColumns: MsTableColumn = [];
+
+  async function getColumnHeaders() {
+    try {
+      customColumns = await getCustomFieldColumns();
+      customColumns.forEach((item) => {
+        if (item.title === '严重程度' || item.title === 'Bug Degree') {
+          item.showInTable = true;
+          item.titleSlotName = 'severityFilter';
+          item.slotName = 'severity';
+        } else {
+          item.showInTable = false;
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  await getColumnHeaders();
+
+  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT_RECYCLE, columns.concat(customColumns), 'drawer');
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });

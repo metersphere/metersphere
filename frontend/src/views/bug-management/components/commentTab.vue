@@ -1,5 +1,5 @@
 <template>
-  <div class="pr-4">
+  <div class="pl-2 pt-4">
     <a-scrollbar
       :style="{
         overflow: 'auto',
