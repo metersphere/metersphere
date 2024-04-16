@@ -12,6 +12,7 @@
       props.noContentPadding ? 'ms-drawer-no-content-padding' : '',
       props.noTitle ? 'ms-drawer-no-title' : '',
     ]"
+    :on-before-cancel="handleBeforeCancel"
     @cancel="handleCancel"
     @close="handleClose"
   >
@@ -150,6 +151,7 @@
     drawerStyle?: Record<string, string>; // 抽屉样式
     showFullScreen?: boolean; // 是否显示全屏按钮
     maskClosable?: boolean; // 点击遮罩是否关闭
+    handleBeforeCancel?: () => boolean;
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -195,6 +197,11 @@
     visible.value = false;
     emit('update:visible', false);
     emit('close');
+  };
+
+  // 关闭抽屉时进行拦截
+  const handleBeforeCancel = () => {
+    return props.handleBeforeCancel ? props.handleBeforeCancel() : true;
   };
 
   const resizing = ref(false); // 是否正在拖拽
