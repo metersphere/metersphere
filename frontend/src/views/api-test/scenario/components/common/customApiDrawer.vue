@@ -6,6 +6,7 @@
     :show-continue="true"
     :footer="requestVModel.isNew === true"
     :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+    :handle-before-cancel="handleBeforeCancel"
     show-full-screen
     @confirm="handleSave"
     @continue="handleContinue"
@@ -25,7 +26,7 @@
         />
         <a-tooltip v-if="!isShowEditStepNameInput" :content="title" position="bottom">
           <div class="flex items-center gap-[4px]">
-            <div class="one-line-text">
+            <div class="one-line-text max-w-[300px]">
               {{ title }}
             </div>
             <MsIcon
@@ -374,6 +375,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import auth from '@/views/api-test/components/requestComposition/auth.vue';
+  import { TabErrorMessage } from '@/views/api-test/components/requestComposition/index.vue';
   import postcondition from '@/views/api-test/components/requestComposition/postcondition.vue';
   import precondition from '@/views/api-test/components/requestComposition/precondition.vue';
   import response from '@/views/api-test/components/requestComposition/response/index.vue';
@@ -444,6 +446,9 @@
     linkFileIds: string[];
     deleteFileIds?: string[];
     unLinkFileIds?: string[];
+    errorMessageInfo?: {
+      [key: string]: Record<string, any>;
+    };
   }
 
   export type RequestParam = ExecuteApiRequestFullParams & {
@@ -544,6 +549,7 @@
     responseActiveTab: ResponseComposition.BODY,
     isNew: true,
     executeLoading: false,
+    errorMessageInfo: {},
   };
 
   const requestVModel = ref<RequestParam>(defaultApiParams);
@@ -1099,13 +1105,100 @@
     emit('stopDebug');
   }
 
+  function initErrorMessageInfoItem(key) {
+    if (requestVModel.value.errorMessageInfo && !requestVModel.value.errorMessageInfo[key]) {
+      requestVModel.value.errorMessageInfo[key] = {};
+    }
+  }
+
+  function setChildErrorMessage(key: number | string, listItem: TabErrorMessage) {
+    if (requestVModel.value.errorMessageInfo) {
+      requestVModel.value.errorMessageInfo[requestVModel.value.activeTab][key] = cloneDeep(listItem);
+    }
+  }
+
+  function changeTabErrorMessageList(tabKey: string, formErrorMessageList: string[]) {
+    if (!requestVModel.value.errorMessageInfo) return;
+    const label = contentTabList.value.find((item) => item.value === tabKey)?.label ?? '';
+    const listItem: TabErrorMessage = {
+      value: tabKey,
+      label,
+      messageList: formErrorMessageList,
+    };
+    initErrorMessageInfoItem(requestVModel.value.activeTab);
+    if (requestVModel.value.activeTab === RequestComposition.BODY) {
+      setChildErrorMessage(requestVModel.value.body.bodyType, listItem);
+    } else if (requestVModel.value.activeTab === RequestComposition.POST_CONDITION) {
+      setChildErrorMessage(requestVModel.value.children[0].postProcessorConfig.activeItemId as number, listItem);
+    } else if (requestVModel.value.activeTab === RequestComposition.PRECONDITION) {
+      setChildErrorMessage(requestVModel.value.children[0].preProcessorConfig.activeItemId as number, listItem);
+    } else {
+      requestVModel.value.errorMessageInfo[requestVModel.value.activeTab] = cloneDeep(listItem);
+    }
+  }
+
+  const setErrorMessageList = debounce((list: string[]) => {
+    changeTabErrorMessageList(requestVModel.value.activeTab, list);
+  }, 300);
+  provide('setErrorMessageList', setErrorMessageList);
+
+  // 需要最终提示的信息
+  function getFlattenedMessages() {
+    if (!requestVModel.value.errorMessageInfo) return;
+    const flattenedMessages: { label: string; messageList: string[] }[] = [];
+    const { errorMessageInfo } = requestVModel.value;
+    Object.entries(errorMessageInfo).forEach(([key, item]) => {
+      const label = item.label || Object.values(item)[0]?.label;
+      // 处理前后置已删除的
+      if ([RequestComposition.POST_CONDITION as string, RequestComposition.PRECONDITION as string].includes(key)) {
+        const processorIds = requestVModel.value.children[0][
+          key === RequestComposition.POST_CONDITION ? 'postProcessorConfig' : 'preProcessorConfig'
+        ].processors.map((processorItem) => String(processorItem.id));
+        Object.entries(item).forEach(([childKey, childItem]) => {
+          if (!processorIds.includes(childKey)) {
+            childItem.messageList = [];
+          }
+        });
+      }
+      const messageList: string[] =
+        item.messageList || [...new Set(Object.values(item).flatMap((child) => child.messageList))] || [];
+      if (messageList.length) {
+        flattenedMessages.push({ label, messageList: [...new Set(messageList)] });
+      }
+    });
+    return flattenedMessages;
+  }
+
+  function showMessage() {
+    getFlattenedMessages()?.forEach(({ label, messageList }) => {
+      messageList?.forEach((message) => {
+        Message.error(`${label}${message}`);
+      });
+    });
+  }
+
   function handleContinue() {
+    // 检查全部的校验信息
+    if (getFlattenedMessages()?.length) {
+      showMessage();
+      return;
+    }
     emit('addStep', cloneDeep(makeRequestParams()));
   }
 
   function handleSave() {
     handleContinue();
+    if (getFlattenedMessages()?.length) return;
     visible.value = false;
+  }
+
+  function handleBeforeCancel() {
+    // 检查全部的校验信息
+    if (getFlattenedMessages()?.length) {
+      showMessage();
+      return false;
+    }
+    return true;
   }
 
   function handleClose() {

@@ -75,8 +75,8 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
   import { useVModel } from '@vueuse/core';
-  import { FormInstance } from '@arco-design/web-vue';
-  import { cloneDeep } from 'lodash-es';
+  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -142,6 +142,7 @@
       title: 'project.commonScript.ParameterNames',
       slotName: 'key',
       dataIndex: 'key',
+      needValidRepeat: true,
     },
     {
       title: 'project.commonScript.ParameterValue',
@@ -179,9 +180,21 @@
     }
   }
 
+  const paramMessageList = ref<string[]>([]);
+  const setErrorMessageList = debounce((list: string[]) => {
+    paramMessageList.value = [...list];
+  }, 300);
+  provide('setErrorMessageList', setErrorMessageList);
+
   function handleDrawerConfirm() {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
+        if (paramMessageList.value.length) {
+          paramMessageList.value?.forEach((message) => {
+            Message.error(message);
+          });
+          return;
+        }
         emit('save', form.value);
       }
     });
