@@ -138,7 +138,7 @@ public class ApiScenarioReportService {
 
     private ApiScenarioReport checkResource(String id) {
         ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        example.createCriteria().andIdEqualTo(id);
         List<ApiScenarioReport> scenarioReport = apiScenarioReportMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(scenarioReport)) {
             throw new RuntimeException(Translator.get("api_scenario_report_not_exist"));
