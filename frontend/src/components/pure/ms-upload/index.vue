@@ -12,7 +12,7 @@
     :disabled="props.disabled"
     :class="getAllScreenClass"
     :style="{
-      width: props.isAllScreen ? `calc(100% - 32px)` : '',
+      width: props.isAllScreen ? `calc(100% - 0px)` : '',
     }"
     @change="handleChange"
     @before-upload="beforeUpload"
@@ -20,7 +20,12 @@
   >
     <template #upload-button>
       <slot>
-        <div class="ms-upload-area">
+        <div
+          class="ms-upload-area"
+          :class="[
+            props.isAllScreen ? 'ms-upload-area-dotted-border h-[100vh]' : 'ms-upload-area-thin-border h-[154px]',
+          ]"
+        >
           <div class="ms-upload-icon-box">
             <MsIcon
               v-if="props.accept !== UploadAcceptEnum.none"
@@ -92,7 +97,6 @@
     isLimit: boolean; // 是否限制文件大小
     draggable: boolean; // 是否支持拖拽上传
     isAllScreen?: boolean; // 是否是全屏显示拖拽上传
-    cutHeight: number; // 被剪切高度
     fileTypeTip?: string; // 上传文件类型错误提示
     limit: number; // 限制上传文件数量
     allowRepeat?: boolean; // 自定义上传文件框，是否允许重复文件名替换
@@ -161,29 +165,19 @@
     emit('change', _fileList, fileItem);
   }
 
-  const total = ref(''); // 总高度
-  const other = ref(''); // 被减去高度
   const showDropArea = ref(!props.isAllScreen);
 
   watch(
     () => props.isAllScreen,
     (val) => {
-      if (val) {
-        total.value = '100vh';
-        other.value = `32px`;
-        showDropArea.value = false;
-      } else {
-        total.value = '154px';
-        other.value = '0px';
-        showDropArea.value = true;
-      }
+      showDropArea.value = !val;
     },
     { immediate: true }
   );
 
   const getAllScreenClass = computed(() => {
     return props.isAllScreen
-      ? ['!fixed', 'right-0', 'left-0', 'bottom-0', 'top-4', 'm-auto', 'z-[999]', 'opacity-90']
+      ? ['!fixed', 'right-0', 'left-0', 'bottom-0', 'top-0', 'm-auto', 'z-[999]', 'opacity-90']
       : [];
   });
 
@@ -254,8 +248,6 @@
 
 <style lang="less" scoped>
   .ms-upload-area {
-    height: calc(v-bind(total) - v-bind(other));
-    border: 1px dashed var(--color-text-input-border);
     border-color: rgb(var(--primary-5)) !important;
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);
@@ -286,5 +278,11 @@
       color: var(--color-text-4);
       line-height: 16px;
     }
+  }
+  .ms-upload-area-thin-border {
+    border: 1px dashed var(--color-text-input-border);
+  }
+  .ms-upload-area-dotted-border {
+    border: 4px dashed var(--color-text-input-border);
   }
 </style>
