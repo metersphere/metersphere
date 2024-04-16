@@ -103,7 +103,7 @@
   provide('currentEnvConfig', readonly(currentEnvConfig));
 
   onBeforeMount(() => {
-    currentEnvConfig.value = store.currentEnvDetailInfo.config;
+    currentEnvConfig.value = store.currentEnvDetailInfo;
   });
 </script>
 
