@@ -11,6 +11,8 @@ public class ApiStepResourceInfo {
     private Long num;
     @Schema(description = "资源名称")
     private String name;
+    @Schema(description = "是否已删除")
+    private Boolean delete;
     @Schema(description = "所属项目ID")
     private String projectId;
     @Schema(description = "所属项目名称")
