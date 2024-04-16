@@ -140,4 +140,8 @@
   :deep(.arco-form-item-layout-vertical > .arco-form-item-label-col) {
     overflow-wrap: break-word;
   }
+
+  :deep(.arco-form-item-content) {
+    overflow-wrap: anywhere;
+  }
 </style>

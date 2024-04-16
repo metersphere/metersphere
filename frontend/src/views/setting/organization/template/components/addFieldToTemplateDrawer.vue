@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="showAddDrawer"
-    :title="t('system.orgTemplate.createField')"
+    :title="t('system.orgTemplate.associatedField')"
     :ok-text="t('system.orgTemplate.save')"
     :ok-loading="drawerLoading"
     :width="800"
