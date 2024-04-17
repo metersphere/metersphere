@@ -714,8 +714,12 @@
         fc.name,
         fc.project_id,
         fc.tags,
-        pv.name as versionName
+        pv.name as versionName,
+        fc.create_user,
+        u.name as createUserName,
+        fc.create_time
         from functional_case fc left join project_version pv ON fc.version_id = pv.id
+        left join user u ON fc.create_user = u.id
         where fc.deleted = #{deleted}
             and fc.project_id = #{request.projectId}
             and fc.id not in

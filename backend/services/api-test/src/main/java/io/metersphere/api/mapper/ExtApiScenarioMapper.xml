@@ -79,10 +79,14 @@
         api_scenario.tags,
         api_scenario.pos,
         api_scenario.version_id,
-        project_version.name as versionName
+        project_version.name as versionName,
+        api_scenario.create_user,
+        user.name as createUserName,
+        api_scenario.create_time
         FROM
         api_scenario
         LEFT JOIN project_version ON api_scenario.version_id = project_version.id
+        LEFT JOIN user ON api_scenario.create_user = user.id
         WHERE api_scenario.deleted =#{deleted}
         and api_scenario.id not in
         (

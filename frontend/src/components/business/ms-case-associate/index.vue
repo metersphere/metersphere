@@ -368,6 +368,25 @@
       dataIndex: 'tags',
       isTag: true,
     },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      width: 200,
+      showDrag: true,
+    },
   ];
 
   watchEffect(() => {
