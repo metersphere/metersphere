@@ -96,4 +96,20 @@ public class BaseCheckPermissionService {
             MSException.throwException(Translator.get("check_owner_project"));
         }
     }
+
+    public void checkWorkspacePermission(String workspaceId) {
+        if (SessionUtils.getUserId() != null && baseUserService.isSuperUser(SessionUtils.getUserId())) {
+            return;
+        }
+        UserDTO userDTO = baseUserService.getUserDTO(SessionUtils.getUserId());
+        List<String> groupIds = userDTO.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.WORKSPACE) && StringUtils.equals(g.getScopeId(), workspaceId))
+                .map(Group::getId)
+                .toList();
+        if (CollectionUtils.isEmpty(groupIds)) {
+            MSException.throwException(Translator.get("check_owner_workspace"));
+        }
+
+    }
 }

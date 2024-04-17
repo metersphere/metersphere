@@ -91,6 +91,7 @@ public class UserController {
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
     public Pager<List<User>> getMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseUserService.getMemberList(request));
     }
@@ -98,6 +99,7 @@ public class UserController {
     @PostMapping("/special/ws/member/list/all")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_WORKSPACE_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
+        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         return baseUserService.getMemberList(request);
     }
 
@@ -136,6 +138,8 @@ public class UserController {
     @PostMapping("/ws/member/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.WORKSPACE_USER_READ)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        //判断当前人是否和组织有权限关系
+        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseUserService.getMemberList(request));
     }
@@ -143,6 +147,7 @@ public class UserController {
     @PostMapping("/project/member/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        baseCheckPermissionService.checkProjectOwner(request.getProjectId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
@@ -150,6 +155,7 @@ public class UserController {
     @PostMapping("/ws/project/member/list/{workspaceId}/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<User>> getProjectMemberListForWorkspace(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String workspaceId, @RequestBody QueryMemberRequest request) {
+        baseCheckPermissionService.checkWorkspacePermission(workspaceId);
         baseCheckPermissionService.checkProjectBelongToWorkspace(request.getProjectId(), workspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
