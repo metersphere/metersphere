@@ -353,7 +353,7 @@ public class FileMetadataService {
 
     public void batchDownloadWithResponse(List<FileMetadata> fileMetadataList, HttpServletResponse response) {
         Map<String, File> fileMap = new HashMap<>();
-        fileMetadataList.forEach(fileMetadata -> fileMap.put(FileMetadataUtils.getFileName(fileMetadata), this.getTmpFile(fileMetadata)));
+        fileMetadataList.forEach(fileMetadata -> fileMap.put(FileMetadataUtils.getFileNameWithId(fileMetadata), this.getTmpFile(fileMetadata)));
         FileDownloadUtils.zipFilesWithResponse(fileMap, response);
     }
 

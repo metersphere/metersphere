@@ -34,6 +34,13 @@ public class FileMetadataUtils {
         return fileMetadata.getName() + "." + fileMetadata.getType();
     }
 
+    public static String getFileNameWithId(FileMetadata fileMetadata) {
+        if (StringUtils.isBlank(fileMetadata.getType())) {
+            return fileMetadata.getName() + "_" + fileMetadata.getId();
+        }
+        return fileMetadata.getName() + "_" + fileMetadata.getId() + "." + fileMetadata.getType();
+    }
+
     /**
      * 将空文件类型转换为unknown
      *
