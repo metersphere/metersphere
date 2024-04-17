@@ -31,7 +31,6 @@ public class DocumentAssertionConverter extends ResponseBodyTypeAssertionConvert
         if (msAssertion == null) {
             return;
         }
-        // todo 定义好 jsonschema 再补充
         if (needParse(msAssertion, config)) {
             String documentType = msAssertion.getDocumentType();
             if (StringUtils.equals(documentType, MsDocumentAssertion.DocumentType.XML.name())) {
