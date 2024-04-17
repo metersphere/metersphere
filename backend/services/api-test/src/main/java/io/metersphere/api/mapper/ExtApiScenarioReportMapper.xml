@@ -245,7 +245,7 @@
         </if>
     </select>
     <select id="getHistoryDeleted" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
-        select asr.* from
+        select distinct asr.* from
                      api_scenario_report asr inner join api_scenario_report_step ars on asr.id = ars.report_id
         <if test="ids != null and ids.size() > 0">
             where asr.id in

@@ -266,7 +266,7 @@
         </if>
     </select>
     <select id="getHistoryDeleted" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
-        select ar.* from api_report ar INNER JOIN api_report_step ars on ar.id = ars.report_id
+        select distinct ar.* from api_report ar INNER JOIN api_report_step ars on ar.id = ars.report_id
         <if test="ids != null and ids.size() > 0">
             where ar.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">

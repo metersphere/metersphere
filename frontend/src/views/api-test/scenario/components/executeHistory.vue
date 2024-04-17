@@ -80,7 +80,7 @@
             <MsButton
               :disabled="
                 record.historyDeleted ||
-                hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+                !hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
               "
               class="!mr-0"
               @click="showResult(record)"
@@ -92,7 +92,7 @@
           <MsButton
             :disabled="
               record.historyDeleted ||
-              hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
+              !hasAnyPermission(['PROJECT_API_SCENARIO:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
             "
             class="!mr-0"
             @click="showResult(record)"

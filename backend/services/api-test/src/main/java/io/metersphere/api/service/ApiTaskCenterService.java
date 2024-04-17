@@ -136,13 +136,17 @@ public class ApiTaskCenterService {
                 list = extApiReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
                 //执行历史列表
                 List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
-                List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
-                historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+                if (CollectionUtils.isNotEmpty(reportIds)){
+                    List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
+                    historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+                }
             } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                 list = extApiScenarioReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
                 List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
-                List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
-                historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+                if (CollectionUtils.isNotEmpty(reportIds)) {
+                    List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
+                    historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+                }
             }
             processTaskCenter(list, projectList, projectIds, historyDeletedMap);
         }
