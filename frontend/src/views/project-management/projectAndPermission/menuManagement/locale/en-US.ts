@@ -50,9 +50,9 @@ export default {
   'project.menu.configure': 'to configure',
   'project.menu.status': 'Status',
   'project.menu.incrementalSync': 'Incremental Sync',
-  'project.menu.incrementalSyncTip': 'Only sync the changes in the defect content created in MeterSphere',
+  'project.menu.incrementalSyncTip': 'Only the contents of the three-party bug existing in MS are changed',
   'project.menu.fullSync': 'Full Sync',
-  'project.menu.fullSyncTip': 'Sync all defects on the third-party platform to the MeterSphere platform',
+  'project.menu.fullSyncTip': 'Fully sync bug of third-party platforms to MS',
   'project.menu.platformPlaceholder':
     'No third-party platform integrated yet, please contact the organization administrator to integrate',
   'project.menu.platformLabel': 'Third-party Project Management Platform',

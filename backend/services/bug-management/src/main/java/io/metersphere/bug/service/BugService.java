@@ -528,6 +528,8 @@ public class BugService {
             }
         } catch (Exception e) {
             LogUtils.error(e);
+            // 异常或正常结束都得删除当前项目执行同步的唯一Key
+            bugSyncExtraService.deleteSyncKey(request.getProjectId());
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
             bugSyncExtraService.setSyncErrorMsg(request.getProjectId(), e.getMessage());
         } finally {
@@ -548,6 +550,8 @@ public class BugService {
             SubListUtils.dealForSubList(remainBugs, 100, (subBugs) -> doSyncPlatformBugs(subBugs, project));
         } catch (Exception e) {
             LogUtils.error(e);
+            // 异常或正常结束都得删除当前项目执行同步的Key
+            bugSyncExtraService.deleteSyncKey(project.getId());
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
             bugSyncExtraService.setSyncErrorMsg(project.getId(), e.getMessage());
         } finally {

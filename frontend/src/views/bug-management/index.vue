@@ -154,7 +154,6 @@
         <a-tooltip position="top">
           <template #content>
             <div>{{ t('bugManagement.syncBugTipRowOne') }}</div>
-            <div>{{ t('bugManagement.syncBugTipRowTwo') }}</div>
           </template>
           <MsIcon class="text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
         </a-tooltip>

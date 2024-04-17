@@ -56,7 +56,7 @@
             <a-radio v-xpack value="full">
               <div class="flex flex-row items-center gap-[4px]">
                 <span class="text-[var(--color-text-1)]">{{ t('project.menu.fullSync') }}</span>
-                <a-tooltip :content="t('project.menu.fullSyncTip')" position="bl">
+                <a-tooltip :content="t('project.menu.fullSyncTip')" position="top">
                   <div>
                     <MsIcon
                       class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
