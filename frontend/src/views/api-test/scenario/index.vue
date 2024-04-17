@@ -427,6 +427,7 @@
         name: isCopy ? copyName : defaultScenarioInfo.name,
         isNew: isCopy,
         stepResponses: {},
+        errorMessageInfo: {},
       });
       if (action === 'execute') {
         nextTick(() => {

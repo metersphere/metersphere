@@ -32,6 +32,7 @@
             v-if="activeKey === ScenarioCreateComposition.PRE_POST"
             v-model:post-processor-config="scenario.scenarioConfig.postProcessorConfig"
             v-model:pre-processor-config="scenario.scenarioConfig.preProcessorConfig"
+            @change="changePrePost"
           />
         </a-tab-pane>
         <a-tab-pane :key="ScenarioCreateComposition.ASSERTION" class="scenario-create-tab-pane">
@@ -124,8 +125,12 @@
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+  import { cloneDeep, debounce } from 'lodash-es';
+
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import baseInfo from '../components/baseInfo.vue';
+  import { TabErrorMessage } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -157,7 +162,95 @@
   const splitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
   const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
 
+  // 前置和后置在一个tab里，isChangePre用于判断当前修改的form是前置还是后置
+  const isChangePre = ref(true);
+  function changePrePost(changePre: boolean) {
+    isChangePre.value = changePre;
+  }
+
+  // TODO: 优化，拆出来
+  function initErrorMessageInfoItem(key) {
+    if (scenario.value.errorMessageInfo && !scenario.value.errorMessageInfo[key]) {
+      scenario.value.errorMessageInfo[key] = {};
+    }
+  }
+
+  function setChildErrorMessage(key: number | string, listItem: TabErrorMessage) {
+    if (!scenario.value.errorMessageInfo) return;
+    scenario.value.errorMessageInfo[activeKey.value][key] = cloneDeep(listItem);
+  }
+
+  function changeTabErrorMessageList(tabKey: string, formErrorMessageList: string[]) {
+    if (!scenario.value.errorMessageInfo) return;
+    initErrorMessageInfoItem(tabKey);
+    if (tabKey === ScenarioCreateComposition.PRE_POST) {
+      setChildErrorMessage(
+        scenario.value.scenarioConfig[isChangePre.value ? 'preProcessorConfig' : 'postProcessorConfig']
+          .activeItemId as number,
+        {
+          value: tabKey,
+          label: t('apiScenario.prePost'),
+          messageList: formErrorMessageList,
+        }
+      );
+    } else if (tabKey === ScenarioCreateComposition.PARAMS) {
+      scenario.value.errorMessageInfo[tabKey] = {
+        value: tabKey,
+        label: t('apiScenario.params'),
+        messageList: formErrorMessageList,
+      };
+    }
+  }
+
+  const setErrorMessageList = debounce((list: string[]) => {
+    changeTabErrorMessageList(activeKey.value, list);
+  }, 300);
+  provide('setErrorMessageList', setErrorMessageList);
+
+  // 需要最终提示的信息
+  function getFlattenedMessages() {
+    if (!scenario.value.errorMessageInfo) return;
+    const flattenedMessages: { label: string; messageList: string[] }[] = [];
+    const { errorMessageInfo } = scenario.value;
+    Object.entries(errorMessageInfo).forEach(([key, item]) => {
+      const label = item.label || Object.values(item)[0]?.label;
+      // 处理前后置已删除的
+      if (key === ScenarioCreateComposition.PRE_POST) {
+        // 前后置一共的id
+        const processorIds = [
+          ...scenario.value.scenarioConfig.preProcessorConfig.processors,
+          ...scenario.value.scenarioConfig.postProcessorConfig.processors,
+        ].map((processorItem) => String(processorItem.id));
+
+        Object.entries(item).forEach(([childKey, childItem]) => {
+          if (!processorIds.includes(childKey)) {
+            childItem.messageList = [];
+          }
+        });
+      }
+      const messageList: string[] =
+        item.messageList || [...new Set(Object.values(item).flatMap((child) => child.messageList))] || [];
+      if (messageList.length) {
+        flattenedMessages.push({ label, messageList: [...new Set(messageList)] });
+      }
+    });
+    return flattenedMessages;
+  }
+
+  function showMessage() {
+    getFlattenedMessages()?.forEach(({ label, messageList }) => {
+      messageList?.forEach((message) => {
+        Message.error(`${label}${message}`);
+      });
+    });
+  }
+
   function validScenarioForm(cb: () => Promise<void>) {
+    // 检查全部的校验信息
+    if (getFlattenedMessages()?.length) {
+      showMessage();
+      return;
+    }
     baseInfoRef.value?.createFormRef?.validate(async (errors) => {
       if (errors) {
         splitBoxRef.value?.expand();

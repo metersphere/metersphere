@@ -130,6 +130,7 @@ export const defaultScenario: Scenario = {
   executeLoading: false, // 执行loading
   isDebug: false,
   stepResponses: {},
+  errorMessageInfo: {},
 };
 
 export const conditionOptions = [

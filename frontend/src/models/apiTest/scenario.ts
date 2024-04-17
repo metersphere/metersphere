@@ -409,6 +409,9 @@ export interface Scenario {
   isExecute?: boolean; // 是否从列表执行进去场景详情
   isDebug?: boolean; // 是否调试，区分执行场景和批量调试步骤
   executeType?: 'localExec' | 'serverExec'; // 执行类型
+  errorMessageInfo?: {
+    [key: string]: Record<string, any>;
+  };
 }
 // 场景详情
 export interface ScenarioDetail extends Scenario {
