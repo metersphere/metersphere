@@ -50,7 +50,7 @@
                   @click="setFocusKey(nodeData)"
                   >{{ nodeData.name }}</div
                 >
-                <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+                <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
               </div>
             </template>
           </MsTree>

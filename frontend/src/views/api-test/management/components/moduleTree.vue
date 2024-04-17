@@ -130,7 +130,7 @@
           </div>
           <div v-else :id="nodeData.id" class="inline-flex w-full">
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]"
+            <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]"
               >({{ modulesCount[nodeData.id] || 0 }})</div
             >
           </div>

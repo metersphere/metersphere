@@ -2,7 +2,8 @@
   <MsDrawer
     v-model:visible="showScriptDrawer"
     :title="form.id ? t('project.commonScript.editPublicScript') : t('project.commonScript.addPublicScript')"
-    :width="768"
+    :width="900"
+    min-width="900px"
     :footer="true"
     unmount-on-close
     :ok-loading="props.confirmLoading"

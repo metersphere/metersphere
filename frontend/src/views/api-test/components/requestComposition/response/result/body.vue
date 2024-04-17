@@ -95,6 +95,11 @@
       downloadUrlFile(imageUrl.value, `response.${props.requestResult?.responseResult.contentType.split('/')[1]}`);
     }
   }
+  const responseEditorRef = ref();
+
+  defineExpose({
+    responseEditorRef,
+  });
 </script>
 
 <style scoped></style>

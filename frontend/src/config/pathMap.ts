@@ -734,6 +734,9 @@ export const pathMap: PathMapItem[] = [
         key: 'PROJECT_MANAGEMENT_TASK_CENTER', // 项目管理-任务中心
         locale: 'menu.projectManagement.taskCenter',
         route: '',
+        routeQuery: {
+          task: 'projectTask',
+        },
         permission: [],
         level: MENU_LEVEL[2],
       },
