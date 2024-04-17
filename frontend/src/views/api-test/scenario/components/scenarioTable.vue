@@ -1230,7 +1230,11 @@
       if (!errors) {
         try {
           scheduleModalLoading.value = true;
-          await scenarioScheduleConfig({ ...scheduleConfig.value });
+          const updateParam = { ...scheduleConfig.value };
+          if (!scheduleUseNewEnv.value) {
+            updateParam.config.environmentId = undefined;
+          }
+          await scenarioScheduleConfig(updateParam);
           // 初始化弹窗标题
           if (tableRecord.value?.scheduleConfig) {
             Message.success(t('common.updateSuccess'));
