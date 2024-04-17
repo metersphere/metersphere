@@ -36,7 +36,7 @@ public class CleanHistoryJob {
     /**
      * 清理变更历史 每天凌晨两点执行
      */
-    @QuartzScheduled(cron = "0 34 13 * * ?")
+    @QuartzScheduled(cron = "0 0 2 * * ?")
     public void cleanupLog() {
         LogUtils.info("clean up history start.");
         SystemParameter parameter = systemParameterMapper.selectByPrimaryKey(ParamConstants.CleanConfig.OPERATION_HISTORY.getValue());
