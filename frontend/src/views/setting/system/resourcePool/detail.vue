@@ -34,6 +34,14 @@
         ></a-textarea>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.serverUrl')" field="serverUrl" class="form-item">
+        <template #label>
+          <div class="flex items-center">
+            {{ t('system.resourcePool.serverUrl') }}
+            <a-tooltip :content="t('system.resourcePool.serverUrlTip')" position="tl" mini>
+              <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
+            </a-tooltip>
+          </div>
+        </template>
         <a-input
           v-model:model-value="form.serverUrl"
           :placeholder="t('system.resourcePool.rootUrlPlaceholder')"

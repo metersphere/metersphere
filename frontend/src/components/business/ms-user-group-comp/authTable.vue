@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex h-full flex-col gap-[24px] overflow-hidden">
     <div class="group-auth-table">
       <a-table
         :span-method="dataSpanMethod"
@@ -77,7 +77,6 @@
     saveOrgUSetting,
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
-  import { useUserStore } from '@/store';
 
   import {
     type AuthScopeType,
@@ -117,12 +116,11 @@
       scroll() {
         return {
           x: '800px',
-          y: 'calc(100vh - 264px)',
+          y: '100%',
         };
       },
     }
   );
-  const userStore = useUserStore();
   const systemType = inject<AuthScopeEnum>('systemType');
 
   const loading = ref(false);
@@ -406,8 +404,9 @@
   // 初始化数据
   const initData = async (id: string) => {
     try {
-      let res: UserGroupAuthSetting[] = [];
       loading.value = true;
+      tableData.value = []; // 重置数据，可以使表格滚动条重新计算
+      let res: UserGroupAuthSetting[] = [];
       if (systemType === AuthScopeEnum.SYSTEM) {
         res = await getGlobalUSetting(id);
       } else if (systemType === AuthScopeEnum.ORGANIZATION) {
@@ -415,7 +414,6 @@
       } else {
         res = await getAuthByUserGroup(id);
       }
-
       tableData.value = transformData(res);
       handleAllChange(true);
     } catch (error) {
@@ -488,15 +486,19 @@
 
 <style scoped lang="less">
   .group-auth-table {
-    position: relative;
-    padding: 24px;
+    @apply flex-1 overflow-hidden;
+
+    padding: 0 24px;
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
-      border-right: 1px solid var(--color-text-n8) !important;
       border-left: 1px solid var(--color-text-n8) !important;
     }
     :deep(.arco-table-th-title) {
       width: 100%;
+    }
+    :deep(.arco-table-th) {
+      background-color: var(--color-text-n9);
+      line-height: normal;
     }
     :deep(.arco-checkbox-indeterminate) {
       .arco-checkbox-icon {
@@ -506,8 +508,6 @@
     }
   }
   .footer {
-    @apply absolute bottom-0 left-0 w-full;
-
     display: flex;
     justify-content: flex-end;
     padding: 24px;

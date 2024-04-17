@@ -76,6 +76,7 @@
             :max-tag-count="1"
             :size="props.inputSize"
             readonly
+            no-tooltip
           >
             <template v-if="alreadyDeleteFiles.length > 0" #prefix>
               <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />

@@ -728,6 +728,7 @@ interface ParsedCurlOptions {
   url?: string;
   queryParameters?: { key: string; value: string }[];
   headers?: { key: string; value: string }[];
+  method?: string;
 }
 /**
  * 解析 curl 脚本
@@ -740,16 +741,21 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
   const [_, url] = curlScript.match(/curl\s+'([^']+)'/) || [];
   if (url) {
     options.url = url;
+    // 提取 query 参数
+    const queryParams = url
+      .split('?')[1]
+      ?.split('&')
+      .map((param) => {
+        const [key, value] = param.split('=');
+        return { key, value };
+      });
+    options.queryParameters = queryParams || [];
   }
 
-  // 提取 query 参数
-  const queryMatch = curlScript.match(/\?(.*?)'/);
-  if (queryMatch) {
-    const queryParams = queryMatch[1].split('&').map((param) => {
-      const [key, value] = param.split('=');
-      return { key, value };
-    });
-    options.queryParameters = queryParams;
+  // 提取请求方式
+  const [, method] = curlScript.match(/-X\s+'([^']+)'/) || [];
+  if (method) {
+    options.method = method;
   }
 
   // 提取 header

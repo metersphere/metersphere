@@ -407,7 +407,13 @@
           <a-button type="secondary" :disabled="scheduleModalLoading" @click="cancelScheduleModal">
             {{ t('common.cancel') }}
           </a-button>
-          <a-button class="ml-3" type="primary" :loading="scheduleModalLoading" @click="saveScheduleModal">
+          <a-button
+            v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
+            class="ml-3"
+            type="primary"
+            :loading="scheduleModalLoading"
+            @click="saveScheduleModal"
+          >
             {{ t('common.save') }}
           </a-button>
         </div>

@@ -70,6 +70,13 @@
                   >
                 </a-tooltip>
                 <div
+                  v-if="
+                    element.type === systemType ||
+                    (isSystemShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      systemMoreAction.length > 0)
+                  "
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
@@ -83,7 +90,12 @@
                     />
                   </div>
                   <MsMoreAction
-                    v-if="isSystemShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
+                    v-if="
+                      isSystemShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      systemMoreAction.length > 0
+                    "
                     :list="systemMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
                   >
@@ -160,6 +172,13 @@
                   >
                 </a-tooltip>
                 <div
+                  v-if="
+                    element.type === systemType ||
+                    (isOrdShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      orgMoreAction.length > 0)
+                  "
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
@@ -173,7 +192,12 @@
                     />
                   </div>
                   <MsMoreAction
-                    v-if="isOrdShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
+                    v-if="
+                      isOrdShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      orgMoreAction.length > 0
+                    "
                     :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
@@ -250,6 +274,13 @@
                   >
                 </a-tooltip>
                 <div
+                  v-if="
+                    element.type === systemType ||
+                    (isProjectShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      projectMoreAction.length > 0)
+                  "
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
@@ -263,7 +294,12 @@
                     />
                   </div>
                   <MsMoreAction
-                    v-if="isProjectShowAll && !element.internal && (element.scopeId !== 'global' || !isGlobalDisable)"
+                    v-if="
+                      isProjectShowAll &&
+                      !element.internal &&
+                      (element.scopeId !== 'global' || !isGlobalDisable) &&
+                      projectMoreAction.length > 0
+                    "
                     :list="projectMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
                   >
@@ -335,7 +371,6 @@
 
   const currentItem = ref<CurrentUserGroupItem>({ id: '', name: '', internal: false, type: AuthScopeEnum.SYSTEM });
   const currentId = ref('');
-  const currentName = computed(() => currentItem.value.name);
 
   const userModalVisible = ref(false);
 

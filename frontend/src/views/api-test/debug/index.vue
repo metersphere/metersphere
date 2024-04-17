@@ -274,9 +274,10 @@
   }
 
   function handleCurlImportConfirm() {
-    const { url, headers, queryParameters } = parseCurlScript(curlCode.value);
+    const { url, headers, queryParameters, method } = parseCurlScript(curlCode.value);
     addDebugTab({
       url,
+      method: method?.toUpperCase() || RequestMethods.GET,
       headers:
         headers?.map((e) => ({
           contentType: RequestContentTypeEnum.TEXT,
@@ -347,6 +348,9 @@
       if (activeDebug.value.id === node.id) {
         [activeDebug.value] = debugTabs.value;
       }
+    }
+    if (debugTabs.value.length === 0) {
+      addDebugTab();
     }
   }
 

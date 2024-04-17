@@ -1,5 +1,9 @@
 <template>
-  <a-tooltip :content="allTagText" :disabled="(innerModelValue || []).length === 0" :mouse-enter-delay="300">
+  <a-tooltip
+    :content="allTagText"
+    :disabled="props.noTooltip || (innerModelValue || []).length === 0"
+    :mouse-enter-delay="300"
+  >
     <div :class="`flex w-full items-center ${props.class}`">
       <a-input-tag
         v-model:model-value="innerModelValue"
@@ -59,6 +63,7 @@
       inputClass?: string;
       size?: 'small' | 'large' | 'medium' | 'mini';
       disabled?: boolean;
+      noTooltip?: boolean;
     }>(),
     {
       retainInputValue: true,
@@ -68,6 +73,7 @@
       class: '',
       inputClass: '',
       size: 'medium',
+      noTooltip: false,
     }
   );
   const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear', 'blur', 'click']);

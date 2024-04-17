@@ -20,7 +20,14 @@
         <a-form-item
           class="hidden-item"
           field="field"
-          :rules="[{ required: true, message: t('project.fileManagement.nameNotNull') }, { validator: validateName }]"
+          :rules="
+            props.noRule
+              ? []
+              : [
+                  { required: true, message: props.fieldConfig?.NotNullTip || t('project.fileManagement.nameNotNull') },
+                  { validator: validateName },
+                ]
+          "
         >
           <a-textarea
             v-if="props.fieldConfig?.isTextArea"
@@ -68,6 +75,7 @@
     placeholder?: string;
     maxLength?: number;
     isTextArea?: boolean;
+    NotNullTip?: string;
   }
 
   const props = defineProps<{
@@ -79,6 +87,7 @@
     fieldConfig?: FieldConfig;
     parentId?: string; // 父节点 id
     nodeId?: string; // 节点 id
+    noRule?: boolean;
   }>();
 
   const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish', 'updateDescFinish']);
