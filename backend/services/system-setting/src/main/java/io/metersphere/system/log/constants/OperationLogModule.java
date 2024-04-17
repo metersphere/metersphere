@@ -95,6 +95,8 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT";
     // 项目管理-项目与权限
     public static final String PROJECT_MANAGEMENT_PERMISSION = "PROJECT_MANAGEMENT_PERMISSION";
+    // 项目管理-项目与权限-应用设置-误报库
+    public static final String PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE_ERROR = "PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE";
     // 项目管理-项目与权限-成员
     public static final String PROJECT_MANAGEMENT_PERMISSION_MEMBER = "PROJECT_MANAGEMENT_PERMISSION_MEMBER";
     // 项目管理-项目与权限-用户组

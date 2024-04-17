@@ -32,7 +32,7 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #defaultTemplate="{ record }">
-        <div v-if="record.enableDefault || isEnableOrdTemplate">
+        <div v-if="record.enableDefault">
           <a-tooltip :content="t('system.orgTemplate.must.open.one')" :mouse-enter-delay="500">
             <a-switch
               v-model="record.enableDefault"
@@ -46,7 +46,7 @@
         <a-switch
           v-else
           v-model="record.enableDefault"
-          :disabled="record.enableDefault || isEnableOrdTemplate"
+          :disabled="record.enableDefault"
           size="small"
           type="line"
           @change="(value) => changeDefault(value, record)"

@@ -39,6 +39,7 @@ export default {
     'menu.projectManagement.fileManagement': 'File',
     'menu.projectManagement.messageManagement': 'Message',
     'menu.projectManagement.commonScript': 'Common Script',
+    'menu.projectManagement.fakeError': 'Fake Error',
     'menu.projectManagement.messageManagementEdit': 'Update Template',
     'menu.caseManagement.featureCase': 'Feature Case',
     'menu.caseManagement.featureCaseRecycle': 'Recycle',
