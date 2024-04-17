@@ -76,7 +76,7 @@ export default {
   'apiTestManagement.syncImportCase': '同步导入接口用例',
   'apiTestManagement.syncUpdateDirectory': '同步更新接口所在目录',
   'apiTestManagement.importSwaggerFileTip1': '支持 Swagger 3.0 版本的 json 文件，',
-  'apiTestManagement.importSwaggerFileTip2': '2.0 的文件建议自行在官网转换成 3.0 再进行导入',
+  'apiTestManagement.importSwaggerFileTip2': '2.0 文件可以在官网一键转换 3.0',
   'apiTestManagement.importSwaggerFileTip3': '，大小不超过 50M',
   'apiTestManagement.urlImportPlaceholder': '请输入OpenAPI/Swagger URL',
   'apiTestManagement.swaggerURLRequired': 'SwaggerURL 不能为空',
