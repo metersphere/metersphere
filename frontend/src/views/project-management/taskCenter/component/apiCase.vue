@@ -500,7 +500,7 @@
   function batchStopRealTask() {
     openModal({
       type: 'warning',
-      title: t('project.taskCenter.batchStopTask', { num: batchParams.value.selectIds.length }),
+      title: t('project.taskCenter.batchStopTask', { num: batchParams.value.currentSelectCount }),
       content: t('project.taskCenter.stopTaskContent'),
       okText: t('project.taskCenter.confirmStop'),
       cancelText: t('common.cancel'),
@@ -509,11 +509,12 @@
       },
       onBeforeOk: async () => {
         try {
-          const { selectIds, selectAll } = batchParams.value;
+          const { selectIds, selectAll, excludeIds } = batchParams.value;
           await loadRealMap.value[props.group].batchStop({
             moduleType: props.moduleType,
-            selectIds: selectAll ? [] : selectIds,
-            selectAll,
+            selectIds: selectIds || [],
+            selectAll: !!selectAll,
+            excludeIds: excludeIds || [],
             condition: {
               keyword: keyword.value,
               filter: {

@@ -1,13 +1,6 @@
 <template>
   <div class="flex flex-row items-center">
     <div class="text-[var(--color-text-1)]"> {{ t('project.menu.management') }}</div>
-
-    <div>
-      <MsIcon
-        class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-        type="icon-icon-maybe_outlined"
-      />
-    </div>
   </div>
   <MsBaseTable
     ref="tableRef"

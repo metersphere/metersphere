@@ -5,7 +5,7 @@
   <div class="wrapper mb-6 flex justify-between">
     <span class="font-medium text-[var(--color-text-000)]">{{ t('project.basicInfo.basicInfo') }}</span>
     <a-button
-      v-if="!projectDetail?.deleted"
+      v-show="!projectDetail?.deleted"
       v-permission="['PROJECT_BASE_INFO:READ+UPDATE']"
       type="outline"
       @click="editHandler"
@@ -19,12 +19,9 @@
           <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-000)]">{{
             projectDetail?.name
           }}</span>
-          <span
-            v-if="!projectDetail?.deleted && projectDetail?.enable"
-            class="button mr-1"
-            :class="[projectDetail?.enable ? 'enable-button' : 'delete-button']"
-            >{{ projectDetail?.enable ? t('project.basicInfo.enable') : t('project.basicInfo.enable') }}</span
-          >
+          <span class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">{{
+            projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable')
+          }}</span>
         </div>
         <div class="one-line-text text-xs text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>
