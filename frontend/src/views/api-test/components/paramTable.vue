@@ -821,9 +821,11 @@
     () => props.params,
     (arr) => {
       if (arr.length > 0) {
+        let hasNoIdItem = false;
         paramsData.value = arr.map((item, i) => {
           if (!item) {
             // 批量添加过来的数据最后一行会是 undefined
+            hasNoIdItem = true;
             return {
               ...cloneDeep(props.defaultParamItem),
               id: new Date().getTime() + i,
@@ -831,6 +833,7 @@
           }
           if (!item.id) {
             // 后台存储无id，渲染时需要手动添加一次
+            hasNoIdItem = true;
             return {
               ...item,
               id: new Date().getTime() + i,
@@ -839,8 +842,10 @@
           return item;
         });
         const lastTwoIsSame =
-          arr.length >= 2 && filterKeyValParams([arr[arr.length - 2]], arr[arr.length - 1]).lastDataIsDefault;
+          arr.length === 1 ||
+          (arr.length >= 2 && filterKeyValParams([arr[arr.length - 2]], arr[arr.length - 1]).lastDataIsDefault);
         if (
+          hasNoIdItem &&
           !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
           !props.isTreeTable &&
           !lastTwoIsSame // 为了判断最后俩行是否一致（因为下拉框切换会新增一行一样的数据，此时最后一条数据与默认数据是不一样的）

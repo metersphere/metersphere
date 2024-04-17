@@ -206,6 +206,7 @@ export default defineComponent(
           typeof props.optionLabelRender === 'function'
             ? props.optionLabelRender(item)
             : item[props.labelKey || 'label'],
+        class: 'one-line-text',
       });
     };
 
@@ -276,7 +277,7 @@ export default defineComponent(
       const _slots: MsSearchSelectSlots = {
         default: () =>
           filterOptions.value.map((item) => (
-            <a-tooltip content={item.tooltipContent} mouse-enter-delay={500}>
+            <a-tooltip content={item.tooltipContent} mouse-enter-delay={500} position="bl">
               <a-option
                 key={item[props.valueKey || 'value']}
                 value={props.objectValue ? item : item[props.valueKey || 'value']}

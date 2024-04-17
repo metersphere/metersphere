@@ -88,7 +88,7 @@ export default function useSelect(config: UseSelectOption) {
 
   onMounted(() => {
     if (config.selectRef.value) {
-      selectWidth.value = config.selectRef.value.$el.nextElementSibling.getBoundingClientRect().width;
+      selectWidth.value = config.selectRef.value.$el.nextElementSibling.clientWidth;
       selectViewInner.value = config.selectRef.value.$el.nextElementSibling.querySelector('.arco-select-view-inner');
     }
   });

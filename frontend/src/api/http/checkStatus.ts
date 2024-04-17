@@ -2,6 +2,8 @@ import { Message, Modal } from '@arco-design/web-vue';
 
 import { useI18n } from '@/hooks/useI18n';
 import useUser from '@/hooks/useUser';
+import router from '@/router';
+import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
 
 import type { ErrorMessageMode } from '#/axios';
 
@@ -22,7 +24,9 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       break;
     }
     case 403:
-      errMessage = msg || t('api.errMsg403');
+      if (router.currentRoute.value.name !== NO_RESOURCE_ROUTE_NAME) {
+        router.push({ name: NO_RESOURCE_ROUTE_NAME });
+      }
       break;
     // 404请求不存在
     case 404:

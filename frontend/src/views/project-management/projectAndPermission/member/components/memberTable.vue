@@ -1,52 +1,81 @@
 <template>
-  <MsBaseTable
-    v-bind="propsRes"
-    :action-config="tableBatchActions"
-    @selected-change="handleTableSelect"
-    v-on="propsEvent"
-    @batch-action="handleTableBatch"
-  >
-    <template #userRole="{ record }">
-      <MsTagGroup
-        v-if="!record.showUserSelect"
-        :tag-list="record.userRoles || []"
-        type="primary"
-        theme="outline"
-        @click="changeUser(record)"
-      />
-      <a-select
-        v-else
-        v-model="record.selectUserList"
-        :popup-visible="record.showUserSelect"
-        multiple
-        class="w-[260px]"
-        :max-tag-count="2"
-        @popup-visible-change="(value) => userGroupChange(value, record)"
-      >
-        <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-      </a-select>
-    </template>
-    <template #enable="{ record }">
-      <div v-if="record.enable" class="flex items-center">
-        <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-        {{ t('organization.member.statusEnable') }}
+  <div>
+    <div class="mb-4 grid grid-cols-4 gap-2">
+      <div class="col-span-2">
+        <a-button v-permission="['PROJECT_USER:READ+ADD']" class="mr-3" type="primary" @click="addMember">
+          {{ t('project.member.addMember') }}
+        </a-button>
       </div>
-      <div v-else class="flex items-center text-[var(--color-text-4)]">
-        <MsIcon type="icon-icon_disable" class="mr-[2px]" />
-        {{ t('organization.member.statusDisable') }}
+      <div>
+        <a-select v-model="roleIds" @change="changeSelect">
+          <a-option v-for="item of userGroupAll" :key="item.id" :value="item.id">{{ t(item.name) }}</a-option>
+          <template #prefix>
+            <span>{{ t('project.member.tableColumnUserGroup') }}</span>
+          </template>
+        </a-select>
       </div>
-    </template>
-    <template #operation="{ record }">
-      <MsRemoveButton
-        v-permission="['PROJECT_USER:READ+DELETE']"
-        position="br"
-        :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
-        :sub-title-tip="t('project.member.subTitle')"
-        :loading="deleteLoading"
-        @ok="removeMember(record)"
-      />
-    </template>
-  </MsBaseTable>
+      <div>
+        <a-input-search
+          v-model="keyword"
+          :max-length="255"
+          :placeholder="t('project.member.searchMember')"
+          allow-clear
+          @search="searchHandler"
+          @press-enter="searchHandler"
+          @clear="searchHandler"
+        >
+        </a-input-search>
+      </div>
+    </div>
+    <MsBaseTable
+      v-bind="propsRes"
+      :action-config="tableBatchActions"
+      @selected-change="handleTableSelect"
+      v-on="propsEvent"
+      @batch-action="handleTableBatch"
+    >
+      <template #userRole="{ record }">
+        <MsTagGroup
+          v-if="!record.showUserSelect"
+          :tag-list="record.userRoles || []"
+          type="primary"
+          theme="outline"
+          @click="changeUser(record)"
+        />
+        <a-select
+          v-else
+          v-model="record.selectUserList"
+          :popup-visible="record.showUserSelect"
+          multiple
+          class="w-[260px]"
+          :max-tag-count="2"
+          @popup-visible-change="(value) => userGroupChange(value, record)"
+        >
+          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+        </a-select>
+      </template>
+      <template #enable="{ record }">
+        <div v-if="record.enable" class="flex items-center">
+          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+          {{ t('organization.member.statusEnable') }}
+        </div>
+        <div v-else class="flex items-center text-[var(--color-text-4)]">
+          <MsIcon type="icon-icon_disable" class="mr-[2px]" />
+          {{ t('organization.member.statusDisable') }}
+        </div>
+      </template>
+      <template #operation="{ record }">
+        <MsRemoveButton
+          v-permission="['PROJECT_USER:READ+DELETE']"
+          position="br"
+          :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
+          :sub-title-tip="t('project.member.subTitle')"
+          :loading="deleteLoading"
+          @ok="removeMember(record)"
+        />
+      </template>
+    </MsBaseTable>
+  </div>
   <AddMemberModal
     ref="projectMemberRef"
     v-model:visible="addMemberVisible"
@@ -94,12 +123,6 @@
     ProjectUserOption,
   } from '@/models/projectManagement/projectAndPermission';
   import { TableKeyEnum } from '@/enums/tableEnum';
-
-  const props = defineProps<{
-    roleIds: string;
-    userGroupOptions: ProjectUserOption[];
-    keyword: string;
-  }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -193,16 +216,41 @@
     }
   );
 
+  const userGroupAll = ref<ProjectUserOption[]>([]);
+  const userGroupOptions = ref<ProjectUserOption[]>([]);
+
+  const initOptions = async () => {
+    userGroupOptions.value = await getProjectUserGroup(appStore.currentProjectId);
+    userGroupAll.value = [
+      {
+        id: '',
+        name: '全部',
+      },
+      ...userGroupOptions.value,
+    ];
+  };
+
+  const roleIds = ref<string>('');
+  const keyword = ref<string>('');
+
   const initData = async () => {
     await nextTick();
     setLoadListParams({
       filter: {
-        roleIds: props.roleIds ? [props.roleIds] : [],
+        roleIds: roleIds.value ? [roleIds.value] : [],
       },
       projectId: lastProjectId.value,
-      keyword: props.keyword,
+      keyword: keyword.value,
     });
     await loadList();
+  };
+
+  const searchHandler = () => {
+    initData();
+  };
+
+  const changeSelect = () => {
+    initData();
   };
 
   // 跨页选择项
@@ -250,6 +298,7 @@
         resetSelector();
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       deleteLoading.value = false;
@@ -276,9 +325,9 @@
       selectAll: !!selectAll,
       excludeIds: excludeIds || [],
       selectIds: selectedIds || [],
-      keyword: props.keyword,
+      keyword: keyword.value,
       condition: {
-        keyword: props.keyword,
+        keyword: keyword.value,
         filter: propsRes.value.filter,
         combine: batchParams.value.condition,
       },
@@ -288,6 +337,7 @@
       initData();
       resetSelector();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -328,6 +378,7 @@
       record.showUserSelect = false;
       loadList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -360,13 +411,9 @@
     editProjectMember(record);
   };
 
-  onBeforeMount(() => {
+  onBeforeMount(async () => {
+    await initOptions();
     initData();
-  });
-
-  defineExpose({
-    initData,
-    addMember,
   });
 
   await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');

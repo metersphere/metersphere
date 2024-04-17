@@ -105,10 +105,11 @@
                       :field-config="{
                         field: detail.name,
                         placeholder: t('project.fileManagement.fileNamePlaceholder'),
+                        NotNullTip: t('project.fileManagement.fileNameNotNull'),
                       }"
                       :node-id="detail.id"
                       :all-names="[]"
-                      @rename-finish="detailDrawerRef?.initDetail"
+                      @rename-finish="() => detailDrawerRef?.initDetail()"
                     >
                       <MsButton class="!mr-0 ml-[8px]">
                         {{ t('common.rename') }}
@@ -132,12 +133,13 @@
                       :field-config="{
                         field: detail.desc,
                         placeholder: t('project.fileManagement.descPlaceholder'),
-                        maxLength: 250,
+                        maxLength: 1000,
                         isTextArea: true,
                       }"
                       :node-id="detail.id"
                       :all-names="[]"
-                      @update-desc-finish="detailDrawerRef?.initDetail"
+                      no-rule
+                      @update-desc-finish="() => detailDrawerRef?.initDetail()"
                     >
                       <MsButton class="ml-[8px]"> <MsIcon type="icon-icon_edit_outlined" /></MsButton>
                     </popConfirm>
@@ -170,7 +172,6 @@
                 v-bind="caseTableProps"
                 :data="caseList"
                 no-disable
-                :action-config="caseBatchActions"
                 v-on="caseTableEvent"
               >
                 <template #id="{ record }">
@@ -403,8 +404,7 @@
       title: 'project.fileManagement.caseType',
       dataIndex: 'sourceType',
       slotName: 'sourceType',
-      width: 100,
-      showTooltip: true,
+      width: 120,
     },
     {
       title: 'project.fileManagement.caseFileVersion',
@@ -428,20 +428,20 @@
     scroll: { x: 800 },
     columns: caseColumns,
     heightUsed: 200,
-    selectable: true,
-    showSelectAll: true,
+    selectable: false,
+    showSelectAll: false,
     showPagination: false,
   });
 
-  const caseBatchActions = {
-    baseAction: [
-      {
-        label: 'project.fileManagement.updateCaseFile',
-        eventTag: 'updateCaseFile',
-        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
-      },
-    ],
-  };
+  // const caseBatchActions = {
+  //   baseAction: [
+  //     {
+  //       label: 'project.fileManagement.updateCaseFile',
+  //       eventTag: 'updateCaseFile',
+  //       permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
+  //     },
+  //   ],
+  // };
 
   const keyword = ref('');
   const caseList = computed(() => caseTableProps.value.data.filter((item) => item.sourceName.includes(keyword.value)));

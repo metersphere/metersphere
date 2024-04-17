@@ -363,9 +363,9 @@
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter';
+  import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { TableOperationColumn } from '../../ms-user-group-comp/authTable.vue';
+  import { TableOperationColumn } from '@/components/business/ms-user-group-comp/authTable.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
   import moreSetting from '@/views/api-test/components/fastExtraction/moreSetting.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';

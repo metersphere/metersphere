@@ -227,7 +227,13 @@
         },
       });
     } else {
-      initModulesCount(tableFilterParams.value);
+      initModulesCount({
+        ...tableFilterParams.value,
+        combine: {
+          ...tableFilterParams.value.combine,
+          storage: 'minio',
+        },
+      });
     }
   }
 

@@ -12,7 +12,7 @@
         />
       </template>
       <template #second>
-        <div class="h-full pt-[24px]">
+        <div class="flex h-full flex-col gap-[16px] overflow-hidden pt-[24px]">
           <div class="flex flex-row items-center justify-between px-[24px]">
             <a-tooltip :content="currentUserGroupItem.name">
               <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
@@ -38,7 +38,7 @@
               </a-radio-group>
             </div>
           </div>
-          <div class="mt-[16px]">
+          <div class="flex-1 overflow-hidden">
             <UserTable
               v-if="currentTable === 'user' && couldShowUser"
               ref="userRef"

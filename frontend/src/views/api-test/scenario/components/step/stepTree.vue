@@ -711,6 +711,9 @@
 
   function setStepMoreAction(items: ActionsItem[], node: MsTreeNodeData) {
     const _stepType = getStepType(node as ScenarioStepItem);
+    if ((node as ScenarioStepItem).isQuoteScenarioStep) {
+      return [];
+    }
     if ((node as ScenarioStepItem).stepType === ScenarioStepType.CUSTOM_REQUEST) {
       // 自定义请求
       return [
@@ -745,9 +748,6 @@
           danger: true,
         },
       ];
-    }
-    if ((node as ScenarioStepItem).isQuoteScenarioStep) {
-      return [];
     }
     if (_stepType.isQuoteApi || _stepType.isCopyApi) {
       return [
@@ -2096,6 +2096,8 @@
     }
     .ms-tree-node-extra {
       @apply !visible !w-auto;
+
+      margin-right: 24px;
     }
   }
   .ms-form {
