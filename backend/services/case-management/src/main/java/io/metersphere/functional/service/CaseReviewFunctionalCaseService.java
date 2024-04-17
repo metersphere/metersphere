@@ -354,7 +354,7 @@ public class CaseReviewFunctionalCaseService {
                 provider.updateCaseReview(param);
 
             });
-            caseReviewHistoryMapper.batchInsertSelective(historyList);
+            caseReviewHistoryMapper.batchInsert(historyList);
         }
     }
 
@@ -367,6 +367,7 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCreateUser(UserRoleScope.SYSTEM);
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistory.setDeleted(false);
+        caseReviewHistory.setAbandoned(false);
         historyList.add(caseReviewHistory);
     }
 
@@ -842,7 +843,7 @@ public class CaseReviewFunctionalCaseService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         extCaseReviewHistoryMapper.batchUpdateAbandoned(null, caseIds);
-        caseReviewHistoryMapper.batchInsertSelective(historyList);
+        caseReviewHistoryMapper.batchInsert(historyList);
     }
 
     public List<CaseReviewFunctionalCaseUser> getReviewerList(String reviewId, String caseId) {
