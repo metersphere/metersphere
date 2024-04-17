@@ -9,11 +9,6 @@ import org.springframework.stereotype.Service;
 public class XpackBugMockServiceImpl implements XpackBugService {
 
     @Override
-    public void syncPlatformBugsBySchedule(String projectId, String scheduleUser) {
-
-    }
-
-    @Override
     public void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language, String triggerMode) {
 
     }

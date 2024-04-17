@@ -21,8 +21,8 @@ export default {
     sync: 'Sync',
     synchronizing: 'Synchronizing',
     syncSuccess: 'Synchronous success',
-    syncBugTipRowOne: 'Sync third plant bug，',
-    syncBugTipRowTwo: 'Create bug and sync bug？',
+    syncBugTipRowOne:
+      'Synchronize third-party platform bug to MS as configured in << Project Management - Application Settings - Defect Management >>',
     bugAutoSync: 'System will auto sync by the project application setting frequency',
     syncTime: 'Sync time',
     deleteLabel: 'Local bug will in recycle bin and third plant bug will be deleted',

@@ -12,6 +12,8 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
@@ -133,9 +135,39 @@ public class BugSyncService {
 
     /**
      * 定时任务同步缺陷(存量-默认中文环境通知)
+     * @param projectId 项目ID
+     * @param scheduleUser 任务触发用户
      */
     public void syncPlatformBugBySchedule(String projectId, String scheduleUser) {
         syncBugs(projectId, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.auto"));
+    }
+
+    /**
+     * 定时任务同步缺陷(全量-默认中文环境通知)
+     * @param projectId 项目ID
+     * @param scheduleUser 任务触发用户
+     */
+    public void syncPlatformAllBugBySchedule(String projectId, String scheduleUser) {
+        try {
+            String syncValue = bugSyncExtraService.getSyncKey(projectId);
+            if (StringUtils.isEmpty(syncValue)) {
+                // 不存在, 设置保证唯一性, 并开始同步
+                bugSyncExtraService.setSyncKey(projectId);
+                XpackBugService bugService = CommonBeanFactory.getBean(XpackBugService.class);
+                if (bugService != null) {
+                    Project project = getProjectById(projectId);
+                    BugSyncRequest syncRequest = new BugSyncRequest();
+                    syncRequest.setProjectId(projectId);
+                    bugService.syncPlatformBugs(project, syncRequest, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.auto"));
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error(e);
+            // 异常或正常结束都得删除当前项目执行同步的唯一Key
+            bugSyncExtraService.deleteSyncKey(projectId);
+            // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
+            bugSyncExtraService.setSyncErrorMsg(projectId, e.getMessage());
+        }
     }
 
     /**
