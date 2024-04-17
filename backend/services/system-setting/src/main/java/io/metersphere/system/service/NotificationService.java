@@ -54,7 +54,7 @@ public class NotificationService {
     }
 
     public List<OptionDTO> countNotification(NotificationRequest notificationRequest, String userId) {
-        List<OptionDTO>optionDTOS = new ArrayList<>();
+        List<OptionDTO> optionDTOS = new ArrayList<>();
         buildParam(notificationRequest, userId);
         List<NotificationDTO> notifications = baseNotificationMapper.listNotification(notificationRequest);
         OptionDTO totalOptionDTO = new OptionDTO();
@@ -78,9 +78,9 @@ public class NotificationService {
     }
 
     private static void buildSourceCount(List<NotificationDTO> notifications, List<OptionDTO> optionDTOS) {
-        Map<String,Integer>countMap = new HashMap<>();
+        Map<String, Integer> countMap = new HashMap<>();
         Map<String, List<Notification>> resourceMap = notifications.stream().collect(Collectors.groupingBy(Notification::getResourceType));
-        resourceMap.forEach((k,v)->{
+        resourceMap.forEach((k, v) -> {
             if (k.contains("BUG")) {
                 countMap.merge("BUG", v.size(), Integer::sum);
             }
@@ -94,7 +94,7 @@ public class NotificationService {
                 countMap.merge("SCHEDULE", v.size(), Integer::sum);
             }
         });
-        countMap.forEach((k,v)->{
+        countMap.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
             optionDTO.setId(k);
             optionDTO.setName(String.valueOf(v));
@@ -107,5 +107,9 @@ public class NotificationService {
     }
 
 
-
+    public Integer getUnRead(String projectId) {
+        NotificationExample example = new NotificationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(NotificationConstants.Status.UNREAD.name());
+        return (int) notificationMapper.countByExample(example);
+    }
 }
