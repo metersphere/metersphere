@@ -76,7 +76,7 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, isEqual } from 'lodash-es';
 
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import TabSettingDrawer from './common/TabSettingDrawer.vue';
@@ -92,7 +92,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
-  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+  import useProjectEnvStore, { ALL_PARAM } from '@/store/modules/setting/useProjectEnvStore';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
@@ -101,8 +101,15 @@
   import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
-  const { setIsSave } = useLeaveUnSaveTip();
-  setIsSave(false);
+  const leaveTitle = 'common.tip';
+  const leaveContent = 'apiTestDebug.unsavedLeave';
+
+  const { setIsSave } = useLeaveUnSaveTip({
+    leaveTitle,
+    leaveContent,
+    tipType: 'warning',
+  });
+
   const emit = defineEmits<{
     (e: 'ok', envId: string | undefined): void;
     (e: 'resetEnv'): void;
@@ -188,6 +195,12 @@
       isShow: true,
     },
   ];
+
+  const isChangeEnvValue = computed(() => {
+    return store.currentId === ALL_PARAM
+      ? isEqual(store.allParamDetailInfo, store.backupAllParamDetailInfo)
+      : isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo);
+  });
 
   // 初始化插件
   const initPlugin = async () => {
@@ -296,6 +309,14 @@
         return '';
     }
   }
+
+  watchEffect(() => {
+    if (isChangeEnvValue.value) {
+      setIsSave(true);
+    } else {
+      setIsSave(false);
+    }
+  });
 </script>
 
 <style lang="less" scoped>

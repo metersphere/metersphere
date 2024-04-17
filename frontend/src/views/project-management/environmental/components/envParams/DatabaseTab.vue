@@ -113,6 +113,7 @@
       dataIndex: 'username',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'project.environmental.database.poolMax',

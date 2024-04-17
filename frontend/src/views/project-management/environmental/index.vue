@@ -293,9 +293,6 @@
 
   const { openModal } = useModal();
 
-  const { setIsSave } = useLeaveUnSaveTip();
-  setIsSave(false);
-
   const { t } = useI18n();
   const store = useProjectEnvStore();
 
