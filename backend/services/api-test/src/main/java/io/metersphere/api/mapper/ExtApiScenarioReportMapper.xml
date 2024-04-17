@@ -111,26 +111,29 @@
           and api_scenario_report.project_id = #{projectId} limit 500
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
-        select id, pool_id from api_scenario_report where
+        select id, pool_id from (
+        select asr.*, p.organization_id from api_scenario_report asr
+                      left join project p on asr.project_id = p.id ) as api_scenario_report
+                      where
         api_scenario_report.deleted = false
         and api_scenario_report.test_plan_id = 'NONE'
         and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
-        and status in ('PENDING', 'RUNNING', 'RERUNNING')
+        and api_scenario_report.status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
-            and id in
+            and api_scenario_report.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
                 #{id}
             </foreach>
         </if>
         <if test="projectIds != null and projectIds.size() > 0">
-            and project_id in
+            and api_scenario_report.project_id in
             <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
                 #{projectId}
             </foreach>
         </if>
         <if test="request.condition.keyword != null">
             and (
-            name like concat('%', #{request.condition.keyword},'%')
+            api_scenario_report.name like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <include refid="filters">
@@ -184,7 +187,7 @@
         <if test="request.keyword != null and request.keyword != ''">
             and (
             api_scenario_report.resourceName like concat('%', #{request.keyword},'%')
-                or api_scenario_report.resourceId like concat('%', #{request.keyword},'%')
+                or api_scenario_report.resourceNum like concat('%', #{request.keyword},'%')
                )
         </if>
         <include refid="filters">
