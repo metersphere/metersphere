@@ -175,7 +175,7 @@ export function addRepositoryFile(data: AddRepositoryFileParams) {
 
 // 更新存储库文件
 export function updateRepositoryFile(id: string) {
-  return MSR.get({ url: UpdateRepositoryFileUrl, params: id });
+  return MSR.get<string>({ url: UpdateRepositoryFileUrl, params: id });
 }
 
 // 获取存储库信息

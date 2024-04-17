@@ -106,6 +106,7 @@ export interface MsTableProps<T> {
   showJumpMethod?: boolean; // 是否展示跳转方法
   isSimpleSetting?: boolean; // 是否是简单的设置
   filterIconAlignLeft?: boolean; // 筛选图标是否靠左
+  paginationSize?: 'small' | 'mini' | 'medium' | 'large';
   [key: string]: any;
 }
 

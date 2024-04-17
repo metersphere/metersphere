@@ -1,10 +1,7 @@
 import type { MsTableColumn } from '@/components/pure/ms-table/type';
 
-import { useAppStore } from '@/store';
-
 import { TaskCenterEnum } from '@/enums/taskCenter';
 
-const appStore = useAppStore();
 export const TaskStatus = {
   [TaskCenterEnum.API_CASE]: {
     SUCCESS: {

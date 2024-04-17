@@ -1,6 +1,6 @@
 <template>
-  <div class="overflow-hidden p-[16px_22px]">
-    <div :class="['mb-[16px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
+  <div class="overflow-hidden p-[8px_22px]">
+    <div :class="['mb-[8px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
       <a-button
         v-show="props.isApi"
         v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
@@ -601,7 +601,7 @@
     draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
       ? { type: 'handle', width: 32 }
       : undefined,
-    heightUsed: props.isApi ? 356 : 308,
+    heightUsed: 256,
     showSubdirectory: true,
   });
   const batchActions = {
@@ -1039,4 +1039,5 @@
       }
     }
   }
+  .ms-table--special-small();
 </style>

@@ -193,6 +193,10 @@ export default {
   'apiScenario.deleteStepConfirmWithChildren':
     'Are you sure you want to delete the selected step and all substeps within the step?',
   'apiScenario.quoteScenarioStepNotAllowDelete': 'Substeps that reference a scenario cannot be deleted',
+  'apiScenario.openGlobalPostConditionTip':
+    'It is closed by default. If it is closed, the global post-processing will not be executed when running this interface.',
+  'apiScenario.openGlobalPreConditionTip':
+    'It is closed by default. If it is closed, the global prefix will not be executed when running this interface.',
   // Execution History
   'apiScenario.executeHistory.searchPlaceholder': 'Search by ID or name',
   'apiScenario.executeHistory.num': 'No.',

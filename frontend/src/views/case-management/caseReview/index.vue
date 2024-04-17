@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
+    <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[8px_24px]">
       <a-button v-permission="['CASE_REVIEW:READ+ADD']" type="primary" @click="goCreateReview">
         {{ t('caseManagement.caseReview.create') }}
       </a-button>
@@ -10,7 +10,7 @@
         <a-radio value="createByMe">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
       </a-radio-group>
     </div>
-    <div class="relative h-[calc(100%-73px)]">
+    <div class="relative h-[calc(100%-49px)]">
       <MsSplitBox>
         <template #first>
           <div class="px-[24px] py-[16px]">

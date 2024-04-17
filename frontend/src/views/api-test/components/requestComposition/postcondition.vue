@@ -18,7 +18,7 @@
         type="line"
       ></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPostCondition') }}</div>
-      <a-tooltip :content="t('apiTestDebug.openGlobalPostConditionTip')" position="left">
+      <a-tooltip :content="props.tipContent || t('apiTestDebug.openGlobalPostConditionTip')" position="left">
         <icon-question-circle
           class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
           size="16"
@@ -47,6 +47,7 @@
     isScenario?: boolean; // 是否是场景页面
     disabled?: boolean;
     sqlCodeEditorHeight?: string;
+    tipContent?: string;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', params: ExecuteConditionProcessor[]): void;

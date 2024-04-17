@@ -1,6 +1,6 @@
 <template>
-  <div class="px-[24px] py-[16px]">
-    <div class="mb-[16px]">
+  <div class="px-[24px] py-[8px]">
+    <div class="mb-[8px]">
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
@@ -92,13 +92,13 @@
       </template>
       <template #num="{ record }">
         <a-tooltip :content="`${record.num}`">
-          <a-button type="text" class="px-0" @click="openDetail(record.id)">
+          <a-button type="text" class="px-0" size="mini" @click="openDetail(record.id)">
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
       </template>
       <template #status="{ record }">
-        <statusTag :status="record.status" />
+        <statusTag :status="record.status" size="small" />
       </template>
       <template #reviewPassRule="{ record }">
         {{
@@ -496,8 +496,9 @@
       showSetting: true,
       selectable: true,
       showSelectAll: true,
-      heightUsed: 344,
+      heightUsed: 256,
       showSubdirectory: true,
+      paginationSize: 'mini',
     },
     (item) => {
       return {
@@ -764,4 +765,6 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .ms-table--special-small();
+</style>

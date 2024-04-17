@@ -1,143 +1,145 @@
 <template>
-  <MsCard simple>
-    <MsAdvanceFilter
-      v-model:keyword="keyword"
-      :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
-      :filter-config-list="filterConfigList"
-      :row-count="filterRowCount"
-      @keyword-search="fetchData"
-      @adv-search="handleAdvSearch"
-      @refresh="handleAdvSearch"
-    >
-      <template #left>
-        <div class="flex gap-[12px]">
-          <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
-            >{{ t('bugManagement.createBug') }}
+  <MsCard simple no-content-padding>
+    <div class="h-full p-[16px]">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :filter-config-list="filterConfigList"
+        :row-count="filterRowCount"
+        @keyword-search="fetchData"
+        @adv-search="handleAdvSearch"
+        @refresh="handleAdvSearch"
+      >
+        <template #left>
+          <div class="flex gap-[12px]">
+            <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
+              >{{ t('bugManagement.createBug') }}
+            </a-button>
+            <a-button v-if="currentPlatform !== 'Local'" :loading="!isComplete" type="outline" @click="handleSync"
+              >{{ t('bugManagement.syncBug') }}
+            </a-button>
+          </div>
+        </template>
+      </MsAdvanceFilter>
+      <MsBaseTable
+        class="mt-[8px]"
+        v-bind="propsRes"
+        :action-config="tableBatchActions"
+        v-on="propsEvent"
+        @batch-action="handleTableBatch"
+        @sorter-change="saveSort"
+      >
+        <!-- ID -->
+        <template #num="{ record, rowIndex }">
+          <a-button type="text" class="px-0" size="mini" @click="handleShowDetail(record.id, rowIndex)">
+            {{ record.num }}
           </a-button>
-          <a-button v-if="currentPlatform !== 'Local'" :loading="!isComplete" type="outline" @click="handleSync"
-            >{{ t('bugManagement.syncBug') }}
+        </template>
+        <template #operation="{ record }">
+          <div class="flex flex-nowrap items-center">
+            <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row items-center">
+              <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleEdit(record)">
+                {{ t('common.edit') }}
+              </MsButton>
+              <a-divider class="!mx-2 h-[12px]" direction="vertical" />
+            </span>
+            <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
+              <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleCopy(record)">
+                {{ t('common.copy') }}
+              </MsButton>
+              <a-divider class="!mx-2 h-[12px]" direction="vertical" />
+            </span>
+            <MsTableMoreAction
+              v-permission="['PROJECT_BUG:READ+DELETE']"
+              :list="moreActionList"
+              trigger="click"
+              @select="handleMoreActionSelect($event, record)"
+            />
+          </div>
+        </template>
+
+        <template #relationCaseCount="{ record, rowIndex }">
+          <a-button type="text" class="px-0" size="mini" @click="showRelateCaseCount(record.id, rowIndex)">
+            {{ record.relationCaseCount }}
           </a-button>
-        </div>
-      </template>
-    </MsAdvanceFilter>
-    <MsBaseTable
-      class="mt-[16px]"
-      v-bind="propsRes"
-      :action-config="tableBatchActions"
-      v-on="propsEvent"
-      @batch-action="handleTableBatch"
-      @sorter-change="saveSort"
-    >
-      <!-- ID -->
-      <template #num="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
-      </template>
-      <template #operation="{ record }">
-        <div class="flex flex-nowrap items-center">
-          <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleEdit(record)">{{
-              t('common.edit')
-            }}</MsButton>
-            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
-          </span>
-          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" :disabled="currentPlatform !== record.platform" @click="handleCopy(record)">{{
-              t('common.copy')
-            }}</MsButton>
-            <a-divider class="!mx-2 h-[12px]" direction="vertical" />
-          </span>
-          <MsTableMoreAction
-            v-permission="['PROJECT_BUG:READ+DELETE']"
-            :list="moreActionList"
-            trigger="click"
-            @select="handleMoreActionSelect($event, record)"
-          />
-        </div>
-      </template>
+        </template>
 
-      <template #relationCaseCount="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="showRelateCaseCount(record.id, rowIndex)">{{
-          record.relationCaseCount
-        }}</a-button>
-      </template>
+        <template #createUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="createUserFilterVisible"
+            v-model:status-filters="createUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="createUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #createUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="createUserFilterVisible"
-          v-model:status-filters="createUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="createUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #updateUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="updateUserFilterVisible"
+            v-model:status-filters="updateUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="updateUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #updateUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="updateUserFilterVisible"
-          v-model:status-filters="updateUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="updateUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #handleUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="handleUserFilterVisible"
+            v-model:status-filters="handleUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="handleUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #handleUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="handleUserFilterVisible"
-          v-model:status-filters="handleUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="handleUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #statusFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="statusFilterVisible"
+            v-model:status-filters="statusFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="statusFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #statusFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="statusFilterVisible"
-          v-model:status-filters="statusFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="statusFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-
-      <template #severityFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="severityFilterVisible"
-          v-model:status-filters="severityFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="severityFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-
-      <template #empty> </template>
-    </MsBaseTable>
+        <template #severityFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="severityFilterVisible"
+            v-model:status-filters="severityFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="severityFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
+      </MsBaseTable>
+    </div>
   </MsCard>
   <a-modal
     v-model:visible="syncVisible"
@@ -218,7 +220,7 @@
   import { useIntervalFn } from '@vueuse/core';
   import { Message, TableData } from '@arco-design/web-vue';
 
-  import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
+  import { timeSelectOptions } from '@/components/pure/ms-advance-filter';
   import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -501,7 +503,8 @@
         selectable: true,
         noDisable: false,
         showSetting: true,
-        heightUsed: 380,
+        heightUsed: 256,
+        paginationSize: 'mini',
       },
       (record: TableData) => ({
         ...record,
@@ -893,4 +896,5 @@
   :deep(.arco-divider-vertical) {
     margin: 0 8px;
   }
+  .ms-table--special-small();
 </style>

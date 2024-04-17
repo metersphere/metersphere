@@ -49,7 +49,7 @@ const BugManagement: AppRouteRecordRaw = {
         ],
       },
     },
-    // 创建用例成功
+    // 缺陷创建成功
     {
       path: 'create-success',
       name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,

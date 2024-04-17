@@ -210,7 +210,8 @@
     </a-table>
     <div
       v-if="showBatchAction || !!attrs.showPagination"
-      class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
+      id="ms-table-footer-wrapper"
+      class="mt-[16px] flex h-[32px] w-full flex-row flex-nowrap items-center overflow-hidden"
       :class="{ 'justify-between': showBatchAction }"
     >
       <span v-if="props.actionConfig && selectedCount > 0 && !showBatchAction" class="title text-[var(--color-text-2)]">
@@ -225,21 +226,20 @@
           class="flex-1"
           :select-row-count="selectedCount"
           :action-config="props.actionConfig"
+          wrapper-id="ms-table-footer-wrapper"
           @batch-action="handleBatchAction"
           @clear="emit('clearSelector')"
         />
       </div>
-      <div class="min-w-[500px]">
-        <ms-pagination
-          v-if="!!attrs.showPagination"
-          size="small"
-          v-bind="(attrs.msPagination as MsPaginationI)"
-          :simple="!!showBatchAction"
-          :show-jumper="(attrs.msPagination as MsPaginationI).total / (attrs.msPagination as MsPaginationI).pageSize > 5"
-          @change="pageChange"
-          @page-size-change="pageSizeChange"
-        />
-      </div>
+      <ms-pagination
+        v-if="!!attrs.showPagination"
+        :size="props.paginationSize || 'small'"
+        v-bind="(attrs.msPagination as MsPaginationI)"
+        :simple="!!showBatchAction"
+        :show-jumper="(attrs.msPagination as MsPaginationI).total / (attrs.msPagination as MsPaginationI).pageSize > 5"
+        @change="pageChange"
+        @page-size-change="pageSizeChange"
+      />
     </div>
     <ColumnSelector
       v-if="props.showSetting"
@@ -316,6 +316,7 @@
     spanAll?: boolean;
     showSelectorAll?: boolean;
     firstColumnWidth?: number; // 选择、拖拽列的宽度
+    paginationSize?: 'small' | 'mini' | 'medium' | 'large';
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;

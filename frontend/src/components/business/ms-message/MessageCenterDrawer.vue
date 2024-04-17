@@ -14,12 +14,8 @@
       </div>
     </template>
     <div class="flex h-full w-full">
-      <div class="h-full w-[180px] bg-white">
-        <a-menu
-          class="mr-[16px] w-[180px] min-w-[180px] bg-white p-[4px]"
-          :default-selected-keys="[defaultModule]"
-          @menu-item-click="clickModule"
-        >
+      <div class="flex h-full w-[180px] flex-col bg-white">
+        <a-menu class="ms-message-menu" :default-selected-keys="[defaultModule]" @menu-item-click="clickModule">
           <a-menu-item :key="'all'">
             <div class="flex items-center justify-between">
               <span>{{ t('ms.message.all') }}</span>
@@ -33,16 +29,18 @@
             </div>
           </a-menu-item>
         </a-menu>
-        <div class="case flex-1">
-          <a-divider direction="horizontal" margin="8px" />
-          <div class="flex items-center px-[20px]" :class="{ clickable: 'hovered' }" @click="openMessageManage">
-            <MsIcon type="icon-icon_setting_filled" class="folder-icon" />
+        <div class="mt-auto">
+          <div
+            class="flex cursor-pointer items-center border-t border-[var(--color-text-n8)] px-[20px] py-[16px]"
+            @click="openMessageManage"
+          >
+            <MsIcon type="icon-icon_setting_filled" class="text-[var(--color-text-4)]" />
             <div class="folder-name mx-[4px]">{{ t('ms.message.setting') }}</div>
           </div>
         </div>
       </div>
-      <a-divider direction="vertical" margin="8px"></a-divider>
-      <div class="flex-1 justify-between p-[24px]">
+      <a-divider direction="vertical" :margin="0"></a-divider>
+      <div class="flex-1 justify-between overflow-x-hidden p-[16px]">
         <a-radio-group v-model="position" type="button" @change="changeShowType">
           <a-radio value="all">{{ t('ms.message.list.all') }}</a-radio>
           <a-radio value="mentioned_me">{{ t('ms.message.list.me', { var: '@' }) }}</a-radio>
@@ -54,7 +52,7 @@
           <MsIcon type="icon-icon_logs_outlined" class="mr-1 font-[16px] text-[rgb(var(--primary-5))]" />
           {{ t('ms.message.make.as.read') }}
         </a-button>
-        <div class="mt-[26px] flex">
+        <div class="mt-[16px] flex">
           <MsList
             v-model:data="messageHistoryList"
             mode="remote"
@@ -69,112 +67,68 @@
             @reach-bottom="handleReachBottom"
           >
             <template #item="{ item }">
-              <span class="p-[23px]">
-                <div v-if="item.type === 'MENTIONED_ME'">
-                  <div class="flex items-center">
-                    <MSAvatar :avatar="item.avatar" />
-                    <div class="ml-[8px] flex">
-                      <a-tooltip v-if="translateTextToPX(item.subject) > 300">
-                        <template #content>
-                          <span>
-                            {{ item.subject }}
-                          </span>
-                        </template>
-                        <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
-                          item.subject
-                        }}</div>
-                      </a-tooltip>
-                      <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.subject }}</div>
-                      <div class="font-medium text-[rgb(var(--primary-5))]"
-                        >&nbsp;&nbsp;{{ t('ms.message.me', { var: '@' }) }}</div
-                      >
+              <div v-if="item.type === 'MENTIONED_ME'" class="ms-message-item">
+                <div class="flex items-center">
+                  <MSAvatar v-if="item.avatar" :avatar="item.avatar" :word="item.userName" />
+                  <div class="ml-[8px] flex">
+                    <div class="text-[var(--color-text-2)]">
+                      {{ item.subject }}
                     </div>
-                  </div>
-                  <div class="ml-[50px] flex items-center">
-                    <a-tooltip v-if="translateTextToPX(item.userName) > 300">
-                      <template #content>
-                        <span>
-                          {{ item.userName }}
-                        </span>
-                      </template>
-                      <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
-                        item.userName
-                      }}</div>
-                    </a-tooltip>
-                    <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.userName }}</div>
-                    <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
-                    <MsButton @click="handleNameClick(item)">
-                      <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
-                        <div class="one-line-text max-w-[300px]">
-                          {{ item.resourceName }}
-                        </div>
-                      </a-tooltip>
-                    </MsButton>
-                  </div>
-                  <div class="ml-[50px] flex items-center">
-                    {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                    <div class="font-medium text-[rgb(var(--primary-5))]"
+                      >&nbsp;&nbsp;{{ t('ms.message.me', { var: '@' }) }}</div
+                    >
                   </div>
                 </div>
-                <div v-else>
-                  <div class="flex items-center">
-                    <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[6, -2]">
-                      <a-tooltip v-if="translateTextToPX(item.subject) > 300">
-                        <template #content>
-                          <span>
-                            {{ item.subject }}
-                          </span>
-                        </template>
-                        <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
-                          item.subject
-                        }}</div>
-                      </a-tooltip>
-                      <div v-else class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
-                        item.subject
-                      }}</div>
+                <div class="flex items-center">
+                  <div class="text-[var(--color-text-2)]">{{ item.content.split(':')[0] }}：</div>
+                  <div v-if="item.operation.includes('DELETE')" class="text-[var(--color-text-1)]">
+                    {{ item.resourceName }}
+                  </div>
+                  <MsButton v-else @click="handleNameClick(item)">
+                    <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
+                      <div class="one-line-text">
+                        {{ item.resourceName }}
+                      </div>
+                    </a-tooltip>
+                  </MsButton>
+                </div>
+                <div class="flex items-center text-[var(--color-text-4)]">
+                  {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                </div>
+              </div>
+              <div v-else class="ms-message-item">
+                <MSAvatar v-if="item.avatar" :avatar="item.avatar" :word="item.userName" />
+                <div class="ml-[8px] flex flex-col">
+                  <div class="flex items-center overflow-x-hidden">
+                    <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[6, -2]" class="w-full">
+                      <div class="font-medium leading-[22px] text-[var(--color-text-1)]">
+                        {{ item.subject }}
+                      </div>
                     </a-badge>
-                    <a-tooltip v-if="item.status === 'READ' && translateTextToPX(item.subject) > 300">
-                      <template #content>
-                        <span>
-                          {{ item.subject }}
-                        </span>
-                      </template>
-                      <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
-                        item.subject
-                      }}</div>
+                    <a-tooltip v-else-if="item.status === 'READ'" :content="item.subject">
+                      <div class="font-medium leading-[22px] text-[var(--color-text-1)]">
+                        {{ item.subject }}
+                      </div>
                     </a-tooltip>
-                    <div
-                      v-if="item.status === 'READ' && translateTextToPX(item.subject) <= 300"
-                      class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]"
-                    >
-                      {{ item.subject }}</div
-                    >
                   </div>
                   <div class="flex items-center">
-                    <a-tooltip v-if="translateTextToPX(item.userName) > 300">
-                      <template #content>
-                        <span>
-                          {{ item.userName }}
-                        </span>
-                      </template>
-                      <div class="one-line-text font-medium text-[var(--color-text-2)]" style="max-width: 300px">{{
-                        item.userName
-                      }}</div>
-                    </a-tooltip>
-                    <div v-else class="font-medium text-[var(--color-text-2)]">{{ item.userName }}</div>
-                    <div class="font-medium text-[var(--color-text-2)]">{{ item.subject }}：</div>
-                    <MsButton @click="handleNameClick(item)">
+                    <div class="text-[var(--color-text-2)]">{{ item.content.split(':')[0] }}：</div>
+                    <div v-if="item.operation.includes('DELETE')" class="text-[var(--color-text-1)]">
+                      {{ item.resourceName }}
+                    </div>
+                    <MsButton v-else @click="handleNameClick(item)">
                       <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
-                        <div class="one-line-text max-w-[300px]">
+                        <div class="one-line-text">
                           {{ item.resourceName }}
                         </div>
                       </a-tooltip>
                     </MsButton>
                   </div>
-                  <div class="flex items-center">
+                  <div class="flex items-center text-[var(--color-text-4)]">
                     {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
                   </div>
                 </div>
-              </span>
+              </div>
             </template>
           </MsList>
         </div>
@@ -204,31 +158,37 @@
   } from '@/api/modules/message';
   import { getMessageList } from '@/api/modules/project-management/messageManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import usePathMap from '@/hooks/usePathMap';
-  import { translateTextToPX } from '@/utils/css';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
 
   import { MessageItem } from '@/models/projectManagement/message';
-  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
+  import { MessageResourceType } from '@/enums/messageEnum';
+  import {
+    ApiTestRouteEnum,
+    BugManagementRouteEnum,
+    CaseManagementRouteEnum,
+    ProjectManagementRouteEnum,
+  } from '@/enums/routeEnum';
 
-  import useAppStore from '../../../store/modules/app';
-  import useUserStore from '../../../store/modules/user';
-
-  const options = ref<OptionItem[]>([]);
-  const messageHistoryList = ref<MessageHistoryItem[]>([]);
-  const appStore = useAppStore();
-  const userStore = useUserStore();
-  const projectId = ref<string>(appStore.currentProjectId);
   const props = defineProps<{
     visible: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
   }>();
+
+  const appStore = useAppStore();
+  const userStore = useUserStore();
   const router = useRouter();
   const { t } = useI18n();
-  const { jumpRouteByMapKey, getRouteMapByAlias } = usePathMap();
+  const { openNewPage } = useOpenNewPage();
+
   const innerVisible = useVModel(props, 'visible', emit);
+  const projectId = ref<string>(appStore.currentProjectId);
   const position = ref('all');
+  const options = ref<OptionItem[]>([]);
+  const messageHistoryList = ref<MessageHistoryItem[]>([]);
   const noMoreData = ref<boolean>(false);
   const moduleList = ref<MessageItem[]>([]);
   const defaultModule = ref<string>('all');
@@ -330,7 +290,7 @@
   }
 
   // 切换消息状态
-  function changeShowType(value: string | number | boolean, ev: Event) {
+  function changeShowType(value: string | number | boolean) {
     messageHistoryList.value = [];
     pageNation.value.current = 1;
     loadMessageHistoryList(value as string, currentResourceType.value);
@@ -381,21 +341,34 @@
     return count;
   }
 
+  const resourceTypeRouteMap = {
+    [MessageResourceType.BUG_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
+    [MessageResourceType.BUG_SYNC_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
+    [MessageResourceType.FUNCTIONAL_CASE_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    [MessageResourceType.CASE_REVIEW_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+    [MessageResourceType.API_DEFINITION_TASK]: ApiTestRouteEnum.API_TEST_MANAGEMENT,
+    [MessageResourceType.API_SCENARIO_TASK]: ApiTestRouteEnum.API_TEST_SCENARIO,
+  };
+
   // 点击名称跳转
   function handleNameClick(item: MessageHistoryItem) {
     const routeQuery: Record<string, any> = {
-      orgId: item.organizationId,
       pId: item.projectId,
       id: item.resourceId,
     };
-    if (item.organizationId === 'SYSTEM') {
-      delete routeQuery.organizationId;
-    }
     if (item.projectId === 'SYSTEM' || item.projectId === 'ORGANIZATION') {
       delete routeQuery.projectId;
     }
-    const routeMap = getRouteMapByAlias(item.resourceType);
-    jumpRouteByMapKey(routeMap?.key, routeQuery, true);
+    if (item.resourceType === MessageResourceType.API_DEFINITION_TASK) {
+      delete routeQuery.id;
+      if (item.operation.includes('CASE')) {
+        routeQuery.cId = item.resourceId;
+      } else if (!item.operation.includes('MOCK')) {
+        routeQuery.dId = item.resourceId;
+      }
+    }
+    const route = resourceTypeRouteMap[item.resourceType];
+    openNewPage(route, routeQuery);
   }
 
   // 全部标记为已读
@@ -425,6 +398,28 @@
   );
 </script>
 
+<style lang="less">
+  .ms-drawer {
+    .ms-message-menu {
+      @apply bg-white;
+      .arco-menu-inner {
+        padding: 16px;
+      }
+    }
+    .ms-message-item {
+      @apply flex;
+
+      padding: 8px;
+      &:not(:last-child) {
+        margin-bottom: 16px;
+      }
+      &:hover {
+        background-color: var(--color-text-n9);
+      }
+    }
+  }
+</style>
+
 <style lang="less" scoped>
   .right-align {
     float: right;
@@ -439,16 +434,5 @@
     flex-direction: column;
     box-sizing: border-box;
     line-height: 1.8715;
-  }
-  .case {
-    /* 底部样式 */
-    position: fixed;
-    bottom: 0;
-    padding: 20px;
-    text-align: center;
-  }
-  .clickable {
-    cursor: pointer;
-    transition: background-color 0.3s ease;
   }
 </style>
