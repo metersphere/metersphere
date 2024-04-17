@@ -25,13 +25,7 @@
       ></a-input-search
     ></div>
   </div>
-  <memberTable
-    v-if="isMounted"
-    ref="memberTableRef"
-    :keyword="keyword"
-    :role-ids="roleIds"
-    :user-group-options="userGroupOptions"
-  />
+  <memberTable v-if="isMounted" ref="memberTableRef" :user-group-options="userGroupOptions" @table-mount="initData" />
 </template>
 
 <script setup lang="ts">
@@ -67,8 +61,8 @@
 
   const roleIds = ref<string>('');
   const keyword = ref<string>('');
-  const initData = async () => {
-    memberTableRef.value?.initData();
+  const initData = () => {
+    memberTableRef.value?.initData(roleIds.value, keyword.value);
   };
 
   const searchHandler = () => {

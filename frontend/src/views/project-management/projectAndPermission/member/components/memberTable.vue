@@ -23,7 +23,7 @@
         :max-tag-count="2"
         @popup-visible-change="(value) => userGroupChange(value, record)"
       >
-        <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+        <a-option v-for="item of props.userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
       </a-select>
     </template>
     <template #enable="{ record }">
@@ -50,7 +50,7 @@
   <AddMemberModal
     ref="projectMemberRef"
     v-model:visible="addMemberVisible"
-    :user-group-options="userGroupOptions"
+    :user-group-options="props.userGroupOptions"
     @success="initData()"
   />
   <MsBatchModal
@@ -96,9 +96,11 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
-    roleIds: string;
     userGroupOptions: ProjectUserOption[];
-    keyword: string;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'tableMount'): void;
   }>();
 
   const appStore = useAppStore();
@@ -193,14 +195,17 @@
     }
   );
 
-  const initData = async () => {
-    await nextTick();
+  const roleIds = ref<string>('');
+  const keyword = ref<string>('');
+  const initData = async (roleIdsValue?: string, keywordValue?: string) => {
+    roleIds.value = roleIdsValue ?? roleIds.value;
+    keyword.value = keywordValue ?? keyword.value;
     setLoadListParams({
       filter: {
-        roleIds: props.roleIds ? [props.roleIds] : [],
+        roleIds: roleIds.value ? [roleIds.value] : [],
       },
       projectId: lastProjectId.value,
-      keyword: props.keyword,
+      keyword: keyword.value,
     });
     await loadList();
   };
@@ -276,10 +281,12 @@
       selectAll: !!selectAll,
       excludeIds: excludeIds || [],
       selectIds: selectedIds || [],
-      keyword: props.keyword,
+      keyword: keyword.value,
       condition: {
-        keyword: props.keyword,
-        filter: propsRes.value.filter,
+        keyword: keyword.value,
+        filter: {
+          roleIds: roleIds.value ? [roleIds.value] : [],
+        },
         combine: batchParams.value.condition,
       },
     };
@@ -361,7 +368,7 @@
   };
 
   onBeforeMount(() => {
-    initData();
+    emit('tableMount');
   });
 
   defineExpose({
