@@ -314,6 +314,7 @@ public class PermissionConstants {
 
     /*------ start: SYSTEM_TASK_CENTER ------*/
     public static final String SYSTEM_TASK_CENTER_READ = "SYSTEM_TASK_CENTER:READ";
+    public static final String SYSTEM_TASK_CENTER_READ_STOP = "SYSTEM_TASK_CENTER:READ+STOP";
     /*------ end: SYSTEM_TASK_CENTER ------*/
 
     /*------ start: ORGANIZATION_TASK_CENTER_READ ------*/
