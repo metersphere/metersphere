@@ -431,9 +431,8 @@ export default {
               scope: "api",
             })
         );
-        this.currentPage = Math.ceil(this.items.length / this.pageSize);
       }
-      this.filter();
+      this.filter(this.currentPage);
 
       // 触发变更事件
       this.$emit("change", this.items);
@@ -593,9 +592,9 @@ export default {
           }
       );
     },
-    filter() {
+    filter(currentPage) {
       // 过滤
-      this.currentPage = 1;
+      this.currentPage = typeof currentPage === "number" ? currentPage : 1;
       this.allData = [];
       this._filter();
       this.sortParameters();
