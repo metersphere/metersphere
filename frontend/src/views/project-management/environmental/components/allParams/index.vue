@@ -7,12 +7,8 @@
       class="w-[240px]"
       @search="handleSearch"
       @press-enter="handleSearch"
+      @clear="handleSearch"
     >
-      <template #prefix>
-        <span class="arco-icon-hover">
-          <icon-search class="cursor-pointer" @click="handleSearch" />
-        </span>
-      </template>
     </a-input-search>
     <batchAddKeyVal
       :add-type-text="t('project.environmental.env.constantBatchAddTip')"
@@ -172,7 +168,7 @@
       innerParams.value = [...backupParams.value];
     } else {
       const result = backupParams.value.filter(
-        (item) => item.key.includes(searchValue.value) || item.tags.includes(searchValue.value)
+        (item) => item.key?.includes(searchValue.value) || (item.tags || []).includes(searchValue.value)
       );
       innerParams.value = [...result];
     }
