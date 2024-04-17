@@ -110,18 +110,18 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
         List<DataSource> dataSources = envConfig.getConfig().getDataSources();
 
         // 先按ID匹配
-        dataSources = dataSources.stream()
+        List<DataSource> dataSourceResults = dataSources.stream()
                 .filter(item -> StringUtils.equals(item.getId(), sqlProcessor.getDataSourceId()))
                 .toList();
 
         // 再按名称匹配
-        if (CollectionUtils.isEmpty(dataSources)) {
-            dataSources = dataSources.stream()
+        if (CollectionUtils.isEmpty(dataSourceResults)) {
+            dataSourceResults = dataSources.stream()
                     .filter(item -> StringUtils.equals(item.getDataSource(), sqlProcessor.getDataSourceName()))
                     .toList();
         }
 
-        return CollectionUtils.isEmpty(dataSources) ? null : dataSources.get(0);
+        return CollectionUtils.isEmpty(dataSourceResults) ? null : dataSourceResults.get(0);
     }
 
     protected AbstractJDBCProcessor getJdbcProcessor(SQLProcessor sqlProcessor, AbstractJDBCProcessor jdbcProcessor, DataSource dataSource) {
