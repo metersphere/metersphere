@@ -14,6 +14,7 @@ import {
   DebugScenarioUrl,
   DeleteModuleUrl,
   DeleteScenarioUrl,
+  dragSortUrl,
   ExecuteHistoryUrl,
   ExecuteScenarioUrl,
   FollowScenarioUrl,
@@ -64,7 +65,14 @@ import {
   ScenarioHistoryPageParams,
   ScenarioStepResourceInfo,
 } from '@/models/apiTest/scenario';
-import { AddModuleParams, CommonList, ModuleTreeNode, MoveModules, TransferFileParams } from '@/models/common';
+import {
+  AddModuleParams,
+  CommonList,
+  DragSortParams,
+  ModuleTreeNode,
+  MoveModules,
+  TransferFileParams,
+} from '@/models/common';
 import { ApiScenarioStatus, ScenarioStepType } from '@/enums/apiEnum';
 
 import type { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -276,6 +284,11 @@ export function followScenario(id: string | number) {
 // 更新场景状态
 export function updateScenarioStatus(id: string | number, status: ApiScenarioStatus | undefined) {
   return MSR.get({ url: `${UpdateScenarioStatusUrl}/${id}/${status}` });
+}
+
+// 拖拽排序
+export function dragSort(data: DragSortParams) {
+  return MSR.post({ url: dragSortUrl, data });
 }
 
 export function updateScenarioPro(id: string | number, priority: CaseLevel | undefined) {
