@@ -9,8 +9,7 @@
         fcm.pos,
         fcm.project_id
         from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
-        where fc.deleted = #{deleted}
-            and fc.project_id = #{request.projectId}
+        where fcm.project_id = #{request.projectId}
             and fc.id not in
             (
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
