@@ -360,7 +360,9 @@
       record.perChecked.push(currentValue);
       const preStr = currentValue.split(':')[0];
       const postStr = currentValue.split(':')[1];
-      const existRead = record.perChecked.some((item: string) => item.split(':')[1] === 'READ');
+      const existRead = record.perChecked.some(
+        (item: string) => item.split(':')[0] === preStr && item.split(':')[1] === 'READ'
+      );
       if (!existRead && postStr !== 'READ') {
         record.perChecked.push(`${preStr}:READ`);
       }
