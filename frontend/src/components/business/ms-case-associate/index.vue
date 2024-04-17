@@ -597,6 +597,7 @@
       version: '',
     };
     activeFolder.value = 'all';
+    activeFolderName.value = t('ms.case.associate.allCase');
     resetSelector();
     emit('close');
   }

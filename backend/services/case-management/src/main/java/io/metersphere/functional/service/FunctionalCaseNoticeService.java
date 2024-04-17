@@ -154,8 +154,8 @@ public class FunctionalCaseNoticeService {
                 if (customField == null) {
                     continue;
                 }
-                optionDTO.setId(customField.getId());
-                optionDTO.setName(customField.getName());
+                optionDTO.setId(customField.getName());
+                optionDTO.setName(customFieldDTO.getValue());
                 fields.add(optionDTO);
             }
         }
@@ -195,7 +195,7 @@ public class FunctionalCaseNoticeService {
     }
     public Map<String, FunctionalCase> copyBaseCaseInfo(String projectId, List<String> ids) {
         FunctionalCaseExample example = new FunctionalCaseExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andDeletedEqualTo(false).andIdIn(ids);
+        example.createCriteria().andProjectIdEqualTo(projectId).andIdIn(ids);
         List<FunctionalCase> functionalCaseLists = functionalCaseMapper.selectByExample(example);
         return functionalCaseLists.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
     }

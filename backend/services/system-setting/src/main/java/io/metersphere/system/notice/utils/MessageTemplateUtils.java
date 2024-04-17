@@ -188,7 +188,8 @@ public class MessageTemplateUtils {
         // 处理人相关的数据
         handleUser(context);
         StringSubstitutor sub = new StringSubstitutor(context);
-        return sub.replace(template);
+        String replace = sub.replace(template);
+        return replace;
     }
 
     public static void handleTime(Map<String, Object> context) {
