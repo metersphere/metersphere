@@ -1,6 +1,5 @@
 package io.metersphere.api.controller.definition;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
@@ -8,9 +7,9 @@ import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiReportListDTO;
-import io.metersphere.api.service.definition.ApiReportNoticeService;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.definition.ApiReportLogService;
+import io.metersphere.api.service.definition.ApiReportNoticeService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.ShareInfo;
@@ -57,8 +56,8 @@ public class ApiReportController {
     @CheckOwner(resourceId = "#id", resourceType = "api_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiReportLogService.class)
-    public void rename(@PathVariable String id, @RequestBody TextNode name) {
-        apiReportService.rename(id, name.asText(), SessionUtils.getUserId());
+    public void rename(@PathVariable String id,  @RequestBody Object name) {
+        apiReportService.rename(id, name.toString(), SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
