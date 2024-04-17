@@ -12,4 +12,12 @@ export enum StatusType {
   SKIPPED = 'icon-icon_skip_planarity', // 跳过
 }
 
+export enum LastExecuteResults {
+  UN_EXECUTED = 'UN_EXECUTED',
+  PASSED = 'PASSED',
+  SKIPPED = 'SKIPPED',
+  BLOCKED = 'BLOCKED',
+  FAILED = 'FAILED',
+}
+
 export default {};

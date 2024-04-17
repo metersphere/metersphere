@@ -92,19 +92,42 @@
       </TableFilter>
     </template>
     <template #executeResultFilter="{ columnConfig }">
-      <TableFilter
-        v-model:visible="executeResultFilterVisible"
-        v-model:status-filters="executeResultFilters"
-        :title="(columnConfig.title as string)"
-        :list="executeResultFilterList"
-        value-key="key"
-        @search="initData()"
+      <a-trigger
+        v-model:popup-visible="executeResultFilterVisible"
+        trigger="click"
+        @popup-visible-change="handleFilterHidden"
       >
-        <template #item="{ item }">
-          <MsIcon :type="item.icon || ''" class="mr-1" :class="[item.color]"></MsIcon>
-          <span>{{ item.statusText || '' }}</span>
+        <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="executeResultFilterVisible = true">
+          <div class="font-medium">
+            {{ t(columnConfig.title as string) }}
+          </div>
+          <icon-down :class="executeResultFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+        </a-button>
+        <template #content>
+          <div class="arco-table-filters-content">
+            <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+              <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="small">
+                <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
+                  <MsIcon
+                    :type="executionResultMap[key]?.icon || ''"
+                    class="mr-1"
+                    :class="[executionResultMap[key].color]"
+                  ></MsIcon>
+                  <span>{{ executionResultMap[key]?.statusText || '' }} </span>
+                </a-checkbox>
+              </a-checkbox-group>
+            </div>
+            <div class="filter-button">
+              <a-button size="mini" class="mr-[8px]" @click="resetExecuteResultFilter">
+                {{ t('common.reset') }}
+              </a-button>
+              <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                {{ t('system.orgTemplate.confirm') }}
+              </a-button>
+            </div>
+          </div>
         </template>
-      </TableFilter>
+      </a-trigger>
     </template>
     <template #updateUserFilter="{ columnConfig }">
       <TableFilter
@@ -175,12 +198,19 @@
       </a-trigger>
     </template>
     <template #lastExecuteResult="{ record }">
-      <MsIcon
-        :type="executionResultMap[record.lastExecuteResult]?.icon || ''"
-        class="mr-1"
-        :class="[executionResultMap[record.lastExecuteResult].color]"
-      ></MsIcon>
-      <span>{{ executionResultMap[record.lastExecuteResult]?.statusText || '' }}</span>
+      <a-select
+        v-model:model-value="record.lastExecuteResult"
+        :placeholder="t('common.pleaseSelect')"
+        class="param-input w-full"
+        @change="() => handleStatusChange(record)"
+      >
+        <template #label>
+          <span class="text-[var(--color-text-2)]"> <executeResult :execute-result="record.lastExecuteResult" /></span>
+        </template>
+        <a-option v-for="item of LastExecuteResults" :key="item" :value="item">
+          <executeResult :execute-result="item" />
+        </a-option>
+      </a-select>
     </template>
     <template #moduleId="{ record }">
       <a-tree-select
@@ -377,6 +407,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import executeResult from '@/components/business/ms-case-associate/executeResult.vue';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
@@ -416,6 +447,7 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -569,15 +601,15 @@
       width: 200,
       showDrag: true,
     },
-    // {
-    //   title: 'caseManagement.featureCase.tableColumnExecutionResult',
-    //   dataIndex: 'lastExecuteResult',
-    //   slotName: 'lastExecuteResult',
-    //   titleSlotName: 'executeResultFilter',
-    //   showInTable: true,
-    //   width: 200,
-    //   showDrag: true,
-    // },
+    {
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
+      dataIndex: 'lastExecuteResult',
+      slotName: 'lastExecuteResult',
+      titleSlotName: 'executeResultFilter',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
     // {
     //   title: 'caseManagement.featureCase.tableColumnVersion',
     //   slotName: 'versionName',
@@ -1416,6 +1448,7 @@
       const params = {
         request: {
           ...detailResult,
+          lastExecuteResult: record.lastExecuteResult,
           customFields: customFieldsList,
         },
         fileList: [],
@@ -1556,12 +1589,19 @@
     if (!val) {
       initData();
       statusFilterVisible.value = false;
+      executeResultFilterVisible.value = false;
     }
   }
 
   function resetReviewStatusFilter() {
     statusFilters.value = [];
     statusFilterVisible.value = false;
+    initData();
+  }
+
+  function resetExecuteResultFilter() {
+    executeResultFilters.value = [];
+    executeResultFilterVisible.value = false;
     initData();
   }
 
