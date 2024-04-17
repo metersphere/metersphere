@@ -81,8 +81,7 @@ export default {
   'apiTestManagement.syncImportCase': 'Synchronous import interface use case',
   'apiTestManagement.syncUpdateDirectory': 'Synchronously update the directory where the interface is located',
   'apiTestManagement.importSwaggerFileTip1': 'Supports json files of Swagger 3.0 version,',
-  'apiTestManagement.importSwaggerFileTip2':
-    'It is recommended to convert 2.0 files to 3.0 on the official website and then import them.',
+  'apiTestManagement.importSwaggerFileTip2': '2.0 files can be converted to 3.0 on the official website with one click',
   'apiTestManagement.importSwaggerFileTip3': ', the size does not exceed 50M',
   'apiTestManagement.urlImportPlaceholder': 'Please enter the OpenAPI/Swagger URL',
   'apiTestManagement.swaggerURLRequired': 'SwaggerURL cannot be empty',

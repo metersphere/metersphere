@@ -85,10 +85,6 @@
       label: 'system.log.operateType.import',
       value: 'IMPORT',
     },
-    {
-      label: 'system.log.operateType.delete',
-      value: 'DELETE',
-    },
   ];
 
   const columns: MsTableColumn = [

@@ -10,10 +10,10 @@
       :ok-loading="importLoading"
       disabled-width-drag
       desc
+      no-title
       @confirm="confirmImport"
       @cancel="cancelImport"
     >
-      <template #title> </template>
       <div class="flex items-center justify-between p-[12px_8px]">
         <div class="font-medium text-[var(--color-text-1)]">{{ t('apiTestManagement.importApi') }}</div>
         <a-radio-group v-model:model-value="importForm.type" type="button">
@@ -122,7 +122,14 @@
             <template #subText>
               <div class="flex">
                 {{ t('apiTestManagement.importSwaggerFileTip1') }}
-                <div class="text-[rgb(var(--warning-6))]">{{ t('apiTestManagement.importSwaggerFileTip2') }}</div>
+                <a
+                  class="text-[rgb(var(--warning-6))]"
+                  href="https://converter.swagger.io/"
+                  target="_blank"
+                  @click.stop
+                >
+                  {{ t('apiTestManagement.importSwaggerFileTip2') }}
+                </a>
                 {{ t('apiTestManagement.importSwaggerFileTip3') }}
               </div>
             </template>
