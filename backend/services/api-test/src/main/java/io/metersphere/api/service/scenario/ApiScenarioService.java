@@ -2827,16 +2827,20 @@ public class ApiScenarioService extends MoveNodeService {
                 .collect(Collectors.toSet());
         //执行历史列表
         List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
-        List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
-        Map<String, ExecuteReportDTO> historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+        Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(reportIds)) {
+            List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
+            historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
 
+        }
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
-            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(apiReport.getId()));
+            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
         });
         return executeList;
     }

@@ -61,5 +61,5 @@ export default {
   'project.taskCenter.disableSuccess': 'Disable successfully',
   'project.taskCenter.filterPlaceholderText': 'Please select a project',
   'project.taskCenter.filterOrgPlaceholderText': 'Please select an organization',
-  'project.executionHistory.cleared': 'Execution history has been cleared',
+  'project.executionHistory.cleared': 'Execution result has been cleared',
 };

@@ -561,14 +561,17 @@ public class ApiTestCaseService extends MoveNodeService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         //执行历史列表
         List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
-        List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
-        Map<String, ExecuteReportDTO> historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
-
+        Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(reportIds)) {
+            List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
+            historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
+        }
+        Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
-            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(apiReport.getId()));
+            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
         });
         return executeList;
     }
