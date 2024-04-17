@@ -194,6 +194,7 @@
   );
 
   const initData = async () => {
+    await nextTick();
     setLoadListParams({
       filter: {
         roleIds: props.roleIds ? [props.roleIds] : [],
