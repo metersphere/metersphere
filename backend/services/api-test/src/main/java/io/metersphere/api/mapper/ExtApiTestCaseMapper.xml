@@ -183,11 +183,15 @@
         atc.priority,
         atc.tags,
         atc.version_id,
-        v.name as versionName
+        v.name as versionName,
+        atc.create_user,
+        u.name as createUserName,
+        atc.create_time
         FROM
         api_test_case atc
         LEFT JOIN project_version v ON atc.version_id = v.id
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        LEFT JOIN user u ON atc.create_user = u.id
         WHERE atc.deleted =#{deleted}
         and atc.id not in
         (

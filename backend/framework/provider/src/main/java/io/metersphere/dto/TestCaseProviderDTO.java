@@ -49,4 +49,15 @@ public class TestCaseProviderDTO {
     @Schema(description = "自定义字段集合")
     private List<BaseCaseCustomFieldDTO> customFields;
 
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "创建人名称")
+    private String createUserName;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+
+
 }
