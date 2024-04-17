@@ -23,4 +23,3 @@ export enum ExecutionMethodsLabel {
   API = 'project.taskCenter.interfaceCall', // 接口调用
   BATCH = 'project.taskCenter.batchExecution', // 批量执行
 }
-export default {};

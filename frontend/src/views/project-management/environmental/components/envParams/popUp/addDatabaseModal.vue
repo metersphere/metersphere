@@ -114,13 +114,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, defineModel, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import { driverOptionFun, validateDatabaseEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
   import { getGenerateId } from '@/utils';
 
@@ -141,7 +139,6 @@
   const loading = ref(false);
   const driverOption = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
-  const licenseStore = useLicenseStore();
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
@@ -282,7 +279,7 @@
               form.value = {
                 ...currentItem,
                 id: '',
-                dataSource: `copy_${currentItem.dataSource}`,
+                dataSource: `copy_${currentItem.dataSource}`.substring(0, 255),
               };
             } else {
               form.value = {

@@ -371,9 +371,10 @@
   async function upgradeRepositoryFile() {
     try {
       fileLoading.value = true;
-      await updateRepositoryFile(innerFileId.value);
+      const res = await updateRepositoryFile(innerFileId.value);
       Message.success(t('common.updateSuccess'));
-      detailDrawerRef.value?.initDetail();
+      innerFileId.value = res;
+      detailDrawerRef.value?.initDetail(res);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

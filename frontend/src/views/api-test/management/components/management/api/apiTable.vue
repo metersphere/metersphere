@@ -1,6 +1,6 @@
 <template>
-  <div :class="['p-[0_16px_16px_16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-end">
+  <div :class="['p-[0_16px_8px_16px]', props.class]">
+    <div class="mb-[8px] flex items-center justify-end">
       <div class="flex items-center gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -507,7 +507,7 @@
       ]),
       showSelectAll: !props.readOnly,
       draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 308,
+      heightUsed: 256,
       showSubdirectory: true,
     },
     (item) => ({
@@ -977,4 +977,5 @@
       }
     }
   }
+  .ms-table--special-small();
 </style>

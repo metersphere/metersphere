@@ -1,130 +1,132 @@
 <template>
-  <MsCard simple>
-    <MsAdvanceFilter
-      v-model:keyword="keyword"
-      :search-placeholder="t('bugManagement.recycle.searchPlaceholder')"
-      :filter-config-list="filterConfigList"
-      :row-count="filterRowCount"
-      @keyword-search="fetchData"
-      @refresh="fetchData('')"
-    >
-      <template #left>
-        <div></div>
-      </template>
-    </MsAdvanceFilter>
-    <MsBaseTable
-      class="mt-[16px]"
-      v-bind="propsRes"
-      :action-config="tableAction"
-      v-on="propsEvent"
-      @batch-action="handleTableBatch"
-    >
-      <template #operation="{ record }">
-        <div class="flex flex-row flex-nowrap">
-          <MsButton class="!mr-0" @click="handleRecover(record)">{{ t('bugManagement.recycle.recover') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsButton class="!mr-0" @click="handleDelete(record)">{{
-            t('bugManagement.recycle.permanentlyDelete')
-          }}</MsButton>
-        </div>
-      </template>
+  <MsCard simple no-content-padding>
+    <div class="h-full p-[16px]">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :search-placeholder="t('bugManagement.recycle.searchPlaceholder')"
+        :filter-config-list="filterConfigList"
+        :row-count="filterRowCount"
+        @keyword-search="fetchData"
+        @refresh="fetchData('')"
+      >
+        <template #left>
+          <div></div>
+        </template>
+      </MsAdvanceFilter>
+      <MsBaseTable
+        class="mt-[16px]"
+        v-bind="propsRes"
+        :action-config="tableAction"
+        v-on="propsEvent"
+        @batch-action="handleTableBatch"
+      >
+        <template #operation="{ record }">
+          <div class="flex flex-row flex-nowrap">
+            <MsButton class="!mr-0" @click="handleRecover(record)">{{ t('bugManagement.recycle.recover') }}</MsButton>
+            <a-divider direction="vertical" />
+            <MsButton class="!mr-0" @click="handleDelete(record)">{{
+              t('bugManagement.recycle.permanentlyDelete')
+            }}</MsButton>
+          </div>
+        </template>
 
-      <template #deleteTimeColumn="{ record }">
-        {{ dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
-      </template>
+        <template #deleteTimeColumn="{ record }">
+          {{ dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
+        </template>
 
-      <template #createUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="createUserFilterVisible"
-          v-model:status-filters="createUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="createUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #createUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="createUserFilterVisible"
+            v-model:status-filters="createUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="createUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #updateUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="updateUserFilterVisible"
-          v-model:status-filters="updateUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="updateUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #updateUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="updateUserFilterVisible"
+            v-model:status-filters="updateUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="updateUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #deleteUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="deleteUserFilterVisible"
-          v-model:status-filters="deleteUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="deleteUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #deleteUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="deleteUserFilterVisible"
+            v-model:status-filters="deleteUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="deleteUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #handleUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="handleUserFilterVisible"
-          v-model:status-filters="handleUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="handleUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #handleUserFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="handleUserFilterVisible"
+            v-model:status-filters="handleUserFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="handleUserFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #statusFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="statusFilterVisible"
-          v-model:status-filters="statusFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="statusFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #statusFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="statusFilterVisible"
+            v-model:status-filters="statusFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="statusFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #severityFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="severityFilterVisible"
-          v-model:status-filters="severityFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="severityFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
+        <template #severityFilter="{ columnConfig }">
+          <TableFilter
+            v-model:visible="severityFilterVisible"
+            v-model:status-filters="severityFilterValue"
+            :title="(columnConfig.title as string)"
+            :list="severityFilterOptions"
+            value-key="value"
+            @search="searchData()"
+          >
+            <template #item="{ item }">
+              {{ item.text }}
+            </template>
+          </TableFilter>
+        </template>
 
-      <template #empty> </template>
-    </MsBaseTable>
+        <template #empty> </template>
+      </MsBaseTable>
+    </div>
   </MsCard>
 </template>
 
@@ -377,6 +379,7 @@
       noDisable: true,
       showSetting: true,
       scroll: { x: '1900px' },
+      heightUsed: 256,
     },
     (record: TableData) => ({
       ...record,
@@ -548,3 +551,7 @@
     fetchData();
   });
 </script>
+
+<style lang="less" scoped>
+  .ms-table--special-small();
+</style>

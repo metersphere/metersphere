@@ -8,7 +8,7 @@
         class="ml-[12px]"
         :class="{
           'arco-btn-outline--danger': element.danger,
-          'ml-[16px]': idx === 0,
+          'ml-[8px]': idx === 0,
         }"
         type="outline"
         @click="handleSelect(element)"
@@ -24,7 +24,7 @@
           class="ml-[12px]"
           :class="{
             'arco-btn-outline--danger': element.danger,
-            'ml-[16px]': idx === 0,
+            'ml-[8px]': idx === 0,
           }"
           type="outline"
           @click="handleSelect"
@@ -41,7 +41,7 @@
       </a-dropdown>
       <!-- baseAction多菜单选择 -->
     </template>
-    <div v-if="moreActionLength > 0" class="drop-down relative ml-[16px] inline-block">
+    <div v-if="moreActionLength > 0" class="drop-down relative ml-[8px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
@@ -58,7 +58,7 @@
         </template>
       </a-dropdown>
     </div>
-    <a-button class="clear-btn ml-[16px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
+    <a-button class="clear-btn ml-[8px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
   </div>
 </template>
 
@@ -79,6 +79,7 @@
   const props = defineProps<{
     selectRowCount?: number;
     actionConfig?: BatchActionConfig;
+    wrapperId: string;
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams): void;
@@ -120,7 +121,8 @@
       computedStatus.value = true;
       return;
     }
-    const wrapperWidth = getNodeWidth(refWrapper.value);
+
+    const wrapperWidth = (document.querySelector(`#${props.wrapperId}`)?.clientWidth || 0) - 370; // 370为分页按钮区域宽度
 
     const childNodeList = [].slice.call(refWrapper.value.children) as HTMLElement[];
 
@@ -140,24 +142,24 @@
         // title宽度为固定值100px
         totalWidth += 100;
       } else if (isDropDown) {
-        // dropDown宽度为固定值48px + MarginLeft 16px
-        totalWidth += 64;
+        // dropDown宽度为固定值48px + MarginLeft 8px
+        totalWidth += 56;
       } else if (isClearBtn) {
-        // 清空选择按钮 60px + MarginLeft 16px
-        totalWidth += 76;
+        // 清空选择按钮 60px + MarginLeft 8px
+        totalWidth += 68;
       } else {
-        // 普通按钮宽度为内容宽度 + marginLeft 16px
-        totalWidth += getNodeWidth(node) + 16;
-        menuItemIndex++;
+        // 普通按钮宽度为内容宽度 + marginLeft 8px
+        totalWidth += getNodeWidth(node) + 8;
       }
       if (totalWidth > wrapperWidth) {
-        const value = menuItemIndex - 1;
+        const value = isClearBtn ? menuItemIndex - 1 : menuItemIndex - 2;
         baseAction.value = allAction.value.slice(0, value);
         moreAction.value = allAction.value.slice(value);
         handleMoreActionLength();
         computedStatus.value = false;
         return;
       }
+      menuItemIndex++;
     }
     moreAction.value = props.actionConfig?.moreAction || [];
     baseAction.value = props.actionConfig?.baseAction || [];

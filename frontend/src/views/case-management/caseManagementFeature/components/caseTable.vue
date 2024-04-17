@@ -39,7 +39,7 @@
     v-bind="propsRes"
     ref="tableRef"
     filter-icon-align-left
-    class="mt-4"
+    class="mt-[8px]"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
     v-on="propsEvent"
@@ -67,6 +67,7 @@
         v-model:model-value="record.caseLevel"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
+        size="mini"
         @change="() => handleStatusChange(record)"
       >
         <template #label>
@@ -97,7 +98,12 @@
         trigger="click"
         @popup-visible-change="handleFilterHidden"
       >
-        <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="executeResultFilterVisible = true">
+        <a-button
+          type="text"
+          class="arco-btn-text--secondary p-[8px_4px]"
+          size="mini"
+          @click="executeResultFilterVisible = true"
+        >
           <div class="font-medium">
             {{ t(columnConfig.title as string) }}
           </div>
@@ -106,7 +112,7 @@
         <template #content>
           <div class="arco-table-filters-content">
             <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-              <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="small">
+              <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="mini">
                 <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
                   <MsIcon
                     :type="executionResultMap[key]?.icon || ''"
@@ -202,6 +208,7 @@
         v-model:model-value="record.lastExecuteResult"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
+        size="mini"
         @change="() => handleStatusChange(record)"
       >
         <template #label>
@@ -228,6 +235,7 @@
             height: 200,
           },
         }"
+        size="mini"
         @change="(value) => handleChangeModule(record, value)"
       >
         <template #tree-slot-title="node">
@@ -899,9 +907,10 @@
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
       selectable: true,
       showSetting: true,
-      heightUsed: 380,
+      heightUsed: 256,
       enableDrag: true,
       showSubdirectory: true,
+      paginationSize: 'mini',
     },
     (record) => {
       return {
@@ -1688,4 +1697,5 @@
     flex-direction: row;
     justify-content: space-between;
   }
+  .ms-table--special-small();
 </style>

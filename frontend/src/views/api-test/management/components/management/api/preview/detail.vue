@@ -25,7 +25,7 @@
             <MsFormTable
               v-show="headerShowType === 'table'"
               :columns="headerColumns"
-              :data="previewDetail.headers || []"
+              :data="previewDetail.headers?.filter((e) => e.key !== '') || []"
               :selectable="false"
             />
             <MsCodeEditor
@@ -64,7 +64,7 @@
             <MsFormTable
               v-show="queryShowType === 'table'"
               :columns="queryRestColumns"
-              :data="previewDetail.query || []"
+              :data="previewDetail.query?.filter((e) => e.key !== '') || []"
               :selectable="false"
             />
             <MsCodeEditor
@@ -102,7 +102,7 @@
             </div>
             <MsFormTable
               v-show="restShowType === 'table'"
-              :columns="queryRestColumns"
+              :columns="queryRestColumns?.filter((e) => e.key !== '')"
               :data="previewDetail.rest || []"
               :selectable="false"
             />
@@ -204,7 +204,7 @@
           <MsFormTable
             v-show="pluginShowType === 'table'"
             :columns="pluginTableColumns"
-            :data="pluginTableData"
+            :data="pluginTableData?.filter((e) => e.key !== '')"
             :selectable="false"
           />
           <MsCodeEditor
@@ -315,7 +315,11 @@
               {{ t('apiTestDebug.responseHeader') }}
             </div>
           </div>
-          <MsFormTable :columns="responseHeaderColumns" :data="activeResponse?.headers || []" :selectable="false" />
+          <MsFormTable
+            :columns="responseHeaderColumns"
+            :data="activeResponse?.headers?.filter((e) => e.key !== '') || []"
+            :selectable="false"
+          />
         </div>
       </template>
       <a-spin v-else :loading="previewDetail.executeLoading" class="h-[calc(100%-45px)] w-full pb-[18px]">
@@ -657,12 +661,14 @@
   const bodyTableData = computed(() => {
     switch (previewDetail.value.body.bodyType) {
       case RequestBodyFormat.FORM_DATA:
-        return (previewDetail.value.body.formDataBody?.formValues || []).map((e) => ({
-          ...e,
-          value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('、') : e.value,
-        }));
+        return (previewDetail.value.body.formDataBody?.formValues || [])
+          .map((e) => ({
+            ...e,
+            value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('、') : e.value,
+          }))
+          ?.filter((e) => e.key !== '');
       case RequestBodyFormat.WWW_FORM:
-        return previewDetail.value.body.wwwFormBody?.formValues || [];
+        return previewDetail.value.body.wwwFormBody?.formValues?.filter((e) => e.key !== '') || [];
       case RequestBodyFormat.BINARY:
         return [
           {

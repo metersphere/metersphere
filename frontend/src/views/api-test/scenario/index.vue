@@ -1,6 +1,6 @@
 <template>
   <MsCard no-content-padding simple>
-    <div class="flex items-center justify-between p-[24px_24px_8px_24px]">
+    <div class="flex items-center justify-between p-[8px_16px_8px_16px]">
       <MsEditableTab
         v-model:active-tab="activeScenarioTab"
         v-model:tabs="scenarioTabs"
@@ -68,14 +68,16 @@
           </div>
         </template>
         <template #second>
-          <ScenarioTable
-            ref="apiTableRef"
-            :active-module="activeModule"
-            :offspring-ids="offspringIds"
-            @refresh-module-tree="refreshTree"
-            @open-scenario="openScenarioTab"
-            @create-scenario="() => newTab()"
-          />
+          <div class="overflow-x-hidden">
+            <ScenarioTable
+              ref="apiTableRef"
+              :active-module="activeModule"
+              :offspring-ids="offspringIds"
+              @refresh-module-tree="refreshTree"
+              @open-scenario="openScenarioTab"
+              @create-scenario="() => newTab()"
+            />
+          </div>
         </template>
       </MsSplitBox>
     </div>
@@ -623,7 +625,7 @@
 
 <style scoped lang="less">
   .pageWrap {
-    height: calc(100% - 65px);
+    height: calc(100% - 54px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .case {

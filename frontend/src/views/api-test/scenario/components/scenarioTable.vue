@@ -1,6 +1,6 @@
 <template>
-  <div :class="['p-[16px_16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-between">
+  <div :class="['p-[8px_16px]', props.class]">
+    <div class="mb-[8px] flex items-center justify-between">
       <div class="flex items-center"> </div>
       <div class="items-right flex gap-[8px]">
         <a-input-search
@@ -893,8 +893,9 @@
       ]),
       showSelectAll: !props.readOnly,
       draggable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 374,
+      heightUsed: 256,
       showSubdirectory: true,
+      paginationSize: 'mini',
     },
     (item) => ({
       ...item,
@@ -1186,12 +1187,14 @@
     await resetScheduleConfig(record);
     showScheduleModal.value = true;
   }
+
   async function deleteScenarioSchedule(scenarioId: string) {
     try {
       await deleteScheduleConfig(scenarioId);
       Message.success(t('common.deleteSuccess'));
       loadScenarioList(false);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -1540,4 +1543,5 @@
       }
     }
   }
+  .ms-table--special-small();
 </style>

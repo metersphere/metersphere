@@ -29,6 +29,7 @@
       </template>
     </MsEditableTab>
     <environmentSelect
+      v-show="activeApiTab.id !== 'all'"
       ref="environmentSelectRef"
       v-model:current-env="activeApiTab.environmentId"
       :set-default-env="false"

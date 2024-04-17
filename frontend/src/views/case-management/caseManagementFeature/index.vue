@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <div class="flex items-center border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
+    <div class="flex items-center border-b border-[var(--color-text-n8)] p-[8px_24px]">
       <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" type="primary" @click="caseDetail">
         {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
@@ -11,10 +11,10 @@
         {{ t('caseManagement.featureCase.importXmind') }}
       </a-button> -->
     </div>
-    <div class="pageWrap relative h-[calc(100%-73px)]">
+    <div class="pageWrap relative h-[calc(100%-49px)]">
       <MsSplitBox>
         <template #first>
-          <div class="p-[24px] pb-0">
+          <div class="p-[8px_24px] pb-0">
             <div class="feature-case h-[100%]">
               <a-input-search
                 v-model:model-value="groupKeyword"
@@ -92,7 +92,7 @@
           </div>
         </template>
         <template #second>
-          <div class="p-[24px]">
+          <div class="p-[8px_24px]">
             <CaseTable
               ref="caseTableRef"
               :active-folder="activeFolder"

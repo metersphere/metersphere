@@ -13,7 +13,7 @@
     :size="props.size"
     class="bg-[rgb(var(--primary-1))] text-[rgb(var(--primary-6))]"
   >
-    <slot>{{ userStore.name?.substring(0, 4) }}</slot>
+    <slot>{{ props.word?.substring(0, 4) || userStore.name?.substring(0, 4) }}</slot>
   </a-avatar>
   <a-avatar v-else :image-url="avatar" :size="props.size"></a-avatar>
 </template>
@@ -29,6 +29,7 @@
     defineProps<{
       avatar?: 'default' | 'word' | string;
       size?: number;
+      word?: string; // 用于显示文字头像
     }>(),
     {
       avatar: 'default',

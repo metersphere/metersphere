@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-if="activeApiTab.id === 'all'" class="flex-1 pt-[16px]">
+    <div v-if="activeApiTab.id === 'all'" class="flex-1 pt-[8px]">
       <apiTable
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"

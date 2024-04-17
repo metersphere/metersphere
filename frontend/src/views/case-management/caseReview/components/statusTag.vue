@@ -1,5 +1,5 @@
 <template>
-  <a-tag :color="statusMap[props.status]?.color" :class="statusMap[props.status]?.class">
+  <a-tag :color="statusMap[props.status]?.color" :class="statusMap[props.status]?.class" :size="props.size">
     {{ t(statusMap[props.status]?.label) }}
   </a-tag>
 </template>
@@ -11,6 +11,7 @@
 
   const props = defineProps<{
     status: ReviewStatus;
+    size?: 'small' | 'medium' | 'large';
   }>();
   const { t } = useI18n();
 

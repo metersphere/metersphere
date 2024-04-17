@@ -89,7 +89,10 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <div class="text-[var(--color-text-1)]">{{ t('apiTestDebug.matchResult') }}</div>
-          <a-tooltip :content-style="{ maxWidth: '500px' }">
+          <a-tooltip
+            v-if="expressionForm.extractType === RequestExtractExpressionEnum.REGEX"
+            :content-style="{ maxWidth: '500px' }"
+          >
             <icon-question-circle
               class="ml-[4px] cursor-pointer text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
               size="16"

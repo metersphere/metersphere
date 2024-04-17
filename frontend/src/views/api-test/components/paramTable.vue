@@ -842,7 +842,7 @@
           return item;
         });
         const lastTwoIsSame =
-          arr.length === 1 ||
+          (arr.length === 1 && !hasNoIdItem) ||
           (arr.length >= 2 && filterKeyValParams([arr[arr.length - 2]], arr[arr.length - 1]).lastDataIsDefault);
         if (
           hasNoIdItem &&
