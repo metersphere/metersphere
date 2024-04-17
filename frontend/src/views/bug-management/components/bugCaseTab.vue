@@ -78,6 +78,7 @@
       :case-id="props.bugId"
       :associated-ids="associatedIds"
       :type="RequestModuleEnum.BUG_MANAGEMENT"
+      :is-hidden-case-level="true"
       @close="emit('close')"
       @save="saveHandler"
     >

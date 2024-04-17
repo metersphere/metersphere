@@ -64,6 +64,7 @@
       :case-id="props.caseId"
       :associated-ids="associatedIds"
       :type="RequestModuleEnum.API_CASE"
+      :is-hidden-case-level="true"
       @close="emit('close')"
       @save="saveHandler"
     >

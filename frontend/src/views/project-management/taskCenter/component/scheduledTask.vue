@@ -488,7 +488,7 @@
   function batchEnableTask() {
     openModal({
       type: 'warning',
-      title: t('project.taskCenter.batchEnableTask', { num: batchParams.value.selectIds.length }),
+      title: t('project.taskCenter.batchEnableTask', { num: batchParams.value.currentSelectCount }),
       content: t('project.taskCenter.batchEnableTaskContent'),
       okText: t('project.taskCenter.confirmEnable'),
       cancelText: t('common.cancel'),
@@ -499,8 +499,8 @@
         try {
           const { selectIds, selectAll, excludeIds } = batchParams.value;
           await loadRealMap.value[props.group].batchEnable({
-            selectIds: selectAll ? [] : selectIds,
-            selectAll,
+            selectIds: selectIds || [],
+            selectAll: !!selectAll,
             scheduleTagType: props.moduleType,
             excludeIds,
             condition: {
@@ -526,7 +526,7 @@
   function batchDisableTask() {
     openModal({
       type: 'warning',
-      title: t('project.taskCenter.batchDisableTask', { num: batchParams.value.selectIds.length }),
+      title: t('project.taskCenter.batchDisableTask', { num: batchParams.value.currentSelectCount }),
       content: t('project.taskCenter.batchDisableTaskContent'),
       okText: t('project.taskCenter.confirmDisable'),
       cancelText: t('common.cancel'),
@@ -535,10 +535,11 @@
       },
       onBeforeOk: async () => {
         try {
-          const { selectIds, selectAll } = batchParams.value;
+          const { selectIds, selectAll, excludeIds } = batchParams.value;
           await loadRealMap.value[props.group].batchDisable({
-            selectIds: selectAll ? [] : selectIds,
-            selectAll,
+            selectIds: selectIds || [],
+            selectAll: !!selectAll,
+            excludeIds: excludeIds || [],
             scheduleTagType: props.moduleType,
             condition: {
               keyword: keyword.value,

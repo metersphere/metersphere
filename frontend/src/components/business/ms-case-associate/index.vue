@@ -113,7 +113,7 @@
             </a-tooltip>
           </template>
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="getCaseLevel(record)" />
+            <caseLevel v-if="getCaseLevel(record)" :case-level="getCaseLevel(record)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -175,24 +175,30 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const props = defineProps<{
-    visible: boolean;
-    projectId?: string; // 项目id
-    caseId?: string; // 用例id  用例评审那边不需要传递
-    getModulesFunc: (params: TableQueryParams) => Promise<ModuleTreeNode[]>; // 获取模块树请求
-    modulesParams?: Record<string, any>; // 获取模块树请求
-    getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
-    tableParams?: TableQueryParams; // 查询表格的额外的参数
-    okButtonDisabled?: boolean; // 确认按钮是否禁用
-    currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
-    moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
-    confirmLoading: boolean;
-    associatedIds: string[]; // 已关联用例id集合用于去重已关联
-    hasNotAssociatedIds?: string[];
-    type: RequestModuleEnum[keyof RequestModuleEnum];
-    moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
-    hideProjectSelect?: boolean; // 是否隐藏项目选择
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      visible: boolean;
+      projectId?: string; // 项目id
+      caseId?: string; // 用例id  用例评审那边不需要传递
+      getModulesFunc: (params: TableQueryParams) => Promise<ModuleTreeNode[]>; // 获取模块树请求
+      modulesParams?: Record<string, any>; // 获取模块树请求
+      getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
+      tableParams?: TableQueryParams; // 查询表格的额外的参数
+      okButtonDisabled?: boolean; // 确认按钮是否禁用
+      currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
+      moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
+      confirmLoading: boolean;
+      associatedIds: string[]; // 已关联用例id集合用于去重已关联
+      hasNotAssociatedIds?: string[];
+      type: RequestModuleEnum[keyof RequestModuleEnum];
+      moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
+      hideProjectSelect?: boolean; // 是否隐藏项目选择
+      isHiddenCaseLevel?: boolean;
+    }>(),
+    {
+      isHiddenCaseLevel: false,
+    }
+  );
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
@@ -318,6 +324,20 @@
   const keyword = ref('');
   const version = ref('');
 
+  function getCaseLevelColumn() {
+    if (!props.isHiddenCaseLevel) {
+      return [
+        {
+          title: 'ms.case.associate.caseLevel',
+          dataIndex: 'caseLevel',
+          slotName: 'caseLevel',
+          width: 90,
+        },
+      ];
+    }
+    return [];
+  }
+
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -342,18 +362,17 @@
       showTooltip: true,
       width: 250,
     },
-    {
-      title: 'ms.case.associate.caseLevel',
-      dataIndex: 'caseLevel',
-      slotName: 'caseLevel',
-      width: 90,
-    },
+    ...getCaseLevelColumn(),
     {
       title: 'ms.case.associate.tags',
       dataIndex: 'tags',
       isTag: true,
     },
   ];
+
+  watchEffect(() => {
+    getCaseLevelColumn();
+  });
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setTableSelected } = useTable(
     props.getTableFunc,
@@ -379,8 +398,13 @@
   );
 
   // 用例等级
+  // TODO: 这个版本用例和接口以及场景不存在用例等级 不展示等级内容
   function getCaseLevel(record: CaseManagementTable) {
-    return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
+    if (record.customFields && record.customFields.length) {
+      const caseItem = record.customFields.find((item: any) => item.fieldName === '用例等级' && item.internal);
+      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue).text;
+    }
+    return undefined;
   }
 
   const searchParams = ref<TableQueryParams>({
