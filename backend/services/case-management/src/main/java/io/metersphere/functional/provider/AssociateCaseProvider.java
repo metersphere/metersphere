@@ -1,5 +1,6 @@
 package io.metersphere.functional.provider;
 
+import io.metersphere.dto.BaseCaseCustomFieldDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
@@ -7,16 +8,14 @@ import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.BeanUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AssociateCaseProvider implements BaseAssociateCaseProvider {
@@ -33,11 +32,16 @@ public class AssociateCaseProvider implements BaseAssociateCaseProvider {
             return new ArrayList<>();
         }
         List<String> ids = functionalCases.stream().map(TestCaseProviderDTO::getId).toList();
-        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids,testCasePageProviderRequest.getProjectId());
+        Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids, testCasePageProviderRequest.getProjectId());
         functionalCases.forEach(functionalCase -> {
             List<FunctionalCaseCustomFieldDTO> customFields = caseCustomFiledMap.get(functionalCase.getId());
-            Optional<FunctionalCaseCustomFieldDTO> priorityField = customFields.stream().filter(field -> StringUtils.equals(Translator.get("custom_field.functional_priority"), field.getFieldName())).findFirst();
-			priorityField.ifPresent(functionalCaseCustomFieldDTO -> functionalCase.setPriority(functionalCaseCustomFieldDTO.getDefaultValue()));
+            List<BaseCaseCustomFieldDTO> baseCaseCustomFieldDTOS = new ArrayList<>();
+            for (FunctionalCaseCustomFieldDTO customField : customFields) {
+                BaseCaseCustomFieldDTO baseCaseCustomFieldDTO = new BaseCaseCustomFieldDTO();
+                BeanUtils.copyBean(baseCaseCustomFieldDTO, customField);
+                baseCaseCustomFieldDTOS.add(baseCaseCustomFieldDTO);
+            }
+            functionalCase.setCustomFields(baseCaseCustomFieldDTOS);
         });
         return functionalCases;
     }
