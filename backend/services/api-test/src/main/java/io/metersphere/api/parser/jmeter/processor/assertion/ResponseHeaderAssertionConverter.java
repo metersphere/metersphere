@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.regex.Pattern;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-12-27  21:01
@@ -50,14 +52,25 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String condition = msAssertion.getCondition();
         MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
         String header = msAssertion.getHeader();
-        String testString = switch (msAssertionCondition) {
-            case CONTAINS -> StringUtils.join("\\b", header,": .*", expectedValue, ".*\\b");
-            case NOT_CONTAINS -> StringUtils.join("\\b", header,": (?!.*", expectedValue, ").*\\b");
-            case EQUALS -> StringUtils.join("\\b", header,": ",expectedValue, "\\b");
-            case NOT_EQUALS -> StringUtils.join("\\b", header,": (?!", expectedValue,"\\b)\\d+");
-            default -> expectedValue;
+        String regexTemplate = switch (msAssertionCondition) {
+            case NOT_CONTAINS, CONTAINS -> "((?:[\\r\\n]%key|^%key):.*%value)";
+            case EQUALS, NOT_EQUALS -> "((?:[\\r\\n]%key|^%key):\\s*(?:%value[\\r\\n]|%value$))";
+            default -> null;
         };
-        assertion.setName(String.format("Response header %s %s %s", header, condition.toLowerCase().replace("_", ""), expectedValue));
+
+        String testString = expectedValue;
+        if (StringUtils.isNotEmpty(regexTemplate)) {
+            testString = regexTemplate
+                    .replace("%key", Pattern.quote(header))
+                    .replace("%value", Pattern.quote(expectedValue));
+        }
+
+        if (StringUtils.startsWith(msAssertionCondition.name(), "NOT")) {
+            // 如果是 not 则结果取反
+            assertion.setToNotType();
+        }
+
+        assertion.setName(String.format("Response header %s %s %s", header, condition.toLowerCase().replace("_", " "), expectedValue));
         assertion.addTestString(testString);
         assertion.setToContainsType();
 
