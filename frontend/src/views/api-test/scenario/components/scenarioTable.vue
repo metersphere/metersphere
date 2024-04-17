@@ -28,6 +28,7 @@
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
+      @drag-change="changeHandler"
       @module-change="loadScenarioList(false)"
     >
       <template #statusFilter="{ columnConfig }">
@@ -622,6 +623,7 @@
     batchRecycleScenario,
     batchRunScenario,
     deleteScheduleConfig,
+    dragSort,
     getScenarioPage,
     recycleScenario,
     scenarioScheduleConfig,
@@ -638,6 +640,7 @@
 
   import { Environment } from '@/models/apiTest/management';
   import { ApiScenarioScheduleConfig, ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
+  import { DragSortParams } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
@@ -1487,6 +1490,17 @@
     columns = columns.filter(
       (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
     );
+  }
+
+  // 拖拽排序
+  async function changeHandler(params: DragSortParams) {
+    try {
+      await dragSort(params);
+      Message.success(t('caseManagement.featureCase.sortSuccess'));
+      loadScenarioList();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   onBeforeMount(() => {

@@ -27,7 +27,8 @@ export const BatchEditScenarioUrl = '/api/scenario/batch-operation/edit'; // 批
 export const BatchRunScenarioUrl = '/api/scenario/batch-operation/run'; // 批量执行接口场景
 export const UpdateScenarioPriorityUrl = '/api/scenario/update-priority'; // 场景更新等级
 export const UpdateScenarioStatusUrl = '/api/scenario/update-status'; // 场景更新状态
-
+// 场景拖拽排序
+export const dragSortUrl = '/api/scenario/edit/pos';
 //  回收站相关
 export const GetTrashModuleTreeUrl = '/api/scenario/module/trash/tree';
 export const GetTrashModuleCountUrl = '/api/scenario/module/trash/count';
