@@ -109,11 +109,15 @@
           (item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
           (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier)
         ) {
+          let tempArray: ScenarioItemType[] = [];
+          if (!isStepChildren && item.children && item.children.length) {
+            tempArray = search(item.children);
+          }
           const resItem = {
             ...item,
             expanded: false,
             stepChildren: isStepChildren ? cloneDeep(item.children) : [],
-            children: isStepChildren ? [] : item.children,
+            children: tempArray,
           };
           result.push(resItem);
         } else if (item.children && splitLevel[0] === ScenarioStepType.CUSTOM_REQUEST) {
