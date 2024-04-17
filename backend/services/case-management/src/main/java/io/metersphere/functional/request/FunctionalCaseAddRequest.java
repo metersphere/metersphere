@@ -78,5 +78,6 @@ public class FunctionalCaseAddRequest implements Serializable {
     @Schema(description = "附件信息")
     private List<FunctionalCaseAttachmentDTO> attachments;
 
-
+    @Schema(description = "执行结果")
+    private String lastExecuteResult;
 }

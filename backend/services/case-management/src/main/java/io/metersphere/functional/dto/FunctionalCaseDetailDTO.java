@@ -118,4 +118,7 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "变更历史数量")
     private Integer historyCount;
+
+    @Schema(description = "执行结果")
+    private String lastExecuteResult;
 }
