@@ -57,13 +57,18 @@
       <li>
         <a-tooltip :content="t('settings.navbar.alerts')">
           <div class="message-box-trigger">
-            <a-badge :count="9" dot>
+            <a-badge v-if="unReadCount > 0" :count="9" dot>
               <a-button type="secondary" @click="goMessageCenter">
                 <template #icon>
                   <icon-notification />
                 </template>
               </a-button>
             </a-badge>
+            <a-button v-else type="secondary" @click="goMessageCenter">
+              <template #icon>
+                <icon-notification />
+              </template>
+            </a-button>
           </div>
         </a-tooltip>
         <a-popover
@@ -155,6 +160,7 @@
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import TaskCenterModal from './taskCenterModal.vue';
 
+  import { getMessageUnReadCount } from '@/api/modules/message';
   import { switchProject } from '@/api/modules/project-management/project';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
@@ -179,10 +185,25 @@
   const router = useRouter();
   const { t } = useI18n();
 
+  const unReadCount = ref<number>(0);
+
+  async function checkMessageRead() {
+    unReadCount.value = await getMessageUnReadCount(appStore.currentProjectId);
+  }
   watch(
     () => appStore.currentOrgId,
     async () => {
       appStore.initProjectList();
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => appStore.getCurrentTopMenu?.name,
+    (val) => {
+      checkMessageRead();
     },
     {
       immediate: true,

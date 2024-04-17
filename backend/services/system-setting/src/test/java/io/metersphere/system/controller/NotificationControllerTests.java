@@ -39,6 +39,7 @@ public class NotificationControllerTests extends BaseTest {
     public static final String NOTIFICATION_READ = "/notification/read/";
     public static final String NOTIFICATION_READ_ALL = "/notification/read/all";
     public static final String NOTIFICATION_COUNT = "/notification/count";
+    public static final String NOTIFICATION_UN_READ = "/notification/un-read";
 
     @Resource
     protected NotificationMapper notificationMapper;
@@ -124,6 +125,16 @@ public class NotificationControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(updateReturnData, ResultHolder.class);
         List<OptionDTO> optionDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertFalse(optionDTOS.isEmpty());
+    }
+
+    @Test
+    @Order(5)
+    void getUnReadNotificationCount() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(NOTIFICATION_UN_READ+"/10000100001");
+        String updateReturnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(updateReturnData, ResultHolder.class);
+        Integer i = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Integer.class);
+        Assertions.assertNotNull(i);
     }
 
 

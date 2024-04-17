@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.NotificationRequest;
 import io.metersphere.system.log.dto.NotificationDTO;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.NotificationService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -43,6 +44,13 @@ public class NotificationController {
     @Operation(summary = "消息中心-将消息中心所有信息设置为已读消息")
     public Integer readAll(@RequestParam(value = "resourceType", required = false) String resourceType) {
         return notificationService.readAll(resourceType, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/un-read/{projectId}")
+    @Operation(summary = "消息中心-获取未读的消息")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public Integer getUnRead(@PathVariable(value = "projectId") String projectId) {
+        return notificationService.getUnRead(projectId);
     }
 
     @PostMapping(value = "/count")
