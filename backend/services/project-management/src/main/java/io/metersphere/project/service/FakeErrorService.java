@@ -201,7 +201,7 @@ public class FakeErrorService {
                 fakeError.getId(),
                 userId,
                 OperationLogType.ADD.name(),
-                OperationLogModule.PROJECT_PROJECT_MANAGER,
+                OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE_ERROR,
                 fakeError.getName());
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setPath("/fake/error/add");
@@ -225,7 +225,7 @@ public class FakeErrorService {
                 fakeError.getId(),
                 userId,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.PROJECT_PROJECT_MANAGER,
+                OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE_ERROR,
                 fakeError.getName());
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setPath("/fake/error/update");
@@ -258,7 +258,7 @@ public class FakeErrorService {
                     fakeError.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_PROJECT_MANAGER,
+                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE_ERROR,
                     fakeError.getName());
             dto.setOriginalValue(JSON.toJSONBytes(fakeError));
             logs.add(dto);
@@ -319,7 +319,7 @@ public class FakeErrorService {
                     fakeError.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_PROJECT_MANAGER,
+                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE_ERROR,
                     fakeError.getName());
             dto.setOriginalValue(JSON.toJSONBytes(fakeError));
             logs.add(dto);

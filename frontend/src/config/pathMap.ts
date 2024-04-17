@@ -523,6 +523,15 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
             permission: [],
             level: MENU_LEVEL[2],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT_FAKE', // 项目管理-项目与权限-菜单管理-误报
+                locale: 'menu.projectManagement.fakeError',
+                route: RouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE,
+                permission: [],
+                level: MENU_LEVEL[2],
+              },
+            ],
           },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
