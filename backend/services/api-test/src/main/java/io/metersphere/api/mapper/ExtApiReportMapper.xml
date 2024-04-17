@@ -149,7 +149,7 @@
                             </foreach>
                         </when>
                         <when test="key=='organizationIds'">
-                            and project.organization_id in
+                            and api_report.organization_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -171,6 +171,7 @@
         ar.create_user AS operationName,
         ar.trigger_mode,
         ar.start_time,
+        project.organization_id,
 
         CASE
         WHEN ar.integrated = 0 THEN

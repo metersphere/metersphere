@@ -151,6 +151,7 @@
         asr.trigger_mode,
         asr.script_identifier,
         asr.start_time,
+        project.organization_id,
 
         CASE
         WHEN asr.integrated = 0 THEN
@@ -293,7 +294,7 @@
                             </foreach>
                         </when>
                         <when test="key=='organizationIds'">
-                            and project.organization_id in
+                            and api_scenario_report.organization_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
