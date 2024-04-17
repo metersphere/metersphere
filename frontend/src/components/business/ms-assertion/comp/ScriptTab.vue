@@ -1,5 +1,5 @@
 <template>
-  <conditionContent v-model:data="condition" :disabled="props.disabled" @delete="deleteItem" />
+  <conditionContent v-model:data="condition" :disabled="props.disabled" @delete="deleteItem" @copy="emit('copy')" />
 </template>
 
 <script lang="ts" setup>
@@ -26,6 +26,7 @@
     (e: 'change', val: ScriptItem): void; //  数据发生变化
     (e: 'update:data'): void; //  数据发生变化
     (e: 'deleteScriptItem', id: string | number): void; //  删除脚本
+    (e: 'copy'): void;
   }>();
 
   const condition = useVModel(props, 'data', emit);

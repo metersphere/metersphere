@@ -133,6 +133,7 @@
           :disabled="props.disabled"
           @change="handleChange"
           @delete-script-item="deleteScriptItem"
+          @copy="copyItem"
         />
       </div>
     </div>
@@ -410,6 +411,12 @@
   const handleItemClick = (item: MsAssertionItem) => {
     activeKey.value = item.id;
   };
+
+  function copyItem() {
+    const tmpObj = { ...cloneDeep(getCurrentItemState.value), id: new Date().getTime().valueOf().toString() };
+    assertions.value.push(tmpObj);
+    activeKey.value = tmpObj.id;
+  }
 
   const handleChange = (val: any) => {
     switch (val.assertionType) {
