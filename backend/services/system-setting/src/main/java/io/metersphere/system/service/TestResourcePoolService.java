@@ -240,7 +240,7 @@ public class TestResourcePoolService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     pool.getId(),
-                    pool.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
                     request.getName());
