@@ -38,7 +38,10 @@
   const keyword = ref('');
   const quoteLocaleMap = {
     COPY: 'common.copy',
-    QUOTE: 'apiTestManagement.quote',
+    REF: 'apiTestManagement.quote',
+  };
+  const resourceLocaleMap = {
+    API: 'case.detail.resource.api',
   };
 
   const columns: MsTableColumn = [
@@ -87,12 +90,14 @@
     },
     (item) => ({
       ...item,
-      type: t(quoteLocaleMap[item.type] || ''),
+      refType: t(quoteLocaleMap[item.refType] || ''),
+      resourceType: t(resourceLocaleMap[item.resourceType] || ''),
     })
   );
 
   function loadQuoteList() {
     setLoadListParams({
+      keyword: keyword.value,
       resourceId: props.sourceId,
     });
     loadList();
