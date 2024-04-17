@@ -127,7 +127,7 @@
                     :is-platform-default-template="isPlatformDefaultTemplate"
                     :platform-system-fields="platformSystemFields"
                     :current-platform="props.currentPlatform"
-                    @update-success="updateSuccess"
+                    @update-success="detailDrawerRef?.initDetail()"
                   />
 
                   <BugCaseTab
@@ -442,7 +442,6 @@
   const editLoading = ref<boolean>(false);
 
   function updateSuccess() {
-    rightLoading.value = false;
     emit('submit');
   }
 
@@ -785,4 +784,8 @@
   //  width: 100%;
   //  word-wrap: break-word;
   //}
+
+  :deep(.arco-form-item-content) {
+    overflow-wrap: anywhere;
+  }
 </style>

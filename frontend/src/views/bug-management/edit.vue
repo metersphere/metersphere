@@ -828,4 +828,8 @@
     font-size: 14px;
     color: var(--color-text-4);
   }
+
+  :deep(.arco-form-item-content) {
+    overflow-wrap: anywhere;
+  }
 </style>

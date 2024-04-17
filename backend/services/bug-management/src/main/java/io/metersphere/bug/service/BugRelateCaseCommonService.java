@@ -68,7 +68,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      */
     public List<BaseTreeNode> getRelateCaseTree(AssociateCaseModuleRequest request) {
         // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
-        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request, false);
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request);
         // 构建模块树层级数量为通用逻辑
         return super.buildTreeAndCountResource(relateCaseModules, true, Translator.get("api_unplanned_request"));
     }
@@ -85,7 +85,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false);
         AssociateCaseModuleRequest moduleRequest = new AssociateCaseModuleRequest();
         BeanUtils.copyBean(moduleRequest, request);
-        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(moduleRequest, false);
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(moduleRequest);
         List<BaseTreeNode> relateCaseModuleWithCount = buildTreeAndCountResource(relateCaseModules, moduleCounts, true, Translator.get("api_unplanned_request"));
         Map<String, Long> moduleCountMap = getIdCountMapByBreadth(relateCaseModuleWithCount);
         long total = getAllCount(moduleCounts);

@@ -21,10 +21,9 @@ public interface ExtBugRelateCaseMapper {
     /**
      * 获取缺陷关联的用例模块树
      * @param request 请求参数
-     * @param deleted 是否删除状态
      * @return 模块树集合
      */
-    List<BaseTreeNode> getRelateCaseModule(@Param("request") AssociateCaseModuleRequest request, @Param("deleted") boolean deleted);
+    List<BaseTreeNode> getRelateCaseModule(@Param("request") AssociateCaseModuleRequest request);
 
     /**
      * 获取缺陷关联的用例模块树数量

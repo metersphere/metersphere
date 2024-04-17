@@ -180,7 +180,7 @@
       tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
       showSetting: false,
       selectable: true,
-      showSelectAll: true,
+      showSelectorAll: false,
       heightUsed: 300,
       selectorType: props.selectorType || 'checkbox',
     },
