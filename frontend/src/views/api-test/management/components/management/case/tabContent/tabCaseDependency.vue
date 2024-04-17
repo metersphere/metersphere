@@ -13,8 +13,8 @@
     </div>
 
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #id="{ record }">
-        <MsButton type="text">{{ record.id }}</MsButton>
+      <template #num="{ record }">
+        <MsButton type="text" @click="toScenario(record.id)">{{ record.num }}</MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -28,12 +28,16 @@
 
   import { getApiCaseDependency } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
+
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     sourceId: string | number;
   }>();
 
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const keyword = ref('');
   const quoteLocaleMap = {
@@ -112,6 +116,12 @@
     loadList();
   }
 
+  function toScenario(id: string) {
+    openNewPage(RouteEnum.API_TEST_SCENARIO, {
+      id,
+    });
+  }
+
   onBeforeMount(() => {
     loadQuoteList();
   });
@@ -125,9 +135,9 @@
   }
   .history-table-before {
     display: flex;
-    flex-direction: row;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding-bottom: 16px;
+    flex-direction: row;
   }
 </style>
