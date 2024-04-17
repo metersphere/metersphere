@@ -4,6 +4,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
@@ -26,6 +27,8 @@ public class ApiScheduleNoticeService {
     private NoticeSendService noticeSendService;
     @Resource
     private CommonNoticeSendService commonNoticeSendService;
+    @Resource
+    private UserMapper userMapper;
 
     public void sendScheduleNotice(Schedule schedule, String userId) {
         if (ObjectUtils.isNotEmpty(schedule)) {
@@ -36,6 +39,8 @@ public class ApiScheduleNoticeService {
             }
             BeanMap beanMap = new BeanMap(schedule);
             Map paramMap = new HashMap<>(beanMap);
+            User user = userMapper.selectByPrimaryKey(userId);
+            paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
             String template = defaultTemplateMap.get(NoticeConstants.TaskType.SCHEDULE_TASK + "_" + event);
             Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
             String subject = defaultSubjectMap.get(NoticeConstants.TaskType.SCHEDULE_TASK + "_" + event);
