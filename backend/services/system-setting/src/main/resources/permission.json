@@ -185,6 +185,10 @@
         "permissions": [
           {
             "id": "SYSTEM_TASK_CENTER:READ"
+          },
+          {
+            "id": "SYSTEM_TASK_CENTER:READ+STOP",
+            "name": "permission.organization_task_center.stop"
           }
         ]
       }

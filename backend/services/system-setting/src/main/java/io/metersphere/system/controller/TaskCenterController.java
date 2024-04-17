@@ -184,8 +184,8 @@ public class TaskCenterController {
         orgPermission.put(ScheduleTagType.API_IMPORT.toString(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_IMPORT));
         orgPermission.put(TaskCenterResourceType.API_SCENARIO.toString(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE));
         Map<String, List<String>> systemPermission = new HashMap<>(2);
-        systemPermission.put(ScheduleTagType.API_IMPORT.toString(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ, PermissionConstants.PROJECT_API_DEFINITION_IMPORT));
-        systemPermission.put(TaskCenterResourceType.API_SCENARIO.toString(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE));
+        systemPermission.put(ScheduleTagType.API_IMPORT.toString(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_IMPORT));
+        systemPermission.put(TaskCenterResourceType.API_SCENARIO.toString(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE));
 
         boolean hasPermission = switch (type) {
             case ORG ->
