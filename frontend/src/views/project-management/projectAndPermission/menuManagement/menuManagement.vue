@@ -45,12 +45,9 @@
       <template v-if="record.type === 'BUG_SYNC'">
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
-        <div
-          v-permission="['PROJECT_APPLICATION_BUG:UPDATE']"
-          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
-          @click="showDefectDrawer"
-          >{{ t('project.menu.BUG_SYNC') }}</div
-        >
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
+          t('project.menu.BUG_SYNC')
+        }}</div>
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
         <!-- 用例 公共用例库 -->
@@ -59,12 +56,9 @@
       <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
-        <div
-          v-permission="['PROJECT_APPLICATION_CASE:UPDATE']"
-          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
-          @click="showRelatedCaseDrawer"
-          >{{ t('project.menu.CASE_RELATED') }}</div
-        >
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showRelatedCaseDrawer">{{
+          t('project.menu.CASE_RELATED')
+        }}</div>
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
@@ -148,12 +142,9 @@
             </template>
           </a-input-number>
         </div>
-        <div
-          v-permission="['PROJECT_APPLICATION_API:UPDATE']"
-          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
-          @click="pushFar"
-          >{{ t('project.menu.API_ERROR_REPORT_RULE') }}</div
-        >
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
+          t('project.menu.API_ERROR_REPORT_RULE')
+        }}</div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
             <MsIcon
@@ -308,7 +299,7 @@
       <a-switch
         v-if="record.type === 'CASE_RELATED' && allValueMap['CASE_RELATED_CASE_ENABLE']"
         v-model="allValueMap['CASE_RELATED_CASE_ENABLE']"
-        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:UPDATE'])"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -681,6 +672,20 @@
     }
   };
 
+  async function expanded(record: TableData) {
+    expandedKeys.value = [...expandedKeys.value, record.module];
+    getMenuConfig(record.module);
+    if (record.module === MenuEnum.apiTest && !apiPoolOption.value.length) {
+      apiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
+    } else if (record.module === MenuEnum.uiTest && !uiPoolOption.value.length) {
+      uiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
+    } else if (record.module === MenuEnum.apiTest && !apiAuditorOption.value.length) {
+      apiAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
+    } else if (record.module === MenuEnum.loadTest && !performanceAuditorOption.value.length) {
+      performanceAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
+    }
+  }
+
   const expandChange = async (record: TableData) => {
     try {
       if (expandedKeys.value.includes(record.module)) {
@@ -688,16 +693,43 @@
         expandedKeys.value = expandedKeys.value.filter((item) => item !== record.module);
         return;
       }
-      expandedKeys.value = [...expandedKeys.value, record.module];
-      getMenuConfig(record.module);
-      if (record.module === MenuEnum.apiTest && !apiPoolOption.value.length) {
-        apiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
-      } else if (record.module === MenuEnum.uiTest && !uiPoolOption.value.length) {
-        uiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
-      } else if (record.module === MenuEnum.apiTest && !apiAuditorOption.value.length) {
-        apiAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
-      } else if (record.module === MenuEnum.loadTest && !performanceAuditorOption.value.length) {
-        performanceAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
+
+      switch (record.module) {
+        case MenuEnum.workstation:
+          if (hasAnyPermission(['PROJECT_APPLICATION_WORKSTATION:READ'])) {
+            await expanded(record);
+          }
+          break;
+        case MenuEnum.testPlan:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:READ'])) {
+            await expanded(record);
+          }
+          break;
+        case MenuEnum.bugManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_BUG:READ'])) {
+            await expanded(record);
+          }
+          break;
+        case MenuEnum.caseManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_CASE:READ'])) {
+            await expanded(record);
+          }
+          break;
+        case MenuEnum.apiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_API:READ'])) {
+            await expanded(record);
+          }
+          break;
+        case MenuEnum.uiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_UI:READ'])) {
+            await expanded(record);
+          }
+          break;
+        default:
+          if (hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ'])) {
+            await expanded(record);
+          }
+          break;
       }
     } catch (e) {
       // eslint-disable-next-line no-console
