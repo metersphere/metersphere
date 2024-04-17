@@ -46,6 +46,8 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
+import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -1189,7 +1191,11 @@ public class FunctionalCaseService {
             caseCustomField.setCaseId(caseId);
             caseCustomField.setFieldId(v.getFieldId());
             Optional.ofNullable(value).ifPresentOrElse(v1 -> {
-                setCustomFieldValue(v1.toString(), caseCustomField);
+                if((v1.toString().length()==2&&StringUtils.equals(v1.toString(),"[]"))||!StringUtils.isNotBlank(v1.toString())){
+                    setCustomFieldValue(v.getDefaultValue(), caseCustomField);
+                }else{
+                    setCustomFieldValue(v1, caseCustomField);
+                }
             }, () -> {
                 setCustomFieldValue(v.getDefaultValue(), caseCustomField);
             });
