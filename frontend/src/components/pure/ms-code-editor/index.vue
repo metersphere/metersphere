@@ -252,6 +252,10 @@
           }
         }
       }
+      // 获取编码方式对应内容
+      function getEncodingCode() {
+        return editor.getValue();
+      }
 
       const init = () => {
         // 注册自定义主题 TODO:自定义主题高亮色还没配置
@@ -351,6 +355,7 @@
         undo,
         redo,
         format,
+        getEncodingCode,
       };
     },
   });

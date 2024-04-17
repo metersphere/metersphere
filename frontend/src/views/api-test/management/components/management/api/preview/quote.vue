@@ -50,12 +50,20 @@
       dataIndex: 'num',
       slotName: 'num',
       width: 150,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'apiTestManagement.resourceName',
       dataIndex: 'resourceName',
       showTooltip: true,
       width: 150,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'apiTestManagement.resourceType',
@@ -87,6 +95,7 @@
       scroll: { x: '100%' },
       selectable: false,
       heightUsed: 374,
+      showJumpMethod: true,
     },
     (item) => ({
       ...item,

@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!innerExpand" class="w-[32%] min-w-[30%] max-w-[42%] bg-white p-3 pl-0">
-    <div class="mb-2 flex items-center justify-between">
+  <div v-if="!innerExpand" class="w-[32%] min-w-[260px] max-w-[42%] flex-1 bg-white p-3 pl-0">
+    <div class="mb-2 flex w-full items-center justify-between">
       <div class="flex items-center">
         <span v-if="innerExpand" class="collapsebtn mr-1 flex items-center justify-center" @click="expandedHandler">
           <icon-right class="text-[12px] text-[var(--color-text-4)]" />
@@ -8,22 +8,23 @@
         <span v-else class="expand mr-1 flex items-center justify-center" @click="expandedHandler">
           <icon-down class="text-[12px] text-[rgb(var(--primary-6))]" />
         </span>
-        <div class="font-medium">{{ t('project.commonScript.codeSnippet') }}</div>
+        <div class="one-line-text font-medium">{{ t('project.commonScript.codeSnippet') }}</div>
       </div>
 
-      <a-select
-        v-model="innerLanguageType"
-        :disabled="props.disabled"
-        class="max-w-[50%]"
-        :placeholder="t('project.commonScript.pleaseSelected')"
-        @change="changeHandler"
-      >
-        <a-option v-for="item of languages" :key="item.value" :value="item.value">
-          <a-tooltip :content="item.text">
-            {{ item.text }}
-          </a-tooltip>
-        </a-option>
-      </a-select>
+      <div class="ml-[24px] flex-1">
+        <a-select
+          v-model="innerLanguageType"
+          :disabled="props.disabled"
+          :placeholder="t('project.commonScript.pleaseSelected')"
+          @change="changeHandler"
+        >
+          <a-option v-for="item of languages" :key="item.value" :value="item.value">
+            <a-tooltip :content="item.text">
+              {{ item.text }}
+            </a-tooltip>
+          </a-option>
+        </a-select>
+      </div>
     </div>
     <div class="p-[12px] pt-0">
       <div v-for="item of SCRIPT_MENU" :key="item.value" class="menuItem px-1" @click="handleClick(item)">

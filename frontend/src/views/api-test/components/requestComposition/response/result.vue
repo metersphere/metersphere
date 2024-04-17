@@ -4,7 +4,12 @@
       <a-tab-pane v-for="item of responseCompositionTabList" :key="item.value" :title="item.label" />
     </a-tabs>
     <div class="response-container">
-      <ResBody v-if="activeTab === ResponseComposition.BODY" :request-result="props.requestResult" @copy="copyScript" />
+      <ResBody
+        v-if="activeTab === ResponseComposition.BODY"
+        ref="resBodyRef"
+        :request-result="props.requestResult"
+        @copy="copyScript"
+      />
       <ResConsole v-else-if="activeTab === ResponseComposition.CONSOLE" :console="props.console?.trim()" />
       <ResValueScript
         v-else-if="
@@ -116,10 +121,11 @@
   });
 
   const { copy, isSupported } = useClipboard({ legacy: true });
-
+  const resBodyRef = ref();
   function copyScript() {
+    const encodingFormatValue = resBodyRef.value.responseEditorRef.getEncodingCode();
     if (isSupported) {
-      copy(props.requestResult?.responseResult.body || '');
+      copy(encodingFormatValue || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));

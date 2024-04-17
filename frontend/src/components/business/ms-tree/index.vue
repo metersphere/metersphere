@@ -405,7 +405,7 @@
     @apply h-full;
     .ms-tree {
       .ms-scroll-bar();
-      @apply h-full;
+      @apply h-full overflow-auto;
       .arco-tree-node {
         border-radius: var(--border-radius-small);
         &:hover {
@@ -417,6 +417,9 @@
                 width: calc(100% - 22px);
               }
             }
+          }
+          .ms-tree-node-count {
+            @apply hidden;
           }
           .ms-tree-node-extra {
             @apply visible w-auto;

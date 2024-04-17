@@ -445,25 +445,32 @@
     emit('submit');
   }
 
+  const tabList = [
+    {
+      value: 'detail',
+      label: t('bugManagement.detail.detail'),
+    },
+    {
+      value: 'case',
+      label: t('bugManagement.detail.case'),
+    },
+    {
+      value: 'comment',
+      label: t('bugManagement.detail.comment'),
+    },
+    {
+      value: 'history',
+      label: t('bugManagement.detail.changeHistory'),
+    },
+  ];
+
+  /**
+   * 如果模块没有开启用例管理
+   */
   const contentTabList = computed(() => {
-    return [
-      {
-        value: 'detail',
-        label: t('bugManagement.detail.detail'),
-      },
-      {
-        value: 'case',
-        label: t('bugManagement.detail.case'),
-      },
-      {
-        value: 'comment',
-        label: t('bugManagement.detail.comment'),
-      },
-      {
-        value: 'history',
-        label: t('bugManagement.detail.changeHistory'),
-      },
-    ];
+    return appStore.currentMenuConfig.includes('caseManagement')
+      ? tabList
+      : tabList.filter((item) => item.value !== 'case');
   });
 
   function updateHandler() {
@@ -784,7 +791,6 @@
   //  width: 100%;
   //  word-wrap: break-word;
   //}
-
   :deep(.arco-form-item-content) {
     overflow-wrap: anywhere;
   }

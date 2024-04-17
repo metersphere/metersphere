@@ -265,6 +265,12 @@
   function goMessageCenter() {
     messageCenterVisible.value = true;
   }
+
+  onMounted(() => {
+    if (route.query.task) {
+      goTaskCenter();
+    }
+  });
 </script>
 
 <style scoped lang="less">
