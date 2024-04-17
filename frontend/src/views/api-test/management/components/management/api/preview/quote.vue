@@ -9,16 +9,14 @@
       @press-enter="loadQuoteList"
     />
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #id="{ record }">
-        <MsButton type="text" @click="gotoResource(record)">{{ record.id }}</MsButton>
+      <template #num="{ record }">
+        <MsButton type="text" @click="toScenario(record.id)">{{ record.num }}</MsButton>
       </template>
     </ms-base-table>
   </div>
 </template>
 
 <script setup lang="ts">
-  // import { useRouter } from 'vue-router';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -26,15 +24,16 @@
 
   import { getDefinitionReference } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
+
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     sourceId: string | number;
   }>();
 
-  // const router = useRouter();
-  const appStore = useAppStore();
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const keyword = ref('');
   const quoteLocaleMap = {
@@ -99,13 +98,10 @@
     loadList();
   }
 
-  function gotoResource(record: any) {
-    // router.push({
-    //   name: 'apiTestManagementApiPreview',
-    //   query: {
-    //     id: record.id,
-    //   },
-    // });
+  function toScenario(id: string) {
+    openNewPage(RouteEnum.API_TEST_SCENARIO, {
+      id,
+    });
   }
 
   onBeforeMount(() => {
