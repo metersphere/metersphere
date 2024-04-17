@@ -6,7 +6,7 @@
         :is-definition="false"
         sql-code-editor-height="300px"
         is-scenario
-        @change="emit('change')"
+        @change="emit('change', true)"
       />
     </div>
     <a-divider class="my-[8px]" type="dashed" />
@@ -17,7 +17,7 @@
         :layout="activeLayout"
         sql-code-editor-height="300px"
         is-scenario
-        @change="emit('change')"
+        @change="emit('change', false)"
       />
     </div>
   </div>
@@ -30,7 +30,7 @@
   import { ExecuteConditionConfig } from '@/models/apiTest/common';
 
   const emit = defineEmits<{
-    (e: 'change');
+    (e: 'change', isChangePre: boolean): void;
   }>();
 
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
