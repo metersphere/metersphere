@@ -46,4 +46,7 @@ public class TestCaseProviderDTO {
     @Schema(description = "版本名称")
     private String versionName;
 
+    @Schema(description = "自定义字段集合")
+    private List<BaseCaseCustomFieldDTO> customFields;
+
 }
