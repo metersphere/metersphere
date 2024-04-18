@@ -594,6 +594,9 @@
       projectId: innerProject.value,
       sourceId: props.caseId,
       totalCount: propsRes.value.msPagination?.total,
+      condition: {
+        keyword: keyword.value,
+      },
     };
 
     emit('save', params);

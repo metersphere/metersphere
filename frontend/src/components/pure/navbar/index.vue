@@ -93,7 +93,7 @@
         </a-tooltip>
       </li>
       <li>
-        <a-dropdown trigger="click" position="br">
+        <a-dropdown trigger="click" position="br" @select="handleHelpSelect">
           <a-tooltip :content="t('settings.navbar.help')">
             <a-button type="secondary">
               <template #icon>
@@ -102,7 +102,7 @@
             </a-button>
           </a-tooltip>
           <template #content>
-            <a-doption value="doc">
+            <a-doption v-if="appStore.pageConfig.helpDoc" value="doc">
               <component :is="IconQuestionCircle"></component>
               {{ t('settings.help.doc') }}
             </a-doption>
@@ -184,7 +184,6 @@
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
-
   const unReadCount = ref<number>(0);
 
   async function checkMessageRead() {
@@ -213,7 +212,8 @@
   const showProjectSelect = computed(() => {
     const { getRouteLevelByKey } = usePathMap();
     // 非项目级别页面不需要展示项目选择器
-    return getRouteLevelByKey(route.name as PathMapRoute) === MENU_LEVEL[2];
+    const level = getRouteLevelByKey(route.name as PathMapRoute);
+    return level === MENU_LEVEL[2] || level === null;
   });
 
   async function selectProject(
@@ -264,6 +264,12 @@
   }
   function goMessageCenter() {
     messageCenterVisible.value = true;
+  }
+
+  function handleHelpSelect(val: string | number | Record<string, any> | undefined) {
+    if (val === 'doc') {
+      window.open(appStore.pageConfig.helpDoc, '_blank');
+    }
   }
 
   onMounted(() => {

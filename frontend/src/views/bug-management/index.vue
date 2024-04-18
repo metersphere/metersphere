@@ -31,7 +31,12 @@
       >
         <!-- ID -->
         <template #num="{ record, rowIndex }">
-          <a-button type="text" class="px-0" size="mini" @click="handleShowDetail(record.id, rowIndex)">
+          <a-button
+            type="text"
+            class="px-0 text-[14px] leading-[22px]"
+            size="mini"
+            @click="handleShowDetail(record.id, rowIndex)"
+          >
             {{ record.num }}
           </a-button>
         </template>

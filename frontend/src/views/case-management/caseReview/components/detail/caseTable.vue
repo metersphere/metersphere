@@ -1,6 +1,6 @@
 <template>
-  <div class="px-[24px] py-[16px]">
-    <div class="mb-[16px] flex flex-wrap items-center justify-end">
+  <div class="px-[24px] py-[8px]">
+    <div class="mb-[8px] flex flex-wrap items-center justify-end">
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
@@ -73,7 +73,7 @@
       </template>
       <template #num="{ record }">
         <a-tooltip :content="record.num">
-          <a-button type="text" class="px-0" @click="review(record)">
+          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" size="mini" @click="review(record)">
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
@@ -434,10 +434,11 @@
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
-      heightUsed: 472,
+      heightUsed: 372,
       showSetting: true,
       selectable: true,
       showSelectAll: true,
+      paginationSize: 'mini',
       draggable: { type: 'handle', width: 32 },
     },
     (record) => {
@@ -628,6 +629,7 @@
             userId: props.onlyMine ? userStore.id || '' : '',
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             ...batchParams.value,
+            ...tableParams.value,
           });
           Message.success(t('common.updateSuccess'));
           resetSelector();
@@ -663,6 +665,7 @@
         notifier: dialogForm.value.commentIds.join(';'),
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         ...batchParams.value,
+        ...tableParams.value,
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
@@ -690,6 +693,7 @@
             append: dialogForm.value.isAppend, // 是否追加
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             ...batchParams.value,
+            ...tableParams.value,
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
@@ -720,6 +724,7 @@
             notifier: dialogForm.value.commentIds.join(';'),
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             ...batchParams.value,
+            ...tableParams.value,
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
@@ -890,4 +895,5 @@
   :deep(.arco-radio-label) {
     @apply inline-flex;
   }
+  .ms-table--special-small();
 </style>

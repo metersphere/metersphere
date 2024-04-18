@@ -208,7 +208,7 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
-        key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-用例评审
+        key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-用例详情
         locale: 'menu.caseManagement.featureCaseDetail',
         route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
         permission: [],
@@ -224,7 +224,7 @@ export const pathMap: PathMapItem[] = [
       {
         key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-用例评审
         locale: 'menu.caseManagement.caseManagementReviewDetail',
-        route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+        route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
         permission: [],
         level: MENU_LEVEL[2],
       },

@@ -749,6 +749,7 @@ if (!result){
     },
     {
       title: '',
+      dataIndex: 'operation',
       slotName: 'operation',
       width: 50,
     },
@@ -801,7 +802,7 @@ if (!result){
           value: RequestExtractEnvType.TEMPORARY,
         },
       ],
-      width: 130,
+      width: 150,
     },
     {
       title: 'apiTestDebug.mode',
@@ -872,6 +873,7 @@ if (!result){
     {
       title: '',
       slotName: 'operation',
+      dataIndex: 'operation',
       fixed: 'right',
       moreAction: [
         {

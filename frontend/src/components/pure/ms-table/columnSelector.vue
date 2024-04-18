@@ -71,10 +71,14 @@
         <MsButton v-if="hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
       <div class="flex-col">
-        <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
-          <div v-show="item.dataIndex !== 'operation'">{{ t((item.title || item.columnTitle) as string) }}</div>
+        <div
+          v-for="item in nonSortColumn"
+          v-show="item.dataIndex !== 'operation'"
+          :key="item.dataIndex"
+          class="column-item"
+        >
+          <div>{{ t((item.title || item.columnTitle) as string) }}</div>
           <a-switch
-            v-show="item.dataIndex !== 'operation'"
             v-model="item.showInTable"
             size="small"
             :disabled="item.columnSelectorDisabled"
@@ -84,17 +88,17 @@
         </div>
       </div>
       <a-divider orientation="center" class="non-sort"
-        ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
-          t('msTable.columnSetting.nonSort')
-        }}</span></a-divider
+        ><span class="one-line-text text-xs text-[var(--color-text-4)]">
+          {{ t('msTable.columnSetting.nonSort') }}
+        </span></a-divider
       >
       <VueDraggable v-model="couldSortColumn" handle=".sort-handle" ghost-class="ghost" @change="handleSwitchChange">
         <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
           <div class="flex w-[60%] items-center">
             <MsIcon type="icon-icon_drag" class="sort-handle cursor-move text-[16px] text-[var(--color-text-4)]" />
-            <span class="one-line-text ml-[8px] max-w-[85%]">{{
-              t((element.title || element.columnTitle) as string)
-            }}</span>
+            <span class="one-line-text ml-[8px] max-w-[85%]">
+              {{ t((element.title || element.columnTitle) as string) }}
+            </span>
           </div>
           <a-switch v-model="element.showInTable" size="small" type="line" @change="handleSwitchChange" />
         </div>

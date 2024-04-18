@@ -51,7 +51,7 @@
     <template #num="{ record, rowIndex }">
       <span
         type="text"
-        class="one-line-text px-0 text-[rgb(var(--primary-5))]"
+        class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]"
         @click="showCaseDetail(record.id, rowIndex)"
         >{{ record.num }}</span
       >

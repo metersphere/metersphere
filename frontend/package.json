@@ -70,6 +70,7 @@
     "pinia": "^2.1.6",
     "pinia-plugin-persistedstate": "^3.2.0",
     "pm": "link:@/tiptap/pm",
+    "pretty": "^2.0.0",
     "query-string": "^8.1.0",
     "resize-observer-polyfill": "^1.5.1",
     "sortablejs": "^1.15.0",

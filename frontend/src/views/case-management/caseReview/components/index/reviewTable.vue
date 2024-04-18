@@ -92,7 +92,7 @@
       </template>
       <template #num="{ record }">
         <a-tooltip :content="`${record.num}`">
-          <a-button type="text" class="px-0" size="mini" @click="openDetail(record.id)">
+          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" size="mini" @click="openDetail(record.id)">
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
@@ -675,14 +675,7 @@
     try {
       batchMoveFileLoading.value = true;
       await moveReview({
-        selectIds: batchParams.value?.selectedIds || [],
-        selectAll: !!batchParams.value?.selectAll,
-        excludeIds: batchParams.value?.excludeIds || [],
-        currentSelectCount: batchParams.value?.currentSelectCount || 0,
-        condition: { keyword: keyword.value },
-        projectId: appStore.currentProjectId,
-        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
-        moveModuleId: selectedModuleKeys.value[0],
+        ...tableQueryParams.value,
       });
       Message.success(t('caseManagement.caseReview.batchMoveSuccess'));
       loadList();
