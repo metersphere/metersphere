@@ -27,11 +27,13 @@ import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.exception.TaskRunnerResultCode;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
@@ -50,6 +52,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -164,17 +167,29 @@ public class ApiExecuteService {
 
         try {
             return doExecute(taskRequest);
+        } catch (HttpServerErrorException e) {
+            handleDoExecuteException(scriptRedisKey, e);
+            int errorCode = e.getResponseBodyAs(ResultHolder.class).getCode();
+            for (TaskRunnerResultCode taskRunnerResultCode : TaskRunnerResultCode.values()) {
+                // 匹配资源池的错误代码，抛出相应异常
+                if (taskRunnerResultCode.getCode() == errorCode) {
+                    throw new MSException(taskRunnerResultCode, e.getMessage());
+                }
+            }
+            throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         } catch (MSException e) {
-            LogUtils.error(e);
-            // 调用失败清理脚本
-            stringRedisTemplate.delete(scriptRedisKey);
+            handleDoExecuteException(scriptRedisKey, e);
             throw e;
         } catch (Exception e) {
-            LogUtils.error(e);
-            // 调用失败清理脚本
-            stringRedisTemplate.delete(scriptRedisKey);
+            handleDoExecuteException(scriptRedisKey, e);
             throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         }
+    }
+
+    private void handleDoExecuteException(String scriptRedisKey, Exception e) {
+        LogUtils.error(e);
+        // 调用失败清理脚本
+        stringRedisTemplate.delete(scriptRedisKey);
     }
 
     private GlobalParams getGlobalParam(String projectId) {
