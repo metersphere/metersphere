@@ -127,8 +127,8 @@
   // 先判断项目是否是开启
   const isEnableProject = computed(() => {
     return props.mode === 'organization'
-      ? !templateStore.projectStatus[props.cardItem.key]
-      : templateStore.ordStatus[props.cardItem.key];
+      ? templateStore.ordStatus[props.cardItem.key]
+      : templateStore.projectStatus[props.cardItem.key];
   });
 
   const moreActions = ref<ActionsItem[]>([
