@@ -42,7 +42,7 @@
   import { useAppStore } from '@/store';
   import useProjectEnvStore, { NEW_ENV_GROUP } from '@/store/modules/setting/useProjectEnvStore';
 
-  import { EnvListItem } from '@/models/projectManagement/environmental';
+  import { EnvDetailItem, EnvListItem } from '@/models/projectManagement/environmental';
   import { EnvAuthScopeEnum } from '@/enums/envEnum';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
@@ -81,7 +81,7 @@
       if (value === props.defaultName) {
         callback();
       } else {
-        const isExist = props.list.some((item) => item.name === value);
+        const isExist = props.list.some((item) => item.name === value && item.id !== props.id);
         if (isExist) {
           callback(t('system.userGroup.userGroupNameIsExist', { name: value }));
         }
@@ -103,7 +103,9 @@
           loading.value = true;
 
           if (props.type === EnvAuthScopeEnum.PROJECT) {
-            await updateOrAddEnv({ fileList: [], request: { ...store.currentEnvDetailInfo, name: form.name } });
+            const envListItem = props.list.filter((item) => item.id === props.id)[0] as EnvDetailItem;
+            envListItem.name = form.name;
+            await updateOrAddEnv({ fileList: [], request: envListItem });
           } else {
             const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
             if (id) {

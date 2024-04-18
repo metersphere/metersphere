@@ -5,6 +5,7 @@ export interface EnvListItem {
   mock?: boolean;
   name: string;
   id: string;
+  description: string;
 }
 
 export interface EnvGroupProjectListItem {
