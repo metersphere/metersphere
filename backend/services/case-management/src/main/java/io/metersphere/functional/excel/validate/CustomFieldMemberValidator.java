@@ -33,7 +33,7 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
                 );
         userNameMap = new HashMap<>();
         memberOption.stream()
-                .forEach(user -> userNameMap.put(user.getName().toLowerCase(), user.getId()));
+                .forEach(user -> userNameMap.put(user.getEmail().toLowerCase(), user.getId()));
     }
 
     @Override

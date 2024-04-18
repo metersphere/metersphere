@@ -763,12 +763,12 @@ public class FunctionalCaseService {
     private void batchSendNotice(String projectId, List<String> ids, User user, String event) {
         int amount = 100;//每次读取的条数
         long roundTimes = Double.valueOf(Math.ceil((double) ids.size() / amount)).longValue();//循环的次数
-        for (int i = 0; i < (int)roundTimes; i++) {
-            int fromIndex = (i*amount);
-            int toIndex = ((i+1)*amount);
-            if (i == roundTimes-1){//最后一次遍历
+        for (int i = 0; i < (int) roundTimes; i++) {
+            int fromIndex = (i * amount);
+            int toIndex = ((i + 1) * amount);
+            if (i == roundTimes - 1) {//最后一次遍历
                 toIndex = ids.size();
-            } else if (toIndex > ids.size()){
+            } else if (toIndex > ids.size()) {
                 toIndex = ids.size();
             }
             List<String> subList = ids.subList(fromIndex, toIndex);
@@ -1091,7 +1091,7 @@ public class FunctionalCaseService {
     /**
      * 组装通知数据
      *
-     * @param noticeList xiao
+     * @param noticeList              xiao
      * @param functionalCaseExcelData
      * @param request
      * @param userId
@@ -1153,7 +1153,7 @@ public class FunctionalCaseService {
         caseBlobMapper.insertSelective(caseBlob);
 
         //自定义字段
-        List<FunctionalCaseCustomField> customFields = handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap);
+        List<FunctionalCaseCustomField> customFields = handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap, userId);
 
         caseIds.add(functionalCase.getId());
         historyLogDTOS.add(new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>()));
@@ -1181,7 +1181,7 @@ public class FunctionalCaseService {
      * @param customFieldMapper       自定义字段mapper
      * @param customFieldsMap         当前默认模板的自定义字段
      */
-    private List<FunctionalCaseCustomField> handleImportCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
+    private List<FunctionalCaseCustomField> handleImportCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String userId) {
         List<FunctionalCaseCustomField> customFields = new ArrayList<>();
         //需要保存的自定义字段
         Map<String, Object> customData = functionalCaseExcelData.getCustomData();
@@ -1191,14 +1191,21 @@ public class FunctionalCaseService {
             caseCustomField.setCaseId(caseId);
             caseCustomField.setFieldId(v.getFieldId());
             Optional.ofNullable(value).ifPresentOrElse(v1 -> {
-                if((v1.toString().length()==2&&StringUtils.equals(v1.toString(),"[]"))||!StringUtils.isNotBlank(v1.toString())){
+                if ((v1.toString().length() == 2 && StringUtils.equals(v1.toString(), "[]")) || !StringUtils.isNotBlank(v1.toString())) {
                     setCustomFieldValue(v.getDefaultValue(), caseCustomField);
-                }else{
+                } else {
                     setCustomFieldValue(v1, caseCustomField);
                 }
             }, () -> {
                 setCustomFieldValue(v.getDefaultValue(), caseCustomField);
             });
+
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+                caseCustomField.setValue(userId);
+            }
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+                caseCustomField.setValue(caseCustomField.getValue().replace("CREATE_USER", userId));
+            }
             customFields.add(caseCustomField);
             customFieldMapper.insertSelective(caseCustomField);
         });
@@ -1339,7 +1346,7 @@ public class FunctionalCaseService {
         caseBlobMapper.updateByPrimaryKeyWithBLOBs(caseBlob);
 
         //自定义字段
-        List<FunctionalCaseCustomField> customFields = handleUpdateCustomField(functionalCaseExcelData, functionalCase.getId(), customFieldMapper, customFieldsMap);
+        List<FunctionalCaseCustomField> customFields = handleUpdateCustomField(functionalCaseExcelData, functionalCase.getId(), customFieldMapper, customFieldsMap, userId);
 
         // 记录新值
         historyLogDTOS.add(new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>()));
@@ -1359,11 +1366,11 @@ public class FunctionalCaseService {
         }
     }
 
-    private List<FunctionalCaseCustomField> handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
+    private List<FunctionalCaseCustomField> handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String userId) {
         FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
         fieldExample.createCriteria().andCaseIdEqualTo(caseId);
         customFieldMapper.deleteByExample(fieldExample);
-        List<FunctionalCaseCustomField> customFields = handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap);
+        List<FunctionalCaseCustomField> customFields = handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap, userId);
         return customFields;
     }
 
