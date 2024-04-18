@@ -22,8 +22,6 @@ import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.schedule.ApiScheduleNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -70,6 +68,7 @@ import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.OperationHistoryService;
@@ -2403,8 +2402,9 @@ public class ApiScenarioService extends MoveNodeService {
             return new ApiScenarioBatchOperationResponse();
         }
         request.setSelectIds(scenarioIds);
+        AtomicLong nextScenarioPos = new AtomicLong(getNextOrder(request.getProjectId()));
         ApiScenarioBatchOperationResponse response =
-                ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, request, logInsertModule.getOperator()));
+                ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, nextScenarioPos, request, logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.ADD.name(), logInsertModule, null, true);
         return response;
     }
@@ -2474,7 +2474,7 @@ public class ApiScenarioService extends MoveNodeService {
         return response;
     }
 
-    private ApiScenarioBatchOperationResponse copyAndInsert(List<String> scenarioIds, ApiScenarioBatchCopyMoveRequest request, String operator) {
+    private ApiScenarioBatchOperationResponse copyAndInsert(List<String> scenarioIds, AtomicLong nextScenarioPos, ApiScenarioBatchCopyMoveRequest request, String operator) {
         ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
 
         ApiScenarioExample example = new ApiScenarioExample();
@@ -2495,12 +2495,12 @@ public class ApiScenarioService extends MoveNodeService {
 
         MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
 
-        operationList.forEach(apiScenario -> {
+        for (ApiScenario apiScenario : operationList) {
             ApiScenario copyScenario = new ApiScenario();
             BeanUtils.copyBean(copyScenario, apiScenario);
             copyScenario.setId(IDGenerator.nextStr());
             copyScenario.setNum(getNextNum(copyScenario.getProjectId()));
-            copyScenario.setPos(getNextOrder(copyScenario.getProjectId()));
+            copyScenario.setPos(nextScenarioPos.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             copyScenario.setModuleId(request.getTargetModuleId());
             copyScenario.setName(this.getScenarioCopyName(copyScenario.getName(), apiScenario.getNum(), copyScenario.getNum(), request.getTargetModuleId()));
             copyScenario.setCreateUser(operator);
@@ -2565,7 +2565,7 @@ public class ApiScenarioService extends MoveNodeService {
                 });
             }
             response.addSuccessData(copyScenario.getId(), copyScenario.getNum(), copyScenario.getName());
-        });
+        }
 
         response.setSuccess(apiScenarioMapper.batchInsert(insertApiScenarioList));
         if (CollectionUtils.isNotEmpty(insertApiScenarioBlobList)) {
