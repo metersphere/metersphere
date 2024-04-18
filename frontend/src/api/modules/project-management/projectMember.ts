@@ -35,7 +35,7 @@ export function addProjectUserGroup(data: ActionProjectMember) {
 }
 
 // 批量移除项目成员
-export function batchRemoveMember(data: ActionProjectMember) {
+export function batchRemoveMember(data: TableQueryParams) {
   return MSR.post({ url: BatchRemoveMemberUrl, data });
 }
 

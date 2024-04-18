@@ -447,6 +447,9 @@
       keyword: keyword.value,
       projectId: innerProject.value,
       excludeIds: [...props.associatedIds], // 已经存在的关联的id列表
+      condition: {
+        keyword: keyword.value,
+      },
     });
     if (props.hasNotAssociatedIds && props.hasNotAssociatedIds.length > 0) {
       props.hasNotAssociatedIds.forEach((hasNotAssociatedId) => {

@@ -109,7 +109,7 @@
     ref="batchModalRef"
     v-model:visible="showBatchModal"
     :action="batchAction"
-    :select-data="selectedData"
+    :current-select-count="batchParams.currentSelectCount"
     @add-project="addProjectOrAddUserGroup"
     @add-user-group="addProjectOrAddUserGroup"
   />

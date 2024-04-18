@@ -5,9 +5,7 @@
       <a-alert :closable="true" class="mb-4">
         <div>
           {{ t('system.plugin.alertDescribe') }}
-          <a class="mx-1" href="javascript:;">{{ t('system.plugin.viewTable') }}</a
-          >{{ t('system.plugin.downAddress') }}
-          <a class="mx-1" href="https://github.com/metersphere" target="_blank">{{ t('system.plugin.goDownload') }} </a>
+          <span class="mx-1 text-[rgb(var(--primary-5))]" @click="openLink">{{ t('system.plugin.viewTable') }}</span>
         </div>
       </a-alert>
       <pluginTable />
@@ -25,6 +23,10 @@
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+
+  function openLink() {
+    window.open('https://metersphere.io/docs/v3.x/plugin/', '_blank');
+  }
 </script>
 
 <style scoped>

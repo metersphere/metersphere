@@ -33,7 +33,7 @@
         <div
           v-else
           v-dompurify-html="detailForm?.prerequisite || '-'"
-          class="markdown-body !break-words break-all"
+          class="markdown-body list-item-css !break-words break-all"
         ></div>
       </a-form-item>
       <a-form-item

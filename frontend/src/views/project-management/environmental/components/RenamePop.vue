@@ -5,7 +5,7 @@
     position="bottom"
     class="ms-pop-confirm--hidden-icon"
     :ok-loading="loading"
-    :on-before-ok="handleBeforeOk"
+    :on-before-ok="beforeConfirm"
     :cancel-button-props="{ disabled: loading }"
     @popup-visible-change="reset"
   >
@@ -13,21 +13,19 @@
       <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{
         props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
       }}</div>
-      <div v-outer="handleOutsideClick">
-        <a-form ref="formRef" :model="form" layout="vertical">
-          <a-form-item class="hidden-item" field="name" :rules="[{ validator: validateName }]">
-            <a-input
-              v-model="form.name"
-              class="w-[245px]"
-              :placeholder="t('system.userGroup.searchHolder')"
-              allow-clear
-              :max-length="255"
-              @press-enter="handleBeforeOk(undefined)"
-              @keyup.esc="handleCancel"
-            />
-          </a-form-item>
-        </a-form>
-      </div>
+      <a-form ref="formRef" :model="form" layout="vertical">
+        <a-form-item class="hidden-item" field="name" :rules="[{ validator: validateName }]">
+          <a-input
+            v-model="form.name"
+            class="w-[245px]"
+            :placeholder="t('system.userGroup.searchHolder')"
+            allow-clear
+            :max-length="255"
+            @press-enter="handleBeforeOk(undefined)"
+            @keyup.esc="handleCancel"
+          />
+        </a-form-item>
+      </a-form>
     </template>
     <slot></slot>
   </a-popconfirm>
@@ -139,16 +137,61 @@
     });
   };
 
+  function beforeConfirm(done?: (closed: boolean) => void) {
+    if (loading.value) return;
+    formRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          loading.value = true;
+
+          if (props.type === EnvAuthScopeEnum.PROJECT) {
+            await updateOrAddEnv({ fileList: [], request: { ...store.currentEnvDetailInfo, name: form.name } });
+          } else {
+            const id = store.currentGroupId === NEW_ENV_GROUP ? undefined : store.currentGroupId;
+            if (id) {
+              const detail: Record<string, any> = await getGroupDetailEnv(id);
+              const envGroupProject = detail?.environmentGroupInfo.filter(
+                (item: any) => item.projectId && item.environmentId
+              );
+              const params = {
+                id,
+                name: form.name,
+                description: detail.description,
+                projectId: appStore.currentProjectId,
+                envGroupProject,
+              };
+
+              await groupUpdateEnv(params);
+            }
+          }
+          Message.success(t('project.fileManagement.renameSuccess'));
+          emit('success');
+          handleCancel();
+          if (done) {
+            done(true);
+          } else {
+            currentVisible.value = false;
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+          if (done) {
+            done(false);
+          }
+        } finally {
+          loading.value = false;
+        }
+      } else if (done) {
+        done(false);
+      }
+    });
+  }
+
   watchEffect(() => {
     currentVisible.value = props.visible;
     form.name = props.defaultName || '';
   });
 
-  const handleOutsideClick = () => {
-    if (currentVisible.value) {
-      handleCancel();
-    }
-  };
   function reset(val: boolean) {
     if (!val) {
       form.name = '';

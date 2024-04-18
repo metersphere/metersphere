@@ -176,7 +176,8 @@
           Object.keys(config).forEach((key) => {
             const value = res[configKey][key];
             config[key] = value || config[key];
-            dynamicForm.value[configKey].status = value !== undefined ? 1 : 0;
+            // @desc 填过的一定是通过的 未通过的没有保留 根据填过来判断状态
+            dynamicForm.value[configKey].status = value ? 1 : 0;
           });
         });
       }

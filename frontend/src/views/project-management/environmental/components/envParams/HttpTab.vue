@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showTitle" class="title">
+  <div v-if="!getIsVisited()" class="title">
     <span class="text-[var(--color-text-1)]">{{ t('project.environmental.httpTitle') }}</span>
     <span class="cursor-pointer text-[var(--color-text-2)]" @click="handleNoWarning">{{
       t('project.environmental.httpNoWarning')
@@ -115,6 +115,7 @@
 
   import { getEnvModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
   import { useAppStore, useTableStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
   import { findNodeNames } from '@/utils';
@@ -128,10 +129,10 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-
+  const visitedKey = 'notRemindHttp';
+  const { addVisited, getIsVisited } = useVisit(visitedKey);
   const store = useProjectEnvStore();
 
-  const showTitle = computed(() => store.httpNoWarning);
   const tableStore = useTableStore();
   const addVisible = ref(false);
   const columns: MsTableColumn = [
@@ -229,8 +230,9 @@
     isCopy.value = false;
     addVisible.value = true;
   };
+
   const handleNoWarning = () => {
-    store.setHttpNoWarning(false);
+    addVisited();
   };
 
   watch(

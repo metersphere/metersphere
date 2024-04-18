@@ -63,13 +63,14 @@
             <div class="text-[var(--color-text-4)]">({{ modulesCount[activeFolder] }})</div>
           </div>
           <div class="flex items-center gap-[8px]">
-            <a-select
+            <!-- TODO这个版本不做 -->
+            <!-- <a-select
               v-model:model-value="version"
               :options="versionOptions"
               :placeholder="t('ms.case.associate.versionPlaceholder')"
               class="w-[200px]"
               allow-clear
-            />
+            /> -->
             <a-input-search
               v-model="keyword"
               :placeholder="t('ms.case.associate.searchPlaceholder')"
@@ -78,10 +79,11 @@
               @press-enter="searchCase"
               @search="searchCase"
             />
-            <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
+            <!-- TODO这个版本不做  -->
+            <!-- <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
               <MsIcon type="icon-icon-filter" class="mr-[4px] text-[var(--color-text-4)]" />
               <div class="text-[var(--color-text-4)]">{{ t('common.filter') }}</div>
-            </a-button>
+            </a-button> -->
           </div>
         </div>
         <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
@@ -140,6 +142,7 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
+  import { filter } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -151,6 +154,7 @@
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import TableFilter from '../../tableFilter.vue';
+  import conditionStatus from '@/views/api-test/report/component/conditionStatus.vue';
 
   import {
     addPrepositionRelation,
@@ -401,6 +405,13 @@
       filter: {
         caseLevel: caseFilters.value,
       },
+      condition: {
+        keyword: keyword.value,
+        filter: {
+          caseLevel: caseFilters.value,
+          ...propsRes.value.filter,
+        },
+      },
     });
   }
 
@@ -414,6 +425,13 @@
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
         excludeIds,
+        condition: {
+          keyword: keyword.value,
+          filter: {
+            caseLevel: caseFilters.value,
+            ...propsRes.value.filter,
+          },
+        },
       };
       modulesCount.value = await getCaseModulesCounts(emitTableParams);
     } catch (error) {
@@ -449,13 +467,16 @@
       const params = {
         id: props.caseId,
         excludeIds: [...excludeKeys],
-        selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
+        selectIds: [...selectedKeys] || [],
         selectAll: selectorStatus === 'all',
         moduleIds,
         versionId,
         refId: '',
         type: props.showType === 'preposition' ? 'PRE' : 'POST',
         projectId: currentProjectId.value,
+        condition: {
+          keyword: keyword.value,
+        },
       };
       await addPrepositionRelation(params);
       Message.success(t('common.addSuccess'));

@@ -13,7 +13,7 @@
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
-    <div class="flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-between">
       <div class="font-medium">{{ t('caseManagement.featureCase.defectList') }}</div>
       <div>
         <a-input-search
@@ -185,6 +185,7 @@
       searchMode: 'AND',
       combine: {},
       caseId: props.caseId,
+      condition: { keyword: keyword.value },
     };
     showDrawer.value = false;
     emit('save', params);
@@ -207,8 +208,8 @@
     () => props.visible,
     (val) => {
       if (val) {
-        getFetch();
         resetSelector();
+        getFetch();
       }
     }
   );

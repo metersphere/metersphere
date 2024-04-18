@@ -1,10 +1,18 @@
 <template>
   <a-spin class="min-h-[400px] w-full" :loading="loading">
+    <a-input
+      v-if="props.isModal"
+      v-model:model-value="moduleKeyword"
+      :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
+      allow-clear
+      class="mb-[16px]"
+      :max-length="255"
+    />
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
       :data="caseTree"
-      :keyword="props.groupKeyword"
+      :keyword="moduleKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('common.noData')"
@@ -69,6 +77,7 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -84,6 +93,7 @@
     moveCaseModuleTree,
     updateCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
+  import { ProjectMemberOptions } from '@/api/requrls/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -108,14 +118,16 @@
     isExpandAll: boolean; // 是否展开用例节点
     allNames?: string[]; // 所有的模块name列表
     modulesCount?: Record<string, number>; // 模块数量统计对象
-    groupKeyword?: string; // 搜索关键字
+    groupKeyword: string; // 搜索关键字
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init', 'dragUpdate']);
+  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init', 'dragUpdate', 'update:groupKeyword']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const caseTree = ref<ModuleTreeNode[]>([]);
+
+  const moduleKeyword = useVModel(props, 'groupKeyword', emits);
 
   const setFocusKey = (node: MsTreeNodeData) => {
     focusNodeKey.value = node.id || '';
@@ -160,7 +172,7 @@
       caseTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
-          hideMoreAction: e.id === 'root',
+          hideMoreAction: e.id === 'root' || props.isModal,
           draggable: e.id !== 'root' && !props.isModal,
           disabled: e.id === props.activeFolder && props.isModal,
           count: props.modulesCount?.[e.id] || 0,
@@ -345,7 +357,7 @@
       };
     }
     return {
-      height: 'calc(100vh - 335px)',
+      height: 'calc(100vh - 294px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15,
@@ -370,6 +382,7 @@
       caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
         return {
           ...node,
+          hideMoreAction: props.isModal,
           count: obj?.[node.id] || 0,
         };
       });

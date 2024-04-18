@@ -180,7 +180,12 @@
         ExtensionHistory,
         ExtensionHorizontalRule,
         ExtensionItalic,
-        ExtensionOrderedList,
+        // ExtensionOrderedList,
+        ExtensionOrderedList.configure({
+          HTMLAttributes: {
+            class: 'my-custom-class',
+          },
+        }),
         ExtensionStrike,
         ExtensionText,
         ExtensionImage.configure({

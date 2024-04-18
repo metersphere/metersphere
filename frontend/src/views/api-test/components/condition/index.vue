@@ -41,7 +41,7 @@
       :sql-code-editor-height="props.sqlCodeEditorHeight"
       @copy="copyListItem"
       @delete="deleteListItem"
-      @change="emit('change')"
+      @change="changeHandler"
     />
   </div>
 </template>
@@ -243,6 +243,10 @@
       [activeItem.value] = list.value;
     }
   });
+
+  function changeHandler() {
+    emit('change');
+  }
 
   defineExpose({
     activeItemId,
