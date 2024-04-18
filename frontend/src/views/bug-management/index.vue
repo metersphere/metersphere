@@ -220,7 +220,7 @@
   import { useIntervalFn } from '@vueuse/core';
   import { Message, TableData } from '@arco-design/web-vue';
 
-  import { timeSelectOptions } from '@/components/pure/ms-advance-filter';
+  import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
   import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -433,7 +433,6 @@
       title: 'bugManagement.tag',
       showDrag: true,
       isStringTag: true,
-      width: 456,
       dataIndex: 'tags',
       showInTable: true,
     },
@@ -491,7 +490,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: 130,
     },
   ];
 
