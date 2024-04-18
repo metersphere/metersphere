@@ -3,7 +3,7 @@
     <a-tabs v-model:active-key="activeKey" class="h-full px-[16px]" animation lazy-load @change="changeActiveKey">
       <template #extra>
         <div class="flex gap-[12px]">
-          <environmentSelect v-if="props.isDrawer" v-model:current-env="environmentIdByDrawer" />
+          <MsEnvironmentSelect v-if="props.isDrawer" :env="environmentIdByDrawer" />
           <executeButton
             ref="executeRef"
             v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
@@ -98,10 +98,10 @@
   import MsDetailCard from '@/components/pure/ms-detail-card/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+  import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
   import detailTab from '../api/preview/detail.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
-  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import TabCaseChangeHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseChangeHistory.vue';
@@ -112,10 +112,10 @@
   import { debugCase, deleteCase, runCase, toggleFollowCase } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import useModal from '@/hooks/useModal';
+  import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
   import { ProtocolItem } from '@/models/apiTest/common';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import { RequestMethods, ScenarioStepType } from '@/enums/apiEnum';
 
   import { defaultResponse } from '@/views/api-test/components/config';
@@ -129,6 +129,7 @@
     (e: 'deleteCase', id: string): void;
   }>();
 
+  const appStore = useAppStore();
   const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -221,11 +222,6 @@
 
   const protocols = inject<Ref<ProtocolItem[]>>('protocols');
 
-  const currentEnvConfigByInject = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const environmentId = computed(() =>
-    props.isDrawer ? environmentIdByDrawer.value : currentEnvConfigByInject?.value?.id
-  );
-
   const executeHistoryRef = ref<InstanceType<typeof TabCaseExecuteHistory>>();
   function changeActiveKey(val: string | number) {
     if (val === 'executeHistory') {
@@ -275,7 +271,7 @@
       let res;
       const params = {
         id: caseDetail.value.id as string,
-        environmentId: environmentId.value,
+        environmentId: appStore.currentEnvConfig?.id || '',
         frontendDebug: executeType === 'localExec',
         reportId: reportId.value,
         apiDefinitionId: caseDetail.value.apiDefinitionId,

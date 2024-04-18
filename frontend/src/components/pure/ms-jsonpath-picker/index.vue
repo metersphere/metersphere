@@ -75,9 +75,7 @@
             'pick',
             jsonPath.value,
             json.value,
-            JSONPath({ json: json.value, path: jsonPath.value }).map((e) =>
-              e.toString().replace(/Number\(([^)]+)\)/g, '$1')
-            )
+            JSONPath({ json: json.value, path: jsonPath.value }).map((e) => `${e}`.replace(/Number\(([^)]+)\)/g, '$1'))
           );
         }
       }, 0);

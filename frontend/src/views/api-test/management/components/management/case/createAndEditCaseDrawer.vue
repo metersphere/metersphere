@@ -34,7 +34,7 @@
                 :max-length="255"
                 show-word-limit
               />
-              <environmentSelect ref="environmentSelectRef" v-model:current-env="environmentId" />
+              <MsEnvironmentSelect ref="environmentSelectRef" :env="environmentId" />
               <executeButton
                 ref="executeRef"
                 v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
@@ -82,7 +82,6 @@
           :file-save-as-source-id="detailForm.id"
           :file-module-options-api="getTransferOptionsCase"
           :file-save-as-api="transferFileCase"
-          :current-env-config="currentEnvConfig"
           is-definition
           @execute="handleExecute"
         />
@@ -100,9 +99,9 @@
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+  import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
-  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
@@ -166,8 +165,7 @@
     },
   ]);
 
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
-  const environmentId = ref(currentEnvConfig?.value?.id);
+  const environmentId = ref(appStore.currentEnvConfig?.id);
 
   const formRef = ref<FormInstance>();
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
@@ -214,7 +212,7 @@
         detailForm.value.name = detailForm.value.name.slice(0, 255);
       }
     }
-    environmentId.value = currentEnvConfig?.value?.id;
+    environmentId.value = appStore.currentEnvConfig?.id;
     // 编辑
     if (!isCopy && record?.id) {
       isEdit.value = true;
@@ -360,10 +358,6 @@
     websocket.value?.close();
     detailForm.value.executeLoading = false;
   }
-
-  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
-  const currentEnvConfigByDrawer = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
-  provide('currentEnvConfig', readonly(currentEnvConfigByDrawer));
 
   defineExpose({
     open,

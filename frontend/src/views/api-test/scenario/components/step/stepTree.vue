@@ -615,7 +615,6 @@
   }); // 没啥用，目前用来展示选中样式
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
   const localExecuteUrl = inject<Ref<string>>('localExecuteUrl');
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
 
   const permissionMap = {
     execute: 'PROJECT_API_SCENARIO:READ+EXECUTE',
@@ -947,7 +946,7 @@
       const params: AddApiCaseParams = {
         name: saveModalForm.value.name,
         projectId: appStore.currentProjectId,
-        environmentId: currentEnvConfig?.value.id || '',
+        environmentId: appStore.currentEnvConfig?.id || '',
         apiDefinitionId: id,
         request: {
           ...detail,
@@ -992,7 +991,7 @@
           status: RequestDefinitionStatus.PROCESSING,
           customFields: [],
           versionId: '',
-          environmentId: currentEnvConfig?.value.id || '',
+          environmentId: appStore.currentEnvConfig?.id || '',
           request: {
             ...detail,
             url: path,
@@ -1085,7 +1084,7 @@
             const fileParams = scenario.value.stepFileParam[activeStep.value.id];
             const params: AddApiCaseParams = {
               projectId: appStore.currentProjectId,
-              environmentId: currentEnvConfig?.value.id || '',
+              environmentId: appStore.currentEnvConfig?.id || '',
               apiDefinitionId: activeStep.value.resourceId || '',
               request: detail,
               ...saveCaseModalForm.value,
@@ -1432,7 +1431,7 @@
       const res = await debugScenario({
         id: scenario.value.id || '',
         grouped: false,
-        environmentId: currentEnvConfig?.value?.id || '',
+        environmentId: appStore.currentEnvConfig?.id || '',
         projectId: appStore.currentProjectId,
         scenarioConfig: scenario.value.scenarioConfig,
         frontendDebug: scenario.value.executeType === 'localExec',

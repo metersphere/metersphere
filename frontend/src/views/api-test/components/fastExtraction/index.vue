@@ -248,7 +248,7 @@
             JSONPath({
               json: parseJson.value,
               path: expressionForm.value.expression,
-            })?.map((e) => e.toString().replace(/Number\(([^)]+)\)/g, '$1')) || [];
+            })?.map((e) => `${e}`.replace(/Number\(([^)]+)\)/g, '$1')) || [];
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
         }

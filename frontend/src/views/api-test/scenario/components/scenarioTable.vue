@@ -876,7 +876,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 220,
+      width: 200,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
