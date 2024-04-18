@@ -25,3 +25,4 @@ export const ValidatePlatformUrl = '/user/platform/validate'; // 个人信息-�
 export const SavePlatformUrl = '/user/platform/save'; // 个人信息-保存三方平台账号信息
 export const GetPlatformUrl = '/user/platform/get'; // 个人信息-获取三方平台账号信息
 export const GetPlatformAccountUrl = '/user/platform/account/info'; // 个人信息-获取三方平台账号信息-插件信息
+export const GetPlatformOrgOptionUrl = '/user/platform/switch-option'; // 个人信息-获取三方平台账号信息-插件信息

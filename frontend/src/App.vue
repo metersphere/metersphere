@@ -89,7 +89,7 @@
           return;
         }
         const res = await getProjectInfo(appStore.currentProjectId);
-        if (!res || res.deleted) {
+        if (!res) {
           // 如果项目被删除或者被禁用，跳转到无项目页面
           router.push({
             name: NO_PROJECT_ROUTE_NAME,

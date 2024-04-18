@@ -87,6 +87,11 @@ export function topLevelMenuHasPermission(route: RouteLocationNormalized | Route
   const appStore = useAppStore();
   const { currentMenuConfig } = appStore;
 
+  if (userStore.lastProjectId === 'no_such_project' || userStore.lastProjectId === '') {
+    // 项目不存在, 不显示任何项目级别菜单, 展示无资源页面
+    return false;
+  }
+
   if (currentMenuConfig.length && !currentMenuConfig.includes(route.name as string)) {
     // 没有配置的菜单不显示
     return false;

@@ -120,6 +120,12 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         userExtendMapper.deleteByExample(example);
     }
 
+    @Test
+    @Order(5)
+    public void testGetPlatformOption() throws Exception {
+        this.requestGet("/user/platform/switch-option");
+    }
+
     private Map<String, Object> buildUserPlatformConfig() {
         Map<String, Object> platformInfo = new HashMap<>();
         Map<String, Object> userPlatformConfig = new HashMap<>();
