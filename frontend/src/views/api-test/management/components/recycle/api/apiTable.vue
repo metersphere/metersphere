@@ -404,8 +404,11 @@
       protocol: props.protocol,
       condition: {
         keyword: keyword.value,
-        filter: propsRes.value.filter,
-        combine: batchParams.value.condition,
+        filter: {
+          status: statusFilters.value,
+          method: methodFilters.value,
+          deleteUser: deleteUserFilters.value,
+        },
       },
     };
   }
@@ -456,6 +459,7 @@
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = { ...params };
+
     switch (event.eventTag) {
       case 'batchRecover':
         batchRecover();

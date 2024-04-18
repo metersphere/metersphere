@@ -105,7 +105,7 @@
         :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
-        :empty-text="props.isModal ? t('apiTestManagement.noMatchModule') : t('apiTestManagement.noMatchModule')"
+        :empty-text="props.isModal ? t('apiTestManagement.noMatchModule') : t('apiTestManagement.noMatchModuleAndApi')"
         :draggable="!props.readOnly && !props.isModal && hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
         :virtual-list-props="virtualListProps"
         :field-names="{

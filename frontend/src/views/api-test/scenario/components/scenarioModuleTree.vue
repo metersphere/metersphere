@@ -59,7 +59,7 @@
         :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
-        :empty-text="t('apiScenario.tree.noMatchModule')"
+        :empty-text="t('apiTestManagement.noMatchModule')"
         :draggable="!props.readOnly && hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
         :virtual-list-props="virtualListProps"
         :field-names="{

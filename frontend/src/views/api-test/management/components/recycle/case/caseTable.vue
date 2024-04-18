@@ -603,7 +603,14 @@
       protocol: props.protocol,
       condition: {
         keyword: keyword.value,
-        filter: propsRes.value.filter,
+        filter: {
+          status: statusFilters.value,
+          priority: caseFilters.value,
+          lastReportStatus: lastReportStatusFilters.value,
+          createUser: createUserFilters.value,
+          updateUser: updateUserFilters.value,
+          deleteUser: deleteUserFilters.value,
+        },
         combine: batchParams.value.condition,
       },
     };

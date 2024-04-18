@@ -614,6 +614,7 @@
       priority: priorityFilters.value,
       createUser: createUserFilters.value,
       updateUser: updateUserFilters.value,
+      deleteUser: deleteUserFilters.value,
     };
     if (batchParams.value.condition) {
       batchParams.value.condition.filter = { ...filterParams };

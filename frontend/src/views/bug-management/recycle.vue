@@ -482,6 +482,7 @@
       handleUser: handleUserFilterValue.value,
       updateUser: updateUserFilterValue.value,
       createUser: createUserFilterValue.value,
+      deleteUser: deleteUserFilterValue.value,
     };
     filterParams[severityColumnId.value] = severityFilterValue.value;
     if (params.condition) {
