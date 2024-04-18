@@ -2798,7 +2798,7 @@ public class ApiScenarioService extends MoveNodeService {
     public void refreshPos(String projectId) {
         List<String> posIds = extApiScenarioMapper.selectIdByProjectIdOrderByPos(projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ExtApiTestCaseMapper batchUpdateMapper = sqlSession.getMapper(ExtApiTestCaseMapper.class);
+        ExtApiScenarioMapper batchUpdateMapper = sqlSession.getMapper(ExtApiScenarioMapper.class);
         for (int i = 0; i < posIds.size(); i++) {
             batchUpdateMapper.updatePos(posIds.get(i), i * DEFAULT_NODE_INTERVAL_POS);
         }
