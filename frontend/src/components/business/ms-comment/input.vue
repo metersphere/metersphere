@@ -87,12 +87,16 @@
   onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleGlobalKeyDown);
   });
+
+  defineExpose({
+    isActive,
+  });
 </script>
 
 <style scoped lang="less">
   .commentWrapper {
-    box-shadow: 1px -1px 4px rgba(2 2 2 / 10%);
     z-index: 101;
+    box-shadow: 1px -1px 4px rgba(2 2 2 / 10%);
     @apply absolute bottom-0 w-full bg-white px-4 py-4;
   }
 </style>

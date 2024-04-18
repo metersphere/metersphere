@@ -93,19 +93,18 @@
     <template #default="{ loading }">
       <div
         ref="wrapperRef"
-        class="wrapperRef bg-white"
-        :style="{
-          height: 'calc(100% - 86px)',
-        }"
+        :class="[
+          `${
+            activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT']) && !commentInputIsActive
+              ? 'h-[calc(100%-72px)]'
+              : commentInputIsActive
+              ? 'h-[calc(100%-286px)]'
+              : 'h-full'
+          }`,
+          'bg-white',
+        ]"
       >
-        <MsSplitBox
-          expand-direction="right"
-          :max="0.7"
-          :min="0.7"
-          :size="900"
-          direction="horizontal"
-          :class="{ 'left-bug-detail': activeTab === 'comment' }"
-        >
+        <MsSplitBox expand-direction="right" :max="0.7" :min="0.7" :size="900" direction="horizontal">
           <template #first>
             <div class="leftWrapper h-full">
               <a-spin :loading="detailLoading" class="w-full">
@@ -208,6 +207,7 @@
       </div>
       <CommentInput
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
+        ref="commentInputRef"
         v-model:notice-user-ids="noticeUserIds"
         :content="commentContent"
         is-show-avatar
@@ -300,6 +300,9 @@
   const rightLoading = ref(false);
   const detailLoading = ref(false);
   const activeTab = ref<string>('detail');
+
+  const commentInputRef = ref<InstanceType<typeof CommentInput>>();
+  const commentInputIsActive = computed(() => commentInputRef.value?.isActive);
 
   const detailInfo = ref<Record<string, any>>({ match: [] }); // 存储当前详情信息，通过loadBug 获取
   const tags = ref([]);
@@ -778,9 +781,6 @@
   }
   :deep(.tags-class .arco-form-item-label-col) {
     justify-content: flex-start !important;
-  }
-  .left-bug-detail {
-    height: 88%;
   }
   .tab-pane-container {
     @apply flex-1 overflow-y-auto px-4;
