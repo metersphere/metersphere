@@ -293,26 +293,24 @@ export default function useTableProps<T>(
 
   // 重置选择器
   const resetSelector = (isNone = true) => {
-    if (propsRes.value.selectorStatus === SelectAllEnum.ALL) {
-      // 当前是跨页全部选中状态，则取消当前页的选中项
+    if (isNone) {
+      propsRes.value.selectorStatus = SelectAllEnum.NONE;
+      // 清空选中项
+      propsRes.value.selectedKeys.clear();
+      propsRes.value.excludeKeys.clear();
+    } else {
+      // 取消当前页的选中项
       propsRes.value.data.forEach((item) => {
         propsRes.value.selectedKeys.delete(item.id);
         propsRes.value.excludeKeys.delete(item.id);
       });
-    } else {
-      // 当前是当前页选中状态，则清空选中项
-      propsRes.value.selectedKeys.clear();
-      propsRes.value.excludeKeys.clear();
-    }
-    if (isNone) {
-      propsRes.value.selectorStatus = SelectAllEnum.NONE;
     }
   };
 
   // 重置筛选
   const clearSelector = () => {
     propsRes.value.selectorStatus = SelectAllEnum.NONE; // 重置选择器状态
-    resetSelector();
+    resetSelector(true);
   };
 
   // 获取当前表格的选中项数量
@@ -408,20 +406,19 @@ export default function useTableProps<T>(
 
     // 表格SelectAll change
     selectAllChange: (v: SelectAllEnum) => {
-      propsRes.value.selectorStatus = v;
       const { data, rowKey } = propsRes.value;
       if (v === SelectAllEnum.NONE) {
         // 清空选中项
-        resetSelector();
+        resetSelector(false);
       } else if (v === SelectAllEnum.CURRENT) {
-        // 先清空选中项，再选中当前页面所有数据
-        resetSelector();
+        // 选中当前页面所有数据
         collectIds(data as MsTableDataItem<T>[], rowKey);
       } else if (v === SelectAllEnum.ALL) {
         // 全选所有页的时候先清空排除项，再选中所有数据
         propsRes.value.excludeKeys.clear();
         collectIds(data as MsTableDataItem<T>[], rowKey);
       }
+      propsRes.value.selectorStatus = v;
     },
 
     // 表格行的选中/取消事件

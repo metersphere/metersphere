@@ -227,6 +227,7 @@
           :select-row-count="selectedCount"
           :action-config="props.actionConfig"
           wrapper-id="ms-table-footer-wrapper"
+          :size="props.paginationSize"
           @batch-action="handleBatchAction"
           @clear="emit('clearSelector')"
         />

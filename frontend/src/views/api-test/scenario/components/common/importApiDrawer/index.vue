@@ -279,7 +279,7 @@
             ...node,
             copyFromStepId: node.id,
             originProjectId: node.projectId,
-            id: node.stepType === ScenarioStepType.API_SCENARIO ? id : node.id, // 引用场景节点生成新的步骤 id
+            id: node.isQuoteScenarioStep ? node.id : id, // 引用场景下的步骤 id 不变，其他情况的步骤生成新的 id
             uniqueId: id,
           };
         });

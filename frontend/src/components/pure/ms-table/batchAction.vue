@@ -11,6 +11,7 @@
           'ml-[8px]': idx === 0,
         }"
         type="outline"
+        :size="props.size"
         @click="handleSelect(element)"
         >{{ t(element.label as string) }}</a-button
       >
@@ -18,6 +19,7 @@
       <a-dropdown
         v-if="!element.isDivider && element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
         position="tr"
+        :size="props.size"
         @select="handleSelect"
       >
         <a-button
@@ -27,6 +29,7 @@
             'ml-[8px]': idx === 0,
           }"
           type="outline"
+          :size="props.size"
           @click="handleSelect"
           >{{ t(element.label as string) }}</a-button
         >
@@ -43,7 +46,7 @@
     </template>
     <div v-if="moreActionLength > 0" class="drop-down relative ml-[8px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
-        <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
+        <a-button type="outline" :size="props.size"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
           <template v-for="element in moreAction" :key="element.label">
             <a-divider v-if="element.isDivider" margin="4px" />
@@ -58,7 +61,9 @@
         </template>
       </a-dropdown>
     </div>
-    <a-button class="clear-btn ml-[8px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
+    <a-button class="clear-btn ml-[8px]" type="text" :size="props.size" @click="emit('clear')">
+      {{ t('msTable.batch.clear') }}
+    </a-button>
   </div>
 </template>
 
@@ -80,6 +85,7 @@
     selectRowCount?: number;
     actionConfig?: BatchActionConfig;
     wrapperId: string;
+    size?: 'mini' | 'small' | 'medium' | 'large';
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams): void;
