@@ -5,10 +5,7 @@ import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRunRequest;
-import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
-import io.metersphere.api.mapper.ApiTestCaseMapper;
-import io.metersphere.api.mapper.ExtApiTestCaseMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
@@ -69,6 +66,12 @@ public class ApiTestCaseBatchRunService {
     private ApiCommonService apiCommonService;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ApiReportMapper apiReportMapper;
+    @Resource
+    private ApiReportDetailMapper apiReportDetailMapper;
+    @Resource
+    private ApiReportStepMapper apiReportStepMapper;
 
     /**
      * 异步批量执行
@@ -411,5 +414,27 @@ public class ApiTestCaseBatchRunService {
      */
     public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
         return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiTestCase.getEnvironmentId() : runModeConfig.getEnvironmentId();
+    }
+
+    public void updateStopOnFailureApiReport(ExecutionQueue queue) {
+        ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
+        if (runModeConfig.isIntegratedReport()) {
+            // 获取未执行的请求数，更新统计指标
+            String reportId = runModeConfig.getCollectionReport().getReportId();
+            ApiReport report = apiReportMapper.selectByPrimaryKey(reportId);
+            ApiReportDetailExample example = new ApiReportDetailExample();
+            example.createCriteria().andReportIdEqualTo(reportId);
+            ApiReportStepExample stepExample = new ApiReportStepExample();
+            stepExample.createCriteria().andReportIdEqualTo(reportId);
+            long total = apiReportStepMapper.countByExample(stepExample);
+            long pendCount = total - apiReportDetailMapper.countByExample(example);
+            report.setPendingCount(pendCount);
+            ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
+            BeanUtils.copyBean(apiScenarioReport, report);
+            apiScenarioReport = apiBatchRunBaseService.computeRequestRate(apiScenarioReport, total);
+            BeanUtils.copyBean(report, apiScenarioReport);
+            report.setStatus(ApiReportStatus.ERROR.name());
+            apiReportMapper.updateByPrimaryKeySelective(report);
+        }
     }
 }

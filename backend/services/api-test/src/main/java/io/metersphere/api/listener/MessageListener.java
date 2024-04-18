@@ -110,15 +110,9 @@ public class MessageListener {
      */
     private boolean isStopOnFailure(ApiNoticeDTO dto, ExecutionQueue queue, ApiExecuteResourceType resourceType) {
         if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ApiReportStatus.ERROR.name())) {
-            String reportId = queue.getRunModeConfig().isIntegratedReport() ? queue.getRunModeConfig().getCollectionReport().getReportId() : dto.getReportId();
-            if (resourceType.equals(ApiExecuteResourceType.API_SCENARIO)) {
-                apiScenarioBatchRunService.updateStopOnFailureReport(queue);
-            } else {
-                apiScenarioBatchRunService.updateStopOnFailureApiReport(queue);
-            }
             switch (resourceType) {
-                case API_CASE -> apiReportService.updateReportStatus(reportId, ApiReportStatus.ERROR.name());
-                case API_SCENARIO -> apiScenarioReportService.updateReportStatus(reportId, ApiReportStatus.ERROR.name());
+                case API_CASE -> apiTestCaseBatchRunService.updateStopOnFailureApiReport(queue);
+                case API_SCENARIO -> apiScenarioBatchRunService.updateStopOnFailureReport(queue);
                 default -> {
                 }
             }
