@@ -116,6 +116,7 @@
     () => props.visible,
     (val) => {
       innerVisible.value = val;
+      form.value.field = props.fieldConfig?.field || '';
     }
   );
 
@@ -124,6 +125,8 @@
     (val) => {
       if (!val) {
         emit('close');
+      } else {
+        form.value.field = props.fieldConfig?.field || '';
       }
       emit('update:visible', val);
     }
@@ -205,7 +208,7 @@
 
   function reset(val: boolean) {
     if (!val) {
-      formRef.value?.resetFields();
+      formRef.value?.clearValidate();
       form.value.field = '';
     }
   }

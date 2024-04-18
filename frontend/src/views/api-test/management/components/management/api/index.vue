@@ -146,7 +146,6 @@
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestComposition,
