@@ -791,7 +791,20 @@
   }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    const filterParams = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+      updateUser: updateUserFilterValue.value,
+      createUser: createUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    if (params.condition) {
+      params.condition.filter = { ...filterParams };
+    } else {
+      params.condition = { filter: { ...filterParams } };
+    }
     currentSelectParams.value = params;
+
     switch (event.eventTag) {
       case 'export':
         handleExport();

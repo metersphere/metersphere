@@ -477,6 +477,18 @@
 
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    const filterParams = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+      updateUser: updateUserFilterValue.value,
+      createUser: createUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    if (params.condition) {
+      params.condition.filter = { ...filterParams };
+    } else {
+      params.condition = { filter: { ...filterParams } };
+    }
     switch (event.eventTag) {
       case 'recover':
         handleBatchRecover(params);

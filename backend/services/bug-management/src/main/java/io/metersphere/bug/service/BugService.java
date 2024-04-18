@@ -1533,14 +1533,20 @@ public class BugService {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
+            if (request.getCondition() != null) {
+                bugPageRequest.setCombine(request.getCondition().getCombine());
+                bugPageRequest.setFilter(request.getCondition().getFilter());
+            }
             List<String> ids = extBugMapper.getIdsByPageRequest(bugPageRequest);
+            ids.addAll(request.getSelectIds());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeIf(id -> request.getExcludeIds().contains(id));
             }
             if (CollectionUtils.isEmpty(ids)) {
                 throw new MSException(Translator.get("no_bug_select"));
             }
-            return ids;
+            //返回去重后的id
+            return new ArrayList<>(ids.stream().distinct().toList());
         } else {
             // 部分勾选
             if (CollectionUtils.isEmpty(request.getSelectIds())) {
