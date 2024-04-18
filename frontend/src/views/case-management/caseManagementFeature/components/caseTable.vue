@@ -96,7 +96,7 @@
       >
         <a-button
           type="text"
-          class="arco-btn-text--secondary p-[8px_4px]"
+          class="arco-btn-text--secondary p-[8px_4px] text-[14px] leading-[22px]"
           size="mini"
           @click="executeResultFilterVisible = true"
         >
@@ -167,7 +167,11 @@
     </template>
     <template #reviewStatusFilter="{ columnConfig }">
       <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-        <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
+        <a-button
+          type="text"
+          class="arco-btn-text--secondary p-[8px_4px] text-[14px] leading-[22px]"
+          @click="statusFilterVisible = true"
+        >
           <div class="font-medium">
             {{ t(columnConfig.title as string) }}
           </div>
@@ -209,7 +213,7 @@
         @change="() => handleStatusChange(record)"
       >
         <template #label>
-          <span class="text-[var(--color-text-2)]"> <executeResult :execute-result="record.lastExecuteResult" /></span>
+          <executeResult :execute-result="record.lastExecuteResult" />
         </template>
         <a-option v-for="item of LastExecuteResults" :key="item" :value="item">
           <executeResult :execute-result="item" />

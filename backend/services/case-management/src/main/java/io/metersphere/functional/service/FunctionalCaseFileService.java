@@ -24,6 +24,7 @@ import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,9 @@ public class FunctionalCaseFileService {
     private ProjectTemplateService projectTemplateService;
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
+
+    @Resource
+    private FunctionalCaseService functionalCaseService;
 
 
     /**
@@ -242,6 +246,8 @@ public class FunctionalCaseFileService {
             if (StringUtils.isEmpty(request.getVersionId())) {
                 request.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
             }
+            Long nextPos = functionalCaseService.getNextOrder(request.getProjectId());
+            Long lasePos = nextPos + (ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
             //根据本地语言环境选择用哪种数据对象进行存放读取的数据
             Class clazz = new FunctionalCaseExcelDataFactory().getExcelDataByLocal();
             //获取当前项目默认模板的自定义字段
@@ -250,7 +256,7 @@ public class FunctionalCaseFileService {
             // 预处理，查询合并单元格信息
             EasyExcel.read(file.getInputStream(), null, new FunctionalCasePretreatmentListener(mergeInfoSet))
                     .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
-            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, user);
+            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, user, lasePos);
             EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
             response.setErrorMessages(eventListener.getErrList());
             response.setSuccessCount(eventListener.getSuccessCount());

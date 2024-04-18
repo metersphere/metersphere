@@ -3,9 +3,9 @@
     <MsIcon
       :type="lastExecuteResultMap[props.executeResult]?.icon || ''"
       class="mr-1"
-      :class="[lastExecuteResultMap[props.executeResult].color]"
+      :style="{ color: lastExecuteResultMap[props.executeResult].color }"
     ></MsIcon>
-    <span>{{ status?.text || '' }}</span>
+    <span class="text-[var(--color-text-2)]">{{ status?.text || '' }}</span>
   </div>
 </template>
 
@@ -27,7 +27,7 @@
       label: 'UN_EXECUTED',
       icon: StatusType.UN_EXECUTED,
       statusText: 'caseManagement.featureCase.nonExecution',
-      color: 'text-[rgb(var(--warning-6))]',
+      color: 'var(--color-text-brand)',
     },
     PASSED: {
       label: 'PASSED',
@@ -39,13 +39,13 @@
       label: 'SKIPPED',
       icon: StatusType.SKIPPED,
       statusText: 'caseManagement.featureCase.skip',
-      color: 'text-[rgb(var(--link-6))]',
+      color: 'rgb(var(--link-6))',
     },
     BLOCKED: {
       label: 'BLOCKED',
       icon: StatusType.BLOCKED,
       statusText: 'caseManagement.featureCase.chokeUp',
-      color: 'text-[rgb(var(--warning-6))]',
+      color: 'rgb(var(--warning-6))',
     },
     FAILED: {
       label: 'FAILED',

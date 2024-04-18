@@ -388,6 +388,7 @@
         projectId: appStore.currentProjectId,
         versionId: '',
         cover: isCover.value,
+        count: validateInfo.value.successCount,
       };
       await importExcelCase({ request: params, fileList: fileList.value.map((item: any) => item.file) });
       Message.success(t('caseManagement.featureCase.importSuccess'));

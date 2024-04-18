@@ -46,8 +46,6 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
-import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -66,6 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1023,7 +1022,7 @@ public class FunctionalCaseService {
      * @param pathMap         模块路径
      * @param user            user
      */
-    public void saveImportData(List<FunctionalCaseExcelData> list, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap, SessionUser user) {
+    public void saveImportData(List<FunctionalCaseExcelData> list, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap, SessionUser user, AtomicLong lastPos) {
         //默认模板
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.name());
         //模块路径
@@ -1035,18 +1034,18 @@ public class FunctionalCaseService {
         FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
         FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
-        Long nextOrder = getNextOrder(request.getProjectId());
         List<FunctionalCaseDTO> noticeList = new ArrayList<>();
         List<FunctionalCaseHistoryLogDTO> historyLogDTOS = new ArrayList<>();
         List<LogDTO> logDTOS = new ArrayList<>();
         List<String> caseIds = new ArrayList<>();
-        for (int i = list.size() - 1; i > -1; i--) {
-            parseInsertDataToModule(list.get(i), request, user.getId(), caseModulePathMap, defaultTemplateDTO, nextOrder, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, caseIds, historyLogDTOS);
-            nextOrder += ServiceUtils.POS_STEP;
+        Long pos = lastPos.get();
+        for (int i = 0; i < list.size(); i++) {
+            parseInsertDataToModule(list.get(i), request, user.getId(), caseModulePathMap, defaultTemplateDTO, pos, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, caseIds, historyLogDTOS);
+            pos -= ServiceUtils.POS_STEP;
             //通知
             noticeModule(noticeList, list.get(i), request, user.getId(), customFieldsMap);
         }
-
+        lastPos.set(pos);
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
