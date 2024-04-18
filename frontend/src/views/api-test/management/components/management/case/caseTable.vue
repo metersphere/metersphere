@@ -1021,7 +1021,7 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_CASE, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_CASE, columns, 'drawer', true);
 </script>
 
 <style lang="less" scoped>
