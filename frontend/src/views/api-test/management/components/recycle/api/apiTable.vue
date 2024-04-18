@@ -103,7 +103,7 @@
         </TableFilter>
       </template>
       <template #deleteUserName="{ record }">
-        <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
+        <span type="text" class="px-0">{{ record.deleteUserName || '-' }}</span>
       </template>
       <template #method="{ record }">
         <apiMethodName :method="record.method" is-tag />
