@@ -13,6 +13,7 @@ import {
   GetLocalConfigUrl,
   GetMenuListUrl,
   GetPlatformAccountUrl,
+  GetPlatformOrgOptionUrl,
   GetPlatformUrl,
   GetPublicKeyUrl,
   isLoginUrl,
@@ -172,4 +173,9 @@ export function getPlatform(orgId: string) {
 // 个人信息-获取第三方平台账号信息-插件信息
 export function getPlatformAccount() {
   return MSR.get({ url: GetPlatformAccountUrl });
+}
+
+// 个人信息-获取第三方平台-组织下拉选项
+export function getPlatformOrgOption() {
+  return MSR.get({ url: GetPlatformOrgOptionUrl });
 }

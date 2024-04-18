@@ -46,6 +46,7 @@ const useUserStore = defineStore('user', {
     hasLocalExec: false, // 是否配置了api本地执行
     isPriorityLocalExec: false, // 是否优先本地执行
     localExecuteUrl: '',
+    lastProjectId: '',
   }),
 
   getters: {

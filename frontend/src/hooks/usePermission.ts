@@ -1,6 +1,7 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
 import { firstLevelMenu } from '@/config/permission';
+import { useUserStore } from '@/store';
 import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission';
 
 /**
@@ -15,6 +16,12 @@ export default function usePermission() {
      * @returns 是否
      */
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
+      if (
+        (useUserStore().lastProjectId === 'no_such_project' || useUserStore().lastProjectId === '') &&
+        route.name === 'projectManagement'
+      ) {
+        return false;
+      }
       if (firstLevelMenu.includes(route.name as string)) {
         // 一级菜单: 创建项目时 被勾选的模块
         return topLevelMenuHasPermission(route);

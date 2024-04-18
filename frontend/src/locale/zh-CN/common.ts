@@ -113,6 +113,7 @@ export default {
   'common.noProject': '暂无项目权限，请联系管理员',
   'common.noResource': '暂无资源权限，请联系管理员',
   'common.noSelectProject': '无可选项目',
+  'common.noSelectOrg': '无可选组织',
   'common.noPermission': '无权限',
   'common.batchEdit': '批量编辑',
   'common.tagsInputPlaceholder': '输入内容后回车可直接添加标签',

@@ -10,7 +10,7 @@
         @change="handleOrgChange"
       />
     </div>
-    <div class="platform-card-container">
+    <div v-if="orgOptions.length > 0" class="platform-card-container">
       <div v-for="config of dynamicForm" :key="config.key" class="platform-card">
         <div class="mb-[16px] flex items-center">
           <a-image :src="`/plugin/image/${config.key}?imagePath=static/${config.key}.jpg`" width="24"></a-image>
@@ -53,8 +53,13 @@
   import MsTag, { TagType } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsSelect from '@/components/business/ms-select';
 
-  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
-  import { getPlatform, getPlatformAccount, savePlatform, validatePlatform } from '@/api/modules/user/index';
+  import {
+    getPlatform,
+    getPlatformAccount,
+    getPlatformOrgOption,
+    savePlatform,
+    validatePlatform,
+  } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -118,11 +123,12 @@
   async function initOrgOptions() {
     try {
       orgLoading.value = true;
-      const res = await getSystemOrgOption();
+      const res = await getPlatformOrgOption();
       orgOptions.value = res.map((e) => ({
         label: e.name,
         value: e.id,
       }));
+      console.log(orgOptions.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -216,9 +222,11 @@
   }
 
   onBeforeMount(async () => {
-    initOrgOptions();
-    await initPlatformAccountInfo();
-    initPlatformInfo();
+    await initOrgOptions();
+    if (orgOptions.value.length > 0) {
+      await initPlatformAccountInfo();
+      initPlatformInfo();
+    }
   });
 </script>
 

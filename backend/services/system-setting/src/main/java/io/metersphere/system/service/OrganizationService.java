@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 public class OrganizationService {
 
     @Resource
+    private BaseUserMapper baseUserMapper;
+    @Resource
     private OrganizationMapper organizationMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
@@ -1132,6 +1134,33 @@ public class OrganizationService {
         orgAdmin.setCreateUser(createUser);
         orgAdmin.setOrganizationId(organizationId);
         userRoleRelationMapper.insertSelective(orgAdmin);
+    }
+
+    /**
+     * 获取当前用户所拥有的组织
+     * @param userId 用户ID
+     * @return 组织下拉选项
+     */
+    public List<OptionDTO> getSwitchOption(String userId) {
+        List<Organization> organizations = new ArrayList<>();
+        boolean isSuper = baseUserMapper.isSuperUser(userId);
+        if (isSuper) {
+            // 超级管理员
+            organizations = organizationMapper.selectByExample(new OrganizationExample());
+        } else {
+            List<String> relatedOrganizationIds = extOrganizationMapper.getRelatedOrganizationIds(userId);
+            if (CollectionUtils.isNotEmpty(relatedOrganizationIds)) {
+                OrganizationExample example = new OrganizationExample();
+                example.createCriteria().andIdIn(relatedOrganizationIds);
+                organizations = organizationMapper.selectByExample(example);
+            }
+        }
+        return organizations.stream().map(organization -> {
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setId(organization.getId());
+            optionDTO.setName(organization.getName());
+            return optionDTO;
+        }).toList();
     }
 
     /**

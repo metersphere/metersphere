@@ -112,6 +112,7 @@ export default {
   'common.noProject': 'No project, please contact the administrator',
   'common.noResource': 'No resource, please contact the administrator',
   'common.noSelectProject': 'No optional items available',
+  'common.noSelectOrg': 'No optional items available',
   'common.noPermission': 'No permission',
   'common.batchEdit': 'Batch Edit',
   'common.tagsInputPlaceholder': 'Enter the content and press Enter to directly add tags',
