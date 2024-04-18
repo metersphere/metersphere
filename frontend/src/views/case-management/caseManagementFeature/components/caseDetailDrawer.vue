@@ -90,10 +90,7 @@
     <template #default="{ loading }">
       <div
         ref="wrapperRef"
-        class="wrapperRef bg-white"
-        :style="{
-          height: 'calc(100% - 86px)',
-        }"
+        :class="[`${!commentInputIsActive ? 'h-[calc(100%-72px)]' : 'h-[calc(100%-286px)]'}`, 'bg-white']"
       >
         <MsSplitBox :size="900" :max="0.7" :min="0.5" direction="horizontal" expand-direction="right">
           <template #first>
@@ -238,6 +235,7 @@
           </template>
         </MsSplitBox>
         <inputComment
+          ref="commentInputRef"
           v-model:content="content"
           v-model:notice-user-ids="noticeUserIds"
           v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
@@ -339,6 +337,9 @@
   function showMenuSetting() {
     showSettingDrawer.value = true;
   }
+
+  const commentInputRef = ref<InstanceType<typeof inputComment>>();
+  const commentInputIsActive = computed(() => commentInputRef.value?.isActive);
 
   // const tabSettingList = computed(() => {
   //   return featureCaseStore.tabSettingList;
