@@ -1,11 +1,12 @@
 package io.metersphere.project.mapper;
 
 import io.metersphere.project.dto.ProjectUserRoleDTO;
+import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
 import io.metersphere.project.request.ProjectUserRoleRequest;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -55,4 +56,6 @@ public interface ExtProjectUserRoleMapper {
      * @return List<User>
      */
     List<OptionDTO> getProjectUserSelectList(@Param("projectId") String projectId, @Param("keyword") String keyword);
+
+    List<String>getProjectRoleMemberIds(@Param("request") ProjectMemberBatchDeleteRequest request);
 }

@@ -227,7 +227,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public void testBatchRemoveMemberSuccess() throws Exception {
         ProjectMemberBatchDeleteRequest request = new ProjectMemberBatchDeleteRequest();
         request.setProjectId("default-project-member-test");
-        request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
+        request.setSelectIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         this.requestPost(BATCH_REMOVE_MEMBER, request, status().isOk());
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -239,7 +239,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public void testBatchRemoveMember() throws Exception {
         ProjectMemberBatchDeleteRequest request = new ProjectMemberBatchDeleteRequest();
         request.setProjectId("default-project-member-x");
-        request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
+        request.setSelectIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         this.requestPost(BATCH_REMOVE_MEMBER, request, status().is5xxServerError());
     }
 

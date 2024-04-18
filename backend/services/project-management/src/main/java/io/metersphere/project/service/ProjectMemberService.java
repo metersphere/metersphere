@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.mapper.ExtProjectMemberMapper;
+import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectMemberAddRequest;
 import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
@@ -56,6 +57,8 @@ public class ProjectMemberService {
     private ExtProjectMemberMapper extProjectMemberMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
     /**
      * 获取成员列表
@@ -325,13 +328,25 @@ public class ProjectMemberService {
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不移除
         checkProjectExist(request.getProjectId());
+        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getSelectIds())) {
+            throw new MSException(Translator.get("user.not.empty"));
+        }
         // 批量移除成员, 则移除该成员在该项目下的所有用户组
+        List<String>userIds;
+        if (request.isSelectAll()) {
+            userIds = extProjectUserRoleMapper.getProjectRoleMemberIds(request);
+            if (!CollectionUtils.isEmpty(request.getExcludeIds())) {
+                userIds.removeAll(request.getExcludeIds());
+            }
+        } else {
+            userIds = request.getSelectIds();
+        }
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(request.getProjectId())
-                .andUserIdIn(request.getUserIds());
+                .andUserIdIn(userIds);
         userRoleRelationMapper.deleteByExample(example);
         // 操作记录
-        request.getUserIds().forEach(userId -> {
+        userIds.forEach(userId -> {
             // 操作记录
             setLog(request.getProjectId(), userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
         });
