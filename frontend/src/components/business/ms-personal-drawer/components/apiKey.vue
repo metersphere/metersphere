@@ -56,7 +56,7 @@
           ></a-textarea>
           <div v-else class="desc-line api-item-value">
             <a-tooltip :content="item.description" :disabled="!item.description">
-              <div class="one-line-text">{{ item.description || '-' }}</div>
+              <div class="one-line-text w-[300px]">{{ item.description || '-' }}</div>
             </a-tooltip>
             <MsIcon type="icon-icon_edit_outlined" class="edit-icon" @click="handleEditClick(item)" />
           </div>
