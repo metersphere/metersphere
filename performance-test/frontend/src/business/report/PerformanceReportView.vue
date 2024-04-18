@@ -155,7 +155,7 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {exportPdf} from "metersphere-frontend/src/utils";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {hasPermissions} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
@@ -543,7 +543,7 @@ export default {
     }
   },
   created() {
-    this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
+    this.isReadOnly = !hasPermissions('PROJECT_PERFORMANCE_REPORT:READ+DELETE', 'PROJECT_PERFORMANCE_REPORT:READ+EXPORT');
     this.reportId = this.$route.path.split('/')[4];
     if (this.perReportId) {
       this.reportId = this.perReportId;
