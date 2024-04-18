@@ -1,6 +1,7 @@
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
+import { EnvConfig, EnvironmentItem } from '@/models/projectManagement/environmental';
 import type { LoginConfig, PageConfig, PlatformConfig, ThemeConfig } from '@/models/setting/config';
 import { ProjectListItem } from '@/models/setting/project';
 
@@ -40,6 +41,8 @@ export interface AppState {
   packageType: string;
   projectList: ProjectListItem[];
   ordList: { id: string; name: string }[];
+  envList: EnvironmentItem[];
+  currentEnvConfig?: EnvConfig; // 当前环境配置信息
 }
 
 export interface UploadFileTaskState {

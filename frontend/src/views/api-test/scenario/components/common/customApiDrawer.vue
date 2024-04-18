@@ -53,9 +53,9 @@
           v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
           class="customApiDrawer-title-right flex items-center gap-[16px]"
         >
-          <a-tooltip :content="currentEnvConfig?.name" :disabled="!currentEnvConfig?.name">
+          <a-tooltip :content="appStore.currentEnvConfig?.name" :disabled="!appStore.currentEnvConfig?.name">
             <div class="one-line-text max-w-[250px] text-[14px] font-normal text-[var(--color-text-4)]">
-              {{ t('apiScenario.env', { name: currentEnvConfig?.name }) }}
+              {{ t('apiScenario.env', { name: appStore.currentEnvConfig?.name }) }}
             </div>
           </a-tooltip>
           <a-select
@@ -143,7 +143,7 @@
                 @change="handleUrlChange"
               >
                 <template v-if="showEnvPrefix" #prefix>
-                  {{ currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url }}
+                  {{ appStore.currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url }}
                 </template>
               </a-input>
             </a-input-group>
@@ -397,7 +397,6 @@
     RequestTaskResult,
   } from '@/models/apiTest/common';
   import { ScenarioStepFileParams, ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -483,7 +482,6 @@
 
   // 注入祖先组件提供的属性
   const scenarioId = inject<string | number>('scenarioId');
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const hasLocalExec = inject<Ref<boolean>>('hasLocalExec');
   const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
 
@@ -578,7 +576,7 @@
   const showEnvPrefix = computed(
     () =>
       requestVModel.value.customizeRequestEnvEnable &&
-      currentEnvConfig?.value.httpConfig.find((e) => e.type === 'NONE')?.url
+      appStore.currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url
   );
   const currentLoop = ref(1);
   const currentResponse = computed(() => {

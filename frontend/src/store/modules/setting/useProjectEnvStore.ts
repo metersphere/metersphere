@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { cloneDeep } from 'lodash-es';
-import localforage from 'localforage';
 
 import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
 import useLocalForage from '@/hooks/useLocalForage';

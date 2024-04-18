@@ -7,10 +7,6 @@
 
   import conditionContent from '@/views/api-test/components/condition/content.vue';
 
-  import { getEnvironment } from '@/api/modules/api-test/common';
-  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-
-  const store = useProjectEnvStore();
   interface ScriptItem {
     [key: string]: any;
   }
@@ -31,26 +27,12 @@
 
   const condition = useVModel(props, 'data', emit);
 
-  const currentEnvConfig = ref({});
-
-  async function initEnvironment() {
-    if (store.currentId) {
-      currentEnvConfig.value = await getEnvironment(store.currentId);
-    }
-  }
-  /** 向孙组件提供属性 */
-  provide('currentEnvConfig', readonly(currentEnvConfig));
-
   /**
    * 删除列表项
    */
   function deleteItem(id: string | number) {
     emit('deleteScriptItem', id);
   }
-
-  onBeforeMount(() => {
-    initEnvironment();
-  });
 </script>
 
 <style lang="less" scoped></style>

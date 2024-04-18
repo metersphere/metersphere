@@ -549,7 +549,6 @@
 
   const { t } = useI18n();
 
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const condition = defineModel<ExecuteConditionProcessor>('data', {
     required: true,
   });
@@ -557,10 +556,10 @@
   function filterDataSource() {
     if (condition.value.processorType === RequestConditionProcessor.SQL && condition.value.dataSourceId) {
       // 如果是SQL类型的条件且已选数据源，需要根据环境切换数据源
-      const dataSourceItem = currentEnvConfig?.value.dataSources.find(
+      const dataSourceItem = appStore.currentEnvConfig?.dataSources.find(
         (item) => item.dataSource === condition.value.dataSourceName
       );
-      if (currentEnvConfig?.value.dataSources.length === 0) {
+      if (appStore.currentEnvConfig?.dataSources.length === 0) {
         // 如果没有数据源，就清除已选的数据源
         condition.value.dataSourceName = '';
         condition.value.dataSourceId = '';
@@ -568,16 +567,16 @@
         // 每次初始化都去查找一下最新的数据源，因为切换环境的时候数据源也需要切换
         condition.value.dataSourceName = dataSourceItem.dataSource;
         condition.value.dataSourceId = dataSourceItem.id;
-      } else if (currentEnvConfig && currentEnvConfig.value.dataSources.length > 0) {
+      } else if (appStore.currentEnvConfig && appStore.currentEnvConfig?.dataSources.length > 0) {
         // 如果没有找到，就默认取第一个数据源
-        condition.value.dataSourceName = currentEnvConfig.value.dataSources[0].dataSource;
-        condition.value.dataSourceId = currentEnvConfig.value.dataSources[0].id;
+        condition.value.dataSourceName = appStore.currentEnvConfig?.dataSources[0].dataSource;
+        condition.value.dataSourceId = appStore.currentEnvConfig?.dataSources[0].id;
       }
     }
   }
 
   watch(
-    () => currentEnvConfig?.value,
+    () => appStore.currentEnvConfig?.id,
     () => {
       filterDataSource();
     },

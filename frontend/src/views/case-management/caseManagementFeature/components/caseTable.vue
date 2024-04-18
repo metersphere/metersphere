@@ -699,7 +699,7 @@
       fixed: 'right',
       showInTable: true,
       showDrag: false,
-      width: hasOperationPermission.value ? 200 : 50,
+      width: hasOperationPermission.value ? 130 : 50,
     },
   ];
   const platformInfo = ref<Record<string, any>>({});

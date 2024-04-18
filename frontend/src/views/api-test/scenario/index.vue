@@ -17,10 +17,7 @@
         </template>
       </MsEditableTab>
       <div v-show="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
-        <environmentSelect
-          v-model:currentEnv="activeScenarioTab.environmentId"
-          v-model:current-env-config="currentEnvConfig"
-        />
+        <MsEnvironmentSelect :env="activeScenarioTab.environmentId" />
         <executeButton
           ref="executeButtonRef"
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
@@ -115,8 +112,8 @@
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
-  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
@@ -170,7 +167,6 @@
     } as ScenarioParams,
   ]);
   const activeScenarioTab = ref<ScenarioParams>(scenarioTabs.value[0] as ScenarioParams);
-  const currentEnvConfig = ref<EnvConfig>();
   const executeButtonRef = ref<InstanceType<typeof executeButton>>();
 
   const websocketMap: Record<string | number, WebSocket> = {};
@@ -441,7 +437,7 @@
       scenarioTabs.value.push({
         ...cloneDeep(defaultScenario),
         id: getGenerateId(),
-        environmentId: currentEnvConfig.value?.id || '',
+        environmentId: appStore.currentEnvConfig?.id || '',
         label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
         moduleId: activeModule.value === 'all' ? 'root' : activeModule.value,
         projectId: appStore.currentProjectId,
@@ -616,7 +612,6 @@
   provide('isPriorityLocalExec', readonly(isPriorityLocalExec));
   provide('hasLocalExec', readonly(hasLocalExec));
   provide('localExecuteUrl', readonly(localExecuteUrl));
-  provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('scenarioId', scenarioId);
   provide('scenarioExecuteLoading', scenarioExecuteLoading);
   provide('moduleTree', readonly(moduleTree));

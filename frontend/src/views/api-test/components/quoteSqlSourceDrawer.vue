@@ -40,8 +40,7 @@
 
   import { getEnvironment } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
-
-  import { EnvConfig } from '@/models/projectManagement/environmental';
+  import useAppStore from '@/store/modules/app';
 
   const props = defineProps<{
     visible: boolean;
@@ -52,10 +51,10 @@
     (e: 'apply', value: any): void;
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   /** 接收祖先组件提供的属性 */
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const innerVisible = useVModel(props, 'visible', emit);
   const keyword = ref('');
   const selectedKey = ref(props.selectedKey || '');
@@ -112,12 +111,13 @@
       const res = await getEnvironment(envId);
       propsRes.value.data = cloneDeep(res.dataSources) as any[];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
   watch(
-    () => currentEnvConfig?.value,
+    () => appStore.currentEnvConfig,
     (config) => {
       if (config && config.id) {
         initEnvironment(config.id);
@@ -131,20 +131,20 @@
   watch(
     () => innerVisible.value,
     (val) => {
-      if (val && currentEnvConfig?.value.id) {
-        initEnvironment(currentEnvConfig.value.id);
+      if (val && appStore.currentEnvConfig?.id) {
+        initEnvironment(appStore.currentEnvConfig?.id);
       }
     }
   );
 
   function searchDataSource() {
-    propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];
+    propsRes.value.data = cloneDeep(appStore.currentEnvConfig?.dataSources) as any[];
     if (keyword.value.trim() !== '') {
-      propsRes.value.data = currentEnvConfig?.value.dataSources.filter((e) =>
+      propsRes.value.data = appStore.currentEnvConfig?.dataSources.filter((e) =>
         e.dataSource.includes(keyword.value)
       ) as any[];
     } else {
-      propsRes.value.data = cloneDeep(currentEnvConfig?.value.dataSources) as any[];
+      propsRes.value.data = cloneDeep(appStore.currentEnvConfig?.dataSources) as any[];
     }
   }
 

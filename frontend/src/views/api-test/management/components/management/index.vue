@@ -28,11 +28,10 @@
         </a-tooltip>
       </template>
     </MsEditableTab>
-    <environmentSelect
+    <MsEnvironmentSelect
       v-show="activeApiTab.id !== 'all'"
       ref="environmentSelectRef"
-      v-model:current-env="activeApiTab.environmentId"
-      :set-default-env="false"
+      :env="activeApiTab.environmentId"
     />
   </div>
   <api
@@ -66,10 +65,10 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
   import api from './api/index.vue';
   import apiCase from './case/index.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
-  import environmentSelect from '@/views/api-test/components/environmentSelect.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
@@ -82,7 +81,6 @@
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestComposition,
@@ -306,9 +304,6 @@
     }
   }
 
-  const environmentSelectRef = ref<InstanceType<typeof environmentSelect>>();
-  const currentEnvConfig = computed<EnvConfig | undefined>(() => environmentSelectRef.value?.currentEnvConfig);
-
   onBeforeMount(() => {
     initMemberOptions();
     initProtocolList();
@@ -322,7 +317,6 @@
   ]);
 
   /** 向孙组件提供属性 */
-  provide('currentEnvConfig', readonly(currentEnvConfig));
   provide('defaultCaseParams', readonly(defaultCaseParams));
   provide('protocols', readonly(protocols));
 

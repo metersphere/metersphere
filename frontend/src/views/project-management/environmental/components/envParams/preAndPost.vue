@@ -65,11 +65,8 @@
   import PreTab from './PreTab.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { EnvTabTypeEnum } from '@/enums/envEnum';
-
-  const store = useProjectEnvStore();
 
   const { t } = useI18n();
 
@@ -108,14 +105,6 @@
             postTip: t('project.environmental.http.postTextPostTip'),
           };
     }
-  });
-
-  const currentEnvConfig = ref({});
-  /** 向孙组件提供属性 */
-  provide('currentEnvConfig', readonly(currentEnvConfig));
-
-  onBeforeMount(() => {
-    currentEnvConfig.value = store.currentEnvDetailInfo;
   });
 </script>
 

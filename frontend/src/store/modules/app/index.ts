@@ -5,10 +5,11 @@ import { cloneDeep } from 'lodash-es';
 
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
+import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
 import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
 import { getProjectList } from '@/api/modules/project-management/project';
 import { getPageConfig } from '@/api/modules/setting/config';
-import { getPackageType, getSystemVersion, getUserHasProjectPermission } from '@/api/modules/system';
+import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
@@ -65,6 +66,8 @@ const useAppStore = defineStore('app', {
     packageType: '',
     projectList: [] as ProjectListItem[],
     ordList: [],
+    envList: [],
+    currentEnvConfig: undefined,
   }),
 
   getters: {
@@ -346,6 +349,30 @@ const useAppStore = defineStore('app', {
           this.projectList = res;
         } else {
           this.projectList = [];
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    },
+    async setEnvConfig(env: string) {
+      try {
+        const res = await getEnvironment(env);
+        this.currentEnvConfig = {
+          ...res,
+          id: env,
+          name: this.envList.find((item) => item.id === env)?.name || '',
+        };
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    },
+    async initEnvList(env?: string) {
+      try {
+        this.envList = await getEnvList(this.currentProjectId);
+        if (this.envList.findIndex((item) => item.id === this.currentEnvConfig?.id) === -1) {
+          this.setEnvConfig(env || this.envList[0]?.id);
         }
       } catch (error) {
         // eslint-disable-next-line no-console

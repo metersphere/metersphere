@@ -92,7 +92,6 @@
             :file-save-as-source-id="activeApiTab.id"
             :file-module-options-api="getTransferOptions"
             :file-save-as-api="transferFile"
-            :current-env-config="currentEnvConfig"
             is-definition
             @add-done="handleAddDone"
           />
@@ -184,7 +183,6 @@
   const { openModal } = useModal();
 
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
-  const currentEnvConfig = inject<Ref<EnvConfig>>('currentEnvConfig');
   const apiTabs = defineModel<RequestParam[]>('apiTabs', {
     required: true,
   });

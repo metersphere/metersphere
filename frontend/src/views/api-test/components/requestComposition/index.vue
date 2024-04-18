@@ -530,7 +530,6 @@
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     otherParams?: Record<string, any>; // 保存请求时的其他参数
-    currentEnvConfig?: EnvConfig;
     executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
     localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
     createApi?: (...args) => Promise<any>; // 创建接口
@@ -1147,7 +1146,7 @@
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
-      environmentId: props.currentEnvConfig?.id || '',
+      environmentId: appStore.currentEnvConfig?.id || '',
       name: requestName,
       moduleId: requestModuleId,
       ...apiDefinitionParams,
@@ -1517,7 +1516,7 @@
               ...definitionParams,
               ...saveCaseModalForm.value,
               projectId: appStore.currentProjectId,
-              environmentId: props.currentEnvConfig?.id || '',
+              environmentId: appStore.currentEnvConfig?.id || '',
               apiDefinitionId: requestVModel.value.id,
             };
             await addCase(params);
