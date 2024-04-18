@@ -63,4 +63,42 @@
         order by u.update_time desc
         limit 100
     </select>
+
+    <select id="getProjectRoleMemberIds" resultType="java.lang.String">
+        select u.id,
+        from `user` u
+        left join user_role_relation urr on urr.user_id = u.id
+        where urr.source_id = #{request.projectId} and u.deleted = false
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
+    </select>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            u.name like concat('%', #{request.condition.keyword}, '%')
+            or u.email like concat('%', #{request.condition.keyword}, '%')
+            or u.phone like concat('%', #{request.condition.keyword}, '%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </sql>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 评审状态 -->
+                        <when test="key=='roleIds'">
+                            and urr.role_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
 </mapper>

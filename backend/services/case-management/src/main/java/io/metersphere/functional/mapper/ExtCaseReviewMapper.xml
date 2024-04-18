@@ -63,8 +63,8 @@
         </if>
         <if test="request.condition.keyword != null">
             and (
-            case_review.name like concat('%', #{request.keyword},'%')
-            or case_review.num like concat('%', #{request.keyword},'%')
+            case_review.name like concat('%', #{request.condition.keyword},'%')
+            or case_review.num like concat('%', #{request.condition.keyword},'%')
            )
         </if>
         <if test="request.createByMe != null">
