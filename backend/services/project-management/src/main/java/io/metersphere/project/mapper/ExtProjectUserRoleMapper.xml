@@ -65,7 +65,7 @@
     </select>
 
     <select id="getProjectRoleMemberIds" resultType="java.lang.String">
-        select u.id,
+        select distinct u.id
         from `user` u
         left join user_role_relation urr on urr.user_id = u.id
         where urr.source_id = #{request.projectId} and u.deleted = false
