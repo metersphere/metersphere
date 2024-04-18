@@ -953,7 +953,6 @@
       keyword: keyword.value,
       moduleIds,
       projectId: currentProjectId.value,
-
       filter: {
         reviewStatus: statusFilters.value,
         caseLevel: caseFilters.value,
@@ -961,11 +960,7 @@
         updateUserName: updateUserFilters.value,
         createUserName: createUserFilters.value,
       },
-      condition: {
-        keyword: keyword.value,
-        filter: propsRes.value.filter,
-        combine: batchParams.value.condition,
-      },
+      combine: batchParams.value.condition,
     };
   }
   // 获取父组件模块数量
@@ -1113,7 +1108,13 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: {
           keyword: keyword.value,
-          filter: propsRes.value.filter,
+          filter: {
+            reviewStatus: statusFilters.value,
+            caseLevel: caseFilters.value,
+            lastExecuteResult: executeResultFilters.value,
+            updateUserName: updateUserFilters.value,
+            createUserName: createUserFilters.value,
+          },
           combine: batchParams.value.condition,
         },
         projectId: currentProjectId.value,
@@ -1192,7 +1193,13 @@
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             condition: {
               keyword: keyword.value,
-              filter: propsRes.value.filter,
+              filter: {
+                reviewStatus: statusFilters.value,
+                caseLevel: caseFilters.value,
+                lastExecuteResult: executeResultFilters.value,
+                updateUserName: updateUserFilters.value,
+                createUserName: createUserFilters.value,
+              },
               combine: batchParams.value.condition,
             },
             selectAll,
@@ -1431,7 +1438,13 @@
       condition: {
         keyword: keyword.value,
         searchMode: accordBelow,
-        filter: propsRes.value.filter,
+        filter: {
+          reviewStatus: statusFilters.value,
+          caseLevel: caseFilters.value,
+          lastExecuteResult: executeResultFilters.value,
+          updateUserName: updateUserFilters.value,
+          createUserName: createUserFilters.value,
+        },
         combine,
       },
     };
@@ -1575,7 +1588,13 @@
         },
         condition: {
           keyword: keyword.value,
-          filter: propsRes.value.filter,
+          filter: {
+            reviewStatus: statusFilters.value,
+            caseLevel: caseFilters.value,
+            lastExecuteResult: executeResultFilters.value,
+            updateUserName: updateUserFilters.value,
+            createUserName: createUserFilters.value,
+          },
           combine: batchParams.value.condition,
         },
         functionalDemandBatchRequest,

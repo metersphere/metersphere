@@ -677,17 +677,16 @@
       selectIds: batchParams.value.selectedIds,
       moduleIds: searchParams.value.moduleIds,
       projectId: currentProjectId.value,
-      filter: {
-        reviewStatus: statusFilters.value,
-        caseLevel: caseFilters.value,
-        lastExecuteResult: executeResultFilters.value,
-        updateUserName: updateUserFilters.value,
-        createUserName: createUserFilters.value,
-        deleteUserName: deleteUserFilters.value,
-      },
       condition: {
         keyword: keyword.value,
-        filter: propsRes.value.filter,
+        filter: {
+          reviewStatus: statusFilters.value,
+          caseLevel: caseFilters.value,
+          lastExecuteResult: executeResultFilters.value,
+          updateUserName: updateUserFilters.value,
+          createUserName: createUserFilters.value,
+          deleteUserName: deleteUserFilters.value,
+        },
         combine: batchParams.value.condition,
       },
     };
@@ -713,11 +712,6 @@
         updateUserName: updateUserFilters.value,
         createUserName: createUserFilters.value,
         deleteUserName: deleteUserFilters.value,
-      },
-      condition: {
-        keyword: keyword.value,
-        filter: propsRes.value.filter,
-        combine: batchParams.value.condition,
       },
     };
   }
