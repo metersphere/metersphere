@@ -24,7 +24,7 @@
       <MsJsonPathPicker :data="props.response || ''" class="bg-white" @init="initJsonPath" @pick="handlePathPick" />
     </div>
     <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.X_PATH" class="code-container">
-      <MsXPathPicker :xml-string="props.response || ''" class="bg-white" @pick="handlePathPick" />
+      <MsXPathPicker :xml-string="props.response || ''" class="bg-white" @init="initXpath" @pick="handlePathPick" />
     </div>
     <a-form ref="expressionFormRef" :model="expressionForm" layout="vertical" class="mt-[16px]">
       <a-form-item
@@ -162,7 +162,7 @@
   import moreSetting from './moreSetting.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { matchXMLWithXPath } from '@/utils/xpath';
+  import { extractTextFromHtmlWithXPath, matchXMLWithXPath } from '@/utils/xpath';
 
   import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { RequestExtractExpressionEnum, RequestExtractExpressionRuleType } from '@/enums/apiEnum';
@@ -193,6 +193,7 @@
   const expressionForm = ref({ ...props.config });
   const expressionFormRef = ref<FormInstance | null>(null);
   const parseJson = ref<string | Record<string, any>>({});
+  const isHtml = ref(false);
   const matchResult = ref<any[]>([]); // 当前匹配结果
   const isMatched = ref(false); // 是否执行过匹配
 
@@ -211,6 +212,10 @@
     parseJson.value = _parseJson;
   }
 
+  function initXpath(type: 'xml' | 'html') {
+    isHtml.value = type === 'html';
+  }
+
   function handlePathPick(path: string, _parseJson: string | Record<string, any>) {
     expressionForm.value.expression = path;
     parseJson.value = _parseJson;
@@ -223,7 +228,9 @@
   function testExpression() {
     switch (props.config.extractType) {
       case RequestExtractExpressionEnum.X_PATH:
-        const nodes = matchXMLWithXPath(props.response || '', expressionForm.value.expression);
+        const nodes = isHtml.value
+          ? extractTextFromHtmlWithXPath(props.response || '', expressionForm.value.expression)
+          : matchXMLWithXPath(props.response || '', expressionForm.value.expression);
         if (nodes) {
           // 直接匹配到文本信息
           if (typeof nodes === 'boolean' || typeof nodes === 'string' || typeof nodes === 'number') {
@@ -248,7 +255,7 @@
             JSONPath({
               json: parseJson.value,
               path: expressionForm.value.expression,
-            })?.map((e) => JSON.stringify(e).replace(/Number\(([^)]+)\)/g, '$1')) || [];
+            })?.map((e) => JSON.stringify(e).replace(/"Number\(([^)]+)\)"|Number\(([^)]+)\)/g, '$1$2')) || [];
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
         }

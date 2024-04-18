@@ -164,6 +164,7 @@
     },
     {
       title: '',
+      dataIndex: 'operation',
       slotName: 'operation',
       width: 50,
     },

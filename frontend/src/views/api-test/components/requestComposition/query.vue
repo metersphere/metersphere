@@ -112,6 +112,7 @@
       : [
           {
             title: '',
+            dataIndex: 'operation',
             slotName: 'operation',
             fixed: 'right' as TableColumnData['fixed'],
             width: 50,

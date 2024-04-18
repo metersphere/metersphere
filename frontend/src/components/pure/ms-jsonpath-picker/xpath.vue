@@ -13,12 +13,13 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { XpathNode } from './types';
+  import HtmlBeautify from 'pretty';
   import XmlBeautify from 'xml-beautify';
 
   const props = defineProps<{
     xmlString: string;
   }>();
-  const emit = defineEmits(['pick']);
+  const emit = defineEmits(['pick', 'init']);
 
   const { t } = useI18n();
 
@@ -74,9 +75,95 @@
     }
   }
 
+  /**
+   * 将html扁平化
+   * @param node html节点
+   * @param currentPath 当前路径
+   */
+  function flattenHtml(node: HTMLElement | Element, currentPath: string) {
+    const sameNameSiblings = getSameNameSiblings(node);
+    if (sameNameSiblings.length > 1) {
+      const sameNodesIndex = document.evaluate(
+        `count(ancestor-or-self::${node.nodeName.toLowerCase()}/preceding-sibling::${node.nodeName.toLowerCase()}) + 1`,
+        node,
+        null,
+        XPathResult.NUMBER_TYPE,
+        null
+      ).numberValue;
+      const xpath = `${currentPath}/${node.nodeName.toLowerCase()}[${sameNodesIndex}]`;
+      tempXmls.value.push({ content: node.nodeName.toLowerCase(), xpath });
+      const children = Array.from(node.children);
+      children.forEach((child) => {
+        flattenHtml(child, xpath);
+      });
+    } else {
+      const xpath = `${currentPath}/${node.nodeName.toLowerCase()}`;
+      tempXmls.value.push({ content: node.nodeName.toLowerCase(), xpath });
+      const children = Array.from(node.children);
+      children.forEach((child) => {
+        flattenHtml(child, xpath);
+      });
+    }
+  }
+
   function copyXPath(xpath: string) {
     if (xpath) {
       emit('pick', xpath);
+    }
+  }
+
+  /**
+   * 替换文档
+   * @param beautifyDoc 格式化后的文档
+   */
+  function replaceDoc(beautifyDoc: string) {
+    // 先将 HTML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
+    flattenedXml.value = beautifyDoc
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/(&lt;([^/][^&]*?)&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>')
+      .split(/\r?\n/)
+      .map((e) => ({ content: e, xpath: '' }));
+  }
+
+  /**
+   * 解析html
+   */
+  function parseHtml() {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(props.xmlString, 'text/html');
+      // 如果存在 parsererror 元素，说明 HTML 不合法
+      const htmlErrors = xmlDoc.getElementsByTagName('parsererror');
+      if (htmlErrors.length > 0) {
+        isValidXml.value = false;
+        return;
+      }
+      isValidXml.value = true;
+      parsedXml.value = xmlDoc;
+      const beautifyDoc = HtmlBeautify(props.xmlString, { ocd: true });
+      replaceDoc(beautifyDoc);
+      // 解析真实 HTML 并将其扁平化，得到每个节点的 xpath
+      flattenHtml(xmlDoc.documentElement, '');
+      // 将扁平化后的 XML/HTML 字符串中的每个节点的 xpath 替换为真实的 xpath
+      flattenedXml.value = flattenedXml.value
+        .map((e) => {
+          const targetNodeIndex = tempXmls.value.findIndex((txt) => e.content.includes(`&lt;${txt.content}`));
+          if (targetNodeIndex >= 0) {
+            const { xpath } = tempXmls.value[targetNodeIndex];
+            tempXmls.value.splice(targetNodeIndex, 1); // 匹配成功后，将匹配到的节点从 tempXmls 中删除，避免重复匹配
+            return {
+              ...e,
+              xpath,
+            };
+          }
+          return false;
+        })
+        .filter(Boolean) as any[];
+      emit('init', 'html');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error parsing XML:', error);
     }
   }
 
@@ -88,21 +175,15 @@
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(props.xmlString, 'application/xml');
       // 如果存在 parsererror 元素，说明 XML 不合法
-      const errors = xmlDoc.getElementsByTagName('parsererror');
-      if (errors.length > 0) {
-        isValidXml.value = false;
+      const xmlErrors = xmlDoc.getElementsByTagName('parsererror');
+      if (xmlErrors.length > 0) {
+        parseHtml();
         return;
       }
       isValidXml.value = true;
       parsedXml.value = xmlDoc;
-      // 先将 XML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
-      flattenedXml.value = new XmlBeautify()
-        .beautify(props.xmlString)
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/(&lt;([^/][^&]*?)&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>')
-        .split(/\r?\n/)
-        .map((e) => ({ content: e, xpath: '' }));
+      const beautifyDoc = new XmlBeautify().beautify(props.xmlString);
+      replaceDoc(beautifyDoc);
       // 解析真实 XML 并将其扁平化，得到每个节点的 xpath
       flattenXml(xmlDoc.documentElement, '');
       // 将扁平化后的 XML 字符串中的每个节点的 xpath 替换为真实的 xpath
@@ -118,6 +199,7 @@
         }
         return e;
       });
+      emit('init', 'xml');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error parsing XML:', error);

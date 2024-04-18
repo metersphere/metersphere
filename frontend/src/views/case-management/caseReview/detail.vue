@@ -102,7 +102,7 @@
   <MsCard class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
       <template #first>
-        <div class="p-[24px]">
+        <div class="p-[16px]">
           <CaseTree
             ref="folderTreeRef"
             :modules-count="modulesCount"

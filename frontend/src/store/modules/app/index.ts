@@ -39,7 +39,7 @@ const defaultLoginConfig = {
 const defaultPlatformConfig = {
   logoPlatform: [],
   platformName: 'MeterSphere',
-  helpDoc: '',
+  helpDoc: 'https://metersphere.io/docs/v3.x/',
 };
 
 const useAppStore = defineStore('app', {
@@ -105,8 +105,10 @@ const useAppStore = defineStore('app', {
         ...state.defaultPlatformConfig,
       };
     },
+    getCurrentEnvId(state: AppState): string {
+      return state.currentEnvConfig?.id || '';
+    },
   },
-
   actions: {
     /**
      * 更新设置

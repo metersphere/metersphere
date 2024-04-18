@@ -251,7 +251,7 @@
         res = await executeScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: activeScenarioTab.value.environmentId || '',
+          environmentId: appStore.getCurrentEnvId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           ...executeParams,
@@ -267,7 +267,7 @@
         res = await debugScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: activeScenarioTab.value.environmentId || '',
+          environmentId: appStore.getCurrentEnvId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           stepFileParam: activeScenarioTab.value.stepFileParam,
@@ -437,7 +437,7 @@
       scenarioTabs.value.push({
         ...cloneDeep(defaultScenario),
         id: getGenerateId(),
-        environmentId: appStore.currentEnvConfig?.id || '',
+        environmentId: appStore.getCurrentEnvId || '',
         label: `${t('apiScenario.createScenario')}${scenarioTabs.value.length}`,
         moduleId: activeModule.value === 'all' ? 'root' : activeModule.value,
         projectId: appStore.currentProjectId,
@@ -494,7 +494,7 @@
             };
           }),
           projectId: appStore.currentProjectId,
-          environmentId: activeScenarioTab.value.environmentId || '',
+          environmentId: appStore.getCurrentEnvId || '',
         });
         const scenarioDetail = await getScenarioDetail(res.id);
         scenarioDetail.stepDetails = {};
@@ -534,7 +534,7 @@
       } else {
         await updateScenario({
           ...activeScenarioTab.value,
-          environmentId: activeScenarioTab.value.environmentId || '',
+          environmentId: appStore.getCurrentEnvId || '',
           steps: mapTree(activeScenarioTab.value.steps, (node) => {
             return {
               ...node,

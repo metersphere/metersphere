@@ -508,6 +508,7 @@
       showSelectAll: !props.readOnly,
       draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
       heightUsed: 256,
+      paginationSize: 'mini',
       showSubdirectory: true,
     },
     (item) => ({
@@ -688,7 +689,14 @@
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { keyword: keyword.value },
+              condition: {
+                keyword: keyword.value,
+                filter: {
+                  status: statusFilters.value,
+                  method: methodFilters.value,
+                  createUser: createUserFilters.value,
+                },
+              },
               projectId: appStore.currentProjectId,
               moduleIds: await getModuleIds(),
               deleteAll: true,
@@ -813,6 +821,7 @@
               filter: {
                 status: statusFilters.value,
                 method: methodFilters.value,
+                createUser: createUserFilters.value,
               },
             },
             projectId: appStore.currentProjectId,
@@ -857,6 +866,7 @@
           filter: {
             status: statusFilters.value,
             method: methodFilters.value,
+            createUser: createUserFilters.value,
           },
         },
         projectId: appStore.currentProjectId,

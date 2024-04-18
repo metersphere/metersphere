@@ -4,7 +4,7 @@
       v-model:model-value="moduleKeyword"
       :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
       allow-clear
-      class="mb-[16px]"
+      class="mb-[8px]"
       :max-length="255"
     />
     <div class="folder">

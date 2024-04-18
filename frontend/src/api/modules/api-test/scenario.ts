@@ -149,7 +149,7 @@ export function batchOptionScenario(
   data: {
     moduleIds: string[];
     selectAll: boolean;
-    condition: { keyword: string };
+    condition: { keyword: string; filter: Record<string, any> };
     excludeIds: any[];
     selectIds: any[];
     projectId: string;

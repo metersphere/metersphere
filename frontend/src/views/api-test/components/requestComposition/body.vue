@@ -244,6 +244,7 @@
         : [
             {
               title: '',
+              dataIndex: 'operation',
               slotName: 'operation',
               fixed: 'right' as TableColumnData['fixed'],
               format: innerParams.value.bodyType,
