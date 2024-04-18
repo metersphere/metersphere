@@ -107,7 +107,7 @@
 
 
     <select id="selectBaseByIds" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
-        SELECT id, name, parent_id AS parentId, 'module' AS type
+        SELECT id, name, parent_id AS parentId, 'MODULE' AS type
         FROM api_definition_module
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
