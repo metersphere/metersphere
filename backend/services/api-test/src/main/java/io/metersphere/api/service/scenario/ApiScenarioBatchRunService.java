@@ -60,12 +60,6 @@ public class ApiScenarioBatchRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
-    @Resource
-    private ApiReportMapper apiReportMapper;
-    @Resource
-    private ApiReportDetailMapper apiReportDetailMapper;
-    @Resource
-    private ApiReportStepMapper apiReportStepMapper;
 
     /**
      * 异步批量执行
@@ -455,72 +449,12 @@ public class ApiScenarioBatchRunService {
                 report.setPendingCount(pendingCount);
                 // 计算各种通过率
                 long total = apiScenarioReportService.getRequestTotal(report);
-                report = computeRequestRate(report, total);
+                report = apiBatchRunBaseService.computeRequestRate(report, total);
+                report.setStatus(ApiReportStatus.ERROR.name());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             }
         } catch (Exception e) {
             LogUtils.error("失败停止，补充报告步骤失败：", e);
         }
     }
-    public void updateStopOnFailureApiReport(ExecutionQueue queue) {
-        ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
-        if (runModeConfig.isIntegratedReport()) {
-            // 获取未执行的请求数，更新统计指标
-            String reportId = runModeConfig.getCollectionReport().getReportId();
-            ApiReport report = apiReportMapper.selectByPrimaryKey(reportId);
-            ApiReportDetailExample example = new ApiReportDetailExample();
-            example.createCriteria().andReportIdEqualTo(reportId);
-            ApiReportStepExample stepExample = new ApiReportStepExample();
-            stepExample.createCriteria().andReportIdEqualTo(reportId);
-            long total = apiReportStepMapper.countByExample(stepExample);
-            long pendCount = total - apiReportDetailMapper.countByExample(example);
-            report.setPendingCount(pendCount);
-            ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
-            BeanUtils.copyBean(apiScenarioReport, report);
-            apiScenarioReport = computeRequestRate(apiScenarioReport, total);
-            BeanUtils.copyBean(report, apiScenarioReport);
-            apiReportMapper.updateByPrimaryKeySelective(report);
-        }
-
-    }
-
-    public ApiScenarioReport computeRequestRate(ApiScenarioReport report , long total) {
-        // 计算各个概率
-        double successRate = calculateRate(report.getSuccessCount(), total);
-        double errorRate = calculateRate(report.getErrorCount(), total);
-        double pendingRate = calculateRate(report.getPendingCount(), total);
-        double fakeErrorRate = calculateRate(report.getFakeErrorCount(), total);
-
-        // 计算总和
-        double sum = successRate + errorRate + pendingRate + fakeErrorRate;
-
-        LogUtils.info("偏移总量重新计算", sum);
-
-        // 避免分母为零
-        double adjustment = sum > 0 ? 1.0 / sum : 0.0;
-
-        // 调整概率，使总和精确为100%
-        successRate *= adjustment;
-        errorRate *= adjustment;
-        pendingRate *= adjustment;
-        fakeErrorRate *= adjustment;
-
-        report.setRequestPassRate(formatRate(successRate));
-        report.setRequestErrorRate(formatRate(errorRate));
-        report.setRequestPendingRate(formatRate(pendingRate));
-        report.setRequestFakeErrorRate(formatRate(fakeErrorRate));
-
-        return report;
-    }
-
-    // 计算概率
-    private static double calculateRate(long count, double total) {
-        return total > 0 ? count / total : 0.0;
-    }
-
-    // 格式化概率，保留两位小数
-    private static String formatRate(double rate) {
-        return String.format("%.2f", rate * 100);
-    }
-
 }

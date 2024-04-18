@@ -1,9 +1,11 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,4 +54,42 @@ public class ApiBatchRunBaseService {
         return queue;
     }
 
+    public ApiScenarioReport computeRequestRate(ApiScenarioReport report , long total) {
+        // 计算各个概率
+        double successRate = calculateRate(report.getSuccessCount(), total);
+        double errorRate = calculateRate(report.getErrorCount(), total);
+        double pendingRate = calculateRate(report.getPendingCount(), total);
+        double fakeErrorRate = calculateRate(report.getFakeErrorCount(), total);
+
+        // 计算总和
+        double sum = successRate + errorRate + pendingRate + fakeErrorRate;
+
+        LogUtils.info("偏移总量重新计算", sum);
+
+        // 避免分母为零
+        double adjustment = sum > 0 ? 1.0 / sum : 0.0;
+
+        // 调整概率，使总和精确为100%
+        successRate *= adjustment;
+        errorRate *= adjustment;
+        pendingRate *= adjustment;
+        fakeErrorRate *= adjustment;
+
+        report.setRequestPassRate(formatRate(successRate));
+        report.setRequestErrorRate(formatRate(errorRate));
+        report.setRequestPendingRate(formatRate(pendingRate));
+        report.setRequestFakeErrorRate(formatRate(fakeErrorRate));
+
+        return report;
+    }
+
+    // 计算概率
+    private static double calculateRate(long count, double total) {
+        return total > 0 ? count / total : 0.0;
+    }
+
+    // 格式化概率，保留两位小数
+    private static String formatRate(double rate) {
+        return String.format("%.2f", rate * 100);
+    }
 }
