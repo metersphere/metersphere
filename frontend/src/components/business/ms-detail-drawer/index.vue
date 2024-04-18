@@ -104,27 +104,14 @@
     emit('loadingDetail');
   }
 
-  watch(
-    () => innerVisible.value,
-    (val) => {
-      if (val) {
-        nextTick(() => {
-          // 为了确保 prevNextButtonRef 已渲染
-          initDetail();
-        });
-      }
-    }
-  );
-
-  watch(
-    () => props.detailId,
-    () => {
+  watch([() => innerVisible.value, () => props.detailId], () => {
+    if (innerVisible.value) {
       nextTick(() => {
         // 为了确保 prevNextButtonRef 已渲染
-        openNextDetail();
+        initDetail();
       });
     }
-  );
+  });
 
   defineExpose({
     initDetail,

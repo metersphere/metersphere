@@ -46,15 +46,10 @@
     @batch-action="handleTableBatch"
     @change="changeHandler"
     @module-change="initData()"
-    @cell-click="showCaseDetailEvent"
+    @cell-click="handleCellClick"
   >
-    <template #num="{ record, rowIndex }">
-      <span
-        type="text"
-        class="one-line-text px-0 text-[rgb(var(--primary-5))]"
-        @click="showCaseDetail(record.id, rowIndex)"
-        >{{ record.num }}</span
-      >
+    <template #num="{ record }">
+      <span type="text" class="one-line-text px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
       <div type="text">{{ characterLimit(record.name) }}</div>
@@ -1289,9 +1284,14 @@
 
   // 抽屉详情
   function showCaseDetail(id: string, index: number) {
-    showDetailDrawer.value = true;
     activeDetailId.value = id;
-    activeCaseIndex.value = index - 1;
+    activeCaseIndex.value = index;
+    showDetailDrawer.value = true;
+  }
+
+  function handleCellClick(record: TableData) {
+    const index = propsRes.value.data.findIndex((item) => item.id === record.id);
+    showCaseDetail(record.id, index);
   }
 
   // 创建详情
@@ -1515,19 +1515,6 @@
       } catch (error) {
         console.log(error);
       }
-    }
-  }
-
-  function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
-    showDetailDrawer.value = false;
-    if (column.title === 'num') {
-      activeDetailId.value = record.id;
-      if (activeCaseIndex.value > 0) {
-        activeCaseIndex.value -= 1;
-      }
-      setTimeout(() => {
-        showDetailDrawer.value = true;
-      }, 100);
     }
   }
 

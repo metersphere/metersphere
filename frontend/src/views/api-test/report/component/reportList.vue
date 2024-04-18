@@ -528,13 +528,13 @@
   const showCaseDetailDrawer = ref<boolean>(false);
 
   function showReportDetail(id: string, rowIndex: number) {
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex;
     if (props.moduleType === ReportEnum.API_SCENARIO_REPORT) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
     }
-    activeDetailId.value = id;
-    activeReportIndex.value = rowIndex - 1;
   }
 
   const shareTime = ref<string>('');
