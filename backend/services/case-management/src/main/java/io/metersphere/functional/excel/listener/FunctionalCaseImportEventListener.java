@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -84,7 +85,9 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     protected static final int TAGS_COUNT = 15;
     protected static final int TAG_LENGTH = 64;
 
-    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, SessionUser user) {
+    private AtomicLong lastPos;
+
+    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, SessionUser user, Long pos) {
         this.mergeInfoSet = mergeInfoSet;
         this.request = request;
         excelDataClass = clazz;
@@ -93,6 +96,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         moduleTree = CommonBeanFactory.getBean(FunctionalCaseModuleService.class).getTree(request.getProjectId());
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        lastPos = new AtomicLong(pos);
         this.user = user;
 
     }
@@ -201,7 +205,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      */
     private void saveData() {
         if (CollectionUtils.isNotEmpty(list)) {
-            functionalCaseService.saveImportData(list, request, moduleTree, customFieldsMap, pathMap, user);
+            functionalCaseService.saveImportData(list, request, moduleTree, customFieldsMap, pathMap, user, lastPos);
         }
 
         if (CollectionUtils.isNotEmpty(updateList)) {

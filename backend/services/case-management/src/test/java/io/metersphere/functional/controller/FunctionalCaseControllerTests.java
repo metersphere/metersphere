@@ -675,6 +675,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         FunctionalCaseImportRequest request = new FunctionalCaseImportRequest();
         request.setCover(true);
         request.setProjectId("100001100001");
+        request.setCount("1");
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
