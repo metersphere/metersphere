@@ -434,6 +434,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
             queryParam.setMinLength(queryParameter.getSchema().getMinLength());
             queryParam.setMaxLength(queryParameter.getSchema().getMaxLength());
         }
+        if (queryParameter.getExample() != null) {
+            queryParam.setValue(getDefaultObjectValue(queryParameter.getExample()));
+        }
         arguments.add(queryParam);
     }
 
@@ -445,6 +448,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         if (cookieParameter.getSchema() != null) {
             headerParams.setValue(getDefaultObjectValue(cookieParameter.getSchema().getExample()));
         }
+        if (cookieParameter.getExample() != null) {
+            headerParams.setValue(getDefaultObjectValue(cookieParameter.getExample()));
+        }
         headers.add(headerParams);
     }
 
@@ -454,6 +460,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         headerParams.setDescription(getDefaultStringValue(headerParameter.getDescription()));
         if (headerParameter.getSchema() != null) {
             headerParams.setValue(getDefaultObjectValue(headerParameter.getSchema().getExample()));
+        }
+        if (headerParameter.getExample() != null) {
+            headerParams.setValue(getDefaultObjectValue(headerParameter.getExample()));
         }
         headers.add(headerParams);
     }
@@ -469,6 +478,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
             restParam.setValue(getDefaultObjectValue(parameter.getSchema().getExample()));
             restParam.setMinLength(parameter.getSchema().getMinLength());
             restParam.setMaxLength(parameter.getSchema().getMaxLength());
+        }
+        if (parameter.getExample() != null) {
+            restParam.setValue(getDefaultObjectValue(parameter.getExample()));
         }
         rest.add(restParam);
     }
