@@ -16,6 +16,7 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(rollbackFor = Exception.class)
@@ -123,7 +124,6 @@ public class ScheduleService {
             schedule.setUpdateTime(System.currentTimeMillis());
             schedule.setJob(clazz.getName());
             scheduleMapper.updateByExampleSelective(schedule, example);
-            apiScheduleNoticeService.sendScheduleNotice(schedule, operator);
         } else {
             schedule = scheduleConfig.genCronSchedule(null);
             schedule.setJob(clazz.getName());
@@ -133,6 +133,12 @@ public class ScheduleService {
             schedule.setUpdateTime(System.currentTimeMillis());
             scheduleMapper.insert(schedule);
         }
+        //通知
+        if ((CollectionUtils.isEmpty(scheduleList) && BooleanUtils.isTrue(scheduleConfig.getEnable()))
+                || (CollectionUtils.isNotEmpty(scheduleList) && !scheduleList.getFirst().getEnable().equals(scheduleConfig.getEnable()))) {
+            apiScheduleNoticeService.sendScheduleNotice(schedule, operator);
+        }
+
 
         JobDataMap jobDataMap = scheduleManager.getDefaultJobDataMap(schedule, scheduleConfig.getCron(), operator);
 
