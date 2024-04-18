@@ -1123,7 +1123,7 @@
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { keyword: keyword.value },
+              condition: { ...params?.condition, keyword: keyword.value },
               projectId: appStore.currentProjectId,
               moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
               deleteAll: true,
@@ -1449,8 +1449,21 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
+    tableSelected.value = params?.selectedIds || [];
+    const filterParams = {
+      lastReportStatus: lastReportStatusListFilters.value,
+      status: statusFilters.value,
+      priority: priorityFilters.value,
+      createUser: createUserFilters.value,
+      updateUser: updateUserFilters.value,
+    };
+    if (batchParams.value.condition) {
+      batchParams.value.condition.filter = { ...filterParams };
+    } else {
+      batchParams.value.condition = { filter: { ...filterParams } };
+    }
+
     switch (event.eventTag) {
       case 'delete':
         deleteScenario(undefined, true, batchParams.value);

@@ -328,6 +328,7 @@
       dataIndex: 'environmentName',
       width: 159,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'apiScenario.table.columns.steps',
@@ -514,7 +515,7 @@
   });
 
   // 恢复
-  async function recover(record?: ApiScenarioTableItem, isBatch?: boolean) {
+  async function recover(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     try {
       if (isBatch) {
         recoverLoading.value = true;
@@ -522,7 +523,7 @@
           selectIds: batchParams.value?.selectedIds || [],
           selectAll: !!batchParams.value?.selectAll,
           excludeIds: batchParams.value?.excludeIds || [],
-          condition: { keyword: keyword.value },
+          condition: { ...params?.condition, keyword: keyword.value },
           projectId: appStore.currentProjectId,
           moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
         });
@@ -607,12 +608,25 @@
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
+    const filterParams = {
+      lastReportStatus: lastReportStatusListFilters.value,
+      status: statusFilters.value,
+      priority: priorityFilters.value,
+      createUser: createUserFilters.value,
+      updateUser: updateUserFilters.value,
+    };
+    if (batchParams.value.condition) {
+      batchParams.value.condition.filter = { ...filterParams };
+    } else {
+      batchParams.value.condition = { filter: { ...filterParams } };
+    }
+
     switch (event.eventTag) {
       case 'delete':
         deleteOperation(undefined, true, batchParams.value);
         break;
       case 'recover':
-        recover(undefined, true);
+        recover(undefined, true, batchParams.value);
         break;
       default:
         break;
