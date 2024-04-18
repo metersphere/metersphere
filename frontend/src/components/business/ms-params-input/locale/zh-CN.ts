@@ -209,4 +209,6 @@ export default {
   'ms.paramsInput.char': '从数字列表生成 Unicode 字符值',
   'ms.paramsInput.changeCase': '根据不同模式更改大小写',
   'ms.paramsInput.regexFunction': '使用正则表达式解析先前的响应',
+  'ms.paramsInput.sqlOperationName': '请输入SQL 操作名称',
+  'ms.paramsInput.sqlOperationNameDesc': 'SQL 操作名称',
 };
