@@ -320,11 +320,10 @@ public class EnvironmentService extends MoveNodeService {
         environmentMapper.updateByPrimaryKeySelective(environment);
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
         environmentBlob.setId(environment.getId());
-        if (request.getConfig() == null) {
-            request.setConfig(new EnvironmentConfig());
+        if (request.getConfig() != null) {
+            environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
+            environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
         }
-        environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
-        environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
         uploadFileToMinio(sslFiles, environment);
         return environment;
     }

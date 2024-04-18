@@ -34,7 +34,7 @@
             <div
               class="env-item justify-between font-medium text-[var(--color-text-1)] hover:bg-[rgb(var(--primary-1))]"
               :class="{ 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]': activeKey === ALL_PARAM }"
-              @click="handleListItemClick({ id: 'allParam', name: 'allParam' })"
+              @click="handleListItemClick({ id: 'allParam', name: 'allParam', description: '' })"
             >
               {{ t('project.environmental.allParam') }}
               <div class="node-extra">
@@ -437,6 +437,7 @@
       tmpArr.unshift({
         id: NEW_ENV_PARAM,
         name: t('project.environmental.newEnv'),
+        description: '',
       });
       store.setCurrentId(NEW_ENV_PARAM);
       envList.value = tmpArr;
@@ -448,6 +449,7 @@
     tmpArr.unshift({
       id: NEW_ENV_GROUP,
       name: t('project.environmental.newEnv'),
+      description: '',
     });
     store.setCurrentGroupId(NEW_ENV_GROUP);
     evnGroupList.value = tmpArr;
