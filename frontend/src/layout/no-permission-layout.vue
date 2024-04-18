@@ -9,12 +9,7 @@
       <div class="page">
         <div class="content-wrapper">
           <div class="content">
-            <div class="icon">
-              <div class="icon-svg">
-                <svg-icon width="232px" height="184px" name="no_resource" />
-              </div>
-              <div class="radius-box"></div>
-            </div>
+            <div class="no-resource-svg"></div>
             <div class="title">
               <span>{{ props.isProject ? t('common.noProject') : t('common.noResource') }}</span>
             </div>
@@ -54,25 +49,12 @@
       height: 100%;
       background-color: var(--color-text-fff);
       .content {
-        .icon {
-          position: relative;
-          display: flex;
-          align-items: center;
-          margin-bottom: 40px;
-          height: 218px;
-          flex-direction: column;
-          .icon-svg {
-            z-index: 100;
-          }
-          .radius-box {
-            position: relative;
-            bottom: 83px;
-            width: 355px;
-            height: 117px;
-            flex-shrink: 0;
-            border-radius: 355px;
-            background: linear-gradient(180deg, #ededf1 0%, rgb(255 255 255 / 0%) 100%);
-          }
+        .no-resource-svg {
+          margin: 0 auto 24px;
+          width: 160px;
+          height: 98px;
+          background: url('@/assets/svg/no_resource.svg');
+          background-size: cover;
         }
         .title {
           display: flex;
