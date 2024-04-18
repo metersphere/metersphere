@@ -250,11 +250,12 @@
     </template>
     <!-- SQL操作 -->
     <template v-else-if="condition.processorType === RequestConditionProcessor.SQL">
+      <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('ms.paramsInput.sqlOperationNameDesc') }}</div>
       <div class="mb-[8px]">
         <a-input
           v-model:model-value="condition.name"
           :disabled="props.disabled"
-          :placeholder="t('ms.paramsInput.commonDescPlaceholder')"
+          :placeholder="t('ms.paramsInput.sqlOperationName')"
           :max-length="255"
           @input="() => emit('change')"
         />

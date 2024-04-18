@@ -218,4 +218,6 @@ export default {
   'ms.paramsInput.char': 'Generate Unicode character values from a list of numbers',
   'ms.paramsInput.changeCase': 'Change case according to different modes',
   'ms.paramsInput.regexFunction': 'Parse previous responses using regular expressions',
+  'ms.paramsInput.sqlOperationName': 'Please enter SQL operation name',
+  'ms.paramsInput.sqlOperationNameDesc': 'SQL operation name',
 };
