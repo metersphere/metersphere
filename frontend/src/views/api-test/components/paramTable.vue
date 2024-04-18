@@ -841,15 +841,7 @@
           }
           return item;
         });
-        const lastTwoIsSame =
-          (arr.length === 1 && !hasNoIdItem) ||
-          (arr.length >= 2 && filterKeyValParams([arr[arr.length - 2]], arr[arr.length - 1]).lastDataIsDefault);
-        if (
-          hasNoIdItem &&
-          !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
-          !props.isTreeTable &&
-          !lastTwoIsSame // 为了判断最后俩行是否一致（因为下拉框切换会新增一行一样的数据，此时最后一条数据与默认数据是不一样的）
-        ) {
+        if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
           addTableLine(arr.length - 1, false, true);
         }
       } else {

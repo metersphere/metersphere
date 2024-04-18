@@ -134,7 +134,7 @@ export function filterKeyValParams<T>(
   delete lastData.enable;
   delete defaultParam.id;
   delete defaultParam.enable;
-  const lastDataIsDefault = isEqual(lastData, defaultParam);
+  const lastDataIsDefault = isEqual(lastData, defaultParam) || lastData.key === '';
   let validParams: (T & Record<string, any>)[];
   if (lastDataIsDefault) {
     // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个
