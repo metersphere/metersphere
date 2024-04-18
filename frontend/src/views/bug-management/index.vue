@@ -64,7 +64,7 @@
         </template>
 
         <template #relationCaseCount="{ record, rowIndex }">
-          <a-button type="text" class="px-0" size="mini" @click="showRelateCaseCount(record.id, rowIndex)">
+          <a-button type="text" class="px-0" size="mini" @click="showDetail(record.id, rowIndex, 'case')">
             {{ record.relationCaseCount }}
           </a-button>
         </template>
@@ -677,6 +677,13 @@
     return res;
   };
 
+  const showDetail = (id: string, rowIndex: number, tab: string) => {
+    activeDetailId.value = id;
+    activeCaseIndex.value = rowIndex;
+    activeDetailTab.value = tab;
+    detailVisible.value = true;
+  };
+
   const handleShowDetail = async (id: string, rowIndex: number) => {
     const exist = await checkBug(id);
     if (!exist) {
@@ -689,18 +696,8 @@
         query,
       });
     } else {
-      detailVisible.value = true;
-      activeDetailId.value = id;
-      activeCaseIndex.value = rowIndex - 1;
-      activeDetailTab.value = 'detail';
+      showDetail(id, rowIndex, 'detail');
     }
-  };
-
-  const showRelateCaseCount = async (id: string, rowIndex: number) => {
-    detailVisible.value = true;
-    activeDetailId.value = id;
-    activeCaseIndex.value = rowIndex - 1;
-    activeDetailTab.value = 'case';
   };
 
   const handleCopy = (record: BugListItem) => {
