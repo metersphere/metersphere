@@ -62,11 +62,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.metersphere.project.utils.NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
+
 @Service
 public class ApiDefinitionImportUtilService {
 
     private static final String UNPLANNED_API = "api_unplanned_request";
-    public static final Long ORDER_STEP = 5000L;
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentModuleOrder = new ThreadLocal<>();
@@ -191,7 +192,7 @@ public class ApiDefinitionImportUtilService {
 
     public Long getNextOrder(String projectId) {
         Long pos = extApiDefinitionMapper.getPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + DEFAULT_NODE_INTERVAL_POS;
     }
 
     public Long getImportNextOrder(String projectId) {
@@ -199,7 +200,7 @@ public class ApiDefinitionImportUtilService {
         if (order == null) {
             order = getNextOrder(projectId);
         }
-        order = order + ORDER_STEP;
+        order = order + DEFAULT_NODE_INTERVAL_POS;
         currentApiOrder.set(order);
         return order;
     }
@@ -219,7 +220,7 @@ public class ApiDefinitionImportUtilService {
         if (order == null) {
             order = apiDefinitionModuleService.getNextOrder(projectId);
         }
-        order = order + ORDER_STEP;
+        order = order + DEFAULT_NODE_INTERVAL_POS;
         currentModuleOrder.set(order);
         return order;
     }
