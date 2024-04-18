@@ -39,7 +39,7 @@ export default {
   'ms.personal.confirmClose': '确认关闭吗？',
   'ms.personal.closeTip': '关闭后，将导致使用该 Access Key 执行的测试任务执行失败，请谨慎操作！',
   'ms.personal.closeSuccess': '关闭成功',
-  'ms.personal.confirmDelete': '确认删除吗',
+  'ms.personal.confirmDelete': '确认删除吗？',
   'ms.personal.deleteTip': '删除后，将导致使用该 Access Key 执行的测试任务执行失败，请谨慎操作！',
   'ms.personal.openSuccess': '启用成功',
   'ms.personal.forever': '永久有效',
