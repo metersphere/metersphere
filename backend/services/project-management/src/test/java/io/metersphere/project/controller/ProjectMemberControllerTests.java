@@ -1,10 +1,7 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.ProjectUserDTO;
-import io.metersphere.project.request.ProjectMemberAddRequest;
-import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
-import io.metersphere.project.request.ProjectMemberEditRequest;
-import io.metersphere.project.request.ProjectMemberRequest;
+import io.metersphere.project.request.*;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -202,10 +199,16 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Test
     @Order(13)
     public void testAddMemberRoleSuccess() throws Exception {
-        ProjectMemberAddRequest request = new ProjectMemberAddRequest();
+        ProjectMemberAddRoleRequest request = new ProjectMemberAddRoleRequest();
         request.setProjectId("default-project-member-test");
-        request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
+        request.setSelectIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         request.setRoleIds(List.of("project_admin", "project_member"));
+        request.setSelectAll(false);
+        this.requestPost(ADD_ROLE, request, status().isOk());
+        request.setSelectAll(true);
+        request.setSelectIds(List.of());
+        this.requestPost(ADD_ROLE, request, status().isOk());
+        request.setExcludeIds(List.of("project_admin"));
         this.requestPost(ADD_ROLE, request, status().isOk());
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -215,10 +218,14 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Test
     @Order(14)
     public void testAddMemberRoleError() throws Exception {
-        ProjectMemberAddRequest request = new ProjectMemberAddRequest();
+        ProjectMemberAddRoleRequest request = new ProjectMemberAddRoleRequest();
         request.setProjectId("default-project-member-x");
-        request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         request.setRoleIds(List.of("project_admin", "project_member"));
+        this.requestPost(ADD_ROLE, request, status().is5xxServerError());
+        request.setProjectId("default-project-member-test");
+        request.setSelectIds(List.of());
         this.requestPost(ADD_ROLE, request, status().is5xxServerError());
     }
 

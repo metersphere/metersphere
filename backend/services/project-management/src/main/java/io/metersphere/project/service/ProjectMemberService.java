@@ -5,10 +5,7 @@ import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.mapper.ExtProjectMemberMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.request.ProjectMemberAddRequest;
-import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
-import io.metersphere.project.request.ProjectMemberEditRequest;
-import io.metersphere.project.request.ProjectMemberRequest;
+import io.metersphere.project.request.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
@@ -160,7 +157,12 @@ public class ProjectMemberService {
      * @param currentUserId 当前用户ID
      */
     public void addMember(ProjectMemberAddRequest request, String currentUserId) {
-        addMemberRole(request, currentUserId, OperationLogType.ADD.name(), "/project/member/add");
+        ProjectMemberAddRoleRequest roleRequest = new ProjectMemberAddRoleRequest();
+        roleRequest.setProjectId(request.getProjectId());
+        roleRequest.setRoleIds(request.getRoleIds());
+        roleRequest.setSelectAll(false);
+        roleRequest.setSelectIds(request.getUserIds());
+        addMemberRole(roleRequest, currentUserId, OperationLogType.ADD.name(), "/project/member/add");
     }
 
     /**
@@ -250,7 +252,7 @@ public class ProjectMemberService {
      * @param request       请求参数
      * @param currentUserId 当前用户ID
      */
-    public void addRole(ProjectMemberAddRequest request, String currentUserId) {
+    public void addRole(ProjectMemberAddRoleRequest request, String currentUserId) {
         // 添加用户用户组(已经添加的用户组不再添加)
         addMemberRole(request, currentUserId, OperationLogType.UPDATE.name(), "/project/member/add-role");
     }
@@ -263,21 +265,34 @@ public class ProjectMemberService {
      * @param operationType 操作记录类型
      * @param path          操作记录路径
      */
-    public void addMemberRole(ProjectMemberAddRequest request, String currentUserId, String operationType, String path) {
+    public void addMemberRole(ProjectMemberAddRoleRequest request, String currentUserId, String operationType, String path) {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不添加
         Project project = checkProjectExist(request.getProjectId());
+        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getSelectIds())) {
+            throw new MSException(Translator.get("user.not.empty"));
+        }
+        // 批量移除成员, 则移除该成员在该项目下的所有用户组
+        List<String> userIds;
+        if (request.isSelectAll()) {
+            userIds = extProjectUserRoleMapper.getProjectRoleMemberIds(request);
+            if (!CollectionUtils.isEmpty(request.getExcludeIds())) {
+                userIds.removeAll(request.getExcludeIds());
+            }
+        } else {
+            userIds = request.getSelectIds();
+        }
         // 获取已经存在的用户组
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(request.getProjectId())
-                .andUserIdIn(request.getUserIds()).andRoleIdIn(request.getRoleIds());
+                .andUserIdIn(userIds).andRoleIdIn(request.getRoleIds());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         Map<String, List<String>> existUserRelations = userRoleRelations.stream().collect(
                 Collectors.groupingBy(UserRoleRelation::getUserId, Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
         // 比较用户组是否已经存在, 如果不存在则添加
         List<UserRoleRelation> relations = new ArrayList<>();
-        request.getUserIds().forEach(userId -> {
+        userIds.forEach(userId -> {
             AtomicBoolean isLog = new AtomicBoolean(false);
             // 追加的用户组ID, 操作记录使用
             List<String> roleIds = new ArrayList<>();

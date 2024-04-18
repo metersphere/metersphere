@@ -3,10 +3,7 @@ package io.metersphere.project.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.dto.ProjectUserDTO;
-import io.metersphere.project.request.ProjectMemberAddRequest;
-import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
-import io.metersphere.project.request.ProjectMemberEditRequest;
-import io.metersphere.project.request.ProjectMemberRequest;
+import io.metersphere.project.request.*;
 import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.CommentUserInfo;
@@ -98,7 +95,7 @@ public class ProjectMemberController {
     @Operation(summary = "项目管理-成员-批量添加至用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_USER_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void addMemberRole(@RequestBody ProjectMemberAddRequest request) {
+    public void addMemberRole(@RequestBody ProjectMemberAddRoleRequest request) {
         projectMemberService.addRole(request, SessionUtils.getUserId());
     }
 
