@@ -92,7 +92,7 @@
         ref="wrapperRef"
         :class="[`${!commentInputIsActive ? 'h-[calc(100%-72px)]' : 'h-[calc(100%-286px)]'}`, 'bg-white']"
       >
-        <MsSplitBox :size="900" :max="0.7" :min="0.5" direction="horizontal" expand-direction="right">
+        <MsSplitBox :size="0.8" :max="0.7" :min="0.6" direction="horizontal" expand-direction="right">
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">

@@ -1,5 +1,12 @@
 <template>
-  <MsDrawer v-model:visible="innerVisible" :title="t('ms.personal')" :width="960" :footer="false" no-content-padding>
+  <MsDrawer
+    v-model:visible="innerVisible"
+    :title="t('ms.personal')"
+    :width="960"
+    :footer="false"
+    unmount-on-close
+    no-content-padding
+  >
     <div class="flex h-full w-full">
       <div class="h-full w-[208px] bg-[var(--color-text-n9)]">
         <MsMenuPanel

@@ -79,6 +79,7 @@
     batchParams: BatchActionQueryParams;
     activeFolder: string;
     offspringIds: string[];
+    condition?: TableQueryParams;
   }>();
 
   const emits = defineEmits<{
@@ -186,6 +187,9 @@
             tags: form.value.tags,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             customField: form.value.selectedAttrsId === 'systemTags' ? {} : customField,
+            condition: {
+              ...props.condition,
+            },
           };
           await batchEditAttrs(params);
           Message.success(t('caseManagement.featureCase.editSuccess'));

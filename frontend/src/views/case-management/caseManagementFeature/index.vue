@@ -65,11 +65,12 @@
               <FeatureCaseTree
                 ref="caseTreeRef"
                 v-model:selected-keys="selectedKeys"
+                v-model:group-keyword="groupKeyword"
                 :all-names="rootModulesName"
                 :active-folder="activeFolder"
                 :is-expand-all="isExpandAll"
                 :modules-count="modulesCount"
-                :group-keyword="groupKeyword"
+                :is-modal="false"
                 @case-node-select="caseNodeSelect"
                 @init="setRootModules"
                 @drag-update="dragUpdate"

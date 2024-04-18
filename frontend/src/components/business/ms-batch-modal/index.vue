@@ -11,7 +11,7 @@
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
-        {{ t('msBatchModal.batchModalSubTitle', { count: (props.selectData || []).length }) }}
+        {{ t('msBatchModal.batchModalSubTitle', { count: props.currentSelectCount }) }}
       </div>
     </template>
     <a-spin :loading="loading" class="w-full">
@@ -63,7 +63,7 @@
     defineProps<{
       visible: boolean;
       action: string;
-      selectData: string[] | undefined;
+      currentSelectCount: number | undefined;
     }>(),
     {
       visible: false,

@@ -214,6 +214,9 @@
       sourceId: props.caseId,
       projectId: currentProjectId.value,
       sourceType: currentSelectCase.value,
+      condition: {
+        keyword: keyword.value,
+      },
     });
     await loadList();
     featureCaseStore.getCaseCounts(props.caseId);

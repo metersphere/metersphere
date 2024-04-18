@@ -352,6 +352,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
@@ -664,7 +665,7 @@
    * 删除接口
    */
   function deleteApi(record?: ApiDefinitionDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('apiTestManagement.deleteApiTipTitle', { name: record?.name });
+    let title = t('apiTestManagement.deleteApiTipTitle', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('apiTestManagement.batchDeleteApiTip', {

@@ -86,7 +86,7 @@
     ref="batchModalRef"
     v-model:visible="batchVisible"
     :action="batchAction"
-    :select-data="selectData"
+    :current-select-count="batchParams.currentSelectCount"
     @add-user-group="addUserGroup"
   />
 </template>
@@ -117,6 +117,7 @@
   import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import type { TableQueryParams } from '@/models/common';
   import {
     ActionProjectMember,
     ProjectMemberItem,
@@ -254,13 +255,20 @@
   };
 
   // 跨页选择项
-  const selectData = ref<string[] | undefined>([]);
+  // const selectData = ref<string[] | undefined>([]);
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
 
   // 批量移除项目成员
   const batchRemoveHandler = () => {
+    const { selectedIds, excludeIds, selectAll } = batchParams.value;
     openModal({
       type: 'error',
-      title: t('project.member.batchRemoveTip', { number: (selectData.value || []).length }),
+      title: t('project.member.batchRemoveTip', { number: batchParams.value.currentSelectCount }),
       content: t('project.member.batchRemoveContent'),
       okText: t('project.member.deleteMemberConfirm'),
       cancelText: t('project.member.Cancel'),
@@ -269,9 +277,20 @@
       },
       onBeforeOk: async () => {
         try {
-          const params: ActionProjectMember = {
+          const params: TableQueryParams = {
+            selectAll: !!selectAll,
+            excludeIds: excludeIds || [],
+            selectIds: selectedIds || [],
             projectId: lastProjectId.value,
-            userIds: selectData.value,
+            keyword: keyword.value,
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                ...propsRes.value.filter,
+                roleIds: roleIds.value ? [roleIds.value] : [],
+              },
+              combine: batchParams.value.condition,
+            },
           };
           await batchRemoveMember(params);
           Message.success(t('project.member.deleteMemberSuccess'));
@@ -308,27 +327,22 @@
   const batchVisible = ref<boolean>(false);
   const batchAction = ref('');
   const batchModalRef = ref();
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
-    selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
-  });
-
   // 添加到用户组
   const addUserGroup = async (target: string[]) => {
     const { selectedIds, excludeIds, selectAll } = batchParams.value;
     const params = {
       projectId: lastProjectId.value,
-      userIds: selectData.value,
-      roleIds: target,
+      userIds: batchParams.value.selectedIds || [],
       selectAll: !!selectAll,
       excludeIds: excludeIds || [],
       selectIds: selectedIds || [],
-      keyword: keyword.value,
+      roleIds: roleIds.value ? [roleIds.value] : [],
       condition: {
         keyword: keyword.value,
-        filter: propsRes.value.filter,
+        filter: {
+          ...propsRes.value.filter,
+          roleIds: roleIds.value ? [roleIds.value] : [],
+        },
         combine: batchParams.value.condition,
       },
     };
@@ -345,7 +359,6 @@
   // 表格批量处理
   const handleTableBatch = (event: BatchActionParams, params: BatchActionQueryParams) => {
     batchParams.value = params;
-    selectData.value = params.selectedIds;
     if (event.eventTag === 'batchActionRemove') {
       batchRemoveHandler();
     }

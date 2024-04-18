@@ -352,9 +352,10 @@
       v-if="showBatchMoveDrawer"
       ref="caseTreeRef"
       v-model:selected-keys="selectedModuleKeys"
+      v-model:group-keyword="groupKeyword"
       :active-folder="props.activeFolder"
       :is-expand-all="true"
-      is-modal
+      :is-modal="true"
       @case-node-select="caseNodeSelect"
     ></FeatureCaseTree>
   </a-modal>
@@ -364,6 +365,7 @@
     :batch-params="batchParams"
     :active-folder="props.activeFolder"
     :offspring-ids="props.offspringIds"
+    :condition="conditionParams"
     @success="successHandler"
   />
   <CaseDetailDrawer
@@ -479,6 +481,7 @@
 
   const keyword = ref<string>('');
   const filterRowCount = ref(0);
+  const groupKeyword = ref<string>('');
 
   const showType = ref<string>('list');
 
@@ -934,6 +937,12 @@
   const caseFilters = ref<string[]>([]);
   const executeResultFilters = ref<string[]>([]);
 
+  const conditionParams = ref({
+    keyword: '',
+    filter: {},
+    combine: {},
+  });
+
   async function initTableParams() {
     let moduleIds: string[] = [];
     if (props.activeFolder && props.activeFolder !== 'all') {
@@ -943,11 +952,18 @@
         moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
       }
     }
+    conditionParams.value = {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+      combine: batchParams.value.condition,
+    };
 
     return {
-      keyword: keyword.value,
       moduleIds,
       projectId: currentProjectId.value,
+      excludeIds: batchParams.value.excludeIds,
+      selectAll: batchParams.value.selectAll,
+      selectIds: batchParams.value.selectedIds as string[],
       filter: {
         reviewStatus: statusFilters.value,
         caseLevel: caseFilters.value,

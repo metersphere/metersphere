@@ -104,7 +104,14 @@
           'bg-white',
         ]"
       >
-        <MsSplitBox expand-direction="right" :max="0.7" :min="0.7" :size="900" direction="horizontal">
+        <MsSplitBox
+          expand-direction="right"
+          :size="0.8"
+          :max="0.7"
+          :min="0.6"
+          direction="horizontal"
+          :class="{ 'left-bug-detail': activeTab === 'comment' }"
+        >
           <template #first>
             <div class="leftWrapper h-full">
               <a-spin :loading="detailLoading" class="w-full">
