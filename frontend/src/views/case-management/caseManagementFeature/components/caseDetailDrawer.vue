@@ -738,6 +738,7 @@
     background: none !important;
     .arco-menu-inner {
       overflow: hidden;
+      padding: 14px 0;
       height: 50px;
     }
   }

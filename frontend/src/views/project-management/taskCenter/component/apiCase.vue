@@ -599,13 +599,13 @@
   const showCaseDetailDrawer = ref<boolean>(false);
 
   function viewReport(id: string, rowIndex: number) {
+    activeDetailId.value = id;
+    activeReportIndex.value = rowIndex;
     if (props.moduleType === 'API_CASE') {
       showCaseDetailDrawer.value = true;
     } else {
       showDetailDrawer.value = true;
     }
-    activeDetailId.value = id;
-    activeReportIndex.value = rowIndex - 1;
   }
 
   watch(
