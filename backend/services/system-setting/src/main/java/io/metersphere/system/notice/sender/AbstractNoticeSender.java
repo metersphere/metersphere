@@ -172,7 +172,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         LogUtils.info("userIds: ", JSON.toJSONString(userIds));
         List<User> users = getUsers(userIds, messageDetail.getProjectId());
         List<String> realUserIds = users.stream().map(User::getId).distinct().toList();
-        return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
+        return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).distinct().toList();
     }
 
     private Receiver handleCreateUser(MessageDetail messageDetail, NoticeModel noticeModel) {
