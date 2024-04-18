@@ -16,7 +16,6 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(rollbackFor = Exception.class)
@@ -140,7 +139,7 @@ public class ScheduleService {
         }
 
 
-        JobDataMap jobDataMap = scheduleManager.getDefaultJobDataMap(schedule, scheduleConfig.getCron(), operator);
+        JobDataMap jobDataMap = scheduleManager.getDefaultJobDataMap(schedule, scheduleConfig.getCron(), schedule.getCreateUser());
 
         /*
         scheduleManager.modifyCronJobTime方法如同它的方法名所说，只能修改定时任务的触发时间。
