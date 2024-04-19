@@ -820,6 +820,7 @@ public class FunctionalCaseService {
                     functional.setPos(nextOrder.get());
                     functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
                     functional.setCreateUser(userId);
+                    functional.setUpdateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
                     functional.setUpdateTime(System.currentTimeMillis());
                     functionalCaseMapper.insert(functional);

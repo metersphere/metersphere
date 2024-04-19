@@ -68,9 +68,7 @@ public class ProjectService {
 
 
     public List<Project> getUserProject(String organizationId, String userId) {
-        if (organizationMapper.selectByPrimaryKey(organizationId) == null) {
-            throw new MSException(Translator.get("organization_not_exist"));
-        }
+        checkOrg(organizationId);
         //查询用户当前的项目  如果存在默认排在第一个
         User user = baseUserMapper.selectById(userId);
         String projectId;
@@ -98,6 +96,12 @@ public class ProjectService {
                     return temp;
                 })
                 .orElse(allProject);
+    }
+
+    private void checkOrg(String organizationId) {
+        if (organizationMapper.selectByPrimaryKey(organizationId) == null) {
+            throw new MSException(Translator.get("organization_not_exist"));
+        }
     }
 
     public UserDTO switchProject(ProjectSwitchRequest request, String currentUserId) {
@@ -244,6 +248,38 @@ public class ProjectService {
             return new ArrayList<>();
         }
         return extSystemProjectMapper.getMemberByProjectId(projectId, keyword);
+    }
+
+    public List<Project> getUserProjectWidthModule(String organizationId, String module, String userId) {
+        checkOrg(organizationId);
+        //查询用户当前的项目  如果存在默认排在第一个
+        User user = baseUserMapper.selectById(userId);
+        String projectId;
+        if (user != null && StringUtils.isNotBlank(user.getLastProjectId())) {
+            projectId = user.getLastProjectId();
+        } else {
+            projectId = null;
+        }
+        //判断用户是否是系统管理员
+        List<Project> allProject;
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
+            allProject = extProjectMapper.getAllProjectWidthModule(organizationId, module);
+        } else {
+            allProject = extProjectMapper.getUserProjectWidthModule(organizationId, userId, module);
+        }
+        List<Project> temp = allProject;
+        return allProject.stream()
+                .filter(project -> StringUtils.equals(project.getId(), projectId))
+                .findFirst()
+                .map(project -> {
+                    temp.remove(project);
+                    temp.add(0, project);
+                    return temp;
+                })
+                .orElse(allProject);
+
     }
 }
 

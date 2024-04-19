@@ -47,6 +47,13 @@ public class ProjectController {
         return projectService.getUserProject(organizationId, SessionUtils.getUserId());
     }
 
+    @GetMapping("/list/options/{organizationId}/{module}")
+    @Operation(summary = "根据组织ID获取所有开启某个模块的所有权限的项目")
+    @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
+    public List<Project> getUserProjectWidthModule(@PathVariable String organizationId, @PathVariable String module) {
+        return projectService.getUserProjectWidthModule(organizationId, module, SessionUtils.getUserId());
+    }
+
     @PostMapping("/switch")
     @Operation(summary = "切换项目")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
