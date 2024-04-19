@@ -94,4 +94,28 @@
           and t.deleted = 0
           and t.${type} = 1
     </select>
+
+    <select id="getAllProjectWidthModule" resultType="io.metersphere.project.domain.Project">
+        select *
+        from project
+        where enable = 1 and
+            organization_id = #{organizationId}
+          AND module_setting like concat('%', #{module},'%')
+        order by
+            CONVERT( name  USING GBK) ASC
+    </select>
+
+    <select id="getUserProjectWidthModule" resultType="io.metersphere.project.domain.Project">
+        SELECT DISTINCT p.*
+        FROM user_role u
+                 JOIN user_role_relation urr ON u.id = urr.role_id
+                 JOIN project p ON p.id = urr.source_id
+                 JOIN user on urr.user_id = user.id
+        where urr.user_id = #{userId} and  u.type = 'PROJECT'
+          AND p.organization_id = #{organizationId} and p.enable = 1 and user.deleted = 0
+          AND p.module_setting like concat('%', #{module},'%')
+        order by
+            CONVERT( p.name  USING GBK) ASC
+    </select>
+
 </mapper>

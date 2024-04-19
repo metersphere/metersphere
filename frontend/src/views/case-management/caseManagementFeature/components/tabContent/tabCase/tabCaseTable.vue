@@ -89,7 +89,6 @@
     getPublicLinkCaseList,
     getPublicLinkModuleTree,
   } from '@/api/modules/case-management/featureCase';
-  import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -212,8 +211,8 @@
     setLoadListParams({
       keyword: keyword.value,
       sourceId: props.caseId,
-      projectId: currentProjectId.value,
-      sourceType: currentSelectCase.value,
+      // projectId: currentProjectId.value, // 加了项目筛选再打开，目前先关闭
+      // sourceType: currentSelectCase.value, // 加了类型筛选再打开， 目前先关闭
       condition: {
         keyword: keyword.value,
       },
@@ -247,25 +246,29 @@
         label: t('caseManagement.featureCase.sceneCase'),
       },
     ],
-    uiTest: [
-      {
-        value: 'UI',
-        label: t('caseManagement.featureCase.uiCase'),
-      },
-    ],
-    loadTest: [
-      {
-        value: 'PERFORMANCE',
-        label: t('caseManagement.featureCase.propertyCase'),
-      },
-    ],
+    // uiTest: [
+    //   {
+    //     value: 'UI',
+    //     label: t('caseManagement.featureCase.uiCase'),
+    //   },
+    // ],
+    // loadTest: [
+    //   {
+    //     value: 'PERFORMANCE',
+    //     label: t('caseManagement.featureCase.propertyCase'),
+    //   },
+    // ],
   };
 
   async function getEnabledModules() {
-    const result = await postTabletList({ projectId: currentProjectId.value });
-    const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
-    caseArr.forEach((item: any) => {
-      const currentModule = moduleMaps[item.module];
+    // const result = await postTabletList({ projectId: currentProjectId.value });
+    // const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
+    // caseArr.forEach((item: any) => {
+    //   const currentModule = moduleMaps[item.module];
+    //   caseTypeOptions.value.push(...currentModule);
+    // });
+    Object.keys(moduleMaps).forEach((item: any) => {
+      const currentModule = moduleMaps[item];
       caseTypeOptions.value.push(...currentModule);
     });
     currentSelectCase.value = caseTypeOptions.value[0].value;

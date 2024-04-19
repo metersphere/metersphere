@@ -28,5 +28,8 @@ public interface ExtProjectMapper {
     List<Project> getAllProject(@Param("organizationId") String organizationId);
     List<TestResourcePool> getResourcePoolOption(@Param("projectId") String projectId, @Param("type") String type);
 
+    List<Project> getAllProjectWidthModule(@Param("organizationId") String organizationId, @Param("module") String module);
+
+    List<Project> getUserProjectWidthModule(@Param("organizationId") String organizationId, @Param("userId") String userId, @Param("module") String module);
 
 }

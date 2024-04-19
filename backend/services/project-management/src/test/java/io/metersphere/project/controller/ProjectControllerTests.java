@@ -53,6 +53,7 @@ public class ProjectControllerTests extends BaseTest {
     private static final String prefix = "/project";
     private static final String getOptions = prefix + "/list/options/";
     private final static String updateProject = prefix + "/update";
+    private static final String getOptionsWidthModule = prefix + "/list/options/";
 
     private static final String getPoolOptions = prefix + "/pool-options/";
 
@@ -214,6 +215,20 @@ public class ProjectControllerTests extends BaseTest {
         example.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID).andEnableEqualTo(true);
         Assertions.assertEquals(projectMapper.countByExample(example), list.size());
 
+        MvcResult mvcResultModule = this.responseGet(getOptionsWidthModule + DEFAULT_ORGANIZATION_ID +"/apiTest");
+        List<Project> listModule = parseObjectFromMvcResult(mvcResultModule, List.class);
+        Assertions.assertNotNull(listModule);
+        ProjectExample exampleWidthModule = new ProjectExample();
+        exampleWidthModule.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID).andEnableEqualTo(true);
+        List<Project> projects = projectMapper.selectByExample(exampleWidthModule);
+        int a = 0;
+        for (Project project : projects) {
+            if (StringUtils.isNotBlank(project.getModuleSetting()) && project.getModuleSetting().contains("apiTest")) {
+                a = a+1;
+            }
+        }
+        Assertions.assertEquals(a, listModule.size());
+
         UserRoleRelation userRoleRelation = new UserRoleRelation();
         userRoleRelation.setUserId("admin1");
         userRoleRelation.setOrganizationId(DEFAULT_ORGANIZATION_ID);
@@ -244,6 +259,15 @@ public class ProjectControllerTests extends BaseTest {
         list = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(list);
 
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/apiTest")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        listModule = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNotNull(listModule);
+
         //被删除的用户 查出来的是空的
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", "delete", "deleted@metersphere.io"))
@@ -262,6 +286,17 @@ public class ProjectControllerTests extends BaseTest {
         list = parseObjectFromMvcResult(mvcResult, List.class);
         //断言list是空的
         Assertions.assertEquals(0, list.size());
+
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/apiTest")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        listModule = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNotNull(listModule);
+        //断言list是空的
+        Assertions.assertEquals(0, listModule.size());
     }
 
     @Test
