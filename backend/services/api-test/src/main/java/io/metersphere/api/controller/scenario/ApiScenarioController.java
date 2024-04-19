@@ -214,7 +214,7 @@ public class ApiScenarioController {
     @GetMapping(value = "/schedule-config-delete/{scenarioId}")
     @Operation(summary = "接口测试-接口场景管理-删除定时任务配置")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#request.getScenarioId())", msClass = ApiScenarioLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#scenarioId)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#scenarioId", resourceType = "api_scenario")
     public void deleteScheduleConfig(@PathVariable String scenarioId) {
         apiValidateService.validateApiMenuInProject(scenarioId, ApiResource.API_SCENARIO.name());

@@ -118,7 +118,9 @@ public class ScheduleService {
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(scheduleConfig.getResourceId()).andJobEqualTo(clazz.getName());
         List<Schedule> scheduleList = scheduleMapper.selectByExample(example);
+        boolean needSendNotice = false;
         if (CollectionUtils.isNotEmpty(scheduleList)) {
+            needSendNotice = !scheduleList.getFirst().getEnable().equals(scheduleConfig.getEnable());
             schedule = scheduleConfig.genCronSchedule(scheduleList.getFirst());
             schedule.setUpdateTime(System.currentTimeMillis());
             schedule.setJob(clazz.getName());
@@ -134,7 +136,7 @@ public class ScheduleService {
         }
         //通知
         if ((CollectionUtils.isEmpty(scheduleList) && BooleanUtils.isTrue(scheduleConfig.getEnable()))
-                || (CollectionUtils.isNotEmpty(scheduleList) && !scheduleList.getFirst().getEnable().equals(scheduleConfig.getEnable()))) {
+                || needSendNotice) {
             apiScheduleNoticeService.sendScheduleNotice(schedule, operator);
         }
 
