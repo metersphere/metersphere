@@ -115,6 +115,7 @@ public class ApiReportSendNoticeService {
         User user = userMapper.selectByPrimaryKey(userId);
 
         Map paramMap = new HashMap<>(beanMap);
+        noticeSendService.setLanguage(user.getLanguage());
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
         // TODO 是否需要国际化   根据状态判断给不同的key
         String status = paramMap.containsKey("status") ? paramMap.get("status").toString() : null;
@@ -182,5 +183,4 @@ public class ApiReportSendNoticeService {
 
         noticeSendService.send(project, noticeType, noticeModel);
     }
-
 }

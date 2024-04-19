@@ -40,6 +40,7 @@ public class ApiScheduleNoticeService {
             BeanMap beanMap = new BeanMap(schedule);
             Map paramMap = new HashMap<>(beanMap);
             User user = userMapper.selectByPrimaryKey(userId);
+            noticeSendService.setLanguage(user.getLanguage());
             paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
             String template = defaultTemplateMap.get(NoticeConstants.TaskType.SCHEDULE_TASK + "_" + event);
             Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();

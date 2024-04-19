@@ -93,6 +93,16 @@ public class NoticeSendService {
         LocaleContextHolder.setLocale(locale);
     }
 
+    public void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
+    }
+
     /**
      * jenkins 和定时任务触发的发送
      */
