@@ -90,79 +90,63 @@
     <template #default="{ loading }">
       <div
         ref="wrapperRef"
-        :class="[`${!commentInputIsActive ? 'h-[calc(100%-72px)]' : 'h-[calc(100%-286px)]'}`, 'bg-white']"
+        :class="[`${!commentInputIsActive ? 'h-[calc(100%-118px)]' : 'h-[calc(100%-338px)]'}`, 'bg-white']"
       >
+        <div class="header relative h-[48px] pl-2">
+          <MsTab
+            v-model:active-key="activeTab"
+            :content-tab-list="tabSetting"
+            :get-text-func="getTotal"
+            class="no-content relative border-b"
+            @change="clickMenu"
+          />
+          <span class="absolute bottom-0 right-4 top-4 my-auto text-[var(--color-text-2)]" @click="showMenuSetting">{{
+            t('caseManagement.featureCase.detailDisplaySetting')
+          }}</span>
+        </div>
         <MsSplitBox :size="0.8" :max="0.7" :min="0.6" direction="horizontal" expand-direction="right">
           <template #first>
             <div class="leftWrapper h-full">
-              <div class="header h-[50px]">
-                <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
-                  <a-menu-item v-for="tab of tabSetting" :key="tab.key">
-                    <div class="flex items-center">
-                      <span>{{ t(tab.title) }}</span>
-                      <a-badge
-                        v-if="getTotal(tab.key)"
-                        class="ml-1"
-                        :class="activeTab === tab.key ? 'active' : ''"
-                        :text="getTotal(tab.key)"
-                      /> </div
-                  ></a-menu-item>
-                  <a-menu-item key="setting">
-                    <span @click="showMenuSetting">{{
-                      t('caseManagement.featureCase.detailDisplaySetting')
-                    }}</span></a-menu-item
-                  >
-                </a-menu>
+              <div class="leftContent mt-4 w-full pl-[16px] pr-[24px]">
+                <template v-if="activeTab === 'detail'">
+                  <TabDetail
+                    ref="tabDetailRef"
+                    :form="detailInfo"
+                    :allow-edit="true"
+                    :form-rules="formItem"
+                    :form-api="fApi"
+                    @update-success="updateSuccess"
+                  />
+                </template>
+                <template v-if="activeTab === 'requirement'">
+                  <TabDemand :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'case'">
+                  <TabCaseTable :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'bug'">
+                  <TabDefect :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'dependency'">
+                  <TabDependency :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'caseReview'">
+                  <TabCaseReview :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'testPlan'">
+                  <TabTestPlan />
+                </template>
+                <template v-if="activeTab === 'comments'">
+                  <TabComment ref="commentRef" :case-id="props.detailId" />
+                </template>
+                <template v-if="activeTab === 'changeHistory'">
+                  <TabChangeHistory :case-id="props.detailId" />
+                </template>
               </div>
-              <keep-alive>
-                <div class="leftContent mt-4 w-full px-[24px]">
-                  <a-scrollbar
-                    :style="{
-                      overflow: 'auto',
-                      height: 'calc(100vh - 190px)',
-                    }"
-                  >
-                    <template v-if="activeTab === 'detail'">
-                      <TabDetail
-                        ref="tabDetailRef"
-                        :form="detailInfo"
-                        :allow-edit="true"
-                        :form-rules="formItem"
-                        :form-api="fApi"
-                        @update-success="updateSuccess"
-                      />
-                    </template>
-                    <template v-if="activeTab === 'requirement'">
-                      <TabDemand :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'case'">
-                      <TabCaseTable :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'bug'">
-                      <TabDefect :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'dependency'">
-                      <TabDependency :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'caseReview'">
-                      <TabCaseReview :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'testPlan'">
-                      <TabTestPlan />
-                    </template>
-                    <template v-if="activeTab === 'comments'">
-                      <TabComment ref="commentRef" :case-id="props.detailId" />
-                    </template>
-                    <template v-if="activeTab === 'changeHistory'">
-                      <TabChangeHistory :case-id="props.detailId" />
-                    </template>
-                  </a-scrollbar>
-                </div>
-              </keep-alive>
             </div>
           </template>
           <template #second>
-            <div class="rightWrapper h-full p-[24px]">
+            <div class="rightWrapper h-full p-4">
               <a-skeleton v-if="loading" class="w-full" :loading="loading" :animation="true">
                 <a-space direction="vertical" class="w-[100%]" size="large">
                   <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
@@ -263,6 +247,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
@@ -347,8 +332,9 @@
 
   // const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const tabSetting = ref<TabItemType[]>([]);
-  const activeTab = ref<string | number>('detail');
-  function clickMenu(key: string | number) {
+  const activeTab = ref<string>('detail');
+
+  function clickMenu(key: string) {
     activeTab.value = key;
     featureCaseStore.setActiveTab(key);
     switch (activeTab.value) {
@@ -642,39 +628,38 @@
 
   const tabDefaultSettingList: TabItemType[] = [
     {
-      key: 'detail',
-      title: 'caseManagement.featureCase.detail',
+      value: 'detail',
+      label: t('caseManagement.featureCase.detail'),
       canHide: false,
       isShow: true,
     },
     {
-      key: 'case',
-      title: 'caseManagement.featureCase.case',
-      canHide: true,
-
-      isShow: true,
-    },
-    {
-      key: 'dependency',
-      title: 'caseManagement.featureCase.dependency',
+      value: 'case',
+      label: t('caseManagement.featureCase.case'),
       canHide: true,
       isShow: true,
     },
     {
-      key: 'caseReview',
-      title: 'caseManagement.featureCase.caseReview',
+      value: 'dependency',
+      label: t('caseManagement.featureCase.dependency'),
       canHide: true,
       isShow: true,
     },
     {
-      key: 'comments',
-      title: 'caseManagement.featureCase.comments',
+      value: 'caseReview',
+      label: t('caseManagement.featureCase.caseReview'),
       canHide: true,
       isShow: true,
     },
     {
-      key: 'changeHistory',
-      title: 'caseManagement.featureCase.changeHistory',
+      value: 'comments',
+      label: t('caseManagement.featureCase.comments'),
+      canHide: true,
+      isShow: true,
+    },
+    {
+      value: 'changeHistory',
+      label: t('caseManagement.featureCase.changeHistory'),
       canHide: true,
       isShow: true,
     },
@@ -683,14 +668,14 @@
   const moduleTabMap: Record<string, TabItemType[]> = {
     bugManagement: [
       {
-        key: 'requirement',
-        title: 'caseManagement.featureCase.requirement',
+        value: 'requirement',
+        label: t('caseManagement.featureCase.requirement'),
         canHide: true,
         isShow: true,
       },
       {
-        key: 'bug',
-        title: 'caseManagement.featureCase.bug',
+        value: 'bug',
+        label: t('caseManagement.featureCase.bug'),
         canHide: true,
         isShow: true,
       },

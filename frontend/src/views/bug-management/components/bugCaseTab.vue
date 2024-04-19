@@ -1,89 +1,87 @@
 <template>
-  <div class="p-4">
-    <div class="flex items-center justify-between">
-      <a-button type="primary" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">{{
-        t('caseManagement.featureCase.linkCase')
-      }}</a-button>
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
-        allow-clear
-        class="mx-[8px] w-[240px]"
-        @search="searchCase"
-        @press-enter="searchCase"
-      ></a-input-search>
-    </div>
-    <ms-base-table v-bind="propsRes" v-on="propsEvent">
-      <template #relateCaseNum="{ record }">
-        <a-tooltip :content="`${record.relateCaseNum}`">
-          <!-- TOTO 暂时没有用例id的字段 需要后台加caseId -->
-          <a-button type="text" class="px-0" @click="openDetail(record.relateCaseId)">
-            <div class="one-line-text max-w-[168px]">{{ record.relateCaseNum }}</div>
-          </a-button>
-        </a-tooltip>
-      </template>
-      <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.relateCaseName }}</span
-        ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-      </template>
-      <template #operation="{ record }">
-        <MsButton :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="cancelLink(record)">{{
-          t('caseManagement.featureCase.cancelLink')
-        }}</MsButton>
-      </template>
-      <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">
-            {{ t('caseManagement.featureCase.linkCase') }}
-          </MsButton>
-        </div>
-      </template>
-      <template #relatePlanTitle>
-        <div class="flex items-center">
-          <div class="font-medium text-[var(--color-text-3)]">
-            {{ t('bugManagement.detail.isPlanRelateCase') }}
-          </div>
-          <a-popover position="rt">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-            <template #title>
-              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip1') }} </div>
-              <br />
-              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip2') }} </div>
-              <br />
-              <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip3') }} </div>
-            </template>
-          </a-popover>
-        </div>
-      </template>
-      <template #isRelatePlanCase="{ record }">
-        <span class="text-[var(--color-text-1)]">{{ record.isRelatePlanCase ? t('common.yes') : t('common.no') }}</span>
-      </template>
-    </ms-base-table>
-    <MsCaseAssociate
-      v-model:visible="innerVisible"
-      v-model:project-id="innerProject"
-      v-model:currentSelectCase="currentSelectCase"
-      :ok-button-disabled="associateForm.reviewers.length === 0"
-      :get-modules-func="getModuleTree"
-      :modules-params="modulesTreeParams"
-      :get-table-func="getUnAssociatedList"
-      :table-params="getTableParams"
-      :modules-count="modulesCount"
-      :module-options="caseTypeOptions"
-      :confirm-loading="confirmLoading"
-      :case-id="props.bugId"
-      :associated-ids="associatedIds"
-      :type="RequestModuleEnum.BUG_MANAGEMENT"
-      :is-hidden-case-level="true"
-      @close="emit('close')"
-      @save="saveHandler"
-    >
-    </MsCaseAssociate>
+  <div class="mb-4 flex items-center justify-between">
+    <a-button type="primary" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">{{
+      t('caseManagement.featureCase.linkCase')
+    }}</a-button>
+    <a-input-search
+      v-model:model-value="keyword"
+      :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
+      allow-clear
+      class="mx-[8px] w-[240px]"
+      @search="searchCase"
+      @press-enter="searchCase"
+    ></a-input-search>
   </div>
+  <ms-base-table v-bind="propsRes" v-on="propsEvent">
+    <template #relateCaseNum="{ record }">
+      <a-tooltip :content="`${record.relateCaseNum}`">
+        <!-- TOTO 暂时没有用例id的字段 需要后台加caseId -->
+        <a-button type="text" class="px-0" @click="openDetail(record.relateCaseId)">
+          <div class="one-line-text max-w-[168px]">{{ record.relateCaseNum }}</div>
+        </a-button>
+      </a-tooltip>
+    </template>
+    <template #defectName="{ record }">
+      <span class="one-line-text max-w[300px]"> {{ record.relateCaseName }}</span
+      ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+    </template>
+    <template #operation="{ record }">
+      <MsButton :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="cancelLink(record)">{{
+        t('caseManagement.featureCase.cancelLink')
+      }}</MsButton>
+    </template>
+    <template v-if="(keyword || '').trim() === ''" #empty>
+      <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
+        {{ t('caseManagement.caseReview.tableNoData') }}
+        <MsButton class="ml-[8px]" :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" @click="handleSelect">
+          {{ t('caseManagement.featureCase.linkCase') }}
+        </MsButton>
+      </div>
+    </template>
+    <template #relatePlanTitle>
+      <div class="flex items-center">
+        <div class="font-medium text-[var(--color-text-3)]">
+          {{ t('bugManagement.detail.isPlanRelateCase') }}
+        </div>
+        <a-popover position="rt">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+          <template #title>
+            <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip1') }} </div>
+            <br />
+            <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip2') }} </div>
+            <br />
+            <div class="w-[300px]"> {{ t('bugManagement.detail.isPlanRelateCaseTip3') }} </div>
+          </template>
+        </a-popover>
+      </div>
+    </template>
+    <template #isRelatePlanCase="{ record }">
+      <span class="text-[var(--color-text-1)]">{{ record.isRelatePlanCase ? t('common.yes') : t('common.no') }}</span>
+    </template>
+  </ms-base-table>
+  <MsCaseAssociate
+    v-model:visible="innerVisible"
+    v-model:project-id="innerProject"
+    v-model:currentSelectCase="currentSelectCase"
+    :ok-button-disabled="associateForm.reviewers.length === 0"
+    :get-modules-func="getModuleTree"
+    :modules-params="modulesTreeParams"
+    :get-table-func="getUnAssociatedList"
+    :table-params="getTableParams"
+    :modules-count="modulesCount"
+    :module-options="caseTypeOptions"
+    :confirm-loading="confirmLoading"
+    :case-id="props.bugId"
+    :associated-ids="associatedIds"
+    :type="RequestModuleEnum.BUG_MANAGEMENT"
+    :is-hidden-case-level="true"
+    @close="emit('close')"
+    @save="saveHandler"
+  >
+  </MsCaseAssociate>
 </template>
 
 <script setup lang="ts">

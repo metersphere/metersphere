@@ -81,7 +81,7 @@
             :label="t('system.authorized.license')"
             field="licenseCode"
             asterisk-position="end"
-            required
+            :rules="[{ required: true, message: t('system.authorized.LicenseIsRequired') }]"
             :validate-trigger="['input']"
           >
             <MsUpload

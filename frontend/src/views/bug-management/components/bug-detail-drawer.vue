@@ -96,14 +96,22 @@
         :class="[
           `${
             activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT']) && !commentInputIsActive
-              ? 'h-[calc(100%-72px)]'
+              ? 'h-[calc(100%-118px)]'
               : commentInputIsActive
-              ? 'h-[calc(100%-286px)]'
+              ? 'h-[calc(100%-338px)]'
               : 'h-full'
           }`,
           'bg-white',
         ]"
       >
+        <div class="header relative h-[48px] pl-2">
+          <MsTab
+            v-model:active-key="activeTab"
+            :content-tab-list="contentTabList"
+            :get-text-func="getTabBadge"
+            class="no-content relative border-b"
+          />
+        </div>
         <MsSplitBox
           expand-direction="right"
           :size="0.8"
@@ -115,15 +123,7 @@
           <template #first>
             <div class="leftWrapper h-full">
               <a-spin :loading="detailLoading" class="w-full">
-                <div class="header h-[50px]">
-                  <MsTab
-                    v-model:active-key="activeTab"
-                    :content-tab-list="contentTabList"
-                    :get-text-func="getTabBadge"
-                    class="no-content relative mb-[8px]"
-                  />
-                </div>
-                <div class="tab-pane-container">
+                <div class="tab-pane-container p-4">
                   <BugDetailTab
                     v-if="activeTab === 'detail'"
                     ref="bugDetailTabRef"
@@ -150,65 +150,65 @@
             </div>
           </template>
           <template #second>
-            <!-- <a-spin :loading="rightLoading" class="w-full"> -->
-            <!-- 所属平台一致, 详情展示 -->
-            <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper h-full p-[24px]">
-              <!-- 自定义字段开始 -->
-              <div class="inline-block w-full break-words">
-                <a-skeleton v-if="rightLoading" class="w-full" :loading="rightLoading" :animation="true">
-                  <a-space direction="vertical" class="w-[100%]" size="large">
-                    <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
-                  </a-space>
-                </a-skeleton>
-                <div v-if="!rightLoading" class="mb-4 font-medium">
-                  <strong>
-                    {{ t('bugManagement.detail.basicInfo') }}
-                  </strong>
-                </div>
-                <MsFormCreate
-                  v-if="!rightLoading"
-                  ref="formCreateRef"
-                  v-model:form-item="formItem"
-                  v-model:api="fApi"
-                  :form-rule="formRules"
-                  class="w-full"
-                  :option="options"
-                  @change="handelFormCreateChange"
-                />
-                <!-- 自定义字段结束 -->
-                <div
-                  v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
-                  class="baseItem"
-                >
-                  <a-form
-                    :model="{}"
-                    :label-col-props="{
-                      span: 9,
-                    }"
-                    :wrapper-col-props="{
-                      span: 15,
-                    }"
-                    label-align="left"
-                    content-class="tags-class"
+            <a-spin :loading="rightLoading" class="w-full">
+              <!-- 所属平台一致, 详情展示 -->
+              <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper h-full p-4">
+                <!-- 自定义字段开始 -->
+                <div class="inline-block w-full break-words">
+                  <a-skeleton v-if="rightLoading" class="w-full" :loading="rightLoading" :animation="true">
+                    <a-space direction="vertical" class="w-[100%]" size="large">
+                      <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
+                    </a-space>
+                  </a-skeleton>
+                  <div v-if="!rightLoading" class="mb-4 font-medium">
+                    <strong>
+                      {{ t('bugManagement.detail.basicInfo') }}
+                    </strong>
+                  </div>
+                  <MsFormCreate
+                    v-if="!rightLoading"
+                    ref="formCreateRef"
+                    v-model:form-item="formItem"
+                    v-model:api="fApi"
+                    :form-rule="formRules"
+                    class="w-full"
+                    :option="options"
+                    @change="handelFormCreateChange"
+                  />
+                  <!-- 自定义字段结束 -->
+                  <div
+                    v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
+                    class="baseItem"
                   >
-                    <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                      <MsTagsInput
-                        v-model:model-value="tags"
-                        :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                        @blur="changeTag"
-                      />
-                    </a-form-item>
-                  </a-form>
+                    <a-form
+                      :model="{}"
+                      :label-col-props="{
+                        span: 9,
+                      }"
+                      :wrapper-col-props="{
+                        span: 15,
+                      }"
+                      label-align="left"
+                      content-class="tags-class"
+                    >
+                      <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
+                        <MsTagsInput
+                          v-model:model-value="tags"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                          @blur="changeTag"
+                        />
+                      </a-form-item>
+                    </a-form>
+                  </div>
                 </div>
-              </div>
 
-              <!-- 内置基础信息结束 -->
-            </div>
-            <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
-            <div v-else>
-              <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
-            </div>
-            <!-- </a-spin> -->
+                <!-- 内置基础信息结束 -->
+              </div>
+              <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
+              <div v-else>
+                <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
+              </div>
+            </a-spin>
           </template>
         </MsSplitBox>
       </div>

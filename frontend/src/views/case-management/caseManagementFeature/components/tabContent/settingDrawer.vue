@@ -31,8 +31,8 @@
 
     <div class="ms-table-column-seletor">
       <div class="flex-col">
-        <div v-for="item in nonCloseColumn" :key="item.key" class="column-item">
-          <div>{{ t(item.title) }}</div>
+        <div v-for="item in nonCloseColumn" :key="item.value" class="column-item">
+          <div>{{ t(item.label) }}</div>
           <a-switch v-model="item.isShow" disabled size="small" type="line" @change="handleSwitchChange" />
         </div>
       </div>
@@ -41,26 +41,15 @@
           t('project.environmental.nonClose')
         }}</span></a-divider
       >
-      <!-- <div>
-      <div class="itemTab">
-        <span>{{ t('caseManagement.featureCase.detail') }}</span>
-        <a-switch v-model="detailEnable" size="small" :disabled="true" type="line" />
-      </div>
-      <a-divider orientation="center" class="non-sort"
-        ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
-          t('caseManagement.featureCase.nonClosableTab')
-        }}</span></a-divider
-      >
-    </div> -->
       <VueDraggable
         v-model="couldCloseColumn"
         class="ms-assertion-body-left"
         ghost-class="ghost"
         handle=".column-drag-item"
       >
-        <div v-for="element in couldCloseColumn" :key="element.key" class="column-drag-item">
+        <div v-for="element in couldCloseColumn" :key="element.value" class="column-drag-item">
           <div class="flex w-[90%] items-center">
-            <span class="ml-[8px]">{{ t(element.title) }}</span>
+            <span class="ml-[8px]">{{ t(element.label) }}</span>
           </div>
           <a-switch v-model="element.isShow" size="small" type="line" @change="handleSwitchChange" />
         </div>
@@ -123,7 +112,7 @@
 
   const loadTab = async () => {
     const res = (await featureCaseStore.getContentTabList()) || [];
-    nonCloseColumn.value = res.filter((item) => !item.canHide && item.key !== 'SETTING');
+    nonCloseColumn.value = res.filter((item) => !item.canHide);
     couldCloseColumn.value = res.filter((item) => item.canHide);
   };
 

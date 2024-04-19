@@ -113,40 +113,6 @@
           {{ t('common.save') }}
         </a-button></div
       >
-      <!-- <a-form-item v-if="props.allowEdit" field="attachment" :label="t('caseManagement.featureCase.attachment')">
-        <div class="flex flex-col">
-          <div class="mb-1">
-            <a-dropdown position="tr" trigger="hover">
-              <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="outline">
-                <template #icon> <icon-plus class="text-[14px]" /> </template
-                >{{ t('system.orgTemplate.addAttachment') }}</a-button
-              >
-              <template #content>
-                <a-upload
-                  ref="uploadRef"
-                  v-model:file-list="fileList"
-                  :auto-upload="false"
-                  :show-file-list="false"
-                  :before-upload="beforeUpload"
-                >
-                  <template #upload-button>
-                    <a-button type="text" class="!text-[var(--color-text-1)]">
-                      <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
-                    </a-button>
-                  </template>
-                </a-upload>
-                <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
-                  <MsIcon type="icon-icon_link-copy_outlined" size="16" />
-                  {{ t('caseManagement.featureCase.associatedFile') }}
-                </a-button>
-              </template>
-            </a-dropdown>
-          </div>
-          <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
-            {{ t('system.orgTemplate.addAttachmentTip') }}
-          </div>
-        </div>
-      </a-form-item> -->
       <div v-permission="['FUNCTIONAL_CASE:READ+UPDATE']">
         <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
       </div>
@@ -504,13 +470,14 @@
             if (valid === true) {
               confirmLoading.value = true;
               await updateCaseRequest(getParams());
+              confirmLoading.value = false;
               Message.success(t('caseManagement.featureCase.editSuccess'));
               isEditPreposition.value = false;
               emit('updateSuccess');
             }
           });
         } catch (error) {
-          // console.log(error);
+          console.log(error);
         } finally {
           confirmLoading.value = false;
         }
@@ -665,7 +632,6 @@
 
   async function restartUpload() {
     await sleep(300);
-    console.log('ooo');
     fileListRef.value?.startUpload();
   }
 
@@ -675,6 +641,7 @@
     fileId: '',
     local: true,
   });
+
   function transferFileHandler(item: MsFileItem) {
     activeTransferFileParams.value = {
       projectId: currentProjectId.value,
