@@ -98,6 +98,7 @@
               v-else-if="!requestVModel.executeLoading"
               class="mr-[12px]"
               type="primary"
+              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
               @click="() => execute('serverExec')"
             >
               {{ t('apiTestDebug.serverExec') }}

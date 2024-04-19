@@ -611,7 +611,7 @@
         select
             a.id as id,
             max(a.num) as num,
-            max(a.name) as resourceName,
+            max(a.name) as resource_name,
             'API' as resourceType,
             ass.ref_type as refType,
             max(p.id) as projectId ,
