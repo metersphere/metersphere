@@ -66,7 +66,7 @@ public class FunctionalCaseRelationshipController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void add(@Validated @RequestBody RelationshipAddRequest request) {
         List<String> excludeIds = functionalCaseRelationshipEdgeService.getExcludeIds(request.getId());
-        request.setExcludeIds(excludeIds);
+        request.getExcludeIds().addAll(excludeIds);
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
             functionalCaseRelationshipEdgeService.add(request, ids, SessionUtils.getUserId());
