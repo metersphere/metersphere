@@ -970,6 +970,7 @@
       excludeIds: batchParams.value.excludeIds,
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds as string[],
+      keyword: keyword.value,
       filter: {
         reviewStatus: statusFilters.value,
         caseLevel: caseFilters.value,
