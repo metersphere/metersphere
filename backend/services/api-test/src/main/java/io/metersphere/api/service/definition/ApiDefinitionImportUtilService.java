@@ -156,16 +156,18 @@ public class ApiDefinitionImportUtilService {
         //如果导入的时候选择了模块，需要把所有的导入数据的模块路径前面拼接上选择的模块路径
         if (StringUtils.isNotBlank(request.getModuleId())) {
             BaseTreeNode baseTreeNode = idModuleMap.get(request.getModuleId());
-            String modulePath = baseTreeNode.getPath();
-            //如果选择了未规划模块， 导入的数据的模块清空， 只导入数据，不处理模块信息
-            if ("root".equals(request.getModuleId())) {
-                importData.forEach(t -> {
-                    t.setModulePath(modulePath);
-                });
-            } else {
-                importData.forEach(t -> {
-                    t.setModulePath(modulePath + t.getModulePath());
-                });
+            if (baseTreeNode != null) {
+                String modulePath = baseTreeNode.getPath();
+                //如果选择了未规划模块， 导入的数据的模块清空， 只导入数据，不处理模块信息
+                if ("root".equals(request.getModuleId())) {
+                    importData.forEach(t -> {
+                        t.setModulePath(modulePath);
+                    });
+                } else {
+                    importData.forEach(t -> {
+                        t.setModulePath(modulePath + t.getModulePath());
+                    });
+                }
             }
         }
         //去掉apiLists中不存在的模块数据

@@ -415,7 +415,7 @@
     () => visible.value,
     (val) => {
       if (val) {
-        importForm.value.moduleId = props.activeModule !== 'all' ? props.activeModule : 'root';
+        importForm.value.moduleId = props.activeModule !== 'all' ? props.activeModule : '';
       }
     },
     {

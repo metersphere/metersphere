@@ -2566,19 +2566,38 @@ public class ApiScenarioService extends MoveNodeService {
             }
             response.addSuccessData(copyScenario.getId(), copyScenario.getNum(), copyScenario.getName());
         }
-
-        response.setSuccess(apiScenarioMapper.batchInsert(insertApiScenarioList));
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
+        SubListUtils.dealForSubList(insertApiScenarioList, 100, subList -> {
+            subList.forEach(mapper::insertSelective);
+        });
+        response.setSuccess(insertApiScenarioList.size());
         if (CollectionUtils.isNotEmpty(insertApiScenarioBlobList)) {
-            apiScenarioBlobMapper.batchInsert(insertApiScenarioBlobList);
+            ApiScenarioBlobMapper blobMapper = sqlSession.getMapper(ApiScenarioBlobMapper.class);
+            SubListUtils.dealForSubList(insertApiScenarioBlobList, 100, subList -> {
+                subList.forEach(blobMapper::insertSelective);
+            });
         }
         if (CollectionUtils.isNotEmpty(insertApiScenarioStepList)) {
-            apiScenarioStepMapper.batchInsert(insertApiScenarioStepList);
+            ApiScenarioStepMapper stepMapper = sqlSession.getMapper(ApiScenarioStepMapper.class);
+            SubListUtils.dealForSubList(insertApiScenarioStepList, 100, subList -> {
+                subList.forEach(stepMapper::insertSelective);
+            });
         }
         if (CollectionUtils.isNotEmpty(insertApiScenarioStepBlobList)) {
-            apiScenarioStepBlobMapper.batchInsert(insertApiScenarioStepBlobList);
+            ApiScenarioStepBlobMapper stepBlobMapper = sqlSession.getMapper(ApiScenarioStepBlobMapper.class);
+            SubListUtils.dealForSubList(insertApiScenarioStepBlobList, 100, subList -> {
+                subList.forEach(stepBlobMapper::insertSelective);
+            });
         }
         if (CollectionUtils.isNotEmpty(insertApiFileResourceList)) {
-            apiFileResourceService.batchInsert(insertApiFileResourceList);
+            SubListUtils.dealForSubList(insertApiFileResourceList, 100, subList -> {
+                apiFileResourceService.batchInsert(subList);
+            });
+        }
+        sqlSession.flushStatements();
+        if (sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
         return response;
     }

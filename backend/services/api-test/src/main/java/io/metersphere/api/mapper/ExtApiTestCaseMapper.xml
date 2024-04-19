@@ -373,6 +373,7 @@
             and (
             atc.name like concat('%', #{request.condition.keyword},'%')
             or atc.num like concat('%', #{request.condition.keyword},'%')
+            or a.path like concat('%', #{request.condition.keyword},'%')
             or atc.tags like concat('%', #{request.condition.keyword},'%')
             )
         </if>
