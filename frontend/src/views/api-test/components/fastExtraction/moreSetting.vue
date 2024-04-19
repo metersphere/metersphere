@@ -88,7 +88,7 @@
       </div>
     </div>
     <div v-if="expressionForm.extractType === RequestExtractExpressionEnum.X_PATH" class="mb-[16px]">
-      <div class="mb-[8px] text-[var(--color-text-1)]">
+      <div class="mb-[8px] text-[14px] text-[var(--color-text-1)]">
         {{ t('apiTestDebug.contentType') }}
       </div>
       <a-radio-group v-model:model-value="expressionForm.responseFormat" size="small">

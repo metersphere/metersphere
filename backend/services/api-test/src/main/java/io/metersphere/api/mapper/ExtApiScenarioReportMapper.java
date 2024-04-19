@@ -52,7 +52,7 @@ public interface ExtApiScenarioReportMapper {
 
     void updateApiScenario(List<String> ids);
 
-    List<ApiScenarioReportStepDTO> selectStepDeatilByReportId(String id);
+    List<ApiScenarioReportStepDTO> selectStepDetailByReportId(String id);
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> ids);
 

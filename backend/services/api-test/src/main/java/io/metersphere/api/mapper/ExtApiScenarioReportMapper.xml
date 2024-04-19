@@ -224,7 +224,7 @@
         where api_scenario_record.api_scenario_report_id = #{id}
 
     </select>
-    <select id="selectStepDeatilByReportId"
+    <select id="selectStepDetailByReportId"
             resultType="io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO">
         select api_scenario_report_detail.step_id,
                api_scenario_report_detail.report_id,
