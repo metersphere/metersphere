@@ -11,6 +11,7 @@ COPY ${DEPENDENCY}/BOOT-INF/classes /app
 
 # 静态文件
 COPY backend/app/src/main/resources/static /app/static
+ADD frontend/public /app/static
 
 
 ENV JAVA_CLASSPATH=/app:/opt/jmeter/lib/ext/*:/app/lib/*

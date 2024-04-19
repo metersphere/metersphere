@@ -46,8 +46,8 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        mvn deploy -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean deploy -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml  --settings ./settings.xml
+                        ./mvnw deploy -N -Drevision=${REVISION} --settings ./settings.xml
+                        ./mvnw clean deploy -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml  --settings ./settings.xml
                     '''
                 }
             }
@@ -67,7 +67,7 @@ pipeline {
                         rm -rf $LOCAL_REPOSITORY/io/metersphere/metersphere-jmeter-assertions/*
                         rm -rf $LOCAL_REPOSITORY/io/metersphere/metersphere-jmeter-functions/*
                         
-                        mvn clean install -Drevision=${REVISION} -DskipTests --settings ./settings.xml
+                        ./mvnw clean install -Drevision=${REVISION} -DskipTests --settings ./settings.xml
                         mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
                     '''
                 }
@@ -82,7 +82,7 @@ pipeline {
                     export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                     export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                     
-                    LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
+                    LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
     
                     libraries=('general-xpack-impl')
                     for library in "${libraries[@]}";
@@ -104,7 +104,7 @@ pipeline {
                     export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                     export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                     java -version
-                    LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
+                    LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                     # echo $LOCAL_REPOSITORY
 
                     libraries=('metersphere-api-test-impl' 'metersphere-ui-test-impl' 'metersphere-load-test-impl' 'general-xpack-impl')
@@ -113,7 +113,7 @@ pipeline {
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                         #
                         rm -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/target/lib/*
-                        mvn dependency:copy-dependencies -DincludeScope=runtime --file $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.pom --settings ./settings.xml
+                        ./mvnw dependency:copy-dependencies -DincludeScope=runtime --file $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.pom --settings ./settings.xml
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/target/lib/* backend/app/target/dependency/BOOT-INF/lib/
                     done
 
