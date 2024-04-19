@@ -19,7 +19,7 @@
           v-model:model-value="appStore.currentProjectId"
           class="w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
           :bordered="false"
-          :fallback-option="() => undefined"
+          :fallback-option="false"
           allow-search
           @change="selectProject"
         >

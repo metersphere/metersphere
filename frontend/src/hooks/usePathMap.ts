@@ -1,6 +1,6 @@
 import { MENU_LEVEL, pathMap, PathMapItem, PathMapRoute } from '@/config/pathMap';
 import router from '@/router';
-import { findNodeByAlias, findNodeByKey, mapTree, TreeNode } from '@/utils';
+import { findNodeByKey, mapTree, TreeNode } from '@/utils';
 
 export default function usePathMap() {
   /**
@@ -22,7 +22,7 @@ export default function usePathMap() {
         // 项目级别只展示项目
         isValid = e.level !== MENU_LEVEL[0] && e.level !== MENU_LEVEL[1];
       }
-      if (isValid) {
+      if (isValid && !e.hideInModule) {
         return typeof customNodeFn === 'function' ? customNodeFn(e) : e;
       }
       return null;
@@ -56,14 +56,6 @@ export default function usePathMap() {
         });
       }
     }
-  };
-
-  /**
-   * 根据 Alias 获取路由
-   * @param alias 路由的 alias
-   */
-  const getRouteMapByAlias = (alias: string) => {
-    return findNodeByAlias<PathMapItem>(pathMap, alias as unknown as string);
   };
 
   /**
@@ -110,6 +102,5 @@ export default function usePathMap() {
     jumpRouteByMapKey,
     getRouteLevelByKey,
     findLocalePath,
-    getRouteMapByAlias,
   };
 }

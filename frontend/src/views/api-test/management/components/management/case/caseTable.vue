@@ -603,6 +603,7 @@
       : undefined,
     heightUsed: 256,
     showSubdirectory: true,
+    paginationSize: 'mini',
   });
   const batchActions = {
     baseAction: [

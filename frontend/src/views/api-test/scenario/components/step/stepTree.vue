@@ -65,6 +65,7 @@
                 <!-- 步骤执行 -->
                 <MsIcon
                   v-show="!step.isExecuting"
+                  v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
                   type="icon-icon_play-round_filled"
                   :size="18"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
@@ -72,6 +73,7 @@
                 />
                 <MsIcon
                   v-show="step.isExecuting"
+                  v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
                   type="icon-icon_stop"
                   :size="20"
                   class="cursor-pointer text-[rgb(var(--link-6))]"
@@ -1354,6 +1356,7 @@
       });
     } else {
       // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
+      delete scenario.value.stepResponses[request.stepId]; // 先移除上一次的执行结果
       const reportId = getGenerateId();
       request.executeLoading = true;
       activeStep.value = {

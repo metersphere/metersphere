@@ -7,25 +7,27 @@
     </a-button>
     <template #content>
       <div class="arco-table-filters-content">
-        <div class="max-h-[300px] overflow-y-auto px-[12px] py-[4px]">
-          <a-checkbox-group v-if="props.multiple" v-model="checkedList" size="mini" direction="vertical">
-            <a-checkbox v-for="item in props.options" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-checkbox>
-          </a-checkbox-group>
-          <a-radio-group v-else v-model="checkedValue" size="mini" direction="vertical">
-            <a-radio v-for="item in props.options" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-radio>
-          </a-radio-group>
-        </div>
-        <div class="arco-table-filters-bottom">
-          <a-button size="mini" type="secondary" @click="handleFilterReset">
-            {{ t('common.reset') }}
-          </a-button>
-          <a-button size="mini" type="primary" @click="handleFilterSubmit()">
-            {{ t('common.confirm') }}
-          </a-button>
+        <div class="arco-table-filters-content-list">
+          <div class="max-h-[300px] overflow-y-auto px-[12px] py-[4px]">
+            <a-checkbox-group v-if="props.multiple" v-model="checkedList" size="mini" direction="vertical">
+              <a-checkbox v-for="item in props.options" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-checkbox>
+            </a-checkbox-group>
+            <a-radio-group v-else v-model="checkedValue" size="mini" direction="vertical">
+              <a-radio v-for="item in props.options" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-radio>
+            </a-radio-group>
+          </div>
+          <div class="arco-table-filters-bottom">
+            <a-button size="mini" type="secondary" @click="handleFilterReset">
+              {{ t('common.reset') }}
+            </a-button>
+            <a-button size="mini" type="primary" @click="handleFilterSubmit()">
+              {{ t('common.confirm') }}
+            </a-button>
+          </div>
         </div>
       </div>
     </template>

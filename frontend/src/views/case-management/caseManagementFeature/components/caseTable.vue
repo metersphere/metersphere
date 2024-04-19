@@ -104,25 +104,27 @@
         </a-button>
         <template #content>
           <div class="arco-table-filters-content">
-            <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-              <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="mini">
-                <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
-                  <MsIcon
-                    :type="executionResultMap[key]?.icon || ''"
-                    class="mr-1"
-                    :class="[executionResultMap[key].color]"
-                  ></MsIcon>
-                  <span>{{ executionResultMap[key]?.statusText || '' }} </span>
-                </a-checkbox>
-              </a-checkbox-group>
-            </div>
-            <div class="filter-button">
-              <a-button size="mini" class="mr-[8px]" @click="resetExecuteResultFilter">
-                {{ t('common.reset') }}
-              </a-button>
-              <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                {{ t('system.orgTemplate.confirm') }}
-              </a-button>
+            <div class="arco-table-filters-content-list">
+              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="mini">
+                  <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
+                    <MsIcon
+                      :type="executionResultMap[key]?.icon || ''"
+                      class="mr-1"
+                      :class="[executionResultMap[key].color]"
+                    ></MsIcon>
+                    <span>{{ executionResultMap[key]?.statusText || '' }} </span>
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+              <div class="filter-button">
+                <a-button size="mini" class="mr-[8px]" @click="resetExecuteResultFilter">
+                  {{ t('common.reset') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
+                  {{ t('system.orgTemplate.confirm') }}
+                </a-button>
+              </div>
             </div>
           </div>
         </template>

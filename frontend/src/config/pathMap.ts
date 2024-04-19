@@ -14,7 +14,7 @@ export interface PathMapItem {
   level: (typeof MENU_LEVEL)[number]; // 系统设置里有系统级别也有组织级别，按最低权限级别配置
   children?: PathMapItem[];
   routeQuery?: Record<string, any>;
-  alias?: string; // 别名：用于消息中心跳转映射
+  hideInModule?: boolean; // 在日志选项中隐藏
 }
 
 /**
@@ -492,6 +492,14 @@ export const pathMap: PathMapItem[] = [
               },
             ],
           },
+          {
+            key: 'SETTING_ORGANIZATION_LOG', // 系统设置-组织-日志
+            locale: 'menu.settings.organization.log',
+            route: RouteEnum.SETTING_ORGANIZATION_LOG,
+            permission: [],
+            level: MENU_LEVEL[1],
+            hideInModule: true,
+          },
         ],
       },
     ],
@@ -756,7 +764,6 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.TEST_PLAN_INDEX,
         permission: [],
         level: MENU_LEVEL[2],
-        alias: 'TEST_PLAN_TASK', // 测试计划-消息中心跳转对应别名
       },
     ],
   },

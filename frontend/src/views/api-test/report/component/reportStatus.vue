@@ -18,8 +18,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -117,7 +115,7 @@
   };
 
   function getExecutionResult(): IconType {
-    return iconTypeStatus.value[props.moduleType][props.status];
+    return iconTypeStatus[props.moduleType]?.[props.status];
   }
   const methodColor = 'rgb(var(--warning-7))';
 
