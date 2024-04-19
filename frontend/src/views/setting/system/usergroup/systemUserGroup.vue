@@ -12,8 +12,9 @@
         />
       </template>
       <template #second>
-        <div class="flex h-full flex-col gap-[16px] overflow-hidden pt-[24px]">
-          <div class="flex flex-row items-center justify-between px-[24px]">
+        <div class="flex h-full flex-col overflow-hidden pt-[24px]">
+          <ExpireAlert class="px-4" />
+          <div class="mb-4 flex flex-row items-center justify-between px-[24px]">
             <a-tooltip :content="currentUserGroupItem.name">
               <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
             </a-tooltip>
@@ -72,6 +73,7 @@
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
   import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
+  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';

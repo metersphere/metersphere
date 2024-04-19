@@ -345,8 +345,8 @@
       params.userRoleIds = target;
     }
     if (currentType) await batchModalRef.value.batchRequestFun(currentType.request, params);
-    initData();
     resetSelector();
+    initData();
   };
 
   // 批量操作

@@ -51,7 +51,6 @@
     </ms-base-table>
     <MsCaseAssociate
       v-model:visible="innerVisible"
-      v-model:project-id="innerProject"
       v-model:currentSelectCase="currentSelectCase"
       :ok-button-disabled="associateForm.reviewers.length === 0"
       :get-modules-func="getPublicLinkModuleTree"
@@ -95,6 +94,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import Message from '@arco-design/web-vue/es/message';
@@ -190,18 +190,16 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<string>('');
+  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('API');
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
   const getTableParams = ref<TableQueryParams>({});
 
   function handleSelect(value: string | number | Record<string, any> | undefined) {
-    currentSelectCase.value = value as string;
+    currentSelectCase.value = value as keyof typeof CaseLinkEnum;
     innerVisible.value = true;
   }
-
-  const caseTypeOptions = ref<{ label: string; value: string }[]>([]);
 
   const modulesCount = ref<Record<string, any>>({});
 
@@ -235,44 +233,26 @@
     }
   }
 
-  const moduleMaps: Record<string, { label: string; value: string }[]> = {
-    apiTest: [
-      {
-        value: 'API',
-        label: t('caseManagement.featureCase.apiCase'),
-      },
-      {
-        value: 'SCENARIO',
-        label: t('caseManagement.featureCase.sceneCase'),
-      },
-    ],
-    // uiTest: [
-    //   {
-    //     value: 'UI',
-    //     label: t('caseManagement.featureCase.uiCase'),
-    //   },
-    // ],
-    // loadTest: [
-    //   {
-    //     value: 'PERFORMANCE',
-    //     label: t('caseManagement.featureCase.propertyCase'),
-    //   },
-    // ],
-  };
-
-  async function getEnabledModules() {
-    // const result = await postTabletList({ projectId: currentProjectId.value });
-    // const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
-    // caseArr.forEach((item: any) => {
-    //   const currentModule = moduleMaps[item.module];
-    //   caseTypeOptions.value.push(...currentModule);
-    // });
-    Object.keys(moduleMaps).forEach((item: any) => {
-      const currentModule = moduleMaps[item];
-      caseTypeOptions.value.push(...currentModule);
-    });
-    currentSelectCase.value = caseTypeOptions.value[0].value;
-  }
+  // @desc 这个模块不使用动态获取模块需求调整目前这些菜单也写死
+  const caseTypeOptions = ref<{ label: string; value: keyof typeof CaseLinkEnum }[]>([
+    {
+      value: 'API',
+      label: t('caseManagement.featureCase.apiCase'),
+    },
+    {
+      value: 'SCENARIO',
+      label: t('caseManagement.featureCase.sceneCase'),
+    },
+    // TODO 这个版本不显示
+    // {
+    //   value: 'UI',
+    //   label: t('caseManagement.featureCase.uiCase'),
+    // },
+    // {
+    //   value: 'PERFORMANCE',
+    //   label: t('caseManagement.featureCase.propertyCase'),
+    // },
+  ]);
 
   async function cancelLink(record: any) {
     try {
@@ -292,20 +272,8 @@
     setKeyword(keyword.value);
     await loadList();
   }
-  const activeTab = computed(() => featureCaseStore.activeTab);
-
-  // watch(
-  //   () => activeTab.value,
-  //   (val) => {
-  //     if (val === 'case') {
-  //       getEnabledModules();
-  //       getFetch();
-  //     }
-  //   }
-  // );
 
   onMounted(async () => {
-    getEnabledModules();
     getFetch();
   });
 </script>

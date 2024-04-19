@@ -363,7 +363,7 @@
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
+  import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TableOperationColumn } from '@/components/business/ms-user-group-comp/authTable.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
@@ -513,6 +513,7 @@
     variableType: RequestExtractEnvType.TEMPORARY,
     extractScope: RequestExtractScope.BODY,
     expression: '',
+    condition: EQUAL.value,
     extractType: RequestExtractExpressionEnum.JSON_PATH,
     expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
     resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,

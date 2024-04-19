@@ -128,7 +128,7 @@ function replaceRestParams(path: string, restMap: Record<string, any>) {
 }
 
 // 返回最终groovyCode 代码模板片段
-function _groovyCodeTemplate(obj: Record<string, any>) {
+export function _groovyCodeTemplate(obj: Record<string, any>) {
   const { requestUrl, requestMethod, headers, body } = obj;
   const params = `[
                 'url': '${requestUrl}',

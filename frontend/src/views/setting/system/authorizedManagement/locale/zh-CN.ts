@@ -15,4 +15,7 @@ export default {
   'system.authorized.licenseCode': 'License Code',
   'system.authorized.licenseSuccessTip': '授权成功',
   'system.authorized.LicenseIsRequired': 'License Code 是必填项',
+  'system.authorized.LicenseExpirationPromptLessThanThirty':
+    '系统授权剩余 {day} 天到期，为了不影响您的使用，请尽快联系工作人员',
+  'system.authorized.LicenseExpirationPromptGreaterThanThirty': '系统授权已过期，如需帮助，请联系工作人员',
 };

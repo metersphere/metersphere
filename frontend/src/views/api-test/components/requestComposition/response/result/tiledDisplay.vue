@@ -30,7 +30,7 @@
         <transition name="fade">
           <div v-show="!expandIds.includes(item.value) && isShowContent(item.value)" class="expandContent">
             <div v-if="item.value === ResponseComposition.BODY" class="res-item">
-              <ResBody :request-result="props.requestResult" @copy="copyScript" />
+              <ResBody ref="resBodyRef" :request-result="props.requestResult" @copy="copyScript" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE" class="res-item">
               <ResConsole :console="props.console?.trim()" />
@@ -92,9 +92,12 @@
     }
   }
   const { copy, isSupported } = useClipboard({ legacy: true });
+
+  const resBodyRef = ref();
   function copyScript() {
+    const encodingFormatValue = resBodyRef.value.responseEditorRef.getEncodingCode();
     if (isSupported) {
-      copy(props.requestResult?.responseResult.body || '');
+      copy(encodingFormatValue || '');
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));

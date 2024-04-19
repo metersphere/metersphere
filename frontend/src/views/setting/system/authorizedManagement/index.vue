@@ -1,5 +1,6 @@
 <template>
   <MsCard :loading="loading" simple>
+    <ExpireAlert />
     <div class="wrapper">
       <div class="content-wrapper">
         <div class="authorized_logo">
@@ -119,6 +120,7 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import ExpireAlert from './components/expireAlert.vue';
 
   import { addLicense, getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -143,6 +145,7 @@
       const result = await getLicenseInfo();
       licenseInfo.value = result;
       licenseStore.setLicenseStatus(licenseInfo.value?.status);
+      licenseStore.getExpirationTime(licenseInfo.value.license.expired);
     } catch (error) {
       console.log(error);
     } finally {

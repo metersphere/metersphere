@@ -1,5 +1,6 @@
 <template>
   <MsCard simple>
+    <ExpireAlert />
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
@@ -18,7 +19,12 @@
         >
           {{ t('system.user.emailInvite') }}
         </a-button>
-        <a-button v-permission="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">
+        <a-button
+          v-permission="['SYSTEM_USER:READ+IMPORT', 'SYSTEM_USER_ROLE:READ']"
+          class="mr-3"
+          type="outline"
+          @click="showImportModal"
+        >
           {{ t('system.user.importUser') }}
         </a-button>
       </div>
@@ -306,6 +312,7 @@
   import MsSelect from '@/components/business/ms-select';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
+  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import {
     batchCreateUser,
