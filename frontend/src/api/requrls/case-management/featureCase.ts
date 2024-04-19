@@ -149,3 +149,5 @@ export const dragSortUrl = '/functional/case/edit/pos';
 export const getChangeHistoryListUrl = '/functional/case/operation-history';
 // 取消关联用例
 export const cancelDisassociate = '/functional/case/test/disassociate/case';
+// 关联用例关联功能用例项目下拉
+export const associatedProjectOptionsUrl = '/project/list/options';

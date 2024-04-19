@@ -619,10 +619,15 @@
       loading.value = true;
       const res = await templateApiMaps[props.mode].detail(route.query.id as string);
       const { name, customFields, systemFields } = res;
+      let copyName = `copy_${name}`;
+      if (copyName.length > 255) {
+        copyName = copyName.slice(0, 255);
+      }
       templateForm.value = {
         ...res,
-        name: route.params.mode === 'copy' ? `copy_${name}` : name,
+        name: route.params.mode === 'copy' ? copyName : name,
       };
+
       if (route.params.mode === 'copy') {
         templateForm.value.id = undefined;
       }

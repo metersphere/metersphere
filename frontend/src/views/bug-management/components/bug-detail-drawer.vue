@@ -70,7 +70,7 @@
           />
           {{ t('caseManagement.featureCase.follow') }}
         </MsButton>
-        <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]">
+        <MsButton type="icon" status="secondary" class="mr-2 !rounded-[var(--border-radius-small)]">
           <a-dropdown position="br" :hide-on-select="false">
             <div>
               <icon-more class="mr-1" />

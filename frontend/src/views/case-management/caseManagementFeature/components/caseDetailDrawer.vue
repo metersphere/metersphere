@@ -63,7 +63,7 @@
           />
           {{ t('caseManagement.featureCase.follow') }}
         </MsButton>
-        <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]">
+        <MsButton type="icon" status="secondary" class="mr-2 !rounded-[var(--border-radius-small)]">
           <a-dropdown position="br" :hide-on-select="false">
             <div class="flex items-center">
               <icon-more class="mr-2" />
@@ -238,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -395,14 +395,14 @@
       historyCount,
     } = detail;
     const countMap: Record<string, any> = {
-      case: caseCount,
-      dependency: relateEdgeCount,
-      caseReview: caseReviewCount,
-      testPlan: testPlanCount,
-      bug: bugCount,
-      requirement: demandCount,
-      comments: commentCount,
-      changeHistory: historyCount,
+      case: caseCount || '0',
+      dependency: relateEdgeCount || '0',
+      caseReview: caseReviewCount || '0',
+      testPlan: testPlanCount || '0',
+      bug: bugCount || '0',
+      requirement: demandCount || '0',
+      comments: commentCount || '0',
+      changeHistory: historyCount || '0',
     };
     featureCaseStore.initCountMap(countMap);
   }
@@ -639,6 +639,9 @@
       canHide: true,
       isShow: true,
     },
+  ];
+
+  const caseTab: TabItemType[] = [
     {
       value: 'dependency',
       label: t('caseManagement.featureCase.dependency'),
@@ -664,43 +667,31 @@
       isShow: true,
     },
   ];
-  let buggerTab: TabItemType[] = [];
-  const moduleTabMap: Record<string, TabItemType[]> = {
-    bugManagement: [
-      {
-        value: 'requirement',
-        label: t('caseManagement.featureCase.requirement'),
-        canHide: true,
-        isShow: true,
-      },
-      {
-        value: 'bug',
-        label: t('caseManagement.featureCase.bug'),
-        canHide: true,
-        isShow: true,
-      },
-    ],
-  };
 
-  let newTabDefaultSettingList: TabItemType[] = [];
-  /**
-   * 获取开启的模块
-   */
-  async function getTabModule() {
-    buggerTab = [];
-    const result = await postTabletList({ projectId: currentProjectId.value });
-    const enableModuleArr = result.filter((item: any) => item.module === 'bugManagement');
-    enableModuleArr.forEach((item) => {
-      if (item.module === 'bugManagement') {
-        buggerTab.push(...moduleTabMap[item.module]);
-      }
-    });
-    newTabDefaultSettingList = [...tabDefaultSettingList.slice(0, 2), ...buggerTab, ...tabDefaultSettingList.slice(2)];
-  }
+  const buggerTab: TabItemType[] = [
+    {
+      value: 'requirement',
+      label: t('caseManagement.featureCase.requirement'),
+      canHide: true,
+      isShow: true,
+    },
+    {
+      value: 'bug',
+      label: t('caseManagement.featureCase.bug'),
+      canHide: true,
+      isShow: true,
+    },
+  ];
 
-  await getTabModule();
+  // 计算模块开启是否展示缺陷和需求
+  const newTabDefaultSettingList = computed(() => {
+    if (appStore.currentMenuConfig.includes('bugManagement')) {
+      return [...tabDefaultSettingList, ...buggerTab, ...caseTab];
+    }
+    return [...tabDefaultSettingList, ...caseTab];
+  });
 
-  featureCaseStore.initContentTabList(newTabDefaultSettingList);
+  featureCaseStore.initContentTabList([...newTabDefaultSettingList.value]);
   tabSetting.value = ((await featureCaseStore.getContentTabList()) || []).filter((item) => item.isShow);
 
   async function handleUploadImage(file: File) {

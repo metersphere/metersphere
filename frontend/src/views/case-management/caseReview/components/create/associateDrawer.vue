@@ -88,6 +88,7 @@
   import useAppStore from '@/store/modules/app';
 
   import { BaseAssociateCaseRequest } from '@/models/caseManagement/caseReview';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -142,7 +143,7 @@
     }
   }
 
-  const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
+  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 
   // const associatedIds = useVModel(props, 'associatedIds', emit);
   const confirmLoading = ref<boolean>(false);

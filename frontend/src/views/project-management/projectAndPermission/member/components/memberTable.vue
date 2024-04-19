@@ -348,8 +348,8 @@
     };
     try {
       await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
-      initData();
       resetSelector();
+      initData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

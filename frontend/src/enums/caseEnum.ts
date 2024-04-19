@@ -20,4 +20,12 @@ export enum LastExecuteResults {
   FAILED = 'FAILED',
 }
 
+export enum CaseLinkEnum {
+  API = 'API',
+  SCENARIO = 'SCENARIO',
+  UI = 'UI',
+  PERFORMANCE = 'PERFORMANCE',
+  FUNCTIONAL = 'FUNCTIONAL',
+}
+
 export default {};

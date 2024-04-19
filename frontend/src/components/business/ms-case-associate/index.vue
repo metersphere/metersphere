@@ -24,11 +24,24 @@
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
-          <MsProjectSelect
-            v-if="innerProject && !props.hideProjectSelect"
-            v-model:project="innerProject"
-            class="mb-[16px]"
-          />
+          <div v-if="!props.hideProjectSelect" class="flex w-full flex-1">
+            <a-select
+              v-model="innerProject"
+              class="mb-[16px] flex-1"
+              :default-value="innerProject"
+              allow-search
+              :placeholder="t('common.pleaseSelect')"
+            >
+              <template #arrow-icon>
+                <icon-caret-down />
+              </template>
+              <a-tooltip v-for="item of projectList" :key="item.id" :mouse-enter-delay="500" :content="item.name">
+                <a-option :value="item.id" :class="item.id === innerProject ? 'arco-select-option-selected' : ''">
+                  {{ item.name }}
+                </a-option>
+              </a-tooltip>
+            </a-select>
+          </div>
           <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
             <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
           </a-select>
@@ -159,13 +172,15 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
 
-  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
+  import { getAssociatedProjectOptions, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { ProjectListItem } from '@/models/setting/project';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { CaseLevel } from './types';
@@ -185,7 +200,7 @@
       getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
       tableParams?: TableQueryParams; // 查询表格的额外的参数
       okButtonDisabled?: boolean; // 确认按钮是否禁用
-      currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
+      currentSelectCase: keyof typeof CaseLinkEnum; // 当前选中的用例类型
       moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
       confirmLoading: boolean;
       associatedIds: string[]; // 已关联用例id集合用于去重已关联
@@ -239,7 +254,7 @@
   }
 
   const innerVisible = useVModel(props, 'visible', emit);
-  const innerProject = useVModel(props, 'projectId', emit);
+  const innerProject = ref<string | undefined>(props.projectId);
 
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
@@ -323,6 +338,7 @@
 
   const keyword = ref('');
   const version = ref('');
+  const projectList = ref<ProjectListItem[]>([]);
 
   function getCaseLevelColumn() {
     if (!props.isHiddenCaseLevel) {
@@ -576,6 +592,17 @@
     }
   }
 
+  async function initProjectList(setDefault: boolean) {
+    try {
+      projectList.value = await getAssociatedProjectOptions(appStore.currentOrgId, caseType.value);
+      if (setDefault) {
+        innerProject.value = projectList.value[0].id;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   function searchCase() {
     getLoadListParams();
     loadList();
@@ -631,10 +658,14 @@
     () => props.visible,
     (val) => {
       if (val) {
-        resetSelector();
-        initModules();
-        searchCase();
-        initFilter();
+        if (!props.hideProjectSelect) {
+          initProjectList(true);
+        } else {
+          resetSelector();
+          initModules();
+          searchCase();
+          initFilter();
+        }
       } else {
         cancel();
       }
@@ -655,10 +686,12 @@
 
   watch(
     () => innerProject.value,
-    () => {
-      if (innerVisible.value) {
-        searchCase();
+    (val) => {
+      if (val) {
+        resetSelector();
         initModules();
+        searchCase();
+        initFilter();
       }
     }
   );

@@ -15,4 +15,8 @@ export default {
   'system.authorized.licenseCode': 'License Code',
   'system.authorized.licenseSuccessTip': 'Authorized Successfully！',
   'system.authorized.LicenseIsRequired': 'License Code is required',
+  'system.authorized.LicenseExpirationPromptLessThanThirty':
+    'The remaining {day} of system authorization expires. In order not to affect your use, please contact the staff as soon as possible',
+  'system.authorized.LicenseExpirationPromptGreaterThanThirty':
+    'System authorization has expired, if you need help, please contact the working staff',
 };

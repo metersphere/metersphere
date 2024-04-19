@@ -803,7 +803,10 @@
 
   function renameCopyBug() {
     if (isCopy.value) {
-      form.value.title = `copy_${form.value.title}`;
+      const copyName = `copy_${form.value.title}`;
+      if (copyName.length > 255) {
+        form.value.title = copyName.slice(0, 255);
+      }
     }
   }
 

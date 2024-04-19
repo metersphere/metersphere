@@ -1,6 +1,7 @@
 /* stylelint-disable order/properties-order */
 <template>
   <MsCard simple>
+    <ExpireAlert />
     <div class="wrapper">
       <a-alert :closable="true" class="mb-4">
         <div>
@@ -19,6 +20,7 @@
    */
   import MsCard from '@/components/pure/ms-card/index.vue';
   import pluginTable from './components/pluginTable.vue';
+  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

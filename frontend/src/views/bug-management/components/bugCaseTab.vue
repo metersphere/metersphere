@@ -111,6 +111,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
@@ -201,7 +202,7 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<string>('');
+  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
@@ -233,7 +234,12 @@
     }
   }
 
-  const caseTypeOptions = ref<{ label: string; value: string }[]>([]);
+  const caseTypeOptions = ref<{ label: string; value: string }[]>([
+    {
+      label: 'menu.caseManagement.featureCase',
+      value: 'FUNCTIONAL',
+    },
+  ]);
 
   const modulesCount = ref<Record<string, any>>({});
 
@@ -253,25 +259,6 @@
     } finally {
       confirmLoading.value = false;
     }
-  }
-
-  const moduleMaps: Record<string, { label: string; value: string }[]> = {
-    caseManagement: [
-      {
-        value: 'FUNCTIONAL',
-        label: t('menu.caseManagement.featureCase'),
-      },
-    ],
-  };
-
-  async function getEnabledModules() {
-    const result = await postTabletList({ projectId: currentProjectId.value });
-    const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
-    caseArr.forEach((item: any) => {
-      const currentModule = moduleMaps[item.module];
-      caseTypeOptions.value.push(...currentModule);
-    });
-    currentSelectCase.value = caseTypeOptions.value[0].value;
   }
 
   async function searchCase() {
@@ -300,14 +287,12 @@
   }
 
   onMounted(async () => {
-    getEnabledModules();
     getFetch();
   });
 
   watch(
     () => props.bugId,
     () => {
-      getEnabledModules();
       getFetch();
     }
   );

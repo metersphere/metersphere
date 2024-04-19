@@ -8,6 +8,7 @@
     :on-before-ok="beforeConfirm"
     :cancel-button-props="{ disabled: loading }"
     @popup-visible-change="reset"
+    @cancel="handleCancel()"
   >
     <template #content>
       <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{

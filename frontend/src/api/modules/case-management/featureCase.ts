@@ -5,6 +5,7 @@ import {
   AddDemandUrl,
   AddDependOnRelationUrl,
   AssociatedDebuggerUrl,
+  associatedProjectOptionsUrl,
   BatchAssociationDemandUrl,
   BatchCopyCaseUrl,
   BatchDeleteCaseUrl,
@@ -94,6 +95,7 @@ import type {
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, ModuleTreeNode, MoveModules, TableQueryParams } from '@/models/common';
+import { ProjectListItem } from '@/models/setting/project';
 
 // 获取模块树
 export function getCaseModuleTree(params: TableQueryParams) {
@@ -420,6 +422,10 @@ export function dragSort(data: DragCase) {
 // 获取已关联缺陷列表
 export function getChangeHistoryList(data: TableQueryParams) {
   return MSR.post<CommonList<ChangeHistoryItem>>({ url: getChangeHistoryListUrl, data });
+}
+// 获取已关联缺陷列表
+export function getAssociatedProjectOptions(orgId: string, module: string) {
+  return MSR.get<ProjectListItem[]>({ url: `${associatedProjectOptionsUrl}/${orgId}/${module}` });
 }
 
 export default {};

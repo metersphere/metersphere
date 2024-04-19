@@ -26,7 +26,11 @@
 
   import MsSelect from '@/components/business/ms-select/index';
 
+  import { useUserStore } from '@/store';
+
   import initOptionsFunc, { UserRequestTypeEnum } from './utils';
+
+  const userStore = useUserStore();
 
   defineOptions({ name: 'MsUserSelector' });
 
