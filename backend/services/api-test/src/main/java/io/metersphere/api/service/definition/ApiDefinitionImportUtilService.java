@@ -394,10 +394,8 @@ public class ApiDefinitionImportUtilService {
     private static void updateApiRequest(ImportRequest request, List<ApiDefinitionImportDetail> updateRequestData, List<String> updateModuleLists, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper) {
         updateRequestData.forEach(t -> {
             ApiDefinition apiDefinition = new ApiDefinition();
-            if (CollectionUtils.isNotEmpty(updateModuleLists) && updateModuleLists.contains(t.getId())) {
-                apiDefinition.setId(t.getId());
-                apiDefinition.setUpdateUser(request.getUserId());
-            }
+            apiDefinition.setId(t.getId());
+            apiDefinition.setUpdateUser(request.getUserId());
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiMapper.updateByPrimaryKeySelective(apiDefinition);
             //更新blob数据
