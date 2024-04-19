@@ -4,7 +4,7 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS bug(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `num` INT NOT NULL   COMMENT '业务ID' ,
-    `title` VARCHAR(300) NOT NULL   COMMENT '缺陷标题' ,
+    `title` VARCHAR(255) NOT NULL   COMMENT '缺陷标题' ,
     `handle_users` VARCHAR(1000)    COMMENT '处理人集合;预留字段, 后续工作台统计可能需要' ,
     `handle_user` VARCHAR(50) NOT NULL   COMMENT '处理人' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,

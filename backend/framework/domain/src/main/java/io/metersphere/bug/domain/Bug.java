@@ -24,7 +24,7 @@ public class Bug implements Serializable {
 
     @Schema(description = "缺陷标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.title.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
     @Schema(description = "处理人集合;预留字段, 后续工作台统计可能需要")
