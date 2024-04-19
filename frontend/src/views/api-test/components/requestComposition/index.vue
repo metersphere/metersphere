@@ -1321,11 +1321,12 @@
     try {
       if (!props.updateApi) return;
       saveLoading.value = true;
-      await props.updateApi({
+      const res = await props.updateApi({
         ...makeRequestParams(),
         ...props.otherParams,
       });
       Message.success(t('common.updateSuccess'));
+      requestVModel.value.updateTime = res.updateTime;
       requestVModel.value.unSaved = false;
       emit('addDone');
     } catch (error) {
