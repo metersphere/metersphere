@@ -37,6 +37,7 @@
   import moduleTree from './components/moduleTree.vue';
   import management from './components/recycle/index.vue';
 
+  import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
 
   const activeModule = ref<string>('all');
@@ -66,9 +67,13 @@
   function refreshModuleTree() {
     moduleTreeRef.value?.refresh();
   }
+  function refreshModuleTreeCount(params: ApiDefinitionGetModuleParams) {
+    moduleTreeRef.value?.initModuleCount(params);
+  }
 
   /** 向子孙组件提供方法和值 */
   provide('refreshModuleTree', refreshModuleTree);
+  provide('refreshModuleTreeCount', refreshModuleTreeCount);
   provide('folderTreePathMap', folderTreePathMap.value);
 </script>
 
