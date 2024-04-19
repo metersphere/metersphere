@@ -603,7 +603,7 @@
         rowIndex: number;
         columnIndex: number;
       }) => { rowspan?: number; colspan?: number } | void;
-      uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+      uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
       fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
       fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
       fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口

@@ -1,10 +1,9 @@
-import { cloneDeep, each } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
-import type { CustomAttributes } from '@/models/caseManagement/featureCase';
 
 import { isObject } from './is';
 
@@ -206,7 +205,7 @@ export function traverseTree<T>(
     tree = [tree];
   }
   for (let i = 0; i < tree.length; i++) {
-    const node = tree[i];
+    const node = (tree as TreeNode<T>[])[i];
     if (typeof customNodeFn === 'function') {
       customNodeFn(node);
     }
@@ -280,18 +279,18 @@ export function mapTree<T>(
  */
 export function filterTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
-  filterFn: (node: T) => boolean,
+  filterFn: (node: TreeNode<T>) => boolean,
   customChildrenKey = 'children'
-): T[] {
+): TreeNode<T>[] {
   if (!Array.isArray(tree)) {
     tree = [tree];
   }
-  const filteredTree: T[] = [];
+  const filteredTree: TreeNode<T>[] = [];
   for (let i = 0; i < tree.length; i++) {
-    const node: T = tree[i];
+    const node = (tree as TreeNode<T>[])[i];
     // 如果节点满足过滤条件，则保留该节点，并递归过滤子节点
     if (filterFn(node)) {
-      const newNode: T = cloneDeep(node);
+      const newNode = cloneDeep(node);
       if (node[customChildrenKey] && node[customChildrenKey].length > 0) {
         // 递归过滤子节点，并将过滤后的子节点添加到当前节点中
         newNode[customChildrenKey] = filterTree(node[customChildrenKey], filterFn, customChildrenKey);
@@ -683,7 +682,7 @@ export const downloadByteFile = (byte: BlobPart, fileName: string) => {
  * @param {*} flag
  */
 
-export function compress(img, type, maxWidth, flag) {
+export function compress(img: ImageData, type: string, maxWidth: number, flag: boolean) {
   let canvas: HTMLCanvasElement | null = document.createElement('canvas');
   let ctx2: any = canvas.getContext('2d');
 

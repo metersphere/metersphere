@@ -109,8 +109,6 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance } from '@arco-design/web-vue';
-
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -119,6 +117,8 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import { RequestDefinitionStatus } from '@/enums/apiEnum';
+
+  import type { FormInstance, TreeNodeData } from '@arco-design/web-vue';
 
   const props = defineProps<{
     selectTree?: ModuleTreeNode[];
@@ -135,8 +135,8 @@
     }
   }
 
-  function filterTreeNode(searchValue, nodeData) {
-    return nodeData.name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
+  function filterTreeNode(searchValue: string, nodeData: TreeNodeData) {
+    return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   defineExpose({

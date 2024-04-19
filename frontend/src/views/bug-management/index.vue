@@ -793,7 +793,7 @@
   }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    const filterParams = {
+    const filterParams: Record<string, any> = {
       status: statusFilterValue.value,
       handleUser: handleUserFilterValue.value,
       updateUser: updateUserFilterValue.value,
@@ -835,7 +835,7 @@
   }
 
   function initTableParams() {
-    const filterParams = {
+    const filterParams: Record<string, any> = {
       status: statusFilterValue.value,
       handleUser: handleUserFilterValue.value,
       updateUser: updateUserFilterValue.value,

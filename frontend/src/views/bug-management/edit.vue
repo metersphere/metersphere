@@ -293,7 +293,7 @@
   });
 
   // 平台默认模板系统字段
-  const platformSystemFieldMap = {};
+  const platformSystemFieldMap: Record<string, any> = {};
 
   const getListFunParams = ref<TableQueryParams>({
     combine: {
@@ -404,6 +404,7 @@
     }
   };
   const currentCustomFields = ref<CustomFieldItem[]>([]);
+  // TODO:: Record<string, any>
   const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
     if (v) {
       try {
@@ -418,13 +419,13 @@
         isLoading.value = false;
         isPlatformDefaultTemplate.value = res.platformDefault;
         if (isPlatformDefaultTemplate.value) {
-          const systemFields = res.customFields.filter((field) => field.platformSystemField);
-          systemFields.forEach((field) => {
+          const systemFields = res.customFields.filter((field: Record<string, any>) => field.platformSystemField);
+          systemFields.forEach((field: Record<string, any>) => {
             form.value.platformSystemFields[field.fieldId] = field.defaultValue;
             platformSystemFieldMap[field.fieldId] = field;
           });
         }
-        getFormRules(res.customFields.filter((field) => !field.platformSystemField));
+        getFormRules(res.customFields.filter((field: Record<string, any>) => !field.platformSystemField));
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -552,7 +553,7 @@
               if (formItem.value && formItem.value.length) {
                 formItem.value.forEach((item: FormRuleItem) => {
                   if (item.sourceType === 'CASCADER') {
-                    item.value = findParents(item.options as Option[], item.value as string, []);
+                    item.value = findParents(item.options as Option[], item.value as string, []) || '';
                   }
                   customFields.push({
                     id: item.field as string,
@@ -702,7 +703,7 @@
         });
     }
 
-    let tmpObj = {};
+    let tmpObj: Record<string, any> = {};
     if (isEdit.value) {
       tmpObj = { status: res.status };
     }
@@ -828,7 +829,6 @@
     font-size: 14px;
     color: var(--color-text-4);
   }
-
   :deep(.arco-form-item-content) {
     overflow-wrap: anywhere;
   }

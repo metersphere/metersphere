@@ -87,7 +87,7 @@
         />
       </template>
       <template #triggerMode="{ record }">
-        <span>{{ t(ExecutionMethodsLabel[record.triggerMode]) }}</span>
+        <span>{{ t(ExecutionMethodsLabel[record.triggerMode as keyof typeof ExecutionMethodsLabel]) }}</span>
       </template>
       <template #triggerModeFilter="{ columnConfig }">
         <TableFilter
@@ -192,7 +192,6 @@
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
-  import TemplateItem from '@/views/setting/organization/template/components/templateItem.vue';
 
   import {
     batchStopRealOrdApi,
@@ -215,9 +214,10 @@
   import { BatchApiParams } from '@/models/common';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
+  import { ExecutionMethodsLabel } from '@/enums/taskCenter';
 
-  import { ordAndProjectColumn, TaskStatus } from './utils';
+  import type { ResourceTypeMapKey } from './utils';
+  import { Group, ordAndProjectColumn, TaskStatus } from './utils';
 
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
@@ -226,14 +226,14 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    group: 'system' | 'organization' | 'project';
-    moduleType: keyof typeof TaskCenterEnum;
+    group: Group;
+    moduleType: ResourceTypeMapKey;
     name: string;
   }>();
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
 
-  const permissionsMap = {
+  const permissionsMap: Record<Group, any> = {
     organization: {
       API_CASE: {
         stop: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_DEFINITION_CASE:READ+EXECUTE'],

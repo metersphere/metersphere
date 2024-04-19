@@ -250,8 +250,8 @@
           projectId: appStore.currentProjectId,
           environmentId: environmentId.value as string,
           apiDefinitionId: apiDefinitionId.value,
-          linkFileIds,
-          uploadFileIds,
+          linkFileIds: linkFileIds || [],
+          uploadFileIds: uploadFileIds || [],
           request,
           id: id as string,
           name,
@@ -287,7 +287,7 @@
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const reportId = ref('');
   const websocket = ref<WebSocket>();
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const temporaryResponseMap: Record<string, any> = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   // 开启websocket监听，接收执行结果
   function debugSocket(executeType?: 'localExec' | 'serverExec') {
     websocket.value = getSocket(
@@ -321,6 +321,7 @@
       reportId.value = getGenerateId();
       detailForm.value.reportId = reportId.value; // 存储报告ID
       let res;
+      if (!makeRequestParams) return;
       const params = {
         environmentId: environmentId.value as string,
         frontendDebug: executeType === 'localExec',
@@ -337,12 +338,16 @@
           id: detailForm.value.id as string,
           projectId: detailForm.value.projectId,
           ...params,
+          uploadFileIds: params.uploadFileIds || [],
+          linkFileIds: params.linkFileIds || [],
         });
       } else {
         res = await debugCase({
           id: `case-${Date.now()}`,
           projectId: appStore.currentProjectId,
           ...params,
+          uploadFileIds: params.uploadFileIds || [],
+          linkFileIds: params.linkFileIds || [],
         });
       }
       if (executeType === 'localExec') {

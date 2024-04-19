@@ -68,7 +68,7 @@
     createStepAction?: CreateStepAction;
   }>();
   const emit = defineEmits<{
-    (e: 'close');
+    (e: 'close'): void;
     (
       e: 'otherCreate',
       type:
@@ -76,8 +76,8 @@
         | ScenarioAddStepActionType.CUSTOM_API
         | ScenarioAddStepActionType.SCRIPT_OPERATION,
       step?: ScenarioStepItem
-    );
-    (e: 'addDone', newStep: ScenarioStepItem);
+    ): void;
+    (e: 'addDone', newStep: ScenarioStepItem): void;
   }>();
 
   const appStore = useAppStore();

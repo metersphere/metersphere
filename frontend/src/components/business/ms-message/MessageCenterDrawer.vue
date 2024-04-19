@@ -341,7 +341,8 @@
     return count;
   }
 
-  const resourceTypeRouteMap = {
+  // TODO: MessageResourceType
+  const resourceTypeRouteMap: Record<string, string> = {
     [MessageResourceType.BUG_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
     [MessageResourceType.BUG_SYNC_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
     [MessageResourceType.FUNCTIONAL_CASE_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,

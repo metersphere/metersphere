@@ -333,6 +333,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -382,7 +383,7 @@
   const { openModal } = useModal();
   const tableStore = useTableStore();
 
-  const folderTreePathMap = inject('folderTreePathMap');
+  const folderTreePathMap = inject<MsTreeNodeData[]>('folderTreePathMap');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const keyword = ref('');
 

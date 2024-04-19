@@ -109,7 +109,7 @@
       hideLayoutSwitch?: boolean; // 隐藏布局切换
       loading?: boolean;
       isEdit?: boolean; // 是否可编辑
-      uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+      uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
       isDefinition?: boolean;
       isResponseModel?: boolean;
       showEmpty?: boolean;

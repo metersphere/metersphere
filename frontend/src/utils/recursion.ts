@@ -5,7 +5,7 @@ export interface Option {
 }
 
 // 递归函数，获取所有父级元素
-export function findParents(data: Option[], targetId: string, parents: string[] = []) {
+export function findParents(data: Option[], targetId: string, parents: string[] = []): string[] | null {
   for (let i = 0; i < data.length; i++) {
     const current = data[i];
     if (current.value === targetId) {

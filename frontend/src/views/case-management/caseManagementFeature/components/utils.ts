@@ -1,17 +1,14 @@
-import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
+import type { FormItem } from '@/components/pure/ms-form-create/types';
 import { MsTableColumnData } from '@/components/pure/ms-table/type';
 import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { useI18n } from '@/hooks/useI18n';
-import useUserStore from '@/store/modules/user';
 import { hasAnyPermission } from '@/utils/permission';
 
 import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
 import { StatusType } from '@/enums/caseEnum';
-
-const userStore = useUserStore();
 
 const { t } = useI18n();
 
@@ -21,8 +18,8 @@ export interface ReviewResult {
   statusText: string;
 }
 
-// 图标评审结果
-export const statusIconMap = {
+// 图标评审结果 TODO:TS 类型 key
+export const statusIconMap: Record<string, any> = {
   UN_REVIEWED: {
     key: 'UN_REVIEWED',
     icon: StatusType.UN_REVIEWED,
@@ -54,8 +51,8 @@ export const statusIconMap = {
     color: 'text-[rgb(var(--warning-6))]',
   },
 };
-// 图标执行结果
-export const executionResultMap = {
+// 图标执行结果 TODO:TS 类型 key
+export const executionResultMap: Record<string, any> = {
   UN_EXECUTED: {
     key: 'UN_EXECUTED',
     icon: StatusType.UN_EXECUTED,
@@ -143,7 +140,7 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
   );
 
   if (currentColumnData) {
-    let selectValue;
+    let selectValue: string;
     // 处理多选项
     if (multipleExcludes.includes(currentColumnData.type) && currentColumnData.defaultValue) {
       selectValue = JSON.parse(currentColumnData.defaultValue);

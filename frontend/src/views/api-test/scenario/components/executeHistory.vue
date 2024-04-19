@@ -69,7 +69,7 @@
         </a-trigger>
       </template>
       <template #triggerMode="{ record }">
-        <span>{{ t(TriggerModeLabel[record.triggerMode]) }}</span>
+        <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #status="{ record }">
         <executeStatus :status="record.status" />

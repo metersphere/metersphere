@@ -25,7 +25,7 @@
   const { t } = useI18n();
 
   // 场景步骤类型映射
-  const scenarioStepMap = {
+  const scenarioStepMap: Record<string, any> = {
     [ScenarioStepType.CONSTANT_TIMER]: { label: 'apiScenario.waitTime', color: 'rgb(var(--warning-6))' },
     [ScenarioStepType.LOOP_CONTROLLER]: { label: 'apiScenario.loopControl', color: 'rgba(167, 98, 191, 1)' },
     [ScenarioStepType.IF_CONTROLLER]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },

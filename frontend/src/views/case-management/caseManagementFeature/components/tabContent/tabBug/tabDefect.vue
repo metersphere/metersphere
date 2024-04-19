@@ -393,7 +393,7 @@
   });
 
   function initTableParams() {
-    const filterParams = {
+    const filterParams: Record<string, any> = {
       status: statusFilterValue.value,
       handleUser: handleUserFilterValue.value,
     };

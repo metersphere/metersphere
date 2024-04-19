@@ -290,7 +290,7 @@
     return true;
   }
 
-  function onDragStart(e, node: MsTreeNodeData) {
+  function onDragStart(e: DragEvent, node: MsTreeNodeData) {
     tempDragNode.value = node;
   }
 

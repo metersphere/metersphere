@@ -49,12 +49,8 @@
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox v-for="key of Object.keys(reviewResultMap)" :key="key" :value="key">
-                    <a-tag
-                      :color="reviewResultMap[key].color"
-                      :class="[reviewResultMap[key].class, 'px-[4px]']"
-                      size="small"
-                    >
-                      {{ t(reviewResultMap[key].label) }}
+                    <a-tag :color="reviewResultMap[key as ReviewResult].color" class="px-[4px]" size="small">
+                      {{ t(reviewResultMap[key as ReviewResult].label) }}
                     </a-tag>
                   </a-checkbox>
                 </a-checkbox-group>
@@ -321,7 +317,13 @@
   import useUserStore from '@/store/modules/user';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
+  import {
+    ReviewCaseItem,
+    ReviewItem,
+    ReviewPassRule,
+    ReviewResult,
+    ReviewStatus,
+  } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -571,12 +573,14 @@
    * @param record 关联用例项
    * @param done 关闭弹窗
    */
-  async function handleDisassociateReviewCase(record: ReviewCaseItem, done) {
+  async function handleDisassociateReviewCase(record: ReviewCaseItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
       await disassociateReviewCase(route.query.id as string, record.caseId);
       emit('refresh');
-      done();
+      if (done) {
+        done();
+      }
       Message.success(t('caseManagement.caseReview.disassociateSuccess'));
       loadList();
     } catch (error) {

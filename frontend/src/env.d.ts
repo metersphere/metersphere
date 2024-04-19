@@ -9,3 +9,9 @@ declare module '*.vue' {
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
 }
+
+declare module 'xml-beautify' {
+  export default class xmlBeautify {
+    beautify: (xml: string) => string;
+  }
+}

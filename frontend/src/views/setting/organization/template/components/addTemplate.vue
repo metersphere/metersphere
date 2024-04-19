@@ -72,7 +72,7 @@
                 <a-checkbox
                   v-model="formItem.required"
                   class="mr-1"
-                  @change="(value) => changeState(value, formItem)"
+                  @change="(value) => changeState(value, formItem as DefinedFieldItem)"
                   >{{ t('system.orgTemplate.required') }}</a-checkbox
                 >
               </span>
@@ -545,9 +545,11 @@
     selectData.value = [...selectDataValue, ...newData];
   };
 
-  function changeState(value: boolean | (string | number | boolean)[], formItem) {
-    formItem.required = value;
-    formItem.formRules[0].effect.required = value;
+  function changeState(value: boolean | (string | number | boolean)[], formItem: DefinedFieldItem) {
+    formItem.required = !!value;
+    if (formItem.formRules) {
+      formItem.formRules[0].effect.required = value;
+    }
   }
 
   const systemFieldData = ref<CustomField[]>([]);

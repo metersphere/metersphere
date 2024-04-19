@@ -353,7 +353,7 @@
   );
   const apiActions = folderMoreActions.filter((action) => action.eventTag !== 'shareModule');
 
-  function filterMoreActionFunc(actions, node) {
+  function filterMoreActionFunc(actions: ActionsItem[], node: MsTreeNodeData) {
     if (node.type === 'MODULE') {
       return moduleActions;
     }

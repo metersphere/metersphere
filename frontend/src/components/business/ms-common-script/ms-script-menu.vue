@@ -95,7 +95,7 @@
     emit('formApiImport');
   }
 
-  function _handleCommand(command) {
+  function _handleCommand(command: string) {
     switch (command) {
       // 自定义代码片段
       case 'custom_function':

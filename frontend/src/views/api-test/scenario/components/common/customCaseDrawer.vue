@@ -689,7 +689,7 @@
       nextTick(() => {
         if (fApi.value) {
           fApi.value.nextRefresh(() => {
-            const form = {};
+            const form: Record<string, any> = {};
             controlPluginFormFields().forEach((key) => {
               form[key] = formData[key];
             });
@@ -921,12 +921,12 @@
   async function execute(executeType?: 'localExec' | 'serverExec') {
     requestVModel.value.executeLoading = true;
     if (isHttpProtocol.value) {
-      emit('execute', makeRequestParams(executeType), executeType);
+      emit('execute', makeRequestParams(executeType) as RequestParam, executeType);
     } else {
       // 插件需要校验动态表单
       fApi.value?.validate(async (valid) => {
         if (valid === true) {
-          emit('execute', makeRequestParams(executeType), executeType);
+          emit('execute', makeRequestParams(executeType) as RequestParam, executeType);
         } else {
           requestVModel.value.activeTab = RequestComposition.PLUGIN;
           nextTick(() => {
@@ -942,7 +942,7 @@
     emit('stopDebug');
   }
 
-  function initErrorMessageInfoItem(key) {
+  function initErrorMessageInfoItem(key: string) {
     if (requestVModel.value.errorMessageInfo && !requestVModel.value.errorMessageInfo[key]) {
       requestVModel.value.errorMessageInfo[key] = {};
     }
@@ -1026,7 +1026,7 @@
   function handleClose() {
     // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep，引用 case 不能更改不需要触发
     if (!requestVModel.value.isNew && activeStep.value?.refType === ScenarioStepRefType.COPY) {
-      emit('applyStep', cloneDeep(makeRequestParams()));
+      emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
     }
   }
 
