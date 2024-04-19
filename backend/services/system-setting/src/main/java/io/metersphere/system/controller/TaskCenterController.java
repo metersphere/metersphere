@@ -131,7 +131,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void updateProject(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
         hasPermission(PROJECT, moduleType);
-        taskCenterService.update(id, cron.toString(), SessionUtils.getUserId(), "/task/center/project/schedule/update/", OperationLogModule.PROJECT_PROJECT_MANAGER);
+        taskCenterService.update(id, cron.toString(), SessionUtils.getUserId(), "/task/center/project/schedule/update/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @PostMapping("/system/schedule/batch-enable")
