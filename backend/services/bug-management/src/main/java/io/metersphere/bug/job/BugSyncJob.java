@@ -45,26 +45,28 @@ public class BugSyncJob extends BaseScheduleJob {
         if (!checkBeforeSync(resourceId)) {
             return;
         }
-        LogUtils.info("bug sync job start......");
+        LogUtils.info("Start verify license and synchronizing bugs");
         try{
             if (licenseService == null) {
-                LogUtils.info("license is null, sync remain bug");
+                // 没有License, 同步存量缺陷
+                LogUtils.info("No license, synchronization stock bug");
                 bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
             } else {
                 LicenseDTO licenseDTO = licenseService.validate();
                 if (licenseDTO != null && licenseDTO.getLicense() != null
                         && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
-                    LogUtils.info("license is valid, sync all bug");
+                    // License校验成功, 同步全量缺陷
+                    LogUtils.info("License verification successful, synchronization full bug");
                     bugSyncService.syncPlatformAllBugBySchedule(resourceId, userId);
                 } else {
-                    LogUtils.info("license is invalid, sync remain bug");
+                    // License校验失败, 同步存量缺陷
+                    LogUtils.info("License verification failed, synchronization stock bug");
                     bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
                 }
             }
         } catch (Exception e) {
             LogUtils.error(e.getMessage());
         }
-        LogUtils.info("bug sync job end......");
     }
 
     /**
