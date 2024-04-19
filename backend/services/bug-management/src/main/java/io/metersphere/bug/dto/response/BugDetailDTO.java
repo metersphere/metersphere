@@ -21,7 +21,7 @@ public class BugDetailDTO {
     private Integer num;
 
     @Schema(description = "缺陷标题")
-    @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)

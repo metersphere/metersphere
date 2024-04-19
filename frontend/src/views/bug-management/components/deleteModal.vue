@@ -9,7 +9,9 @@
     <template #title>
       <div class="flex flex-row items-center">
         <icon-exclamation-circle-fill class="text-[16px] text-[rgb(var(--danger-6))]" />
-        <div class="ml-[8px]">{{ t('bugManagement.detail.deleteTitle', { name: props.name }) }}</div>
+        <div class="one-line-text ml-[8px]">{{
+          t('bugManagement.detail.deleteTitle', { name: characterLimit(props.name) })
+        }}</div>
       </div>
     </template>
     <div class="form">
@@ -30,7 +32,7 @@
             },
           ]"
         >
-          <a-input :placeholder="t('bugManagement.edit.pleaseInputBugName')" v-model:model-value="form.name" />
+          <a-input v-model:model-value="form.name" :placeholder="t('bugManagement.edit.pleaseInputBugName')" />
         </a-form-item>
       </a-form>
     </div>
@@ -50,6 +52,7 @@
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
