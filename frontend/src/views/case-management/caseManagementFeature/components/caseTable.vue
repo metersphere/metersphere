@@ -63,6 +63,7 @@
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
         size="mini"
+        @click.stop
         @change="() => handleStatusChange(record)"
       >
         <template #label>
@@ -204,6 +205,7 @@
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
         size="mini"
+        @click.stop
         @change="() => handleStatusChange(record)"
       >
         <template #label>
@@ -231,6 +233,7 @@
           },
         }"
         size="mini"
+        @click.stop
         @change="(value) => handleChangeModule(record, value)"
       >
         <template #tree-slot-title="node">
@@ -240,7 +243,7 @@
         </template>
       </a-tree-select>
       <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
-        <span class="one-line-text inline-block" @click="record.showModuleTree = true">{{
+        <span class="one-line-text inline-block" @click.stop="record.showModuleTree = true">{{
           getModules(record.moduleId)
         }}</span>
       </a-tooltip>
