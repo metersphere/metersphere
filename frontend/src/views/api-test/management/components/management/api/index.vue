@@ -371,6 +371,20 @@
     }
   }
 
+  // 新建接口后没有创建人，创建时间，更新时间的信息。所以需要刷新数据
+  watch(
+    () => activeApiTab.value.isNew,
+    async (newValue, oldValue) => {
+      // isNew从true变成了false
+      if (oldValue && !newValue) {
+        const res = await getDefinitionDetail(activeApiTab.value.id);
+        activeApiTab.value.createUserName = res.createUserName;
+        activeApiTab.value.updateTime = res.updateTime;
+        activeApiTab.value.createTime = res.createTime;
+      }
+    }
+  );
+
   function handleAddDone() {
     if (typeof refreshModuleTree === 'function') {
       refreshModuleTree();

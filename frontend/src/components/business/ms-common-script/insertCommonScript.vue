@@ -108,7 +108,7 @@
           </MsButton>
           <template #content>
             <div class="arco-table-filters-content">
-              <div class="py-[2px]] flex w-full items-center justify-start overflow-hidden px-[12px]">
+              <div class="flex w-full items-center justify-start overflow-hidden px-[12px] py-[2px]">
                 <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                   <a-checkbox :key="CommonScriptStatusEnum.PASSED" :value="CommonScriptStatusEnum.PASSED">
                     <commonScriptStatus :status="CommonScriptStatusEnum.PASSED" />

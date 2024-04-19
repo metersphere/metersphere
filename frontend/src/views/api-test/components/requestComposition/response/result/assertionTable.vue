@@ -1,5 +1,5 @@
 <template>
-  <a-scrollbar class="overflow-y-auto" :style="{ height: '300px' }">
+  <a-scrollbar class="h-full overflow-y-auto">
     <MsFormTable
       :data="props.requestResult?.responseResult.assertions"
       :columns="columns"
@@ -57,4 +57,8 @@
   ];
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  .arco-scrollbar {
+    @apply h-full;
+  }
+</style>
