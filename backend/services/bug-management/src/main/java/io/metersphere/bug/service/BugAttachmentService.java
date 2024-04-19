@@ -43,6 +43,7 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -440,7 +441,7 @@ public class BugAttachmentService {
                 FileMetadata meta = fileMetadataMap.get(fileId);
                 if (meta != null) {
                     try {
-                        File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + meta.getName() + "." + meta.getType());
+                        File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + meta.getName() + "." + meta.getType()));
                         byte[] fileByte = fileMetadataService.getFileByte(meta);
                         FileUtils.writeByteArrayToFile(uploadTmpFile, fileByte);
                         linkSyncFiles.add(new SyncAttachmentToPlatformRequest(platformBugKey, uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
@@ -482,7 +483,7 @@ public class BugAttachmentService {
             fileService.upload(file, fileRequest);
             if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
                 // 非本地平台，同步附件到平台
-                File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + file.getOriginalFilename());
+                File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + file.getOriginalFilename()));
                 FileUtils.writeByteArrayToFile(uploadTmpFile, file.getBytes());
                 localSyncFiles.add(new SyncAttachmentToPlatformRequest(platformBugKey, uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
             }
@@ -510,7 +511,7 @@ public class BugAttachmentService {
         FileMetadata fileMetadata = fileMetadataMapper.selectByExample(example).get(0);
         // 取消关联的附件同步至平台
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-            File deleteTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + fileMetadata.getName() + "." + fileMetadata.getType());
+            File deleteTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + fileMetadata.getName() + "." + fileMetadata.getType()));
             linkSyncFiles.add(new SyncAttachmentToPlatformRequest(platformBugKey, deleteTmpFile, SyncAttachmentType.DELETE.syncOperateType()));
         }
         // 取消关联的附件, FILE_ASSOCIATION表
@@ -540,7 +541,7 @@ public class BugAttachmentService {
             fileService.deleteFile(fileRequest);
             // 删除的本地的附件同步至平台
             if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                File deleteTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + localAttachment.getFileName());
+                File deleteTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + localAttachment.getFileName()));
                 syncLocalFiles.add(new SyncAttachmentToPlatformRequest(platformBugKey, deleteTmpFile, SyncAttachmentType.DELETE.syncOperateType()));
             }
         } catch (Exception e) {
