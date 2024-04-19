@@ -39,7 +39,8 @@
     color?: string;
   }
 
-  const iconTypeStatus = ref({
+  // TODO: Record<string,any>
+  const iconTypeStatus: Record<string, any> = {
     [ReportEnum.API_REPORT]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
@@ -113,7 +114,7 @@
         color: '!text-[var(--color-text-input-border)]',
       },
     },
-  });
+  };
 
   function getExecutionResult(): IconType {
     return iconTypeStatus.value[props.moduleType][props.status];

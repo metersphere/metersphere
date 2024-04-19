@@ -49,7 +49,7 @@
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
-  function handleModuleInit(tree, _protocol: string, pathMap: Record<string, any>) {
+  function handleModuleInit(tree: ModuleTreeNode[], _protocol: string, pathMap: Record<string, any>) {
     folderTree.value = tree;
     protocol.value = _protocol;
     folderTreePathMap.value = pathMap;

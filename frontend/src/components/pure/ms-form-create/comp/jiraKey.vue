@@ -57,7 +57,7 @@
     if (pluginId) {
       try {
         const { rule } = (attrs.formCreateInject as { [key: string]: any }).api;
-        const extra = {};
+        const extra: Record<string, any> = {};
         rule.forEach((item: Rule) => {
           extra[item.field as string] = item.value;
         });

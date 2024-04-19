@@ -46,7 +46,9 @@
         </div>
       </template>
       <template #resourceType="{ record }">
-        <div type="text" class="flex w-full">{{ t(resourceTypeMap[record.resourceType].label) }}</div>
+        <div type="text" class="flex w-full">
+          {{ t(resourceTypeMap[record.resourceType as ResourceTypeMapKey].label) }}
+        </div>
       </template>
       <template #value="{ record }">
         <a-select
@@ -161,7 +163,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
-  import { ordAndProjectColumn, resourceTypeMap } from './utils';
+  import { Group, ordAndProjectColumn, resourceTypeMap, ResourceTypeMapKey } from './utils';
 
   const appStore = useAppStore();
 
@@ -172,7 +174,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
-    group: string;
+    group: Group;
     moduleType: keyof typeof TaskCenterEnum;
     name: string;
   }>();
@@ -213,7 +215,7 @@
     },
   });
 
-  const permissionsMap = {
+  const permissionsMap: Record<Group, any> = {
     organization: {
       API_IMPORT: {
         edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_DEFINITION:READ+IMPORT'],

@@ -259,7 +259,7 @@
       });
 
       // 组织切换的 trigger
-      const orgTrigger = (e, visible: Ref, slot: (item) => VNode) => (
+      const orgTrigger = (e: Record<string, any>, visible: Ref, slot: (item: Record<string, any>) => VNode) => (
         <a-trigger
           v-model:popup-visible={visible.value}
           trigger="click"
@@ -385,16 +385,16 @@
         return (
           <MsPersonInfoDrawer
             visible={personalDrawerVisible.value}
-            onUpdate:visible={(e) => {
+            onUpdate:visible={(e: boolean) => {
               personalDrawerVisible.value = e;
             }}
           />
         );
       };
 
-      let mouseEnterTimer;
+      let mouseEnterTimer: NodeJS.Timeout;
       // 渲染菜单项
-      const renderMenuItem = (element: RouteRecordRaw | null, icon) =>
+      const renderMenuItem = (element: RouteRecordRaw | null, icon: (() => any) | null) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">

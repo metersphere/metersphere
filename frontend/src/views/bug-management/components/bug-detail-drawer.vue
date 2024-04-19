@@ -359,7 +359,7 @@
     }
     return [];
   };
-
+  // TODO:: Record<string, any>
   async function loadedBug(detail: BugEditFormObject) {
     // 是否平台默认模板
     isPlatformDefaultTemplate.value = detail.platformDefault;
@@ -375,13 +375,15 @@
     detailInfo.value = { ...detail };
     tags.value = detail.tags || [];
     caseCount.value = detailInfo.value.linkCaseCount;
-    const tmpObj = { status: detailInfo.value.status };
-    platformSystemFields.value = customFieldsRes.customFields.filter((field) => field.platformSystemField);
+    const tmpObj: Record<string, any> = { status: detailInfo.value.status };
+    platformSystemFields.value = customFieldsRes.customFields.filter(
+      (field: Record<string, any>) => field.platformSystemField
+    );
     currentCustomFields.value = customFieldsRes.customFields || [];
     if (detailInfo.value.customFields && Array.isArray(detailInfo.value.customFields)) {
       const MULTIPLE_TYPE = ['MULTIPLE_SELECT', 'MULTIPLE_INPUT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
       const SINGLE_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
-      detail.customFields.forEach((item) => {
+      detail.customFields.forEach((item: Record<string, any>) => {
         if (MULTIPLE_TYPE.includes(item.type)) {
           const multipleOptions = getOptionFromTemplate(
             currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
@@ -419,7 +421,7 @@
       item.defaultValue = tmpObj[item.fieldId];
     });
     getFormRules(
-      customFieldsRes.customFields.filter((field) => !field.platformSystemField),
+      customFieldsRes.customFields.filter((field: Record<string, any>) => !field.platformSystemField),
       tmpObj
     );
   }

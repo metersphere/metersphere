@@ -58,7 +58,7 @@
     keys.forEach((key, index) => {
       if (key !== 'responseTime' && key !== 'latency') {
         // 总耗时就是 100%，不需要绘制
-        const itemWidth = (props.responseTiming[key] / props.responseTiming.responseTime) * 100;
+        const itemWidth = (props.responseTiming[key as keyof ResponseTiming] / props.responseTiming.responseTime) * 100;
         arr.push({
           key,
           width: `${itemWidth}%`,

@@ -33,7 +33,9 @@
           {{ `${t('apiTestDebug.wait')}${item.delay}` }} ms
         </div>
         <div v-else class="flex min-w-[42px] items-center justify-between">
-          <div class="one-line-text"> {{ item.name || t(conditionTypeNameMap[item.processorType]) }}</div>
+          <div class="one-line-text">
+            {{ item.name || t(conditionTypeNameMap[item.processorType as keyof typeof conditionTypeNameMap]) }}</div
+          >
           <a-badge
             v-if="item.processorType === RequestConditionProcessor.REQUEST_SCRIPT"
             class="ml-1 mt-[2px] min-w-[48px]"

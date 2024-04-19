@@ -133,6 +133,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
@@ -171,7 +172,7 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const folderTreePathMap = inject('folderTreePathMap');
+  const folderTreePathMap = inject<MsTreeNodeData[]>('folderTreePathMap');
   const keyword = ref('');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =

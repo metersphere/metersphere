@@ -468,7 +468,7 @@
         formItem.forEach((item: FormRuleItem) => {
           let itemVal = item.value;
           if (item.sourceType === 'CASCADER') {
-            itemVal = findParents(item.options as Option[], item.value as string, []);
+            itemVal = findParents(item.options as Option[], item.value as string, []) || '';
           }
           customFields.push({
             id: item.field as string,

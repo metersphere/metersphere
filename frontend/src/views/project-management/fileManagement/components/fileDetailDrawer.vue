@@ -182,7 +182,7 @@
                   </a-tooltip>
                 </template>
                 <template #sourceType="{ record }">
-                  {{ t(associateFileSourceLocaleMap[record.sourceType]) }}
+                  {{ t(associateFileSourceLocaleMap[record.sourceType as keyof typeof associateFileSourceLocaleMap]) }}
                 </template>
                 <template #action="{ record }">
                   <MsButton

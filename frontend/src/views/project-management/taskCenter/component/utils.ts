@@ -148,7 +148,16 @@ export const TaskStatus = {
   },
 };
 
-export const resourceTypeMap = {
+export type Group = 'system' | 'organization' | 'project';
+
+export type ResourceTypeMapKey =
+  | TaskCenterEnum.API_CASE
+  | TaskCenterEnum.API_SCENARIO
+  | TaskCenterEnum.UI_TEST
+  | TaskCenterEnum.LOAD_TEST
+  | TaskCenterEnum.TEST_PLAN;
+
+export const resourceTypeMap: Record<ResourceTypeMapKey, Record<string, any>> = {
   [TaskCenterEnum.API_CASE]: {
     value: TaskCenterEnum.API_CASE,
     label: 'project.taskCenter.interfaceCase',

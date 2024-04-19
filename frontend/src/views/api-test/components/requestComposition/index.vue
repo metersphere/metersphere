@@ -219,7 +219,7 @@
                   v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
                   ref="apiBaseFormRef"
                   v-model:requestVModel="requestVModel"
-                  :select-tree="selectTree"
+                  :select-tree="selectTree as ModuleTreeNode[]"
                 />
                 <a-spin
                   v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
@@ -565,9 +565,9 @@
     otherParams?: Record<string, any>; // 保存请求时的其他参数
     executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
     localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
-    createApi?: (...args) => Promise<any>; // 创建接口
-    updateApi?: (...args) => Promise<any>; // 更新接口
-    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    createApi?: (...args: any) => Promise<any>; // 创建接口
+    updateApi?: (...args: any) => Promise<any>; // 更新接口
+    uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
     fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
@@ -588,7 +588,7 @@
   const requestVModel = defineModel<RequestParam>('request', { required: true });
 
   const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const temporaryResponseMap: Record<string, any> = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   const isInitPluginForm = ref(false);
   const isSwitchingContent = ref(false); // 是否正在切换显示内容，防止因切换显示内容导致触发更改
 
@@ -819,7 +819,7 @@
       if (fApi.value) {
         fApi.value.nextTick(() => {
           // 这里使用nextTick是因为插件表单使用v-if动态渲染，所以每次切换到插件表单时都会重新渲染插件表单并触发
-          const form = {};
+          const form: Record<string, any> = {};
           controlPluginFormFields().forEach((key) => {
             form[key] = formData[key];
           });
@@ -1220,7 +1220,7 @@
         await nextTick();
         requestVModel.value.executeLoading = true;
         requestVModel.value.response = cloneDeep(defaultResponse);
-        const res = await props.executeApi(makeRequestParams(executeType));
+        const res = await props.executeApi(makeRequestParams(executeType) as ExecuteRequestParams);
         if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
           await props.localExecuteApi(localExecuteUrl.value, res);
         }
@@ -1238,7 +1238,7 @@
             if (!props.executeApi) return;
             requestVModel.value.executeLoading = true;
             requestVModel.value.response = cloneDeep(defaultResponse);
-            const res = await props.executeApi(makeRequestParams(executeType));
+            const res = await props.executeApi(makeRequestParams(executeType) as ExecuteRequestParams);
             if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
               await props.localExecuteApi(localExecuteUrl.value, res);
             }
@@ -1388,7 +1388,7 @@
     }
   }
 
-  function initErrorMessageInfoItem(key) {
+  function initErrorMessageInfoItem(key: string) {
     if (requestVModel.value.errorMessageInfo && !requestVModel.value.errorMessageInfo[key]) {
       requestVModel.value.errorMessageInfo[key] = {};
     }
@@ -1552,6 +1552,8 @@
               projectId: appStore.currentProjectId,
               environmentId: appStore.currentEnvConfig?.id || '',
               apiDefinitionId: requestVModel.value.id,
+              uploadFileIds: definitionParams.uploadFileIds || [],
+              linkFileIds: definitionParams.linkFileIds || [],
             };
             await addCase(params);
             emit('addDone');
@@ -1611,7 +1613,7 @@
         ...params,
         ...params.request,
         polymorphicName: params.request.polymorphicName,
-      };
+      } as unknown as RequestParam;
       saveNewApiModalVisible.value = true;
       return;
     }

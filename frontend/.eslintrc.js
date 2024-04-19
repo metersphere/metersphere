@@ -132,4 +132,8 @@ module.exports = {
       },
     },
   ],
+  globals: {
+    // 在这里添加全局变量
+    NodeJS: 'readonly',
+  },
 };

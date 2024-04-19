@@ -10,6 +10,7 @@ import {
   BlockActionSeparator,
   type Editor,
   EditorState,
+  type EditorView,
   isActive,
   mergeAttributes,
   ToolboxItem,
@@ -128,7 +129,7 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
     ];
   },
 
-  addOptions() {
+  addOptions(): any {
     return {
       ...this.parent?.(),
       getToolboxItems({ editor }: { editor: Editor }) {
@@ -204,7 +205,7 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
       },
       getDraggable() {
         return {
-          getRenderContainer({ dom, view }) {
+          getRenderContainer({ dom, view }: { dom: Element; view: EditorView }) {
             let container = dom;
             while (container && container.tagName !== 'P') {
               container = container.parentElement as HTMLElement;

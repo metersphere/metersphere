@@ -36,6 +36,7 @@ import type {
   LocalConfig,
   LoginData,
   LoginRes,
+  OrgOptionItem,
   PersonalInfo,
   UpdateAPIKEYParams,
   UpdateBaseInfo,
@@ -177,5 +178,5 @@ export function getPlatformAccount() {
 
 // 个人信息-获取第三方平台-组织下拉选项
 export function getPlatformOrgOption() {
-  return MSR.get({ url: GetPlatformOrgOptionUrl });
+  return MSR.get<OrgOptionItem[]>({ url: GetPlatformOrgOptionUrl });
 }

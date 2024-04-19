@@ -12,7 +12,7 @@
     status: string;
   }>();
   // 场景步骤类型映射
-  const scenarioStepMap = {
+  const scenarioStepMap: Record<string, any> = {
     [ScenarioStepType.LOOP_CONTROLLER]: { label: 'apiScenario.loopControl', color: 'rgba(167, 98, 191, 1)' },
     [ScenarioStepType.IF_CONTROLLER]: { label: 'apiScenario.conditionControl', color: 'rgba(238, 80, 163, 1)' },
     [ScenarioStepType.ONCE_ONLY_CONTROLLER]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
@@ -25,8 +25,8 @@
   const getClass = computed(() => {
     if (props.status) {
       return {
-        color: scenarioStepMap[props.status].color,
-        border: `1px solid ${scenarioStepMap[props.status].color}`,
+        color: scenarioStepMap[props.status]?.color,
+        border: `1px solid ${scenarioStepMap[props.status]?.color}`,
       };
     }
   });

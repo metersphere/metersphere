@@ -972,7 +972,7 @@
     return true;
   }
 
-  function onDragStart(e, node: MsTreeNodeData) {
+  function onDragStart(e: DragEvent, node: MsTreeNodeData) {
     tempDragNode.value = node;
   }
 
@@ -980,7 +980,7 @@
     tempDragNode.value = null;
   }
   const originalTreeData = ref<MsTreeNodeData[]>([]);
-  const { isInitListener, containerStatusClass, setContainer, initScrollListener } = useContainerShadow({
+  const { isInitListener, setContainer, initScrollListener } = useContainerShadow({
     overHeight: 32,
     containerClassName: 'ms-tree-container',
   });

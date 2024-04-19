@@ -231,7 +231,7 @@
   }
 
   // TODO: 优化，拆出来
-  function initErrorMessageInfoItem(key) {
+  function initErrorMessageInfoItem(key: string) {
     if (scenario.value.errorMessageInfo && !scenario.value.errorMessageInfo[key]) {
       scenario.value.errorMessageInfo[key] = {};
     }

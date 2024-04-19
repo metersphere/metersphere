@@ -431,7 +431,7 @@
   function getCustomField(customFields: any) {
     const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
     const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
-    let selectValue;
+    let selectValue: Record<string, any>;
     // 处理多选项
     if (multipleExcludes.includes(customFields.type) && customFields.defaultValue) {
       selectValue = JSON.parse(customFields.defaultValue);
@@ -468,10 +468,8 @@
           value: res.moduleName || t('common.root'),
         },
         // 解析用例模板的自定义字段
-        ...res.customFields.map((e) => {
+        ...res.customFields.map((e: Record<string, any>) => {
           try {
-            const val =
-              typeof e.defaultValue === 'string' && e.defaultValue !== '' ? JSON.parse(e.defaultValue) : e.defaultValue;
             return {
               label: e.fieldName,
               value: getCustomField(e),

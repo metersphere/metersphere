@@ -399,6 +399,7 @@
 
   const { t } = useI18n();
 
+  // TODO: Param
   interface Param {
     [key: string]: any;
   }
@@ -713,7 +714,7 @@
   function applyMoreSetting(record: ExpressionConfig) {
     switch (condition.value.assertionBodyType) {
       case ResponseBodyAssertionType.JSON_PATH:
-        condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
+        condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
           if (e.id === activeRecord.value.id) {
             record.moreSettingPopoverVisible = false;
             return {
@@ -725,7 +726,7 @@
         });
         break;
       case ResponseBodyAssertionType.XPATH:
-        condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e) => {
+        condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e: Param) => {
           if (e.id === activeRecord.value.id) {
             record.moreSettingPopoverVisible = false;
             return {
@@ -737,7 +738,7 @@
         });
         break;
       case ResponseBodyAssertionType.REGEX:
-        condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e) => {
+        condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e: Param) => {
           if (e.id === activeRecord.value.id) {
             record.moreSettingPopoverVisible = false;
             return {
@@ -761,7 +762,7 @@
     config: RegexExtract | JSONPathExtract | XPathExtract,
     matchResult: Record<string, any>
   ) {
-    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e) => {
+    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
@@ -771,7 +772,7 @@
       }
       return e;
     });
-    condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e) => {
+    condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
@@ -780,7 +781,7 @@
       }
       return e;
     });
-    condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e) => {
+    condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
@@ -794,17 +795,17 @@
     nextTick(() => {
       if (condition.value.assertionBodyType === ResponseBodyAssertionType.JSON_PATH) {
         extractParamsTableRef.value?.addTableLine(
-          condition.value.jsonPathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
+          condition.value.jsonPathAssertion.assertions?.findIndex((e: Param) => e.id === activeRecord.value.id) || 0
         );
       }
       if (condition.value.assertionBodyType === ResponseBodyAssertionType.XPATH) {
         extractParamsTableRef.value?.addTableLine(
-          condition.value.xpathAssertion.assertions?.findIndex((e) => e.id === activeRecord.value.id) || 0
+          condition.value.xpathAssertion.assertions?.findIndex((e: Param) => e.id === activeRecord.value.id) || 0
         );
       }
       if (condition.value.assertionBodyType === ResponseBodyAssertionType.REGEX) {
         extractParamsTableRef.value?.addTableLine(
-          condition.value.xpathAssertion.regexAssertion?.findIndex((e) => e.id === activeRecord.value.id) || 0
+          condition.value.xpathAssertion.regexAssertion?.findIndex((e: Param) => e.id === activeRecord.value.id) || 0
         );
       }
     });
@@ -814,7 +815,9 @@
   function copyItem(record: Record<string, any>) {
     switch (condition.value.assertionBodyType) {
       case ResponseBodyAssertionType.JSON_PATH:
-        const jsonIndex = condition.value.jsonPathAssertion.assertions.findIndex((item) => item.id === record.id);
+        const jsonIndex = condition.value.jsonPathAssertion.assertions.findIndex(
+          (item: Param) => item.id === record.id
+        );
         if (jsonIndex > -1) {
           condition.value.jsonPathAssertion.assertions.splice(jsonIndex, 0, {
             ...record,
@@ -826,7 +829,7 @@
         }
         break;
       case ResponseBodyAssertionType.XPATH:
-        const xpathIndex = condition.value.xpathAssertion.assertions.findIndex((item) => item.id === record.id);
+        const xpathIndex = condition.value.xpathAssertion.assertions.findIndex((item: Param) => item.id === record.id);
         if (xpathIndex > -1) {
           condition.value.xpathAssertion.assertions.splice(xpathIndex, 0, {
             ...record,
@@ -846,7 +849,7 @@
         });
         break;
       case ResponseBodyAssertionType.REGEX:
-        const regIndex = condition.value.regexAssertion.assertions.findIndex((item) => item.id === record.id);
+        const regIndex = condition.value.regexAssertion.assertions.findIndex((item: Param) => item.id === record.id);
         if (regIndex > -1) {
           condition.value.regexAssertion.assertions.splice(regIndex, 0, {
             ...record,

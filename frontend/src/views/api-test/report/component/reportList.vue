@@ -138,7 +138,7 @@
         />
       </template>
       <template #triggerMode="{ record }">
-        <span>{{ t(TriggerModeLabel[record.triggerMode]) }}</span>
+        <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #operationTime="{ record }">
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
@@ -545,7 +545,7 @@
       if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
-        const translations = {
+        const translations: Record<string, string> = {
           M: t('msTimeSelector.month'),
           Y: t('msTimeSelector.year'),
           H: t('msTimeSelector.hour'),

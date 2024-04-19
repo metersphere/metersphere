@@ -77,7 +77,7 @@
         <MsTagGroup
           v-else-if="!record.children && hasAnyPermission(['PROJECT_MESSAGE:READ'])"
           is-string-tag
-          :tag-list="record.receivers?.map((e) => e.name) || []"
+          :tag-list="record.receivers?.map((e: Record<string,any>) => e.name) || []"
           theme="outline"
         />
         <span v-else></span>
@@ -330,7 +330,7 @@
     }));
   }
 
-  function getReceiverOptions(options, event: string) {
+  function getReceiverOptions(options: SelectOptionData[], event: string) {
     if (event === 'CREATE' || event === 'CASE_CREATE' || event === 'MOCK_CREATE') {
       // 创建事件的接收人不包含操作人、创建人、关注人
       options = options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
@@ -444,10 +444,10 @@
   :deep(.arco-select-view-multiple.arco-select-view-size-medium .arco-select-view-tag) {
     margin-top: 1px;
     margin-bottom: 1px;
+    max-width: 80px;
+    height: auto;
+    min-height: 24px;
     line-height: 22px;
     vertical-align: middle;
-    height: auto;
-    max-width: 80px;
-    min-height: 24px;
   }
 </style>

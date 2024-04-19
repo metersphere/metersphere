@@ -33,6 +33,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import { debounce } from 'lodash-es';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -48,7 +49,6 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { statusIconMap } from '../utils';
-  import debounce from 'lodash-es/debounce';
 
   const featureCaseStore = useFeatureCaseStore();
   const router = useRouter();

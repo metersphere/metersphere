@@ -75,7 +75,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep, isEqual } from 'lodash-es';
 
   import MsTab from '@/components/pure/ms-tab/index.vue';
@@ -116,7 +116,7 @@
   }>();
 
   const activeKey = ref<string>(EnvTabTypeEnum.ENVIRONMENT_PARAM);
-  const envForm = ref();
+  const envForm = ref<FormInstance>();
   const { t } = useI18n();
   const loading = ref(false);
   const tabSettingVisible = ref(false);

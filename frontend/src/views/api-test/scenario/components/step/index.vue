@@ -146,7 +146,7 @@
   import { deleteNodes, filterTree, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { countNodes } from '@/utils/tree';
 
-  import { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import { ApiScenarioDebugRequest, Scenario, ScenarioStepDetails, ScenarioStepItem } from '@/models/apiTest/scenario';
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   const emit = defineEmits<{
@@ -392,14 +392,14 @@
       }
       return false;
     });
-    const waitingDebugStepDetails = {};
+    const waitingDebugStepDetails: Record<string, ScenarioStepDetails> = {};
     Object.keys(scenario.value.stepDetails).forEach((key) => {
       if (checkedKeysSet.has(key)) {
         waitingDebugStepDetails[key] = scenario.value.stepDetails[key];
       }
     });
     emit('batchDebug', {
-      steps: waitTingDebugSteps,
+      steps: waitTingDebugSteps as ScenarioStepItem[],
       stepDetails: waitingDebugStepDetails,
       reportId: getGenerateId(),
     });

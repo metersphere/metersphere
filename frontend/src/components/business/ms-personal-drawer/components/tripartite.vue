@@ -23,12 +23,12 @@
           </a-tooltip>
           <MsTag
             theme="light"
-            :type="tagMap[config.status].type"
-            :self-style="tagMap[config.status].style"
+            :type="tagMap[config.status as Status].type"
+            :self-style="tagMap[config.status as Status].style"
             size="small"
             class="px-[4px]"
           >
-            {{ tagMap[config.status].text }}
+            {{ tagMap[config.status as Status].text }}
           </MsTag>
         </div>
         <MsFormCreate
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import MsTag, { TagType } from '@/components/pure/ms-tag/ms-tag.vue';
@@ -117,7 +117,7 @@
     },
   });
   const currentOrg = ref(appStore.currentOrgId);
-  const orgOptions = ref([]);
+  const orgOptions = ref<SelectOptionData[]>([]);
   const orgLoading = ref(false);
 
   async function initOrgOptions() {
@@ -128,7 +128,6 @@
         label: e.name,
         value: e.id,
       }));
-      console.log(orgOptions.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

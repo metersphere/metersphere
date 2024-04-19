@@ -234,7 +234,7 @@
 
   const reportId = ref('');
   const websocket = ref<WebSocket>();
-  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
+  const temporaryResponseMap: Record<string, any> = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   // 开启websocket监听，接收执行结果
   function debugSocket(executeType?: 'localExec' | 'serverExec') {
     websocket.value = getSocket(

@@ -309,8 +309,8 @@
       const { type, script } = form.value;
       const parameters = JSON.parse(form.value.params);
       parameters
-        .filter((item: any) => item.key && item.value)
-        .map((item) => {
+        .filter((item: Record<string, any>) => item.key && item.value)
+        .map((item: Record<string, any>) => {
           return {
             key: item.key,
             value: item.value,

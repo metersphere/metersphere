@@ -172,7 +172,7 @@
       if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
-        const translations = {
+        const translations: Record<string, string> = {
           M: t('msTimeSelector.month'),
           Y: t('msTimeSelector.year'),
           H: t('msTimeSelector.hour'),

@@ -45,7 +45,7 @@
     if (store.currentEnvDetailInfo.config.pluginConfigMap[props.pluginId]) {
       fApi.value?.reload(currentPluginScript.value);
       if (fApi.value) {
-        const form = {};
+        const form: Record<string, any> = {};
         props.fields.forEach((key) => {
           form[key] = tempForm[key];
         });

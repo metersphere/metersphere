@@ -18,18 +18,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
+  import type { ResourceTypeMapKey } from './utils';
+
   const { t } = useI18n();
   const props = defineProps<{
     status: string;
-    moduleType: keyof typeof TaskCenterEnum;
+    moduleType: ResourceTypeMapKey;
     scriptIdentifier?: string;
   }>();
 
@@ -39,7 +39,7 @@
     color?: string;
   }
 
-  const iconTypeStatus = ref({
+  const iconTypeStatus: Record<ResourceTypeMapKey, any> = {
     [TaskCenterEnum.API_CASE]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
@@ -183,10 +183,10 @@
         color: '!text-[rgb(var(--link-6))]',
       },
     },
-  });
+  };
 
   function getExecutionResult(): IconType {
-    return iconTypeStatus.value[props.moduleType][props.status];
+    return iconTypeStatus[props.moduleType][props.status];
   }
   const methodColor = 'rgb(var(--warning-7))';
 </script>

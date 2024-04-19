@@ -168,7 +168,7 @@
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     isShowCommonContentTabKey?: boolean; // 是否展示请求内容公共tabKey
-    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
+    uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
     fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
@@ -382,7 +382,7 @@
       const formData = tempForm || requestVModel.value;
       if (fApi.value) {
         fApi.value.nextTick(() => {
-          const form = {};
+          const form: Record<string, any> = {};
           controlPluginFormFields().forEach((key) => {
             form[key] = formData[key];
           });

@@ -133,15 +133,16 @@
   import useAppStore from '@/store/modules/app';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
 
+  import { RequestResult } from '@/models/apiTest/common';
   import {
     ApiScenarioDebugRequest,
     ApiScenarioGetModuleParams,
     ApiScenarioTableItem,
     Scenario,
+    ScenarioStepDetails,
     ScenarioStepItem,
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
@@ -189,7 +190,7 @@
       if (data.msgType === 'EXEC_RESULT') {
         if (scenario.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          data.taskResult.requestResults.forEach((result) => {
+          data.taskResult.requestResults.forEach((result: RequestResult) => {
             if (result.stepId) {
               // 过滤掉前后置配置的执行结果，没有步骤 id
               if (scenario.stepResponses[result.stepId] === undefined) {
@@ -300,7 +301,7 @@
    * @param localExecuteUrl 本地执行地址
    */
   function handleExecute(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
-    const waitingDebugStepDetails = {};
+    const waitingDebugStepDetails: Record<string, ScenarioStepDetails> = {};
     const waitTingDebugSteps = filterTree(activeScenarioTab.value.steps, (node) => {
       if (node.enable) {
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
@@ -316,7 +317,7 @@
     }
     realExecute(
       {
-        steps: waitTingDebugSteps,
+        steps: waitTingDebugSteps as ScenarioStepItem[],
         stepDetails: waitingDebugStepDetails,
         reportId: getGenerateId(),
       },

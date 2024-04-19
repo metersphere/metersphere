@@ -213,8 +213,8 @@ export interface ReviewCaseItem {
   versionName: string;
   reviewers: string[];
   reviewNames: string[];
-  status: string;
-  myStatus: string;
+  status: ReviewResult;
+  myStatus: ReviewResult;
   moduleId: string;
   moduleName: string;
 }

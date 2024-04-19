@@ -77,7 +77,7 @@
         </a-trigger>
       </template>
       <template #triggerMode="{ record }">
-        <span>{{ t(TriggerModeLabel[record.triggerMode]) }}</span>
+        <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #status="{ record }">
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />

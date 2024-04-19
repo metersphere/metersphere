@@ -370,7 +370,7 @@
       const postStr = currentValue.split(':')[1];
       if (postStr === 'READ') {
         // 当前是查询 那 移除所有相关的
-        record.perChecked = record.perChecked.filter((item) => !item.includes(preStr));
+        record.perChecked = record.perChecked.filter((item: string) => !item.includes(preStr));
       } else {
         record.perChecked.splice(record.perChecked.indexOf(currentValue), 1);
       }

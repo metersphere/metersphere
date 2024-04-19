@@ -187,7 +187,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
-    (e: 'ok');
+    (e: 'ok'): void;
   }>();
 
   const resetForm = () => {
@@ -292,7 +292,7 @@
 
     fApi.value?.setValue({ ...tempObj });
   }
-  function changeHandler(a, b) {
+  function changeHandler(a: any, b: FormRuleItem) {
     fApi.value.validateField(b.field);
     fApi.value.refreshValidate();
   }

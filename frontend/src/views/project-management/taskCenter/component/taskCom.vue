@@ -30,8 +30,10 @@
 
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
+  import type { ResourceTypeMapKey } from './utils';
+
   const { t } = useI18n();
-  const activeTab = ref<keyof typeof TaskCenterEnum>(TaskCenterEnum.API_CASE);
+  const activeTab = ref<ResourceTypeMapKey>(TaskCenterEnum.API_CASE);
 
   const props = defineProps<{
     group: 'system' | 'organization' | 'project';

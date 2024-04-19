@@ -40,11 +40,11 @@
   const { openNewPage } = useOpenNewPage();
 
   const keyword = ref('');
-  const quoteLocaleMap = {
+  const quoteLocaleMap: Record<string, any> = {
     COPY: 'common.copy',
     REF: 'apiTestManagement.quote',
   };
-  const resourceLocaleMap = {
+  const resourceLocaleMap: Record<string, any> = {
     API: 'case.detail.resource.api',
   };
 

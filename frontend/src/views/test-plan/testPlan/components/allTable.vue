@@ -33,11 +33,11 @@
               <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
                 <a-checkbox v-for="key of Object.keys(reviewStatusMap)" :key="key" :value="key">
                   <a-tag
-                    :color="reviewStatusMap[key].color"
-                    :class="[reviewStatusMap[key].class, 'px-[4px]']"
+                    :color="reviewStatusMap[key as ReviewStatus].color"
+                    :class="[reviewStatusMap[key as ReviewStatus].class, 'px-[4px]']"
                     size="small"
                   >
-                    {{ t(reviewStatusMap[key].label) }}
+                    {{ t(reviewStatusMap[key as ReviewStatus].label) }}
                   </a-tag>
                 </a-checkbox>
               </a-checkbox-group>
@@ -103,6 +103,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
 
+  import { ReviewStatus } from '@/models/caseManagement/caseReview';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();

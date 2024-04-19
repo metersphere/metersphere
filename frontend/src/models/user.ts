@@ -122,3 +122,8 @@ export interface UpdateBaseInfo {
   email: string;
   avatar: string;
 }
+
+export interface OrgOptionItem {
+  id: string;
+  name: string;
+}

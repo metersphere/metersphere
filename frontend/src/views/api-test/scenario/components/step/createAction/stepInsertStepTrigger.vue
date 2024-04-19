@@ -82,8 +82,8 @@
     step: ScenarioStepItem;
   }>();
   const emit = defineEmits<{
-    (e: 'close');
-    (e: 'click');
+    (e: 'close'): void;
+    (e: 'click'): void;
     (
       e: 'otherCreate',
       type:
@@ -92,8 +92,8 @@
         | ScenarioAddStepActionType.SCRIPT_OPERATION,
       step?: ScenarioStepItem,
       activeCreateAction?: CreateStepAction
-    );
-    (e: 'addDone', newStep: ScenarioStepItem);
+    ): void;
+    (e: 'addDone', newStep: ScenarioStepItem): void;
   }>();
 
   const { t } = useI18n();

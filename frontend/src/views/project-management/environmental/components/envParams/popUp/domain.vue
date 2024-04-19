@@ -41,7 +41,7 @@
 
   import { getEnvModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore, useTableStore } from '@/store';
+  import { useAppStore } from '@/store';
   import { findNodeNames } from '@/utils';
 
   import type { ModuleTreeNode } from '@/models/common';
@@ -56,7 +56,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'update:visible', val: boolean);
+    (e: 'update:visible', val: boolean): void;
   }>();
 
   const innerVisible = useVModel(props, 'visible', emit);

@@ -3,8 +3,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -14,7 +12,8 @@
     status: string;
   }>();
 
-  const statusMap = {
+  // TODO: Record<string,any>
+  const statusMap: Record<string, any> = {
     PENDING: {
       label: 'report.detail.pendingCount',
       value: 'PENDING',

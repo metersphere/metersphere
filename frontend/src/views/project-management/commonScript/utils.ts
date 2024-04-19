@@ -54,7 +54,7 @@ export const SCRIPT_MENU: CommonScriptMenu[] = [
 ];
 
 // 处理groovyCode 请求头
-function getGroovyHeaders(requestHeaders) {
+function getGroovyHeaders(requestHeaders: Record<string, any>) {
   let headers = '[';
   let index = 1;
   // for (const [k, v] of requestHeaders) {
@@ -65,7 +65,7 @@ function getGroovyHeaders(requestHeaders) {
   //   headers += `'${k}':'${v}'`;
   //   index++;
   // }
-  requestHeaders.forEach(([k, v]) => {
+  requestHeaders.forEach(([k, v]: any[]) => {
     if (index !== 1) {
       headers += ',';
     }
@@ -76,11 +76,11 @@ function getGroovyHeaders(requestHeaders) {
   return headers;
 }
 // 解析请求url
-function getRequestPath(requestArgs, requestPath) {
+function getRequestPath(requestArgs: any, requestPath: string) {
   if (requestArgs.size > 0) {
     requestPath += '?';
     let index = 1;
-    requestArgs.forEach(([k, v]) => {
+    requestArgs.forEach(([k, v]: any[]) => {
       if (index !== 1) {
         requestPath += '&';
       }
@@ -91,7 +91,7 @@ function getRequestPath(requestArgs, requestPath) {
   return requestPath;
 }
 // 处理mockPath
-function getMockPath(domain, port, socket) {
+function getMockPath(domain: string, port: string, socket: string) {
   if (domain === socket || !port) {
     return '';
   }
@@ -101,11 +101,11 @@ function getMockPath(domain, port, socket) {
 }
 
 // 处理请求参数
-function replaceRestParams(path, restMap) {
+function replaceRestParams(path: string, restMap: Map<string, string>) {
   if (!path) {
     return path;
   }
-  let arr = path.match(/{([\w]+)}/g);
+  let arr: any[] | null = path.match(/{([\w]+)}/g);
   if (Array.isArray(arr) && arr.length > 0) {
     arr = Array.from(new Set(arr));
     arr.forEach((str) => {
@@ -113,7 +113,7 @@ function replaceRestParams(path, restMap) {
         const temp = str.substr(1);
         const param = temp.substring(0, temp.length - 1);
         if (str && restMap.has(param)) {
-          path = path.replace(new RegExp(str, 'g'), restMap.get(param));
+          path = path.replace(new RegExp(str, 'g'), restMap.get(param) || '');
         }
       } catch (e) {
         // nothing
@@ -124,7 +124,7 @@ function replaceRestParams(path, restMap) {
 }
 
 // 返回最终groovyCode 代码模板片段
-function _groovyCodeTemplate(obj) {
+function _groovyCodeTemplate(obj: Record<string, any>) {
   const { requestUrl, requestMethod, headers, body } = obj;
   const params = `[
                 'url': '${requestUrl}',
@@ -160,7 +160,7 @@ log.info(conn.content.text)
 }
 
 // 处理groovyCode语言
-function groovyCode(requestObj) {
+function groovyCode(requestObj: Record<string, any>) {
   const {
     requestHeaders = new Map(),
     requestBody = '',
@@ -179,7 +179,7 @@ function groovyCode(requestObj) {
   let requestUrl = '';
   if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
     // 如果是get方法要将kv值加入argument中
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       requestArguments.set(k, v);
     });
   }
@@ -193,7 +193,7 @@ function groovyCode(requestObj) {
   if (requestMethod === 'POST' && bodyType === 'kvs') {
     body = '"';
 
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       if (body !== '"') {
         body += '&';
       }
@@ -211,7 +211,7 @@ function groovyCode(requestObj) {
 }
 
 // 获取请求头
-function getHeaders(requestHeaders) {
+function getHeaders(requestHeaders: Map<string, string>) {
   let headers = '{';
   let index = 1;
   requestHeaders.forEach(([k, v]) => {
@@ -226,13 +226,13 @@ function getHeaders(requestHeaders) {
   return headers;
 }
 // 获取pythonCode 模板
-function _pythonCodeTemplate(obj) {
-  const { requestBody, requestBodyKvs, bodyType, requestPath, requestMethod, connType, domain, port } = obj;
+function _pythonCodeTemplate(obj: Record<string, any>) {
+  const { requestBodyKvs, requestPath, requestMethod, connType, domain, port } = obj;
   let { headers } = obj;
   let reqBody = obj.requestBody;
   if (requestMethod.toLowerCase() === 'post' && obj.bodyType === 'kvs' && obj.requestBodyKvs) {
     reqBody = 'urllib.urlencode({';
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       reqBody += `'${k}':'${v}'`;
     });
     reqBody += `})`;
@@ -259,7 +259,7 @@ log.info(data)
 }
 
 // 处理pythonCode语言
-function pythonCode(requestObj) {
+function pythonCode(requestObj: Record<string, any>) {
   const {
     requestHeaders = new Map(),
     requestMethod = '',
@@ -280,7 +280,7 @@ function pythonCode(requestObj) {
   const headers = getHeaders(requestHeaders);
   requestBody = requestBody ? JSON.stringify(requestBody) : '{}';
   if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       requestArguments.set(k, v);
     });
   }
@@ -292,7 +292,7 @@ function pythonCode(requestObj) {
 }
 
 // 获取javaBeanshell代码模板
-function _beanshellTemplate(obj) {
+function _beanshellTemplate(obj: Record<string, any>) {
   const {
     requestHeaders = new Map(),
     requestBodyKvs = new Map(),
@@ -315,14 +315,14 @@ function _beanshellTemplate(obj) {
                 .setPath("${requestPath}")
                 `;
   // http 请求类型
-  const method = requestMethod.toLowerCase().replace(/^\S/, (s) => s.toUpperCase());
+  const method = requestMethod.toLowerCase().replace(/^\S/, (s: string) => s.toUpperCase());
   const httpMethodCode = `Http${method} request = new Http${method}(uri);`;
   // 设置参数
-  requestArguments.forEach(([k, v]) => {
+  requestArguments.forEach(([k, v]: any[]) => {
     uri += `.setParameter("${k}", "${v}")`;
   });
   if (method === 'Get' && requestBodyKvs) {
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       uri += `.setParameter("${k}", "${v}")`;
     });
   }
@@ -330,7 +330,7 @@ function _beanshellTemplate(obj) {
   let postKvsParam = '';
   if (method === 'Post') {
     // 设置post参数
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       postKvsParam += `nameValueList.add(new BasicNameValuePair("${k}", "${v}"));\r\n`;
     });
     if (postKvsParam !== '') {
@@ -349,7 +349,7 @@ function _beanshellTemplate(obj) {
   }
   // 设置请求头
   let setHeader = '';
-  requestHeaders.forEach(([k, v]) => {
+  requestHeaders.forEach(([k, v]: any[]) => {
     setHeader = `${setHeader}request.setHeader("${k}", "${v}");\n`;
   });
   try {
@@ -407,12 +407,12 @@ if (response.getStatusLine().getStatusCode() == 200) {
 }
 
 // 处理java语言
-function javaCode(requestObj) {
+function javaCode(requestObj: Record<string, any>) {
   return _beanshellTemplate(requestObj);
 }
 
 // 获取js语言代码模板
-function _jsTemplate(obj) {
+function _jsTemplate(obj: Record<string, any>) {
   const {
     requestHeaders = new Map(),
     requestMethod = 'GET',
@@ -437,7 +437,7 @@ function _jsTemplate(obj) {
   }
   if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
     // 如果是get方法要将kv值加入argument中
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       requestArguments.set(k, v);
     });
   }
@@ -452,13 +452,13 @@ function _jsTemplate(obj) {
   if (bodyType && bodyType.toUpperCase() === 'RAW') {
     requestHeaders.set('Content-type', 'text/plain');
   }
-  requestHeaders.forEach(([k, v]) => {
+  requestHeaders.forEach(([k, v]: any[]) => {
     connStr += `conn.setRequestProperty("${k}","${v}");\n`;
   });
 
   if (requestMethod === 'POST' && bodyType === 'kvs') {
     requestBody = '"';
-    requestBodyKvs.forEach(([k, v]) => {
+    requestBodyKvs.forEach(([k, v]: any[]) => {
       if (requestBody !== '"') {
         requestBody += '&';
       }
@@ -501,7 +501,7 @@ log.info(res);
 }
 
 // 处理js语言
-function jsCode(requestObj) {
+function jsCode(requestObj: Record<string, any>) {
   return _jsTemplate(requestObj);
 }
 
