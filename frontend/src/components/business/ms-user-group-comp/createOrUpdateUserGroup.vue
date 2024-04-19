@@ -30,6 +30,12 @@
                 @press-enter="handleBeforeOk"
                 @keyup.esc="handleCancel"
               />
+              <span
+                v-if="!props.id && props.authScope === AuthScopeEnum.SYSTEM"
+                class="mt-[8px] text-[13px] font-medium text-[var(--color-text-4)]"
+              >
+                {{ t('system.userGroup.createUserGroupTip') }}
+              </span>
             </a-form-item>
           </a-form>
         </div>

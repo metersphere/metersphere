@@ -12,6 +12,7 @@ export default {
       addUser: 'Add user',
       addMember: 'Add member',
       createUserGroup: 'Create user group',
+      createUserGroupTip: 'This user group will be available system-wide',
       emptyUserGroup:
         'There are currently no custom user groups available. Please click "Create" or "+" above to create a user group',
       rename: 'Rename',

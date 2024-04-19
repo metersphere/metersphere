@@ -164,11 +164,37 @@
               @submit="handleRenameCancel(element, element.id)"
             >
               <div class="flex max-w-[100%] grow flex-row items-center justify-between">
-                <a-tooltip :content="element.name">
+                <a-tooltip
+                  :content="
+                    systemType === AuthScopeEnum.ORGANIZATION
+                      ? element.name +
+                        `(${
+                          element.internal
+                            ? t('common.internal')
+                            : element.scopeId === 'global'
+                            ? t('common.system.custom')
+                            : t('common.custom')
+                        })`
+                      : element.name
+                  "
+                >
                   <div
                     class="list-item-name one-line-text text-[var(--color-text-1)]"
                     :class="{ '!text-[rgb(var(--primary-5))]': element.id === currentId }"
                     >{{ element.name }}</div
+                  >
+                  <div
+                    v-if="systemType === AuthScopeEnum.ORGANIZATION"
+                    class="one-line-text ml-1 text-[var(--color-text-4)]"
+                    >{{
+                      `(${
+                        element.internal
+                          ? t('common.internal')
+                          : element.scopeId === 'global'
+                          ? t('common.system.custom')
+                          : t('common.custom')
+                      })`
+                    }}</div
                   >
                 </a-tooltip>
                 <div

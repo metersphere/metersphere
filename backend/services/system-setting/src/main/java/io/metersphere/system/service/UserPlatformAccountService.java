@@ -49,6 +49,7 @@ public class UserPlatformAccountService {
             PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(plugin.getId());
             MsPlugin msPlugin = (MsPlugin) pluginWrapper.getPlugin();
             ((Map) accountInfo).put("pluginName", msPlugin.getName());
+            ((Map) accountInfo).put("pluginLogo", ((AbstractPlatformPlugin) msPlugin).getLogo());
             accountInfoMap.put(plugin.getId(), accountInfo);
         });
         return accountInfoMap;
