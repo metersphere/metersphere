@@ -7,11 +7,11 @@
           :placeholder="t('apiTestManagement.searchPlaceholder')"
           allow-clear
           class="mr-[8px] w-[240px]"
-          @search="loadApiList"
-          @press-enter="loadApiList"
-          @clear="loadApiList"
+          @search="loadApiList(false)"
+          @press-enter="loadApiList(false)"
+          @clear="loadApiList(false)"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList(false)">
           <template #icon>
             <icon-refresh class="text-[var(--color-text-4)]" />
           </template>
@@ -28,7 +28,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleTableDragSort"
-      @module-change="loadApiList"
+      @module-change="loadApiList(false)"
     >
       <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
@@ -135,7 +135,7 @@
           v-model:status-filters="createUserFilters"
           :title="(columnConfig.title as string)"
           :list="memberOptions"
-          @search="loadApiList"
+          @search="loadApiList(false)"
         >
           <template #item="{ item }">
             {{ item.label }}
@@ -356,7 +356,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiDefinitionDetail } from '@/models/apiTest/management';
+  import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -385,6 +385,8 @@
 
   const folderTreePathMap = inject<MsTreeNodeData[]>('folderTreePathMap');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
+  const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =
+    inject('refreshModuleTreeCount');
   const keyword = ref('');
 
   const hasOperationPermission = computed(() =>
@@ -574,7 +576,7 @@
     return moduleIds;
   }
 
-  async function loadApiList() {
+  async function loadApiList(hasRefreshTree: boolean) {
     const moduleIds = await getModuleIds();
     const params = {
       keyword: keyword.value,
@@ -587,6 +589,21 @@
         createUser: createUserFilters.value,
       },
     };
+
+    if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function') {
+      refreshModuleTreeCount({
+        keyword: keyword.value,
+        filter: {
+          status: statusFilters.value,
+          method: methodFilters.value,
+          createUser: createUserFilters.value,
+        },
+        moduleIds: [],
+        protocol: props.protocol,
+        projectId: appStore.currentProjectId,
+      });
+    }
+
     setLoadListParams(params);
     loadList();
   }
@@ -595,7 +612,7 @@
     () => props.refreshTimeStamp,
     (val) => {
       if (val) {
-        loadApiList();
+        loadApiList(false);
       }
     }
   );
@@ -604,7 +621,7 @@
     () => props.activeModule,
     () => {
       resetSelector();
-      loadApiList();
+      loadApiList(false);
     }
   );
 
@@ -612,13 +629,13 @@
     () => props.protocol,
     () => {
       resetSelector();
-      loadApiList();
+      loadApiList(true);
     }
   );
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
-      loadApiList();
+      loadApiList(false);
       methodFilterVisible.value = false;
       statusFilterVisible.value = false;
     }
@@ -651,7 +668,7 @@
   }
 
   onBeforeMount(() => {
-    loadApiList();
+    loadApiList(true);
   });
 
   const tableSelected = ref<(string | number)[]>([]);
@@ -709,7 +726,7 @@
           }
           Message.success(t('common.deleteSuccess'));
           resetSelector();
-          loadApiList();
+          loadApiList(true);
           if (typeof refreshModuleTree === 'function') {
             refreshModuleTree();
           }
@@ -836,7 +853,7 @@
           Message.success(t('common.updateSuccess'));
           cancelBatch();
           resetSelector();
-          loadApiList();
+          loadApiList(false);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -905,13 +922,13 @@
   function resetMethodFilter() {
     methodFilters.value = [];
     methodFilterVisible.value = false;
-    loadApiList();
+    loadApiList(false);
   }
 
   function resetStatusFilter() {
     statusFilters.value = [];
     statusFilterVisible.value = false;
-    loadApiList();
+    loadApiList(false);
   }
 
   /**
