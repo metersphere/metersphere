@@ -59,6 +59,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1059,7 +1060,7 @@ public class BugService {
                         FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(request.getProjectId(), request.getId(), localAttachment.getFileId(), localFile.getFileName()));
                         // 同步新上传的附件至平台
                         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                            File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + localFile.getFileName());
+                            File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + "/" + localFile.getFileName()));
                             FileUtils.writeByteArrayToFile(uploadTmpFile, bytes);
                             uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                         }
@@ -1091,7 +1092,7 @@ public class BugService {
                     fileService.upload(file, fileRequest);
                     // 同步新上传的附件至平台
                     if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                        File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" +  file.getOriginalFilename());
+                        File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator +  file.getOriginalFilename()));
                         FileUtils.writeByteArrayToFile(uploadTmpFile, file.getBytes());
                         uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                     }
@@ -1115,7 +1116,7 @@ public class BugService {
                     FileMetadata meta = fileMetadataMap.get(fileId);
                     if (meta != null) {
                         try {
-                            File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + meta.getName() + "." + meta.getType());
+                            File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + meta.getName() + "." + meta.getType()));
                             byte[] fileByte = fileMetadataService.getFileByte(meta);
                             FileUtils.writeByteArrayToFile(uploadTmpFile, fileByte);
                             uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
@@ -1184,7 +1185,7 @@ public class BugService {
                FileRequest downloadRequest = buildTmpImageFileRequest(tmpFileId);
                try {
                    byte[] tmpBytes = fileService.download(downloadRequest);
-                   File uploadTmpFile = new File(LocalRepositoryDir.getBugTmpDir() + "/" + tmpFileId + "/" +  downloadRequest.getFileName());
+                   File uploadTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + tmpFileId + File.separator +  downloadRequest.getFileName()));
                    FileUtils.writeByteArrayToFile(uploadTmpFile, tmpBytes);
                    platformRequest.getRichFileMap().put(tmpFileId, uploadTmpFile);
                } catch (Exception e) {
