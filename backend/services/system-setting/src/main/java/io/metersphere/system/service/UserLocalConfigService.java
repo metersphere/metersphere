@@ -92,7 +92,7 @@ public class UserLocalConfigService {
     public void update(UserLocalConfigUpdateRequest request) {
         UserLocalConfig userLocalConfig = checkResourceById(request.getId());
         userLocalConfig.setUserUrl(request.getUserUrl());
-        userLocalConfigMapper.updateByPrimaryKeySelective(userLocalConfig);
+        userLocalConfigMapper.updateByPrimaryKey(userLocalConfig);
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(OperationLogConstants.SYSTEM)
                 .organizationId(OperationLogConstants.SYSTEM)
