@@ -8,35 +8,40 @@
     </a-button>
     <template #content>
       <div class="arco-table-filters-content">
-        <div class="ml-[6px] flex w-full items-center justify-start overflow-hidden px-[6px] py-[2px]">
-          <a-checkbox-group
-            v-if="props.mode === 'static' && props.list?.length"
-            v-model:model-value="innerStatusFilters"
-            direction="vertical"
-            size="small"
-          >
-            <a-checkbox
-              v-for="(item, index) of props.list"
-              :key="item[props.valueKey || 'value']"
-              :value="item[props.valueKey || 'value']"
+        <div class="arco-table-filters-content-list">
+          <div class="flex w-full items-center justify-start overflow-hidden px-[12px] py-[2px]">
+            <a-checkbox-group
+              v-if="props.mode === 'static' && props.list?.length"
+              v-model:model-value="innerStatusFilters"
+              direction="vertical"
+              size="small"
             >
-              <a-tooltip :content="item[props.labelKey || 'text']" :mouse-enter-delay="300">
-                <div class="one-line-text">
-                  <slot name="item" :item="item" :index="index"></slot>
-                </div>
-              </a-tooltip>
-            </a-checkbox>
-          </a-checkbox-group>
+              <a-checkbox
+                v-for="(item, index) of props.list"
+                :key="item[props.valueKey || 'value']"
+                :value="item[props.valueKey || 'value']"
+              >
+                <a-tooltip :content="item[props.labelKey || 'text']" :mouse-enter-delay="300">
+                  <div class="one-line-text">
+                    <slot name="item" :item="item" :index="index"></slot>
+                  </div>
+                </a-tooltip>
+              </a-checkbox>
+            </a-checkbox-group>
+          </div>
+          <div v-if="props.mode === 'remote'" class="w-[200px] p-[12px] pb-0">
+            <MsUserSelector
+              v-model="innerStatusFilters"
+              :load-option-params="props.loadOptionParams"
+              :type="props.type"
+              :placeholder="props.placeholderText"
+            />
+          </div>
         </div>
-        <div v-if="props.mode === 'remote'" class="w-[200px] p-4 pb-0">
-          <MsUserSelector
-            v-model="innerStatusFilters"
-            :load-option-params="props.loadOptionParams"
-            :type="props.type"
-            :placeholder="props.placeholderText"
-          />
-        </div>
-        <div class="flex items-center p-4" :class="[props.mode === 'static' ? 'justify-between' : 'justify-end']">
+        <div
+          class="flex items-center border-t border-[var(--color-text-n8)] p-[12px]"
+          :class="[props.mode === 'static' ? 'justify-between' : 'justify-end']"
+        >
           <a-button size="mini" class="mr-[8px]" @click="resetFilter">
             {{ t('common.reset') }}
           </a-button>

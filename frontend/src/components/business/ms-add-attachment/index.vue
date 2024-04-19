@@ -218,7 +218,7 @@
       };
       fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
       fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
-      fileModuleOptionsApi?: (...args) => Promise<any>; // 文件转存目录下拉框接口
+      fileModuleOptionsApi?: (...args: any[]) => Promise<any>; // 文件转存目录下拉框接口
     }>(),
     {
       mode: 'button',

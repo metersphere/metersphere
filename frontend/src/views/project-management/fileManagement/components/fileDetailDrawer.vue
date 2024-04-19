@@ -131,7 +131,7 @@
                       mode="fileUpdateDesc"
                       :title="t('project.fileManagement.desc')"
                       :field-config="{
-                        field: detail.desc,
+                        field: detail.description,
                         placeholder: t('project.fileManagement.descPlaceholder'),
                         maxLength: 1000,
                         isTextArea: true,

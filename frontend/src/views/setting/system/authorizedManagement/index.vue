@@ -71,39 +71,38 @@
       :title="t('system.authorized.authorityChecking')"
       :ok-text="t('system.authorized.authorization')"
       :ok-loading="drawerLoading"
-      :width="480"
+      :width="680"
       @confirm="confirmHandler"
       @cancel="cancelHandler"
     >
       <a-form ref="authFormRef" :model="authorizedForm" layout="vertical">
-        <a-row class="grid-demo">
-          <a-form-item
-            :label="t('system.authorized.license')"
-            field="licenseCode"
-            asterisk-position="end"
+        <a-form-item
+          :label="t('system.authorized.license')"
+          field="licenseCode"
+          asterisk-position="end"
+          required
+          :validate-trigger="['input']"
+          :rules="[{ required: true, message: t('system.authorized.LicenseIsRequired') }]"
+        >
+          <MsUpload
+            v-model:file-list="fileList"
+            accept="none"
+            :is-limit="false"
+            :show-sub-text="false"
+            :show-file-list="false"
+            :auto-upload="false"
+          />
+          <a-textarea
+            v-model="authorizedForm.licenseCode"
+            class="mt-4"
+            :placeholder="t('system.authorized.licenseCode')"
+            :auto-size="{
+              minRows: 3,
+            }"
             :rules="[{ required: true, message: t('system.authorized.LicenseIsRequired') }]"
-            :validate-trigger="['input']"
-          >
-            <MsUpload
-              v-model:file-list="fileList"
-              accept="none"
-              :is-limit="false"
-              :show-sub-text="false"
-              :show-file-list="false"
-              :auto-upload="false"
-            />
-            <a-textarea
-              v-model="authorizedForm.licenseCode"
-              class="mt-4"
-              :placeholder="t('system.authorized.licenseCode')"
-              :auto-size="{
-                minRows: 3,
-              }"
-              :rules="[{ required: true, message: t('system.authorized.LicenseIsRequired') }]"
-              :max-length="1000"
-            ></a-textarea>
-          </a-form-item>
-        </a-row>
+            :max-length="1000"
+          ></a-textarea>
+        </a-form-item>
       </a-form>
     </MsDrawer>
   </MsCard>
@@ -259,8 +258,5 @@
       }
       @apply flex flex-col justify-between;
     }
-  }
-  :deep(.ms-upload-area) {
-    width: 446px;
   }
 </style>

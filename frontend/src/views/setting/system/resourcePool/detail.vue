@@ -373,7 +373,6 @@
   /**
    * @description 系统设置-资源池详情
    */
-  import { computed, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, isEmpty } from 'lodash-es';
@@ -467,6 +466,9 @@
     orgOptions.value = await getSystemOrgOption();
     if (!isXpack.value) {
       useList.value = useList.value.filter((item) => item.value === 'API');
+      nextTick(() => {
+        setIsSave(true); // 初始化时设置为已保存状态
+      });
     }
   });
 
@@ -489,6 +491,9 @@
           orgIds: orgIdNameMap?.map((e) => e.id) || [],
         },
       };
+      nextTick(() => {
+        setIsSave(true); // 初始化时设置为已保存状态
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

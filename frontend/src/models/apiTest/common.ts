@@ -322,7 +322,7 @@ export interface ExecuteAssertionConfig {
 }
 // 执行请求-共用配置子项
 export interface ExecuteCommonChild {
-  polymorphicName: 'MsCommonElement'; // 协议多态名称，写死MsCommonElement
+  polymorphicName: string; // 协议多态名称，写死MsCommonElement
   assertionConfig: ExecuteAssertionConfig;
   postProcessorConfig: ExecuteConditionConfig; // 后置处理器配置
   preProcessorConfig: ExecuteConditionConfig; // 前置处理器配置
@@ -358,7 +358,7 @@ export interface ExecuteApiRequestFullParams {
   authConfig: ExecuteAuthConfig;
   body: ExecuteBody;
   headers: EnableKeyValueParam[];
-  method: RequestMethods;
+  method: RequestMethods | string;
   otherConfig: ExecuteOtherConfig;
   path: string;
   query: ExecuteRequestCommonParam[];
@@ -409,7 +409,7 @@ export interface RequestResult {
   body: string;
   headers: string;
   url: string;
-  method: string;
+  method: RequestMethods | string;
   responseResult: ResponseResult;
   isSuccessful?: boolean;
   console?: string;

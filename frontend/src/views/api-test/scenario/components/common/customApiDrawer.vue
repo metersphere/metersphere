@@ -143,7 +143,7 @@
                 @change="handleUrlChange"
               >
                 <template v-if="showEnvPrefix" #prefix>
-                  {{ appStore.currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url }}
+                  {{ (appStore.currentEnvConfig as EnvConfig)?.httpConfig.find((e) => e.type === 'NONE')?.url }}
                 </template>
               </a-input>
             </a-input-group>
@@ -390,13 +390,19 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import {
+    EnableKeyValueParam,
     ExecuteApiRequestFullParams,
+    ExecuteBody,
     ExecuteConditionConfig,
+    ExecutePluginRequestParams,
+    ExecuteRequestCommonParam,
+    ExecuteRequestFormBody,
     PluginConfig,
     RequestResult,
     RequestTaskResult,
   } from '@/models/apiTest/common';
   import { ScenarioStepFileParams, ScenarioStepItem } from '@/models/apiTest/scenario';
+  import type { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -429,7 +435,8 @@
   // );
 
   export interface RequestCustomAttr {
-    type: 'api';
+    type?: 'api';
+    label: string;
     name: string;
     stepId: string | number; // 所属步骤 id
     resourceId: string | number; // 引用、复制的资源 id
@@ -450,7 +457,7 @@
     };
   }
 
-  export type RequestParam = ExecuteApiRequestFullParams & {
+  export type RequestParam = (ExecuteApiRequestFullParams | ExecutePluginRequestParams) & {
     response?: RequestTaskResult;
     customizeRequest?: boolean;
     customizeRequestEnvEnable?: boolean;
@@ -489,6 +496,7 @@
   const loading = defineModel<boolean>('detailLoading', { default: false });
 
   const defaultApiParams: RequestParam = {
+    label: '',
     name: '',
     type: 'api',
     stepId: '',
@@ -824,7 +832,7 @@
       nextTick(() => {
         if (fApi.value) {
           fApi.value.nextRefresh(() => {
-            const form = {};
+            const form: Record<string, any> = {};
             controlPluginFormFields().forEach((key) => {
               form[key] = formData[key];
             });
@@ -891,7 +899,7 @@
       initPluginScript();
     } else {
       requestVModel.value.activeTab = RequestComposition.HEADER;
-      if (!Object.values(RequestMethods).includes(requestVModel.value.method)) {
+      if (!Object.values(RequestMethods).includes(requestVModel.value.method as RequestMethods)) {
         // 第三方插件协议切换到 HTTP 时，请求方法默认设置 GET
         requestVModel.value.method = RequestMethods.GET;
       }
@@ -1082,12 +1090,12 @@
   async function execute(executeType?: 'localExec' | 'serverExec') {
     requestVModel.value.executeLoading = true;
     if (isHttpProtocol.value) {
-      emit('execute', makeRequestParams(executeType), executeType);
+      emit('execute', makeRequestParams(executeType) as RequestParam, executeType);
     } else {
       // 插件需要校验动态表单
       fApi.value?.validate(async (valid) => {
         if (valid === true) {
-          emit('execute', makeRequestParams(executeType), executeType);
+          emit('execute', makeRequestParams(executeType) as RequestParam, executeType);
         } else {
           requestVModel.value.activeTab = RequestComposition.PLUGIN;
           nextTick(() => {
@@ -1103,7 +1111,7 @@
     emit('stopDebug');
   }
 
-  function initErrorMessageInfoItem(key) {
+  function initErrorMessageInfoItem(key: string) {
     if (requestVModel.value.errorMessageInfo && !requestVModel.value.errorMessageInfo[key]) {
       requestVModel.value.errorMessageInfo[key] = {};
     }
@@ -1181,7 +1189,7 @@
       showMessage();
       return;
     }
-    emit('addStep', cloneDeep(makeRequestParams()));
+    emit('addStep', cloneDeep(makeRequestParams()) as RequestParam);
   }
 
   function handleSave() {
@@ -1202,7 +1210,7 @@
   function handleClose() {
     // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep
     if (!requestVModel.value.isNew) {
-      emit('applyStep', cloneDeep(makeRequestParams()));
+      emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
     }
   }
 
@@ -1237,21 +1245,28 @@
       if (_stepType.value.isQuoteApi && props.request && isHttpProtocol.value && !props.step?.isQuoteScenarioStep) {
         // 是引用 api、并且传入了请求参数、且不是插件、且不是引用场景下的步骤
         // 初始化引用的详情后，需要要把外面传入的数据的请求头、请求体、query、rest里面的参数值写入
-        ['headers', 'query', 'rest'].forEach((type) => {
-          props.request?.[type]?.forEach((item) => {
-            if (!item.key.length) return;
-            const index = requestVModel.value[type]?.findIndex((itemReq) => itemReq.key === item.key);
-            if (index > -1) {
-              requestVModel.value[type][index].value = item.value;
+        (['headers', 'query', 'rest'] as (keyof RequestParam)[]).forEach((type: keyof RequestParam) => {
+          (props.request?.[type] as (EnableKeyValueParam | ExecuteRequestCommonParam)[])?.forEach(
+            (item: EnableKeyValueParam) => {
+              if (!item.key.length) return;
+              const index = (
+                requestVModel.value[type] as (EnableKeyValueParam | ExecuteRequestCommonParam)[]
+              )?.findIndex((itemReq) => itemReq.key === item.key);
+              if (index > -1) {
+                (requestVModel.value[type] as (EnableKeyValueParam | ExecuteRequestCommonParam)[])[index].value =
+                  item.value;
+              }
             }
-          });
+          );
         });
-        ['formDataBody', 'wwwFormBody'].forEach((type) => {
-          props.request?.body?.[type].formValues.forEach((item) => {
+        (['formDataBody', 'wwwFormBody'] as (keyof ExecuteBody)[]).forEach((type: keyof ExecuteBody) => {
+          (props.request?.body?.[type] as ExecuteRequestFormBody).formValues.forEach((item) => {
             if (!item.key.length) return;
-            const index = requestVModel.value.body[type].formValues.findIndex((itemReq) => itemReq.key === item.key);
+            const index = (requestVModel.value.body[type] as ExecuteRequestFormBody).formValues.findIndex(
+              (itemReq) => itemReq.key === item.key
+            );
             if (index > -1) {
-              requestVModel.value.body[type].formValues[index].value = item.value;
+              (requestVModel.value.body[type] as ExecuteRequestFormBody).formValues[index].value = item.value;
             }
           });
         });

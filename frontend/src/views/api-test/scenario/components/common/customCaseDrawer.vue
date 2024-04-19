@@ -69,7 +69,7 @@
     <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
       <div class="flex items-center gap-[16px] p-[16px] pb-[8px]">
         <a-input
-          v-if="activeStep?.stepType && _stepType.isQuoteCase"
+          v-if="_stepType.isQuoteCase || activeStep?.isQuoteScenarioStep"
           v-model:model-value="requestVModel.name"
           :max-length="255"
           :show-word-limit="isEditableApi"
@@ -365,6 +365,7 @@
   const hasLocalExec = inject<Ref<boolean>>('hasLocalExec');
 
   const defaultApiParams: RequestParam = {
+    label: '',
     name: '',
     type: 'api',
     stepId: '',
