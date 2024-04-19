@@ -13,7 +13,7 @@
     <div v-if="orgOptions.length > 0" class="platform-card-container">
       <div v-for="config of dynamicForm" :key="config.key" class="platform-card">
         <div class="mb-[16px] flex items-center">
-          <a-image :src="`/plugin/image/${config.key}?imagePath=static/${config.key}.jpg`" width="24"></a-image>
+          <a-image :src="`/plugin/image/${config.key}?imagePath=${config.pluginLogo}`" width="24"></a-image>
           <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">{{ config.pluginName }}</div>
           <a-tooltip v-if="config.tooltip" :content="config.tooltip" position="right">
             <icon-exclamation-circle
@@ -148,6 +148,7 @@
         dynamicForm.value[key] = {
           key,
           pluginName: res[key].pluginName,
+          pluginLogo: res[key].pluginLogo,
           status: 0,
           formModel: {},
           formRules: res[key].formItems,

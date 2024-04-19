@@ -17,7 +17,13 @@
       <div class="flex flex-row items-center gap-[4px]">
         <div class="one-line-text">{{ record.name }}</div>
         <div class="ml-1 text-[var(--color-text-4)]">{{
-          `(${record.scopeId === 'global' ? t('common.internal') : t('common.custom')})`
+          `(${
+            record.internal
+              ? t('common.internal')
+              : record.scopeId === 'global'
+              ? t('common.system.custom')
+              : t('common.custom')
+          })`
         }}</div>
       </div>
     </template>

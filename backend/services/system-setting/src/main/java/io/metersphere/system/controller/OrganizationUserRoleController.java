@@ -131,7 +131,6 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-添加用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
-    @CheckOrgOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void addMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.addMember(request, SessionUtils.getUserId());
     }
@@ -140,7 +139,6 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-删除用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
-    @CheckOrgOwner(resourceId = "#request.getUserRoleId()", resourceType = "user_role", resourceCol = "scope_id")
     public void removeMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.removeMember(request);
     }

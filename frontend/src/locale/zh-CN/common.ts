@@ -62,6 +62,7 @@ export default {
   'common.rename': '重命名',
   'common.noData': '暂无数据',
   'common.internal': '系统内置',
+  'common.system.custom': '系统自定义',
   'common.custom': '自定义',
   'common.preview': '预览',
   'common.fullScreen': '全屏',

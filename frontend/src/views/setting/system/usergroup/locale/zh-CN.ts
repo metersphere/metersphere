@@ -22,6 +22,7 @@ export default {
       create: '创建',
       cancel: '取消',
       createUserGroup: '创建用户组',
+      createUserGroupTip: '该用户组将在整个系统范围内可用',
       userGroupName: '用户组名称',
       authScope: '权限范围',
       auth: '权限',
