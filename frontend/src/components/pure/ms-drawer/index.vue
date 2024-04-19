@@ -119,7 +119,7 @@
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
-  import useFullScreen from '@/hooks/useFullScreen';
+  import useFullScreen, { UseFullScreen } from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
   import { getMaxZIndexLayer } from '@/utils/dom';
@@ -171,6 +171,7 @@
   const { t } = useI18n();
 
   const visible = ref(props.visible);
+  const fullScreen = ref<UseFullScreen>();
 
   watch(
     () => props.visible,
@@ -188,12 +189,14 @@
   };
 
   const handleCancel = () => {
+    fullScreen.value?.exitFullscreen();
     visible.value = false;
     emit('update:visible', false);
     emit('cancel');
   };
 
   const handleClose = () => {
+    fullScreen.value?.exitFullscreen();
     visible.value = false;
     emit('update:visible', false);
     emit('close');
@@ -246,7 +249,6 @@
     }
   };
 
-  const fullScreen = ref();
   watch(
     () => visible.value,
     (val) => {

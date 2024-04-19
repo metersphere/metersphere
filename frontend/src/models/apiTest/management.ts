@@ -60,7 +60,7 @@ export interface ApiDefinitionDetail extends ApiDefinitionCreateParams {
   id: string;
   name: string;
   protocol: string;
-  method: RequestMethods;
+  method: RequestMethods | string;
   path: string;
   num: number;
   pos: number;
@@ -314,7 +314,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   environmentId: string;
   environmentName: string;
   follow: boolean;
-  method: RequestMethods;
+  method: RequestMethods | string;
   path: string;
   tags: string[];
   passRate: string;

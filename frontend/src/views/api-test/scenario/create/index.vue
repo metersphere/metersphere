@@ -39,6 +39,7 @@
           <assertion
             v-if="activeKey === ScenarioCreateComposition.ASSERTION"
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
+            @change="scenario.unSaved = true"
           />
           <template #title>
             <div class="flex items-center">

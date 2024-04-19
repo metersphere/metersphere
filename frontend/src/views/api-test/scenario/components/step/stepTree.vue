@@ -389,69 +389,11 @@
         </div>
       </template>
     </a-modal>
-    <a-modal
+    <saveAsApiModal
+      v-if="tempApiDetail"
       v-model:visible="saveNewApiModalVisible"
-      :title="t('common.save')"
-      class="ms-modal-form"
-      title-align="start"
-      body-class="!p-0"
-    >
-      <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
-        <a-form-item
-          field="name"
-          :label="t('apiTestDebug.requestName')"
-          :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
-          asterisk-position="end"
-        >
-          <a-input
-            v-model:model-value="saveModalForm.name"
-            :max-length="255"
-            :placeholder="t('apiTestDebug.requestNamePlaceholder')"
-          />
-        </a-form-item>
-        <a-form-item
-          v-if="activeStep?.config.protocol === 'HTTP'"
-          field="path"
-          :label="t('apiTestDebug.requestUrl')"
-          :rules="[{ required: true, message: t('apiTestDebug.requestUrlRequired') }]"
-          asterisk-position="end"
-        >
-          <a-input
-            v-model:model-value="saveModalForm.path"
-            :max-length="255"
-            :placeholder="t('apiTestDebug.commonPlaceholder')"
-          />
-        </a-form-item>
-        <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
-          <a-tree-select
-            v-model:modelValue="saveModalForm.moduleId"
-            :data="apiModuleTree"
-            :field-names="{ title: 'name', key: 'id', children: 'children' }"
-            :tree-props="{
-              virtualListProps: {
-                height: 200,
-                threshold: 200,
-              },
-            }"
-            allow-search
-          />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-[4px]">
-            <a-checkbox v-model:model-value="saveModalForm.saveApiAsCase"></a-checkbox>
-            {{ t('apiScenario.syncSaveAsCase') }}
-          </div>
-          <div class="flex items-center gap-[12px]">
-            <a-button type="secondary" :disabled="saveLoading" @click="handleSaveApiCancel">
-              {{ t('common.cancel') }}
-            </a-button>
-            <a-button type="primary" :loading="saveLoading" @click="handleSaveApi">{{ t('common.confirm') }}</a-button>
-          </div>
-        </div>
-      </template>
-    </a-modal>
+      :detail="tempApiDetail"
+    ></saveAsApiModal>
     <a-modal
       v-model:visible="saveCaseModalVisible"
       :title="t('apiTestManagement.saveAsCase')"
@@ -519,14 +461,10 @@
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import saveAsApiModal from '@/views/api-test/components/saveAsApiModal.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
-  import {
-    addCase,
-    addDefinition,
-    getDefinitionDetail,
-    getModuleTreeOnlyModules,
-  } from '@/api/modules/api-test/management';
+  import { addCase, getDefinitionDetail } from '@/api/modules/api-test/management';
   import { debugScenario, getScenarioDetail, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
@@ -547,6 +485,7 @@
     ExecuteApiRequestFullParams,
     ExecuteConditionProcessor,
     ExecutePluginRequestParams,
+    RequestResult,
   } from '@/models/apiTest/common';
   import { AddApiCaseParams } from '@/models/apiTest/management';
   import {
@@ -554,14 +493,13 @@
     CreateStepAction,
     Scenario,
     ScenarioStepConfig,
+    ScenarioStepDetail,
     ScenarioStepDetails,
     ScenarioStepFileParams,
     ScenarioStepItem,
   } from '@/models/apiTest/scenario';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestCaseStatus,
-    RequestDefinitionStatus,
     ScenarioAddStepActionType,
     ScenarioExecuteStatus,
     ScenarioStepRefType,
@@ -571,7 +509,7 @@
   import type { RequestParam } from '../common/customApiDrawer.vue';
   import updateStepStatus from '../utils';
   import useCreateActions from './createAction/useCreateActions';
-  import { casePriorityOptions, caseStatusOptions, defaultResponseItem } from '@/views/api-test/components/config';
+  import { casePriorityOptions, caseStatusOptions } from '@/views/api-test/components/config';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
@@ -899,11 +837,13 @@
       stepDetails.value[step.id] = {
         ...res,
         stepId: step.id,
-        protocol: step.config.protocol,
-        method: step.config.method,
+        protocol: step.config.protocol || '',
+        method: step.config.method || '',
         ...parseRequestBodyResult,
       };
-      scenario.value.stepFileParam[step.id] = parseRequestBodyResult;
+      scenario.value.stepFileParam[step.id] = {
+        ...parseRequestBodyResult,
+      };
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -912,124 +852,8 @@
     }
   }
 
-  const apiModuleTree = ref<MsTreeNodeData[]>([]);
-  async function initApiModuleTree(protocol: string) {
-    try {
-      apiModuleTree.value = await getModuleTreeOnlyModules({
-        keyword: '',
-        protocol,
-        projectId: appStore.currentProjectId,
-        moduleIds: [],
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
-  }
-
   const saveNewApiModalVisible = ref(false);
-  const saveModalForm = ref({
-    name: '',
-    path: '',
-    moduleId: 'root',
-    saveApiAsCase: false,
-  });
-  const saveModalFormRef = ref<FormInstance>();
-  const saveLoading = ref(false);
-
-  async function saveApiAsCase(id: string) {
-    if (activeStep.value) {
-      const detail = stepDetails.value[activeStep.value.id] as RequestParam;
-      const fileParams = scenario.value.stepFileParam[activeStep.value.id];
-      const url = new URL(saveModalForm.value.path);
-      const path = url.pathname + url.search + url.hash;
-      const params: AddApiCaseParams = {
-        name: saveModalForm.value.name,
-        projectId: appStore.currentProjectId,
-        environmentId: appStore.currentEnvConfig?.id || '',
-        apiDefinitionId: id,
-        request: {
-          ...detail,
-          url: path,
-        },
-        priority: 'P0',
-        status: RequestCaseStatus.PROCESSING,
-        tags: [],
-        uploadFileIds: fileParams?.uploadFileIds || [],
-        linkFileIds: fileParams?.linkFileIds || [],
-      };
-      await addCase(params);
-    }
-  }
-
-  /**
-   * 保存请求
-   * @param isSaveCase 是否需要保存用例
-   */
-  async function realSaveAsApi() {
-    try {
-      saveLoading.value = true;
-      if (activeStep.value) {
-        let url;
-        let path = '';
-        try {
-          url = new URL(saveModalForm.value.path);
-          path = url.pathname + url.search + url.hash;
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-          path = saveModalForm.value.path;
-        }
-        const detail = stepDetails.value[activeStep.value.id] as RequestParam;
-        const fileParams = scenario.value.stepFileParam[activeStep.value.id];
-        const res = await addDefinition({
-          ...saveModalForm.value,
-          path,
-          projectId: appStore.currentProjectId,
-          tags: [],
-          description: '',
-          status: RequestDefinitionStatus.PROCESSING,
-          customFields: [],
-          versionId: '',
-          environmentId: appStore.currentEnvConfig?.id || '',
-          request: {
-            ...detail,
-            url: path,
-            path,
-          },
-          uploadFileIds: fileParams?.uploadFileIds || [],
-          linkFileIds: fileParams?.linkFileIds || [],
-          response: [defaultResponseItem],
-          method: detail?.method,
-          protocol: detail?.protocol,
-        });
-        if (saveModalForm.value.saveApiAsCase) {
-          await saveApiAsCase(res.id);
-        }
-        Message.success(t('common.saveSuccess'));
-        saveNewApiModalVisible.value = false;
-        saveLoading.value = false;
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      saveLoading.value = false;
-    }
-  }
-
-  function handleSaveApiCancel() {
-    saveModalFormRef.value?.resetFields();
-    saveNewApiModalVisible.value = false;
-  }
-
-  function handleSaveApi() {
-    saveModalFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        await realSaveAsApi();
-        handleSaveApiCancel();
-      }
-    });
-  }
+  const tempApiDetail = ref<RequestParam>();
 
   const saveCaseModalVisible = ref(false);
   const saveCaseLoading = ref(false);
@@ -1209,8 +1033,13 @@
         break;
       case 'saveAsApi':
         activeStep.value = node as ScenarioStepItem;
-        initApiModuleTree((stepDetails.value[node.id] as RequestParam)?.protocol);
-        saveModalForm.value.path = (stepDetails.value[node.id] as RequestParam)?.url;
+        const detail = stepDetails.value[activeStep.value.id] as RequestParam;
+        const fileParams = scenario.value.stepFileParam[activeStep.value.id];
+        tempApiDetail.value = {
+          ...detail,
+          uploadFileIds: fileParams?.uploadFileIds || [],
+          linkFileIds: fileParams?.linkFileIds || [],
+        };
         saveNewApiModalVisible.value = true;
         break;
       case 'saveAsCase':
@@ -1284,7 +1113,7 @@
     scenario.value.unSaved = !!tempStepDesc.value;
   }
 
-  function handleStepContentChange($event, step: ScenarioStepItem) {
+  function handleStepContentChange($event: Record<string, any>, step: ScenarioStepItem) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       Object.keys($event).forEach((key) => {
@@ -1399,7 +1228,7 @@
       if (data.msgType === 'EXEC_RESULT') {
         if (step.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          data.taskResult.requestResults.forEach((result) => {
+          data.taskResult.requestResults.forEach((result: RequestResult) => {
             if (_scenario.stepResponses[result.stepId] === undefined) {
               _scenario.stepResponses[result.stepId] = [];
             }
@@ -1466,7 +1295,7 @@
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.uniqueId, 'uniqueId');
     if (realStep) {
       realStep.reportId = getGenerateId();
-      const _stepDetails = {};
+      const _stepDetails: Record<string, any> = {};
       const stepFileParam = scenario.value.stepFileParam[realStep.id];
       traverseTree(
         realStep,
@@ -1579,7 +1408,9 @@
         // 将旧步骤替换为新步骤
         if (realStep.parent?.children) {
           // 如果被替换的步骤是子孙步骤，则需要在父级的 children 中替换
-          const index = realStep.parent.children.findIndex((item) => item.uniqueId === realStep.uniqueId);
+          const index = realStep.parent.children.findIndex(
+            (item: ScenarioStepItem) => item.uniqueId === realStep.uniqueId
+          );
           realStep.parent.children.splice(index, 1, newStep);
         } else {
           // 如果被替换的步骤是第一层级步骤，则直接替换
@@ -1930,10 +1761,10 @@
   }
 
   const showQuickInput = ref(false);
-  const quickInputParamValue = ref('');
+  const quickInputParamValue = ref<any>('');
   const quickInputDataKey = ref('');
 
-  function setQuickInput(step: ScenarioStepItem, dataKey: string) {
+  function setQuickInput(step: ScenarioStepItem, dataKey: keyof ScenarioStepDetail) {
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (realStep) {
       activeStep.value = realStep as ScenarioStepItem;

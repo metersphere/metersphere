@@ -1,4 +1,5 @@
 import { RequestResult } from '@/models/apiTest/common';
+import type { RequestMethods } from '@/enums/apiEnum';
 
 export interface LegendData {
   label: string;
@@ -55,7 +56,7 @@ export interface StepContent {
   cookies: string;
   body: string;
   status: string;
-  method: string;
+  method: RequestMethods | string;
   assertionTotal: number;
   passAssertionsTotal: number;
   subRequestResults: ResponseResult[];

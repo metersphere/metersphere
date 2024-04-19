@@ -51,6 +51,7 @@
                 execute: 'PROJECT_API_DEBUG:READ+EXECUTE',
                 update: 'PROJECT_API_DEBUG:READ+UPDATE',
                 create: 'PROJECT_API_DEBUG:READ+ADD',
+                saveASApi: 'PROJECT_API_DEFINITION:READ+ADD',
               }"
               @add-done="handleDebugAddDone"
             />
@@ -91,6 +92,64 @@
       </MsCodeEditor>
     </div>
   </MsDrawer>
+  <!-- <a-modal
+    v-model:visible="saveAsApiModalVisible"
+    :title="t('common.save')"
+    :ok-loading="saveLoading"
+    class="ms-modal-form"
+    title-align="start"
+    body-class="!p-0"
+    @before-ok="handleSave"
+    @cancel="handleCancel"
+  >
+    <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
+      <a-form-item
+        field="name"
+        :label="t('apiTestDebug.requestName')"
+        :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input
+          v-model:model-value="saveModalForm.name"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.requestNamePlaceholder')"
+        />
+      </a-form-item>
+      <a-form-item
+        v-if="isHttpProtocol"
+        field="path"
+        :label="t('apiTestDebug.requestUrl')"
+        :rules="[{ required: true, message: t('apiTestDebug.requestUrlRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input
+          v-model:model-value="saveModalForm.path"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+        />
+      </a-form-item>
+      <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
+        <a-tree-select
+          v-model:modelValue="saveModalForm.moduleId"
+          :data="apiModules as ModuleTreeNode[]"
+          :field-names="{ title: 'name', key: 'id', children: 'children' }"
+          :tree-props="{
+            virtualListProps: {
+              height: 200,
+              threshold: 200,
+            },
+          }"
+          allow-search
+        >
+          <template #tree-slot-title="node">
+            <a-tooltip :content="`${node.name}`" position="tl">
+              <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+            </a-tooltip>
+          </template>
+        </a-tree-select>
+      </a-form-item>
+    </a-form>
+  </a-modal> -->
 </template>
 
 <script lang="ts" setup>
@@ -107,6 +166,7 @@
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import moduleTree from './components/moduleTree.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
@@ -121,8 +181,10 @@
     updateDebug,
     uploadTempFile,
   } from '@/api/modules/api-test/debug';
+  import { getModuleTreeOnlyModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
+  import useAppStore from '@/store/modules/app';
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -138,7 +200,9 @@
 
   import { defaultBodyParams, defaultResponse } from '../components/config';
   import { parseRequestBodyFiles } from '../components/utils';
+  import type { FormInstance } from '@arco-design/web-vue';
 
+  const appStore = useAppStore();
   const route = useRoute();
   const { t } = useI18n();
 
@@ -354,6 +418,42 @@
     }
   }
 
+  const saveAsApiModalVisible = ref(false);
+  const saveModalForm = ref({
+    id: '',
+    name: '',
+    path: '',
+    moduleId: 'root',
+  });
+  const saveModalFormRef = ref<FormInstance>();
+  const saveLoading = ref(false);
+  const apiModules = ref<ModuleTreeNode[]>([]);
+
+  watch(
+    () => saveAsApiModalVisible.value,
+    (val) => {
+      if (!val) {
+        saveModalFormRef.value?.resetFields();
+      }
+    }
+  );
+  /**
+  async function openSaveAsApiModal(node: MsTreeNodeData) {
+    try {
+      const [modules] = await getModuleTreeOnlyModules({
+        keyword: '',
+        protocol: '',
+        projectId: appStore.currentProjectId,
+        moduleIds: [],
+      });
+      apiModules.value = modules;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+    }
+  }
+  */
   onMounted(() => {
     if (route.query.id) {
       openApiTab(route.query.id as string);

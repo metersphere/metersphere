@@ -6,7 +6,7 @@ import { ExecuteApiRequestFullParams, ExecutePluginRequestParams } from './commo
 export interface SaveDebugParams {
   name: string;
   protocol: string;
-  method: RequestMethods;
+  method: RequestMethods | string;
   path: string;
   projectId: string;
   moduleId: string;
@@ -47,7 +47,7 @@ export interface DebugDetail {
   id: string;
   name: string;
   protocol: string;
-  method: string;
+  method: RequestMethods | string;
   path: string;
   projectId: string;
   moduleId: string;

@@ -1,12 +1,18 @@
 import { mergeStyles } from '@/utils/dom';
 
+export interface UseFullScreen {
+  isFullScreen: Ref<boolean>;
+  toggleFullScreen: () => void;
+  exitFullscreen: () => void;
+}
+
 /**
  * 全屏 hook
  * @param domRef dom ref
  */
 export default function useFullScreen(
   domRef: Ref<HTMLElement | null | undefined> | HTMLElement | Element | null | undefined
-) {
+): UseFullScreen {
   const isFullScreen = ref(false);
   const originalStyle = ref('');
 
@@ -41,5 +47,6 @@ export default function useFullScreen(
   return {
     isFullScreen,
     toggleFullScreen,
+    exitFullscreen,
   };
 }

@@ -796,6 +796,12 @@
     @apply overflow-hidden;
 
     max-width: 300px;
+    .arco-table-filters-content-list {
+      @apply overflow-y-auto;
+      .ms-scroll-bar();
+
+      max-height: 400px;
+    }
     .arco-checkbox-group {
       @apply flex w-full flex-col;
       .arco-checkbox {

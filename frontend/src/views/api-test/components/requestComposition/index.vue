@@ -137,22 +137,49 @@
             </a-button>
           </template>
           <!-- 接口调试，支持快捷保存 -->
-          <a-button
+          <template
             v-else-if="
               requestVModel.isNew
                 ? props.permissionMap && hasAnyPermission([props.permissionMap.create])
                 : props.permissionMap && hasAnyPermission([props.permissionMap.update])
             "
-            type="secondary"
-            :disabled="isHttpProtocol && !requestVModel.url"
-            :loading="saveLoading"
-            @click="handleSaveShortcut"
           >
-            <div class="flex items-center">
-              {{ t('common.save') }}
-              <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
-            </div>
-          </a-button>
+            <!-- 接口调试-可保存或保存为新接口定义 -->
+            <a-dropdown-button
+              v-if="
+                props.permissionMap &&
+                props.permissionMap.saveASApi &&
+                hasAllPermission([props.permissionMap.create, props.permissionMap.saveASApi])
+              "
+              :disabled="(isHttpProtocol && !requestVModel.url) || saveLoading"
+              @click="handleSaveShortcut"
+            >
+              <div class="flex items-center">
+                {{ t('common.save') }}
+                <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
+              </div>
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption value="saveAsApi" @click="() => handleSelect('saveAsApi')">
+                  {{ t('apiTestDebug.saveAsApi') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
+            <a-button
+              v-else
+              type="secondary"
+              :disabled="isHttpProtocol && !requestVModel.url"
+              :loading="saveLoading"
+              @click="handleSaveShortcut"
+            >
+              <div class="flex items-center">
+                {{ t('common.save') }}
+                <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
+              </div>
+            </a-button>
+          </template>
         </div>
       </div>
     </div>
@@ -412,6 +439,11 @@
       </a-form-item>
     </a-form>
   </a-modal>
+  <saveAsApiModal
+    v-if="tempApiDetail"
+    v-model:visible="saveNewApiModalVisible"
+    :detail="tempApiDetail"
+  ></saveAsApiModal>
   <addDependencyDrawer
     v-if="props.isDefinition"
     v-model:visible="showAddDependencyDrawer"
@@ -439,6 +471,7 @@
   import setting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
+  import saveAsApiModal from '@/views/api-test/components/saveAsApiModal.vue';
   import apiBaseForm from '@/views/api-test/management/components/management/api/apiBaseForm.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
@@ -451,7 +484,7 @@
   import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import {
     ExecuteApiRequestFullParams,
@@ -462,7 +495,6 @@
   } from '@/models/apiTest/common';
   import { AddApiCaseParams } from '@/models/apiTest/management';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
-  import { EnvConfig } from '@/models/projectManagement/environmental';
   import {
     RequestAuthType,
     RequestBodyFormat,
@@ -542,6 +574,7 @@
       execute: string;
       create: string;
       update: string;
+      saveASApi?: string;
     };
   }>();
   const emit = defineEmits(['addDone', 'execute']);
@@ -846,7 +879,7 @@
       initPluginScript();
     } else {
       requestVModel.value.activeTab = RequestComposition.HEADER;
-      if (!Object.values(RequestMethods).includes(requestVModel.value.method)) {
+      if (!Object.values(RequestMethods).includes(requestVModel.value.method as RequestMethods)) {
         // 第三方插件协议切换到 HTTP 时，请求方法默认设置 GET
         requestVModel.value.method = RequestMethods.GET;
       }
@@ -1562,12 +1595,25 @@
 
   const apiBaseFormRef = ref<InstanceType<typeof apiBaseForm>>();
   const isUrlError = ref(false);
+  const tempApiDetail = ref<RequestParam>();
+  const saveNewApiModalVisible = ref(false);
+
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     if (requestVModel.value.url === '' && requestVModel.value.protocol === 'HTTP') {
       isUrlError.value = true;
       return;
     }
     isUrlError.value = false;
+    if (value === 'saveAsApi') {
+      const params = makeRequestParams();
+      tempApiDetail.value = {
+        ...params,
+        ...params.request,
+        polymorphicName: params.request.polymorphicName,
+      };
+      saveNewApiModalVisible.value = true;
+      return;
+    }
     apiBaseFormRef.value?.formRef?.validate(async (errors) => {
       if (errors) {
         requestVModel.value.activeTab = RequestComposition.BASE_INFO;

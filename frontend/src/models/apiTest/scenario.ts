@@ -62,7 +62,7 @@ export interface ApiScenarioScheduleConfig {
 export interface ApiScenarioTableItem {
   id: string;
   name: string;
-  method: string;
+  method: RequestMethods | string;
   path: string;
   num: number;
   pos: number;
@@ -328,7 +328,7 @@ export type ScenarioStepDetail = Partial<
     LoopStepDetail &
     ScenarioStepConfig & {
       protocol: string;
-      method: RequestMethods;
+      method: RequestMethods | string;
     }
 >;
 // 场景步骤项
@@ -367,13 +367,13 @@ export interface ScenarioStepItem {
 }
 // 场景步骤文件参数
 export interface ScenarioStepFileParams {
-  uploadFileIds: string[];
-  linkFileIds: string[];
+  uploadFileIds?: string[];
+  linkFileIds?: string[];
   deleteFileIds?: string[];
   unLinkFileIds?: string[];
 }
 // 场景步骤详情
-export type ScenarioStepDetails = RequestParam | CaseRequestParam | ExecuteConditionProcessor;
+export type ScenarioStepDetails = Partial<RequestParam | CaseRequestParam | ExecuteConditionProcessor>;
 // 场景
 export interface Scenario {
   id?: string | number;
