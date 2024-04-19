@@ -44,11 +44,13 @@
             <MsCheckbox
               v-if="attrs.selectorType === 'checkbox'"
               :value="props.selectedKeys.has(record[rowKey || 'id'])"
+              @click.stop
               @change="rowSelectChange(record[rowKey || 'id'])"
             />
             <a-radio
               v-else-if="attrs.selectorType === 'radio'"
               v-model:model-value="record.tableChecked"
+              @click.stop
               @change="(val) => handleRadioChange(val as boolean, record)"
             />
             <div v-if="attrs.showPagination && props.showSelectorAll" class="w-[16px]"></div>
@@ -145,6 +147,7 @@
                   ref="currentInputRef"
                   v-model="record[item.dataIndex as string]"
                   :max-length="255"
+                  @click.stop
                   @blur="handleEditInputBlur(record, item.dataIndex as string, true)"
                   @keydown.enter="handleEditInputBlur(record, item.dataIndex as string, false)"
                 />
@@ -172,7 +175,7 @@
                     class="ml-2 cursor-pointer"
                     :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                     type="icon-icon_edit_outlined"
-                    @click="handleEdit(item.dataIndex as string, rowIndex, record)"
+                    @click.stop="handleEdit(item.dataIndex as string, rowIndex, record)"
                   />
                 </div>
                 <div>

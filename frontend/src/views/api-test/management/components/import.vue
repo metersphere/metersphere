@@ -122,14 +122,9 @@
             <template #subText>
               <div class="flex">
                 {{ t('apiTestManagement.importSwaggerFileTip1') }}
-                <a
-                  class="text-[rgb(var(--warning-6))]"
-                  href="https://converter.swagger.io/"
-                  target="_blank"
-                  @click.stop
-                >
-                  {{ t('apiTestManagement.importSwaggerFileTip2') }}
-                </a>
+                <span class="text-[rgb(var(--warning-6))]" @click.stop="openLink">{{
+                  t('apiTestManagement.importSwaggerFileTip2')
+                }}</span>
                 {{ t('apiTestManagement.importSwaggerFileTip3') }}
               </div>
             </template>
@@ -650,6 +645,10 @@
       console.log(error);
       return false;
     }
+  }
+
+  function openLink() {
+    window.open('https://converter.swagger.io/', '_blank');
   }
 </script>
 
