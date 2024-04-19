@@ -207,7 +207,6 @@
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
-  import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
 
   const props = withDefaults(
