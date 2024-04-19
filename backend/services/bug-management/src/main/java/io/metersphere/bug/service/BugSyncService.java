@@ -13,7 +13,6 @@ import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
@@ -162,7 +161,6 @@ public class BugSyncService {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error(e);
             // 异常或正常结束都得删除当前项目执行同步的唯一Key
             bugSyncExtraService.deleteSyncKey(projectId);
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)

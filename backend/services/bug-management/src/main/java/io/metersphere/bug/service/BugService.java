@@ -549,12 +549,13 @@ public class BugService {
             // 分页同步
             SubListUtils.dealForSubList(remainBugs, 100, (subBugs) -> doSyncPlatformBugs(subBugs, project));
         } catch (Exception e) {
-            LogUtils.error(e);
+            LogUtils.error("Synchronization bugs exception occurred :" + e.getMessage());
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
             bugSyncExtraService.setSyncErrorMsg(project.getId(), e.getMessage());
         } finally {
+            LogUtils.info("Synchronization bugs end......");
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 发送同步通知

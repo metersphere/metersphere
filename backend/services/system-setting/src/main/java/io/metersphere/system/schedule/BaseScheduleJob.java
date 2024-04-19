@@ -20,7 +20,6 @@ public abstract class BaseScheduleJob implements Job {
         this.expression = jobDataMap.getString("expression");
 
         LogUtils.info(jobKey.getGroup() + " Running: " + resourceId);
-        LogUtils.info("CronExpression: " + expression);
         businessExecute(context);
     }
 

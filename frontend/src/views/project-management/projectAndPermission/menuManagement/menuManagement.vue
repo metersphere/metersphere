@@ -824,6 +824,7 @@
       console.log(e);
     }
   };
+
   const fetchData = async () => {
     await loadList();
   };
@@ -857,18 +858,18 @@
     }
   };
 
+  async function initMenuData() {
+    setLoadListParams({ projectId: currentProjectId.value });
+    await fetchData();
+    await initExpendKeys();
+  }
+
   // 点击展开
   const handleRowClick = (record: TableData) => {
     if (record.module) {
       expandChange(record);
     }
   };
-
-  function initMenuData() {
-    setLoadListParams({ projectId: currentProjectId.value });
-    fetchData();
-    initExpendKeys();
-  }
 
   onMounted(() => {
     initMenuData();
