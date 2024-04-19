@@ -206,6 +206,8 @@
   import { mapTree } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
+  import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
+  import { ApiScenarioGetModuleParams } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
 
   const props = withDefaults(
@@ -363,6 +365,36 @@
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
   const isExpandApi = ref(false);
+  const lastModuleCountParam = ref<ApiDefinitionGetModuleParams>({
+    projectId: appStore.currentProjectId,
+    keyword: moduleKeyword.value,
+    protocol: moduleProtocol.value,
+    moduleIds: [],
+  });
+  async function initModuleCount(params: ApiDefinitionGetModuleParams) {
+    try {
+      lastModuleCountParam.value = params;
+      lastModuleCountParam.value.protocol = moduleProtocol.value;
+      let res;
+      if (props.trash) {
+        res = await getTrashModuleCount(params);
+      } else {
+        res = await getModuleCount(params);
+      }
+      modulesCount.value = res;
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+          draggable: node.id !== 'root' && !(props.readOnly || props.isModal),
+          disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
+        };
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   /**
    * 初始化模块树
@@ -435,46 +467,14 @@
       console.log(error);
     } finally {
       loading.value = false;
-    }
-  }
-
-  async function initModuleCount() {
-    try {
-      let res;
-      if (props.trash) {
-        res = await getTrashModuleCount({
-          keyword: moduleKeyword.value,
-          protocol: moduleProtocol.value,
-          projectId: appStore.currentProjectId,
-          moduleIds: [],
-        });
-      } else {
-        res = await getModuleCount({
-          keyword: moduleKeyword.value,
-          protocol: moduleProtocol.value,
-          projectId: appStore.currentProjectId,
-          moduleIds: [],
-        });
-      }
-      modulesCount.value = res;
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: res[node.id] || 0,
-          draggable: node.id !== 'root' && !(props.readOnly || props.isModal),
-          disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
-        };
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      initModuleCount(lastModuleCountParam.value);
     }
   }
 
   function handleProtocolChange() {
     emit('changeProtocol', moduleProtocol.value);
+    lastModuleCountParam.value.protocol = moduleProtocol.value;
     initModules();
-    initModuleCount();
   }
 
   watch(
@@ -491,7 +491,6 @@
   function changeApiExpand() {
     isExpandApi.value = !isExpandApi.value;
     initModules();
-    initModuleCount();
   }
 
   /**
@@ -537,7 +536,6 @@
           Message.success(t('apiTestDebug.deleteSuccess'));
           emit('deleteNode', node.id, node.type === 'MODULE');
           initModules();
-          initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -649,13 +647,11 @@
     } finally {
       loading.value = false;
       await initModules();
-      initModuleCount();
     }
   }
 
   function handleAddFinish() {
     initModules();
-    initModuleCount();
   }
 
   function handleRenameFinish(newName: string, id: string) {
@@ -673,16 +669,15 @@
   onBeforeMount(() => {
     initProtocolList();
     initModules();
-    initModuleCount();
   });
 
   function refresh() {
     initModules();
-    initModuleCount();
   }
 
   defineExpose({
     refresh,
+    initModuleCount,
   });
 </script>
 

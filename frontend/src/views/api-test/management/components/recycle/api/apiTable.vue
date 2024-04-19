@@ -7,10 +7,10 @@
           :placeholder="t('apiTestManagement.searchPlaceholder')"
           allow-clear
           class="mr-[8px] w-[240px]"
-          @search="loadApiList"
-          @press-enter="loadApiList"
+          @search="loadApiList(false)"
+          @press-enter="loadApiList(false)"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList(false)">
           <template #icon>
             <icon-refresh class="text-[var(--color-text-4)]" />
           </template>
@@ -150,7 +150,11 @@
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
 
-  import { ApiDefinitionDetail, BatchRecoverApiParams } from '@/models/apiTest/management';
+  import {
+    ApiDefinitionDetail,
+    ApiDefinitionGetModuleParams,
+    BatchRecoverApiParams,
+  } from '@/models/apiTest/management';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -169,7 +173,9 @@
 
   const folderTreePathMap = inject('folderTreePathMap');
   const keyword = ref('');
-
+  const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
+  const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =
+    inject('refreshModuleTreeCount');
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -297,12 +303,26 @@
     return [props.activeModule];
   });
   const tableQueryParams = ref<any>();
+  const tableStore = useTableStore();
+  async function getModuleIds() {
+    let queryModuleIds: string[] = [];
+    if (props.activeModule !== 'all') {
+      queryModuleIds = [props.activeModule];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST);
+      if (getAllChildren) {
+        queryModuleIds = [props.activeModule, ...props.offspringIds];
+      }
+    }
+    return queryModuleIds;
+  }
 
-  function loadApiList() {
+  // hasRefreshTree:调用该方法前后有没有重新加载tree。 重新加载tree时会自动计算count。没有重新加载的话会手动处理
+  async function loadApiList(hasRefreshTree?: boolean) {
+    const queryModuleIds = await getModuleIds();
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: moduleIds.value,
+      moduleIds: props.activeModule === 'all' ? [] : queryModuleIds,
       deleted: true,
       protocol: props.protocol,
       filter: {
@@ -311,6 +331,20 @@
         deleteUser: deleteUserFilters.value,
       },
     };
+    if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function') {
+      refreshModuleTreeCount({
+        keyword: keyword.value,
+        filter: {
+          status: statusFilters.value,
+          method: methodFilters.value,
+          deleteUser: deleteUserFilters.value,
+        },
+        moduleIds: [],
+        protocol: props.protocol,
+        projectId: appStore.currentProjectId,
+      });
+    }
+
     setLoadListParams(params);
     loadList();
     tableQueryParams.value = {
@@ -324,7 +358,7 @@
     () => props.activeModule,
     () => {
       resetSelector();
-      loadApiList();
+      loadApiList(false);
     }
   );
 
@@ -332,13 +366,16 @@
     () => props.protocol,
     () => {
       resetSelector();
-      loadApiList();
+      loadApiList(true);
+      if (typeof refreshModuleTree === 'function') {
+        refreshModuleTree();
+      }
     }
   );
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
-      loadApiList();
+      loadApiList(false);
       methodFilterVisible.value = false;
       statusFilterVisible.value = false;
     }
@@ -347,17 +384,17 @@
   function resetMethodFilter() {
     methodFilters.value = [];
     methodFilterVisible.value = false;
-    loadApiList();
+    loadApiList(false);
   }
 
   function resetStatusFilter() {
     statusFilters.value = [];
     statusFilterVisible.value = false;
-    loadApiList();
+    loadApiList(false);
   }
 
   onBeforeMount(() => {
-    loadApiList();
+    loadApiList(true);
   });
 
   const tableSelected = ref<(string | number)[]>([]);
@@ -394,12 +431,13 @@
   }
 
   // 批量操作参数
-  function getBatchParams(): BatchRecoverApiParams {
+  async function getBatchParams(): Promise<BatchRecoverApiParams> {
+    const queryModuleIds = await getModuleIds();
     return {
       excludeIds: batchParams.value.excludeIds,
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds as string[],
-      moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+      moduleIds: props.activeModule === 'all' ? [] : queryModuleIds,
       projectId: appStore.currentProjectId,
       protocol: props.protocol,
       condition: {
@@ -416,10 +454,13 @@
   // 批量恢复
   async function batchRecover() {
     try {
-      await batchRecoverDefinition(getBatchParams());
+      await batchRecoverDefinition(await getBatchParams());
       Message.success(t('apiTestManagement.recycle.recoveredSuccessfully'));
       resetSelector();
-      loadApiList();
+      loadApiList(true);
+      if (typeof refreshModuleTree === 'function') {
+        refreshModuleTree();
+      }
     } catch (error) {
       console.log(error);
     }
@@ -441,10 +482,13 @@
       },
       onBeforeOk: async () => {
         try {
-          await batchCleanOutDefinition(getBatchParams());
+          await batchCleanOutDefinition(await getBatchParams());
           Message.success(t('common.deleteSuccess'));
           resetSelector();
-          loadApiList();
+          loadApiList(true);
+          if (typeof refreshModuleTree === 'function') {
+            refreshModuleTree();
+          }
         } catch (error) {
           console.log(error);
         }
@@ -488,7 +532,10 @@
           await deleteRecycleApiList(record.id);
           Message.success(t('common.deleteSuccess'));
           resetSelector();
-          loadApiList();
+          loadApiList(true);
+          if (typeof refreshModuleTree === 'function') {
+            refreshModuleTree();
+          }
         } catch (error) {
           console.log(error);
         }
@@ -507,7 +554,10 @@
       });
       Message.success(t('apiTestManagement.recycle.recoveredSuccessfully'));
       resetSelector();
-      loadApiList();
+      loadApiList(true);
+      if (typeof refreshModuleTree === 'function') {
+        refreshModuleTree();
+      }
     } catch (error) {
       console.log(error);
     }
@@ -517,7 +567,6 @@
     loadApiList,
   });
 
-  const tableStore = useTableStore();
   await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
 </script>
 

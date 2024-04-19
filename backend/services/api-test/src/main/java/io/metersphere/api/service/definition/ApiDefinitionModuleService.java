@@ -76,6 +76,10 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(ApiModuleRequest request, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
+        
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        request.setKeyword(null);
+        request.setModuleIds(null);
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectIdAndParentIdByRequest(request);
         return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED_API));
     }
@@ -225,7 +229,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
      * 查找当前项目下模块每个节点对应的资源统计
      */
     public Map<String, Long> getModuleCountMap(ApiModuleRequest request, List<ModuleCountDTO> moduleCountDTOList) {
-        //构建模块树，并计算每个节点下的所有数量（包含子节点）
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(request, moduleCountDTOList);
         return super.getIdCountMapByBreadth(treeNodeList);
     }

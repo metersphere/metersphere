@@ -78,6 +78,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
@@ -131,6 +132,10 @@
     moduleTreeRef.value?.refresh();
   }
 
+  function refreshModuleTreeCount(params: ApiDefinitionGetModuleParams) {
+    moduleTreeRef.value?.initModuleCount(params);
+  }
+
   function handleImportDone() {
     refreshModuleTree();
     managementRef.value?.refreshApiTable();
@@ -175,6 +180,7 @@
   /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);
   provide('refreshModuleTree', refreshModuleTree);
+  provide('refreshModuleTreeCount', refreshModuleTreeCount);
   provide('folderTreePathMap', folderTreePathMap.value);
 </script>
 
