@@ -54,9 +54,6 @@
     <template #name="{ record }">
       <div type="text">{{ characterLimit(record.name) }}</div>
     </template>
-    <template #updateUserName="{ record }">
-      <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
-    </template>
     <template #caseLevel="{ record }">
       <a-select
         v-model:model-value="record.caseLevel"
@@ -653,7 +650,7 @@
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUserName',
       showTooltip: true,
-      dataIndex: 'updateUser',
+      dataIndex: 'updateUserName',
       titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
