@@ -1,6 +1,6 @@
 <template>
   <!-- 所属平台一致, 详情展示 -->
-  <div v-if="props.currentPlatform === props.detailInfo.platform" class="relative p-[16px] pb-[16px]">
+  <div v-if="props.currentPlatform === props.detailInfo.platform" class="relative">
     <div class="header">
       <div v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
         <a-button type="text" @click="contentEditAble = !contentEditAble">

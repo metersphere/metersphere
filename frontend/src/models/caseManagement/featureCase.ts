@@ -222,8 +222,8 @@ export interface CaseModuleQueryParams extends TableQueryParams {
 }
 
 export interface TabItemType {
-  key: string;
-  title: string;
+  value: string;
+  label: string;
   canHide: boolean;
   isShow: boolean;
 }

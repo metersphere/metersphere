@@ -37,7 +37,16 @@
   const activeKey = ref('requestHeader');
   const GlobalVariable = ref<EnvConfigItem[]>([]);
   const { t } = useI18n();
-  const { setIsSave } = useLeaveUnSaveTip();
+
+  const leaveTitle = 'common.tip';
+  const leaveContent = 'apiTestDebug.unsavedLeave';
+
+  const { setIsSave } = useLeaveUnSaveTip({
+    leaveTitle,
+    leaveContent,
+    tipType: 'warning',
+  });
+
   setIsSave(true);
   const canSave = ref(false);
 

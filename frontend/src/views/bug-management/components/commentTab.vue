@@ -1,22 +1,14 @@
 <template>
-  <div class="pl-2 pt-4">
-    <a-scrollbar
-      :style="{
-        overflow: 'auto',
-        height: 'calc(100vh - 236px)',
-        width: '100%',
-      }"
-    >
-      <MsEmpty v-if="commentList.length === 0" />
-      <MsComment
-        v-else
-        :preview-url="EditorPreviewFileUrl"
-        :comment-list="commentList"
-        :upload-image="handleUploadImage"
-        @delete="handleDelete"
-        @update-or-add="handleUpdate"
-      />
-    </a-scrollbar>
+  <div>
+    <MsEmpty v-if="commentList.length === 0" />
+    <MsComment
+      v-else
+      :preview-url="EditorPreviewFileUrl"
+      :comment-list="commentList"
+      :upload-image="handleUploadImage"
+      @delete="handleDelete"
+      @update-or-add="handleUpdate"
+    />
   </div>
 </template>
 
