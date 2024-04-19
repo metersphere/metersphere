@@ -67,6 +67,7 @@
   const { t } = useI18n();
 
   const templateOptions = ref<TemplateOption[]>([]);
+  const defaultTemplateId = ref<string>('');
 
   // TODO缺陷类型
   const initForm: any = {
@@ -99,6 +100,7 @@
   const drawerLoading = ref<boolean>(false);
 
   function handleDrawerConfirm(isContinue: boolean) {
+    form.value.templateId = defaultTemplateId.value;
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         drawerLoading.value = true;
@@ -126,6 +128,7 @@
     try {
       templateOptions.value = await getTemplateOption(appStore.currentProjectId);
       form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
+      defaultTemplateId.value = templateOptions.value.find((item) => item.enableDefault)?.id as string;
       const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
       templateCustomFields.value = result.customFields.map((item: any) => {
         return {
