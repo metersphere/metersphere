@@ -203,6 +203,7 @@
           filed: 'relation', // 匹配规则-操作类型
           type: 'select',
           options: relationOptions.value,
+          defaultValue: 'CONTAINS',
           className: 'w-[120px]',
         },
         {
