@@ -24,16 +24,16 @@
 
     <select id="list" resultType="io.metersphere.api.domain.ApiScenarioReport">
         select
-        api_scenario_report.*
-        from api_scenario_report where api_scenario_report.deleted = false
-                          and api_scenario_report.test_plan_id = 'NONE'
+        asr.*
+        from api_scenario_report asr where asr.deleted = false
+                          and asr.test_plan_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            api_scenario_report.name like concat('%', #{request.keyword},'%')
+            asr.name like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
-            and api_scenario_report.project_id = #{request.projectId}
+            and asr.project_id = #{request.projectId}
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
@@ -41,16 +41,16 @@
     </select>
     <select id="getIds" resultType="java.lang.String">
         select
-        api_scenario_report.id
-        from api_scenario_report where api_scenario_report.deleted = false
-                          and api_scenario_report.test_plan_id = 'NONE'
+        asr.id
+        from api_scenario_report asr where asr.deleted = false
+                          and asr.test_plan_id = 'NONE'
         <if test="request.condition.keyword != null">
             and (
-            api_scenario_report.name like concat('%', #{request.condition.keyword},'%')
+            asr.name like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
-            and api_scenario_report.project_id = #{request.projectId}
+            and asr.project_id = #{request.projectId}
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
@@ -111,29 +111,33 @@
           and api_scenario_report.project_id = #{projectId} limit 500
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
-        select id, pool_id from (
-        select asr.*, p.organization_id from api_scenario_report asr
-                      left join project p on asr.project_id = p.id ) as api_scenario_report
+
+        select distinct asr.*, project.organization_id from api_scenario_report asr
+        left join api_scenario_record a on asr.id = a.api_scenario_report_id
+        left JOIN api_scenario s on a.api_scenario_id = s.id
+                      left join project on asr.project_id = project.id
                       where
-        api_scenario_report.deleted = false
-        and api_scenario_report.test_plan_id = 'NONE'
-        and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
-        and api_scenario_report.status in ('PENDING', 'RUNNING', 'RERUNNING')
+        asr.deleted = false
+        and asr.test_plan_id = 'NONE'
+        and asr.start_time BETWEEN #{startTime} AND #{endTime}
+        and asr.status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
-            and api_scenario_report.id in
+            and asr.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
                 #{id}
             </foreach>
         </if>
         <if test="projectIds != null and projectIds.size() > 0">
-            and api_scenario_report.project_id in
+            and asr.project_id in
             <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
                 #{projectId}
             </foreach>
         </if>
         <if test="request.condition.keyword != null">
             and (
-            api_scenario_report.name like concat('%', #{request.condition.keyword},'%')
+            if(asr.integrated, asr.id, s.num) like concat('%', #{request.condition.keyword},'%')
+            or if(asr.integrated, asr.name,s.name) like concat('%', #{request.condition.keyword},'%')
+
             )
         </if>
         <include refid="filters">
@@ -143,7 +147,6 @@
     </select>
 
     <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
-        select * from (
         select
         distinct asr.id,
         asr.project_id,
@@ -156,20 +159,9 @@
         asr.start_time,
         project.organization_id,
 
-        CASE
-        WHEN asr.integrated = 0 THEN
-        s.num ELSE asr.id
-        END AS resourceNum,
-
-        CASE
-        WHEN asr.integrated = 0 THEN
-        s.NAME ELSE asr.NAME
-        END AS resourceName,
-
-        CASE
-        WHEN asr.integrated = 0 THEN
-        s.id ELSE asr.id
-        END AS resourceId,
+        if(asr.integrated, asr.id, s.num) AS resourceNum,
+        if(asr.integrated, asr.name,s.name) AS resourceName,
+        if (asr.integrated,asr.id,s.id ) AS resourceId,
 
         t.name as poolName
         from api_scenario_report asr
@@ -178,16 +170,16 @@
         left JOIN test_resource_pool t on asr.pool_id = t.id
         left join project on asr.project_id = project.id
         where asr.test_plan_id = 'NONE'
-          and asr.start_time BETWEEN #{startTime} AND #{endTime} ) api_scenario_report
-        where
-           api_scenario_report.project_id IN
+          and asr.start_time BETWEEN #{startTime} AND #{endTime}
+        and
+        asr.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            api_scenario_report.resourceName like concat('%', #{request.keyword},'%')
-                or api_scenario_report.resourceNum like concat('%', #{request.keyword},'%')
+            if(asr.integrated, asr.id, s.num) like concat('%', #{request.keyword},'%')
+                or if(asr.integrated, asr.name,s.name) like concat('%', #{request.keyword},'%')
                )
         </if>
         <include refid="filters">
@@ -265,7 +257,7 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='integrated'">
-                            and api_scenario_report.integrated in
+                            and asr.integrated in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 <choose>
                                     <when test="value == 'true'">1</when>
@@ -275,29 +267,29 @@
                             </foreach>
                         </when>
                         <when test="key=='status'">
-                            and api_scenario_report.status in
+                            and asr.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='triggerMode'">
-                            and api_scenario_report.trigger_mode in
+                            and asr.trigger_mode in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='createUser'">
-                            and api_scenario_report.create_user in
+                            and asr.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='updateUser'">
-                            and api_scenario_report.update_user in
+                            and asr.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='projectIds'">
-                            and api_scenario_report.project_id in
+                            and asr.project_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                         </when>
                         <when test="key=='organizationIds'">
-                            and api_scenario_report.organization_id in
+                            and project.organization_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
