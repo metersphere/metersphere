@@ -1,5 +1,5 @@
 <template>
-  <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+  <ms-base-table v-bind="propsRes" v-on="propsEvent">
     <template #changeNumber="{ record }">
       <span>{{ record.id }}</span>
       <MsTag v-if="record.latest" size="small" class="ml-2">{{ t('bugManagement.history.current') }}</MsTag>
