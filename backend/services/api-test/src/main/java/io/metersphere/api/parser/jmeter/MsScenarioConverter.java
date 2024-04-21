@@ -8,6 +8,7 @@ import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.dto.scenario.ScenarioStepConfig;
 import io.metersphere.api.dto.scenario.ScenarioVariable;
+import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
@@ -23,7 +24,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.control.CriticalSectionController;
+import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -32,6 +34,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -52,13 +55,18 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         ApiScenarioParamConfig config = getEnableConfig(msScenario, (ApiScenarioParamConfig) msParameter);
         EnvironmentInfoDTO envInfo = config.getEnvConfig(msScenario.getProjectId());
 
+        if (isRef(msScenario.getRefType())) {
+            // 引用的场景中可能包含变量，场景包一层临界控制器，解决变量冲突
+            tree = addCriticalSectionController(tree, msScenario);
+        }
+
         if (isRootScenario(msScenario.getRefType()) && msScenario.getScenarioConfig().getOtherConfig().getEnableGlobalCookie()) {
             // 根场景，设置共享cookie
             tree.add(getCookieManager());
         }
 
         // 添加场景和环境变量
-        addArguments(tree, msScenario, envInfo, config);
+        addUserParameters(tree, msScenario, envInfo, config);
 
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
@@ -78,13 +86,31 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
     }
 
     /**
+     * 添加临界控制器，解决变量冲突
+     * @param tree
+     * @param msScenario
+     * @return
+     */
+    public HashTree addCriticalSectionController(HashTree tree, MsScenario msScenario) {
+        String name = msScenario.getName();
+        boolean enable = msScenario.getEnable();
+        CriticalSectionController criticalSectionController = new CriticalSectionController();
+        criticalSectionController.setName(StringUtils.isNotEmpty(name) ? "Csc_" + name : "Scenario Critical Section Controller");
+        criticalSectionController.setLockName(UUID.randomUUID().toString());
+        criticalSectionController.setEnabled(enable);
+        criticalSectionController.setProperty(TestElement.TEST_CLASS, CriticalSectionController.class.getName());
+        criticalSectionController.setProperty(TestElement.GUI_CLASS, JmeterAlias.CRITICAL_SECTION_CONTROLLER_GUI);
+        return tree.add(criticalSectionController);
+    }
+
+    /**
      * 添加场景和环境变量
      *
      * @param tree
      * @param msScenario
      * @param envInfo
      */
-    private void addArguments(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo, ApiScenarioParamConfig config) {
+    private void addUserParameters(HashTree tree, MsScenario msScenario, EnvironmentInfoDTO envInfo, ApiScenarioParamConfig config) {
         // 如果是根场景获取场景变量
         List<CommonVariables> commonVariables = getCommonVariables(msScenario.getScenarioConfig());
 
@@ -132,9 +158,8 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
             return;
         }
 
-        Arguments arguments = JmeterTestElementParserHelper.getArguments(msScenario.getName());
-        JmeterTestElementParserHelper.parse2ArgumentList(constantVariables).forEach(arguments::addArgument);
-        JmeterTestElementParserHelper.parse2ArgumentList(listVariables).forEach(arguments::addArgument);
+        UserParameters arguments = JmeterTestElementParserHelper.getUserParameters(constantVariables, listVariables);
+
         tree.add(arguments);
     }
 

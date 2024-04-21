@@ -4,7 +4,6 @@ import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.parser.jmeter.JmeterTestElementParserHelper;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
-import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.constants.ElementProperty;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.KeyValueParam;
@@ -15,7 +14,7 @@ import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 
@@ -72,7 +71,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         testElement.setProperty(JmeterProperty.SCRIPT_LANGUAGE, scriptLanguage.toLowerCase());
     }
 
-    public static Arguments getScriptArguments(ScriptProcessor scriptProcessor) {
+    public static UserParameters getScriptArguments(ScriptProcessor scriptProcessor) {
         if (scriptProcessor == null || !scriptProcessor.isEnableCommonScript() || !scriptProcessor.isValid()) {
             return null;
         }
@@ -91,11 +90,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
             return null;
         }
 
-        Arguments arguments = JmeterTestElementParserHelper.getArguments(scriptProcessor.getName());
-        for (KeyValueParam param : params) {
-            arguments.addArgument(param.getKey(), Mock.buildFunctionCallString(param.getValue()), "=");
-        }
-        return arguments;
+        return JmeterTestElementParserHelper.getUserParameters(scriptProcessor.getName(), params);
     }
 
     public static boolean isJSR233(ScriptProcessor scriptProcessor) {
