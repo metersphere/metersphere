@@ -81,7 +81,11 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         handleMap.put(MsAssertionCondition.REGEX.name(),
                 """
                 import java.util.regex.Pattern;
-                result = Pattern.matches(Pattern.quote(expectation), variableValue);
+                if (variableValue != null) {
+                   result = Pattern.matches(Pattern.quote(expectation), variableValue);
+                } else {
+                   result = false;
+                }
                 msg = variableValue + " not matching " + expectation;
                 """);
 
