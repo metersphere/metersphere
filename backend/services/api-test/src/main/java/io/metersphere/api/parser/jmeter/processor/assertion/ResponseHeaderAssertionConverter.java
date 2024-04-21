@@ -61,8 +61,8 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String testString = expectedValue;
         if (StringUtils.isNotEmpty(regexTemplate)) {
             testString = regexTemplate
-                    .replace("%key", Pattern.quote(header))
-                    .replace("%value", Pattern.quote(expectedValue));
+                    .replace("%key", header)
+                    .replace("%value", expectedValue);
         }
 
         if (StringUtils.startsWith(msAssertionCondition.name(), "NOT")) {

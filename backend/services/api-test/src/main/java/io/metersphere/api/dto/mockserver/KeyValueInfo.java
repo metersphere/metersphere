@@ -55,7 +55,7 @@ public class KeyValueInfo {
             }
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.REGULAR_MATCH.name())) {
             try {
-                return this.value.matches(Pattern.quote(value));
+                return this.value.matches(value);
             } catch (Exception e) {
                 return false;
             }

@@ -82,7 +82,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
                 """
                 import java.util.regex.Pattern;
                 if (variableValue != null) {
-                   result = Pattern.matches(Pattern.quote(expectation), variableValue);
+                   result = Pattern.matches(expectation, variableValue);
                 } else {
                    result = false;
                 }
