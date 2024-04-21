@@ -3,9 +3,12 @@ package io.metersphere.system.utils;
 import com.bastiaanjansen.otp.TOTPGenerator;
 import io.metersphere.sdk.constants.MsHttpHeaders;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import jakarta.annotation.Resource;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.core5.http.NoHttpResponseException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,8 +17,9 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class TaskRunnerClient {
@@ -27,7 +31,8 @@ public class TaskRunnerClient {
     private static final String API_STOP = "/api/stop";
 
     private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
-    private static final int retryCount = 3;
+    private final static int RETRY_COUNT = 3;
+    private final static long RETRY_INTERVAL_TIME = 1000L;
 
     static {
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -80,24 +85,45 @@ public class TaskRunnerClient {
         return retry(url, requestBody, action);
     }
 
-    private static ResultHolder retry(String url, Object requestBody, Action action) throws Exception {
-        // 首次调用
-        ResultHolder body = action.execute(url, requestBody);
-        if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
-            return body;
-        }
-
-        // 增加token失败重试
-        for (int i = 0; i < retryCount; i++) {
-            TimeUnit.MILLISECONDS.sleep(300);
-
+    private static ResultHolder retry(String url, Object requestBody, Action action) throws IOException {
+        ResultHolder body;
+        try {
+            // 首次调用
             body = action.execute(url, requestBody);
-            // 重试后检查是否成功
             if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
                 return body;
             }
+        } catch (NoHttpResponseException | ConnectTimeoutException | SocketException e) {
+            return doRetry(url, requestBody, action, e);
         }
         return body;
+    }
+
+    private static ResultHolder doRetry(String url, Object requestBody, Action action, IOException e) throws IOException {
+        ResultHolder body;
+        // 增加token失败重试
+        for (int i = 1; i <= RETRY_COUNT; i++) {
+            LogUtils.error(e);
+            LogUtils.error("retry count {}", i);
+
+            try {
+                //重试延迟
+                Thread.sleep(i * RETRY_INTERVAL_TIME);
+            } catch (InterruptedException interruptedException) {
+                LogUtils.error(interruptedException);
+            }
+
+            try {
+                body = action.execute(url, requestBody);
+                // 重试后检查是否成功
+                if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
+                    return body;
+                }
+            } catch (NoHttpResponseException | ConnectTimeoutException | SocketException retryException) {
+                LogUtils.error("retry count {} fail", i);
+            }
+        }
+        throw e;
     }
 
     @Resource
@@ -107,7 +133,7 @@ public class TaskRunnerClient {
 
     @FunctionalInterface
     private interface Action {
-        ResultHolder execute(String url, Object body);
+        ResultHolder execute(String url, Object body) throws IOException;
     }
 
 }
