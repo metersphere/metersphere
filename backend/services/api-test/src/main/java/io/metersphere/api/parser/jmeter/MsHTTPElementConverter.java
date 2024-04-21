@@ -4,9 +4,6 @@ package io.metersphere.api.parser.jmeter;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.request.http.*;
-import io.metersphere.project.dto.environment.auth.BasicAuth;
-import io.metersphere.project.dto.environment.auth.DigestAuth;
-import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverterFactory;
@@ -19,6 +16,9 @@ import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.project.dto.environment.auth.BasicAuth;
+import io.metersphere.project.dto.environment.auth.DigestAuth;
+import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
@@ -29,8 +29,11 @@ import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.protocol.http.control.*;
+import org.apache.jmeter.modifiers.UserParameters;
+import org.apache.jmeter.protocol.http.control.AuthManager;
+import org.apache.jmeter.protocol.http.control.Authorization;
+import org.apache.jmeter.protocol.http.control.DNSCacheManager;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -89,8 +92,8 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         HashTree httpTree = tree.add(sampler);
 
         // 处理环境变量
-        Arguments envArguments = getEnvArguments(msHTTPElement, envConfig);
-        Optional.ofNullable(envArguments).ifPresent(httpTree::add);
+        UserParameters userParameters = getEnvUserParameters(msHTTPElement, envConfig);
+        Optional.ofNullable(userParameters).ifPresent(httpTree::add);
 
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
@@ -190,7 +193,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
      * @param msHTTPElement
      * @param envInfo
      */
-    private Arguments getEnvArguments(MsHTTPElement msHTTPElement, EnvironmentInfoDTO envInfo) {
+    private UserParameters getEnvUserParameters(MsHTTPElement msHTTPElement, EnvironmentInfoDTO envInfo) {
         if (envInfo == null) {
             return null;
         }
@@ -200,7 +203,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             return null;
         }
 
-        return JmeterTestElementParserHelper.getArguments(msHTTPElement.getName(), envVariables);
+        return JmeterTestElementParserHelper.getUserParameters(msHTTPElement.getName(), envVariables);
     }
 
     private String getPath(MsHTTPElement msHTTPElement, HttpConfig httpConfig) {

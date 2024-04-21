@@ -2,6 +2,7 @@ package io.metersphere.project.dto.environment.variables;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.constants.VariableTypeConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -11,17 +12,13 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class CommonVariables implements Serializable {
+public class CommonVariables extends KeyValueParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Schema(description = "id")
     private String id;
-    @Schema(description = "变量名")
-    private String key;
     @Schema(description = "变量类型 CONSTANT LIST JSON")
     private String paramType = VariableTypeConstants.CONSTANT.name();
-    @Schema(description = "变量值")
-    private String value;
     @Schema(description = "状态")
     private Boolean enable = true;
     @Schema(description = "描述")
@@ -32,17 +29,18 @@ public class CommonVariables implements Serializable {
 
     @JsonIgnore
     public boolean isConstantValid() {
-        return StringUtils.equals(this.paramType, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(key);
+        return (StringUtils.equals(this.paramType, VariableTypeConstants.CONSTANT.name()) || StringUtils.isBlank(paramType))
+                && isValid();
     }
 
     @JsonIgnore
     public boolean isListValid() {
-        return StringUtils.equals(this.paramType, VariableTypeConstants.LIST.name()) && StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && value.indexOf(",") != -1;
+        return StringUtils.equals(this.paramType, VariableTypeConstants.LIST.name()) && isValid() && isNotBlankValue() && getValue().indexOf(",") != -1;
     }
 
     @JsonIgnore
     public boolean isJsonValid() {
-        return StringUtils.equals(this.paramType, VariableTypeConstants.JSON.name()) && StringUtils.isNotEmpty(key);
+        return StringUtils.equals(this.paramType, VariableTypeConstants.JSON.name()) && isValid();
     }
 
 }

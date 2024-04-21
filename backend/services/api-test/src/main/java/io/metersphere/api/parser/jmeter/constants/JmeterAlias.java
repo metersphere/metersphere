@@ -23,4 +23,5 @@ public class JmeterAlias {
     public static final String ARGUMENTS_PANEL = "ArgumentsPanel";
     public static final String BEAN_SHELL_ASSERTION_GUI = "BeanShellAssertionGui";
     public static final String BEAN_SHELL_SAMPLER_GUI = "BeanShellSamplerGui";
+    public static final String CRITICAL_SECTION_CONTROLLER_GUI = "CriticalSectionControllerGui";
 }

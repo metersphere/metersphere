@@ -1,18 +1,17 @@
 package io.metersphere.api.parser.jmeter;
 
+import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.jmeter.mock.Mock;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
-import org.apache.commons.lang3.BooleanUtils;
+import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Argument;
-import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.testelement.TestElement;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-
-import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.ARGUMENTS_PANEL;
 
 /**
  * @Author: jianxing
@@ -20,42 +19,45 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.ARGUMENTS_P
  */
 public class JmeterTestElementParserHelper {
 
-    public static Arguments getArguments(String name) {
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(name + "_Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(ARGUMENTS_PANEL));
+    public static UserParameters getUserParameters(String name) {
+        UserParameters userParameters = new UserParameters();
+        userParameters.setEnabled(true);
+        userParameters.setName(name + "_User Parameters");
+        userParameters.setPerIteration(true);
+        userParameters.setProperty(TestElement.TEST_CLASS, UserParameters.class.getName());
+        userParameters.setProperty(TestElement.GUI_CLASS, JmeterAlias.USER_PARAMETERS_GUI);
+        return userParameters;
+    }
+
+    public static UserParameters getUserParameters(String name, List<? extends KeyValueParam> argumentList) {
+        UserParameters arguments = getUserParameters(name);
+        List<String> names = new LinkedList<>();
+        List<Object> values = new LinkedList<>();
+        List<Object> threadValues = new LinkedList<>();
+        for (int i = 0; i < argumentList.size(); ++i) {
+            String value = argumentList.get(i).getValue();
+            String key = argumentList.get(i).getKey();
+            names.add(key);
+            values.add(Mock.buildFunctionCallString(value).replaceAll("[\r\n]", ""));
+        }
+        arguments.setNames(names);
+        threadValues.add(values);
+        arguments.setThreadLists(threadValues);
         return arguments;
     }
 
-    public static Arguments getArguments(String name, List<CommonVariables> argumentList) {
-        Arguments arguments = getArguments(name);
-        parse2ArgumentList(argumentList).forEach(arguments::addArgument);
-        return arguments;
-    }
-
-    public static List<Argument> parse2ArgumentList(List<CommonVariables> variables) {
-        List<Argument> arguments = new ArrayList<>(variables.size());
-        variables.forEach(variable -> {
-            if (BooleanUtils.isFalse(variable.getEnable())) {
-                return;
-            }
-            if (variable.isConstantValid()) {
-                // 处理常量
-                String value = StringUtils.isBlank(variable.getValue()) ? variable.getValue()
-                        : Mock.buildFunctionCallString(variable.getValue()).replaceAll("[\r\n]", "");
-                arguments.add(new Argument(variable.getKey(), value, "="));
-            } else if (variable.isListValid()) {
-                // 处理 List 变量
-                String[] arrays = variable.getValue().replaceAll("[\r\n]", "").split(",");
-                for (int i = 0; i < arrays.length; i++) {
-                    arguments.add(new Argument(variable.getKey() + "_" + (i + 1), arrays[i], "="));
-                }
+    public static UserParameters getUserParameters(List<CommonVariables> constantVariables, List<CommonVariables> listVariables) {
+        List<CommonVariables> variableResults = new ArrayList<>();
+        listVariables.forEach(listVariable -> {
+            String[] arrays = listVariable.getValue().replaceAll("[\r\n]", "").split(",");
+            for (int i = 0; i < arrays.length; i++) {
+                CommonVariables commonVariables = BeanUtils.copyBean(new CommonVariables(), listVariable);
+                commonVariables.setKey(listVariable.getKey() + "_" + (i + 1));
+                commonVariables.setValue(arrays[i]);
+                variableResults.add(commonVariables);
             }
         });
-        return arguments;
+        variableResults.addAll(constantVariables);
+        return getUserParameters(StringUtils.EMPTY, variableResults);
     }
-
-
 }
