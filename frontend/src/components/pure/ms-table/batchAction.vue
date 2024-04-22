@@ -112,11 +112,15 @@
   };
 
   const handleMoreActionLength = () => {
-    moreAction.value?.forEach((key) => {
-      if (key.permission && hasAllPermission(key.permission as string[])) {
-        moreActionLength.value += 1;
-      }
-    });
+    if (moreAction.value && moreAction.value.length === 0) {
+      moreActionLength.value = 0;
+    } else {
+      moreAction.value?.forEach((key) => {
+        if (key.permission && hasAllPermission(key.permission as string[])) {
+          moreActionLength.value += 1;
+        }
+      });
+    }
   };
 
   const computedLastVisibleIndex = () => {
