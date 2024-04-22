@@ -126,7 +126,7 @@
 
 <script setup lang="ts">
   import { Message, SelectOptionData } from '@arco-design/web-vue';
-  import { cloneDeep, debounce } from 'lodash-es';
+  import { debounce } from 'lodash-es';
 
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
@@ -142,17 +142,21 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import { ExecuteConditionConfig, PluginConfig } from '@/models/apiTest/common';
+  import { PluginConfig } from '@/models/apiTest/common';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
-  import { RequestAuthType, RequestBodyFormat, RequestComposition, RequestConditionProcessor } from '@/enums/apiEnum';
+  import { RequestAuthType, RequestBodyFormat, RequestComposition } from '@/enums/apiEnum';
 
   import {
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
-    defaultKeyValueParamItem,
     defaultRequestParamsItem,
   } from '@/views/api-test/components/config';
-  import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
+  import {
+    filterAssertions,
+    filterConditionsSqlValidParams,
+    filterKeyValParams,
+    parseRequestBodyFiles,
+  } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
@@ -430,20 +434,6 @@
     }
   }
 
-  function filterConditionsSqlValidParams(condition: ExecuteConditionConfig) {
-    const conditionCopy = cloneDeep(condition);
-    conditionCopy.processors = conditionCopy.processors.map((processor) => {
-      if (processor.processorType === RequestConditionProcessor.SQL) {
-        processor.extractParams = filterKeyValParams(
-          processor.extractParams || [],
-          defaultKeyValueParamItem
-        ).validParams;
-      }
-      return processor;
-    });
-    return conditionCopy;
-  }
-
   // 生成请求参数
   function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const isExecute = executeType === 'localExec' || executeType === 'serverExec';
@@ -498,6 +488,7 @@
 
     const requestName = requestVModel.value.name ?? '';
     const requestModuleId = requestVModel.value.moduleId ?? '';
+    const { assertionConfig } = requestVModel.value.children[0];
     return {
       id: requestVModel.value.id.toString(),
       name: requestName,
@@ -511,7 +502,10 @@
         children: [
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-            assertionConfig: requestVModel.value.children[0].assertionConfig,
+            assertionConfig: {
+              ...requestVModel.value.children[0].assertionConfig,
+              assertions: filterAssertions(assertionConfig, isExecute),
+            },
             postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
             preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
           },

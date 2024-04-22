@@ -87,11 +87,12 @@
           v-if="columnConfig.inputType === 'autoComplete'"
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
-          :data="record[columnConfig.dataIndex as string] !== '' ? columnConfig.autoCompleteParams?.filter((e) => e.isShow === true) : columnConfig.autoCompleteParams"
+          :data="getAutoCompleteData(columnConfig, record)"
           class="ms-form-table-input"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
           :filter-option="false"
           size="mini"
+          @focus="handleAutoCompleteFocus(record)"
           @search="(val) => handleSearchParams(val, columnConfig)"
           @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
           @select="(val) => selectAutoComplete(val, record, columnConfig)"
@@ -1039,6 +1040,21 @@
       e.isShow = (e.label || '').toLowerCase().includes(val.toLowerCase());
       return e;
     });
+  }
+
+  const activeRecord = ref<Record<string, any>>({});
+  function getAutoCompleteData(columnConfig: ParamTableColumn, record: Record<string, any>) {
+    if (activeRecord.value.id !== record.id) {
+      // 非聚焦行，不显示联想输入
+      return [];
+    }
+    return activeRecord.value[columnConfig.dataIndex as string] !== ''
+      ? columnConfig.autoCompleteParams?.filter((e) => e.isShow === true)
+      : columnConfig.autoCompleteParams;
+  }
+
+  function handleAutoCompleteFocus(record: Record<string, any>) {
+    activeRecord.value = record;
   }
 
   function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {

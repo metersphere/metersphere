@@ -254,4 +254,6 @@ export default {
   'apiScenario.schedule.table.tooltip.disable': '定时任务未开启',
   'apiScenario.save.env': '场景保存的环境',
   'apiScenario.execute.no.step.tips': '没有开启的步骤',
+  'apiScenario.preConditionTip': '在场景步骤前分别执行一次',
+  'apiScenario.postConditionTip': '在场景步骤后分别执行一次',
 };

@@ -78,6 +78,8 @@ export interface ApiScenarioTableItem {
   deleteUser: string;
   deleteTime: number;
   deleted: boolean;
+  environmentId: string;
+  environmentName: string;
   createUserName: string;
   updateUserName: string;
   deleteUserName: string;

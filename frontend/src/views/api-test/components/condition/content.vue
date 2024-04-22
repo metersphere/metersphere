@@ -276,7 +276,7 @@
       </div>
       <template v-if="condition.dataSourceId">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.sqlScript') }}</div>
-        <div class="mb-[8px] h-[300px]">
+        <div class="mb-[8px]">
           <MsCodeEditor
             v-model:model-value="condition.script"
             :read-only="props.disabled"

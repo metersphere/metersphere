@@ -8,7 +8,16 @@
         :tip-content="t('apiScenario.openGlobalPreConditionTip')"
         is-scenario
         @change="emit('change', true)"
-      />
+      >
+        <template #dropdownAppend>
+          <a-tooltip :content="t('apiScenario.preConditionTip')" position="right">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </template>
+      </precondition>
     </div>
     <a-divider class="my-[8px]" type="dashed" />
     <div>
@@ -20,7 +29,16 @@
         :tip-content="t('apiScenario.openGlobalPostConditionTip')"
         is-scenario
         @change="emit('change', false)"
-      />
+      >
+        <template #dropdownAppend>
+          <a-tooltip :content="t('apiScenario.postConditionTip')" position="right">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </template>
+      </postcondition>
     </div>
   </div>
 </template>

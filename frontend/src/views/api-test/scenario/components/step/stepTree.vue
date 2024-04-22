@@ -375,15 +375,15 @@
         </a-form-item>
       </a-form>
       <template #footer>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
+        <div class="flex items-center justify-end">
+          <!-- <div class="flex items-center">
             <div class="text-[var(--color-text-4)]">
               {{ t('apiScenario.valuePriority') }}
             </div>
             <div v-if="scenarioConfigParamTip" class="text-[var(--color-text-1)]">
               {{ scenarioConfigParamTip }}
             </div>
-          </div>
+          </div> -->
           <div class="flex items-center gap-[12px]">
             <a-button type="secondary" @click="cancelScenarioConfig">{{ t('common.cancel') }}</a-button>
             <a-button type="primary" @click="saveScenarioConfig">{{ t('common.confirm') }}</a-button>

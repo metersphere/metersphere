@@ -1,13 +1,17 @@
 import { cloneDeep, isEqual } from 'lodash-es';
 
-import { ExecuteBody } from '@/models/apiTest/common';
-import { RequestParamsType } from '@/enums/apiEnum';
+import { type ExecuteAssertionConfig, ExecuteBody, type ExecuteConditionConfig } from '@/models/apiTest/common';
+import { RequestConditionProcessor, RequestParamsType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
 import {
+  defaultAssertParamsItem,
   defaultBodyParamsItem,
+  defaultExtractParamItem,
   defaultHeaderParamsItem,
   defaultKeyValueParamItem,
   defaultRequestParamsItem,
+  jsonPathDefaultParamItem,
+  regexDefaultParamItem,
 } from './config';
 import type { RequestParam } from './requestComposition/index.vue';
 
@@ -129,13 +133,18 @@ export function filterKeyValParams<T>(
       validParams: params,
     };
   }
-  // id和enable属性不参与比较
+  // id、enable、valid属性不参与比较
   delete lastData.id;
   delete lastData.enable;
+  delete lastData.valid;
+  delete defaultParam.valid;
   delete defaultParam.id;
   delete defaultParam.enable;
   const lastDataIsDefault = isEqual(lastData, defaultParam) || lastData.key === '';
   let validParams: (T & Record<string, any>)[];
+  if (defaultParam.condition) {
+    console.log(`assertionConfig`, lastDataIsDefault, lastData, defaultParam);
+  }
   if (lastDataIsDefault) {
     // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个
     validParams = params.slice(0, params.length - 1);
@@ -169,4 +178,58 @@ export function getValidRequestTableParams(requestVModel: RequestParam) {
         headers: filterKeyValParams(e.headers || [], defaultKeyValueParamItem).validParams,
       })) || [],
   };
+}
+
+/**
+ * 过滤无效的条件配置参数
+ * @param condition 条件配置对象
+ */
+export function filterConditionsSqlValidParams(condition: ExecuteConditionConfig) {
+  const conditionCopy = cloneDeep(condition);
+  conditionCopy.processors = conditionCopy.processors.map((processor) => {
+    if (processor.processorType === RequestConditionProcessor.SQL) {
+      processor.extractParams = filterKeyValParams(processor.extractParams || [], defaultKeyValueParamItem).validParams;
+    }
+    return processor;
+  });
+  return conditionCopy;
+}
+
+/**
+ * 过滤无效的断言配置参数
+ * @param assertionConfig 断言配置对象
+ * @param isExecute 是否是执行时调用
+ */
+export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExecute = false) {
+  return assertionConfig.assertions.map((assertItem: any) => {
+    return {
+      ...assertItem,
+      bodyAssertionDataByType: {
+        ...assertItem.bodyAssertionDataByType,
+        assertions: filterKeyValParams(
+          assertItem?.bodyAssertionDataByType?.assertions || [],
+          defaultAssertParamsItem,
+          isExecute
+        ).validParams,
+      },
+      regexAssertion: {
+        ...assertItem?.regexAssertion,
+        assertions: filterKeyValParams(assertItem?.regexAssertion?.assertions || [], regexDefaultParamItem, isExecute)
+          .validParams,
+      },
+      xpathAssertion: {
+        ...assertItem.xpathAssertion,
+        assertions: filterKeyValParams(assertItem?.xpathAssertion?.assertions || [], defaultExtractParamItem, isExecute)
+          .validParams,
+      },
+      jsonPathAssertion: {
+        ...assertItem.jsonPathAssertion,
+        assertions: filterKeyValParams(
+          assertItem?.jsonPathAssertion?.assertions || [],
+          jsonPathDefaultParamItem,
+          isExecute
+        ).validParams,
+      },
+    };
+  });
 }

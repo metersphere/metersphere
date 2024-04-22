@@ -124,7 +124,7 @@
         :selectable="true"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
-        :default-param-item="xPathDefaultParamItem"
+        :default-param-item="defaultAssertParamsItem"
         @change="(data:any[],isInit?: boolean) => handleChange(data, ResponseBodyAssertionType.XPATH,isInit)"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
@@ -363,7 +363,7 @@
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter';
+  import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TableOperationColumn } from '@/components/business/ms-user-group-comp/authTable.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
@@ -387,15 +387,14 @@
     RegexExtract,
     XPathExtract,
   } from '@/models/apiTest/common';
+  import { RequestExtractExpressionEnum, ResponseBodyAssertionType } from '@/enums/apiEnum';
+
   import {
-    RequestExtractEnvType,
-    RequestExtractExpressionEnum,
-    RequestExtractExpressionRuleType,
-    RequestExtractResultMatchingRule,
-    RequestExtractScope,
-    ResponseBodyAssertionType,
-    ResponseBodyXPathAssertionFormat,
-  } from '@/enums/apiEnum';
+    defaultAssertParamsItem,
+    defaultExtractParamItem,
+    jsonPathDefaultParamItem,
+    regexDefaultParamItem,
+  } from '@/views/api-test/components/config';
 
   const { t } = useI18n();
 
@@ -445,20 +444,6 @@
   // const disabledExpressionSuffix = ref(false);
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
-  const defaultExtractParamItem: ExpressionConfig = {
-    enable: true,
-    variableName: '',
-    variableType: RequestExtractEnvType.TEMPORARY,
-    extractScope: RequestExtractScope.BODY,
-    expression: '',
-    extractType: RequestExtractExpressionEnum.JSON_PATH,
-    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-    resultMatchingRuleNum: 1,
-    responseFormat: ResponseBodyXPathAssertionFormat.XML,
-    moreSettingPopoverVisible: false,
-  };
-
   const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
   const responseRadios = [
@@ -505,50 +490,6 @@
       ],
     },
   ];
-
-  // json默认值
-  const jsonPathDefaultParamItem = {
-    enable: true,
-    variableName: '',
-    variableType: RequestExtractEnvType.TEMPORARY,
-    extractScope: RequestExtractScope.BODY,
-    expression: '',
-    condition: EQUAL.value,
-    extractType: RequestExtractExpressionEnum.JSON_PATH,
-    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-    resultMatchingRuleNum: 1,
-    responseFormat: ResponseBodyXPathAssertionFormat.XML,
-    moreSettingPopoverVisible: false,
-  };
-  // xpath默认值
-  const xPathDefaultParamItem = {
-    expression: '',
-    enable: true,
-    valid: true,
-    variableType: RequestExtractEnvType.TEMPORARY,
-    extractScope: RequestExtractScope.BODY,
-    extractType: RequestExtractExpressionEnum.X_PATH,
-    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-    resultMatchingRuleNum: 1,
-    responseFormat: ResponseBodyXPathAssertionFormat.XML,
-    moreSettingPopoverVisible: false,
-  };
-  // xpath默认值
-  const regexDefaultParamItem = {
-    expression: '',
-    enable: true,
-    valid: true,
-    variableType: RequestExtractEnvType.TEMPORARY,
-    extractScope: RequestExtractScope.BODY,
-    extractType: RequestExtractExpressionEnum.REGEX,
-    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-    resultMatchingRuleNum: 1,
-    responseFormat: ResponseBodyXPathAssertionFormat.XML,
-    moreSettingPopoverVisible: false,
-  };
 
   const handleChange = (data: any[], type: string, isInit?: boolean) => {
     switch (type) {
