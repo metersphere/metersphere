@@ -462,6 +462,7 @@
       width: 130,
       ellipsis: true,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseName',
@@ -472,6 +473,7 @@
         sorter: true,
       },
       width: 180,
+      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseLevel',
