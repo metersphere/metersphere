@@ -167,6 +167,13 @@
 
   const environmentId = ref(appStore.currentEnvConfig?.id);
 
+  watch(
+    () => appStore.currentEnvConfig?.id,
+    (val) => {
+      environmentId.value = val;
+    }
+  );
+
   const formRef = ref<FormInstance>();
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');

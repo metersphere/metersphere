@@ -1538,7 +1538,7 @@
       handleCreateStep(
         {
           stepType: ScenarioStepType.CUSTOM_REQUEST,
-          name: request.name || t('apiScenario.customApi'),
+          name: request.stepName || request.name || t('apiScenario.customApi'),
           config: {
             protocol: request.protocol,
             method: request.method,
@@ -1601,7 +1601,7 @@
         ...activeStep.value.config,
         method: request.method,
       };
-      activeStep.value.name = request.name;
+      activeStep.value.name = request.stepName || request.name;
       emit('updateResource', request.uploadFileIds, request.linkFileIds);
       activeStep.value = undefined;
     }

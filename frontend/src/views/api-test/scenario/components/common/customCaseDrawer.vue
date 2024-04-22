@@ -17,10 +17,9 @@
       </div>
       <stepType v-if="activeStep?.stepType" :step="activeStep" class="mr-[4px]" />
       <a-input
-        v-if="activeStep?.name"
         v-show="isShowEditStepNameInput"
         ref="stepNameInputRef"
-        v-model:model-value="activeStep.name"
+        v-model:model-value="requestVModel.stepName"
         class="flex-1"
         :placeholder="t('apiScenario.pleaseInputStepName')"
         :max-length="255"
@@ -367,6 +366,7 @@
   const defaultApiParams: RequestParam = {
     label: '',
     name: '',
+    stepName: '',
     type: 'api',
     stepId: '',
     resourceId: '',
@@ -493,6 +493,9 @@
     });
   }
   function updateStepName() {
+    if (requestVModel.value.stepName === '') {
+      requestVModel.value.stepName = requestVModel.value.name;
+    }
     isShowEditStepNameInput.value = false;
   }
 
@@ -900,6 +903,7 @@
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
       name: requestVModel.value.name,
+      stepName: requestVModel.value.stepName,
       customizeRequestEnvEnable: requestVModel.value.customizeRequestEnvEnable,
       children: [
         {
@@ -1056,6 +1060,7 @@
         ...res,
         response: cloneDeep(defaultResponse),
         url: res.path,
+        stepName: activeStep.value?.name || res.name,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
         stepId: activeStep.value?.uniqueId || '',
@@ -1104,6 +1109,7 @@
           ...props.request,
           isNew: false,
           stepId: activeStep.value?.uniqueId || '',
+          stepName: activeStep.value?.name || props.request?.name || '',
         });
         if (isQuote.value || isCopyNeedInit.value) {
           // 引用时，需要初始化引用的详情；复制只在第一次初始化的时候需要加载后台数据(request.request是复制请求时列表参数字段request会为 null，以此判断释放第一次初始化)

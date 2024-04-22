@@ -343,8 +343,8 @@
 
   // TODO: MessageResourceType
   const resourceTypeRouteMap: Record<string, string> = {
-    [MessageResourceType.BUG_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
-    [MessageResourceType.BUG_SYNC_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
+    [MessageResourceType.BUG_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
+    [MessageResourceType.BUG_SYNC_TASK]: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
     [MessageResourceType.FUNCTIONAL_CASE_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     [MessageResourceType.CASE_REVIEW_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
     [MessageResourceType.API_DEFINITION_TASK]: ApiTestRouteEnum.API_TEST_MANAGEMENT,

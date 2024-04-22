@@ -40,7 +40,7 @@
       <a-input
         v-if="isShowEditStepNameInput"
         ref="stepNameInputRef"
-        v-model:model-value="requestVModel.name"
+        v-model:model-value="requestVModel.stepName"
         class="flex-1"
         :placeholder="t('apiScenario.pleaseInputStepName')"
         :max-length="255"
@@ -289,6 +289,7 @@
                     v-model:config="requestVModel.children[0].preProcessorConfig"
                     is-definition
                     :disabled="!isEditableApi"
+                    :tip-content="t('apiScenario.openGlobalPreConditionTip')"
                     @change="handleActiveDebugChange"
                   />
                   <postcondition
@@ -298,6 +299,7 @@
                     :layout="activeLayout"
                     :disabled="!isEditableApi"
                     :second-box-height="secondBoxHeight"
+                    :tip-content="t('apiScenario.openGlobalPostConditionTip')"
                     is-definition
                     @change="handleActiveDebugChange"
                   />
@@ -439,6 +441,7 @@
     label: string;
     name: string;
     stepId: string | number; // 所属步骤 id
+    stepName: string; // 所属步骤名称
     resourceId: string | number; // 引用、复制的资源 id
     isNew: boolean;
     protocol: string;
@@ -500,6 +503,7 @@
     name: '',
     type: 'api',
     stepId: '',
+    stepName: '',
     resourceId: '',
     customizeRequest: true,
     customizeRequestEnvEnable: false,
@@ -576,9 +580,9 @@
       _stepType.value.isQuoteApi ||
       props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST
     ) {
-      return requestVModel.value.name || props.step?.name;
+      return requestVModel.value.stepName || requestVModel.value.name || props.step?.name;
     }
-    return requestVModel.value.name || t('apiScenario.customApi');
+    return requestVModel.value.stepName || requestVModel.value.name || t('apiScenario.customApi');
   });
   // 是否显示环境域名前缀
   const showEnvPrefix = computed(
@@ -1066,7 +1070,7 @@
       responseActiveTab: ResponseComposition.BODY,
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-      name: requestVModel.value.name,
+      name: requestVModel.value.stepName || requestVModel.value.name,
       unSaved: requestVModel.value.unSaved,
       customizeRequest: requestVModel.value.customizeRequest,
       customizeRequestEnvEnable: requestVModel.value.customizeRequestEnvEnable,
@@ -1232,6 +1236,7 @@
         unSaved: false,
         isNew: false,
         label: res.name,
+        stepName: props.step?.name || res.name,
         ...res.request,
         ...res,
         response: cloneDeep(defaultResponse),
@@ -1316,6 +1321,7 @@
             ...defaultApiParams,
             ...props.request,
             name: props.step?.name || props.request.name,
+            stepName: props.step?.name || props.request.name,
             url: props.request.path, // 后台字段是 path
             activeTab: contentTabList.value[0].value,
             responseActiveTab: ResponseComposition.BODY,

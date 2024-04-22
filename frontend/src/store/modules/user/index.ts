@@ -186,10 +186,14 @@ const useUserStore = defineStore('user', {
         const res = await getLocalConfig();
         if (res) {
           const apiLocalExec = res.find((e) => e.type === 'API');
-          if (apiLocalExec) {
+          if (apiLocalExec && apiLocalExec.userUrl) {
             this.hasLocalExec = true;
             this.isPriorityLocalExec = apiLocalExec.enable || false;
             this.localExecuteUrl = apiLocalExec.userUrl || '';
+          } else {
+            this.hasLocalExec = false;
+            this.isPriorityLocalExec = false;
+            this.localExecuteUrl = '';
           }
         }
       } catch (error) {

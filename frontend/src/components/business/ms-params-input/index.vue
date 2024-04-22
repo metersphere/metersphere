@@ -171,7 +171,9 @@
           >
             <div class="break-all text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>
             <a-spin :loading="previewLoading" class="flex flex-1 flex-wrap items-baseline gap-[8px]">
-              <div class="param-preview">{{ paramPreview }}</div>
+              <div v-show="paramPreview" class="ms-params-input-setting-trigger-content-scroll-preview">
+                {{ paramPreview }}
+              </div>
               <MsButton type="text" @click="getMockValue">{{ t('ms.paramsInput.previewClick') }}</MsButton>
             </a-spin>
           </div>
@@ -557,15 +559,6 @@
   }
   const JMeterVarsOptions = genJMeterVarsOptions();
 
-  function cancel() {
-    paramFormRef.value?.resetFields();
-    paramSettingType.value = 'mock';
-    paramSettingVisible.value = false;
-    currentParamsInputGroup.value = [];
-    currentParamsFuncInputGroup.value = [];
-    paramForm.value = { ...defaultParamForm };
-  }
-
   /**
    * 应用 Mock类型变量和函数
    */
@@ -613,6 +606,16 @@
     } finally {
       previewLoading.value = false;
     }
+  }
+
+  function cancel() {
+    paramFormRef.value?.resetFields();
+    paramSettingType.value = 'mock';
+    paramSettingVisible.value = false;
+    currentParamsInputGroup.value = [];
+    currentParamsFuncInputGroup.value = [];
+    paramForm.value = { ...defaultParamForm };
+    paramPreview.value = '';
   }
 
   watch(
