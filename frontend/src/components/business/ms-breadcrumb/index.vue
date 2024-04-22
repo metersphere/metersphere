@@ -1,6 +1,10 @@
 <template>
   <a-breadcrumb v-if="appStore.breadcrumbList.length > 0" class="z-10 mb-[-8px]">
-    <a-breadcrumb-item v-for="crumb of appStore.breadcrumbList" :key="crumb.name" @click="jumpTo(crumb)">
+    <a-breadcrumb-item
+      v-for="(crumb, index) of appStore.breadcrumbList"
+      :key="crumb.name"
+      @click="jumpTo(crumb, index)"
+    >
       {{ isEdit ? t(crumb.editLocale || crumb.locale) : t(crumb.locale) }}
     </a-breadcrumb-item>
   </a-breadcrumb>
@@ -46,7 +50,11 @@
     }
   }, true);
 
-  function jumpTo(crumb: BreadcrumbItem) {
+  function jumpTo(crumb: BreadcrumbItem, index: number) {
+    // 点击当前页面的面包屑，不跳转
+    if (index === appStore.breadcrumbList.length - 1) {
+      return;
+    }
     if (crumb.isBack && window.history.state.back) {
       router.back();
     } else {
