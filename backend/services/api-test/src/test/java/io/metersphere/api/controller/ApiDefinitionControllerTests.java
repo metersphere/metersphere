@@ -146,10 +146,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Resource
     private OperationHistoryMapper operationHistoryMapper;
     @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
-    @Resource
-    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
-    @Resource
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
