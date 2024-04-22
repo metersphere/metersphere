@@ -181,7 +181,7 @@
         FROM
         api_report ar
         LEFT JOIN api_test_case_record a ON ar.id = a.api_report_id
-        LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
+        INNER JOIN api_test_case c ON a.api_test_case_id = c.id
         LEFT JOIN test_resource_pool t ON ar.pool_id = t.id
         left join project on ar.project_id = project.id
         where
