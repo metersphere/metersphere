@@ -79,7 +79,7 @@
           </div>
           <div class="flex-1">
             <a-divider class="!my-0 !mb-0" />
-            <div class="case mt-2">
+            <div class="case">
               <div
                 class="flex items-center px-[20px]"
                 :class="getActiveClass('recycle')"
