@@ -2,10 +2,7 @@ package io.metersphere.system.notice.sender;
 
 
 import io.metersphere.api.domain.*;
-import io.metersphere.api.mapper.ApiDefinitionFollowerMapper;
-import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
-import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugFollower;
 import io.metersphere.bug.domain.BugFollowerExample;
@@ -28,8 +25,10 @@ import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
@@ -78,6 +77,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private CaseReviewMapper caseReviewMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
+    @Resource
+    private ApiReportMapper apiReportMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
@@ -224,6 +229,22 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 Bug bug = bugMapper.selectByPrimaryKey(id);
                 if (bug != null) {
                     receiver = new Receiver(bug.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.API_REPORT_TASK -> {
+                ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
+                if (apiReport != null) {
+                    receiver = new Receiver(apiReport.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+                ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
+                if (scenarioReport != null) {
+                    receiver = new Receiver(scenarioReport.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
+                Schedule schedule = scheduleMapper.selectByPrimaryKey(id);
+                if (schedule != null) {
+                    receiver = new Receiver(schedule.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
                 }
             }
             default -> {
