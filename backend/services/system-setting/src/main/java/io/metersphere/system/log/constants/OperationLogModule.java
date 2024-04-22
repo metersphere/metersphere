@@ -93,6 +93,8 @@ public class OperationLogModule {
 
     // 项目管理
     public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT";
+    //项目管理-项目与权限-基本信息
+    public static final String PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = "PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO";
     // 项目管理-项目与权限
     public static final String PROJECT_MANAGEMENT_PERMISSION = "PROJECT_MANAGEMENT_PERMISSION";
     // 项目管理-项目与权限-应用设置-误报库
