@@ -56,6 +56,7 @@ public class NotificationService {
     public List<OptionDTO> countNotification(NotificationRequest notificationRequest, String userId) {
         List<OptionDTO> optionDTOS = new ArrayList<>();
         buildParam(notificationRequest, userId);
+        notificationRequest.setResourceType(StringUtils.EMPTY);
         List<NotificationDTO> notifications = baseNotificationMapper.listNotification(notificationRequest);
         OptionDTO totalOptionDTO = new OptionDTO();
         totalOptionDTO.setId("total");
