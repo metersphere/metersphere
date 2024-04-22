@@ -21,7 +21,11 @@
                 :key="item[props.valueKey || 'value']"
                 :value="item[props.valueKey || 'value']"
               >
-                <a-tooltip :content="item[props.labelKey || 'text']" :mouse-enter-delay="300">
+                <a-tooltip
+                  :content="item[props.labelKey || 'text']"
+                  :mouse-enter-delay="300"
+                  :disabled="!item[props.labelKey || 'text']"
+                >
                   <div class="one-line-text">
                     <slot name="item" :item="item" :index="index"></slot>
                   </div>

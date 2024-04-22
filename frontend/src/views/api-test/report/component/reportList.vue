@@ -73,7 +73,11 @@
           <template #content>
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="triggerModeListFilters" direction="vertical" size="small">
+                <a-checkbox-group
+                  v-model:model-value="triggerModeListFiltersMaps[showType]"
+                  direction="vertical"
+                  size="small"
+                >
                   <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
                     <div class="font-medium">{{ t(key) }}</div>
                   </a-checkbox>
@@ -347,6 +351,15 @@
     INDEPENDENT: independentListFilters.value,
     INTEGRATED: integratedListFilters.value,
   });
+
+  const allTriggerModeFilters = ref<string[]>([]);
+  const independentTriggerModeFilters = ref<string[]>([]);
+  const integratedTriggerModeFilters = ref<string[]>([]);
+  const triggerModeListFiltersMaps = ref<Record<string, string[]>>({
+    All: allTriggerModeFilters.value,
+    INDEPENDENT: independentTriggerModeFilters.value,
+    INTEGRATED: integratedTriggerModeFilters.value,
+  });
   // 全部过滤条件
   const allIntegratedFilters = ref<string[]>([]);
   const independentIntegratedFilters = ref<string[]>([]);
@@ -392,7 +405,7 @@
       filter: {
         status: statusListFiltersMap.value[showType.value],
         integrated: integratedFilters.value,
-        triggerMode: triggerModeListFilters.value,
+        triggerMode: triggerModeListFiltersMaps.value[showType.value],
       },
     });
     loadList();
@@ -560,7 +573,7 @@
 
   function showDetail() {
     if ((route.query.reportId || route.query.id) && route.query.type) {
-      activeDetailId.value = route.query.reportId as string;
+      activeDetailId.value = (route.query.reportId as string) || (route.query.id as string);
       activeReportIndex.value = 0;
       if (route.query.type === 'API_SCENARIO') {
         showDetailDrawer.value = true;

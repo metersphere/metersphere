@@ -88,6 +88,19 @@
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
             @change="scenario.unSaved = true"
           />
+          <template #title>
+            <div class="flex items-center">
+              <div> {{ t('apiScenario.assertion') }}</div>
+              <a-badge
+                v-if="scenario.scenarioConfig.assertionConfig.assertions.length"
+                class="-mb-[2px] ml-2"
+                :class="activeKey === ScenarioDetailComposition.ASSERTION ? 'active-badge' : ''"
+                :max-count="99"
+                :text="assertCount"
+              >
+              </a-badge>
+            </div>
+          </template>
         </a-tab-pane>
         <a-tab-pane
           :key="ScenarioDetailComposition.EXECUTE_HISTORY"
@@ -221,6 +234,12 @@
     }
   }
 
+  const assertCount = computed(() => {
+    return scenario.value.scenarioConfig.assertionConfig.assertions.length > 99
+      ? '99+'
+      : `${scenario.value.scenarioConfig.assertionConfig.assertions.length}` || '';
+  });
+
   const activeKey = ref<ScenarioDetailComposition>(ScenarioDetailComposition.STEP);
 
   // 前置和后置在一个tab里，isChangePre用于判断当前修改的form是前置还是后置
@@ -352,6 +371,12 @@
     .base-info-pane {
       @apply h-full  overflow-auto;
       .ms-scroll-bar();
+    }
+  }
+  :deep(.active-badge) {
+    .arco-badge-text,
+    .arco-badge-number {
+      background-color: rgb(var(--primary-5));
     }
   }
 </style>

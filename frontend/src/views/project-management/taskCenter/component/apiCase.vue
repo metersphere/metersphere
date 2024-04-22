@@ -95,6 +95,7 @@
           v-model:status-filters="triggerModeFiltersMap[props.moduleType]"
           :title="(columnConfig.title as string)"
           :list="triggerModeList"
+          label-key="label"
           @search="initData()"
         >
           <template #item="{ item }">
@@ -333,6 +334,10 @@
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
       titleSlotName: 'triggerModeFilter',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showInTable: true,
       width: 150,
       showDrag: true,
