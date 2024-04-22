@@ -1540,7 +1540,6 @@ public class BugService {
                 bugPageRequest.setFilter(request.getCondition().getFilter());
             }
             List<String> ids = extBugMapper.getIdsByPageRequest(bugPageRequest);
-            ids.addAll(request.getSelectIds());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeIf(id -> request.getExcludeIds().contains(id));
             }
