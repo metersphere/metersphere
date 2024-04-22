@@ -31,6 +31,7 @@ public class JSON {
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         // 支持json字符中带注释符
         objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         // 自动检测所有类的全部属性
