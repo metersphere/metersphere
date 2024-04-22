@@ -57,7 +57,7 @@ export default {
   'apiTestManagement.batchUpdate': '批量更新为',
   'apiTestManagement.valueRequired': '属性值不能为空',
   'apiTestManagement.envRequired': '环境值不能为空',
-  'apiTestManagement.reportNameRequired': '报告名不能为空',
+  'apiTestManagement.reportNameRequired': '报告名称不能为空',
   'apiTestManagement.poolRequired': '资源池不能为空',
   'apiTestManagement.batchMoveConfirm': '移动至所选模块',
   'apiTestManagement.belongModule': '所属模块',
