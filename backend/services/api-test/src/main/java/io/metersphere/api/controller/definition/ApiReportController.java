@@ -64,7 +64,7 @@ public class ApiReportController {
     @Operation(summary = "接口测试-接口报告-用例报告删除")
     @CheckOwner(resourceId = "#id", resourceType = "api_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#id)", msClass = ApiReportLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiReportLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDto(#id)", targetClass = ApiReportNoticeService.class)
     public void delete(@PathVariable String id) {
         apiReportService.delete(id, SessionUtils.getUserId());
