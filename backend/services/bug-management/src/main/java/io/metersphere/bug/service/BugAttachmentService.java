@@ -113,10 +113,12 @@ public class BugAttachmentService {
             Map<String, FileMetadata> fileMetadataMap = getLinkFileMetaMap(associateFileIds);
             fileAssociations.forEach(associatedFile -> {
                 FileMetadata associatedFileMetadata = fileMetadataMap.get(associatedFile.getFileId());
-                BugFileDTO associatedFileDTO = BugFileDTO.builder().refId(associatedFile.getId()).fileId(associatedFile.getFileId()).fileName(associatedFileMetadata.getName() + "." + associatedFileMetadata.getType())
-                        .fileType(associatedFileMetadata.getType()).fileSize(associatedFileMetadata.getSize()).createTime(associatedFileMetadata.getCreateTime())
-                        .createUser(associatedFileMetadata.getCreateUser()).local(false).build();
-                bugFiles.add(associatedFileDTO);
+                if (associatedFileMetadata != null) {
+                    BugFileDTO associatedFileDTO = BugFileDTO.builder().refId(associatedFile.getId()).fileId(associatedFile.getFileId()).fileName(associatedFileMetadata.getName() + "." + associatedFileMetadata.getType())
+                            .fileType(associatedFileMetadata.getType()).fileSize(associatedFileMetadata.getSize()).createTime(associatedFileMetadata.getCreateTime())
+                            .createUser(associatedFileMetadata.getCreateUser()).local(false).build();
+                    bugFiles.add(associatedFileDTO);
+                }
             });
         }
         if (CollectionUtils.isEmpty(bugFiles)) {
