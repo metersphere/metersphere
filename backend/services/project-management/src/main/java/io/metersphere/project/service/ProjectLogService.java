@@ -31,7 +31,7 @@ public class ProjectLogService {
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_MANAGEMENT,
+                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
                     request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
