@@ -202,7 +202,7 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
+  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('API');
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
@@ -236,8 +236,12 @@
 
   const caseTypeOptions = ref<{ label: string; value: string }[]>([
     {
-      label: 'menu.caseManagement.featureCase',
-      value: 'FUNCTIONAL',
+      value: 'API',
+      label: t('caseManagement.featureCase.apiCase'),
+    },
+    {
+      value: 'SCENARIO',
+      label: t('caseManagement.featureCase.sceneCase'),
     },
   ]);
 

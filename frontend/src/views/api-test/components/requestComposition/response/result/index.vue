@@ -97,13 +97,15 @@
     </div>
     <!-- 平铺 -->
     <a-spin v-if="props.mode === 'tiled'" class="w-full" :loading="loading">
-      <TiledDisplay
-        :menu-list="responseCompositionTabList"
-        :request-result="activeStepDetailCopy?.content"
-        :console="props.console"
-        :is-definition="props.isDefinition"
-        :report-id="props.reportId"
-      />
+      <Suspense>
+        <TiledDisplay
+          :menu-list="responseCompositionTabList"
+          :request-result="activeStepDetailCopy?.content"
+          :console="props.console"
+          :is-definition="props.isDefinition"
+          :report-id="props.reportId"
+        />
+      </Suspense>
     </a-spin>
     <!-- 响应内容tab -->
     <div v-else class="h-[calc(100%-8px)]">
