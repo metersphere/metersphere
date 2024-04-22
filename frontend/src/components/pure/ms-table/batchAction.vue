@@ -1,28 +1,11 @@
 <template>
   <div v-if="props.actionConfig" ref="refWrapper" class="flex flex-row flex-nowrap">
-    <div class="title">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</div>
-    <template v-for="(element, idx) in baseAction" :key="element.label">
-      <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
-      <a-button
-        v-if="!element.isDivider && !element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
-        class="ml-[12px]"
-        :class="{
-          'arco-btn-outline--danger': element.danger,
-          'ml-[8px]': idx === 0,
-        }"
-        type="outline"
-        :size="props.size"
-        @click="handleSelect(element)"
-        >{{ t(element.label as string) }}</a-button
-      >
-      <!-- baseAction多菜单选择 -->
-      <a-dropdown
-        v-if="!element.isDivider && element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
-        position="tr"
-        :size="props.size"
-        @select="handleSelect"
-      >
+    <div class="title one-line-text">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</div>
+    <div>
+      <template v-for="(element, idx) in baseAction" :key="element.label">
+        <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
         <a-button
+          v-if="!element.isDivider && !element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
           class="ml-[12px]"
           :class="{
             'arco-btn-outline--danger': element.danger,
@@ -30,20 +13,39 @@
           }"
           type="outline"
           :size="props.size"
-          @click="handleSelect"
+          @click="handleSelect(element)"
           >{{ t(element.label as string) }}</a-button
         >
-        <template #content>
-          <template v-for="item in element.children" :key="item.label">
-            <a-divider v-if="element.isDivider" margin="4px" />
-            <a-doption v-else :value="item" :class="{ delete: item.danger }">
-              {{ t(item.label as string) }}
-            </a-doption>
+        <!-- baseAction多菜单选择 -->
+        <a-dropdown
+          v-if="!element.isDivider && element.children && hasAllPermission(element.permission as string[]) && hasAnyPermission(element.anyPermission as string[])"
+          position="tr"
+          :size="props.size"
+          @select="handleSelect"
+        >
+          <a-button
+            class="ml-[12px]"
+            :class="{
+              'arco-btn-outline--danger': element.danger,
+              'ml-[8px]': idx === 0,
+            }"
+            type="outline"
+            :size="props.size"
+            @click="handleSelect"
+            >{{ t(element.label as string) }}</a-button
+          >
+          <template #content>
+            <template v-for="item in element.children" :key="item.label">
+              <a-divider v-if="element.isDivider" margin="4px" />
+              <a-doption v-else :value="item" :class="{ delete: item.danger }">
+                {{ t(item.label as string) }}
+              </a-doption>
+            </template>
           </template>
-        </template>
-      </a-dropdown>
-      <!-- baseAction多菜单选择 -->
-    </template>
+        </a-dropdown>
+        <!-- baseAction多菜单选择 -->
+      </template>
+    </div>
     <div v-if="moreActionLength > 0" class="drop-down relative ml-[8px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline" :size="props.size"><MsIcon type="icon-icon_more_outlined" /></a-button>
@@ -209,7 +211,7 @@
   .title {
     display: flex;
     align-items: center;
-    width: 100px;
+    max-width: 400px;
     color: var(--color-text-2);
   }
   .delete {

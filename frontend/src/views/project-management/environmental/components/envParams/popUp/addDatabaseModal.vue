@@ -88,6 +88,7 @@
             class="w-[152px]"
             mode="button"
             :step="100"
+            :precision="0"
             :min="0"
             :default-value="1000"
             :max="600000"

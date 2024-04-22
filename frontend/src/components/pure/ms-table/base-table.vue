@@ -129,6 +129,7 @@
                   :tag-list="record[item.dataIndex as string]"
                   type="primary"
                   theme="outline"
+                  :tag-position="item.tagPosition"
                 />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">

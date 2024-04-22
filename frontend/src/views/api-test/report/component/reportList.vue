@@ -588,6 +588,14 @@
     getTime();
   });
 
+  onBeforeUnmount(() => {
+    if (route.query.type === 'API_SCENARIO') {
+      showDetailDrawer.value = false;
+    } else {
+      showCaseDetailDrawer.value = false;
+    }
+  });
+
   watch(
     () => props.moduleType,
     (val) => {

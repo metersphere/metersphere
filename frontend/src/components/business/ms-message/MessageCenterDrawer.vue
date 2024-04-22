@@ -62,7 +62,7 @@
             :no-more-data="noMoreData"
             raggable
             :virtual-list-props="{
-              height: 'calc(100vh - 160px)',
+              height: 'calc(100vh - 136px)',
             }"
             @reach-bottom="handleReachBottom"
           >
