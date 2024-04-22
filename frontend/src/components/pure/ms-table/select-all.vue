@@ -67,10 +67,9 @@
   const indeterminate = computed(() => {
     // 有无勾选的 key，或非全选所有页且已选中的数量大于 0 且小于总数时是半选状态
     return (
-      props.excludeKeys.length > 0 ||
-      (selectAllStatus.value !== SelectAllEnum.ALL &&
-        props.selectedKeys.size > 0 &&
-        props.selectedKeys.size < props.total)
+      selectAllStatus.value !== SelectAllEnum.ALL &&
+      props.selectedKeys.size > 0 &&
+      props.selectedKeys.size < props.total
     );
   });
 
