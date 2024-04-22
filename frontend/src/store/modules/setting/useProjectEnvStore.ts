@@ -131,6 +131,8 @@ const useProjectEnvStore = defineStore(
           currentEnvDetailInfo.value = { ...tmpObj };
           nextTick(() => {
             backupEnvDetailInfo.value = cloneDeep(currentEnvDetailInfo.value);
+            appStore.currentEnvConfig = cloneDeep(currentEnvDetailInfo.value.config);
+            appStore.currentEnvConfig.id = currentEnvDetailInfo.value.id;
           });
         }
       } catch (e) {
