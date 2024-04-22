@@ -1141,6 +1141,7 @@
       };
       if (isMove.value) {
         await batchMoveToModules(params);
+        groupKeyword.value = '';
         Message.success(t('caseManagement.featureCase.batchMoveSuccess'));
       } else {
         await batchCopyToModules(params);
@@ -1160,6 +1161,7 @@
   function handleMoveCaseModalCancel() {
     showBatchMoveDrawer.value = false;
     selectedModuleKeys.value = [];
+    groupKeyword.value = '';
   }
 
   function caseNodeSelect(keys: string[]) {
@@ -1685,6 +1687,10 @@
       }
     }
   );
+
+  onBeforeUnmount(() => {
+    showDetailDrawer.value = false;
+  });
 
   defineExpose({
     emitTableParams,

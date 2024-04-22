@@ -18,11 +18,15 @@
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagementList') }}</span>
               <a-divider
-                v-if="(hasEnablePermission && isEnableProject) || props.cardItem.key === 'BUG'"
+                v-if="hasEnablePermission && isEnableProject && props.cardItem.key === 'BUG'"
                 direction="vertical"
               />
             </span>
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
+              <a-divider
+                v-if="!(hasEnablePermission && isEnableProject) && props.cardItem.key === 'BUG'"
+                direction="vertical"
+              />
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
               <a-divider
                 v-if="hasEnablePermission && props.mode === 'organization' && isEnableProject"

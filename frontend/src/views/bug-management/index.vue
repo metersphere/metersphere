@@ -900,6 +900,10 @@
     }
   });
 
+  onBeforeUnmount(() => {
+    detailVisible.value = false;
+  });
+
   onUnmounted(() => {
     // 组件销毁时关闭轮询
     pause();

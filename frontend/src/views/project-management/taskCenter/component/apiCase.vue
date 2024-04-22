@@ -26,7 +26,7 @@
         <div
           v-if="!record.integrated"
           type="text"
-          class="one-line-text flex w-full"
+          class="one-line-text w-full"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceNum }}
@@ -35,8 +35,7 @@
       <template #resourceName="{ record }">
         <div
           v-if="!record.integrated"
-          type="text"
-          class="one-line-text flex max-w-[300px]"
+          class="one-line-text max-w-[300px]"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
           >{{ record.resourceName }}
@@ -641,6 +640,14 @@
       });
     }
   }
+
+  onBeforeUnmount(() => {
+    if (props.moduleType === 'API_CASE') {
+      showCaseDetailDrawer.value = false;
+    } else {
+      showDetailDrawer.value = false;
+    }
+  });
 
   await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
 </script>

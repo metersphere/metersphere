@@ -1,5 +1,5 @@
 <template>
-  <a-tooltip :content="tagsTooltip">
+  <a-tooltip :content="tagsTooltip" :position="props.tagPosition" :mouse-enter-delay="300">
     <div class="flex max-w-[440px] flex-row" @click="emit('click')">
       <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
         {{ props.isStringTag ? tag : tag[props.nameKey] }}
@@ -23,11 +23,26 @@
       nameKey?: string;
       isStringTag?: boolean; // 是否是字符串数组的标签
       size?: Size;
+      tagPosition?:
+        | 'top'
+        | 'tl'
+        | 'tr'
+        | 'bottom'
+        | 'bl'
+        | 'br'
+        | 'left'
+        | 'lt'
+        | 'lb'
+        | 'right'
+        | 'rt'
+        | 'rb'
+        | undefined; // 提示位置防止窗口抖动
     }>(),
     {
       showNum: 2,
       nameKey: 'name',
       size: 'medium',
+      tagPosition: 'top',
     }
   );
   const emit = defineEmits<{

@@ -551,6 +551,9 @@
   }
 
   function handleNameClick(record: LogItem) {
+    if (record.type === 'DELETE') {
+      return;
+    }
     const routeQuery: Record<string, any> = {
       orgId: record.organizationId,
       pId: record.projectId,

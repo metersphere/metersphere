@@ -423,7 +423,7 @@
         <template #operationPre="{ record }">
           <a-popover
             v-model:popupVisible="record.moreSettingPopoverVisible"
-            position="tl"
+            position="tr"
             trigger="click"
             :title="t('common.setting')"
             :content-style="{ width: '480px' }"

@@ -417,6 +417,10 @@
     }
   });
 
+  onBeforeUnmount(() => {
+    showDetailVisible.value = false;
+  });
+
   onMounted(() => {
     fetchData();
     updateColumns();
