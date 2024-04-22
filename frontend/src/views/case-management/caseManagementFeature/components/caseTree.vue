@@ -384,7 +384,7 @@
       caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
         return {
           ...node,
-          hideMoreAction: props.isModal,
+          hideMoreAction: node.id === 'root' || props.isModal,
           count: obj?.[node.id] || 0,
         };
       });

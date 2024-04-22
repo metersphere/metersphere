@@ -26,7 +26,7 @@
                   :mouse-enter-delay="300"
                   :disabled="!item[props.labelKey || 'text']"
                 >
-                  <div class="one-line-text">
+                  <div class="one-line-text max-w-[120px]">
                     <slot name="item" :item="item" :index="index"></slot>
                   </div>
                 </a-tooltip>

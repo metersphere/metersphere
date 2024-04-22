@@ -58,7 +58,7 @@
     :extra-text="getExecuteStatusExtraText(step)"
     size="small"
     class="ml-[4px]"
-  />
+  />-{{ props.finalExecuteStatus }}
 </template>
 
 <script lang="ts" setup>

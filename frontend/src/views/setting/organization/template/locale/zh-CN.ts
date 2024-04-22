@@ -200,4 +200,5 @@ export default {
   'system.orgTemplate.pleaseEnterAPITip': '请输入字段API',
   'system.orgTemplate.apiFieldNotEmpty': '字段 API 不能为空',
   'system.orgTemplate.selectThirdPlatType': '请选择三方平台',
+  'system.orgTemplate.orgNameTip': '组织名称不正确',
 };
