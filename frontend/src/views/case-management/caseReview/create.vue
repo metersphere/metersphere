@@ -8,7 +8,7 @@
       <a-form-item
         field="name"
         :label="t('caseManagement.caseReview.reviewName')"
-        :rules="[{ required: true, message: t('caseManagement.caseReview.reviewNameRequired') }]"
+        :rules="[{ validator: validateName }]"
         asterisk-position="end"
       >
         <a-input
@@ -234,7 +234,6 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FormInstance } from '@arco-design/web-vue';
-  import { string } from 'fast-glob/out/utils';
 
   const route = useRoute();
   const router = useRouter();
@@ -256,6 +255,17 @@
   });
   const moduleOptions = ref<SelectOptionData[]>([]);
   const moduleLoading = ref(false);
+
+  const validateName = (value: string | undefined, callback: (error?: string) => void) => {
+    if (value === undefined || value.trim() === '') {
+      callback(t('caseManagement.caseReview.reviewNameRequired'));
+    } else {
+      if (value.length > 255) {
+        callback(t('common.nameIsTooLang'));
+      }
+      callback();
+    }
+  };
 
   /**
    * 初始化模块选择
