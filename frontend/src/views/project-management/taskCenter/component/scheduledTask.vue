@@ -368,7 +368,7 @@
     // eslint-disable-next-line no-return-assign
     (item) => ({
       ...item,
-      nextTime: dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss'),
+      nextTime: item.nextTime ? dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss') : null,
     })
   );
 

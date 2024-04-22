@@ -166,7 +166,7 @@
         t.name as poolName
         from api_scenario_report asr
         left join api_scenario_record a on asr.id = a.api_scenario_report_id
-        left JOIN api_scenario s on a.api_scenario_id = s.id
+        INNER JOIN api_scenario s on a.api_scenario_id = s.id
         left JOIN test_resource_pool t on asr.pool_id = t.id
         left join project on asr.project_id = project.id
         where asr.test_plan_id = 'NONE'

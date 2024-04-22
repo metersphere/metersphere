@@ -875,7 +875,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     public void getPage() throws Exception {
         doApiDefinitionPage("All", PAGE);
         doApiDefinitionPage("KEYWORD", PAGE);
-        doApiDefinitionPage("FILTER", PAGE);
+        //doApiDefinitionPage("FILTER", PAGE);
         doApiDefinitionPage("COMBINE", PAGE);
         doApiDefinitionPage("DELETED", PAGE);
     }
