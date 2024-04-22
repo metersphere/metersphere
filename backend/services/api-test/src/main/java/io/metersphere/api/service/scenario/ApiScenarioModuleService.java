@@ -249,6 +249,8 @@ public class ApiScenarioModuleService extends ModuleTreeService {
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
         List<ModuleCountDTO> moduleCountDTOList = extApiScenarioMapper.countModuleIdByRequest(request, deleted);
         long allCount = getAllCount(moduleCountDTOList);
+        request.setKeyword(null);
+        request.setScenarioId(null);
         Map<String, Long> moduleCountMap = getModuleCountMap(request, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
