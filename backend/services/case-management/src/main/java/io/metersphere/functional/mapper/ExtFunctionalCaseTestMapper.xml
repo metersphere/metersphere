@@ -32,8 +32,8 @@
         fct.create_time,
         p.name as projectName,
         v.name as versionName,
-        NULLIF(atc.name, scenario.name) as sourceName,
-        NULLIF(atc.num, scenario.num) as sourceNum
+        IF(atc.name is not null, atc.name, scenario.name) as sourceName,
+        IF(atc.num is not null, atc.num, scenario.num) as sourceNum
         FROM
         functional_case_test fct
         LEFT JOIN project p ON fct.project_id = p.id
