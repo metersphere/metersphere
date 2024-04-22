@@ -64,6 +64,8 @@ public class BugHistoryService {
                 dto.setType(Translator.get("update"));
             } else if (StringUtils.equals(dto.getType(), OperationLogType.DELETE.name())) {
                 dto.setType(Translator.get("delete"));
+            } else if (StringUtils.equals(dto.getType(), OperationLogType.RECOVER.name())) {
+                dto.setType(Translator.get("recover"));
             }
             dto.setLatest(latestVersionId != null && latestVersionId.longValue() == dto.getId().longValue());
             return dto;

@@ -64,7 +64,6 @@
   </ms-base-table>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:project-id="innerProject"
     v-model:currentSelectCase="currentSelectCase"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getModuleTree"
@@ -103,7 +102,6 @@
     getModuleTree,
     getUnAssociatedList,
   } from '@/api/modules/bug-management';
-  import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore } from '@/store';
@@ -202,7 +200,7 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('API');
+  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
@@ -236,12 +234,8 @@
 
   const caseTypeOptions = ref<{ label: string; value: string }[]>([
     {
-      value: 'API',
-      label: t('caseManagement.featureCase.apiCase'),
-    },
-    {
-      value: 'SCENARIO',
-      label: t('caseManagement.featureCase.sceneCase'),
+      label: 'menu.caseManagement.featureCase',
+      value: 'FUNCTIONAL',
     },
   ]);
 

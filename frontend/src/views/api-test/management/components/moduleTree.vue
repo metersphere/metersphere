@@ -203,7 +203,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { mapTree } from '@/utils';
+  import { characterLimit, mapTree } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
@@ -517,8 +517,8 @@
       type: 'error',
       title:
         node.type === 'API'
-          ? t('apiTestDebug.deleteDebugTipTitle', { name: node.name })
-          : t('apiTestDebug.deleteFolderTipTitle', { name: node.name }),
+          ? t('apiTestDebug.deleteDebugTipTitle', { name: characterLimit(node.name) })
+          : t('apiTestDebug.deleteFolderTipTitle', { name: characterLimit(node.name) }),
       content: node.type === 'API' ? t('apiTestDebug.deleteDebugTipContent') : t('apiTestDebug.deleteFolderTipContent'),
       okText: t('apiTestDebug.deleteConfirm'),
       okButtonProps: {
