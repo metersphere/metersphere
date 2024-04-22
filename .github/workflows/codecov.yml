@@ -22,6 +22,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 21
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml' # optional
+          check-latest: true
       - name: Build with Maven - only frontend
         run: mvn -T 1C -B package --file pom.xml -pl frontend
       - name: Build with Maven - other
