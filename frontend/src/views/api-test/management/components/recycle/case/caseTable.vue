@@ -32,7 +32,7 @@
       </template>
       <template #caseLevelFilter="{ columnConfig }">
         <a-trigger v-model:popup-visible="caseFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-          <MsButton type="text" class="arco-btn-text--secondary" @click="caseFilterVisible = true">
+          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="caseFilterVisible = true">
             {{ t(columnConfig.title as string) }}
             <icon-down :class="caseFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
           </MsButton>
@@ -40,8 +40,8 @@
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
                 <a-checkbox-group v-model:model-value="caseFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="item of caseLevelList" :key="item.text" :value="item.text">
-                    <caseLevel :case-level="item.text" />
+                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                    <caseLevel :case-level="item.label as CaseLevel" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -218,6 +218,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
@@ -239,6 +240,8 @@
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { casePriorityOptions } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     activeModule: string;

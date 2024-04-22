@@ -404,9 +404,6 @@ public class ApiScenarioService extends MoveNodeService {
     public List<String> doSelectIds(ApiScenarioBatchRequest request, boolean deleted) {
         if (request.isSelectAll()) {
             List<String> ids = extApiScenarioMapper.getIds(request, deleted);
-            if (CollectionUtils.isNotEmpty(request.getSelectIds())) {
-                ids.addAll(request.getSelectIds());
-            }
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }

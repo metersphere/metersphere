@@ -413,7 +413,6 @@ public class ApiTestCaseService extends MoveNodeService {
     public List<String> doSelectIds(ApiTestCaseBatchRequest request, boolean deleted) {
         if (request.isSelectAll()) {
             List<String> ids = extApiTestCaseMapper.getIds(request, deleted);
-            ids.addAll(request.getSelectIds());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
