@@ -28,7 +28,7 @@
             padding: '0px',
           }"
         >
-          <span v-if="validateResultInfo.failCount" class="font-medium text-[rgb(var(--primary-5))]">{{
+          <span v-if="validateResultInfo.failCount" class="spanBtn font-medium text-[rgb(var(--primary-5))]">{{
             t('caseManagement.featureCase.viewErrorDetail')
           }}</span>
           <template #title>
@@ -228,6 +228,10 @@
     color: rgb(var(--primary-5));
     box-shadow: 0 -1px 4px rgba(31 35 41/10%);
     @apply mt-2 flex items-center justify-center;
+    cursor: pointer;
+  }
+  .spanBtn {
+    cursor: pointer;
   }
   :deep(.arco-popover-popup-content) {
     padding: 0;
