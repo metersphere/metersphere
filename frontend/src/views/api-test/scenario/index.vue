@@ -148,6 +148,7 @@
 
   import { defaultScenario } from './components/config';
   import updateStepStatus from './components/utils';
+  import { filterAssertions, filterConditionsSqlValidParams } from '@/views/api-test/components/utils';
 
   // 异步导入
   const detail = defineAsyncComponent(() => import('./detail/index.vue'));
@@ -169,6 +170,7 @@
   ]);
   const activeScenarioTab = ref<ScenarioParams>(scenarioTabs.value[0] as ScenarioParams);
   const executeButtonRef = ref<InstanceType<typeof executeButton>>();
+  const localExecuteUrl = computed(() => executeButtonRef.value?.localExecuteUrl);
 
   const websocketMap: Record<string | number, WebSocket> = {};
 
@@ -179,11 +181,11 @@
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(scenario: Scenario, executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+  function debugSocket(scenario: Scenario, executeType?: 'localExec' | 'serverExec') {
     websocketMap[scenario.reportId] = getSocket(
       scenario.reportId || '',
       executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl : ''
+      executeType === 'localExec' ? localExecuteUrl.value : ''
     );
     websocketMap[scenario.reportId].addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
@@ -227,13 +229,12 @@
    * @param executeParams 执行参数
    * @param isExecute 是否执行，否则是调试
    * @param executeType 执行类型
-   * @param localExecuteUrl 本地执行地址
    */
   async function realExecute(
     executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId'>,
     isExecute?: boolean,
     executeType?: 'localExec' | 'serverExec',
-    localExecuteUrl?: string
+    envId?: string
   ) {
     try {
       activeScenarioTab.value.executeLoading = true;
@@ -244,7 +245,7 @@
       activeScenarioTab.value.executeFakeErrorCount = 0;
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
-      debugSocket(activeScenarioTab.value, executeType, localExecuteUrl); // 开启websocket
+      debugSocket(activeScenarioTab.value, executeType); // 开启websocket
       activeScenarioTab.value.isDebug = !isExecute;
       let res;
       if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
@@ -252,7 +253,7 @@
         res = await executeScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: appStore.getCurrentEnvId || '',
+          environmentId: envId || appStore.getCurrentEnvId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           ...executeParams,
@@ -268,7 +269,7 @@
         res = await debugScenario({
           id: activeScenarioTab.value.id,
           grouped: false,
-          environmentId: appStore.getCurrentEnvId || '',
+          environmentId: envId || appStore.getCurrentEnvId || '',
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           stepFileParam: activeScenarioTab.value.stepFileParam,
@@ -282,9 +283,9 @@
           }),
         });
       }
-      if (executeType === 'localExec' && localExecuteUrl) {
+      if (executeType === 'localExec' && localExecuteUrl.value) {
         // 本地执行需要调 debug 接口获取响应结果，然后再调本地执行接口
-        await localExecuteApiDebug(localExecuteUrl, res);
+        await localExecuteApiDebug(localExecuteUrl.value, res);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -298,9 +299,9 @@
   /**
    * 执行场景
    * @param executeType 执行类型
-   * @param localExecuteUrl 本地执行地址
+   * @param envId 环境ID
    */
-  function handleExecute(executeType?: 'localExec' | 'serverExec', localExecuteUrl?: string) {
+  function handleExecute(executeType?: 'localExec' | 'serverExec', envId?: string) {
     const waitingDebugStepDetails: Record<string, ScenarioStepDetails> = {};
     const waitTingDebugSteps = filterTree(activeScenarioTab.value.steps, (node) => {
       if (node.enable) {
@@ -323,7 +324,7 @@
       },
       true,
       executeType,
-      localExecuteUrl
+      envId
     );
   }
 
@@ -431,7 +432,10 @@
       if (action === 'execute') {
         nextTick(() => {
           // 等待激活 tab 设置完毕后执行
-          handleExecute(executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
+          handleExecute(
+            executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec',
+            defaultScenarioInfo.environmentId
+          );
         });
       }
     } else {
@@ -485,6 +489,7 @@
   async function realSaveScenario() {
     try {
       saveLoading.value = true;
+      const { assertionConfig } = activeScenarioTab.value.scenarioConfig;
       if (activeScenarioTab.value.isNew) {
         const res = await addScenario({
           ...activeScenarioTab.value,
@@ -494,6 +499,16 @@
               parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
             };
           }),
+          scenarioConfig: {
+            ...activeScenarioTab.value.scenarioConfig,
+            assertionConfig: { ...assertionConfig, assertions: filterAssertions(assertionConfig) },
+            postProcessorConfig: filterConditionsSqlValidParams(
+              activeScenarioTab.value.scenarioConfig.postProcessorConfig
+            ),
+            preProcessorConfig: filterConditionsSqlValidParams(
+              activeScenarioTab.value.scenarioConfig.preProcessorConfig
+            ),
+          },
           projectId: appStore.currentProjectId,
           environmentId: appStore.getCurrentEnvId || '',
         });
@@ -535,6 +550,16 @@
       } else {
         await updateScenario({
           ...activeScenarioTab.value,
+          scenarioConfig: {
+            ...activeScenarioTab.value.scenarioConfig,
+            assertionConfig: { ...assertionConfig, assertions: filterAssertions(assertionConfig) },
+            postProcessorConfig: filterConditionsSqlValidParams(
+              activeScenarioTab.value.scenarioConfig.postProcessorConfig
+            ),
+            preProcessorConfig: filterConditionsSqlValidParams(
+              activeScenarioTab.value.scenarioConfig.preProcessorConfig
+            ),
+          },
           environmentId: appStore.getCurrentEnvId || '',
           steps: mapTree(activeScenarioTab.value.steps, (node) => {
             return {
@@ -572,7 +597,10 @@
       activeScenarioTab.value = scenarioTabs.value[isLoadedTabIndex];
       // tab子组件里监听的是id变化,所以id相等的时候需要单独调执行
       if (action === 'execute') {
-        handleExecute(executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec');
+        handleExecute(
+          executeButtonRef.value?.isPriorityLocalExec ? 'localExec' : 'serverExec',
+          typeof record === 'string' ? undefined : record.environmentId
+        );
       }
       return;
     }
@@ -605,7 +633,6 @@
   useLeaveTabUnSaveCheck(scenarioTabs.value, ['PROJECT_API_SCENARIO:READ+ADD', 'PROJECT_API_SCENARIO:READ+UPDATE']);
 
   const hasLocalExec = computed(() => executeButtonRef.value?.hasLocalExec);
-  const localExecuteUrl = computed(() => executeButtonRef.value?.localExecuteUrl);
   const isPriorityLocalExec = computed(() => executeButtonRef.value?.isPriorityLocalExec);
   const scenarioId = computed(() => activeScenarioTab.value.id);
   const scenarioExecuteLoading = computed(() => activeScenarioTab.value.executeLoading);

@@ -304,13 +304,12 @@
   import { characterLimit } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import { ExecuteConditionConfig, PluginConfig, RequestResult } from '@/models/apiTest/common';
+  import { PluginConfig, RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepFileParams, ScenarioStepItem } from '@/models/apiTest/scenario';
   import {
     RequestAuthType,
     RequestBodyFormat,
     RequestComposition,
-    RequestConditionProcessor,
     RequestMethods,
     ResponseComposition,
     ScenarioStepRefType,
@@ -322,11 +321,15 @@
     defaultBodyParams,
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
-    defaultKeyValueParamItem,
     defaultRequestParamsItem,
     defaultResponse,
   } from '@/views/api-test/components/config';
-  import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
+  import {
+    filterAssertions,
+    filterConditionsSqlValidParams,
+    filterKeyValParams,
+    parseRequestBodyFiles,
+  } from '@/views/api-test/components/utils';
   import { Api } from '@form-create/arco-design';
   // 懒加载Http协议组件
   const httpHeader = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/header.vue'));
@@ -824,20 +827,6 @@
     verticalSplitBoxRef.value?.expand(0.6);
   }
 
-  function filterConditionsSqlValidParams(condition: ExecuteConditionConfig) {
-    const conditionCopy = cloneDeep(condition);
-    conditionCopy.processors = conditionCopy.processors.map((processor) => {
-      if (processor.processorType === RequestConditionProcessor.SQL) {
-        processor.extractParams = filterKeyValParams(
-          processor.extractParams || [],
-          defaultKeyValueParamItem
-        ).validParams;
-      }
-      return processor;
-    });
-    return conditionCopy;
-  }
-
   /**
    * 生成请求参数
    * @param executeType 执行类型，执行时传入
@@ -894,6 +883,7 @@
         polymorphicName,
       };
     }
+    const { assertionConfig } = requestVModel.value.children[0];
     return {
       ...requestParams,
       resourceId: requestVModel.value.resourceId,
@@ -908,7 +898,10 @@
       children: [
         {
           polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-          assertionConfig: requestVModel.value.children[0].assertionConfig,
+          assertionConfig: {
+            ...requestVModel.value.children[0].assertionConfig,
+            assertions: filterAssertions(assertionConfig, isExecute),
+          },
           postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
           preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),
         },

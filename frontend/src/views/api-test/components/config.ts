@@ -1,3 +1,5 @@
+import { EQUAL } from '@/components/pure/ms-advance-filter';
+
 import {
   EnableKeyValueParam,
   ExecuteBody,
@@ -13,10 +15,18 @@ import {
   RequestBodyFormat,
   RequestCaseStatus,
   RequestContentTypeEnum,
+  RequestExtractEnvType,
+  RequestExtractExpressionEnum,
+  RequestExtractExpressionRuleType,
+  RequestExtractResultMatchingRule,
+  RequestExtractScope,
   RequestParamsType,
   ResponseBodyFormat,
+  ResponseBodyXPathAssertionFormat,
   ResponseComposition,
 } from '@/enums/apiEnum';
+
+import type { ExpressionConfig } from './fastExtraction/moreSetting.vue';
 
 // 请求 body 参数表格默认行的值
 export const defaultBodyParamsItem: ExecuteRequestFormBodyFormValue = {
@@ -172,4 +182,48 @@ export const defaultAssertParamsItem: ResponseAssertionItem = {
 export const defaultAssertXpathParamsItem: ResponseAssertionItem = {
   expression: '',
   enable: true,
+};
+// 断言 xpath
+export const defaultExtractParamItem: ExpressionConfig = {
+  enable: true,
+  variableName: '',
+  variableType: RequestExtractEnvType.TEMPORARY,
+  extractScope: RequestExtractScope.BODY,
+  expression: '',
+  extractType: RequestExtractExpressionEnum.JSON_PATH,
+  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+  resultMatchingRuleNum: 1,
+  responseFormat: ResponseBodyXPathAssertionFormat.XML,
+  moreSettingPopoverVisible: false,
+};
+
+// 断言 json默认值
+export const jsonPathDefaultParamItem = {
+  enable: true,
+  variableName: '',
+  variableType: RequestExtractEnvType.TEMPORARY,
+  extractScope: RequestExtractScope.BODY,
+  expression: '',
+  condition: EQUAL.value,
+  extractType: RequestExtractExpressionEnum.JSON_PATH,
+  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+  resultMatchingRuleNum: 1,
+  responseFormat: ResponseBodyXPathAssertionFormat.XML,
+  moreSettingPopoverVisible: false,
+};
+// 断言 正则默认值
+export const regexDefaultParamItem = {
+  expression: '',
+  enable: true,
+  valid: true,
+  variableType: RequestExtractEnvType.TEMPORARY,
+  extractScope: RequestExtractScope.BODY,
+  extractType: RequestExtractExpressionEnum.REGEX,
+  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+  resultMatchingRuleNum: 1,
+  responseFormat: ResponseBodyXPathAssertionFormat.XML,
+  moreSettingPopoverVisible: false,
 };

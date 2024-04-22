@@ -1,18 +1,23 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <a-dropdown @select="(val) => addCondition(val as ConditionType)">
-      <a-button type="outline" :disabled="props.disabled">
-        <template #icon>
-          <icon-plus :size="14" />
+    <div class="flex items-center gap-[8px]">
+      <a-dropdown @select="(val) => addCondition(val as ConditionType)">
+        <a-button type="outline" :disabled="props.disabled">
+          <template #icon>
+            <icon-plus :size="14" />
+          </template>
+          {{ t(props.addText) }}
+        </a-button>
+        <template #content>
+          <a-doption v-for="key of props.conditionTypes" :key="key" :value="key">
+            {{ t(conditionTypeNameMap[key]) }}
+          </a-doption>
         </template>
-        {{ t(props.addText) }}
-      </a-button>
-      <template #content>
-        <a-doption v-for="key of props.conditionTypes" :key="key" :value="key">
-          {{ t(conditionTypeNameMap[key]) }}
-        </a-doption>
-      </template>
-    </a-dropdown>
+      </a-dropdown>
+      <div v-if="$slots.dropdownAppend" class="flex items-center">
+        <slot name="dropdownAppend"></slot>
+      </div>
+    </div>
     <div v-if="$slots.titleRight" class="flex items-center">
       <slot name="titleRight"></slot>
     </div>

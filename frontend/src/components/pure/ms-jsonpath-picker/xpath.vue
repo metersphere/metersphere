@@ -115,15 +115,26 @@
   /**
    * 替换文档
    * @param beautifyDoc 格式化后的文档
+   * @param isHtml 是否是html
    */
-  function replaceDoc(beautifyDoc: string) {
-    // 先将 HTML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
-    flattenedXml.value = beautifyDoc
+  function replaceDoc(beautifyDoc: string, isHtml = false) {
+    // 先将 XML/HTML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
+    let resultArr: XpathNode[] = [];
+    const tempStr = beautifyDoc
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/(&lt;([^/][^&]*?)&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>')
-      .split(/\r?\n/)
-      .map((e) => ({ content: e, xpath: '' }));
+      .replace(/(&lt;([^/][^&]*?)&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>');
+    if (isHtml) {
+      resultArr = HtmlBeautify(
+        tempStr.replace(/(\S)(?=<)/gs, '$1\n'), // html 标签换行
+        { ocd: true }
+      )
+        .split(/\r?\n/)
+        .map((e) => ({ content: e, xpath: '' }));
+    } else {
+      resultArr = tempStr.split(/\r?\n/).map((e) => ({ content: e, xpath: '' }));
+    }
+    flattenedXml.value = resultArr;
   }
 
   /**
@@ -142,8 +153,9 @@
       isValidXml.value = true;
       parsedXml.value = xmlDoc;
       const beautifyDoc = HtmlBeautify(props.xmlString, { ocd: true });
-      replaceDoc(beautifyDoc);
+      replaceDoc(beautifyDoc, true);
       // 解析真实 HTML 并将其扁平化，得到每个节点的 xpath
+      tempXmls.value = [];
       flattenHtml(xmlDoc.documentElement, '');
       // 将扁平化后的 XML/HTML 字符串中的每个节点的 xpath 替换为真实的 xpath
       flattenedXml.value = flattenedXml.value
@@ -157,7 +169,7 @@
               xpath,
             };
           }
-          return false;
+          return e.content.includes('&lt;/') ? e : false;
         })
         .filter(Boolean) as any[];
       emit('init', 'html');
@@ -185,20 +197,23 @@
       const beautifyDoc = new XmlBeautify().beautify(props.xmlString);
       replaceDoc(beautifyDoc);
       // 解析真实 XML 并将其扁平化，得到每个节点的 xpath
+      tempXmls.value = [];
       flattenXml(xmlDoc.documentElement, '');
       // 将扁平化后的 XML 字符串中的每个节点的 xpath 替换为真实的 xpath
-      flattenedXml.value = flattenedXml.value.map((e) => {
-        const targetNodeIndex = tempXmls.value.findIndex((txt) => e.content.includes(`&lt;${txt.content}`));
-        if (targetNodeIndex >= 0) {
-          const { xpath } = tempXmls.value[targetNodeIndex];
-          tempXmls.value.splice(targetNodeIndex, 1); // 匹配成功后，将匹配到的节点从 tempXmls 中删除，避免重复匹配
-          return {
-            ...e,
-            xpath,
-          };
-        }
-        return e;
-      });
+      flattenedXml.value = flattenedXml.value
+        .map((e) => {
+          const targetNodeIndex = tempXmls.value.findIndex((txt) => e.content.includes(`&lt;${txt.content}`));
+          if (targetNodeIndex >= 0) {
+            const { xpath } = tempXmls.value[targetNodeIndex];
+            tempXmls.value.splice(targetNodeIndex, 1); // 匹配成功后，将匹配到的节点从 tempXmls 中删除，避免重复匹配
+            return {
+              ...e,
+              xpath,
+            };
+          }
+          return false;
+        })
+        .filter(Boolean) as any[];
       emit('init', 'xml');
     } catch (error) {
       // eslint-disable-next-line no-console

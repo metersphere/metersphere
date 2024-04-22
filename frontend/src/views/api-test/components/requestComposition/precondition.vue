@@ -8,6 +8,9 @@
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
   >
+    <template v-if="$slots.dropdownAppend" #dropdownAppend>
+      <slot name="dropdownAppend" />
+    </template>
     <template v-if="props.isDefinition" #titleRight>
       <a-switch
         v-model:model-value="innerConfig.enableGlobal"

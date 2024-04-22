@@ -267,4 +267,6 @@ export default {
   'apiScenario.schedule.table.tooltip.disable': 'Scheduled task is disabled',
   'apiScenario.save.env': 'Scenario Environment',
   'apiScenario.execute.no.step.tips': 'No open step',
+  'apiScenario.preConditionTip': 'Execute once before the scene step',
+  'apiScenario.postConditionTip': 'Execute once after the scene step',
 };

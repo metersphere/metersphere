@@ -509,15 +509,13 @@
   import {
     casePriorityOptions,
     caseStatusOptions,
-    defaultAssertParamsItem,
-    defaultAssertXpathParamsItem,
     defaultBodyParamsItem,
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
     defaultRequestParamsItem,
     defaultResponse,
   } from '@/views/api-test/components/config';
-  import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
+  import { filterAssertions, filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
@@ -1138,45 +1136,6 @@
 
     // 处理断言参数
     const { assertionConfig } = requestVModel.value.children[0];
-    const assertionList = assertionConfig.assertions.map((assertItem: any) => {
-      const bodyAssertionDataByTypeList = filterKeyValParams(
-        assertItem?.bodyAssertionDataByType?.assertions || [],
-        defaultAssertParamsItem,
-        isExecute
-      ).validParams;
-      return {
-        ...assertItem,
-        bodyAssertionDataByType: {
-          ...assertItem.bodyAssertionDataByType,
-          assertions: bodyAssertionDataByTypeList,
-        },
-        regexAssertion: {
-          ...assertItem?.regexAssertion,
-          assertions: filterKeyValParams(
-            assertItem?.regexAssertion?.assertions || [],
-            defaultAssertXpathParamsItem,
-            isExecute
-          ).validParams,
-        },
-        xpathAssertion: {
-          ...assertItem.xpathAssertion,
-          assertions: filterKeyValParams(
-            assertItem?.xpathAssertion?.assertions || [],
-            defaultAssertXpathParamsItem,
-            isExecute
-          ).validParams,
-        },
-        jsonPathAssertion: {
-          ...assertItem.jsonPathAssertion,
-          assertions: filterKeyValParams(
-            assertItem?.jsonPathAssertion?.assertions || [],
-            defaultAssertParamsItem,
-            isExecute
-          ).validParams,
-        },
-      };
-    });
-
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
@@ -1195,7 +1154,7 @@
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
             assertionConfig: {
               ...assertionConfig,
-              assertions: assertionList,
+              assertions: filterAssertions(assertionConfig, isExecute),
             },
             postProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].postProcessorConfig),
             preProcessorConfig: filterConditionsSqlValidParams(requestVModel.value.children[0].preProcessorConfig),

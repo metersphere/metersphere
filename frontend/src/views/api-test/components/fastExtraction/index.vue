@@ -237,10 +237,7 @@
             matchResult.value = [nodes];
           } else if (Array.isArray(nodes)) {
             // 匹配到多个节点信息
-            matchResult.value = nodes
-              .map((node) => node.textContent?.split('\n') || false)
-              .flat(Infinity)
-              .filter(Boolean);
+            matchResult.value = nodes.map((node) => node.firstChild?.nodeValue || false).filter(Boolean);
           } else {
             // 匹配到单个节点信息
             matchResult.value = nodes.textContent ? [nodes.textContent] : [];

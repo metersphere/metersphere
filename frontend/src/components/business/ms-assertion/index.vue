@@ -9,9 +9,9 @@
           </div>
         </a-button>
         <template #content>
-          <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">{{
-            item.label
-          }}</a-doption>
+          <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </a-doption>
         </template>
       </a-dropdown>
       <div v-if="props.isDefinition && innerConfig" class="flex items-center">
