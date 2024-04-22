@@ -188,6 +188,7 @@
         sorter: true,
       },
       fixed: 'left',
+      columnSelectorDisabled: true,
       width: 100,
     },
     {
@@ -199,6 +200,7 @@
         sorter: true,
       },
       width: 200,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestManagement.apiType',

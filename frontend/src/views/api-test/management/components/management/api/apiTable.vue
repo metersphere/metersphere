@@ -409,6 +409,7 @@
       },
       fixed: 'left',
       width: 100,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestManagement.apiName',
@@ -419,6 +420,7 @@
         sorter: true,
       },
       width: 200,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestManagement.apiType',

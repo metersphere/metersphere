@@ -266,6 +266,7 @@
       },
       fixed: 'left',
       width: 100,
+      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseName',
@@ -276,6 +277,7 @@
         sorter: true,
       },
       width: 180,
+      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseLevel',
