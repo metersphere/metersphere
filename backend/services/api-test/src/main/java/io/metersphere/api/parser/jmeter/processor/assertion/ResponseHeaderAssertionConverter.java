@@ -9,8 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.regex.Pattern;
-
 /**
  * @Author: jianxing
  * @CreateTime: 2023-12-27  21:01

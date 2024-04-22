@@ -1453,7 +1453,8 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     public boolean isRequestStep(ApiScenarioStepCommonDTO step) {
-        return StringUtils.equalsAny(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name(), ApiScenarioStepType.CUSTOM_REQUEST.name());
+        ApiScenarioStepType scenarioStepType = EnumValidator.validateEnum(ApiScenarioStepType.class, step.getStepType());
+        return scenarioStepType == null ? false : scenarioStepType.isRequest();
     }
 
     /**
