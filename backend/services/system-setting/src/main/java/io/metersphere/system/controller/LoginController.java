@@ -1,20 +1,22 @@
 package io.metersphere.system.controller;
 
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.UserSource;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.RsaKey;
+import io.metersphere.sdk.util.RsaUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.dto.sdk.LoginRequest;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
-import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserLoginService;
-import io.metersphere.sdk.util.RsaKey;
-import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -34,6 +36,8 @@ public class LoginController {
 
     @Resource
     private UserLoginService userLoginService;
+    @Resource
+    private ProjectMapper projectMapper;
 
 
     @GetMapping(value = "/is-login")
@@ -49,8 +53,9 @@ public class LoginController {
             userLoginService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
-            // 用户只有工作空间权限
-            if (StringUtils.isBlank(sessionUser.getLastProjectId())) {
+            // 用户只有工作空间权限, 或者项目已被禁用
+            Project lastProject = projectMapper.selectByPrimaryKey(sessionUser.getLastProjectId());
+            if (StringUtils.isBlank(sessionUser.getLastProjectId()) || lastProject == null || !lastProject.getEnable()) {
                 sessionUser.setLastProjectId("no_such_project");
             }
             return ResultHolder.success(sessionUser);

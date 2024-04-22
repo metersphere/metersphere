@@ -16,6 +16,7 @@ export default function usePermission() {
      * @returns 是否
      */
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
+      console.log(useUserStore());
       if (
         (useUserStore().lastProjectId === 'no_such_project' || useUserStore().lastProjectId === '') &&
         route.name === 'projectManagement'

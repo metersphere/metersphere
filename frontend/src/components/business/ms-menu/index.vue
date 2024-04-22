@@ -12,7 +12,7 @@
   import { getOrgOptions, switchUserOrg } from '@/api/modules/system';
   import { useI18n } from '@/hooks/useI18n';
   import useUser from '@/hooks/useUser';
-  import { BOTTOM_MENU_LIST } from '@/router/constants';
+  import { BOTTOM_MENU_LIST, NO_PROJECT_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { openWindow, regexUrl } from '@/utils';
@@ -20,7 +20,7 @@
   import { getFisrtRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
 
-  import { SettingRouteEnum } from '@/enums/routeEnum';
+  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
@@ -148,14 +148,34 @@
           personalMenusVisible.value = false;
           orgKeyword.value = '';
           await userStore.isLogin(true);
-          router.replace({
-            path: route.path,
-            query: {
-              ...route.query,
-              orgId: appStore.currentOrgId,
-              pId: appStore.currentProjectId,
-            },
-          });
+          if (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') {
+            // 没有项目权限(组织没有项目, 或项目全被禁用)
+            router.push({
+              name: NO_PROJECT_ROUTE_NAME,
+            });
+            return;
+          }
+          if (route.name === NO_PROJECT_ROUTE_NAME) {
+            // 无项目权限组织切换到正常组织, 默认跳转到项目基本信息页面
+            router.replace({
+              name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
+              query: {
+                ...route.query,
+                orgId: appStore.currentOrgId,
+                pId: appStore.currentProjectId,
+              },
+            });
+          } else {
+            // 正常切换组织
+            router.replace({
+              path: route.path,
+              query: {
+                ...route.query,
+                orgId: appStore.currentOrgId,
+                pId: appStore.currentProjectId,
+              },
+            });
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
