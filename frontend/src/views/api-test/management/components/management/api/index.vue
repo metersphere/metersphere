@@ -376,7 +376,7 @@
     () => activeApiTab.value.isNew,
     async (newValue, oldValue) => {
       // isNew从true变成了false
-      if (oldValue && !newValue) {
+      if (oldValue && !newValue && activeApiTab.value.id !== 'all') {
         const res = await getDefinitionDetail(activeApiTab.value.id);
         activeApiTab.value.createUserName = res.createUserName;
         activeApiTab.value.updateTime = res.updateTime;
