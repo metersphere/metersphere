@@ -64,7 +64,7 @@ public class ApiScenarioReportController {
     @Operation(summary = "接口测试-接口报告-场景报告删除")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioReportLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioReportLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDto(#id)", targetClass = ApiScenarioReportNoticeService.class)
     public void delete(@PathVariable String id) {
         apiScenarioReportService.delete(id, SessionUtils.getUserId());
