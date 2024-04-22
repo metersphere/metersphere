@@ -171,6 +171,15 @@
       }
     }
   );
+
+  watch(
+    () => props.funParams.caseId,
+    (val) => {
+      if (val) {
+        initData();
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less"></style>

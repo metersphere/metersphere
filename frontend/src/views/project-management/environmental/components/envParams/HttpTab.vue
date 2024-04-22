@@ -5,7 +5,7 @@
       t('project.environmental.httpNoWarning')
     }}</span>
   </div>
-  <div class="grid grid-cols-4">
+  <div class="grid grid-cols-6">
     <div class="col-start-1">
       <a-button
         v-if="!store.currentEnvDetailInfo.mock"
@@ -16,14 +16,13 @@
       >
     </div>
 
-    <div class="col-end-5 flex flex-row gap-[8px]">
+    <div class="col-span-2 col-end-7 flex flex-row gap-[8px]">
       <a-input-number
         v-model:model-value="form.requestTimeout"
         :min="0"
         :step="100"
         :precision="0"
         :max="600000"
-        class="w-[180px]"
         :disabled="isDisabled"
       >
         <template #prefix>
@@ -36,7 +35,6 @@
         :step="100"
         :max="600000"
         :precision="0"
-        class="w-[180px]"
         :disabled="isDisabled"
       >
         <template #prefix>

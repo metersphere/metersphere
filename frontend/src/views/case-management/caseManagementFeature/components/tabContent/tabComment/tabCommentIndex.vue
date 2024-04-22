@@ -228,6 +228,15 @@
     return data;
   }
 
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        getAllCommentList();
+      }
+    }
+  );
+
   onMounted(() => {
     getAllCommentList();
   });

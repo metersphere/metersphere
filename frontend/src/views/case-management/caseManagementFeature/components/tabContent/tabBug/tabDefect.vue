@@ -540,6 +540,15 @@
     }
   }
 
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        getFetch();
+      }
+    }
+  );
+
   onMounted(() => {
     getFetch();
     initFilterOptions();

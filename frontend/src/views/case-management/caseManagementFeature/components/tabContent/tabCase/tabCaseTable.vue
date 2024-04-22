@@ -273,7 +273,16 @@
     getFetch();
   }, 100);
 
-  onMounted(async () => {
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        getFetch();
+      }
+    }
+  );
+
+  onMounted(() => {
     getFetch();
   });
 </script>
