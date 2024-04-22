@@ -8,12 +8,12 @@ import java.util.function.Function;
 
 //场景批量操作工具类
 public class ApiScenarioBatchOperationUtils {
-    private static int MAX_OPERATION_SIZE = 100;
+    private static int MAX_OPERATION_SIZE = 20;
 
     public static <T> ApiScenarioBatchOperationResponse executeWithBatchOperationResponse(List<T> totalList, Function<List<T>, ApiScenarioBatchOperationResponse> subFunc) {
         ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
         List<T> operationList = new ArrayList<>(totalList);
-        while (operationList.size() > 100) {
+        while (operationList.size() > MAX_OPERATION_SIZE) {
             List<T> subList = operationList.subList(0, MAX_OPERATION_SIZE);
             response.merge(
                     subFunc.apply(subList));
