@@ -358,8 +358,6 @@ public class ApiScenarioBatchRunService {
         taskRequest.setSaveResult(true);
         taskRequest.setRealTime(false);
         taskRequest.setRunModeConfig(runModeConfig);
-        runModeConfig.setEnvironmentId(getEnvId(runModeConfig, apiScenarioDetail));
-        runModeConfig.setGrouped(getEnvGroup(runModeConfig, apiScenarioDetail));
         return taskRequest;
     }
 
