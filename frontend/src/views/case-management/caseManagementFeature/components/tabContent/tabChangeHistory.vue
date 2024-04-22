@@ -255,6 +255,15 @@
   //   }
   // );
 
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        initData();
+      }
+    }
+  );
+
   onMounted(() => {
     doCheckIsTip();
     initData();

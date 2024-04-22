@@ -143,6 +143,15 @@
     });
   }
 
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        initData();
+      }
+    }
+  );
+
   onMounted(() => {
     initData();
   });

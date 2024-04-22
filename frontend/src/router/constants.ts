@@ -54,3 +54,6 @@ export const NO_PROJECT_ROUTE_NAME = 'no-project';
 export const WHITEBOARD_INDEX = 'index';
 
 export const WHITE_LIST_NAME = WHITE_LIST.map((el) => el.name);
+
+// 全屏无资源页面用于分享全屏的页面
+export const NOT_FOUND_RESOURCE = 'notResourceScreen';

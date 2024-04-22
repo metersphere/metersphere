@@ -69,3 +69,9 @@ export const NO_PROJECT: RouteRecordRaw = {
     hideInMenu: true,
   },
 };
+
+export const NOT_FOUND_RESOURCE: RouteRecordRaw = {
+  path: '/notResourceScreen',
+  name: 'notResourceScreen',
+  component: () => import('@/views/base/not-resource-screen/not-resource-screen.vue'),
+};

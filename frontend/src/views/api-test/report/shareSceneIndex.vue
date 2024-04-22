@@ -9,7 +9,7 @@
   import ShareCom from './component/scenarioCom.vue';
 
   import { getShareReportInfo, reportScenarioDetail } from '@/api/modules/api-test/report';
-  import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
+  import { NOT_FOUND_RESOURCE } from '@/router/constants';
 
   import type { ReportDetail } from '@/models/apiTest/report';
 
@@ -22,7 +22,7 @@
       const res = await getShareReportInfo(route.query.shareId as string);
       if (res.deleted) {
         router.push({
-          name: NO_RESOURCE_ROUTE_NAME,
+          name: NOT_FOUND_RESOURCE,
         });
       } else {
         detail.value = await reportScenarioDetail(res.reportId, route.query.shareId as string);
