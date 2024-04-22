@@ -41,6 +41,7 @@
       </template>
       <template v-if="!props.isModal" #extra="nodeData">
         <MsPopConfirm
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
           :visible="addSubVisible"
           :is-delete="false"
           :all-names="[]"
@@ -58,6 +59,7 @@
           </MsButton>
         </MsPopConfirm>
         <MsPopConfirm
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
           :title="t('caseManagement.featureCase.rename')"
           :all-names="[]"
           :is-delete="false"
@@ -93,12 +95,12 @@
     moveCaseModuleTree,
     updateCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
-  import { ProjectMemberOptions } from '@/api/requrls/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';

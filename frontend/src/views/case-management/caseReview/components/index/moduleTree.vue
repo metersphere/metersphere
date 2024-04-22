@@ -19,7 +19,7 @@
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
           </MsButton>
         </a-tooltip>
-        <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="() => initModules()">
+        <popConfirm v-if="hasAnyPermission(['CASE_REVIEW:READ+UPDATE'])" mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="() => initModules()">
           <MsButton type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"
@@ -67,7 +67,7 @@
         <template v-if="!props.isModal" #extra="nodeData">
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
           <popConfirm
-            v-if="nodeData.id !== 'root' && hasAnyPermission(['CASE_REVIEW:READ+DELETE'])"
+            v-if="nodeData.id !== 'root' && hasAnyPermission(['CASE_REVIEW:READ+ADD'])"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
