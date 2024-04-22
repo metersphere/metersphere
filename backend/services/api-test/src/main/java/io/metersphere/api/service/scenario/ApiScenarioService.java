@@ -2569,37 +2569,32 @@ public class ApiScenarioService extends MoveNodeService {
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
-        SubListUtils.dealForSubList(insertApiScenarioList, 100, subList -> {
-            subList.forEach(mapper::insertSelective);
-        });
-        response.setSuccess(insertApiScenarioList.size());
+
+        insertApiScenarioList.forEach(mapper::insertSelective);
+
         if (CollectionUtils.isNotEmpty(insertApiScenarioBlobList)) {
             ApiScenarioBlobMapper blobMapper = sqlSession.getMapper(ApiScenarioBlobMapper.class);
-            SubListUtils.dealForSubList(insertApiScenarioBlobList, 100, subList -> {
-                subList.forEach(blobMapper::insertSelective);
-            });
+            insertApiScenarioBlobList.forEach(blobMapper::insertSelective);
         }
         if (CollectionUtils.isNotEmpty(insertApiScenarioStepList)) {
             ApiScenarioStepMapper stepMapper = sqlSession.getMapper(ApiScenarioStepMapper.class);
-            SubListUtils.dealForSubList(insertApiScenarioStepList, 100, subList -> {
-                subList.forEach(stepMapper::insertSelective);
-            });
+            insertApiScenarioStepList.forEach(stepMapper::insertSelective);
         }
         if (CollectionUtils.isNotEmpty(insertApiScenarioStepBlobList)) {
             ApiScenarioStepBlobMapper stepBlobMapper = sqlSession.getMapper(ApiScenarioStepBlobMapper.class);
-            SubListUtils.dealForSubList(insertApiScenarioStepBlobList, 100, subList -> {
-                subList.forEach(stepBlobMapper::insertSelective);
-            });
+            insertApiScenarioStepBlobList.forEach(stepBlobMapper::insertSelective);
+
         }
         if (CollectionUtils.isNotEmpty(insertApiFileResourceList)) {
-            SubListUtils.dealForSubList(insertApiFileResourceList, 100, subList -> {
-                apiFileResourceService.batchInsert(subList);
-            });
+            apiFileResourceService.batchInsert(insertApiFileResourceList);
         }
+
         sqlSession.flushStatements();
         if (sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+
+        response.setSuccess(insertApiScenarioList.size());
         return response;
     }
 

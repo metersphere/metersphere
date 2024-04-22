@@ -8,6 +8,7 @@ import jakarta.validation.groups.Default;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 public class UserExcelValidateHelper {
@@ -21,9 +22,12 @@ public class UserExcelValidateHelper {
         StringBuilder result = new StringBuilder();
         Set<ConstraintViolation<T>> set = excelValidateHelper.validator.validate(obj, Default.class);
         if (set != null && !set.isEmpty()) {
+            //报错信息进行有序、去重处理
+            Set<String> errorMsgSet = new TreeSet<>();
             for (ConstraintViolation<T> cv : set) {
-                result.append(cv.getMessage()).append("; ");
+                errorMsgSet.add(cv.getMessage());
             }
+            errorMsgSet.forEach(item -> result.append(item).append("; "));
         }
         return result.toString();
     }
