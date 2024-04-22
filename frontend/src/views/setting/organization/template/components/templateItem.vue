@@ -155,6 +155,7 @@
 
   async function okHandler() {
     if (validateKeyWord.value.trim() !== '' && validateKeyWord.value !== orgName.value) {
+      Message.success(t('system.orgTemplate.orgNameTip'));
       return false;
     }
     try {

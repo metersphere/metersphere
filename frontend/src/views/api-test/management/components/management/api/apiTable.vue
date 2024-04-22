@@ -135,6 +135,7 @@
           v-model:status-filters="createUserFilters"
           :title="(columnConfig.title as string)"
           :list="memberOptions"
+          label-key="label"
           @search="loadApiList(false)"
         >
           <template #item="{ item }">

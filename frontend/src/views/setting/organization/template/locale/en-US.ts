@@ -211,4 +211,5 @@ export default {
   'system.orgTemplate.pleaseEnterAPITip': 'Please enter the field API',
   'system.orgTemplate.apiFieldNotEmpty': 'The field API cannot be empty',
   'system.orgTemplate.selectThirdPlatType': 'Please select the third party platform',
+  'system.orgTemplate.orgNameTip': 'The organization name is incorrect',
 };

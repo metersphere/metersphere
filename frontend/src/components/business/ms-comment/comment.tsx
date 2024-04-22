@@ -36,11 +36,12 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { commentList, disabled, uploadImage, previewUrl } = toRefs(props);
-    const currentItem = reactive<{ id: string; commentType: CommentType; commentStatus: string }>({
+    const currentItem = reactive<{ id: string; commentType: CommentType; commentStatus: string; replyId: string }>({
       id: '',
       commentType: 'ADD',
       // 控制回复编辑删除按钮的状态
       commentStatus: 'normal',
+      replyId: '', // 回复人
     });
     const expendedIds = ref<string[]>([]); // 展开的评论id
     // 被@的用户id
@@ -75,7 +76,7 @@ export default defineComponent({
         commentType: currentItem.commentType,
         fetchType: currentItem.commentType === 'EDIT' ? 'UPDATE' : 'ADD',
         notifier: noticeUserIds.value.join(';'),
-        replyUser: item.createUser,
+        replyUser: currentItem.replyId || item.createUser,
         parentId,
       };
       if (currentItem.commentType === 'EDIT') {
@@ -106,12 +107,14 @@ export default defineComponent({
     };
 
     const handleReply = (item: CommentItem) => {
+      currentItem.replyId = '';
       if (item.childComments && Array.isArray(item.childComments)) {
         // 点击的是父级评论的回复
         currentItem.id = item.id;
       } else {
         // 子级评论
         currentItem.id = item.parentId || '';
+        currentItem.replyId = item.createUser;
       }
       currentItem.commentType = 'REPLY';
     };

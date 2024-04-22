@@ -83,7 +83,7 @@
                   <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span>
                 </div>
                 <template #content>
-                  <div class="text-[14px] font-medium text-[var(--color-text-1)]">
+                  <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
                     {{ moduleNamePath }}
                     <span class="text-[var(--color-text-4)]">({{ recycleModulesCount[activeFolder] || 0 }})</span>
                   </div>

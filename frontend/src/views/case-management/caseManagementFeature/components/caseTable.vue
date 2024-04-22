@@ -52,7 +52,7 @@
       <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
-      <div type="text">{{ characterLimit(record.name) }}</div>
+      <div class="one-line-text">{{ characterLimit(record.name) }}</div>
     </template>
     <template #caseLevel="{ record }">
       <a-select
@@ -136,6 +136,7 @@
         v-model:status-filters="updateUserFilters"
         :title="(columnConfig.title as string)"
         :list="memberOptions"
+        label-key="label"
         @search="initData()"
       >
         <template #item="{ item }">
@@ -149,6 +150,7 @@
         v-model:status-filters="createUserFilters"
         :title="(columnConfig.title as string)"
         :list="memberOptions"
+        label-key="label"
         @search="initData()"
       >
         <template #item="{ item }">
@@ -241,7 +243,7 @@
       >
         <template #tree-slot-title="node">
           <a-tooltip :content="`${node.name}`" position="tl">
-            <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+            <div class="one-line-text text-[var(--color-text-1)]">{{ node.name }}</div>
           </a-tooltip>
         </template>
       </a-tree-select>
@@ -567,7 +569,7 @@
       'title': 'caseManagement.featureCase.tableColumnID',
       'slotName': 'num',
       'dataIndex': 'num',
-      'width': 200,
+      'width': 130,
       'showInTable': true,
       'sortable': {
         sortDirections: ['ascend', 'descend'],
@@ -585,7 +587,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 180,
       editType: hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -601,7 +603,7 @@
       dataIndex: 'caseLevel',
       titleSlotName: 'caseLevelFilter',
       showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {
@@ -610,7 +612,7 @@
       slotName: 'reviewStatus',
       titleSlotName: 'reviewStatusFilter',
       showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {
@@ -619,7 +621,7 @@
       slotName: 'lastExecuteResult',
       titleSlotName: 'executeResultFilter',
       showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     // {
@@ -636,7 +638,7 @@
       slotName: 'moduleId',
       dataIndex: 'moduleId',
       showInTable: true,
-      width: 300,
+      width: 200,
       showDrag: true,
     },
     {

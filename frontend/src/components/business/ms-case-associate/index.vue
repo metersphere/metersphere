@@ -14,6 +14,7 @@
           v-model:model-value="caseType"
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
+          @change="changeCaseTypeHandler"
         >
           <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
             {{ t(item.label) }}
@@ -672,17 +673,14 @@
     }
   );
 
-  // 用例类型改变
-  watch(
-    () => caseType.value,
-    (val) => {
-      if (val) {
-        emit('update:currentSelectCase', val);
-        initModules();
-        searchCase();
-      }
-    }
-  );
+  function changeCaseTypeHandler(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    caseType.value = value as keyof typeof CaseLinkEnum;
+    emit('update:currentSelectCase', caseType.value);
+    initModules();
+    searchCase();
+  }
 
   watch(
     () => innerProject.value,
