@@ -75,6 +75,7 @@ public class BugLogService {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
             LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
+            dto.setHistory(true);
             dto.setPath("/bug/delete");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(bug));
@@ -93,6 +94,7 @@ public class BugLogService {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
             LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.RECOVER.name(), OperationLogModule.BUG_MANAGEMENT_RECYCLE, bug.getTitle());
+            dto.setHistory(true);
             dto.setPath("/bug/trash/recover");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(bug));
