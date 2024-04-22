@@ -57,7 +57,12 @@
               <icon-exclamation-circle-fill class="!text-[rgb(var(--danger-6))]" />
             </template>
             <template #content>
-              <div class="font-semibold text-[var(--color-text-1)]">
+              <a-tooltip v-if="translateTextToPX(t(tab.name || tab.label)) > 200" :content="t(tab.name || tab.label)">
+                <div class="one-line-text max-w-[200px] font-semibold text-[var(--color-text-1)]">
+                  {{ t('apiTestManagement.confirmDelete', { name: tab.label || tab.name }) }}
+                </div>
+              </a-tooltip>
+              <div v-else class="font-semibold text-[var(--color-text-1)]">
                 {{ t('apiTestManagement.confirmDelete', { name: tab.label || tab.name }) }}
               </div>
             </template>

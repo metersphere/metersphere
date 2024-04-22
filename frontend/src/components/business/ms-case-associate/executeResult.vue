@@ -3,9 +3,10 @@
     <MsIcon
       :type="lastExecuteResultMap[props.executeResult]?.icon || ''"
       class="mr-1"
+      :size="16"
       :style="{ color: lastExecuteResultMap[props.executeResult].color }"
     ></MsIcon>
-    <span class="text-[var(--color-text-2)]">{{ status?.text || '' }}</span>
+    <span class="text-[14px] text-[var(--color-text-2)]">{{ status?.text || '' }}</span>
   </div>
 </template>
 
