@@ -50,7 +50,7 @@ public class NotificationController {
     @Operation(summary = "消息中心-获取未读的消息")
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public Integer getUnRead(@PathVariable(value = "projectId") String projectId) {
-        return notificationService.getUnRead(projectId);
+        return notificationService.getUnRead(projectId, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/count")

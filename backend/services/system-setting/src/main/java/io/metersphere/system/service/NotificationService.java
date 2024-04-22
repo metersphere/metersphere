@@ -107,12 +107,12 @@ public class NotificationService {
     }
 
 
-    public Integer getUnRead(String projectId) {
+    public Integer getUnRead(String projectId, String userId) {
         NotificationExample example = new NotificationExample();
         if (StringUtils.isBlank(projectId)) {
             return 0;
         }
-        example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(NotificationConstants.Status.UNREAD.name());
+        example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(NotificationConstants.Status.UNREAD.name()).andReceiverEqualTo(userId);
         return (int) notificationMapper.countByExample(example);
     }
 }
