@@ -85,10 +85,11 @@
               </div>
               <a-switch
                 v-model:model-value="robot.enable"
-                v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
+                v-permission="['PROJECT_MESSAGE:READ']"
                 size="small"
                 class="ml-auto"
                 type="line"
+                :disabled="!hasAnyPermission(['PROJECT_MESSAGE:READ+UPDATE'])"
                 @change="handleEnableIntercept(robot)"
               />
             </div>
@@ -317,6 +318,7 @@
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
   import { translateTextToPX } from '@/utils/css';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     ProjectRobotPlatform,
