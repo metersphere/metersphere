@@ -140,7 +140,7 @@ public class ApiReportService {
 
     private ApiReport checkResource(String id) {
         ApiReportExample example = new ApiReportExample();
-        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        example.createCriteria().andIdEqualTo(id);
         List<ApiReport> apiReport = apiReportMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(apiReport)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));

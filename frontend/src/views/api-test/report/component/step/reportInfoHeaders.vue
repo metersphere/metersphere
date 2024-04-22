@@ -94,14 +94,10 @@
       value: `${key}-PENDING`,
       label: t(`report.detail.pendingCount`),
     },
-    ...(key === ScenarioStepType.API_SCENARIO
-      ? []
-      : [
-          {
-            value: `${key}-scriptIdentifier`,
-            label: t(`report.detail.api.scriptError`),
-          },
-        ]),
+    {
+      value: `${key}-scriptIdentifier`,
+      label: t(`report.detail.api.scriptError`),
+    },
   ];
   const cascaderOptions = ref<CascaderOption[]>([
     {
