@@ -214,8 +214,9 @@ public class ProjectControllerTests extends BaseTest {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID).andEnableEqualTo(true);
         Assertions.assertEquals(projectMapper.countByExample(example), list.size());
-
-        MvcResult mvcResultModule = this.responseGet(getOptionsWidthModule + DEFAULT_ORGANIZATION_ID +"/apiTest");
+        requestGet(getOptionsWidthModule + DEFAULT_ORGANIZATION_ID +"/apiTest", status().is5xxServerError());
+        requestGet(getOptionsWidthModule + DEFAULT_ORGANIZATION_ID +"/''", status().is5xxServerError());
+        MvcResult mvcResultModule = this.responseGet(getOptionsWidthModule + DEFAULT_ORGANIZATION_ID +"/API");
         List<Project> listModule = parseObjectFromMvcResult(mvcResultModule, List.class);
         Assertions.assertNotNull(listModule);
         ProjectExample exampleWidthModule = new ProjectExample();
@@ -259,7 +260,7 @@ public class ProjectControllerTests extends BaseTest {
         list = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(list);
 
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/apiTest")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/API")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -287,7 +288,7 @@ public class ProjectControllerTests extends BaseTest {
         //断言list是空的
         Assertions.assertEquals(0, list.size());
 
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/apiTest")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID+"/API")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))

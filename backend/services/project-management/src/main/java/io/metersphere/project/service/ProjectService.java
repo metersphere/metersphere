@@ -1,5 +1,6 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.constants.ProjectMenuConstants;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectRequest;
 import io.metersphere.project.mapper.ExtProjectMapper;
@@ -251,6 +252,31 @@ public class ProjectService {
     }
 
     public List<Project> getUserProjectWidthModule(String organizationId, String module, String userId) {
+        if (StringUtils.isBlank(module)) {
+            throw new MSException(Translator.get("module.name.is.empty"));
+        }
+        String moduleName = null;
+        if (StringUtils.equalsIgnoreCase(module, "API") || StringUtils.equalsIgnoreCase(module, "SCENARIO")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_API_TEST;
+        }
+        if (StringUtils.equalsIgnoreCase(module, "FUNCTIONAL")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_FUNCTIONAL_CASE;
+        }
+        if (StringUtils.equalsIgnoreCase(module, "BUG")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_BUG;
+        }
+        if (StringUtils.equalsIgnoreCase(module, "PERFORMANCE")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_LOAD_TEST;
+        }
+        if (StringUtils.equalsIgnoreCase(module, "UI")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_UI;
+        }
+        if (StringUtils.equalsIgnoreCase(module, "TEST_PLAN")) {
+            moduleName = ProjectMenuConstants.MODULE_MENU_TEST_PLAN;
+        }
+        if (StringUtils.isBlank(moduleName)) {
+            throw new MSException(Translator.get("module.name.is.error"));
+        }
         checkOrg(organizationId);
         //查询用户当前的项目  如果存在默认排在第一个
         User user = baseUserMapper.selectById(userId);
@@ -265,9 +291,9 @@ public class ProjectService {
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
         if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
-            allProject = extProjectMapper.getAllProjectWidthModule(organizationId, module);
+            allProject = extProjectMapper.getAllProjectWidthModule(organizationId, moduleName);
         } else {
-            allProject = extProjectMapper.getUserProjectWidthModule(organizationId, userId, module);
+            allProject = extProjectMapper.getUserProjectWidthModule(organizationId, userId, moduleName);
         }
         List<Project> temp = allProject;
         return allProject.stream()
