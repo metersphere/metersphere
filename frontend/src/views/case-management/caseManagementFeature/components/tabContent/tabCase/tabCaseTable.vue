@@ -73,6 +73,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -268,10 +269,9 @@
     }
   }
 
-  async function searchCase() {
-    setKeyword(keyword.value);
-    await loadList();
-  }
+  const searchCase = debounce(() => {
+    getFetch();
+  }, 100);
 
   onMounted(async () => {
     getFetch();
