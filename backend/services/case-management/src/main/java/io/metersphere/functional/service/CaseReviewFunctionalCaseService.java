@@ -35,7 +35,6 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
-import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -111,8 +110,6 @@ public class CaseReviewFunctionalCaseService {
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private BaseCustomFieldOptionService baseCustomFieldOptionService;
-    @Resource
-    private UserLoginService userLoginService;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
