@@ -127,7 +127,7 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_TEMPLATE_BUG_FIELD = "PROJECT_MANAGEMENT_TEMPLATE_API_FIELD";
     public static final String PROJECT_MANAGEMENT_TEMPLATE_TEST_PLAN_FIELD = "PROJECT_MANAGEMENT_TEMPLATE_API_FIELD";
 
-    public static final String PROJECT_CUSTOM_FUNCTION = "PROJECT_CUSTOM_FUNCTION";// 项目公共脚本
+    public static final String PROJECT_MANAGEMENT_COMMON_SCRIPT = "PROJECT_MANAGEMENT_COMMON_SCRIPT";// 项目公共脚本
 
     //用例
     public static final String FUNCTIONAL_CASE = "CASE_MANAGEMENT_CASE";

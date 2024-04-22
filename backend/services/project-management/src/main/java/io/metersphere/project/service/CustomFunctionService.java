@@ -174,7 +174,7 @@ public class CustomFunctionService {
      */
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
         OperationHistoryExample example = new OperationHistoryExample();
-        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andModuleIn(List.of(OperationLogModule.PROJECT_CUSTOM_FUNCTION))
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andModuleIn(List.of(OperationLogModule.PROJECT_MANAGEMENT_COMMON_SCRIPT))
                 .andSourceIdEqualTo(request.getSourceId());
         List<OperationHistory> history = operationHistoryMapper.selectByExample(example);
         if (org.apache.commons.collections4.CollectionUtils.isEmpty(history)) {

@@ -42,7 +42,7 @@ public class CustomFunctionLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.PROJECT_CUSTOM_FUNCTION,
+                OperationLogModule.PROJECT_MANAGEMENT_COMMON_SCRIPT,
                 request.getName());
         dto.setHistory(true);
         dto.setPath("/project/custom/func/add");
@@ -66,7 +66,7 @@ public class CustomFunctionLogService {
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_CUSTOM_FUNCTION,
+                    OperationLogModule.PROJECT_MANAGEMENT_COMMON_SCRIPT,
                     request.getName());
             dto.setHistory(true);
             dto.setPath("/project/custom/func/update");
@@ -86,7 +86,7 @@ public class CustomFunctionLogService {
                     customFunctionDTO.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_CUSTOM_FUNCTION,
+                    OperationLogModule.PROJECT_MANAGEMENT_COMMON_SCRIPT,
                     customFunctionDTO.getName());
             dto.setHistory(true);
             dto.setPath("/project/custom/func/status" );
@@ -112,7 +112,7 @@ public class CustomFunctionLogService {
                     customFunctionDTO.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.PROJECT_CUSTOM_FUNCTION,
+                    OperationLogModule.PROJECT_MANAGEMENT_COMMON_SCRIPT,
                     customFunctionDTO.getName());
             dto.setHistory(true);
             dto.setPath("/project/custom/func/delete");
