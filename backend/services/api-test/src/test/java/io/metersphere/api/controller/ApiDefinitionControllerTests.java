@@ -602,7 +602,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestPostAndReturn(DEBUG, request);
         ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()), ResultHolder.class);
         Assertions.assertTrue(resultHolder.getCode() == ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() ||
-                resultHolder.getCode() == MsHttpResultCode.SUCCESS.getCode());
+                resultHolder.getCode() == MsHttpResultCode.FAILED.getCode());
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_EXECUTE, DEBUG, request);
