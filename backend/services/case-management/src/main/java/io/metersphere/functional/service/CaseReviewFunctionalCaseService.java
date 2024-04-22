@@ -176,7 +176,7 @@ public class CaseReviewFunctionalCaseService {
                         item.setMyStatus(getMyStatus(histories, viewStatusUserId));
                     } else {
                         //不存在评审历史
-                        item.setMyStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.name());
+                        item.setMyStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
                     }
                 }
             });
