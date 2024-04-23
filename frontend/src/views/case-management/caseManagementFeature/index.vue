@@ -39,6 +39,7 @@
                     </MsButton>
                   </a-tooltip>
                   <MsPopConfirm
+                    v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
                     ref="confirmRef"
                     v-model:visible="addSubVisible"
                     :is-delete="false"
@@ -159,6 +160,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
