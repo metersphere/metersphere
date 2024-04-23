@@ -1577,16 +1577,17 @@
    * API 详情抽屉关闭时应用更改
    */
   function applyApiStep(request: RequestParam | CaseRequestParam) {
+    if (request.unSaved) {
+      scenario.value.unSaved = true;
+    }
     if (activeStep.value) {
       const _stepType = getStepType(activeStep.value);
       if (_stepType.isQuoteCase || activeStep.value.isQuoteScenarioStep) {
-        // 引用的 case 和引用的场景步骤都不可更改
+        // 引用的 case 和引用的场景步骤都不可更改（除了步骤名）
+        activeStep.value.name = request.stepName || request.name;
         stepDetails.value[activeStep.value.id] = request; // 为了设置一次正确的polymorphicName
         return;
       }
-    }
-    if (request.unSaved) {
-      scenario.value.unSaved = true;
     }
     if (activeStep.value) {
       request.isNew = false;

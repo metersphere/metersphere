@@ -118,6 +118,13 @@
     }
   );
 
+  function reset(val: boolean) {
+    if (!val) {
+      form.value.field = '';
+      formRef.value?.resetFields();
+    }
+  }
+
   function beforeConfirm(done?: (closed: boolean) => void) {
     if (loading.value) return;
     formRef.value?.validate(async (errors) => {
@@ -158,6 +165,7 @@
           } else {
             innerVisible.value = false;
           }
+          reset(false);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -176,13 +184,6 @@
   function validateName(value: any, callback: (error?: string | undefined) => void) {
     if (props.allNames.includes(value)) {
       callback(props.repeatMessage || t('project.fileManagement.nameExist'));
-    }
-  }
-
-  function reset(val: boolean) {
-    if (!val) {
-      form.value.field = '';
-      formRef.value?.resetFields();
     }
   }
 </script>
