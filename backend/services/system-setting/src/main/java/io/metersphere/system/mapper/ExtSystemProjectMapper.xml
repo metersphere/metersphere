@@ -125,7 +125,7 @@
             and (LOCATE(#{keyword},u.name)>0 or LOCATE(#{keyword},u.email)>0)
         </if>
         order by u.create_time desc
-        limit 100
+        limit 1000
 
     </select>
 
@@ -148,7 +148,7 @@
         </where>
         group by u.id
         order by u.create_time desc
-        limit 100
+        limit 1000
     </select>
     <select id="getProjectExtendDTOList" resultType="io.metersphere.system.dto.ProjectDTO">
         select p.id, count(distinct temp.id) as memberCount
@@ -207,7 +207,7 @@
             and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
         </if>
         order by u.name
-        limit 100
+        limit 1000
     </select>
 
     <select id="getProjectMemberByUserId" resultType="io.metersphere.system.domain.User">
