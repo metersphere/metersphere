@@ -394,13 +394,11 @@
         label: 'project.taskCenter.batchEnable',
         eventTag: 'batchEnable',
         anyPermission: permissionsMap[props.group][props.moduleType].edit,
-        permission: permissionsMap[props.group][props.moduleType].edit,
       },
       {
         label: 'project.taskCenter.batchDisable',
         eventTag: 'batchDisable',
         anyPermission: permissionsMap[props.group][props.moduleType].edit,
-        permission: permissionsMap[props.group][props.moduleType].edit,
       },
     ],
   };
