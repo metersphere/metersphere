@@ -128,7 +128,7 @@ public class ApiScenarioLogService {
                 null,
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
-                apiScenario.getName());
+                request.getName());
         dto.setHistory(true);
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
