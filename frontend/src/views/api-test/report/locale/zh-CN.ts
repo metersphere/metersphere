@@ -19,7 +19,7 @@ export default {
   'report.status.pending': '未执行',
   'report.stopped': '停止',
   'report.trigger.scheduled': '定时执行',
-  'report.trigger.manual': '手工执行',
+  'report.trigger.manual': '手动执行',
   'report.trigger.interface': 'API 执行',
   'report.trigger.batch.execution': '批量执行',
   'report.delete.tip': '确认删除已选中的 {count} 个报告吗？',

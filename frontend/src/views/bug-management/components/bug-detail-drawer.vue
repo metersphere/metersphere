@@ -96,9 +96,9 @@
         :class="[
           `${
             activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT']) && !commentInputIsActive
-              ? 'h-[calc(100%-118px)]'
+              ? 'h-[calc(100%-72px)]'
               : commentInputIsActive
-              ? 'h-[calc(100%-338px)]'
+              ? 'h-[calc(100%-286px)]'
               : 'h-full'
           }`,
           'bg-white',
@@ -118,6 +118,7 @@
           :max="0.7"
           :min="0.6"
           direction="horizontal"
+          class="!h-[calc(100%-48px)]"
           :class="{ 'left-bug-detail': activeTab === 'comment' }"
         >
           <template #first>
