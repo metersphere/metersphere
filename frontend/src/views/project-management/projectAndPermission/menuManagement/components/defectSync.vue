@@ -33,7 +33,6 @@
         v-model:api="fApi"
         v-model:form-item="platformItem"
         :form-rule="platformRules"
-        @change="changeHandler"
         @mounted="handleMounted"
       />
       <!-- 同步机制 -->
@@ -291,10 +290,6 @@
     });
 
     fApi.value?.setValue({ ...tempObj });
-  }
-  function changeHandler(a: any, b: FormRuleItem) {
-    fApi.value.validateField(b.field);
-    fApi.value.refreshValidate();
   }
 
   function handleMounted() {
