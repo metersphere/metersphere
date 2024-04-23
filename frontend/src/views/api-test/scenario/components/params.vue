@@ -92,6 +92,7 @@
           value: 'LIST',
         },
       ],
+      width: 150,
       titleSlotName: 'typeTitle',
       typeTitleTooltip: t('apiScenario.params.typeTooltip'),
     },

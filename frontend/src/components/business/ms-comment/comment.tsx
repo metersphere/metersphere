@@ -143,13 +143,6 @@ export default defineComponent({
       );
     };
 
-    watch(
-      () => props.commentList,
-      () => {
-        expendedIds.value = [];
-      }
-    );
-
     const renderChildrenList = (list?: CommentItem[]) => {
       if (!list || list.length === 0) {
         return null;
@@ -176,6 +169,7 @@ export default defineComponent({
     const renderParentList = (list: CommentItem[]) => {
       return list.map((item) => (
         <>
+          {/* {expendedIds.value}--expendedIds */}
           <Item
             mode={'parent'}
             onReply={() => handleReply(item)}

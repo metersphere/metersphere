@@ -21,49 +21,51 @@ function getInsertCommonScript() {
   return [];
 }
 
-export const SCRIPT_MENU: CommonScriptMenu[] = [
-  // TODO 这个版本不上
-  // {
-  //   title: t('project.code_segment.importApiTest'),
-  //   value: 'api_definition',
-  //   command: 'api_definition',
-  // },
-  {
-    title: t('project.code_segment.newApiTest'),
-    value: 'new_api_request',
-    command: 'new_api_request',
-  },
-  {
-    title: t('project.processor.codeTemplateGetVariable'),
-    value: 'vars.get("variable_name");',
-  },
-  {
-    title: t('project.processor.codeTemplateSetVariable'),
-    value: 'vars.put("variable_name", "variable_value");',
-  },
-  {
-    title: t('project.processor.codeTemplateGetResponseHeader'),
-    value: 'prev.getResponseHeaders();',
-  },
-  {
-    title: t('project.processor.codeTemplateGetResponseCode'),
-    value: 'prev.getResponseCode();',
-  },
-  {
-    title: t('project.processor.codeTemplateGetResponseResult'),
-    value: 'prev.getResponseDataAsString();',
-  },
-  {
-    title: t('project.processor.paramEnvironmentSetGlobalVariable'),
-    value: `vars.put(\${__metersphere_env_id}+"key","value");\nvars.put("key","value");`,
-  },
-  ...getInsertCommonScript(),
-  {
-    title: t('project.processor.terminationTest'),
-    value: 'api_stop',
-    command: 'api_stop',
-  },
-];
+export function getScriptMenu(SemicolonStr: string) {
+  return [
+    // TODO 这个版本不上
+    // {
+    //   title: t('project.code_segment.importApiTest'),
+    //   value: 'api_definition',
+    //   command: 'api_definition',
+    // },
+    {
+      title: t('project.code_segment.newApiTest'),
+      value: 'new_api_request',
+      command: 'new_api_request',
+    },
+    {
+      title: t('project.processor.codeTemplateGetVariable'),
+      value: `vars.get("variable_name")${SemicolonStr}`,
+    },
+    {
+      title: t('project.processor.codeTemplateSetVariable'),
+      value: `vars.put("variable_name", "variable_value")${SemicolonStr}`,
+    },
+    {
+      title: t('project.processor.codeTemplateGetResponseHeader'),
+      value: `prev.getResponseHeaders()${SemicolonStr}`,
+    },
+    {
+      title: t('project.processor.codeTemplateGetResponseCode'),
+      value: `prev.getResponseCode()${SemicolonStr}`,
+    },
+    {
+      title: t('project.processor.codeTemplateGetResponseResult'),
+      value: `prev.getResponseDataAsString()${SemicolonStr}`,
+    },
+    {
+      title: t('project.processor.paramEnvironmentSetGlobalVariable'),
+      value: `vars.put(\${__metersphere_env_id}+"key","value");\nvars.put("key","value");`,
+    },
+    ...getInsertCommonScript(),
+    {
+      title: t('project.processor.terminationTest'),
+      value: 'api_stop',
+      command: 'api_stop',
+    },
+  ];
+}
 
 // 处理groovyCode 请求头
 function getGroovyHeaders(requestHeaders: Record<string, any>) {
