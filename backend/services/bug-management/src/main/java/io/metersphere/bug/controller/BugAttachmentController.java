@@ -138,10 +138,9 @@ public class BugAttachmentController {
         return bugAttachmentService.upgrade(request, SessionUtils.getUserId());
     }
 
-    // 富文本相关接口
     @PostMapping("/upload/md/file")
     @Operation(summary = "缺陷管理-富文本附件-上传")
-    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_BUG_ADD, PermissionConstants.PROJECT_BUG_UPDATE})
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_BUG_ADD, PermissionConstants.PROJECT_BUG_UPDATE, PermissionConstants.PROJECT_BUG_COMMENT})
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
         return bugAttachmentService.uploadMdFile(file);
     }
