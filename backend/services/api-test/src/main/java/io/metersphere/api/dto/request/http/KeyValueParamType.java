@@ -11,22 +11,22 @@ import io.metersphere.sdk.constants.ValueEnum;
 public enum KeyValueParamType implements ValueEnum {
     /**
      * 字符串类型
-     * 默认 application/text
      */
     STRING("string"),
     /**
      * 整型
-     * 默认 application/text
      */
     INTEGER("integer"),
     /**
      * 数值型
-     * 默认 application/text
      */
     NUMBER("number"),
     /**
+     * 布尔类型
+     */
+    BOOLEAN("boolean"),
+    /**
      * 数组
-     * 默认 application/text
      */
     ARRAY("array");
 
