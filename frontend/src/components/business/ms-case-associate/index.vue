@@ -362,20 +362,20 @@
       slotName: 'num',
       sortIndex: 1,
       showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      // sortable: {
+      //   sortDirections: ['ascend', 'descend'],
+      //   sorter: true,
+      // },
       width: 150,
       fixed: 'left',
     },
     {
       title: 'ms.case.associate.caseName',
       dataIndex: 'name',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      // sortable: {
+      //   sortDirections: ['ascend', 'descend'],
+      //   sorter: true,
+      // },
       showTooltip: true,
       width: 250,
     },
@@ -397,10 +397,10 @@
       title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      // sortable: {
+      //   sortDirections: ['ascend', 'descend'],
+      //   sorter: true,
+      // },
       width: 200,
       showDrag: true,
     },
