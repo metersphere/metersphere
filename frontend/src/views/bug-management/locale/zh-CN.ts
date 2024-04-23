@@ -111,6 +111,7 @@ export default {
     recycle: {
       recycleBin: '回收站',
       recover: '恢复',
+      recovering: '正在恢复中',
       recoverSuccess: '恢复成功',
       recoverError: '恢复失败',
       permanentlyDelete: '彻底删除',

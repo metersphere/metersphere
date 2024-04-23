@@ -190,7 +190,12 @@
       <a-date-picker v-model="syncObject.time" value-format="timestamp" show-time class="w-[304px]" />
     </div>
   </a-modal>
-  <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" @confirm="exportConfirm">
+  <MsExportDrawer
+    v-model:visible="exportVisible"
+    :export-loading="exportLoading"
+    :all-data="exportOptionData"
+    @confirm="exportConfirm"
+  >
     <template #title>
       <span class="text-[var(--color-text-1)]">{{ t('bugManagement.exportBug') }}</span>
       <span v-if="currentSelectParams.currentSelectCount" class="text-[var(--color-text-4)]"
@@ -261,12 +266,7 @@
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import {
-    customFieldDataToTableData,
-    customFieldToColumns,
-    downloadByteFile,
-    tableParamsToRequestParams,
-  } from '@/utils';
+  import { customFieldDataToTableData, customFieldToColumns, downloadByteFile } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
@@ -287,6 +287,7 @@
   const syncVisible = ref(false);
   const exportVisible = ref(false);
   const exportOptionData = ref<MsExportDrawerMap>({});
+  const exportLoading = ref(false);
   const currentPlatform = ref('Local');
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
@@ -545,9 +546,33 @@
     ],
   };
 
+  function initTableParams() {
+    const filterParams: Record<string, any> = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+      updateUser: updateUserFilterValue.value,
+      createUser: createUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    return {
+      keyword: keyword.value,
+      projectId: projectId.value,
+      filter: { ...filterParams },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+      },
+    };
+  }
+
+  function searchData() {
+    setLoadListParams(initTableParams());
+    loadList();
+  }
+
   const fetchData = async (v = '') => {
     setKeyword(v);
-    await loadList();
+    searchData();
   };
 
   const handleAdvSearch = (filter: FilterResult) => {
@@ -568,14 +593,15 @@
 
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
     try {
-      const params = tableParamsToRequestParams(currentSelectParams.value);
+      exportLoading.value = true;
       const blob = await exportBug({
-        ...params,
+        ...currentSelectParams.value,
         exportColumns: option.map((item) => item),
         projectId: appStore.currentProjectId,
         exportSort: sort.value,
       });
       downloadByteFile(blob, `${t('bugManagement.exportBug')}.zip`);
+      exportLoading.value = false;
       exportVisible.value = false;
       resetSelector();
     } catch (error) {
@@ -729,10 +755,10 @@
     });
   };
 
-  const handleBatchDelete = (params: BatchActionQueryParams) => {
-    let dataCount = params.selectedIds?.length;
-    if (params.selectAll) {
-      dataCount = params.currentSelectCount;
+  const handleBatchDelete = () => {
+    let dataCount = currentSelectParams.value.selectIds?.length;
+    if (currentSelectParams.value.selectAll) {
+      dataCount = currentSelectParams.value.currentSelectCount;
     }
     openDeleteModal({
       title: t('bugManagement.deleteCount', { count: dataCount }),
@@ -740,7 +766,7 @@
       onBeforeOk: async () => {
         try {
           const tmpObj = {
-            ...tableParamsToRequestParams(params),
+            ...currentSelectParams.value,
             projectId: projectId.value,
           };
           await deleteBatchBug(tmpObj);
@@ -755,18 +781,8 @@
     });
   };
 
-  const handleBatchEdit = (params: BatchActionQueryParams) => {
+  const handleBatchEdit = () => {
     batchEditVisible.value = true;
-    const condition = {
-      keyword: keyword.value,
-      searchMode: filterResult.value.accordBelow,
-      filter: propsRes.value.filter,
-      combine: filterResult.value.combine,
-    };
-    currentSelectParams.value = {
-      ...params,
-      condition,
-    };
   };
 
   const handleExport = () => {
@@ -810,17 +826,29 @@
     } else {
       params.condition = { filter: { ...filterParams } };
     }
-    currentSelectParams.value = params;
+    const condition = {
+      keyword: keyword.value,
+      searchMode: filterResult.value.accordBelow,
+      filter: params.condition.filter,
+      combine: filterResult.value.combine,
+    };
+    currentSelectParams.value = {
+      excludeIds: params.excludeIds,
+      selectAll: params.selectAll,
+      selectIds: params.selectedIds,
+      currentSelectCount: params.currentSelectCount,
+      condition,
+    };
 
     switch (event.eventTag) {
       case 'export':
         handleExport();
         break;
       case 'delete':
-        handleBatchDelete(params);
+        handleBatchDelete();
         break;
       case 'edit':
-        handleBatchEdit(params);
+        handleBatchEdit();
         break;
       default:
         break;
@@ -837,30 +865,6 @@
 
   function saveSort(sortObj: { [key: string]: string }) {
     sort.value = sortObj;
-  }
-
-  function initTableParams() {
-    const filterParams: Record<string, any> = {
-      status: statusFilterValue.value,
-      handleUser: handleUserFilterValue.value,
-      updateUser: updateUserFilterValue.value,
-      createUser: createUserFilterValue.value,
-    };
-    filterParams[severityColumnId.value] = severityFilterValue.value;
-    return {
-      keyword: keyword.value,
-      projectId: projectId.value,
-      filter: { ...filterParams },
-      condition: {
-        keyword: keyword.value,
-        filter: propsRes.value.filter,
-      },
-    };
-  }
-
-  function searchData() {
-    setLoadListParams(initTableParams());
-    loadList();
   }
 
   watchEffect(() => {

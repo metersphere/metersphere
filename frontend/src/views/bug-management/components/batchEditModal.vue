@@ -123,7 +123,6 @@
   import { updateBatchBug } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { tableParamsToRequestParams } from '@/utils';
 
   import type { BugBatchUpdateFiledType } from '@/models/bug-management';
   import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
@@ -221,7 +220,7 @@
         try {
           loading.value = true;
           const tmpObj = {
-            ...tableParamsToRequestParams(props.selectParam),
+            ...props.selectParam,
             projectId: appStore.currentProjectId,
             [form.attribute]: form.value || form.inputValue,
             append: form.append,

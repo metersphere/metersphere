@@ -112,6 +112,7 @@ export default {
     recycle: {
       recycleBin: 'Recycle',
       recover: 'Recover',
+      recovering: 'Recovering',
       recoverSuccess: 'Recover success',
       recoverError: 'Recover failed',
       permanentlyDelete: 'Permanently delete',

@@ -7,7 +7,8 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         @keyword-search="fetchData"
-        @refresh="fetchData('')"
+        @adv-search="handleAdvSearch"
+        @refresh="handleAdvSearch"
       >
         <template #left>
           <div></div>
@@ -136,7 +137,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { BackEndEnum, FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -156,12 +157,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
-  import {
-    characterLimit,
-    customFieldDataToTableData,
-    customFieldToColumns,
-    tableParamsToRequestParams,
-  } from '@/utils';
+  import { characterLimit, customFieldDataToTableData, customFieldToColumns } from '@/utils';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -215,6 +211,8 @@
   const severityFilterVisible = ref(false);
   const severityFilterValue = ref<string[]>([]);
   const severityColumnId = ref('');
+  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
+  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
 
   const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
 
@@ -409,9 +407,39 @@
     setProps({ heightUsed: heightUsed.value });
   });
 
+  function initTableParams() {
+    const filterParams: Record<string, any> = {
+      status: statusFilterValue.value,
+      handleUser: handleUserFilterValue.value,
+      updateUser: updateUserFilterValue.value,
+      createUser: createUserFilterValue.value,
+      deleteUser: deleteUserFilterValue.value,
+    };
+    filterParams[severityColumnId.value] = severityFilterValue.value;
+    return {
+      keyword: keyword.value,
+      projectId: projectId.value,
+      filter: { ...filterParams },
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+      },
+    };
+  }
+
+  function searchData() {
+    setLoadListParams(initTableParams());
+    loadList();
+  }
+
   const fetchData = async (v = '') => {
     setKeyword(v);
-    await loadList();
+    searchData();
+  };
+
+  const handleAdvSearch = (filter: FilterResult) => {
+    filterResult.value = filter;
+    fetchData();
   };
 
   // 单个恢复
@@ -427,11 +455,14 @@
   };
 
   // 批量恢复
-  const handleBatchRecover = async (params: BatchActionQueryParams) => {
+  const handleBatchRecover = async () => {
     try {
-      const tmpObj = { ...tableParamsToRequestParams(params), projectId: projectId.value };
+      appStore.showLoading(t('bugManagement.recycle.recovering'));
+      const tmpObj = { ...currentSelectParams.value, projectId: projectId.value };
       await recoverBatchByRecycle(tmpObj);
+      appStore.hideLoading();
       Message.success(t('bugManagement.recycle.recoverSuccess'));
+      keyword.value = '';
       fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -457,15 +488,16 @@
     });
   };
   // 批量删除
-  const handleBatchDelete = (params: BatchActionQueryParams) => {
+  const handleBatchDelete = () => {
     openDeleteModal({
-      title: t('bugManagement.recycle.batchDelete', { count: params.currentSelectCount }),
+      title: t('bugManagement.recycle.batchDelete', { count: currentSelectParams.value.currentSelectCount }),
       content: t('bugManagement.recycle.deleteContent'),
       onBeforeOk: async () => {
         try {
-          const tmpObj = { ...tableParamsToRequestParams(params), projectId: projectId.value };
+          const tmpObj = { ...currentSelectParams.value, projectId: projectId.value };
           await deleteBatchByRecycle(tmpObj);
           Message.success(t('common.deleteSuccess'));
+          keyword.value = '';
           fetchData();
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -490,41 +522,30 @@
     } else {
       params.condition = { filter: { ...filterParams } };
     }
+    const condition = {
+      keyword: keyword.value,
+      searchMode: filterResult.value.accordBelow,
+      filter: params.condition.filter,
+      combine: filterResult.value.combine,
+    };
+    currentSelectParams.value = {
+      excludeIds: params.excludeIds,
+      selectAll: params.selectAll,
+      selectIds: params.selectedIds,
+      currentSelectCount: params.currentSelectCount,
+      condition,
+    };
+
     switch (event.eventTag) {
       case 'recover':
-        handleBatchRecover(params);
+        handleBatchRecover();
         break;
       case 'delete':
-        handleBatchDelete(params);
+        handleBatchDelete();
         break;
       default:
         break;
     }
-  }
-
-  function initTableParams() {
-    const filterParams: Record<string, any> = {
-      status: statusFilterValue.value,
-      handleUser: handleUserFilterValue.value,
-      updateUser: updateUserFilterValue.value,
-      createUser: createUserFilterValue.value,
-      deleteUser: deleteUserFilterValue.value,
-    };
-    filterParams[severityColumnId.value] = severityFilterValue.value;
-    return {
-      keyword: keyword.value,
-      projectId: projectId.value,
-      filter: { ...filterParams },
-      condition: {
-        keyword: keyword.value,
-        filter: propsRes.value.filter,
-      },
-    };
-  }
-
-  function searchData() {
-    setLoadListParams(initTableParams());
-    loadList();
   }
 
   async function initFilterOptions() {
