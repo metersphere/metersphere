@@ -5,31 +5,40 @@
         {{ $t('organization.integration.select_defect_platform') }}
       </div>
 
-      <el-form class="platform-radio">
+      <el-form style=" margin-left:-20px;">
         <el-radio-group v-model="platform" style="margin-top: 10px;width: 100%">
-          <el-row>
-            <el-col :gutter="20" :span="4">
-              <el-radio class="platform-radio" label="Tapd">
-                <img alt="Tapd" class="platform" src="/assets/tapd.png"/>
-              </el-radio>
-            </el-col>
-            <el-col :gutter="20" :span="4">
-              <el-radio class="platform-radio" label="AzureDevops">
-                <img alt="AzureDevops" class="platform" src="/assets/AzureDevops.png"/>
-              </el-radio>
-            </el-col>
-            <el-col :gutter="20" :span="16">
-            </el-col>
-          </el-row>
-          <el-row v-for="(row, index) in platformConfigs" :key="index">
-            <el-col v-for="config in row" :key="config.key" :gutter="20" :span="4">
-            <span>
-             <el-radio :label="config.label" class="platform-radio">
-              <img :alt="config.label" :src="getPlatformImageUrl(config)" class="platform"/>
-            </el-radio>
-          </span>
-            </el-col>
-          </el-row>
+          <table>
+            <tr>
+              <td>
+                <el-radio class="platform-radio" label="Tapd">
+                  <img alt="Tapd" class="platform" src="/assets/tapd.png"/>
+                </el-radio>
+              </td>
+              <td>
+                <el-radio class="platform-radio" label="AzureDevops">
+                  <img alt="AzureDevops" class="platform" src="/assets/AzureDevops.png"/>
+                </el-radio>
+              </td>
+              <td v-for="config in firstRowPlatformConfigImages" :key="config.key">
+                  <span>
+                     <el-radio :label="config.label" class="platform-radio">
+                      <img :alt="config.label" :src="getPlatformImageUrl(config)" class="platform"
+                           style="width: 150px;height: auto"/>
+                    </el-radio>
+                  </span>
+              </td>
+            </tr>
+            <tr v-for="(row, index) in otherPlatformConfigImages" :key="index">
+              <td v-for="config in row" :key="config.key">
+                  <span>
+                     <el-radio :label="config.label" class="platform-radio">
+                      <img :alt="config.label" :src="getPlatformImageUrl(config)" class="platform"
+                           style="width: 150px;height: auto"/>
+                    </el-radio>
+                  </span>
+              </td>
+            </tr>
+          </table>
         </el-radio-group>
       </el-form>
 
@@ -61,20 +70,28 @@ export default {
     return {
       loading: false,
       platformConfigs: [],
+      firstRowPlatformConfigImages: [],
+      otherPlatformConfigImages: [],
       platform: TAPD,
     }
   },
   activated() {
     this.platformConfigs = [];
-
+    this.firstRowPlatformConfigImages = [];
+    this.otherPlatformConfigImages = [];
     getIntegrationInfo()
       .then((r) => {
         for (let i = 0; i < r.data.length; i++) {
-          let pageNum = Math.floor(i / 5);
-          if (!this.platformConfigs[pageNum]) {
-            this.platformConfigs.push([]);
+          this.platformConfigs.push(r.data[i]);
+          if (i < 2) {
+            this.firstRowPlatformConfigImages.push(r.data[i]);
+          } else {
+            let pageNum = Math.floor((i - 2) / 4);
+            if (!this.otherPlatformConfigImages[pageNum]) {
+              this.otherPlatformConfigImages.push([]);
+            }
+            this.otherPlatformConfigImages[pageNum].push(r.data[i]);
           }
-          this.platformConfigs[pageNum].push(r.data[i]);
         }
       });
 
