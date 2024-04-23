@@ -8,38 +8,40 @@
         <div class="template-operation">
           <div class="flex items-center">
             <span class="font-medium">{{ props.cardItem.name }}</span>
-            <span v-if="!isEnableProject" class="enable">{{ t('system.orgTemplate.enabledTemplates') }}</span>
+            <span v-if="isEnableProject" class="enable">{{ t('system.orgTemplate.enabledTemplates') }}</span>
           </div>
           <div class="flex min-w-[300px] flex-nowrap items-center">
+            <!-- 字段设置 -->
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="fieldSetting">{{ t('system.orgTemplate.fieldSetting') }}</span>
               <a-divider direction="vertical" />
             </span>
+            <!-- 模板列表 -->
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagementList') }}</span>
-              <a-divider
-                v-if="hasEnablePermission && isEnableProject && props.cardItem.key === 'BUG'"
-                direction="vertical"
-              />
+              <a-divider v-if="isShow" direction="vertical" />
             </span>
+            <!-- 工作流 -->
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
-              <a-divider
-                v-if="!(hasEnablePermission && isEnableProject) && props.cardItem.key === 'BUG'"
-                direction="vertical"
-              />
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
               <a-divider
-                v-if="hasEnablePermission && props.mode === 'organization' && isEnableProject"
+                v-if="
+                  hasEnablePermission &&
+                  props.mode === 'organization' &&
+                  !isEnableProject &&
+                  props.cardItem.key === 'BUG'
+                "
                 v-permission="['ORGANIZATION_TEMPLATE:READ+ENABLE']"
                 direction="vertical"
               />
             </span>
+            <!-- 启用项目模板 只有组织可以启用 -->
             <span
-              v-if="hasEnablePermission && props.mode === 'organization' && isEnableProject"
+              v-if="hasEnablePermission && props.mode === 'organization' && !isEnableProject"
               class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]"
             >
-              <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
-            /></span>
+              <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect" />
+            </span>
           </div>
         </div>
       </div>
@@ -130,9 +132,7 @@
 
   // 先判断项目是否是开启
   const isEnableProject = computed(() => {
-    return props.mode === 'organization'
-      ? templateStore.ordStatus[props.cardItem.key]
-      : templateStore.projectStatus[props.cardItem.key];
+    return templateStore.projectStatus[props.cardItem.key];
   });
 
   const moreActions = ref<ActionsItem[]>([
@@ -213,6 +213,13 @@
   );
 
   const hasEnablePermission = computed(() => hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ENABLE']));
+
+  const isShow = computed(() => {
+    if (props.cardItem.key === 'BUG') {
+      return true;
+    }
+    return !hasEnablePermission.value ? false : !isEnableProject.value;
+  });
 
   function cancelHandler() {
     showEnableVisible.value = false;

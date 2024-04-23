@@ -336,7 +336,7 @@
       selectAll: !!selectAll,
       excludeIds: excludeIds || [],
       selectIds: selectedIds || [],
-      roleIds: roleIds.value ? [roleIds.value] : [],
+      roleIds: target,
       condition: {
         keyword: keyword.value,
         filter: {
