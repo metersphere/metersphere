@@ -16,7 +16,7 @@
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('common.noData')"
-      draggable
+      :draggable="!props.isModal && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
       :virtual-list-props="virtualListProps"
       block-node
       :field-names="{
@@ -139,11 +139,13 @@
     {
       label: 'caseManagement.featureCase.rename',
       eventTag: 'rename',
+      permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
     },
     {
       label: 'caseManagement.featureCase.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['FUNCTIONAL_CASE:READ+DELETE'],
     },
   ];
 
