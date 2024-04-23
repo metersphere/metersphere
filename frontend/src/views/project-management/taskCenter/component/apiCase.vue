@@ -487,6 +487,7 @@
         label: 'project.taskCenter.batchStop',
         eventTag: 'batchStop',
         anyPermission: permissionsMap[props.group][props.moduleType].stop,
+        permission: permissionsMap[props.group][props.moduleType].stop,
       },
       // {
       // label: 'project.taskCenter.batchExecution',

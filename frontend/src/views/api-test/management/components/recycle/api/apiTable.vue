@@ -112,14 +112,23 @@
         <apiStatus :status="record.status" />
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="recover(record)">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
+          type="text"
+          class="!mr-0"
+          @click="recover(record)"
+        >
           {{ t('apiTestManagement.recycle.batchRecover') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0" @click="cleanOut(record)">
+        <a-divider v-permission="['PROJECT_API_DEFINITION:READ+DELETE']" direction="vertical" :margin="8"></a-divider>
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
+          type="text"
+          class="!mr-0"
+          @click="cleanOut(record)"
+        >
           {{ t('apiTestManagement.recycle.batchCleanOut') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
       </template>
     </ms-base-table>
   </div>
@@ -284,11 +293,12 @@
       {
         label: 'apiTestManagement.recycle.batchRecover',
         eventTag: 'batchRecover',
-        // permission: ['FUNCTIONAL_CASE:READ+DELETE'],
+        permission: ['PROJECT_API_DEFINITION:READ+DELETE'],
       },
       {
         label: 'apiTestManagement.recycle.batchCleanOut',
         eventTag: 'batchCleanOut',
+        permission: ['PROJECT_API_DEFINITION:READ+DELETE'],
       },
     ],
   };
