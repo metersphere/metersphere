@@ -21,7 +21,7 @@
       </a-button>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('project.menu.nameSearch')"
+        :placeholder="t('apiScenario.params.searchPlaceholder')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"

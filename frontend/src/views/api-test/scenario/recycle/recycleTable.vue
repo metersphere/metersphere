@@ -570,7 +570,7 @@
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { keyword: keyword.value },
+              condition: { ...params?.condition, keyword: keyword.value },
               projectId: appStore.currentProjectId,
               moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
             });
