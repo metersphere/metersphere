@@ -95,7 +95,7 @@
 
   const resBodyRef = ref();
   function copyScript() {
-    const encodingFormatValue = resBodyRef.value.responseEditorRef.getEncodingCode();
+    const encodingFormatValue = resBodyRef.value[0].responseEditorRef.getEncodingCode();
     if (isSupported) {
       copy(encodingFormatValue || '');
       Message.success(t('common.copySuccess'));
