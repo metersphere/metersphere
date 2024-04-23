@@ -118,7 +118,10 @@
       moreActionLength.value = 0;
     } else {
       moreAction.value?.forEach((key) => {
-        if (key.permission && hasAllPermission(key.permission as string[])) {
+        if (
+          (key.anyPermission && hasAnyPermission(key.anyPermission as string[])) ||
+          (key.permission && hasAllPermission(key.permission as string[]))
+        ) {
           moreActionLength.value += 1;
         }
       });
