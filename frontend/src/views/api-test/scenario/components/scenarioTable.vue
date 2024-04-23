@@ -435,7 +435,7 @@
       <div class="text-[var(--color-text-4)]">
         {{
           t('api_scenario.table.batchModalSubTitle', {
-            count: batchParams.currentSelectCount || tableSelected.length,
+            count: batchParams?.currentSelectCount || tableSelected.length,
           })
         }}
       </div>
@@ -586,7 +586,7 @@
   </a-modal>
   <batch-run-modal
     v-model:visible="showBatchExecute"
-    :batch-condition-params="batchConditionParams"
+    :batch-condition-params="batchOptionParams"
     :batch-params="batchParams"
     :table-selected="tableSelected"
     :batch-run-func="batchRunScenario"
@@ -639,8 +639,14 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { Environment } from '@/models/apiTest/management';
-  import { ApiScenarioScheduleConfig, ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
-  import { DragSortParams } from '@/models/common';
+  import {
+    ApiScenarioBatchParam,
+    ApiScenarioBatchParams,
+    ApiScenarioScheduleConfig,
+    ApiScenarioTableItem,
+    ApiScenarioUpdateDTO,
+  } from '@/models/apiTest/scenario';
+  import { DragSortParams, type TableQueryParams } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
@@ -984,19 +990,6 @@
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
 
-  const batchConditionParams = computed(() => {
-    return {
-      condition: {
-        keyword: keyword.value,
-        filter: {
-          status: statusFilters.value,
-        },
-      },
-      projectId: appStore.currentProjectId,
-      moduleIds: activeModules.value,
-    };
-  });
-
   async function loadScenarioList(refreshTreeCount?: boolean) {
     let moduleIds: string[] = [];
     if (props.activeModule && props.activeModule !== 'all') {
@@ -1076,17 +1069,19 @@
 
   const tableSelected = ref<(string | number)[]>([]);
 
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
+  const batchParams = ref<ApiScenarioBatchParam>();
+
+  const batchOptionParams = ref<ApiScenarioBatchParams>({
+    projectId: appStore.currentProjectId,
+    selectIds: [],
     selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
+    condition: {},
   });
 
   /**
    * 删除接口
    */
-  function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: ApiScenarioBatchParam) {
     let title = t('api_scenario.table.deleteScenarioTipTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -1125,7 +1120,7 @@
               excludeIds: params?.excludeIds || [],
               condition: { ...params?.condition, keyword: keyword.value },
               projectId: appStore.currentProjectId,
-              moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+              moduleIds: params?.moduleIds || [],
               deleteAll: true,
             });
           } else {
@@ -1333,8 +1328,6 @@
         try {
           batchUpdateLoading.value = true;
 
-          // value: 'PRIORITY',
-          //    value: 'STATUS',
           const batchEditParam = {
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
@@ -1350,7 +1343,7 @@
               },
             },
             projectId: appStore.currentProjectId,
-            moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+            moduleIds: batchParams.value?.moduleIds || [],
             type: batchForm.value?.attr,
             priority: '',
             status: '',
@@ -1419,7 +1412,7 @@
           },
         },
         projectId: appStore.currentProjectId,
-        moduleIds: props.activeModule === 'all' ? [] : [props.activeModule],
+        moduleIds: batchParams.value?.moduleIds || [],
         targetModuleId: selectedBatchOptModuleKey.value,
       });
 
@@ -1466,9 +1459,19 @@
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    batchParams.value = params;
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
+
+    // 构建批量处理的基础参数
+    let moduleIds: string[] = [];
+    const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_SCENARIO);
+    if (getAllChildren) {
+      moduleIds = [props.activeModule, ...props.offspringIds];
+    } else {
+      moduleIds = [props.activeModule];
+    }
+    batchParams.value = { ...params, moduleIds: [] };
+    batchParams.value.moduleIds = moduleIds;
     const filterParams = {
       lastReportStatus: lastReportStatusListFilters.value,
       status: statusFilters.value,
@@ -1478,10 +1481,10 @@
     };
     if (batchParams.value.condition) {
       batchParams.value.condition.filter = { ...filterParams };
+      batchParams.value.condition.keyword = keyword.value;
     } else {
-      batchParams.value.condition = { filter: { ...filterParams } };
+      batchParams.value.condition = { filter: { ...filterParams }, keyword: keyword.value };
     }
-
     switch (event.eventTag) {
       case 'delete':
         deleteScenario(undefined, true, batchParams.value);
@@ -1507,6 +1510,20 @@
         moveModalVisible.value = true;
         break;
       case 'execute':
+        batchOptionParams.value = {
+          projectId: appStore.currentProjectId,
+          selectIds: [],
+          selectAll: false,
+          condition: {},
+        };
+
+        // 构建执行的参数
+        batchOptionParams.value.selectAll = params.selectAll;
+        batchOptionParams.value.excludeIds = params.excludeIds;
+        batchOptionParams.value.selectIds = params.selectedIds?.length ? params.selectedIds : [];
+        batchOptionParams.value.moduleIds = moduleIds;
+        batchOptionParams.value.condition = batchParams.value?.condition || {};
+
         showBatchExecute.value = true;
         break;
       default:
