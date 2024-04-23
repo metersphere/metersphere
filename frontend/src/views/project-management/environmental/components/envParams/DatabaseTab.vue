@@ -13,6 +13,7 @@
         :placeholder="t('project.menu.nameSearch')"
         @press-enter="fetchData"
         @search="fetchData"
+        @clear="fetchData"
       ></a-input-search>
     </div>
   </div>

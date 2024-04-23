@@ -9,6 +9,7 @@
           class="mr-[8px] w-[240px]"
           @search="loadApiList(false)"
           @press-enter="loadApiList(false)"
+          @clear="loadApiList(false)"
         />
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList(false)">
           <template #icon>
@@ -309,12 +310,7 @@
   const statusFilters = ref<string[]>([]);
   const deleteUserFilterVisible = ref(false);
   const deleteUserFilters = ref<string[]>([]);
-  const moduleIds = computed(() => {
-    if (props.activeModule === 'all') {
-      return [];
-    }
-    return [props.activeModule];
-  });
+
   const tableQueryParams = ref<any>();
   const tableStore = useTableStore();
   async function getModuleIds() {

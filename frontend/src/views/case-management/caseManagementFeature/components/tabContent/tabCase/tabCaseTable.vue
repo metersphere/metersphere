@@ -18,6 +18,7 @@
         class="mx-[8px] w-[240px]"
         @search="searchCase"
         @press-enter="searchCase"
+        @clear="searchCase"
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">

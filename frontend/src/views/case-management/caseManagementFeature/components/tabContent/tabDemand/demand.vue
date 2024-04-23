@@ -27,6 +27,7 @@
         class="mx-[8px] w-[240px]"
         @search="searchList"
         @press-enter="searchList"
+        @clear="searchList"
       ></a-input-search>
     </div>
     <AssociatedDemandTable
@@ -74,6 +75,7 @@
           class="mx-[8px] w-[240px]"
           @search="searchHandler"
           @press-enter="searchHandler"
+          @clear="searchHandler"
         ></a-input-search>
       </div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
@@ -119,14 +121,12 @@
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const appStore = useAppStore();
-  const featureCaseStore = useFeatureCaseStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const props = defineProps<{
     caseId: string;

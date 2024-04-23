@@ -31,6 +31,7 @@
           class="mx-[8px] w-[240px]"
           @search="searchDependCase"
           @press-enter="searchDependCase"
+          @clear="searchDependCase"
         ></a-input-search>
       </div>
     </div>

@@ -28,6 +28,7 @@
         allow-clear
         @search="searchFiled"
         @press-enter="searchFiled"
+        @clear="searchFiled"
       ></a-input-search>
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">

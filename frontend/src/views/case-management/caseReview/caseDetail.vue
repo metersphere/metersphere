@@ -31,6 +31,7 @@
             class="mr-[8px] w-[240px]"
             @search="loadCaseList"
             @press-enter="loadCaseList"
+            @clear="loadCaseList"
           />
           <a-select
             v-model:model-value="type"
@@ -184,6 +185,7 @@
                 class="w-[300px]"
                 @press-enter="searchDemand"
                 @search="searchDemand"
+                @clear="searchDemand"
               />
             </div>
             <caseTabDemand

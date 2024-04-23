@@ -500,12 +500,6 @@
       background-color: var(--color-text-n9);
       line-height: normal;
     }
-    :deep(.arco-checkbox-indeterminate) {
-      .arco-checkbox-icon {
-        border-color: rgb(var(--primary-5));
-        background: rgb(var(--primary-1));
-      }
-    }
   }
   .footer {
     display: flex;

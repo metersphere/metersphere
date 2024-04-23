@@ -21,6 +21,7 @@
           allow-clear
           @search="searchHandler"
           @press-enter="searchHandler"
+          @clear="searchHandler"
         ></a-input-search>
       </a-col>
     </a-row>

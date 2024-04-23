@@ -26,6 +26,7 @@
               allow-clear
               @press-enter="searchData"
               @search="searchData"
+              @clear="searchData"
             />
             <!-- 全局参数-->
             <div class="p-[8px] text-[var(--color-text-4)]">
