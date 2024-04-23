@@ -439,9 +439,10 @@
     .ms-message-item {
       @apply flex;
 
-      padding-top: 8px;
+      padding: 8px;
+      border-radius: var(--border-radius-small);
       &:not(:last-child) {
-        margin-bottom: 16px;
+        margin-bottom: 8px;
       }
       &:hover {
         background-color: var(--color-text-n9);
