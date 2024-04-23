@@ -521,6 +521,7 @@
       {
         label: 'caseManagement.caseReview.move',
         eventTag: 'move',
+        permission: ['CASE_REVIEW:READ+UPDATE'],
       },
     ],
   };

@@ -455,18 +455,22 @@
       {
         label: 'caseManagement.caseReview.review',
         eventTag: 'review',
+        permission: ['CASE_REVIEW:READ+REVIEW'],
       },
       {
         label: 'caseManagement.caseReview.changeReviewer',
         eventTag: 'changeReviewer',
+        permission: ['CASE_REVIEW:READ+UPDATE'],
       },
       {
         label: 'caseManagement.caseReview.disassociate',
         eventTag: 'disassociate',
+        permission: ['CASE_REVIEW:READ+RELEVANCE'],
       },
       {
         label: 'caseManagement.caseReview.reReview',
         eventTag: 'reReview',
+        permission: ['CASE_REVIEW:READ+UPDATE'],
       },
     ],
   };
