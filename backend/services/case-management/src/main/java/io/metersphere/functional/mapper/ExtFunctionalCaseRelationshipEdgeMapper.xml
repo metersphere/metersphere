@@ -39,28 +39,29 @@
                 </if>
                 LEFT JOIN `user` u ON fc.create_user = u.id
                 LEFT JOIN project_version pv ON pv.id = fc.version_id
-        WHERE
-        fc.deleted = false
-        <if test="request.type != null and request.type != ''">
-            <choose>
-                <when test="request.type == 'PRE'">
-                   AND fcre.source_id = #{request.id}
-                </when>
-                <when test="request.type == 'POST'">
-                   AND fcre.target_id = #{request.id}
-                </when>
-            </choose>
-        </if>
-        <if test="request.keyword != null and request.keyword != ''">
-            and fc.name like concat('%', #{request.keyword},'%')
-        </if>
-        order by
-        <if test="sort != null and sort != ''">
-            fc.${sort}
-        </if>
-        <if test="sort == null or sort == ''">
-            fcre.create_time desc
-        </if>
+        <where>
+            <if test="request.type != null and request.type != ''">
+                <choose>
+                    <when test="request.type == 'PRE'">
+                        AND fcre.source_id = #{request.id}
+                    </when>
+                    <when test="request.type == 'POST'">
+                        AND fcre.target_id = #{request.id}
+                    </when>
+                </choose>
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and fc.name like concat('%', #{request.keyword},'%')
+            </if>
+            order by
+            <if test="sort != null and sort != ''">
+                fc.${sort}
+            </if>
+            <if test="sort == null or sort == ''">
+                fcre.create_time desc
+            </if>
+        </where>
+
     </select>
     
     <select id="getGraphId" resultType="io.metersphere.system.dto.RelationshipEdgeDTO" parameterType="java.lang.String">
