@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="p-[12px] pt-0">
-      <div v-for="item of SCRIPT_MENU" :key="item.value" class="menuItem px-1" @click="handleClick(item)">
+      <div v-for="item of scriptMenus" :key="item.value" class="menuItem px-1" @click="handleClick(item)">
         {{ item.title }}
       </div>
     </div>
@@ -50,7 +50,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { CommonScriptMenu } from './types';
-  import { getCodeTemplate, SCRIPT_MENU } from './utils';
+  import { getCodeTemplate, getScriptMenu } from './utils';
 
   const { t } = useI18n();
 
@@ -80,6 +80,10 @@
     { text: 'Groovy', value: LanguageEnum.GROOVY },
     { text: 'JavaScript', value: LanguageEnum.JAVASCRIPT },
   ];
+
+  const scriptMenus = computed(() => {
+    return innerLanguageType.value !== LanguageEnum.PYTHON ? getScriptMenu(';') : getScriptMenu('');
+  });
 
   function expandedHandler() {
     innerExpand.value = !innerExpand.value;

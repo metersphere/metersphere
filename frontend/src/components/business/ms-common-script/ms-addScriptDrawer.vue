@@ -136,7 +136,7 @@
     result: '',
   };
 
-  const form = ref({ ...initForm });
+  const form = ref({ ...cloneDeep(initForm) });
 
   const columns: MsTableColumn = [
     {
@@ -243,7 +243,7 @@
     () => showScriptDrawer.value,
     (val) => {
       if (val) {
-        form.value = { ...initForm };
+        form.value = { ...cloneDeep(initForm) };
         innerParams.value = [];
         editScriptId.value = props.scriptId;
         if (editScriptId.value) {
