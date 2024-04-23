@@ -90,7 +90,7 @@
     <template #default="{ loading }">
       <div
         ref="wrapperRef"
-        :class="[`${!commentInputIsActive ? 'h-[calc(100%-118px)]' : 'h-[calc(100%-338px)]'}`, 'bg-white']"
+        :class="[`${!commentInputIsActive ? 'h-[calc(100%-72px)]' : 'h-[calc(100%-286px)]'}`, 'bg-white']"
       >
         <div class="header relative h-[48px] pl-2">
           <MsTab
@@ -104,10 +104,17 @@
             t('caseManagement.featureCase.detailDisplaySetting')
           }}</span>
         </div>
-        <MsSplitBox :size="0.8" :max="0.7" :min="0.6" direction="horizontal" expand-direction="right">
+        <MsSplitBox
+          :size="0.8"
+          :max="0.7"
+          :min="0.6"
+          direction="horizontal"
+          expand-direction="right"
+          class="!h-[calc(100%-48px)]"
+        >
           <template #first>
             <div class="leftWrapper h-full">
-              <div class="leftContent mt-4 w-full pl-[16px] pr-[24px]">
+              <div class="leftContent w-full pl-[16px] pr-[24px] pt-4">
                 <template v-if="activeTab === 'detail'">
                   <TabDetail
                     ref="tabDetailRef"

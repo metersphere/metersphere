@@ -188,7 +188,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getAssociatedList, {
     columns,
     scroll: { x: '100%' },
-    heightUsed: 340,
+    heightUsed: 310,
     enableDrag: false,
   });
 

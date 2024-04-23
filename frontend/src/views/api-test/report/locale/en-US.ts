@@ -19,7 +19,7 @@ export default {
   'report.status.pending': 'Pending',
   'report.stopped': 'Stopped',
   'report.trigger.scheduled': 'Schedule',
-  'report.trigger.manual': 'Manual',
+  'report.trigger.manual': 'Manual execution',
   'report.trigger.interface': 'API',
   'report.trigger.batch.execution': 'Batch',
   'report.delete.tip': 'Are you sure you want to delete {count} selected reports?',
