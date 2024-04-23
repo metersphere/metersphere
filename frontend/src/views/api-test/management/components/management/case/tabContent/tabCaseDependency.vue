@@ -9,6 +9,7 @@
         class="mr-[8px] w-[240px]"
         @search="loadQuoteList"
         @press-enter="loadQuoteList"
+        @clear="loadQuoteList"
       />
     </div>
 

@@ -7,6 +7,7 @@
       class="mr-[8px] w-[240px]"
       @search="loadQuoteList"
       @press-enter="loadQuoteList"
+      @clear="loadQuoteList"
     />
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #num="{ record }">

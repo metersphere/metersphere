@@ -10,6 +10,7 @@
       allow-clear
       @press-enter="fetchData"
       @search="fetchData"
+      @clear="fetchData"
     ></a-input-search>
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">

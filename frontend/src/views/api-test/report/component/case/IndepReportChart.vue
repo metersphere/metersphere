@@ -25,8 +25,6 @@
   /**
    * @description 用例报告独立报告
    */
-  import { ref } from 'vue';
-
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';

@@ -428,23 +428,29 @@
     @apply hidden;
   }
 }
-.arco-checkbox-indeterminate .arco-checkbox-icon {
+.arco-checkbox-indeterminate .arco-checkbox-icon:not(.arco-checkbox-disabled .arco-checkbox-icon) {
   border: 1px solid rgba(var(--primary-7)) !important;
   background-color: rgba(var(--primary-1));
   &::after {
     background-color: rgb(var(--primary-7));
   }
 }
+.arco-checkbox-disabled:hover,
+.arco-checkbox-disabled,
 .arco-checkbox-disabled.arco-checkbox-checked,
 .arco-checkbox-disabled.arco-checkbox-checked:hover {
   .arco-checkbox-icon {
     @apply bg-white text-white;
 
-    border: none;
-    background: rgb(var(--primary-2)) !important;
+    border-color: var(--color-text-input-border) !important;
+    background: var(--color-text-n8) !important;
+    &::after {
+      background-color: var(--color-text-4);
+    }
   }
   .arco-checkbox-icon-check {
-    background-color: rgb(var(--primary-2)) !important;
+    color: var(--color-text-4);
+    background-color: var(--color-text-n8) !important;
   }
 }
 

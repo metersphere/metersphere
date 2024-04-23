@@ -17,6 +17,7 @@
           class="mr-[8px] w-[240px]"
           @search="loadCaseList"
           @press-enter="loadCaseList"
+          @clear="loadCaseList"
         />
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
           <template #icon>

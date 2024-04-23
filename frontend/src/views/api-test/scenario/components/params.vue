@@ -17,6 +17,7 @@
       class="mr-[8px] w-[240px]"
       @search="handleSearch"
       @press-enter="handleSearch"
+      @clear="handleSearch"
     />
     <batchAddKeyVal
       :params="innerParams"

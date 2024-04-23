@@ -9,6 +9,7 @@
           class="mr-[8px] w-[240px]"
           @search="loadCaseList"
           @press-enter="loadCaseList"
+          @clear="loadCaseList"
         />
         <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
           <template #icon>
@@ -450,9 +451,6 @@
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
   const caseFilters = ref<string[]>([]);
-  const caseLevelList = computed(() => {
-    return caseLevelFields.value?.options || [];
-  });
   const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusList = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
   const lastReportStatusFilters = ref<string[]>([]);

@@ -9,6 +9,7 @@
           class="mr-[8px] w-[240px]"
           @search="loadMockList"
           @press-enter="loadMockList"
+          @clear="loadMockList"
         />
       </div>
     </div>

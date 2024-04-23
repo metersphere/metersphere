@@ -78,6 +78,7 @@
               class="w-[200px]"
               @press-enter="searchCase"
               @search="searchCase"
+              @clear="searchCase"
             />
             <!-- TODO这个版本不做  -->
             <!-- <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">

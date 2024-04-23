@@ -18,6 +18,7 @@
         class="w-[230px]"
         @search="searchHandler"
         @press-enter="searchHandler"
+        @clear="searchHandler"
       ></a-input-search>
     </div>
     <ms-base-table

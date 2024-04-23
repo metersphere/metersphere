@@ -21,6 +21,7 @@
         allow-clear
         @search="searchHandler"
         @press-enter="searchHandler"
+        @clear="searchHandler"
       ></a-input-search>
     </div>
     <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">

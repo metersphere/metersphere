@@ -19,6 +19,7 @@
           class="w-[240px]"
           @search="searchList"
           @press-enter="searchList"
+          @clear="searchList"
       /></div>
     </div>
     <ms-base-table v-bind="propsRes" ref="tableRef" v-model:selected-key="selectedKey" no-disable v-on="propsEvent">
