@@ -6,7 +6,9 @@ import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.utils.RelationshipEdgeUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,10 @@ public class DeleteFunctionalCaseService {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
+    @Resource
+    private FunctionalCaseRelationshipEdgeMapper functionalCaseRelationshipEdgeMapper;
+    @Resource
+    private ExtFunctionalCaseRelationshipEdgeMapper extFunctionalCaseRelationshipEdgeMapper;
 
 
     public void deleteFunctionalCaseResource(List<String> ids, String projectId) {
@@ -49,6 +55,26 @@ public class DeleteFunctionalCaseService {
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdIn(ids);
         functionalCaseDemandMapper.deleteByExample(functionalCaseDemandExample);
+        //4.删除依赖关系
+        FunctionalCaseRelationshipEdgeExample relationshipEdgeExample = new FunctionalCaseRelationshipEdgeExample();
+        relationshipEdgeExample.createCriteria()
+                .andSourceIdIn(ids);
+        relationshipEdgeExample.or(
+                relationshipEdgeExample.createCriteria()
+                        .andTargetIdIn(ids)
+        );
+        List<FunctionalCaseRelationshipEdge> edgeList = functionalCaseRelationshipEdgeMapper.selectByExample(relationshipEdgeExample);
+        if (CollectionUtils.isNotEmpty(edgeList)) {
+            List<String> edgeIds = edgeList.stream().map(FunctionalCaseRelationshipEdge::getId).toList();
+            edgeIds.forEach(id -> {
+                RelationshipEdgeUtils.updateGraphId(id, extFunctionalCaseRelationshipEdgeMapper::getGraphId, extFunctionalCaseRelationshipEdgeMapper::getEdgeByGraphId, extFunctionalCaseRelationshipEdgeMapper::update);
+            });
+            relationshipEdgeExample.clear();
+            relationshipEdgeExample.createCriteria().andIdIn(edgeIds);
+            functionalCaseRelationshipEdgeMapper.deleteByExample(relationshipEdgeExample);
+        }
+
+
         //5.删除关联评审
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(ids);
@@ -72,7 +98,7 @@ public class DeleteFunctionalCaseService {
                 request.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, id));
                 FileCenter.getDefaultRepository().deleteFolder(request);
             } catch (Exception e) {
-                LogUtils.error("彻底删除功能用例，文件删除失败：{}",e);
+                LogUtils.error("彻底删除功能用例，文件删除失败：{}", e);
             }
         }
         //10.自定义字段

@@ -83,16 +83,17 @@
                 INNER JOIN bug b ON brc.bug_id = b.id
                 INNER JOIN bug_content bc ON brc.bug_id = bc.bug_id
         left join test_plan tp on brc.test_plan_id = tp.id
-        where b.deleted = false
-        <include refid="queryWhereConditionByProvider"/>
-        <include refid="filter"/>
-        order by
-        <if test="sort != null and sort != ''">
-            brc.${sort}
-        </if>
-        <if test="sort == null or sort == ''">
-            brc.create_time desc
-        </if>
+        <where>
+            <include refid="queryWhereConditionByProvider"/>
+            <include refid="filter"/>
+            order by
+            <if test="sort != null and sort != ''">
+                brc.${sort}
+            </if>
+            <if test="sort == null or sort == ''">
+                brc.create_time desc
+            </if>
+        </where>
     </select>
 
     <select id="countByCaseId" resultType="java.lang.Long">
