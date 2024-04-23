@@ -718,6 +718,9 @@
   watch(
     () => props.currentSelectCase,
     () => {
+      if (!props.hideProjectSelect) {
+        initProjectList(true);
+      }
       initModules();
       searchCase();
       initFilter();
