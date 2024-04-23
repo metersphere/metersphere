@@ -197,6 +197,13 @@ export const defaultExtractParamItem: ExpressionConfig = {
   responseFormat: ResponseBodyXPathAssertionFormat.XML,
   moreSettingPopoverVisible: false,
 };
+// @desc 断言的字段xpath和上边的defaultExtractParamItem不匹配所以添加此类型为了保存参数过滤正确
+export const assertDefaultParamsItem: ResponseAssertionItem = {
+  expression: '',
+  condition: RequestAssertionCondition.EQUALS,
+  expectedValue: '',
+  enable: true,
+};
 
 // 断言 json默认值
 export const jsonPathDefaultParamItem = {
