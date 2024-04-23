@@ -102,6 +102,7 @@ export enum RequestParamsType {
   STRING = 'string',
   INTEGER = 'integer',
   NUMBER = 'number',
+  BOOLEAN = 'boolean',
   ARRAY = 'array',
   JSON = 'json',
   FILE = 'file',
