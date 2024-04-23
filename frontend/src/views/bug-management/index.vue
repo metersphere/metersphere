@@ -15,7 +15,12 @@
             <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
               >{{ t('bugManagement.createBug') }}
             </a-button>
-            <a-button v-if="currentPlatform !== 'Local'" :loading="!isComplete" type="outline" @click="handleSync"
+            <a-button
+              v-if="currentPlatform !== 'Local'"
+              v-permission="['PROJECT_BUG:READ+ADD']"
+              :loading="!isComplete"
+              type="outline"
+              @click="handleSync"
               >{{ t('bugManagement.syncBug') }}
             </a-button>
           </div>
