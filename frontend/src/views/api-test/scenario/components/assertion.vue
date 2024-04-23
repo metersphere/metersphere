@@ -4,6 +4,7 @@
     :is-definition="false"
     :assertion-config="assertionConfig"
     :show-extraction="true"
+    script-code-editor-height="calc(100vh - 340px)"
     @change="emit('change')"
   />
 </template>

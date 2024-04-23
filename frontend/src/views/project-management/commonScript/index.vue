@@ -115,7 +115,6 @@
       v-model:params="paramsList"
       :confirm-loading="confirmLoading"
       :script-id="isEditId"
-      ok-text="project.commonScript.apply"
       :enable-radio-selected="radioSelected"
       @save="saveHandler"
     />
@@ -372,11 +371,7 @@
       await addOrUpdateCommonScriptReq(paramsObj);
       showScriptDrawer.value = false;
       initData();
-      Message.success(
-        form.status === 'DRAFT'
-          ? t('project.commonScript.saveDraftSuccessfully')
-          : t('project.commonScript.appliedSuccessfully')
-      );
+      Message.success(form.id ? t('common.updateSuccess') : t('common.createSuccess'));
       if (showDetailDrawer.value) {
         scriptDetailDrawer.value.getDetail();
       }

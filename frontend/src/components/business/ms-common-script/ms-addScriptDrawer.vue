@@ -9,7 +9,7 @@
     :ok-loading="props.confirmLoading"
     :mask-closable="false"
     save-continue-text="project.commonScript.saveAsDraft"
-    ok-text="project.commonScript.apply"
+    :ok-text="form.id ? t('common.update') : t('common.create')"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
@@ -209,8 +209,8 @@
   }
 
   function handleDrawerCancel() {
-    emit('close');
     reset();
+    emit('close');
   }
 
   const editScriptId = ref<string | undefined>('');

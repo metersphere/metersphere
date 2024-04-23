@@ -29,6 +29,7 @@
           v-model:data="activeItem"
           :disabled="isReadonly"
           :is-build-in="true"
+          script-code-editor-height="calc(100vh - 306px)"
           @change="unSaved = true"
         />
       </div>

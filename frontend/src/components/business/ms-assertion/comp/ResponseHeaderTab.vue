@@ -4,7 +4,7 @@
       v-model:params="condition.assertions"
       :selectable="true"
       :columns="columns"
-      :scroll="{ minWidth: '700px' }"
+      :scroll="{ minWidth: '100%' }"
       :default-param-item="defaultParamItem"
       :disabled-except-param="props.disabled"
       @change="handleParamTableChange"

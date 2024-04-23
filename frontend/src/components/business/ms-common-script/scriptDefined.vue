@@ -20,13 +20,13 @@
     </div>
   </div>
   <div v-if="props.showType === 'commonScript'" class="flex bg-[var(--color-bg-3)]">
-    <div class="relative w-full">
+    <div class="relative h-full w-full">
       <MsCodeEditor
         ref="codeEditorRef"
         v-model:model-value="code"
         title=""
         :width="expandMenu ? '100%' : '68%'"
-        height="460px"
+        :height="props.scriptCodeEditorHeight || '460px'"
         theme="vs"
         :language="language"
         :read-only="props.disabled"
@@ -95,6 +95,7 @@
       disabled?: boolean;
       enableRadioSelected?: boolean;
       showHeader?: boolean;
+      scriptCodeEditorHeight?: string;
     }>(),
     {
       showHeader: true,
