@@ -80,7 +80,7 @@
               allow-clear
               class="w-[200px]"
             /> -->
-            <a-tooltip position="left" :content="t('apiScenario.refreshRefScenario')">
+            <a-tooltip v-if="!scenario.isNew" position="left" :content="t('apiScenario.refreshRefScenario')">
               <a-button type="outline" class="arco-btn-outline--secondary !mr-0 !p-[8px]" @click="refreshStepInfo">
                 <template #icon>
                   <icon-refresh class="text-[var(--color-text-4)]" />
@@ -337,16 +337,16 @@
             node = {
               ...cloneDeep(node), // 避免前端初始化的东西被丢弃
               ...newStep,
+              uniqueId: node.uniqueId, // 保留原有的唯一标识
             };
             node.children = mapTree(newStep.children || [], (child) => {
               if (
-                child.parent &&
-                child.parent.stepType === ScenarioStepType.API_SCENARIO &&
-                [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(child.parent.refType)
+                node.stepType === ScenarioStepType.API_SCENARIO &&
+                [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.refType)
               ) {
                 // 如果根节点是引用场景
                 child.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
-                child.isRefScenarioStep = child.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+                child.isRefScenarioStep = node.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
                 child.draggable = false; // 引用场景下的任何步骤不可拖拽
               } else if (child.parent) {
                 // 如果有父节点
@@ -357,6 +357,7 @@
                 // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
                 selectedKeys.value.push(child.uniqueId);
               }
+              child.uniqueId = getGenerateId();
               return child;
             }) as ScenarioStepItem[];
           }

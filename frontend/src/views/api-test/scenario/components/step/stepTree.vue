@@ -290,12 +290,10 @@
     <a-modal
       v-model:visible="showScenarioConfig"
       :title="t('apiScenario.scenarioConfig')"
-      :ok-text="t('common.confirm')"
       class="ms-modal-form"
       body-class="!overflow-hidden !p-0"
       :width="680"
       title-align="start"
-      @ok="applyQuickInput"
     >
       <a-form :model="scenarioConfigForm" layout="vertical" class="ms-form">
         <a-form-item>
@@ -719,48 +717,48 @@
     useOriginScenarioParam: false,
   });
   const showScenarioConfig = ref(false);
-  const scenarioConfigParamTip = computed(() => {
-    if (!scenarioConfigForm.value.useOriginScenarioParam && !scenarioConfigForm.value.enableScenarioEnv) {
-      // 非使用原场景参数-非选择源场景环境
-      return t('apiScenario.notSource');
-    }
-    if (!scenarioConfigForm.value.useOriginScenarioParam && scenarioConfigForm.value.enableScenarioEnv) {
-      // 非使用原场景参数-选择源场景环境
-      return t('apiScenario.notSourceParamAndSourceEnv');
-    }
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      !scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-优先使用原场景参数
-      return t('apiScenario.sourceParamAndSource');
-    }
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-优先使用原场景参数-选择源场景环境
-      return t('apiScenario.sourceParamAndSourceEnv');
-    }
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      !scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-优先使用当前场景参数
-      return t('apiScenario.currentParamAndSource');
-    }
-    if (
-      scenarioConfigForm.value.useOriginScenarioParam &&
-      !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-      scenarioConfigForm.value.enableScenarioEnv
-    ) {
-      // 使用原场景参数-优先使用当前场景参数-选择源场景环境
-      return t('apiScenario.currentParamAndSourceEnv');
-    }
-  });
+  // const scenarioConfigParamTip = computed(() => {
+  //   if (!scenarioConfigForm.value.useOriginScenarioParam && !scenarioConfigForm.value.enableScenarioEnv) {
+  //     // 非使用原场景参数-非选择源场景环境
+  //     return t('apiScenario.notSource');
+  //   }
+  //   if (!scenarioConfigForm.value.useOriginScenarioParam && scenarioConfigForm.value.enableScenarioEnv) {
+  //     // 非使用原场景参数-选择源场景环境
+  //     return t('apiScenario.notSourceParamAndSourceEnv');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     !scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用原场景参数
+  //     return t('apiScenario.sourceParamAndSource');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用原场景参数-选择源场景环境
+  //     return t('apiScenario.sourceParamAndSourceEnv');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     !scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用当前场景参数
+  //     return t('apiScenario.currentParamAndSource');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用当前场景参数-选择源场景环境
+  //     return t('apiScenario.currentParamAndSourceEnv');
+  //   }
+  // });
 
   // 关闭场景配置弹窗
   function cancelScenarioConfig() {
