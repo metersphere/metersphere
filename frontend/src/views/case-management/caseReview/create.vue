@@ -75,12 +75,6 @@
         <template #label>
           <div class="inline-flex items-center">
             {{ t('caseManagement.caseReview.defaultReviewer') }}
-            <a-tooltip :content="t('caseManagement.caseReview.defaultReviewerTip')" position="right">
-              <icon-question-circle
-                class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                size="16"
-              />
-            </a-tooltip>
           </div>
         </template>
         <MsSelect
@@ -102,6 +96,7 @@
             </div>
           </template>
         </MsSelect>
+        <span class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.defaultReviewerTip') }}</span>
       </a-form-item>
       <a-form-item field="tags" :label="t('caseManagement.caseReview.tag')">
         <MsTagsInput v-model:model-value="reviewForm.tags" />
