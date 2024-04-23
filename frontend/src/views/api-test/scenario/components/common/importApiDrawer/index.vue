@@ -103,9 +103,9 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { MsTableDataItem } from '@/components/pure/ms-table/type';
-  import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import moduleTree from './moduleTree.vue';
+  import MsProjectSelect from './projectSelect.vue';
   import apiTable from './table.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
