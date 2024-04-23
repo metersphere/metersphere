@@ -1136,6 +1136,7 @@
 
     // 处理断言参数
     const { assertionConfig } = requestVModel.value.children[0];
+
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,

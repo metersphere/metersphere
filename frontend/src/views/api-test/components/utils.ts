@@ -4,6 +4,7 @@ import { type ExecuteAssertionConfig, ExecuteBody, type ExecuteConditionConfig }
 import { RequestConditionProcessor, RequestParamsType, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
 import {
+  assertDefaultParamsItem,
   defaultAssertParamsItem,
   defaultBodyParamsItem,
   defaultExtractParamItem,
@@ -216,7 +217,7 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
       },
       xpathAssertion: {
         ...assertItem.xpathAssertion,
-        assertions: filterKeyValParams(assertItem?.xpathAssertion?.assertions || [], defaultExtractParamItem, isExecute)
+        assertions: filterKeyValParams(assertItem?.xpathAssertion?.assertions || [], assertDefaultParamsItem, isExecute)
           .validParams,
       },
       jsonPathAssertion: {
