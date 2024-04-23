@@ -199,12 +199,21 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
       const optionsIds = optionsValue.map((e: any) => e.value);
       currentDefaultValue = (optionsIds || []).filter((e: any) => tempValue.includes(e));
     } else if (memberType.includes(item.type)) {
+      // @desc 上来为空成员且不包含默认值成员
       if (Array.isArray(item.defaultValue) && !item.defaultValue.includes('CREATE_USER')) {
         currentDefaultValue = item.type === 'MEMBER' ? '' : [];
+        // @desc 包含默认值成员
       } else if (item.defaultValue.includes('CREATE_USER')) {
         currentDefaultValue = item.type === 'MEMBER' ? '' : [];
       } else {
-        currentDefaultValue = item.type === 'MEMBER' ? item.defaultValue : JSON.parse(item.defaultValue);
+        // @desc 如果默认原本的成员被系统移除则过滤掉该用户不展示
+        const optionsIds = optionsValue.map((e: any) => e.value);
+        if (item.type === 'MULTIPLE_MEMBER') {
+          const tempValue = JSON.parse(item.defaultValue);
+          currentDefaultValue = (optionsIds || []).filter((e: any) => tempValue.includes(e));
+        } else {
+          currentDefaultValue = (optionsIds || []).find((e: any) => item.defaultValue === e) || '';
+        }
       }
     } else if (multipleInputType.includes(item.type)) {
       currentDefaultValue = Array.isArray(item.defaultValue) ? item.defaultValue : JSON.parse(item.defaultValue);
