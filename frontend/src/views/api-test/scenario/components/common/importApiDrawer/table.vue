@@ -136,6 +136,9 @@
           </template>
         </a-trigger>
       </template>
+      <template #stepTotal="{ record }">
+        {{ record.stepTotal }}
+      </template>
     </ms-base-table>
   </div>
 </template>
@@ -385,6 +388,7 @@
       {
         title: 'apiScenario.table.columns.steps',
         dataIndex: 'stepTotal',
+        slotName: 'stepTotal',
         width: 100,
       },
       {

@@ -615,7 +615,7 @@
     () => props.refreshTimeStamp,
     (val) => {
       if (val) {
-        loadApiList(false);
+        loadApiList(true);
       }
     }
   );
@@ -624,7 +624,7 @@
     () => props.activeModule,
     () => {
       resetSelector();
-      loadApiList(false);
+      loadApiList(true);
     }
   );
 

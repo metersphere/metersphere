@@ -396,6 +396,22 @@
   }
 
   /**
+   * 处理文件夹树节点选中事件
+   */
+  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
+    if (node.type === 'MODULE') {
+      const offspringIds: string[] = [];
+      mapTree(node.children || [], (e) => {
+        offspringIds.push(e.id);
+        return e;
+      });
+      emit('folderNodeSelect', _selectedKeys, offspringIds);
+    } else if (node.type === 'API') {
+      emit('clickApiNode', node);
+    }
+  }
+
+  /**
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
    */
@@ -450,6 +466,9 @@
             path: e.path,
             fullPath,
           };
+          if (!isSetDefaultKey && e.id === selectedKeys.value[0]) {
+            folderNodeSelect([selectedKeys.value[0]], e);
+          }
           return {
             ...e,
             hideMoreAction: e.id === 'root',
@@ -490,22 +509,6 @@
   function changeApiExpand() {
     isExpandApi.value = !isExpandApi.value;
     initModules();
-  }
-
-  /**
-   * 处理文件夹树节点选中事件
-   */
-  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
-    if (node.type === 'MODULE') {
-      const offspringIds: string[] = [];
-      mapTree(node.children || [], (e) => {
-        offspringIds.push(e.id);
-        return e;
-      });
-      emit('folderNodeSelect', _selectedKeys, offspringIds);
-    } else if (node.type === 'API') {
-      emit('clickApiNode', node);
-    }
   }
 
   /**
@@ -670,8 +673,8 @@
     initModules();
   });
 
-  function refresh() {
-    initModules();
+  async function refresh() {
+    await initModules();
   }
 
   defineExpose({

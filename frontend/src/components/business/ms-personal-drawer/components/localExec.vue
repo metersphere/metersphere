@@ -10,11 +10,11 @@
           <MsTag
             v-if="apiConfig.status !== 'none'"
             theme="outline"
-            :type="tagMap[apiConfig.status].type"
+            :type="apiStatus.type"
             size="small"
             class="px-[4px]"
           >
-            {{ tagMap[apiConfig.status].text }}
+            {{ apiStatus.text }}
           </MsTag>
         </div>
         <a-input
@@ -161,6 +161,9 @@
     enable: false,
     type: 'API',
     status: 0,
+  });
+  const apiStatus = computed(() => {
+    return tagMap[apiConfig.value.status];
   });
 
   function updateLocalConfigStore(partial: Partial<UserState>) {

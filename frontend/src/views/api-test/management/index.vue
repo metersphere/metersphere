@@ -144,8 +144,8 @@
     recycleModulesCount.value = res.all;
   }
 
-  function refreshModuleTree() {
-    moduleTreeRef.value?.refresh();
+  async function refreshModuleTree() {
+    await moduleTreeRef.value?.refresh();
     //  涉及到模块树的刷新操作（比如删除），也会刷新回收站的数量
     selectRecycleCount();
   }
@@ -154,8 +154,8 @@
     moduleTreeRef.value?.initModuleCount(params);
   }
 
-  function handleImportDone() {
-    refreshModuleTree();
+  async function handleImportDone() {
+    await refreshModuleTree();
     managementRef.value?.refreshApiTable();
   }
 

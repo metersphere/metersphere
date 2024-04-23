@@ -29,8 +29,10 @@
       />
       <div v-show="!isShowEditStepNameInput" class="flex flex-1 items-center justify-between">
         <div class="flex items-center gap-[8px]">
-          <a-tooltip :content="activeStep?.name">
-            <div class="one-line-text max-w-[300px]"> {{ characterLimit(activeStep?.name) }}</div>
+          <a-tooltip :content="requestVModel.stepName || activeStep?.name">
+            <div class="one-line-text max-w-[300px]">
+              {{ requestVModel.stepName || characterLimit(activeStep?.name) }}</div
+            >
           </a-tooltip>
           <MsIcon
             type="icon-icon_edit_outlined"
@@ -499,6 +501,9 @@
     if (requestVModel.value.stepName === '') {
       requestVModel.value.stepName = requestVModel.value.name;
     }
+    if (requestVModel.value.stepName !== activeStep.value?.name) {
+      requestVModel.value.unSaved = true;
+    }
     isShowEditStepNameInput.value = false;
   }
 
@@ -886,6 +891,7 @@
     const { assertionConfig } = requestVModel.value.children[0];
     return {
       ...requestParams,
+      unSaved: requestVModel.value.unSaved,
       resourceId: requestVModel.value.resourceId,
       stepId: requestVModel.value.stepId,
       activeTab: requestVModel.value.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
@@ -1021,10 +1027,7 @@
   }
 
   function handleClose() {
-    // 关闭时若不是创建行为则是编辑行为，需要触发 applyStep，引用 case 不能更改不需要触发
-    if (!requestVModel.value.isNew && activeStep.value?.refType === ScenarioStepRefType.COPY) {
-      emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
-    }
+    emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
   }
 
   // const showAddDependencyDrawer = ref(false);

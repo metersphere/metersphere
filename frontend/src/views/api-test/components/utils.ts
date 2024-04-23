@@ -142,9 +142,6 @@ export function filterKeyValParams<T>(
   delete defaultParam.enable;
   const lastDataIsDefault = isEqual(lastData, defaultParam) || lastData.key === '';
   let validParams: (T & Record<string, any>)[];
-  if (defaultParam.condition) {
-    console.log(`assertionConfig`, lastDataIsDefault, lastData, defaultParam);
-  }
   if (lastDataIsDefault) {
     // 如果最后一条数据是默认数据，非用户添加更改的，说明是无效参数，删除最后一个
     validParams = params.slice(0, params.length - 1);
