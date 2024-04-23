@@ -2176,7 +2176,12 @@ public class ApiScenarioService extends MoveNodeService {
 
         Map<String, List<ApiScenarioStepDTO>> currentScenarioParentStepMap = scenarioStepMap.get(scenarioId)
                 .stream()
-                .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY)));
+                .collect(Collectors.groupingBy(step -> {
+                    if (StringUtils.equals(step.getParentId(), "NONE")) {
+                        step.setParentId(StringUtils.EMPTY);
+                    }
+                    return Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY);
+                }));
 
         List<ApiScenarioStepDTO> steps = buildStepTree(currentScenarioParentStepMap.get(StringUtils.EMPTY), currentScenarioParentStepMap, scenarioStepMap, new HashSet<>());
 
