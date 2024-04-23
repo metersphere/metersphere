@@ -677,7 +677,6 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     caseType.value = value as keyof typeof CaseLinkEnum;
-    emit('update:currentSelectCase', caseType.value);
     initModules();
     searchCase();
   }
@@ -713,6 +712,15 @@
           count: obj?.[node.id] || 0,
         };
       });
+    }
+  );
+
+  watch(
+    () => props.currentSelectCase,
+    () => {
+      initModules();
+      searchCase();
+      initFilter();
     }
   );
 
