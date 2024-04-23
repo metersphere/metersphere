@@ -24,7 +24,11 @@
       <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
         <span
           v-if="
-            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+            hasAnyPermission([
+              'FUNCTIONAL_CASE:READ+ADD',
+              'FUNCTIONAL_CASE:READ+UPDATE',
+              'FUNCTIONAL_CASE:READ+DELETE',
+            ]) && caseEnable
           "
         >
           {{ t('caseManagement.caseReview.tableNoData') }}
@@ -32,7 +36,11 @@
         <span v-else> {{ t('caseManagement.featureCase.tableNoData') }} </span>
         <MsButton
           v-if="
-            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+            hasAnyPermission([
+              'FUNCTIONAL_CASE:READ+ADD',
+              'FUNCTIONAL_CASE:READ+UPDATE',
+              'FUNCTIONAL_CASE:READ+DELETE',
+            ]) && caseEnable
           "
           class="ml-[8px]"
           @click="emit('associate')"
@@ -41,7 +49,11 @@
         </MsButton>
         <span
           v-if="
-            hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+            hasAnyPermission([
+              'FUNCTIONAL_CASE:READ+ADD',
+              'FUNCTIONAL_CASE:READ+UPDATE',
+              'FUNCTIONAL_CASE:READ+DELETE',
+            ]) && caseEnable
           "
         >
           {{ t('caseManagement.featureCase.or') }}
@@ -92,6 +104,7 @@
       isShowOperation?: boolean; // 是否显示操作列
       highlightName?: boolean; // 是否高亮名称
       showEmpty?: boolean; // 是否显示自定义的空状态，否则显示表格的默认空状态
+      caseEnable?: boolean; // 项目是否配置三方需求
     }>(),
     {
       isShowOperation: true,

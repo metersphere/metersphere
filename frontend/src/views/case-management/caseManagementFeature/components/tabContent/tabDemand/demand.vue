@@ -3,7 +3,7 @@
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
-          v-if="platformInfo.platform_key"
+          v-if="caseEnable"
           v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
           type="primary"
           @click="associatedDemand"
@@ -34,6 +34,7 @@
       ref="demandRef"
       :fun-params="{ caseId: props.caseId, keyword, projectId: currentProjectId }"
       :show-empty="true"
+      :case-enable="caseEnable"
       @update="updateDemand"
       @create="addDemand"
       @cancel="cancelLink"
@@ -140,6 +141,8 @@
   }, 100);
 
   const showAddModel = ref<boolean>(false);
+
+  const caseEnable = ref<boolean>(false);
 
   const initModelForm: DemandItem = {
     id: '',
@@ -350,6 +353,7 @@
       const result = await getCaseRelatedInfo(currentProjectId.value);
       if (result && result.platform_key) {
         platformInfo.value = { ...result };
+        caseEnable.value = platformInfo.value.case_enable !== 'false';
       }
     } catch (error) {
       console.log(error);
