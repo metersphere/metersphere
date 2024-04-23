@@ -33,7 +33,6 @@
         v-model:api="fApi"
         v-model:form-item="platformItem"
         :form-rule="platformRules"
-        @change="changeHandler"
         @mounted="handleMounted"
       />
     </a-form>
@@ -218,11 +217,6 @@
       tempObj[item.name] = item.value;
     });
     fApi.value?.setValue({ ...tempObj });
-  }
-
-  function changeHandler(a: string, formValue: Record<string, any>) {
-    fApi.value.validateField(formValue.field);
-    fApi.value.refreshValidate();
   }
 
   function handleMounted() {

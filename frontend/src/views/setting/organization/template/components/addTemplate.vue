@@ -132,7 +132,6 @@
                 v-model:rule="formItem.formRules"
                 :option="configOptions"
                 @click="activeHandler(index)"
-                @change="(value, formApi) => changeHandler(value, formApi)"
               />
               <a-form
                 v-if="templateForm.enableThirdPart && route.query.type === 'BUG'"
@@ -374,10 +373,6 @@
     isError.value = false;
   }
 
-  function changeHandler(value: string, api: any) {
-    api?.validateField(value);
-  }
-
   // 保存回调
   async function save() {
     try {
@@ -408,6 +403,7 @@
         setIsSave(true);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -463,6 +459,7 @@
         scene: route.query.type,
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -495,7 +492,6 @@
   }
 
   const selectFiled = ref<DefinedFieldItem[]>([]);
-  const selectedIds = ref<string[]>();
 
   // 编辑更新已选择字段
   const isEditField = ref<boolean>(false);
@@ -634,6 +630,7 @@
       selectData.value = getSelectData(customFields);
       systemFieldData.value = systemFields;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;

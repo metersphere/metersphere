@@ -1,6 +1,6 @@
 <template>
   <FormCreate
-    v-model:api="innerApi"
+    v-model:api="formApi"
     :rule="formRules"
     :option="props.option || options"
     @mounted="handleMounted"
@@ -13,8 +13,6 @@
   /**
    * @description 用于原生字段form-create
    */
-  import { ref, watch, watchEffect } from 'vue';
-
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import JiraKey from './comp/jiraKey.vue';
   import PassWord from './formcreate-password.vue';
@@ -29,52 +27,27 @@
   const FormCreate = formCreate.$form();
 
   const props = defineProps<{
-    rule?: FormRule; // 表单的规则
     option: any; // 全局配置项
-    api?: Api; // 收集表单的值
   }>();
 
-  const innerApi = ref<any>();
+  const emits = defineEmits<{
+    (e: 'mounted'): void;
+    (e: 'reload'): void;
+    (e: 'change', filed: string): void;
+  }>();
 
-  const emits = defineEmits(['update:api', 'update:rule', 'mounted', 'reload', 'change']);
-
-  const formApi = computed({
-    get() {
-      return props.api;
-    },
-    set(val) {
-      emits('update:api', val);
-    },
+  const formApi = defineModel<Api>('api', {
+    default: undefined,
   });
 
-  watch(
-    () => formApi.value,
-    (val) => {
-      emits('update:api', val);
-    },
-    { deep: true }
-  );
-
-  const formRules = ref<FormRule | undefined>([]);
-  watchEffect(() => {
-    formRules.value = props.rule;
-    formApi.value = props.api || innerApi.value;
+  const formRules = defineModel<FormRule | undefined>('rule', {
+    default: {},
   });
-  watch(
-    () => props.rule,
-    (val) => {
-      formRules.value = val;
-      formApi.value?.refresh();
-    }
-  );
 
   watch(
     () => formRules.value,
-    (val) => {
-      emits('update:rule', val);
-    },
-    {
-      deep: true,
+    () => {
+      formApi.value?.refresh();
     }
   );
 
@@ -86,10 +59,9 @@
     emits('reload');
   }
 
-  function handleChange(value: any) {
-    formApi.value?.validateField(value);
-    emits('update:api', formApi.value);
-    emits('change', value, formApi.value);
+  function handleChange(filed: string) {
+    formApi.value?.validateField(filed);
+    emits('change', filed);
   }
   const options = {
     resetBtn: false, // 不展示默认配置的重置和提交
