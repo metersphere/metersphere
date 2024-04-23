@@ -2,7 +2,7 @@
   <MsDrawer
     v-model:visible="visible"
     :ok-text="t('common.export')"
-    :ok-loading="drawerLoading"
+    :ok-loading="exportLoading"
     :width="800"
     min-width="800px"
     unmount-on-close
@@ -36,8 +36,8 @@
                     class="mt-[8px] w-[95px] pl-[0px]"
                     :disabled="item.key === 'name'"
                   >
-                    <a-tooltip :content="item.text">
-                      <span class="one-line-text">{{ item.text }}</span>
+                    <a-tooltip :content="item.text" position="top">
+                      <div class="one-line-text max-w-[80px]">{{ item.text }}</div>
                     </a-tooltip>
                   </a-checkbox>
                 </div>
@@ -51,8 +51,8 @@
                     :value="item.key"
                     class="mt-[8px] w-[95px] pl-[0px]"
                   >
-                    <a-tooltip :content="item.text">
-                      <span class="one-line-text">{{ item.text }}</span>
+                    <a-tooltip :content="item.text" position="top">
+                      <div class="one-line-text max-w-[80px]">{{ item.text }}</div>
                     </a-tooltip>
                   </a-checkbox>
                 </div>
@@ -71,10 +71,8 @@
                     :value="item.key"
                     class="mt-[8px] w-[95px] pl-[0px]"
                   >
-                    <a-tooltip :content="item.text">
-                      <div class="one-line-text">
-                        {{ item.text }}
-                      </div>
+                    <a-tooltip :content="item.text" position="top">
+                      <div class="one-line-text max-w-[80px]">{{ item.text }}</div>
                     </a-tooltip>
                   </a-checkbox>
                 </div>
@@ -146,6 +144,7 @@
     defaultSelectedKeys?: string[];
     isArrayColumn?: boolean;
     arrayColumn?: EnvListItem[];
+    exportLoading: boolean;
     titleProps?: {
       selectableTitle: string; // 可选字段
       systemTitle: string; // 已选字段| 环境
@@ -155,6 +154,7 @@
 
   const props = withDefaults(defineProps<MsExportDrawerProps>(), {
     visible: false,
+    exportLoading: false,
     defaultSelectedKeys: () => ['name', 'id', 'title', 'status', 'handle_user', 'content'],
   });
 
@@ -163,6 +163,7 @@
 
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
+    (e: 'update:exportLoading', value: boolean): void;
     (e: 'confirm', value: MsExportDrawerOption[]): void;
   }>();
 
@@ -172,6 +173,15 @@
     },
     set(value) {
       emit('update:visible', value);
+    },
+  });
+
+  const exportLoading = computed({
+    get() {
+      return props.exportLoading;
+    },
+    set(value) {
+      emit('update:exportLoading', value);
     },
   });
 
@@ -309,5 +319,10 @@
   .ghost {
     border: 1px dashed rgba(var(--primary-5));
     background-color: rgba(var(--primary-1));
+  }
+
+  :deep(.arco-checkbox-group .arco-checkbox) {
+    margin-right: 20px;
+    margin-top: 10px;
   }
 </style>
