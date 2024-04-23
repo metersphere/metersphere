@@ -47,6 +47,9 @@
       if (val) {
         appStore.setEnvConfig(val);
       }
+    },
+    {
+      immediate: true,
     }
   );
 

@@ -12,13 +12,12 @@
    * import rehypeStringify from 'rehype-stringify';
    * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
    */
-  import { useDebounceFn, useLocalStorage, useVModel } from '@vueuse/core';
+  import { useDebounceFn, useVModel } from '@vueuse/core';
 
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AttachmentSelectorModal from './attachmentSelectorModal.vue';
 
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
-  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import { useAppStore } from '@/store';
@@ -30,15 +29,12 @@
     DecorationSet,
     Editor,
     Extension,
-    ExtensionAudio,
     ExtensionBlockquote,
     ExtensionBold,
     ExtensionBulletList,
     ExtensionCode,
     ExtensionCodeBlock,
     ExtensionColor,
-    ExtensionColumn,
-    ExtensionColumns,
     ExtensionCommands,
     ExtensionDocument,
     ExtensionDraggable,
@@ -50,7 +46,6 @@
     ExtensionHighlight,
     ExtensionHistory,
     ExtensionHorizontalRule,
-    ExtensionIframe,
     ExtensionIndent,
     ExtensionItalic,
     ExtensionLink,
@@ -60,19 +55,15 @@
     ExtensionStrike,
     ExtensionSubscript,
     ExtensionSuperscript,
-    ExtensionTable,
     ExtensionTaskList,
     ExtensionText,
     ExtensionTextAlign,
     ExtensionTrailingNode,
     ExtensionUnderline,
-    ExtensionVideo,
     lowlight,
     Plugin,
     PluginKey,
     RichTextEditor,
-    ToolbarItem,
-    ToolboxItem,
   } from '@halo-dev/richtext-editor';
   import Mention from '@tiptap/extension-mention';
   import type { queueAsPromised } from 'fastq';
@@ -147,10 +138,8 @@
     }
   );
 
-  const showSidebar = useLocalStorage('halo:editor:show-sidebar', true);
-
   const attachmentSelectorModal = ref(false);
-  const selectedimagesNode = ref<string>();
+  const selectedImagesNode = ref<string>();
   const selectedCommentNode = ref<string>();
 
   onMounted(() => {
@@ -210,9 +199,9 @@
                       }
                     });
                     imagesNodesIds.value = images;
-                    if (!selectedimagesNode.value) {
+                    if (!selectedImagesNode.value) {
                       // eslint-disable-next-line prefer-destructuring
-                      selectedimagesNode.value = images[0];
+                      selectedImagesNode.value = images[0];
                     }
                     return DecorationSet.empty;
                   },
