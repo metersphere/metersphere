@@ -196,6 +196,7 @@
             :disabled="props.disabled"
             show-type="commonScript"
             :show-header="false"
+            :script-code-editor-height="props.scriptCodeEditorHeight"
             @change="() => emit('change')"
           />
         </div>
@@ -535,6 +536,7 @@
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略
       totalList?: ExecuteConditionProcessor[]; // 总列表
       sqlCodeEditorHeight?: string; // sql脚本编辑器高度
+      scriptCodeEditorHeight?: string; // 脚本的高度
     }>(),
     {
       showAssociatedScene: false,

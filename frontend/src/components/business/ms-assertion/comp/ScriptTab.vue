@@ -1,5 +1,11 @@
 <template>
-  <conditionContent v-model:data="condition" :disabled="props.disabled" @delete="deleteItem" @copy="emit('copy')" />
+  <conditionContent
+    v-model:data="condition"
+    :disabled="props.disabled"
+    :script-code-editor-height="props.scriptCodeEditorHeight"
+    @delete="deleteItem"
+    @copy="emit('copy')"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -14,6 +20,7 @@
   interface ScriptTabProps {
     data: any;
     disabled?: boolean;
+    scriptCodeEditorHeight?: string; // 脚本的高度
   }
 
   const props = defineProps<ScriptTabProps>();

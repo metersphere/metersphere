@@ -85,6 +85,7 @@
           :style="{
             overflow: 'auto',
             height: '100%',
+            width: '100%',
           }"
         >
           <!-- 响应头 -->
@@ -131,6 +132,7 @@
           v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
           v-model:data="getCurrentItemState"
           :disabled="props.disabled"
+          :script-code-editor-height="props.scriptCodeEditorHeight"
           @change="handleChange"
           @delete-script-item="deleteScriptItem"
           @copy="copyItem"
@@ -188,6 +190,7 @@
     response?: string; // 响应内容
     disabled?: boolean; // 是否禁用
     showExtraction?: boolean; // 是否显示提取
+    scriptCodeEditorHeight?: string; // 脚本的高度
   }>();
 
   const emit = defineEmits<{
@@ -454,11 +457,11 @@
 <style lang="less" scoped>
   .ms-assertion {
     width: 100%;
-    height: calc(100% - 22px);
+    height: 100%;
     &-body {
       display: flex;
       margin-top: 8px;
-      height: calc(100% - 42px);
+      height: calc(100% - 52px);
       flex-flow: row nowrap;
       gap: 8px;
       &-left {
@@ -528,6 +531,7 @@
       }
       &-right {
         display: flex;
+        flex: 1;
         flex-grow: 1;
         border-radius: 4px;
         background: var(--color-text-fff);

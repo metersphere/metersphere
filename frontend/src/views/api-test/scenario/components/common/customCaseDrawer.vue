@@ -225,6 +225,7 @@
                     :disabled="!isEditableApi"
                     :assertion-config="requestVModel.children[0].assertionConfig"
                     :show-extraction="true"
+                    script-code-editor-height="calc(100vh - 242px)"
                   />
                   <auth
                     v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
