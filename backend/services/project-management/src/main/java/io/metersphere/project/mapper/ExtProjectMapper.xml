@@ -37,7 +37,7 @@
             organization_id = #{organizationId}
 
         order by create_time desc
-        limit 100
+        limit 1000
 
     </select>
     <select id="getProjectByOrgId" resultType="io.metersphere.project.domain.Project">
@@ -52,7 +52,7 @@
           and user.deleted = 0
           and p.organization_id = #{organizationId}
         order by p.create_time desc
-        limit 100
+        limit 1000
     </select>
     <select id="resourcePoolIsExist" resultType="int">
         select count(t.id) from test_resource_pool t left join project_test_resource_pool p on

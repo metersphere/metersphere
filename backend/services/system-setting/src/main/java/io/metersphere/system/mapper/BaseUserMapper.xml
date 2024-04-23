@@ -110,7 +110,7 @@
         <if test="keyword != null and keyword != ''">
             and (name LIKE CONCAT('%', #{keyword}, '%') or email like CONCAT('%', #{keyword}, '%'))
         </if>
-        limit 100
+        limit 1000
     </select>
     <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name

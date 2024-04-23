@@ -29,7 +29,7 @@
                 and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
             </if>
         order by u.name
-        limit 100
+        limit 1000
     </select>
 
     <select id="getCommentAtUserInfoByParam" resultType="io.metersphere.system.dto.CommentUserInfo">
@@ -43,7 +43,7 @@
         <if test="keyword != null and keyword != ''">
             and u.name like concat('%', #{keyword}, '%')
         </if>
-        limit 100
+        limit 1000
     </select>
 
     <sql id="filter">

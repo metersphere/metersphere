@@ -61,7 +61,7 @@
         </if>
         and u.deleted = false
         order by u.update_time desc
-        limit 100
+        limit 1000
     </select>
 
     <select id="getProjectRoleMemberIds" resultType="java.lang.String">

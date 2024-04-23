@@ -9,7 +9,7 @@
             and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
         </if>
         group by u.id
-        limit 100
+        limit 1000
     </select>
 
     <select id="getUserListByOrgId" resultType="io.metersphere.system.domain.User">
@@ -26,7 +26,7 @@
             and (LOCATE(#{keyword},name)>0 or LOCATE(#{keyword},email)>0)
         </if>
         order by u.create_time desc
-        limit 100
+        limit 1000
     </select>
 
     <select id="selectUserList" resultType="io.metersphere.system.domain.User">
@@ -42,7 +42,7 @@
             and (LOCATE(#{keyword},name)>0 or LOCATE(#{keyword},email)>0)
         </if>
         order by u.create_time desc
-        limit 100
+        limit 1000
     </select>
 
     <select id="getRoleUserByParam" resultType="io.metersphere.system.domain.User">
@@ -54,7 +54,7 @@
         <if test="keyword != null and keyword != ''">
             and (name like concat('%', #{keyword}, '%') or email like concat('%', #{keyword}, '%'))
         </if>
-        limit 100
+        limit 1000
     </select>
 
 
@@ -69,7 +69,7 @@
             AND (name LIKE concat('%', #{keyword}, '%') OR email LIKE concat('%', #{keyword}, '%'))
         </if>
         GROUP BY urr.user_id
-        limit 100
+        limit 1000
     </select>
 
     <select id="getUserByKeyword" resultType="io.metersphere.system.dto.user.UserDTO">
@@ -83,7 +83,7 @@
         </if>
         and u.deleted = false
         GROUP BY urr.user_id
-        limit 100
+        limit 1000
     </select>
 
     <select id="countByIdAndPassword" resultType="java.lang.Long">

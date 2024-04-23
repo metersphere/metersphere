@@ -111,7 +111,7 @@
             or u.phone like CONCAT('%', #{keyword},'%'))
         </if>
         order by u.update_time desc
-        limit 100
+        limit 1000
     </select>
 
     <select id="getOrgAdminList" resultType="io.metersphere.system.domain.User">
