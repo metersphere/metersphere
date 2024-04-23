@@ -30,7 +30,7 @@ public class ApiReportLogService {
     private ApiReportMapper apiReportMapper;
 
 
-    public void deleteLog(String id) {
+    public LogDTO deleteLog(String id) {
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(apiReport.getProjectId());
         LogDTO dto = new LogDTO(
@@ -45,7 +45,7 @@ public class ApiReportLogService {
         dto.setPath("/api/report/case/delete/" + apiReport.getId());
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiReport));
-        operationLogService.add(dto);
+        return dto;
     }
 
     public void updateLog(String id) {
