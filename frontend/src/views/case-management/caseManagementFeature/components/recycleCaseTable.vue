@@ -370,6 +370,7 @@
       'showTooltip': true,
       'ellipsis': true,
       'showDrag': false,
+      'columnSelectorDisabled': true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -384,6 +385,7 @@
       },
       ellipsis: true,
       showDrag: false,
+      columnSelectorDisabled: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
