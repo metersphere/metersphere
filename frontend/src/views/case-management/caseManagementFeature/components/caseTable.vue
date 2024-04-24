@@ -224,7 +224,7 @@
     <template #moduleId="{ record }">
       <a-tree-select
         v-if="record.showModuleTree"
-        v-model="record.moduleId"
+        v-model:modelValue="record.moduleId"
         :data="caseTreeData"
         :allow-search="true"
         :field-names="{
@@ -238,6 +238,7 @@
           },
         }"
         size="mini"
+        :filter-tree-node="filterTreeNode"
         @click.stop
         @change="(value) => handleChangeModule(record, value)"
       >
@@ -405,7 +406,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableData, TreeNodeData } from '@arco-design/web-vue';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -460,6 +461,7 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
+  import { ModuleTreeNode } from '@/models/common';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -993,6 +995,10 @@
 
   function handleTableSelect(selectArr: (string | number)[]) {
     tableSelected.value = selectArr;
+  }
+
+  function filterTreeNode(searchValue: string, nodeValue: TreeNodeData) {
+    return (nodeValue as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const searchParams = ref<TableQueryParams>({
