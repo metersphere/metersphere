@@ -198,9 +198,8 @@ public class ApiTestCaseBatchRunService {
 
                     // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
                     reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
-                    Long requestCount = runModeConfig.isIntegratedReport() ? ids.size() : 1L;
                     TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
-                    taskRequest.setRequestCount(requestCount);
+                    taskRequest.setRequestCount(1L);
                     execute(taskRequest, apiTestCase, apiTestCaseBlob, definitionExecuteInfoMap.get(apiTestCase.getId()));
                 } catch (Exception e) {
                     LogUtils.error("执行用例失败 {}-{}", reportId, id);
