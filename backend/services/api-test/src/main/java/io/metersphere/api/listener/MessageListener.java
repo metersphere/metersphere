@@ -1,6 +1,8 @@
 package io.metersphere.api.listener;
 
 import io.metersphere.api.event.ApiEventSource;
+import io.metersphere.api.mapper.ApiReportMapper;
+import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
@@ -41,9 +43,9 @@ public class MessageListener {
     @Resource
     private ApiScenarioBatchRunService apiScenarioBatchRunService;
     @Resource
-    private ApiReportService apiReportService;
+    private ApiReportMapper apiReportMapper;
     @Resource
-    private ApiScenarioReportService apiScenarioReportService;
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     @KafkaListener(id = MESSAGE_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TASK_TOPIC, groupId = MESSAGE_CONSUME_ID)
     public void messageConsume(ConsumerRecord<?, String> record) {
@@ -58,6 +60,19 @@ public class MessageListener {
                     // TODO 通知测试计划处理后续
                     LogUtils.info("发送通知给测试计划：{}", record.key());
                     apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
+                }else {
+                    ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, dto.getResourceType());
+                    boolean isStop = switch (resourceType) {
+                        case API_CASE -> StringUtils.equals(apiReportMapper.selectByPrimaryKey(dto.getReportId()).getStatus(), ApiReportStatus.STOPPED.name())
+                                && deleteQueue(dto.getQueueId());
+                        case API_SCENARIO -> StringUtils.equals(apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId()).getStatus(), ApiReportStatus.STOPPED.name())
+                                && deleteQueue(dto.getQueueId());
+                        default -> false;
+                    };
+
+                    if (isStop) {
+                        return;
+                    }
                 }
 
                 executeNextTask(dto);
@@ -67,6 +82,10 @@ public class MessageListener {
         }
     }
 
+    private boolean deleteQueue(String queueId) {
+        apiExecutionQueueService.deleteQueue(queueId);
+        return true;
+    }
     /**
      * 执行批量的下一个任务
      *
