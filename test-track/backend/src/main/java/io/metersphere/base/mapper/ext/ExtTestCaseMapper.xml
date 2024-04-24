@@ -1536,4 +1536,12 @@
                     AND ui_scenario.STATUS != 'Trash'
                 )
     </select>
+    <select id="selectByRefIdsAndVersionId" resultType="io.metersphere.base.domain.TestCase">
+        select * from test_case
+        where ref_id in
+        <foreach collection="refIds" item="refId" separator="," open="(" close=")">
+            #{refId}
+        </foreach>
+        and version_id = #{versionId}
+    </select>
 </mapper>
