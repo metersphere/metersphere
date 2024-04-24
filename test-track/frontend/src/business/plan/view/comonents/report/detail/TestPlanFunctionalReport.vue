@@ -117,11 +117,8 @@ import FunctionalCases from "@/business/plan/view/comonents/report/detail/compon
 import FunctionalIssueList from "@/business/plan/view/comonents/report/detail/component/FunctionalIssueList";
 import TestPlanReportContainer from "@/business/plan/view/comonents/report/detail/TestPlanReportContainer";
 import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
-import { hasPermission } from "metersphere-frontend/src/utils/permission";
-import {
-  getPlanFunctionAllCase,
-  getSharePlanFunctionAllCase,
-} from "@/api/remote/plan/test-plan";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {getPlanFunctionAllCase, getSharePlanFunctionAllCase,} from "@/api/remote/plan/test-plan";
 
 export default {
   name: "TestPlanFunctionalReport",
@@ -248,6 +245,9 @@ export default {
           case "failure":
             _failureTestCase.push(data[i]);
             break;
+          case "Failure":
+            _failureTestCase.push(data[i]);
+            break;
           default:
             break;
         }
@@ -260,9 +260,9 @@ export default {
     },
     getAllFunctionalTestCase() {
       if (this.isTemplate || this.isDb) {
-        this.allTestCase = this.report.functionAllCases
+        this.initAllTestCase(this.report.functionAllCases
           ? this.report.functionAllCases
-          : [];
+          : []);
       } else if (this.isShare) {
         this.loading = true;
         let param = this.getStatusList();

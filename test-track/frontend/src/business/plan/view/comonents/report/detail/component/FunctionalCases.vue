@@ -158,7 +158,8 @@ export default {
       this.currentPage = 1;
       this.filterCases = this.allTestCase.filter(
         (e) =>
-          e.name.includes(this.keyword) || e.customNum.includes(this.keyword)
+          (e.name && e.name.includes(this.keyword))
+          || (e.num + '').includes(this.keyword)
       );
       this.handlePageChange(this.currentPage);
     },
