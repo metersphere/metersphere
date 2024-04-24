@@ -194,6 +194,11 @@
             ref="commentEditInput"
           />
         </el-form-item>
+
+        <span v-if="form.type  === 'version'"
+              style="font-size:12px">
+          {{ $t("case.batch_edit_version") }}
+        </span>
       </el-form>
       <template v-slot:footer>
         <el-button @click="dialogVisible = false" size="small">{{
@@ -216,18 +221,15 @@
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
+import {listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
 import EnvPopover from "@/business/plan/env/EnvPopover";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
-import { getOwnerProjects } from "@/business/utils/sdk-utils";
-import { getApiScenarioEnvByProjectId } from "@/api/remote/api/api-automation";
-import { getCustomField } from "@/api/custom-field";
+import {getOwnerProjects} from "@/business/utils/sdk-utils";
+import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
+import {getCustomField} from "@/api/custom-field";
 import CommentEditInput from "@/business/review/view/components/commnet/CommentEditInput";
 
 export default {
