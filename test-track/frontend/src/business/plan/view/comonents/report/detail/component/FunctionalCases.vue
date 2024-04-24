@@ -102,8 +102,8 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import { getEditSimpleTestCase } from "@/api/testCase";
-import { openCaseEdit } from "@/business/case/test-case";
+import {getEditSimpleTestCase} from "@/api/testCase";
+import {openCaseEdit} from "@/business/case/test-case";
 
 export default {
   name: "FunctionalCases",
@@ -142,6 +142,9 @@ export default {
       this.filterCases = val;
       this.handlePageChange(this.currentPage);
     },
+  },
+  mounted() {
+    this.searchTestCase();
   },
   methods: {
     redirectFunctionCaseEditPage(caseId, projectId) {
