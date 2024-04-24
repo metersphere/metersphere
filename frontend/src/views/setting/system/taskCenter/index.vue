@@ -1,8 +1,6 @@
 <template>
+  <ExpireAlert />
   <MsCard simple no-content-padding>
-    <div class="p-4 pb-0">
-      <ExpireAlert />
-    </div>
     <TaskCenter group="system" />
   </MsCard>
 </template>

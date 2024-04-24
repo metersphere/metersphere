@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full flex-col gap-[24px] overflow-hidden">
+  <div class="flex h-full flex-col gap-[16px] overflow-hidden">
     <div class="group-auth-table">
       <a-table
         :span-method="dataSpanMethod"
@@ -488,7 +488,7 @@
   .group-auth-table {
     @apply flex-1 overflow-hidden;
 
-    padding: 0 24px;
+    padding: 0 16px;
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-left: 1px solid var(--color-text-n8) !important;

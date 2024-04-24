@@ -208,7 +208,7 @@
     height: 100%;
     .header {
       overflow-y: auto;
-      padding: 24px 24px 0;
+      padding: 16px 16px 0;
       max-height: calc(100% - 100px);
       background-color: #ffffff;
     }
@@ -219,7 +219,7 @@
       z-index: 999;
       display: flex;
       justify-content: flex-end;
-      padding: 24px;
+      padding: 16px;
       background-color: #ffffff;
       box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
       gap: 16px;

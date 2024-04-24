@@ -1,18 +1,21 @@
 <template>
-  <div class="card">
+  <!-- <div class="card"> -->
+  <MsCard simple no-content-padding>
     <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
       <template #first>
-        <UserGroupLeft
-          ref="ugLeftRef"
-          :add-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
-          :update-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
-          :is-global-disable="true"
-          @handle-select="handleSelect"
-          @add-user-success="handleAddMember"
-        />
+        <div class="mr-1">
+          <UserGroupLeft
+            ref="ugLeftRef"
+            :add-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
+            :update-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
+            :is-global-disable="true"
+            @handle-select="handleSelect"
+            @add-user-success="handleAddMember"
+          />
+        </div>
       </template>
       <template #second>
-        <div class="p-[24px]">
+        <div class="p-[16px]">
           <div class="flex flex-row items-center justify-between">
             <a-tooltip :content="currentUserGroupItem.name">
               <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
@@ -61,7 +64,8 @@
         </div>
       </template>
     </MsSplitBox>
-  </div>
+  </MsCard>
+  <!-- </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -71,6 +75,7 @@
   import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
 
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';

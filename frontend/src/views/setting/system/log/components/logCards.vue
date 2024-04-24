@@ -601,7 +601,7 @@
     @apply bg-white;
 
     margin-top: 16px;
-    padding: 24px;
+    padding: 16px;
     border-radius: var(--border-radius-large);
     .log-card-header {
       @apply flex items-center justify-between;

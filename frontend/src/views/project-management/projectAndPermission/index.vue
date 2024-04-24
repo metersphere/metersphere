@@ -1,10 +1,10 @@
 <template>
-  <div class="wrapper flex min-h-[500px]" :style="{ height: 'calc(100vh - 90px)' }">
+  <div class="wrapper flex min-h-[500px]" :style="{ height: 'calc(100vh - 74px)' }">
     <MsMenuPanel
       :title="t('project.permission.projectAndPermission')"
       :default-key="currentKey"
       :menu-list="menuList"
-      class="mr-[16px] w-[208px] min-w-[208px] bg-white p-[24px]"
+      class="mr-[16px] w-[208px] min-w-[208px] bg-white p-[16px]"
       @toggle-menu="toggleMenu"
     />
     <MsCard simple :other-width="290" :min-width="700" :loading="isLoading">

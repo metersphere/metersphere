@@ -38,7 +38,6 @@
   .wrapper {
     /* position: relative; */
     width: 100%;
-    height: calc(100vh - 138px);
     min-height: 500px;
   }
 </style>

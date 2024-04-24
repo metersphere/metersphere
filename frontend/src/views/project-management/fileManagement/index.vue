@@ -2,7 +2,7 @@
   <div class="page">
     <MsSplitBox>
       <template #first>
-        <div class="p-[24px]">
+        <div class="p-[16px]">
           <div class="folder" @click="setActiveFolder('my')">
             <div :class="getFolderClass('my')">
               <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />

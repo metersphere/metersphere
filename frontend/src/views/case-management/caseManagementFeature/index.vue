@@ -1,113 +1,116 @@
 <template>
   <MsCard simple no-content-padding>
-    <div class="flex items-center border-b border-[var(--color-text-n8)] p-[8px_24px]">
-      <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" type="primary" @click="caseDetail">
-        {{ t('caseManagement.featureCase.creatingCase') }}
-      </a-button>
-      <a-button v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="mx-3" type="outline" @click="importCase('Excel')">
-        {{ t('caseManagement.featureCase.importExcel') }}
-      </a-button>
-      <!-- <a-button type="outline" @click="importCase('Xmind')">
-        {{ t('caseManagement.featureCase.importXmind') }}
-      </a-button> -->
-    </div>
-    <div class="pageWrap relative h-[calc(100%-49px)]">
-      <MsSplitBox>
-        <template #first>
-          <div class="p-[8px_24px] pb-0">
-            <div class="feature-case h-[100%]">
-              <a-input-search
+    <MsSplitBox>
+      <template #first>
+        <div class="p-[16px] pb-0">
+          <div class="feature-case h-[100%]">
+            <div class="mb-[16px] flex justify-between">
+              <a-input
                 v-model:model-value="groupKeyword"
-                :placeholder="t('caseManagement.featureCase.searchTip')"
+                :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
                 allow-clear
-                class="mb-[16px]"
-              ></a-input-search>
-              <div class="case h-[38px]">
-                <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
-                  <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
-                  <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
-                >
-                <div class="ml-auto flex items-center">
-                  <a-tooltip
-                    :content="
-                      isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')
-                    "
-                  >
-                    <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
-                      <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-                    </MsButton>
-                  </a-tooltip>
-                  <MsPopConfirm
-                    v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
-                    ref="confirmRef"
-                    v-model:visible="addSubVisible"
-                    :is-delete="false"
-                    :title="t('caseManagement.featureCase.addSubModule')"
-                    :all-names="rootModulesName"
-                    :loading="confirmLoading"
-                    :ok-text="t('common.confirm')"
-                    :field-config="{
-                      placeholder: t('caseManagement.featureCase.addGroupTip'),
-                    }"
-                    @confirm="confirmHandler"
-                  >
-                    <MsButton type="icon" class="!mr-0 p-[2px]">
-                      <MsIcon
-                        type="icon-icon_create_planarity"
-                        size="18"
-                        class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                      />
-                    </MsButton>
-                  </MsPopConfirm>
-                </div>
-              </div>
-              <a-divider class="my-[8px]" />
-              <FeatureCaseTree
-                ref="caseTreeRef"
-                v-model:selected-keys="selectedKeys"
-                v-model:group-keyword="groupKeyword"
-                :all-names="rootModulesName"
-                :active-folder="activeFolder"
-                :is-expand-all="isExpandAll"
-                :modules-count="modulesCount"
-                :is-modal="false"
-                @case-node-select="caseNodeSelect"
-                @init="setRootModules"
-                @drag-update="dragUpdate"
-              ></FeatureCaseTree>
+                :max-length="255"
+              />
+              <a-dropdown position="br">
+                <a-button class="ml-2" type="primary">
+                  {{ t('common.newCreate') }}
+                </a-button>
+                <template #content>
+                  <a-doption v-permission="['FUNCTIONAL_CASE:READ+ADD']" @click="caseDetail">{{
+                    t('caseManagement.featureCase.creatingCase')
+                  }}</a-doption>
+                  <a-doption v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" @click="importCase('Excel')">{{
+                    t('caseManagement.featureCase.importExcel')
+                  }}</a-doption>
+                </template>
+              </a-dropdown>
             </div>
-          </div>
-          <div class="flex-1">
-            <a-divider class="!my-0 !mb-0" />
-            <div class="case">
-              <div
-                class="flex items-center px-[20px]"
-                :class="getActiveClass('recycle')"
-                @click="setActiveFolder('recycle')"
+
+            <div class="case h-[38px]">
+              <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
+                <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
+                <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
               >
-                <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-                <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div>
+              <div class="ml-auto flex items-center">
+                <a-tooltip
+                  :content="
+                    isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')
+                  "
+                >
+                  <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
+                    <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+                  </MsButton>
+                </a-tooltip>
+                <MsPopConfirm
+                  v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
+                  ref="confirmRef"
+                  v-model:visible="addSubVisible"
+                  :is-delete="false"
+                  :title="t('caseManagement.featureCase.addSubModule')"
+                  :all-names="rootModulesName"
+                  :loading="confirmLoading"
+                  :ok-text="t('common.confirm')"
+                  :field-config="{
+                    placeholder: t('caseManagement.featureCase.addGroupTip'),
+                  }"
+                  @confirm="confirmHandler"
+                >
+                  <MsButton type="icon" class="!mr-0 p-[2px]">
+                    <MsIcon
+                      type="icon-icon_create_planarity"
+                      size="18"
+                      class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                    />
+                  </MsButton>
+                </MsPopConfirm>
               </div>
             </div>
-          </div>
-        </template>
-        <template #second>
-          <div class="p-[8px_24px]">
-            <CaseTable
-              ref="caseTableRef"
+            <a-divider class="my-[8px]" />
+            <FeatureCaseTree
+              ref="caseTreeRef"
+              v-model:selected-keys="selectedKeys"
+              v-model:group-keyword="groupKeyword"
+              :all-names="rootModulesName"
               :active-folder="activeFolder"
-              :offspring-ids="offspringIds"
-              :active-folder-type="activeCaseType"
+              :is-expand-all="isExpandAll"
               :modules-count="modulesCount"
-              @init="initModulesCount"
-              @import="importCase"
-            ></CaseTable>
+              :is-modal="false"
+              @case-node-select="caseNodeSelect"
+              @init="setRootModules"
+              @drag-update="dragUpdate"
+            ></FeatureCaseTree>
           </div>
-        </template>
-      </MsSplitBox>
-    </div>
+        </div>
+        <div class="flex-1">
+          <a-divider class="!my-0 !mb-0" />
+          <div class="case">
+            <div
+              class="flex items-center px-[20px]"
+              :class="getActiveClass('recycle')"
+              @click="setActiveFolder('recycle')"
+            >
+              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+              <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+              <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #second>
+        <div class="p-[16px_16px]">
+          <CaseTable
+            ref="caseTableRef"
+            :active-folder="activeFolder"
+            :offspring-ids="offspringIds"
+            :active-folder-type="activeCaseType"
+            :modules-count="modulesCount"
+            @init="initModulesCount"
+            @import="importCase"
+          ></CaseTable>
+        </div>
+      </template>
+    </MsSplitBox>
   </MsCard>
   <!-- </div> -->
   <ExportExcelModal
@@ -411,47 +414,42 @@
 </script>
 
 <style scoped lang="less">
-  .pageWrap {
-    min-width: 1000px;
-    border-radius: var(--border-radius-large);
-    @apply bg-white;
-    .case {
-      padding: 8px 4px;
-      border-radius: var(--border-radius-small);
-      @apply flex cursor-pointer  items-center justify-between;
-      &:hover {
-        background-color: rgb(var(--primary-1));
-      }
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
+  .case {
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    @apply flex cursor-pointer  items-center justify-between;
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-icon {
+      margin-right: 4px;
+      color: var(--color-text-4);
+    }
+    .folder-name {
+      color: var(--color-text-1);
+    }
+    .folder-count {
+      margin-left: 4px;
+      color: var(--color-text-4);
+    }
+    .case-active {
+      .folder-icon,
+      .folder-name,
       .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
+        color: rgb(var(--primary-5));
       }
-      .case-active {
-        .folder-icon,
-        .folder-name,
-        .folder-count {
-          color: rgb(var(--primary-5));
-        }
+    }
+    .back {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ffffff;
+      background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+      box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+      .arco-icon {
+        color: rgb(var(--primary-5));
       }
-      .back {
-        margin-right: 8px;
-        width: 20px;
-        height: 20px;
-        border: 1px solid #ffffff;
-        background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
-        box-shadow: 0 0 7px rgb(15 0 78 / 9%);
-        .arco-icon {
-          color: rgb(var(--primary-5));
-        }
-        @apply flex cursor-pointer items-center rounded-full;
-      }
+      @apply flex cursor-pointer items-center rounded-full;
     }
   }
   .recycle {

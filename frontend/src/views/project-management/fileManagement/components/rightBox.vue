@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[calc(100vh-88px)] flex-col p-[24px]">
+  <div class="flex h-[calc(100vh-88px)] flex-col p-[16px]">
     <div class="header">
       <a-button v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="primary" @click="handleAddClick">
         {{ t('project.fileManagement.addFile') }}

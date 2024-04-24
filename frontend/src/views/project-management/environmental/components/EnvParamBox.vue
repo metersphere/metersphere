@@ -325,11 +325,11 @@
     transform: scale3d(1, 1, 1);
     height: 100%;
     .header {
-      padding: 24px 24px 0;
+      padding: 16px 16px 0;
     }
     .content {
       overflow-y: auto;
-      padding: 0 24px;
+      padding: 0 16px;
       height: 100%;
       max-height: calc(100% - 320px);
       background-color: #ffffff;
