@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[calc(100%-8px)] flex-col" @click.stop="() => {}">
+  <div class="flex h-[calc(100%-64px)] flex-col" @click.stop="() => {}">
     <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
       <a-pagination
         v-model:page-size="controlPageSize"
@@ -108,8 +108,8 @@
       </Suspense>
     </a-spin>
     <!-- 响应内容tab -->
-    <div v-else class="h-[calc(100%-8px)]">
-      <a-spin :loading="loading" class="h-[calc(100%-8px)] w-full pb-1">
+    <div v-else class="h-full">
+      <a-spin :loading="loading" class="h-full w-full pb-1">
         <result
           v-model:active-tab="activeTab"
           :request-result="activeStepDetailCopy?.content"

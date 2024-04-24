@@ -501,6 +501,6 @@
   }
   .foldContent {
     height: 100%;
-    height: calc(100vh);
+    height: 1000px;
   }
 </style>
