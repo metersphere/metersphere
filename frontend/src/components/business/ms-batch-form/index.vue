@@ -48,7 +48,12 @@
                 <div class="inline-flex flex-row">
                   <div>{{ index === 0 && model.label ? t(model.label) : '' }}</div>
                   <div v-if="model.hasRedStar" class="ml-[2px] flex items-center">
-                    <svg-icon width="6px" height="6px" name="form-star" class="text-[rgb(var(--danger-6))]" />
+                    <svg-icon
+                      width="6px"
+                      height="22px"
+                      name="form-star"
+                      class="text-[12px] font-medium text-[rgb(var(--danger-6))]"
+                    />
                   </div>
                 </div>
               </template>
