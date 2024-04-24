@@ -656,10 +656,6 @@
       showTooltip: true,
       dataIndex: 'updateUserName',
       titleSlotName: 'updateUserFilter',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       showInTable: true,
       width: 200,
       showDrag: true,

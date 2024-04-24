@@ -443,10 +443,6 @@
       slotName: 'updateUserName',
       dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       showInTable: true,
       showTooltip: true,
       width: 200,
