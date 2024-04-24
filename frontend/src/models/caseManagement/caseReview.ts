@@ -94,9 +94,7 @@ export interface FollowReviewParams {
 }
 // 批量操作评审参数
 export interface BatchMoveReviewParams extends BatchApiParams {
-  projectId: string;
   moveModuleId: string; // 移动到的评审模块id
-  moduleIds: string[];
 }
 // 评审拖拽排序类型
 export type ReviewMoveMode = 'BEFORE' | 'AFTER' | 'APPEND';

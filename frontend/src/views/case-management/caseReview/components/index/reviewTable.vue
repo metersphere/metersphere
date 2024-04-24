@@ -487,6 +487,7 @@
       width: hasOperationPermission.value ? 110 : 50,
     },
   ];
+  const selectedModuleKeys = ref<string[]>([]);
   const tableStore = useTableStore();
   await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -538,7 +539,6 @@
         moduleIds = [props.activeFolder, ...props.offspringIds];
       }
     }
-
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -669,12 +669,25 @@
   }
 
   const moveModalVisible = ref(false);
-  const selectedModuleKeys = ref<string[]>([]);
+
   const batchMoveFileLoading = ref(false);
 
   async function handleReviewMove() {
     try {
       batchMoveFileLoading.value = true;
+      tableQueryParams.value = {
+        ...tableQueryParams.value,
+        moveModuleId: selectedModuleKeys.value[0],
+        selectIds: batchParams.value?.selectedIds || [],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        currentSelectCount: batchParams.value?.currentSelectCount || 0,
+        condition: {
+          keyword: keyword.value,
+          filter: { status: statusFilters.value, reviewers: reviewersFilters.value },
+          combine: batchParams.value.condition,
+        },
+      };
       await moveReview({
         ...tableQueryParams.value,
       });

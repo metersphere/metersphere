@@ -26,6 +26,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -588,6 +589,9 @@ public class CaseReviewService {
 
     public void batchMoveCaseReview(CaseReviewBatchRequest request, String userId) {
         List<String> ids;
+        if (StringUtils.isBlank(request.getMoveModuleId())) {
+            throw new MSException(Translator.get("functional_case.module_id.not_blank"));
+        }
         if (request.isSelectAll()) {
             ids = extCaseReviewMapper.getIds(request, request.getProjectId());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {

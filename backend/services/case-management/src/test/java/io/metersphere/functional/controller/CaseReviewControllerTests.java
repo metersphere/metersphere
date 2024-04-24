@@ -613,6 +613,9 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviews = getCaseReviews("创建评审更新1");
         String moduleIdNewOne = caseReviews.get(0).getModuleId();
         Assertions.assertTrue(StringUtils.equals(moduleIdNewOne, moduleIdNew));
+        request.setMoveModuleId(null);
+        request.setSelectAll(false);
+        this.requestPost(BATCH_MOVE_CASE_REVIEW, request).andExpect(status().is5xxServerError());
     }
 
     @Test

@@ -174,18 +174,17 @@
                             and case_review.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='review_pass_rule'">
+                        <when test="key=='reviewPassRule'">
                             and case_review.review_pass_rule in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='create_user'">
+                        <when test="key=='createUser'">
                             and case_review.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='case_reviewer'">
+                        <when test="key=='reviewers'">
                             and case_review.id in (
                             select case_review_user.review_id from case_review_user where case_review_user.user_id in
-                            in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
