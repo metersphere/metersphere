@@ -68,7 +68,7 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiScenarioDTO>> getTrashPage(@Validated @RequestBody ApiScenarioPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "delete_time desc");
+                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "delete_time desc, id desc");
         request.setDeleted(true);
         return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
     }

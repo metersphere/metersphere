@@ -131,7 +131,7 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : request.getDeleted() ? "delete_time desc" : "pos desc");
+                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : request.getDeleted() ? "delete_time desc, id desc" : "pos desc, id desc");
         return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, SessionUtils.getUserId()));
     }
 
