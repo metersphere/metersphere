@@ -10,42 +10,45 @@
       />
     </div>
     <div v-if="showSystem" v-permission="['SYSTEM_USER_ROLE:READ']" class="mt-2">
-      <CreateUserGroupPopup
-        :list="systemUserGroupList"
-        :visible="systemUserGroupVisible"
-        :auth-scope="AuthScopeEnum.SYSTEM"
-        @cancel="systemUserGroupVisible = false"
-        @submit="handleCreateUserGroup"
-      >
-        <div class="flex items-center justify-between px-[4px] py-[7px]">
-          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-            <MsIcon
-              v-if="systemToggle"
-              class="cursor-pointer"
-              type="icon-icon_expand-down_filled"
-              size="12"
-              @click="systemToggle = false"
-            />
-            <MsIcon
-              v-else
-              class="cursor-pointer"
-              type="icon-icon_expand-right_filled"
-              size="12"
-              @click="systemToggle = true"
-            />
-            <div class="text-[14px]">
-              {{ t('system.userGroup.systemUserGroup') }}
-            </div>
-          </div>
-
-          <icon-plus-circle-fill
-            v-permission="props.addPermission"
-            class="cursor-pointer text-[rgb(var(--primary-7))]"
-            size="20"
-            @click="handleCreateUG(AuthScopeEnum.SYSTEM)"
+      <div class="flex items-center justify-between px-[4px] py-[7px]">
+        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+          <MsIcon
+            v-if="systemToggle"
+            class="cursor-pointer"
+            type="icon-icon_expand-down_filled"
+            size="12"
+            @click="systemToggle = false"
           />
+          <MsIcon
+            v-else
+            class="cursor-pointer"
+            type="icon-icon_expand-right_filled"
+            size="12"
+            @click="systemToggle = true"
+          />
+          <div class="text-[14px]">
+            {{ t('system.userGroup.systemUserGroup') }}
+          </div>
         </div>
-      </CreateUserGroupPopup>
+        <CreateUserGroupPopup
+          :list="systemUserGroupList"
+          :visible="systemUserGroupVisible"
+          :auth-scope="AuthScopeEnum.SYSTEM"
+          @cancel="systemUserGroupVisible = false"
+          @submit="handleCreateUserGroup"
+        >
+          <a-tooltip :content="`创建${t('system.userGroup.systemUserGroup')}`" position="right">
+            <MsIcon
+              v-permission="props.addPermission"
+              type="icon-icon_create_planarity"
+              size="20"
+              class="cursor-pointer text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+              @click="handleCreateUG(AuthScopeEnum.SYSTEM)"
+            />
+          </a-tooltip>
+        </CreateUserGroupPopup>
+      </div>
+
       <Transition>
         <div v-if="systemToggle">
           <div
@@ -112,42 +115,44 @@
       </Transition>
     </div>
     <div v-if="showOrg" v-permission="['ORGANIZATION_USER_ROLE:READ']" class="mt-2">
-      <CreateUserGroupPopup
-        :list="orgUserGroupList"
-        :visible="orgUserGroupVisible"
-        :auth-scope="AuthScopeEnum.ORGANIZATION"
-        @cancel="orgUserGroupVisible = false"
-        @submit="handleCreateUserGroup"
-      >
-        <div class="flex items-center justify-between px-[4px] py-[7px]">
-          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-            <MsIcon
-              v-if="orgToggle"
-              class="cursor-pointer"
-              type="icon-icon_expand-down_filled"
-              size="12"
-              @click="orgToggle = false"
-            />
-            <MsIcon
-              v-else
-              class="cursor-pointer"
-              type="icon-icon_expand-right_filled"
-              size="12"
-              @click="orgToggle = true"
-            />
-            <div class="text-[14px]">
-              {{ t('system.userGroup.orgUserGroup') }}
-            </div>
-          </div>
-
-          <icon-plus-circle-fill
-            v-permission="props.addPermission"
-            class="cursor-pointer text-[rgb(var(--primary-7))]"
-            size="20"
-            @click="orgUserGroupVisible = true"
+      <div class="flex items-center justify-between px-[4px] py-[7px]">
+        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+          <MsIcon
+            v-if="orgToggle"
+            class="cursor-pointer"
+            type="icon-icon_expand-down_filled"
+            size="12"
+            @click="orgToggle = false"
           />
+          <MsIcon
+            v-else
+            class="cursor-pointer"
+            type="icon-icon_expand-right_filled"
+            size="12"
+            @click="orgToggle = true"
+          />
+          <div class="text-[14px]">
+            {{ t('system.userGroup.orgUserGroup') }}
+          </div>
         </div>
-      </CreateUserGroupPopup>
+        <CreateUserGroupPopup
+          :list="orgUserGroupList"
+          :visible="orgUserGroupVisible"
+          :auth-scope="AuthScopeEnum.ORGANIZATION"
+          @cancel="orgUserGroupVisible = false"
+          @submit="handleCreateUserGroup"
+        >
+          <a-tooltip :content="`创建${t('system.userGroup.orgUserGroup')}`" position="right">
+            <MsIcon
+              v-permission="props.addPermission"
+              type="icon-icon_create_planarity"
+              size="20"
+              class="cursor-pointer text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+              @click="orgUserGroupVisible = true"
+            />
+          </a-tooltip>
+        </CreateUserGroupPopup>
+      </div>
       <Transition>
         <div v-if="orgToggle">
           <div
@@ -240,42 +245,44 @@
       </Transition>
     </div>
     <div v-if="showProject" v-permission="['PROJECT_GROUP:READ']" class="mt-2">
-      <CreateUserGroupPopup
-        :list="projectUserGroupList"
-        :visible="projectUserGroupVisible"
-        :auth-scope="AuthScopeEnum.PROJECT"
-        @cancel="projectUserGroupVisible = false"
-        @submit="handleCreateUserGroup"
-      >
-        <div class="flex items-center justify-between px-[4px] py-[7px]">
-          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-            <MsIcon
-              v-if="projectToggle"
-              class="cursor-pointer"
-              type="icon-icon_expand-down_filled"
-              size="12"
-              @click="projectToggle = false"
-            />
-            <MsIcon
-              v-else
-              class="cursor-pointer"
-              type="icon-icon_expand-right_filled"
-              size="12"
-              @click="projectToggle = true"
-            />
-            <div class="text-[14px]">
-              {{ t('system.userGroup.projectUserGroup') }}
-            </div>
-          </div>
-
-          <icon-plus-circle-fill
-            v-permission="props.addPermission"
-            class="cursor-pointer text-[rgb(var(--primary-7))]"
-            size="20"
-            @click="projectUserGroupVisible = true"
+      <div class="flex items-center justify-between px-[4px] py-[7px]">
+        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+          <MsIcon
+            v-if="projectToggle"
+            class="cursor-pointer"
+            type="icon-icon_expand-down_filled"
+            size="12"
+            @click="projectToggle = false"
           />
+          <MsIcon
+            v-else
+            class="cursor-pointer"
+            type="icon-icon_expand-right_filled"
+            size="12"
+            @click="projectToggle = true"
+          />
+          <div class="text-[14px]">
+            {{ t('system.userGroup.projectUserGroup') }}
+          </div>
         </div>
-      </CreateUserGroupPopup>
+        <CreateUserGroupPopup
+          :list="projectUserGroupList"
+          :visible="projectUserGroupVisible"
+          :auth-scope="AuthScopeEnum.PROJECT"
+          @cancel="projectUserGroupVisible = false"
+          @submit="handleCreateUserGroup"
+        >
+          <a-tooltip :content="`创建${t('system.userGroup.projectUserGroup')}`" position="right">
+            <MsIcon
+              v-permission="props.addPermission"
+              type="icon-icon_create_planarity"
+              size="20"
+              class="cursor-pointer text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+              @click="projectUserGroupVisible = true"
+            />
+          </a-tooltip>
+        </CreateUserGroupPopup>
+      </div>
       <Transition>
         <div v-if="projectToggle">
           <div
