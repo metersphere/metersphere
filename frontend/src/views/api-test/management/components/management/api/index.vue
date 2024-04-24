@@ -24,13 +24,7 @@
       >
         <template v-if="activeApiTab.definitionActiveKey === 'preview'" #extra>
           <div class="flex gap-[12px] pr-[16px]">
-            <a-button
-              v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
-              type="primary"
-              @click="toExecuteDefinition"
-            >
-              {{ t('apiTestManagement.execute') }}
-            </a-button>
+            <executeButton v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']" @execute="toExecuteDefinition" />
             <a-dropdown-button
               v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
               type="outline"
@@ -125,6 +119,7 @@
   import caseTable from '../case/caseTable.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
+  import executeButton from '@/views/api-test/components/executeButton.vue';
 
   import { getProtocolList, localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
@@ -409,11 +404,11 @@
   }
 
   // 跳转到接口定义tab，且执行
-  function toExecuteDefinition() {
+  function toExecuteDefinition(executeType?: 'localExec' | 'serverExec') {
     activeApiTab.value.definitionActiveKey = 'definition';
     activeApiTab.value.isExecute = true;
     activeApiTab.value.mode = 'debug';
-    requestCompositionRef.value?.execute(userStore.isPriorityLocalExec ? 'localExec' : 'serverExec');
+    requestCompositionRef.value?.execute(executeType);
   }
 
   function handleDelete() {
