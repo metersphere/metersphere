@@ -184,13 +184,6 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
-      {
-        key: 'BUG_MANAGEMENT_BUG_DETAIL', // 缺陷管理-回收站
-        locale: 'menu.bugManagement.bugDetail',
-        route: RouteEnum.BUG_MANAGEMENT_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
     ],
   },
   {
