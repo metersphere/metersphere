@@ -2,7 +2,7 @@
   <a-popover
     ref="popoverRef"
     :popup-visible="currentVisible"
-    position="bl"
+    position="br"
     trigger="click"
     class="w-[350px]"
     :content-class="props.id ? 'move-left' : ''"
@@ -30,10 +30,7 @@
                 @press-enter="handleBeforeOk"
                 @keyup.esc="handleCancel"
               />
-              <span
-                v-if="!props.id && props.authScope === AuthScopeEnum.SYSTEM"
-                class="mt-[8px] text-[13px] font-medium text-[var(--color-text-4)]"
-              >
+              <span v-if="!props.id" class="mt-[8px] text-[13px] font-medium text-[var(--color-text-4)]">
                 {{ t('system.userGroup.createUserGroupTip') }}
               </span>
             </a-form-item>
