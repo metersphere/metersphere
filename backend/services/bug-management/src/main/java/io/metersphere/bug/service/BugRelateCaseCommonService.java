@@ -110,19 +110,28 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         BugRelationCaseMapper relationCaseMapper = sqlSession.getMapper(BugRelationCaseMapper.class);
         // 根据用例ID筛选出已通过测试计划关联的用例
         BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
-        bugRelationCaseExample.createCriteria().andTestPlanCaseIdIn(relatedIds);
+        bugRelationCaseExample.createCriteria().andBugIdEqualTo(request.getSourceId()).andTestPlanCaseIdIn(relatedIds);
         List<BugRelationCase> planRelatedCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         Map<String, String> planRelatedMap = planRelatedCases.stream().collect(Collectors.toMap(BugRelationCase::getTestPlanCaseId, BugRelationCase::getId));
-        relatedIds.forEach(relatedId -> {
-			BugRelationCase record = new BugRelationCase();
-			if (planRelatedMap.containsKey(relatedId)) {
-                // 计划已关联
-				record.setId(planRelatedMap.get(relatedId));
+        bugRelationCaseExample.clear();
+        bugRelationCaseExample.createCriteria().andBugIdEqualTo(request.getSourceId()).andCaseIdIn(relatedIds);
+        List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
+        Map<String, String> bugRelatedMap = bugRelationCases.stream().collect(Collectors.toMap(BugRelationCase::getCaseId, BugRelationCase::getId));
+        for (String relatedId : relatedIds) {
+            BugRelationCase record = new BugRelationCase();
+            if (bugRelatedMap.containsKey(relatedId)) {
+                // 重复关联
+                continue;
+            }
+            if (planRelatedMap.containsKey(relatedId)) {
+                // 计划已关联, 补全用例ID
+                record.setId(planRelatedMap.get(relatedId));
                 record.setCaseId(relatedId);
                 record.setUpdateTime(System.currentTimeMillis());
                 relationCaseMapper.updateByPrimaryKeySelective(record);
             } else {
-				record.setId(IDGenerator.nextStr());
+                // 暂未关联, 新生成关联数据
+                record.setId(IDGenerator.nextStr());
                 record.setCaseId(relatedId);
                 record.setBugId(request.getSourceId());
                 record.setCaseType(request.getSourceType());
@@ -131,7 +140,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
                 record.setUpdateTime(System.currentTimeMillis());
                 relationCaseMapper.insert(record);
             }
-        });
+        }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }

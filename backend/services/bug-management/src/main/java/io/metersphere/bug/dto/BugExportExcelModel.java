@@ -162,7 +162,7 @@ public class BugExportExcelModel {
 
     private String getBugContent(Map<String, BugContent> bugContents, String id) {
         if (bugContents.containsKey(id)) {
-            return bugContents.get(id).getDescription();
+            return replaceRichTextHtmlTag(bugContents.get(id).getDescription());
         } else {
             return StringUtils.EMPTY;
         }
@@ -190,7 +190,7 @@ public class BugExportExcelModel {
                 "回复" + StringUtils.SPACE + parseCommentUser(bugCommentDTO, bugCommentDTO.getReplyUser()));
         commentBuilder.append("】");
         commentBuilder.append(StringUtils.LF);
-        commentBuilder.append(bugCommentDTO.getContent());
+        commentBuilder.append(replaceRichTextHtmlTag(bugCommentDTO.getContent()));
         commentBuilder.append(StringUtils.LF);
         if (CollectionUtils.isNotEmpty(bugCommentDTO.getChildComments())) {
             for (BugCommentDTO childComment : bugCommentDTO.getChildComments()) {
@@ -229,5 +229,17 @@ public class BugExportExcelModel {
         } else {
             return userId;
         }
+    }
+
+    /**
+     * 替换富文本HTML标签(<img>除外)
+     * @param sourceStr
+     * @return
+     */
+    private String replaceRichTextHtmlTag(String sourceStr) {
+        if (StringUtils.isBlank(sourceStr)) {
+            return StringUtils.EMPTY;
+        }
+        return sourceStr.replaceAll("<(?!img)[^>]*>",  StringUtils.EMPTY);
     }
 }
