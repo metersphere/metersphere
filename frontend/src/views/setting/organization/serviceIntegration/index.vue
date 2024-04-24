@@ -134,11 +134,11 @@
     },
   ]);
   const isCollapse = ref<boolean>(false);
-  const collapseHeight = ref<string>('72px');
+  const collapseHeight = ref<string>('56px');
 
   const changeHandler = (activeKey: (string | number)[]) => {
     isCollapse.value = activeKey.length > 0;
-    collapseHeight.value = activeKey.length > 0 ? '158px' : '72px';
+    collapseHeight.value = activeKey.length > 0 ? '152px' : '56px';
   };
 
   const jumpHandler = (links: SkipTitle) => {

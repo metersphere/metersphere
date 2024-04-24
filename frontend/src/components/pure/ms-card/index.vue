@@ -7,7 +7,7 @@
         'relative',
         props.isFullscreen || isFullScreen ? 'ms-card--fullScreen' : '',
         props.autoHeight ? '' : 'h-full min-h-[500px]',
-        props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
+        props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[16px]',
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
         !props.hideFooter && !props.simple ? 'pb-[24px]' : '',
       ]"
@@ -36,7 +36,7 @@
           </div>
         </div>
       </a-scrollbar>
-      <div :class="{ 'px-[24px]': props.dividerHasPX }">
+      <div :class="{ 'px-[16px]': props.dividerHasPX }">
         <a-divider v-if="!props.simple && !props.hideDivider" class="mb-[16px] mt-0" />
       </div>
       <div class="ms-card-container">
@@ -195,7 +195,7 @@
     &--noContentPadding {
       border-radius: var(--border-radius-large);
       .ms-card-header {
-        padding: 24px 24px 16px;
+        padding: 16px;
       }
       .arco-divider {
         @apply mb-0;

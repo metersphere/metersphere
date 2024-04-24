@@ -20,7 +20,7 @@
         <a-scrollbar
           :style="{
             overflow: 'auto',
-            height: `calc(100vh - ${collapseHeight} - 220px)`,
+            height: `calc(100vh - ${collapseHeight} - 196px)`,
           }"
         >
           <div v-if="filterList.length" class="list">

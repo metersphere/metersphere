@@ -128,7 +128,7 @@
 <style lang="less" scoped>
   .page {
     transform: scale3d(1, 1, 1);
-    padding: 24px;
+    padding: 16px;
     .no-content {
       :deep(.arco-tabs-content) {
         padding-top: 0;

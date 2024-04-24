@@ -1,6 +1,6 @@
 <template>
-  <div class="px-[24px] py-[8px]">
-    <div class="mb-[8px]">
+  <div class="p-[16px]">
+    <div class="mb-[16px]">
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
@@ -11,10 +11,15 @@
         @refresh="searchReview"
       >
         <template #left>
-          <div class="flex items-center">
+          <!-- <div class="flex items-center">
             <div class="mr-[4px] text-[var(--color-text-1)]">{{ t('caseManagement.caseReview.allReviews') }}</div>
             <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
-          </div>
+          </div> -->
+          <a-radio-group v-model:model-value="innerShowType" type="button" class="file-show-type">
+            <a-radio value="all">{{ t('common.all') }}</a-radio>
+            <a-radio value="reviewByMe">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>
+            <a-radio value="createByMe">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
+          </a-radio-group>
         </template>
       </MsAdvanceFilter>
     </div>
@@ -193,6 +198,7 @@
 <script setup lang="ts">
   import { onBeforeMount } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -261,6 +267,8 @@
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const reviewersFilters = ref<string[]>([]);
   const reviewersFilterVisible = ref(false);
+
+  const innerShowType = useVModel(props, 'showType', emit);
 
   onBeforeMount(async () => {
     try {
@@ -543,8 +551,8 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
-      createByMe: props.showType === 'createByMe' ? userStore.id : undefined,
-      reviewByMe: props.showType === 'reviewByMe' ? userStore.id : undefined,
+      createByMe: innerShowType.value === 'createByMe' ? userStore.id : undefined,
+      reviewByMe: innerShowType.value === 'reviewByMe' ? userStore.id : undefined,
       filter: { status: statusFilters.value, reviewers: reviewersFilters.value },
       combine: filter
         ? {
@@ -569,7 +577,7 @@
   });
 
   watch(
-    () => props.showType,
+    () => innerShowType.value,
     () => {
       searchReview();
     }

@@ -2,7 +2,7 @@
   <div class="page">
     <MsSplitBox>
       <template #first>
-        <div class="p-[24px]">
+        <div class="mr-[6px] p-[16px]">
           <!-- TODO:这个版本环境不展示默认项目环境 -->
           <!-- <div
             ><a-radio-group

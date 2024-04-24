@@ -1,42 +1,31 @@
 <template>
   <MsCard simple no-content-padding>
-    <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[8px_24px]">
-      <a-button v-permission="['CASE_REVIEW:READ+ADD']" type="primary" @click="goCreateReview">
-        {{ t('caseManagement.caseReview.create') }}
-      </a-button>
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
-        <a-radio value="all">{{ t('common.all') }}</a-radio>
-        <a-radio value="reviewByMe">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>
-        <a-radio value="createByMe">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
-      </a-radio-group>
-    </div>
-    <div class="relative h-[calc(100%-49px)]">
-      <MsSplitBox>
-        <template #first>
-          <div class="px-[24px] py-[16px]">
-            <ModuleTree
-              ref="folderTreeRef"
-              :show-type="showType"
-              :modules-count="modulesCount"
-              :is-expand-all="true"
-              @folder-node-select="handleFolderNodeSelect"
-              @init="initModuleTree"
-            />
-          </div>
-        </template>
-        <template #second>
-          <ReviewTable
-            :active-folder="activeFolderId"
-            :module-tree="moduleTree"
-            :tree-path-map="moduleTreePathMap"
+    <MsSplitBox>
+      <template #first>
+        <div class="p-[16px]">
+          <ModuleTree
+            ref="folderTreeRef"
             :show-type="showType"
-            :offspring-ids="offspringIds"
-            @go-create="goCreateReview"
-            @init="initModuleCount"
+            :modules-count="modulesCount"
+            :is-expand-all="true"
+            @folder-node-select="handleFolderNodeSelect"
+            @init="initModuleTree"
+            @create="goCreateReview"
           />
-        </template>
-      </MsSplitBox>
-    </div>
+        </div>
+      </template>
+      <template #second>
+        <ReviewTable
+          v-model:show-type="showType"
+          :active-folder="activeFolderId"
+          :module-tree="moduleTree"
+          :tree-path-map="moduleTreePathMap"
+          :offspring-ids="offspringIds"
+          @go-create="goCreateReview"
+          @init="initModuleCount"
+        />
+      </template>
+    </MsSplitBox>
   </MsCard>
 </template>
 

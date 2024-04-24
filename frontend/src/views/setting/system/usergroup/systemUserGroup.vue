@@ -12,9 +12,9 @@
         />
       </template>
       <template #second>
-        <div class="flex h-full flex-col overflow-hidden pt-[24px]">
+        <div class="flex h-full flex-col overflow-hidden pt-[16px]">
           <ExpireAlert class="px-4" />
-          <div class="mb-4 flex flex-row items-center justify-between px-[24px]">
+          <div class="mb-4 flex flex-row items-center justify-between px-[16px]">
             <a-tooltip :content="currentUserGroupItem.name">
               <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
             </a-tooltip>

@@ -1,5 +1,5 @@
 <template>
-  <div class="box h-full">
+  <div class="box">
     <div class="left" :class="getStyleClass()">
       <div class="item" :class="[activeTask === 'real' ? 'active' : '']" @click="toggleTask('real')">
         {{ t('project.taskCenter.realTimeTask') }}
@@ -91,7 +91,7 @@
   }
 
   function getStyleClass() {
-    return props.mode === 'modal' ? ['p-0', 'pt-[24px]', 'pr-[24px]'] : ['p-[24px]'];
+    return props.mode === 'modal' ? ['p-0', 'pt-[16px]', 'pr-[16px]'] : ['p-[16px]'];
   }
 
   const listName = computed(() => {

@@ -16,6 +16,7 @@ export default {
   'common.disable': 'Disable',
   'common.close': 'Close',
   'common.create': 'Create',
+  'common.newCreate': 'Create',
   'common.update': 'Update',
   'common.all': 'All',
   'common.operation': 'Operation',

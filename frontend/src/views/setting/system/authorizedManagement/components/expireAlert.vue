@@ -1,5 +1,5 @@
 <template>
-  <div v-expire class="mb-4">
+  <div v-expire class="mb-4" :class="props.styleClass">
     <a-alert type="warning">{{
       licenseStore.expiredDays >= 0 && licenseStore.expiredDays <= 30
         ? t('system.authorized.LicenseExpirationPromptLessThanThirty', { day: licenseStore.expiredDays })
@@ -16,6 +16,10 @@
 
   const licenseStore = useLicenseStore();
   const { t } = useI18n();
+
+  const props = defineProps<{
+    styleClass?: string[];
+  }>();
 </script>
 
 <style scoped></style>

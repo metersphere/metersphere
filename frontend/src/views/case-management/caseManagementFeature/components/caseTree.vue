@@ -361,7 +361,7 @@
       };
     }
     return {
-      height: 'calc(100vh - 280px)',
+      height: 'calc(100vh - 240px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15,

@@ -16,6 +16,7 @@ export default {
   'common.disable': '禁用',
   'common.close': '关闭',
   'common.create': '创建',
+  'common.newCreate': '新建',
   'common.update': '更新',
   'common.all': '全部',
   'common.operation': '操作',
