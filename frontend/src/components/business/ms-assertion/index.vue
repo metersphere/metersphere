@@ -17,7 +17,10 @@
       <div v-if="props.isDefinition && innerConfig" class="flex items-center">
         <a-switch v-model:model-value="innerConfig.enableGlobal" :disabled="props.disabled" size="small" type="line" />
         <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('ms.assertion.openGlobal') }}</div>
-        <a-tooltip :content="t('ms.assertion.openGlobalTip')" position="left">
+        <a-tooltip
+          :content="innerConfig.enableGlobal ? t('ms.assertion.openGlobalTip') : t('ms.assertion.closeGlobalTip')"
+          position="left"
+        >
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
             size="16"
