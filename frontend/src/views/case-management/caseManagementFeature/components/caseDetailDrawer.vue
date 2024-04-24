@@ -169,6 +169,7 @@
                       :data="caseTree"
                       class="w-full"
                       :allow-search="true"
+                      :filter-tree-node="filterTreeNode"
                       :field-names="{
                         title: 'name',
                         key: 'id',
@@ -247,7 +248,7 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, TreeNodeData } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -559,6 +560,10 @@
   function handleChangeModule(value: string | number | LabelValue | Array<string | number> | LabelValue[] | undefined) {
     detailInfo.value.moduleId = value as string;
     tabDetailRef.value.handleOK();
+  }
+
+  function filterTreeNode(searchValue: string, nodeValue: TreeNodeData) {
+    return (nodeValue as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   function getTotal(key: string) {
