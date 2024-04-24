@@ -24,6 +24,8 @@ export default {
   'ms.assertion.openGlobal': 'Implement the Global Declaration',
   'ms.assertion.openGlobalTip':
     'It is enabled by default. If it is disabled, the global assertion will not be executed when running this interface.',
+  'ms.assertion.closeGlobalTip':
+    'It is closed by default. If it is disabled, the global assertion will not be executed when running this interface.',
   'ms.assertion.expectedValueTitle':
     'The special characters $() * +. "[]{}^ |" to escape as the "special characters", such as "$" escaped"$',
 };
