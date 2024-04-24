@@ -302,11 +302,11 @@
       titleSlotName: 'caseLevelFilter',
       width: 100,
     },
-    {
-      title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'version',
-      width: 80,
-    },
+    // {
+    //   title: 'caseManagement.featureCase.tableColumnVersion',
+    //   slotName: 'version',
+    //   width: 80,
+    // },
     {
       title: 'caseManagement.featureCase.tableColumnTag',
       dataIndex: 'tags',
