@@ -185,6 +185,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setFileId(FILE_ID);
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
+        request.setFileName(UUID.randomUUID().toString());
         request.setModuleId("root");
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
         request.setFileId("TEST_ATTACHMENT_FILE_ID");

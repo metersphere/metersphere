@@ -728,7 +728,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiTransferRequest.setLocal(true);
         String uploadFileId = doUploadTempFile(getMockMultipartFile());
         apiTransferRequest.setFileId(uploadFileId);
-        apiTransferRequest.setFileName("test-api-test-case.txt");
+        apiTransferRequest.setFileName("test-api-test-case");
+        apiTransferRequest.setOriginalName("test-api-test-case.txt");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
@@ -739,7 +740,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
-        apiTransferRequest.setFileName("test-api-test-case-1.txt");
+        apiTransferRequest.setFileName("test-api-test-case-1");
+        apiTransferRequest.setOriginalName("test-api-test-case-1.txt");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
 
     }

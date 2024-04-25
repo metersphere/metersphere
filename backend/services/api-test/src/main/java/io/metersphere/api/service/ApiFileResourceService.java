@@ -422,7 +422,7 @@ public class ApiFileResourceService {
             throw new MSException("download file error!");
         }
         try {
-            fileId = fileMetadataService.transferFile(request.getFileName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
+            fileId = fileMetadataService.transferFile(request.getFileName(), request.getOriginalName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
         } catch (Exception e) {
             throw new MSException(Translator.get("file.transfer.failed"));
         }

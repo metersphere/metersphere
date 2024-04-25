@@ -203,22 +203,25 @@ public class FileMetadataService {
         return fileMetadata.getId();
     }
 
-
     /**
      * 文件转存
      *
      * @param fileName  文件名
+     * @param originFileName  原始文件名
      * @param projectId 项目ID
      * @param operator  操作人
      * @param fileBytes 文件字节
      * @return
      * @throws Exception
      */
-    public String transferFile(String fileName, String projectId, String moduleId, String operator, byte[] fileBytes) throws Exception {
-        if (StringUtils.isBlank(fileName)) {
+    public String transferFile(String fileName, String originFileName, String projectId, String moduleId, String operator, byte[] fileBytes) throws Exception {
+        if (StringUtils.isBlank(originFileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
-        FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
+        FileMetadata fileMetadata = this.genFileMetadata(originFileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
+        if (StringUtils.isNotBlank(fileName)) {
+            fileMetadata.setName(fileName);
+        }
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
         uploadFileRequest.setFolder(this.generateMinIOFilePath(projectId));

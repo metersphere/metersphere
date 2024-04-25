@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -143,6 +144,7 @@ public class BugAttachmentControllerTests extends BaseTest {
         request.setModuleId("root");
         request.setAssociated(false);
         request.setFileId("not-exist-file-id");
+        request.setFileName(UUID.randomUUID().toString());
         this.requestPost(BUG_ATTACHMENT_TRANSFER, request).andExpect(status().is5xxServerError());
         List<BugFileDTO> files = getBugFiles("default-attachment-bug-id");
         files.stream().filter(BugFileDTO::getLocal).forEach(file -> {
