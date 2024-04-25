@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.controller.*;
@@ -53,6 +55,8 @@ public class ApiDataUtils {
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        // 设置默认使用 BigDecimal 解析浮点数
+        objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
     }
 
     public static String toJSONString(Object value) {
@@ -132,5 +136,33 @@ public class ApiDataUtils {
         setResolver(new LinkedList<>());
         // 加入新的动态组件
         clazzList.forEach(objectMapper::registerSubtypes);
+    }
+
+    public static JsonNode readTree(String content) {
+        try {
+            return objectMapper.readTree(content);
+        } catch (IOException e) {
+            throw new MSException(e);
+        }
+    }
+
+    public static String writerWithDefaultPrettyPrinter(Object value) {
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+        } catch (IOException e) {
+            throw new MSException(e);
+        }
+    }
+
+    public static ObjectNode createObjectNode() {
+        return objectMapper.createObjectNode();
+    }
+
+    public static <T> T convertValue(JsonNode jsonNode, Class<T> valueType) {
+        try {
+            return objectMapper.convertValue(jsonNode, valueType);
+        } catch (Exception e) {
+            throw new MSException(e);
+        }
     }
 }

@@ -23,15 +23,15 @@ public class ResponseBody implements Serializable {
     private String bodyType;
 
     @Valid
-    private JsonBody jsonBody;
+    private JsonBody jsonBody = new JsonBody();
 
     @Valid
-    private XmlBody xmlBody;
+    private XmlBody xmlBody = new XmlBody();
 
     @Valid
-    private RawBody rawBody;
+    private RawBody rawBody = new RawBody();
 
     @Valid
-    private ResponseBinaryBody binaryBody;
+    private ResponseBinaryBody binaryBody = new ResponseBinaryBody();
 
 }

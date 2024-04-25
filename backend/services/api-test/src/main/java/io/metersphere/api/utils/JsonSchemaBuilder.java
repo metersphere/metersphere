@@ -1,12 +1,6 @@
 package io.metersphere.api.utils;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.*;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.project.constants.PropertyConstant;
@@ -22,29 +16,14 @@ import java.util.regex.Pattern;
 
 public class JsonSchemaBuilder {
 
-    private static final ObjectMapper objectMapper = JsonMapper.builder()
-            .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
-            .build();
-
-    static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // 支持json字符中带注释符
-        objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        // 设置默认使用 BigDecimal 解析浮点数
-        objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
-    }
-
     public static String jsonSchemaToJson(String jsonSchemaString) {
         try {
             // 解析 JSON Schema 字符串为 JsonNode
-            JsonNode jsonSchemaNode = objectMapper.readTree(jsonSchemaString);
+            JsonNode jsonSchemaNode = ApiDataUtils.readTree(jsonSchemaString);
             Map<String, String> processMap = new HashMap<>();
             // 生成符合 JSON Schema 的 JSON
             JsonNode jsonNode = generateJson(jsonSchemaNode, processMap);
-            String jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
+            String jsonString = ApiDataUtils.writerWithDefaultPrettyPrinter(jsonNode);
             if (MapUtils.isNotEmpty(processMap)) {
                 for (String str : processMap.keySet()) {
                     jsonString = jsonString.replace(str, processMap.get(str));
@@ -58,7 +37,7 @@ public class JsonSchemaBuilder {
     }
 
     private static JsonNode generateJson(JsonNode jsonSchemaNode, Map<String, String> processMap) {
-        ObjectNode jsonNode = objectMapper.createObjectNode();
+        ObjectNode jsonNode = ApiDataUtils.createObjectNode();
 
         if (jsonSchemaNode instanceof NullNode) {
             return NullNode.getInstance();
