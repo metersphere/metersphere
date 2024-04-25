@@ -1,6 +1,5 @@
 package io.metersphere.system.notice.utils;
 
-import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
@@ -12,6 +11,8 @@ import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.BugMessageDTO;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
+import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
+import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -141,39 +142,19 @@ public class MessageTemplateUtils {
     }
 
     public static Field[] getDomainTemplateFields(String taskType) {
-        Field[] allFields;
-        switch (taskType) {
-            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
-                allFields = FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
-            }
-            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
-                allFields = FieldUtils.getAllFields(ApiScenario.class);
-            }
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
-                allFields = FieldUtils.getAllFields(TestPlan.class);
-            }
-            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
-                allFields = FieldUtils.getAllFields(CaseReview.class);
-            }
-            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
-                allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
-            }
-            case NoticeConstants.TaskType.BUG_TASK -> {
-                allFields = FieldUtils.getAllFields(BugMessageDTO.class);
-            }
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
-                allFields = FieldUtils.getAllFields(UiScenario.class);
-            }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
-                allFields = FieldUtils.getAllFields(LoadTest.class);
-            }
-            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
-                allFields = FieldUtils.getAllFields(Schedule.class);
-            }
-            default -> allFields = new Field[0];
-        }
-
-        return allFields;
+       return switch (taskType) {
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
+            case NoticeConstants.TaskType.API_REPORT_TASK -> FieldUtils.getAllFields(ApiReportMessageDTO.class);
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> FieldUtils.getAllFields(TestPlan.class);
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> FieldUtils.getAllFields(CaseReview.class);
+            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
+            case NoticeConstants.TaskType.BUG_TASK -> FieldUtils.getAllFields(BugMessageDTO.class);
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> FieldUtils.getAllFields(UiScenario.class);
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> FieldUtils.getAllFields(LoadTest.class);
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> FieldUtils.getAllFields(Schedule.class);
+            default -> new Field[0];
+        };
     }
 
     public static String getContent(String template, Map<String, Object> context) {
@@ -249,9 +230,9 @@ public class MessageTemplateUtils {
             if (taskType.contains(value.toString())) {
                 List<CustomField> customFields = customFielddMap.get(value.toString());
                 if (CollectionUtils.isNotEmpty(customFields)) {
-                    Map <String,String>customFielddNameMap = new HashMap<>();
+                    Map<String, String> customFielddNameMap = new HashMap<>();
                     for (CustomField customField : customFields) {
-                        customFielddNameMap.put(customField.getName(), StringUtils.isBlank(customField.getName()) ? "-" : "<"+customField.getName()+">");
+                        customFielddNameMap.put(customField.getName(), StringUtils.isBlank(customField.getName()) ? "-" : "<" + customField.getName() + ">");
                     }
                     map.putAll(customFielddNameMap);
                 }
@@ -261,39 +242,17 @@ public class MessageTemplateUtils {
 
     private static void setMap(String taskType, Field[] domainTemplateFields, Map<String, Object> map) {
         switch (taskType) {
-            case NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
-                putDescription(domainTemplateFields, map);
-            }
-            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
-                String tableName = "api_scenario_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
-                String tableName = "test_plan_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
-                String tableName = "case_review_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.BUG_TASK -> {
-                String tableName = "bug_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
-                String tableName = "ui_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
-                String tableName = "load_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
-                String tableName = "schedule_";
-                putDomainName(domainTemplateFields, map, tableName);
-            }
-            default -> {
-            }
+            case NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK ->
+                    putDescription(domainTemplateFields, map);
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> putDescription(domainTemplateFields, map);
+            case NoticeConstants.TaskType.API_REPORT_TASK -> putDescription(domainTemplateFields, map);
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> putDomainName(domainTemplateFields, map, "test_plan_");
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> putDomainName(domainTemplateFields, map, "case_review_");
+            case NoticeConstants.TaskType.BUG_TASK -> putDomainName(domainTemplateFields, map, "bug_");
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> putDomainName(domainTemplateFields, map, "ui_");
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> putDomainName(domainTemplateFields, map, "load_");
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> putDomainName(domainTemplateFields, map, "schedule_");
+            default -> {}
         }
     }
 

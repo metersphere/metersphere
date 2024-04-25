@@ -37,7 +37,7 @@ public class ApiReportLogService {
                 apiReport.getProjectId(),
                 project.getOrganizationId(),
                 apiReport.getId(),
-                apiReport.getUpdateUser(),
+                null,
                 OperationLogType.DELETE.name(),
                 OperationLogModule.API_REPORT,
                 apiReport.getName());
