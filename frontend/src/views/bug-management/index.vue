@@ -513,7 +513,7 @@
         selectable: true,
         noDisable: false,
         showSetting: true,
-        heightUsed: 256,
+        heightUsed: 128,
         paginationSize: 'mini',
       },
       (record: TableData) => ({

@@ -3,9 +3,9 @@
   <div>
     <a-row class="grid-demo mb-4" :gutter="10">
       <a-col :span="5">
-        <a-button v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="mr-3" type="primary" @click="uploadPlugin">{{
-          t('system.plugin.uploadPlugin')
-        }}</a-button>
+        <a-button v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="mr-3" type="primary" @click="uploadPlugin">
+          {{ t('system.plugin.uploadPlugin') }}
+        </a-button>
       </a-col>
       <a-col :span="5" :offset="9">
         <a-select v-model="searchKeys.scene" @change="searchHandler">
@@ -25,154 +25,148 @@
         ></a-input-search>
       </a-col>
     </a-row>
-    <div class="pr-2">
-      <a-table
-        :data="filterData"
-        :pagination="false"
-        :scroll="{ y: 380, x: 2000, maxHeight: 200 }"
-        :expandable="expandable"
-        :loading="loading"
-        row-key="id"
-        :expanded-row-keys="expandedRowKeys"
-        @expand="handleExpand"
-      >
-        <template #columns>
-          <a-table-column
-            :width="300"
-            fixed="left"
-            :title="t('system.plugin.tableColumnsName')"
-            :ellipsis="true"
-            :tooltip="true"
-          >
-            <template #cell="{ record }">
-              {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
-            </template>
-          </a-table-column>
-          <a-table-column
-            :title="t('system.plugin.tableColumnsDescription')"
-            data-index="description"
-            :ellipsis="true"
-            :tooltip="true"
-            :width="150"
-          >
-            <template #cell="{ record }">
-              {{ record.description || '-' }}
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColumnsStatus')">
-            <template #cell="{ record }">
-              <div v-if="record.enable" class="flex items-center">
-                <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                {{ t('system.user.tableEnable') }}
-              </div>
-              <div v-else class="flex items-center text-[var(--color-text-4)]">
-                <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
-                {{ t('system.user.tableDisable') }}
-              </div>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
-            <template #cell="{ record }">{{ getScenarioType(record.scenario) }}</template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
-            <template #cell="{ record }">
-              <MsTagGroup
-                v-if="(record.organizations || []).length"
-                :tag-list="record.organizations || []"
-                type="primary"
-                theme="outline"
-              />
-              <MsTag v-else type="primary" theme="outline">
-                {{ t('system.plugin.allOrganize') }}
-              </MsTag>
-            </template>
-          </a-table-column>
-          <a-table-column
-            :title="t('system.plugin.tableColumnsJar')"
-            :ellipsis="true"
-            :tooltip="true"
-            data-index="fileName"
-          />
-          <a-table-column
-            :title="t('system.plugin.tableColumnsVersion')"
-            data-index="pluginId"
-            :width="200"
-            :ellipsis="true"
-            :tooltip="true"
-          />
-          <a-table-column :title="t('system.plugin.tableColumnsAuthorization')" :width="180">
-            <template #cell="{ record }">
-              <span>{{
-                record.xpack ? t('system.plugin.uploadCompSource') : t('system.plugin.uploadOpenSource')
-              }}</span>
-            </template>
-          </a-table-column>
-          <a-table-column
-            :title="t('system.plugin.tableColumnsCreatedBy')"
-            :ellipsis="true"
-            :tooltip="true"
-            data-index="createUser"
-          />
-          <a-table-column :title="t('system.plugin.tableColumnsUpdateTime')" :width="200">
-            <template #cell="{ record }">
-              <span>{{ getTime(record.updateTime) }}</span>
-            </template>
-          </a-table-column>
-          <a-table-column v-if="hasOperationPluginPermission" :width="180" fixed="right" :bordered="false">
-            <template #title>
-              {{ t('system.plugin.tableColumnsActions') }}
-            </template>
-            <template #cell="{ record }">
-              <div class="flex">
-                <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
-                  t('system.plugin.edit')
-                }}</MsButton>
-                <MsButton
-                  v-if="record.enable"
-                  v-permission="['SYSTEM_PLUGIN:READ+UPDATE']"
-                  @click="disableHandler(record)"
-                  >{{ t('system.plugin.tableDisable') }}</MsButton
-                >
-                <MsButton v-else v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="enableHandler(record)">{{
-                  t('system.plugin.tableEnable')
-                }}</MsButton>
-                <MsTableMoreAction
-                  v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
-                  :list="tableActions"
-                  @select="handleSelect($event, record)"
-                ></MsTableMoreAction>
-              </div>
-            </template>
-          </a-table-column>
-        </template>
-        <template #expand-icon="{ record, expanded }">
-          <span
-            v-if="(record.pluginForms || []).length && !expanded"
-            class="collapsebtn flex items-center justify-center"
-          >
-            <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
-          </span>
-          <span
-            v-else-if="(record.pluginForms || []).length && expanded"
-            class="expand flex items-center justify-center"
-          >
-            <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
-          </span>
-        </template>
-        <template #empty>
-          <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
-            {{ t('system.plugin.tableNoData') }}
-            <MsButton v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="ml-[8px]" @click="uploadPlugin">{{
-              t('system.plugin.uploadPlugin')
-            }}</MsButton>
-          </div>
-        </template>
-      </a-table>
-    </div>
-    <div class="ms-footerNum"
-      >{{ t('system.plugin.totalNum') }}<span class="mx-2 text-[rgb(var(--primary-5))]">{{ totalNum }}</span
-      >{{ t('system.plugin.dataList') }}</div
+    <a-table
+      :data="filterData"
+      :pagination="false"
+      :scroll="{ x: 2000 }"
+      :expandable="expandable"
+      :loading="loading"
+      row-key="id"
+      :expanded-row-keys="expandedRowKeys"
+      @expand="handleExpand"
     >
+      <template #columns>
+        <a-table-column
+          :width="300"
+          fixed="left"
+          :title="t('system.plugin.tableColumnsName')"
+          :ellipsis="true"
+          :tooltip="true"
+        >
+          <template #cell="{ record }">
+            {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
+          </template>
+        </a-table-column>
+        <a-table-column
+          :title="t('system.plugin.tableColumnsDescription')"
+          data-index="description"
+          :ellipsis="true"
+          :tooltip="true"
+          :width="150"
+        >
+          <template #cell="{ record }">
+            {{ record.description || '-' }}
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColumnsStatus')">
+          <template #cell="{ record }">
+            <div v-if="record.enable" class="flex items-center">
+              <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+              {{ t('system.user.tableEnable') }}
+            </div>
+            <div v-else class="flex items-center text-[var(--color-text-4)]">
+              <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
+              {{ t('system.user.tableDisable') }}
+            </div>
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
+          <template #cell="{ record }">{{ getScenarioType(record.scenario) }}</template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
+          <template #cell="{ record }">
+            <MsTagGroup
+              v-if="(record.organizations || []).length"
+              :tag-list="record.organizations || []"
+              type="primary"
+              theme="outline"
+            />
+            <MsTag v-else type="primary" theme="outline">
+              {{ t('system.plugin.allOrganize') }}
+            </MsTag>
+          </template>
+        </a-table-column>
+        <a-table-column
+          :title="t('system.plugin.tableColumnsJar')"
+          :ellipsis="true"
+          :tooltip="true"
+          data-index="fileName"
+        />
+        <a-table-column
+          :title="t('system.plugin.tableColumnsVersion')"
+          data-index="pluginId"
+          :width="200"
+          :ellipsis="true"
+          :tooltip="true"
+        />
+        <a-table-column :title="t('system.plugin.tableColumnsAuthorization')" :width="180">
+          <template #cell="{ record }">
+            <span>{{ record.xpack ? t('system.plugin.uploadCompSource') : t('system.plugin.uploadOpenSource') }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column
+          :title="t('system.plugin.tableColumnsCreatedBy')"
+          :ellipsis="true"
+          :tooltip="true"
+          data-index="createUser"
+        />
+        <a-table-column :title="t('system.plugin.tableColumnsUpdateTime')" :width="200">
+          <template #cell="{ record }">
+            <span>{{ getTime(record.updateTime) }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column v-if="hasOperationPluginPermission" :width="180" fixed="right" :bordered="false">
+          <template #title>
+            {{ t('system.plugin.tableColumnsActions') }}
+          </template>
+          <template #cell="{ record }">
+            <div class="flex">
+              <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
+                t('system.plugin.edit')
+              }}</MsButton>
+              <MsButton
+                v-if="record.enable"
+                v-permission="['SYSTEM_PLUGIN:READ+UPDATE']"
+                @click="disableHandler(record)"
+                >{{ t('system.plugin.tableDisable') }}</MsButton
+              >
+              <MsButton v-else v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="enableHandler(record)">{{
+                t('system.plugin.tableEnable')
+              }}</MsButton>
+              <MsTableMoreAction
+                v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
+                :list="tableActions"
+                @select="handleSelect($event, record)"
+              ></MsTableMoreAction>
+            </div>
+          </template>
+        </a-table-column>
+      </template>
+      <template #expand-icon="{ record, expanded }">
+        <span
+          v-if="(record.pluginForms || []).length && !expanded"
+          class="collapsebtn flex items-center justify-center"
+        >
+          <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
+        </span>
+        <span v-else-if="(record.pluginForms || []).length && expanded" class="expand flex items-center justify-center">
+          <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
+        </span>
+      </template>
+      <template #empty>
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          {{ t('system.plugin.tableNoData') }}
+          <MsButton v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="ml-[8px]" @click="uploadPlugin">{{
+            t('system.plugin.uploadPlugin')
+          }}</MsButton>
+        </div>
+      </template>
+    </a-table>
+    <div class="ms-footerNum">
+      {{ t('system.plugin.totalNum') }}
+      <span class="mx-2 text-[rgb(var(--primary-5))]">{{ totalNum }}</span>
+      {{ t('system.plugin.dataList') }}
+    </div>
     <UploadModel
       v-model:visible="uploadVisible"
       :organize-list="organizeList"
@@ -196,7 +190,7 @@
 
 <script setup lang="ts">
   import { h, onBeforeMount, reactive, ref } from 'vue';
-  import { Message, SelectOptionData, TableData } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -466,7 +460,7 @@
   }
   .ms-footerNum {
     width: 100%;
-    @apply absolute bottom-0 z-20 mt-4 bg-white pt-4 text-sm text-slate-500;
+    @apply sticky bottom-0 left-0 z-20  bg-white  pt-4 text-sm text-slate-500;
   }
   :deep(.arco-table-tr .arco-table-td) {
     height: 54px !important;

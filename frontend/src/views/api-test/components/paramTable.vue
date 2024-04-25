@@ -67,6 +67,11 @@
         </a-tooltip>
       </div>
     </template>
+    <template #batchAddTitle>
+      <MsButton type="text" size="mini" class="!mr-0" @click="emit('batchAdd')">
+        {{ t('apiTestDebug.batchAdd') }}
+      </MsButton>
+    </template>
     <!-- 表格列 slot -->
     <!-- 参数名 or 请求/响应头联想输入 -->
     <template #key="{ record, columnConfig, rowIndex }">
@@ -246,7 +251,7 @@
           model-event="input"
           @change="() => addTableLine(rowIndex)"
         />
-        <div class="mx-[4px]">{{ t('common.to') }}</div>
+        <div class="mx-[4px] flex-1 whitespace-nowrap">{{ t('common.to') }}</div>
         <a-input-number
           v-model:model-value="record.maxLength"
           :disabled="props.disabledExceptParam"
@@ -636,6 +641,7 @@
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
     (e: 'treeDelete', record: Record<string, any>): void;
+    (e: 'batchAdd'): void;
   }>();
 
   const appStore = useAppStore();

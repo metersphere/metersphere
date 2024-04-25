@@ -3,7 +3,7 @@
     <a-tabs v-model:active-key="activeTab" class="no-content">
       <a-tab-pane v-for="item of realTabList" :key="item.value" :title="item.label" />
     </a-tabs>
-    <a-divider margin="0" class="!mb-[16px]"></a-divider>
+    <a-divider margin="0" class="!mb-[8px]"></a-divider>
     <!-- 报告列表-->
     <ReportList :name="listName" :module-type="activeTab" />
   </MsCard>

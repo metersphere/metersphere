@@ -181,7 +181,8 @@
         >
           <a-button
             type="text"
-            class="arco-btn-text--secondary p-[8px_4px]"
+            class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
+            size="mini"
             @click="lastReportStatusFilterVisible = true"
           >
             <div class="font-medium">

@@ -10,12 +10,6 @@
       @clear="handleSearch"
     >
     </a-input-search>
-    <batchAddKeyVal
-      :add-type-text="t('project.environmental.env.constantBatchAddTip')"
-      :params="innerParams"
-      no-param-type
-      @apply="handleBatchParamApply"
-    />
   </div>
   <paramsTable
     :params="innerParams"
@@ -26,6 +20,14 @@
     :selectable="true"
     :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
+    @batch-add="batchAddKeyValVisible = true"
+  />
+  <batchAddKeyVal
+    v-model:visible="batchAddKeyValVisible"
+    :add-type-text="t('project.environmental.env.constantBatchAddTip')"
+    :params="innerParams"
+    no-param-type
+    @apply="handleBatchParamApply"
   />
 </template>
 
@@ -60,6 +62,7 @@
   });
   const backupParams = ref(innerParams.value);
   const firstSearch = ref(true);
+  const batchAddKeyValVisible = ref(false);
 
   const defaultParamItem = {
     key: '',
@@ -131,8 +134,9 @@
     {
       title: '',
       slotName: 'operation',
+      titleSlotName: 'batchAddTitle',
       dataIndex: 'operation',
-      width: 50,
+      width: 100,
     },
   ];
 

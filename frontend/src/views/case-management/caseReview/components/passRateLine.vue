@@ -5,12 +5,7 @@
         <tr>
           <td class="pr-[8px] text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.progress') }}</td>
           <td class="font-medium text-[var(--color-text-1)]">
-            {{
-              `${(
-                ((props.reviewDetail.passCount + props.reviewDetail.unPassCount) / props.reviewDetail.caseCount) *
-                100
-              ).toFixed(2)}%`
-            }}
+            {{ progress }}
             <span>
               ({{ `${props.reviewDetail.passCount + props.reviewDetail.unPassCount}/${props.reviewDetail.caseCount}` }})
             </span>
@@ -109,6 +104,11 @@
         color: 'rgb(var(--link-6))',
       },
     ];
+  });
+  const progress = computed(() => {
+    const result =
+      ((props.reviewDetail.passCount + props.reviewDetail.unPassCount) / props.reviewDetail.caseCount) * 100;
+    return `${Number.isNaN(result) ? 0 : result.toFixed(2)}%`;
   });
 </script>
 

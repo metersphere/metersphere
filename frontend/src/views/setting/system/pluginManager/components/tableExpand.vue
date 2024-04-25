@@ -1,20 +1,12 @@
 <template>
-  <a-scrollbar
-    :style="{
-      'overflow': 'auto',
-      'min-height': '54px',
-      'max-height': '270px',
-    }"
-  >
-    <div class="ms-scroll">
-      <div v-for="(item, index) in recordItem.pluginForms" :key="item.id" class="ms-self">
-        <span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span>
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="getScriptEmit(recordItem, item)">{{
-          item.name
-        }}</span>
-      </div>
+  <div>
+    <div v-for="(item, index) in recordItem.pluginForms" :key="item.id" class="ms-self">
+      <span class="circle text-[12px] leading-[16px]"> {{ index + 1 }} </span>
+      <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="getScriptEmit(recordItem, item)">
+        {{ item.name }}
+      </span>
     </div>
-  </a-scrollbar>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -39,9 +31,6 @@
 <style scoped lang="less">
   :deep(.arco-scrollbar-container + .arco-scrollbar-track-direction-vertical) {
     left: 0 !important;
-  }
-  .ms-scroll {
-    width: 100%;
   }
   .circle {
     width: 16px;

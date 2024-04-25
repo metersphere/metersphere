@@ -93,7 +93,7 @@
       >
         <a-button
           type="text"
-          class="arco-btn-text--secondary p-[8px_4px] text-[14px] leading-[22px]"
+          class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
           size="mini"
           @click="executeResultFilterVisible = true"
         >
@@ -170,7 +170,8 @@
       <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
         <a-button
           type="text"
-          class="arco-btn-text--secondary p-[8px_4px] text-[14px] leading-[22px]"
+          class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
+          size="mini"
           @click="statusFilterVisible = true"
         >
           <div class="font-medium">

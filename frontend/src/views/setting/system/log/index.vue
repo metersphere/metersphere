@@ -1,6 +1,8 @@
 <template>
-  <ExpireAlert />
-  <logCards mode="SYSTEM"></logCards>
+  <div class="flex h-full flex-col">
+    <ExpireAlert />
+    <logCards class="flex-1" mode="SYSTEM"></logCards>
+  </div>
 </template>
 
 <script lang="tsx" setup>

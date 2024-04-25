@@ -53,7 +53,7 @@
     trigger?: 'click' | 'hover' | 'focus' | 'contextMenu' | ('click' | 'hover' | 'focus' | 'contextMenu')[] | undefined;
   }>();
 
-  const emit = defineEmits(['select', 'close']);
+  const emit = defineEmits(['select', 'close', 'open']);
 
   const visible = ref(false);
 
@@ -95,6 +95,15 @@
     const item = props.list.find((e: ActionsItem) => e.eventTag === value);
     emit('select', item);
   }
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        emit('open');
+      }
+    }
+  );
 
   function visibleChange(val: boolean) {
     if (!val) {

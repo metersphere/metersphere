@@ -117,7 +117,6 @@
         :filter-more-action-func="filterMoreActionFunc"
         :allow-drop="allowDrop"
         block-node
-        title-tooltip-position="left"
         @select="folderNodeSelect"
         @more-action-select="handleFolderMoreSelect"
         @more-actions-close="moreActionsClose"
@@ -126,13 +125,13 @@
         <template #title="nodeData">
           <div v-if="nodeData.type === 'API'" class="inline-flex w-full cursor-pointer gap-[4px]">
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
           <div v-else :id="nodeData.id" class="inline-flex w-full">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]"
-              >({{ modulesCount[nodeData.id] || 0 }})</div
-            >
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">
+              {{ modulesCount[nodeData.id] || 0 }}
+            </div>
           </div>
         </template>
         <template v-if="!props.readOnly && !props.isModal" #extra="nodeData">
@@ -163,7 +162,7 @@
             @close="resetFocusNodeKey"
             @rename-finish="handleRenameFinish"
           >
-            <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
+            <div :id="`renameSpan${nodeData.id}`" class="relative h-full"></div>
           </popConfirm>
         </template>
       </MsTree>

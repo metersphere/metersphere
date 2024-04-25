@@ -117,7 +117,7 @@
         >
           <template #tree-slot-title="nodeData">
             <div class="inline-flex w-full">
-              <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+              <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
             </div>
           </template>
           <template #tree-slot-extra="nodeData">

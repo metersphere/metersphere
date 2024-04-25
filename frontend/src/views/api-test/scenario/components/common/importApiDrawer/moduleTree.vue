@@ -47,7 +47,7 @@
       >
         <template #title="nodeData">
           <div class="inline-flex w-full">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
             <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]"
               >({{ moduleCountMap[nodeData.id] || 0 }})</div
             >

@@ -1,15 +1,16 @@
-/* stylelint-disable order/properties-order */
 <template>
   <MsCard simple>
-    <ExpireAlert />
-    <div class="wrapper">
-      <a-alert :closable="true" class="mb-4">
-        <div>
-          {{ t('system.plugin.alertDescribe') }}
-          <span class="mx-1 text-[rgb(var(--primary-5))]" @click="openLink">{{ t('system.plugin.viewTable') }}</span>
-        </div>
-      </a-alert>
-      <pluginTable />
+    <div class="flex h-full flex-col overflow-hidden">
+      <ExpireAlert />
+      <div class="wrapper">
+        <a-alert :closable="true" class="mb-4">
+          <div>
+            {{ t('system.plugin.alertDescribe') }}
+            <span class="mx-1 text-[rgb(var(--primary-5))]" @click="openLink">{{ t('system.plugin.viewTable') }}</span>
+          </div>
+        </a-alert>
+        <pluginTable />
+      </div>
     </div>
   </MsCard>
 </template>
@@ -31,13 +32,14 @@
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
   a {
     color: rgb(var(--primary-5));
   }
   .wrapper {
-    /* position: relative; */
-    width: 100%;
+    @apply flex-1 overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
+
     min-height: 500px;
   }
 </style>

@@ -9,12 +9,6 @@
         />
       </a-tooltip>
     </div>
-    <batchAddKeyVal
-      :params="innerParams"
-      :disabled="props.disabledExceptParam"
-      :default-param-item="defaultRequestParamsItem"
-      @apply="handleBatchParamApply"
-    />
   </div>
   <paramTable
     :params="innerParams"
@@ -28,6 +22,14 @@
     :table-key="TableKeyEnum.API_TEST_DEBUG_REST"
     :default-param-item="defaultRequestParamsItem"
     @change="handleParamTableChange"
+    @batch-add="batchAddKeyValVisible = true"
+  />
+  <batchAddKeyVal
+    v-model:visible="batchAddKeyValVisible"
+    :params="innerParams"
+    :disabled="props.disabledExceptParam"
+    :default-param-item="defaultRequestParamsItem"
+    @apply="handleBatchParamApply"
   />
 </template>
 
@@ -115,12 +117,14 @@
             title: '',
             dataIndex: 'operation',
             slotName: 'operation',
+            titleSlotName: 'batchAddTitle',
             fixed: 'right' as TableColumnData['fixed'],
-            width: 50,
+            width: 100,
           },
         ]),
   ]);
 
+  const batchAddKeyValVisible = ref(false);
   const heightUsed = ref<number | undefined>(undefined);
 
   watch(

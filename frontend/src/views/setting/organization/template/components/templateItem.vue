@@ -248,9 +248,11 @@
             cursor: pointer;
           }
           .enable {
+            font-size: 12px;
             color: var(--color-text-4);
             background: var(--color-text-n8);
-            @apply ml-4 rounded p-1 text-xs;
+            line-height: 20px;
+            @apply ml-4 rounded p-1;
           }
           @apply flex flex-col justify-between;
         }

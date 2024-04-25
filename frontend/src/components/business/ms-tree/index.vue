@@ -4,7 +4,6 @@
       v-show="filterTreeData.length > 0"
       v-bind="props"
       ref="treeRef"
-      v-model:expanded-keys="expandedKeys"
       v-model:selected-keys="selectedKeys"
       v-model:checked-keys="checkedKeys"
       :data="filterTreeData"
@@ -17,17 +16,28 @@
       @check="checked"
       @expand="expand"
     >
-      <template v-if="$slots['title']" #title="_props">
-        <a-tooltip
-          :content="_props[props.fieldNames.title]"
-          :mouse-enter-delay="300"
-          :position="props.titleTooltipPosition"
-          :disabled="props.disabledTitleTooltip"
-        >
-          <span :class="props.titleClass || 'ms-tree-node-title'">
-            <slot name="title" v-bind="_props"></slot>
-          </span>
-        </a-tooltip>
+      <template #switcher-icon>
+        <div class="hidden" @click.stop></div>
+      </template>
+      <template #title="_props">
+        <div class="flex w-full items-center gap-[4px] overflow-hidden">
+          <div v-if="_props.children && _props.children.length > 0" @click.stop="handleExpand(_props)">
+            <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
+            <icon-caret-right v-else class="text-[var(--color-text-4)]" />
+          </div>
+          <div v-else class="h-full w-[16px]"></div>
+          <a-tooltip
+            v-if="$slots['title']"
+            :content="_props[props.fieldNames.title]"
+            :mouse-enter-delay="300"
+            :position="props.titleTooltipPosition"
+            :disabled="props.disabledTitleTooltip"
+          >
+            <span :class="props.titleClass || 'ms-tree-node-title'">
+              <slot name="title" v-bind="_props"></slot>
+            </span>
+          </a-tooltip>
+        </div>
       </template>
       <template v-if="$slots['drag-icon']" #drag-icon="_props">
         <slot name="title" v-bind="_props"></slot>
@@ -52,6 +62,7 @@
               trigger="click"
               @select="handleNodeMoreSelect($event, _props)"
               @close="moreActionsClose"
+              @open="focusNodeKey = _props[props.fieldNames.key]"
             >
             </MsTableMoreAction>
           </div>
@@ -74,6 +85,7 @@
 
 <script setup lang="ts">
   import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
+  import { TreeInstance } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
 
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -161,15 +173,12 @@
   const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
     default: [],
   });
-  const expandedKeys = defineModel<(string | number)[]>('expandedKeys', {
-    default: [],
-  });
   const focusNodeKey = defineModel<string | number>('focusNodeKey', {
     default: '',
   });
 
   const treeContainerRef: Ref = ref(null);
-  const treeRef: Ref = ref(null);
+  const treeRef = ref<TreeInstance>();
   const { isInitListener, containerStatusClass, setContainer, initScrollListener } = useContainerShadow({
     overHeight: 32,
     containerClassName: 'ms-tree-container',
@@ -218,7 +227,6 @@
           }
         }
       });
-      result.forEach((item) => expandedKeys.value.push(item[props.fieldNames.key])); // 搜索时，匹配的节点需要自动展开
       return result;
     };
 
@@ -233,7 +241,7 @@
       filterTreeData.value = searchData(props.keyword);
       nextTick(() => {
         // 展开所有搜索到的节点(expandedKeys控制了节点展开，但是节点展开折叠图标未变化，需要手动触发展开事件)
-        treeRef.value?.expandNode(expandedKeys.value);
+        treeRef.value?.expandAll();
       });
     }
   }, props.searchDebounce);
@@ -381,6 +389,11 @@
     }
   );
 
+  function handleExpand(node: MsTreeNodeData) {
+    node.expanded = !node.expanded;
+    treeRef.value?.expandNode(node[props.fieldNames.key], node.expanded);
+  }
+
   function expand(expandKeys: Array<string | number>, node: MsTreeExpandedData) {
     emit('expand', node);
   }
@@ -414,7 +427,7 @@
             background-color: rgb(var(--primary-1));
             &:not([draggable='false']) {
               .arco-tree-node-title-text {
-                width: calc(100% - 22px);
+                width: 100%;
               }
             }
           }
@@ -439,11 +452,12 @@
           }
         }
         .arco-tree-node-switcher {
-          .arco-tree-node-switcher-icon {
-            @apply flex;
+          @apply hidden;
+          // .arco-tree-node-switcher-icon {
+          //   @apply flex;
 
-            color: var(--color-text-4);
-          }
+          //   color: var(--color-text-4);
+          // }
         }
         .arco-tree-node-title-highlight {
           background-color: transparent;
@@ -456,15 +470,20 @@
             }
           }
           .arco-tree-node-title-text {
-            width: calc(100% - 8px);
+            width: 100%;
+            .ms-tree-node-title {
+              @apply flex-1 overflow-hidden;
+            }
           }
           .arco-tree-node-drag-icon {
-            @apply cursor-move;
+            @apply hidden;
 
-            right: 16px;
-            .arco-icon {
-              font-size: 14px;
-            }
+            // top: 50%;
+            // right: 16px;
+            // transform: translateY(-50%);
+            // .arco-icon {
+            //   font-size: 14px;
+            // }
           }
         }
         .arco-tree-node-title-block {

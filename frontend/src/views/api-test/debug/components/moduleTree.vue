@@ -85,7 +85,6 @@
         :draggable="hasAnyPermission(['PROJECT_API_DEBUG:READ+UPDATE'])"
         :selectable="nodeSelectable"
         block-node
-        title-tooltip-position="left"
         :allow-drop="allowDrop"
         @more-action-select="handleFolderMoreSelect"
         @more-actions-close="moreActionsClose"
@@ -101,11 +100,11 @@
         <template #title="nodeData">
           <div v-if="nodeData.type === 'API'" class="inline-flex w-full cursor-pointer gap-[4px]">
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
           <div v-else class="inline-flex w-full">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
           </div>
         </template>
         <template #extra="nodeData">
@@ -115,7 +114,7 @@
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
             :field-config="{ field: renameFolderTitle }"
-            :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+            :all-names="(nodeData.parent? nodeData.parent.children || [] : folderTree).filter((e: ModuleTreeNode) => e.id !== nodeData.id).map((e: ModuleTreeNode) => e.name || '')"
             :node-type="nodeData.type"
             :update-module-api="updateDebugModule"
             :update-api-node-api="updateDebug"

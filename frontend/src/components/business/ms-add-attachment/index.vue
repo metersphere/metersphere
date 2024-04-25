@@ -48,7 +48,12 @@
   </a-form-item>
   <template v-else>
     <div v-if="props.multiple" class="flex w-full items-center">
-      <dropdownMenu :disabled="props.disabled" @link-file="associatedFile" @change="handleChange" />
+      <dropdownMenu
+        :file-list="fileList"
+        :disabled="props.disabled"
+        @link-file="associatedFile"
+        @change="handleChange"
+      />
       <saveAsFilePopover
         v-if="props.fileSaveAsSourceId"
         v-model:visible="saveFilePopoverVisible"

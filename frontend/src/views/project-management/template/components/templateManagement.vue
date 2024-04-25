@@ -437,7 +437,9 @@
 
 <style scoped lang="less">
   .system-flag {
+    font-size: 12px;
     background: var(--color-text-n8);
-    @apply ml-2 rounded p-1 text-xs;
+    line-height: 20px;
+    @apply ml-2 rounded p-1;
   }
 </style>

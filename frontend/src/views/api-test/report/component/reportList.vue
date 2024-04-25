@@ -1,6 +1,6 @@
 <template>
   <div class="px-[16px]">
-    <div class="mb-4 flex items-center justify-between">
+    <div class="mb-[8px] flex items-center justify-between">
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
         <a-radio value="All">{{ t('report.all') }}</a-radio>
         <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
@@ -332,7 +332,8 @@
       },
       showSetting: true,
       selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
-      heightUsed: 330,
+      heightUsed: 256,
+      paginationSize: 'mini',
       showSelectorAll: true,
     },
     (item) => ({
@@ -607,4 +608,6 @@
   );
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  .ms-table--special-small();
+</style>
