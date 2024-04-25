@@ -102,10 +102,10 @@ public class BaseCheckPermissionService {
             return;
         }
         UserDTO userDTO = baseUserService.getUserDTO(SessionUtils.getUserId());
-        List<String> groupIds = userDTO.getGroups()
+        List<String> groupIds = userDTO.getUserGroups()
                 .stream()
-                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.WORKSPACE) && StringUtils.equals(g.getScopeId(), workspaceId))
-                .map(Group::getId)
+                .filter(g -> StringUtils.equals(g.getSourceId(), workspaceId))
+                .map(UserGroup::getId)
                 .toList();
         if (CollectionUtils.isEmpty(groupIds)) {
             MSException.throwException(Translator.get("check_owner_workspace"));

@@ -91,7 +91,6 @@ public class UserController {
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
     public Pager<List<User>> getMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
-        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseUserService.getMemberList(request));
     }
@@ -99,7 +98,6 @@ public class UserController {
     @PostMapping("/special/ws/member/list/all")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_WORKSPACE_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
-        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         return baseUserService.getMemberList(request);
     }
 
