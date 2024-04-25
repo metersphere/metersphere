@@ -1,10 +1,6 @@
 <template>
-  <a-button :disabled="props.disabled" type="outline" size="mini" @click="showBatchAddParamDrawer = true">
-    {{ t('apiTestDebug.batchAdd') }}
-  </a-button>
-
   <MsDrawer
-    v-model:visible="showBatchAddParamDrawer"
+    v-model:visible="visible"
     :width="680"
     :ok-text="t('apiTestDebug.apply')"
     disabled-width-drag
@@ -28,7 +24,7 @@
     </template>
     <div class="flex h-full">
       <MsCodeEditor
-        v-if="showBatchAddParamDrawer"
+        v-if="visible"
         v-model:model-value="batchParamsCode"
         class="flex-1"
         theme="vs"
@@ -37,7 +33,7 @@
         :show-theme-change="false"
       >
         <template v-if="!props?.addTypeText" #rightTitle>
-          <div class="text-xs text-[var(--color-text-4)]">
+          <div class="text-[12px] text-[var(--color-text-4)]">
             {{ t('apiTestDebug.batchAddParamsTip1') }}
           </div>
         </template>
@@ -73,11 +69,13 @@
 
   const { t } = useI18n();
 
-  const showBatchAddParamDrawer = ref(false);
+  const visible = defineModel<boolean>('visible', {
+    required: true,
+  });
   const batchParamsCode = ref('');
 
   watch(
-    () => showBatchAddParamDrawer.value,
+    () => visible.value,
     (val) => {
       if (val) {
         batchParamsCode.value = props.params
@@ -121,7 +119,7 @@
         }
       }
     }
-    showBatchAddParamDrawer.value = false;
+    visible.value = false;
     batchParamsCode.value = '';
     emit('apply', Object.values(tempObj));
   }

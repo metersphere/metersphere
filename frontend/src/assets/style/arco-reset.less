@@ -47,8 +47,11 @@
 }
 
 /** Modal对话框 **/
+.arco-modal-wrapper {
+  @apply overflow-hidden;
+}
 .arco-modal {
-  @apply bg-white;
+  @apply overflow-hidden bg-white;
 
   padding: 24px;
   .arco-modal-header {
@@ -75,8 +78,10 @@
     }
   }
   .arco-modal-body {
-    @apply overflow-x-hidden;
+    @apply overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
 
+    max-height: 75vh;
     color: var(--color-text-2);
   }
   .arco-modal-footer {
@@ -914,6 +919,14 @@
 }
 
 /** Alter **/
+.arco-alert-info {
+  border: 1px solid rgb(var(--primary-5));
+  .arco-alert-icon {
+    svg {
+      color: rgb(var(--primary-5));
+    }
+  }
+}
 .arco-alert-title {
   font-size: 14px;
   font-weight: 400;

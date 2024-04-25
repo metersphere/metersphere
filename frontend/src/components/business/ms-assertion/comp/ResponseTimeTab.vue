@@ -11,10 +11,12 @@
       :min="0"
       :precision="0"
       mode="button"
-      @blur="
-        emit('change', {
-          ...condition,
-        })
+      model-event="input"
+      @change="
+        () =>
+          emit('change', {
+            ...condition,
+          })
       "
     />
   </div>

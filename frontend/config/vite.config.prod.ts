@@ -1,5 +1,4 @@
 import configCompressPlugin from './plugin/compress';
-import configImageminPlugin from './plugin/imagemin';
 import configVisualizerPlugin from './plugin/visualizer';
 import baseConfig from './vite.config.base';
 import { mergeConfig } from 'vite';
@@ -7,7 +6,7 @@ import { mergeConfig } from 'vite';
 export default mergeConfig(
   {
     mode: 'production',
-    plugins: [configCompressPlugin('gzip'), configVisualizerPlugin(), configImageminPlugin()],
+    plugins: [configCompressPlugin('gzip'), configVisualizerPlugin()],
     build: {
       rollupOptions: {
         output: {

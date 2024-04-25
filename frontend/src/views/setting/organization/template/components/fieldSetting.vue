@@ -438,8 +438,11 @@
 
 <style scoped lang="less">
   .system-flag {
+    @apply ml-2 inline-block p-1 align-middle;
+
+    font-size: 12px;
+    line-height: 20px;
     background: var(--color-text-n8);
-    @apply ml-2 inline-block p-1 align-middle text-xs;
   }
   .label {
     margin-top: 16px;

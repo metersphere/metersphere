@@ -126,6 +126,7 @@
             v-model:model-value="emailConfigForm.host"
             :max-length="255"
             :placeholder="t('system.config.email.hostPlaceholder')"
+            class="w-[436px]"
             allow-clear
           ></a-input>
         </a-form-item>
@@ -140,6 +141,7 @@
             v-model:model-value="emailConfigForm.port"
             :max-length="255"
             :placeholder="t('system.config.email.portPlaceholder')"
+            class="w-[240px]"
             allow-clear
           ></a-input>
         </a-form-item>
@@ -155,6 +157,7 @@
             :max-length="255"
             :placeholder="t('system.config.email.accountPlaceholder')"
             autocomplete="off"
+            class="w-[436px]"
             allow-clear
           ></a-input>
         </a-form-item>
@@ -164,6 +167,7 @@
             :max-length="64"
             :placeholder="t('system.config.email.passwordPlaceholder')"
             autocomplete="new-password"
+            class="w-[436px]"
             allow-clear
           />
         </a-form-item>
@@ -172,6 +176,7 @@
             v-model:model-value="emailConfigForm.from"
             :max-length="255"
             :placeholder="t('system.config.email.fromPlaceholder')"
+            class="w-[436px]"
             allow-clear
           ></a-input>
           <MsFormItemSub :text="t('system.config.email.fromTip')" :show-fill-icon="false" />
@@ -186,6 +191,7 @@
             v-model:model-value="emailConfigForm.recipient"
             :max-length="255"
             :placeholder="t('system.config.email.recipientPlaceholder')"
+            class="w-[436px]"
             allow-clear
           ></a-input>
         </a-form-item>

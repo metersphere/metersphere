@@ -54,7 +54,7 @@
                     </div>
                   </span>
                 </div>
-                <div class="text-xs text-[var(--color-text-4)]">
+                <div class="text-[12px] text-[var(--color-text-4)]">
                   <div class="one-line-text w-[400px]"> {{ t(item.description) }}</div>
                 </div>
               </div>

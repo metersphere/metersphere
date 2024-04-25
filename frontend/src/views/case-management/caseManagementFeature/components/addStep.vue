@@ -1,7 +1,7 @@
 <template>
   <MsBaseTable v-bind="propsRes" ref="tableRef" :hoverable="false" v-on="propsEvent" @change="changeHandler">
     <template #index="{ rowIndex }">
-      <div class="circle text-xs font-medium"> {{ rowIndex + 1 }}</div>
+      <div class="circle text-[12px] font-medium"> {{ rowIndex + 1 }}</div>
     </template>
     <template #caseStep="{ record }">
       <!--         v-if="record.showStep" -->

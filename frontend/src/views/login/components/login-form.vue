@@ -63,7 +63,7 @@
           </a-button>
         </div>
         <a-divider v-if="isShowLDAP || isShowOIDC || isShowOAUTH" orientation="center" type="dashed" class="m-0 mb-2">
-          <span class="text-xs font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
+          <span class="text-[12px] font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
         </a-divider>
         <div v-if="userStore.loginType.length" class="mt-4 flex items-center justify-center">
           <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">

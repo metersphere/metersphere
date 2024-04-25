@@ -23,7 +23,7 @@
             projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable')
           }}</span>
         </div>
-        <div class="one-line-text text-xs text-[--color-text-4]">{{ projectDetail?.description }}</div>
+        <div class="one-line-text text-[12px] text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>
     </div>
   </div>
@@ -113,8 +113,10 @@
         background: url('@/assets/images/basic_bg.png');
         background-size: cover;
         .button {
+          font-size: 12px;
           border-radius: 2px;
-          @apply inline-block px-2 py-1 text-xs;
+          line-height: 20px;
+          @apply inline-block px-2 py-1;
         }
         .enable-button {
           color: rgb(var(--success-5));

@@ -1,149 +1,151 @@
 <template>
-  <MsCard simple auto-height>
-    <div class="filter-box">
-      <div class="filter-item">
-        <MsSelect
-          v-model:model-value="operator"
-          mode="remote"
-          placeholder="system.log.operatorPlaceholder"
-          prefix="system.log.operator"
-          :options="[]"
-          :remote-func="requestFuncMap[props.mode].usersFunc"
-          :remote-extra-params="{ id: props.mode === 'PROJECT' ? appStore.currentProjectId : appStore.currentOrgId }"
-          :remote-fields-map="{
-            id: 'id',
-            value: 'value',
-            label: 'name',
-            email: 'email',
+  <div class="flex h-full flex-col gap-[16px]">
+    <MsCard simple auto-height>
+      <div class="filter-box">
+        <div class="filter-item">
+          <MsSelect
+            v-model:model-value="operator"
+            mode="remote"
+            placeholder="system.log.operatorPlaceholder"
+            prefix="system.log.operator"
+            :options="[]"
+            :remote-func="requestFuncMap[props.mode].usersFunc"
+            :remote-extra-params="{ id: props.mode === 'PROJECT' ? appStore.currentProjectId : appStore.currentOrgId }"
+            :remote-fields-map="{
+              id: 'id',
+              value: 'value',
+              label: 'name',
+              email: 'email',
+            }"
+            :search-keys="['name', 'email']"
+            value-key="id"
+            label-key="name"
+            :option-tooltip-content="(item) => `${item.name}(${item.email})`"
+            :option-label-render="
+              (item) => `${item.name}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
+            "
+            allow-search
+            allow-clear
+          />
+        </div>
+        <a-range-picker
+          v-model:model-value="time"
+          :time-picker-props="{
+            defaultValue: ['00:00:00', '00:00:00'],
           }"
-          :search-keys="['name', 'email']"
-          value-key="id"
-          label-key="name"
-          :option-tooltip-content="(item) => `${item.name}(${item.email})`"
-          :option-label-render="
-            (item) => `${item.name}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
-          "
-          allow-search
-          allow-clear
+          :disabled-date="disabledDate"
+          class="filter-item"
+          :allow-clear="false"
+          :disabled-input="false"
+          :separator="t('common.to')"
+          value-format="timestamp"
+          show-time
+          @select="selectTime"
+          @popup-visible-change="handleRangeVisibleChange"
+        >
+          <template #prefix>
+            {{ t('system.log.operateTime') }}
+          </template>
+        </a-range-picker>
+        <MsCascader
+          v-if="props.mode !== 'PROJECT'"
+          v-model:model-value="operateRange"
+          v-model:level="level"
+          :options="rangeOptions"
+          :prefix="t('system.log.operateRange')"
+          :level-top="[...MENU_LEVEL]"
+          :virtual-list-props="{ height: 200 }"
+          :loading="rangeLoading"
+          label-path-mode
+          class="filter-item"
         />
+        <a-select v-model:model-value="type" class="filter-item">
+          <template #prefix>
+            {{ t('system.log.operateType') }}
+          </template>
+          <a-option v-for="opt of typeOptions" :key="opt.value" :value="opt.value">{{ t(opt.label) }}</a-option>
+        </a-select>
+        <MsCascader
+          v-model:model-value="_module"
+          :options="moduleOptions"
+          mode="native"
+          :prefix="t('system.log.operateTarget')"
+          :virtual-list-props="{ height: 200 }"
+          :placeholder="t('system.log.operateTargetPlaceholder')"
+          :panel-width="100"
+          strictly
+          label-path-mode
+          class="filter-item"
+        />
+        <a-input
+          v-model:model-value="content"
+          class="filter-item"
+          :placeholder="t('system.log.operateNamePlaceholder')"
+          allow-clear
+          :max-length="255"
+        >
+          <template #prefix>
+            {{ t('system.log.operateName') }}
+          </template>
+        </a-input>
+        <div v-if="props.mode === 'PROJECT'">
+          <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
+          <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
+            {{ t('system.log.reset') }}
+          </a-button>
+        </div>
       </div>
-      <a-range-picker
-        v-model:model-value="time"
-        :time-picker-props="{
-          defaultValue: ['00:00:00', '00:00:00'],
-        }"
-        :disabled-date="disabledDate"
-        class="filter-item"
-        :allow-clear="false"
-        :disabled-input="false"
-        :separator="t('common.to')"
-        value-format="timestamp"
-        show-time
-        @select="selectTime"
-        @popup-visible-change="handleRangeVisibleChange"
-      >
-        <template #prefix>
-          {{ t('system.log.operateTime') }}
-        </template>
-      </a-range-picker>
-      <MsCascader
-        v-if="props.mode !== 'PROJECT'"
-        v-model:model-value="operateRange"
-        v-model:level="level"
-        :options="rangeOptions"
-        :prefix="t('system.log.operateRange')"
-        :level-top="[...MENU_LEVEL]"
-        :virtual-list-props="{ height: 200 }"
-        :loading="rangeLoading"
-        label-path-mode
-        class="filter-item"
-      />
-      <a-select v-model:model-value="type" class="filter-item">
-        <template #prefix>
-          {{ t('system.log.operateType') }}
-        </template>
-        <a-option v-for="opt of typeOptions" :key="opt.value" :value="opt.value">{{ t(opt.label) }}</a-option>
-      </a-select>
-      <MsCascader
-        v-model:model-value="_module"
-        :options="moduleOptions"
-        mode="native"
-        :prefix="t('system.log.operateTarget')"
-        :virtual-list-props="{ height: 200 }"
-        :placeholder="t('system.log.operateTargetPlaceholder')"
-        :panel-width="100"
-        strictly
-        label-path-mode
-        class="filter-item"
-      />
-      <a-input
-        v-model:model-value="content"
-        class="filter-item"
-        :placeholder="t('system.log.operateNamePlaceholder')"
-        allow-clear
-        :max-length="255"
-      >
-        <template #prefix>
-          {{ t('system.log.operateName') }}
-        </template>
-      </a-input>
-      <div v-if="props.mode === 'PROJECT'">
+      <template v-if="props.mode !== 'PROJECT'">
         <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
         <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
           {{ t('system.log.reset') }}
         </a-button>
+      </template>
+    </MsCard>
+    <MsCard class="log-card" simple auto-height>
+      <div class="log-card-header">
+        <div class="font-medium text-[var(--color-text-000)]">{{ t('system.log.log') }}</div>
       </div>
-    </div>
-    <template v-if="props.mode !== 'PROJECT'">
-      <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
-      <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
-        {{ t('system.log.reset') }}
-      </a-button>
-    </template>
-  </MsCard>
-  <div class="log-card">
-    <div class="log-card-header">
-      <div class="font-medium text-[var(--color-text-000)]">{{ t('system.log.log') }}</div>
-    </div>
-    <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
-      <template #range="{ record }">
-        <a-tooltip
-          :content="
-            record.organizationId === 'SYSTEM'
-              ? t('system.log.system')
-              : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
-          "
-        >
-          <div class="one-line-text">
-            {{
+      <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
+        <template #range="{ record }">
+          <a-tooltip
+            :content="
               record.organizationId === 'SYSTEM'
                 ? t('system.log.system')
                 : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
-            }}
-          </div>
-        </a-tooltip>
-      </template>
-      <template #module="{ record }">
-        <a-tooltip :content="getModuleLocale(record.module)">
-          <div class="one-line-text">
-            {{ getModuleLocale(record.module) }}
-          </div>
-        </a-tooltip>
-      </template>
-      <template #type="{ record }">
-        {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
-      </template>
-      <template #content="{ record }">
-        <div v-if="record.module === 'SYSTEM' || record.type === 'DELETE'" class="one-line-text">{{
-          record.content
-        }}</div>
-        <MsButton v-else @click="handleNameClick(record)">
-          <div class="one-line-text">
-            {{ record.content }}
-          </div>
-        </MsButton>
-      </template>
-    </ms-base-table>
+            "
+          >
+            <div class="one-line-text">
+              {{
+                record.organizationId === 'SYSTEM'
+                  ? t('system.log.system')
+                  : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
+              }}
+            </div>
+          </a-tooltip>
+        </template>
+        <template #module="{ record }">
+          <a-tooltip :content="getModuleLocale(record.module)">
+            <div class="one-line-text">
+              {{ getModuleLocale(record.module) }}
+            </div>
+          </a-tooltip>
+        </template>
+        <template #type="{ record }">
+          {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
+        </template>
+        <template #content="{ record }">
+          <div v-if="record.module === 'SYSTEM' || record.type === 'DELETE'" class="one-line-text">{{
+            record.content
+          }}</div>
+          <MsButton v-else @click="handleNameClick(record)">
+            <div class="one-line-text">
+              {{ record.content }}
+            </div>
+          </MsButton>
+        </template>
+      </ms-base-table>
+    </MsCard>
   </div>
 </template>
 
@@ -598,15 +600,9 @@
     }
   }
   .log-card {
-    @apply bg-white;
-
-    margin-top: 16px;
-    padding: 16px;
-    border-radius: var(--border-radius-large);
-    .log-card-header {
-      @apply flex items-center justify-between;
-
-      margin-bottom: 16px;
+    @apply flex-1;
+    :deep(.ms-card) {
+      @apply h-full;
     }
   }
   .log-card--list {

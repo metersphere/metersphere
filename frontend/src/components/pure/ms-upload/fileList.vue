@@ -23,6 +23,9 @@
       <template #item="{ item }">
         <a-list-item
           class="mb-[8px] w-full rounded-[var(--border-radius-small)] border border-solid border-[var(--color-text-n8)] !p-[8px_12px]"
+          :style="{
+            borderColor: item.status === UploadStatus.error ? 'rgb(var(--danger-5))' : 'var(--color-text-n8)',
+          }"
         >
           <a-list-item-meta>
             <template #avatar>
@@ -89,7 +92,10 @@
                 size="large"
                 class="w-[200px]"
               />
-              <div v-else-if="item.status === UploadStatus.error" class="text-[rgb(var(--danger-6))]">
+              <div
+                v-else-if="item.status === UploadStatus.error"
+                class="text-[12px] leading-[20px] text-[rgb(var(--danger-6))]"
+              >
                 {{ item.errMsg || t('ms.upload.uploadFail') }}
               </div>
             </template>

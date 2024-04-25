@@ -77,8 +77,8 @@
       >
         <template #title="nodeData">
           <div :id="nodeData.id" class="inline-flex w-full">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
           </div>
         </template>
         <template v-if="!props.readOnly" #extra="nodeData">

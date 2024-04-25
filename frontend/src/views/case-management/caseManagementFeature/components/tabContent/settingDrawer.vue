@@ -37,7 +37,7 @@
         </div>
       </div>
       <a-divider orientation="center" class="non-sort"
-        ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
+        ><span class="one-line-text text-[12px] text-[var(--color-text-4)]">{{
           t('project.environmental.nonClose')
         }}</span></a-divider
       >

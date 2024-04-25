@@ -29,8 +29,8 @@
       >
         <template #title="nodeData">
           <div :id="nodeData.id" class="inline-flex w-full">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
           </div>
         </template>
       </MsTree>
@@ -41,7 +41,6 @@
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
 
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 

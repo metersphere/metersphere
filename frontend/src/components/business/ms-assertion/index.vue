@@ -448,6 +448,7 @@
       default:
         break;
     }
+    emit('change');
   };
 
   watchEffect(() => {

@@ -26,7 +26,7 @@
         </div>
       </div>
       <a-divider v-if="nonSortColumn.length" orientation="center" class="non-sort"
-        ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
+        ><span class="one-line-text text-[12px] text-[var(--color-text-4)]">{{
           t('msTable.columnSetting.nonSort')
         }}</span></a-divider
       >

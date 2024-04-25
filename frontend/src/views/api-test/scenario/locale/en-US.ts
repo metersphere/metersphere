@@ -6,7 +6,7 @@ export default {
   'apiScenario.tree.selectorPlaceholder': 'Please enter module name',
   'apiScenario.tree.folder.allScenario': 'All Scenarios',
   'apiScenario.tree.recycleBin': 'Recycle Bin',
-  'apiScenario.tree.noMatchModule': 'No matching module/scenario found',
+  'apiScenario.tree.noMatchModule': 'No matching module found',
   'apiScenario.createSubModule': 'Create Submodule',
   'apiScenario.module.deleteTipTitle': 'Delete Module {name}?',
   'apiScenario.module.deleteTipContent':

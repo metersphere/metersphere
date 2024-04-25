@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
   import { computed, ref, useAttrs, watchEffect } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   export type TagType = 'default' | 'primary' | 'danger' | 'warning' | 'success' | 'link';
   export type Size = 'small' | 'medium' | 'large';
@@ -113,7 +114,7 @@
       }
       // 返回非主题色style
       if (theme !== 'default' && type !== 'default') {
-        const themeStyle = typeList[theme];
+        const themeStyle = cloneDeep(typeList[theme]); // 引用类型直接使用会修改源数据，导致props更新的时候取的不是默认值了，是修改后的值
         Object.keys(themeStyle).forEach((item) => {
           themeStyle[item] = themeStyle[item].replace('#{}', typeConst.value);
         });

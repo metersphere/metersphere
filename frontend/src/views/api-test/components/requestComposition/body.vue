@@ -10,13 +10,6 @@
         {{ requestBodyTypeMap[item] }}
       </a-radio>
     </a-radio-group>
-    <batchAddKeyVal
-      v-if="showParamTable"
-      :disabled="props.disabledExceptParam"
-      :params="currentTableParams"
-      :default-param-item="defaultBodyParamsItem"
-      @apply="handleBatchParamApply"
-    />
   </div>
   <div
     v-if="innerParams.bodyType === RequestBodyFormat.NONE"
@@ -41,6 +34,7 @@
     :file-save-as-api="props.fileSaveAsApi"
     :file-module-options-api="props.fileModuleOptionsApi"
     @change="handleParamTableChange"
+    @batch-add="batchAddKeyValVisible = true"
   />
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.WWW_FORM"
@@ -55,6 +49,7 @@
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
     :default-param-item="defaultBodyParamsItem"
     @change="handleParamTableChange"
+    @batch-add="batchAddKeyValVisible = true"
   />
   <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
@@ -105,6 +100,14 @@
     >
     </MsCodeEditor>
   </div>
+  <batchAddKeyVal
+    v-if="showParamTable"
+    v-model:visible="batchAddKeyValVisible"
+    :disabled="props.disabledExceptParam"
+    :params="currentTableParams"
+    :default-param-item="defaultBodyParamsItem"
+    @apply="handleBatchParamApply"
+  />
 </template>
 
 <script setup lang="ts">
@@ -151,6 +154,7 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const batchAddKeyValVisible = ref(false);
   const fileList = ref<MsFileItem[]>([]);
 
   onBeforeMount(() => {
@@ -246,9 +250,11 @@
               title: '',
               dataIndex: 'operation',
               slotName: 'operation',
+              titleSlotName: 'batchAddTitle',
               fixed: 'right' as TableColumnData['fixed'],
               format: innerParams.value.bodyType,
-              width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 65 : 35,
+              // width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 100 : 100,
+              width: 100,
             },
           ]),
     ];

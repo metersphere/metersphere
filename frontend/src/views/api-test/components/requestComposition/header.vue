@@ -1,14 +1,6 @@
 <template>
-  <div class="mb-[8px] flex items-center justify-between">
-    <span v-if="props.typeTitle">{{ props.typeTitle }}</span>
-    <batchAddKeyVal
-      :disabled="props.disabledExceptParam"
-      :params="innerParams"
-      :default-param-item="defaultHeaderParamsItem"
-      no-param-type
-      :type-title="props.typeTitle"
-      @apply="handleBatchParamApply"
-    />
+  <div v-if="props.typeTitle" class="mb-[8px]">
+    {{ props.typeTitle }}
   </div>
   <paramTable
     v-model:params="innerParams"
@@ -20,6 +12,16 @@
     :default-param-item="defaultHeaderParamsItem"
     :draggable="!props.disabledExceptParam"
     @change="handleParamTableChange"
+    @batch-add="batchAddKeyValVisible = true"
+  />
+  <batchAddKeyVal
+    v-model:visible="batchAddKeyValVisible"
+    :disabled="props.disabledExceptParam"
+    :params="innerParams"
+    :default-param-item="defaultHeaderParamsItem"
+    no-param-type
+    :type-title="props.typeTitle"
+    @apply="handleBatchParamApply"
   />
 </template>
 
@@ -79,11 +81,13 @@
             title: '',
             dataIndex: 'operation',
             slotName: 'operation',
-            width: 50,
+            titleSlotName: 'batchAddTitle',
+            width: 70,
           },
         ]),
   ]);
 
+  const batchAddKeyValVisible = ref(false);
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
       return props.isDrawer ? 328 : 372;
