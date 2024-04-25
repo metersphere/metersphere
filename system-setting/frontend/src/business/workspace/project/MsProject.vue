@@ -204,7 +204,7 @@ import {isSuperUser} from "metersphere-frontend/src/api/user.js";
 import {
   addProjectMember,
   delProjectMember,
-  getWorkspaceMemberSpecial,
+  getCurrentWorkspaceMemberSpecial,
   getProjectMemberPages,
   updateCurrentUser
 } from "../../../api/user";
@@ -337,7 +337,7 @@ export default {
       })
     },
     getMaintainerOptions() {
-      getWorkspaceMemberSpecial({name: '', workspaceId: getCurrentWorkspaceId()}).then(res => {
+      getCurrentWorkspaceMemberSpecial({name: '', workspaceId: getCurrentWorkspaceId()}).then(res => {
         this.userFilters = res.data.map(u => {
           return {text: u.name, value: u.id};
         });
