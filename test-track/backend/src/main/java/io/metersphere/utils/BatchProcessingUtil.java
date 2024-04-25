@@ -1,10 +1,7 @@
 package io.metersphere.utils;
 
-import io.metersphere.base.domain.ProjectVersion;
 import io.metersphere.base.domain.TestCaseTest;
 import io.metersphere.base.domain.TestCaseTestExample;
-import io.metersphere.dto.TestCaseBatchEditDTO;
-import io.metersphere.dto.TestCaseDTO;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -28,6 +25,7 @@ public class BatchProcessingUtil {
                 List<String> handleList = stringList.subList(0, BATCH_PROCESS_QUANTITY);
                 consumer.accept(handleList);
                 stringList.removeAll(handleList);
+
                 //记录循环次数,防止出现死循环
                 foreachIndex++;
             }
@@ -107,26 +105,5 @@ public class BatchProcessingUtil {
             }
         }
         return new ArrayList<>();
-    }
-
-    public static void testCaseBatchProcess(List<TestCaseDTO> testCaseDTOS, ProjectVersion projectVersion, Consumer<TestCaseBatchEditDTO> consumer) {
-        if (CollectionUtils.isNotEmpty(testCaseDTOS)) {
-            int foreachIndex = 0;
-            int foreachCount = testCaseDTOS.size() / BATCH_PROCESS_QUANTITY;
-            while (BATCH_PROCESS_QUANTITY < testCaseDTOS.size() || (foreachIndex > foreachCount)) {
-                List<TestCaseDTO> handleList = testCaseDTOS.subList(0, BATCH_PROCESS_QUANTITY);
-                TestCaseBatchEditDTO handleDTO = new TestCaseBatchEditDTO(handleList, projectVersion);
-                consumer.accept(handleDTO);
-                testCaseDTOS.removeAll(handleList);
-
-                //记录循环次数,防止出现死循环
-                foreachIndex++;
-            }
-            //处理剩余数据
-            if (CollectionUtils.isNotEmpty(testCaseDTOS)) {
-                TestCaseBatchEditDTO handleDTO = new TestCaseBatchEditDTO(testCaseDTOS, projectVersion);
-                consumer.accept(handleDTO);
-            }
-        }
     }
 }

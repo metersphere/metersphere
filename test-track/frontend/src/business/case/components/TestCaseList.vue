@@ -12,8 +12,7 @@
       <ms-new-ui-search :condition.sync="condition" @search="search" style="float: left" />
 
       <!-- 版本切换组件 -->
-      <version-select ref="versionSelect" v-xpack :default-version="defaultVersion" :project-id="projectId"
-                      @changeVersion="changeVersion"/>
+      <version-select v-xpack :project-id="projectId" :default-version="defaultVersion" @changeVersion="changeVersion" />
 
       <!-- 高级搜索框  -->
       <ms-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
@@ -659,16 +658,6 @@ export default {
           id: "tags",
           name: this.$t('commons.tag')
         })
-        if (this.enableVersionColumn) {
-          this.typeArr.push({
-            id: "version",
-            name: this.$t('commons.version')
-          })
-          let versionOptions = this.$refs.versionSelect.versionOptions;
-          // console.info("version-options", versionOptions);
-          this.valueArr['version'] = versionOptions;
-        }
-
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
         this.$nextTick(() => {
           if (this.$refs.table) {
@@ -1122,9 +1111,6 @@ export default {
         param.type = form.type;
         param.appendTag = form.appendTag;
         param.tagList = form.tags;
-      } else if (form.type === 'version') {
-        param.type = form.type;
-        param.versionId = form.value;
       }
       testCaseBatchEdit(param)
         .then(() => {
