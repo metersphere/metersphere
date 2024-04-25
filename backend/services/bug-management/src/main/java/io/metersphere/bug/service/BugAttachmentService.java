@@ -213,7 +213,7 @@ public class BugAttachmentService {
         byte[] bytes = getLocalFileBytes(attachment, request.getProjectId(), request.getBugId());
         String fileId;
         try {
-            FileAssociationDTO association = new FileAssociationDTO(attachment.getFileName(), bytes, attachment.getBugId(),
+            FileAssociationDTO association = new FileAssociationDTO(request.getFileName(), attachment.getFileName(), bytes, attachment.getBugId(),
                     FileAssociationSourceUtil.SOURCE_TYPE_BUG, createFileLogRecord(currentUser, request.getProjectId()));
             association.setModuleId(request.getModuleId());
             fileId = fileAssociationService.transferAndAssociation(association);

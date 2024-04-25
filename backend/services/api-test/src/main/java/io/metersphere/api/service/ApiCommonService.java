@@ -105,7 +105,13 @@ public class ApiCommonService {
 
     private void setLinkFileInfo(String resourceId, List<ApiFile> apiFiles) {
         List<ApiFile> linkFiles = apiFiles.stream()
-                .filter(file -> !file.getLocal() && !file.getDelete())
+                .filter(file -> {
+                    if (file.getLocal()) {
+                        // 本地文件设置文件别名，方便前端展示
+                        file.setFileAlias(file.getFileName());
+                    }
+                    return !file.getLocal() && !file.getDelete();
+                })
                 .toList();
         List<String> linkFileIds = linkFiles.stream()
                 .map(ApiFile::getFileId)
@@ -116,20 +122,25 @@ public class ApiCommonService {
             return;
         }
 
-        Map<String, String> fileNameMap = fileMetadataService.selectByList(linkFileIds)
+        Map<String, FileMetadata> fileNameMap = fileMetadataService.selectByList(linkFileIds)
                 .stream()
-                .collect(Collectors.toMap(FileMetadata::getId, FileMetadata::getName));
+                .collect(Collectors.toMap(FileMetadata::getId, Function.identity()));
 
         for (ApiFile linkFile : linkFiles) {
-            String fileName = fileNameMap.get(linkFile.getFileId());
-            if (StringUtils.isBlank(fileName)) {
-                // fileName 为空，则文件被删除，设置为已删除，并且设置文件名
+            FileMetadata fileMetadata = fileNameMap.get(linkFile.getFileId());
+            if (fileMetadata == null) {
+                // fileMetadata null ，则文件被删除，设置为已删除，并且设置文件名
                 linkFile.setDelete(true);
                 List<FileAssociation> fileAssociations = fileAssociationService.getByFileIdAndSourceId(resourceId, linkFile.getFileId());
                 if (CollectionUtils.isNotEmpty(fileAssociations)) {
                     linkFile.setFileAlias(fileAssociations.get(0).getDeletedFileName());
                 }
             } else {
+                String fileName = fileMetadata.getName() + fileMetadata.getType();
+                if (StringUtils.isNotBlank(fileMetadata.getType())) {
+                    // 前端展示别名加后缀
+                    fileName += "." + fileMetadata.getType();
+                }
                 linkFile.setFileAlias(fileName);
             }
         }

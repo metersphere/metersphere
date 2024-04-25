@@ -135,7 +135,7 @@ public class FunctionalCaseAttachmentController {
 
         String fileId = null;
         try {
-            FileAssociationDTO fileAssociationDTO = new FileAssociationDTO(attachment.getFileName(), fileByte, attachment.getCaseId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, fileLogRecord);
+            FileAssociationDTO fileAssociationDTO = new FileAssociationDTO(request.getFileName(), attachment.getFileName(), fileByte, attachment.getCaseId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, fileLogRecord);
             fileAssociationDTO.setModuleId(request.getModuleId());
             fileId = fileAssociationService.transferAndAssociation(fileAssociationDTO);
             functionalCaseAttachmentService.deleteCaseAttachment(Arrays.asList(request.getFileId()), request.getCaseId(), request.getProjectId());

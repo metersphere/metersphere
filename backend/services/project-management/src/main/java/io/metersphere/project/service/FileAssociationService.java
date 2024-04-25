@@ -321,6 +321,7 @@ public class FileAssociationService {
         this.validateSourceName(source);
         String fileId = fileMetadataService.transferFile(
                 fileAssociationDTO.getFileName(),
+                fileAssociationDTO.getOriginalName(),
                 fileAssociationDTO.getFileLogRecord().getProjectId(),
                 fileAssociationDTO.getModuleId(),
                 fileAssociationDTO.getFileLogRecord().getOperator(),

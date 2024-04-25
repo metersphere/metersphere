@@ -244,7 +244,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiTransferRequest.setLocal(true);
         String uploadFileId = doUploadTempFile(getMockMultipartFile("api-file_upload.JPG"));
         apiTransferRequest.setFileId(uploadFileId);
-        apiTransferRequest.setFileName("api-file_upload.JPG");
+        apiTransferRequest.setFileName(StringUtils.EMPTY);
+        apiTransferRequest.setOriginalName("api-file_upload.JPG");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
@@ -255,7 +256,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
-        apiTransferRequest.setFileName("test-file_upload.JPG");
+        apiTransferRequest.setFileName("test-file_upload");
+        apiTransferRequest.setOriginalName("test-file_upload.JPG");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
 
         // 再插入一条数据，便于修改时重名校验

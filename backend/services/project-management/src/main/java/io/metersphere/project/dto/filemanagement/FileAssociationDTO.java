@@ -17,6 +17,9 @@ public class FileAssociationDTO {
     private String fileName;
 
     @NotBlank
+    private String originalName;
+
+    @NotBlank
     private String sourceId;
 
     @NotBlank
@@ -29,8 +32,9 @@ public class FileAssociationDTO {
 
     private FileLogRecord fileLogRecord;
 
-    public FileAssociationDTO(String fileName, byte[] fileBytes, String sourceId, String sourceType, FileLogRecord fileLogRecord) {
+    public FileAssociationDTO(String fileName, String originalName, byte[] fileBytes, String sourceId, String sourceType, FileLogRecord fileLogRecord) {
         this.fileName = fileName;
+        this.originalName = originalName;
         this.sourceId = sourceId;
         this.sourceType = sourceType;
         this.fileBytes = fileBytes;
