@@ -42,7 +42,12 @@
         </a-tree-select>
         <div class="flex items-center justify-end gap-[12px]">
           <a-button type="secondary" @click="handleSaveFileCancel">{{ t('common.cancel') }}</a-button>
-          <a-button type="primary" :loading="saveLoading" @click="handleSaveFileConfirm">
+          <a-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveFileForm.name.trim() === ''"
+            @click="handleSaveFileConfirm"
+          >
             {{ t('common.confirm') }}
           </a-button>
         </div>
@@ -75,7 +80,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'finish', fileId: string): void;
+    (e: 'finish', fileId: string, fileName: string): void;
   }>();
 
   const appStore = useAppStore();
@@ -86,7 +91,7 @@
   });
   const saveFileForm = ref({
     name: '',
-    moduleId: '',
+    moduleId: 'root',
   });
   const saveLoading = ref(false);
   const moduleTree = ref<ModuleTreeNode[]>([]);
@@ -115,6 +120,7 @@
     (visible) => {
       if (visible) {
         initModuleOptions();
+        saveFileForm.value.name = props.savingFile?.name || '';
       }
     },
     {
@@ -128,7 +134,7 @@
   function handleSaveFileCancel() {
     saveFileForm.value = {
       name: '',
-      moduleId: '',
+      moduleId: 'root',
     };
     saveFilePopoverVisible.value = false;
   }
@@ -147,8 +153,9 @@
           local: true,
           moduleId: saveFileForm.value.moduleId,
           fileName: saveFileForm.value.name,
+          originalName: props.savingFile.name || '',
         });
-        emit('finish', res);
+        emit('finish', res, `${saveFileForm.value.name}.${props.savingFile.name?.split('.').pop()}`);
         Message.success(t('ms.add.attachment.saveAsSuccess'));
         handleSaveFileCancel();
       }
