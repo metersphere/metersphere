@@ -172,6 +172,7 @@
                updateUser.name as update_user,
                createUser.name AS create_user,
                f.name,
+               f.original_name,
                f.type,
                f.tags,
                f.enable,
