@@ -120,7 +120,7 @@
     (visible) => {
       if (visible) {
         initModuleOptions();
-        saveFileForm.value.name = props.savingFile?.name || '';
+        saveFileForm.value.name = props.savingFile?.name?.split('.').shift() || '';
       }
     },
     {
@@ -153,7 +153,7 @@
           local: true,
           moduleId: saveFileForm.value.moduleId,
           fileName: saveFileForm.value.name,
-          originalName: props.savingFile.name || '',
+          originalName: props.savingFile.name || props.savingFile.fileName || '',
         });
         emit('finish', res, `${saveFileForm.value.name}.${props.savingFile.name?.split('.').pop()}`);
         Message.success(t('ms.add.attachment.saveAsSuccess'));

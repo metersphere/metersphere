@@ -15,6 +15,7 @@ export interface ModuleCount {
 export interface FileItem {
   id: string;
   name: string;
+  originalName: string; // 原文件名
   fileType: string; // 文件类型
   tags: string[]; // 标签
   description: string;

@@ -100,9 +100,9 @@
   const managementRef = ref<InstanceType<typeof management>>();
 
   function handleModuleInit(tree: ModuleTreeNode[], _protocol: string, pathMap: Record<string, any>) {
-    folderTree.value = tree;
+    // folderTree.value = tree;
     protocol.value = _protocol;
-    folderTreePathMap.value = pathMap;
+    // folderTreePathMap.value = pathMap;
   }
 
   function newApi() {

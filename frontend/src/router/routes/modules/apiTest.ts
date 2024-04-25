@@ -1,4 +1,4 @@
-import { ApiTestRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
+import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';

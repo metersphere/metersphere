@@ -17,7 +17,7 @@
   import useLicenseStore from '@/store/modules/setting/license';
   import { openWindow, regexUrl } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
-  import { getFisrtRouterNameByCurrentRoute } from '@/utils/permission';
+  import { getFirstRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
 
   import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
@@ -66,7 +66,7 @@
           }
           if (item.meta?.hideChildrenInMenu) {
             // 顶级菜单路由跳转到该菜单下有权限的第一个顶部子菜单
-            const childName = getFisrtRouterNameByCurrentRoute(item.name as string);
+            const childName = getFirstRouterNameByCurrentRoute(item.name as string);
             router.push({
               name: childName,
             });

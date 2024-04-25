@@ -138,7 +138,7 @@ export function findRouteByName(name: string) {
 }
 
 // 找到当前路由下 第一个由权限的子路由
-export function getFisrtRouterNameByCurrentRoute(parentName: string) {
+export function getFirstRouterNameByCurrentRoute(parentName: string) {
   const currentRoute = findRouteByName(parentName);
   if (currentRoute) {
     const hasAuthChildrenRouter = currentRoute.children.find((item) => hasAnyPermission(item.meta?.roles || []));
