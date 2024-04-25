@@ -1,24 +1,29 @@
 /* 前后端不分离的登录方式 */
-import {get, post, put, request} from 'metersphere-frontend/src/plugins/request'
+import {
+  get,
+  post,
+  put,
+  request,
+} from "metersphere-frontend/src/plugins/request";
 
 export function login(data) {
-  return post('/signin', data)
+  return post("/signin", data);
 }
 
 export function logout() {
-  return get('/signout')
+  return get("/signout");
 }
 
 export function isLogin() {
-  return get('/is-login')
+  return get("/is-login");
 }
 
 export function getCurrentUser() {
-  return get('/currentUser')
+  return get("/currentUser");
 }
 
 export function updateInfo(id, data) {
-  return put('/samples/user/info/update/' + id, data)
+  return put("/samples/user/info/update/" + id, data);
 }
 
 export function specialDeleteUserById(id) {
@@ -26,19 +31,19 @@ export function specialDeleteUserById(id) {
 }
 
 export function specialCreateUser(user) {
-  return post('/user/special/add', user);
+  return post("/user/special/add", user);
 }
 
 export function specialModifyUser(user) {
-  return post('/user/special/update', user);
+  return post("/user/special/update", user);
 }
 
 export function specialModifyPassword(user) {
-  return post('/user/special/password', user);
+  return post("/user/special/password", user);
 }
 
 export function specialListUsers(data, page, size) {
-  return post(`/user/special/list/${page}/${size}`, data)
+  return post(`/user/special/list/${page}/${size}`, data);
 }
 
 export function specialGetUserGroup(userId) {
@@ -46,15 +51,19 @@ export function specialGetUserGroup(userId) {
 }
 
 export function specialModifyUserDisable(user) {
-  return post('/user/special/update_status', user);
+  return post("/user/special/update_status", user);
 }
 
 export function specialBatchProcessUser(params) {
-  return post('/user/special/batch-process-user', params);
+  return post("/user/special/batch-process-user", params);
 }
 
 export function getWorkspaceMemberSpecial(param) {
-  return post('/user/special/ws/member/list/all', param);
+  return post("/user/special/ws/member/list/all", param);
+}
+
+export function getCurrentWorkspaceMemberSpecial(param) {
+  return post("/user/special/currentWs/member/list/all", param);
 }
 
 export function getWorkspaceMemberListSpecial(goPage, pageSize, param) {
@@ -62,7 +71,7 @@ export function getWorkspaceMemberListSpecial(goPage, pageSize, param) {
 }
 
 export function addWorkspaceMemberSpecial(param) {
-  return post('/user/special/ws/member/add', param);
+  return post("/user/special/ws/member/add", param);
 }
 
 export function delWorkspaceMemberSpecialById(workspaceId, userId) {
@@ -82,15 +91,18 @@ export function getWorkspaceMemberPages(goPage, pageSize, param) {
 }
 
 export function addWorkspaceMember(member) {
-  return post('user/ws/member/add', member);
+  return post("user/ws/member/add", member);
 }
 
 export function getProjectMemberPages(goPage, pageSize, workspaceId, param) {
-  return post(`/user/ws/project/member/list/${workspaceId}/${goPage}/${pageSize}`, param);
+  return post(
+    `/user/ws/project/member/list/${workspaceId}/${goPage}/${pageSize}`,
+    param
+  );
 }
 
 export function getCurrentProjectUserList() {
-  return get('/user/project/member/list');
+  return get("/user/project/member/list");
 }
 
 export function getCurrentProjectUserPages(goPage, pageSize, param) {
@@ -98,7 +110,7 @@ export function getCurrentProjectUserPages(goPage, pageSize, param) {
 }
 
 export function updateCurrentUser(user) {
-  return post('/user/update/current', user);
+  return post("/user/update/current", user);
 }
 
 export function delProjectMember(projectId, memberId) {
@@ -106,29 +118,37 @@ export function delProjectMember(projectId, memberId) {
 }
 
 export function addProjectMember(member) {
-  return post('user/project/member/add', member);
+  return post("user/project/member/add", member);
 }
 
 export function exportUserExample() {
-  fileDownload('/user/export/template');
+  fileDownload("/user/export/template");
 }
 
 export function fileDownload(url) {
   let config = {
     method: "get",
     url,
-    responseType: 'blob'
-  }
+    responseType: "blob",
+  };
   let promise = request(config);
-  promise.then(response => {
-      let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
+  promise
+    .then((response) => {
+      let fileName = window.decodeURI(
+        response.headers["content-disposition"].split("=")[1]
+      );
       let link = document.createElement("a");
-      link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+      link.href = window.URL.createObjectURL(
+        new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
+        })
+      );
       link.download = fileName;
       link.click();
-    }).catch(() => {
-    //
-  });
+    })
+    .catch(() => {
+      //
+    });
 }
 
 export function userImport(file, files, param) {
@@ -137,18 +157,21 @@ export function userImport(file, files, param) {
     formData.append("file", file);
   }
   if (files) {
-    files.forEach(f => {
+    files.forEach((f) => {
       formData.append("files", f);
     });
   }
-  formData.append('request', new Blob([JSON.stringify(param)], {type: 'application/json'}));
+  formData.append(
+    "request",
+    new Blob([JSON.stringify(param)], { type: "application/json" })
+  );
   let config = {
-    method: 'POST',
-    url: '/user/import',
+    method: "POST",
+    url: "/user/import",
     data: formData,
     headers: {
-      'Content-Type': undefined
-    }
+      "Content-Type": undefined,
+    },
   };
   return request(config);
 }

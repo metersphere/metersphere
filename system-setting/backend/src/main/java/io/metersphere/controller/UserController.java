@@ -96,8 +96,15 @@ public class UserController {
     }
 
     @PostMapping("/special/ws/member/list/all")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_WORKSPACE_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_WORKSPACE_READ}, logical = Logical.OR)
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
+        return baseUserService.getMemberList(request);
+    }
+
+    @PostMapping("/special/currentWs/member/list/all")
+    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
+    public List<User> getMemberListByAdminProject(@RequestBody QueryMemberRequest request) {
+        baseCheckPermissionService.checkWorkspacePermission(request.getWorkspaceId());
         return baseUserService.getMemberList(request);
     }
 
