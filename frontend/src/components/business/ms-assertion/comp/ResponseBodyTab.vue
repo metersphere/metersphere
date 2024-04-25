@@ -702,7 +702,6 @@
     config: RegexExtract | JSONPathExtract | XPathExtract,
     matchResult: Record<string, any>
   ) {
-    debugger;
     condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
