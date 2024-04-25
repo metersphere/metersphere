@@ -32,12 +32,6 @@ public interface NoticeConstants {
         @Schema(description = "message.report_task")
         String API_REPORT_TASK = "API_REPORT_TASK";
 
-        //UI测试模块的任务
-        @Schema(description = "message.ui_scenario_task")
-        String UI_SCENARIO_TASK = "UI_SCENARIO_TASK";
-        @Schema(description = "message.report_task")
-        String UI_REPORT_TASK = "UI_REPORT_TASK";
-
         //性能测试模块的任务
         @Schema(description = "message.load_test_task")
         String LOAD_TEST_TASK = "LOAD_TEST_TASK";

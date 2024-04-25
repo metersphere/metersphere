@@ -16,7 +16,6 @@ import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -150,7 +149,6 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> FieldUtils.getAllFields(CaseReview.class);
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             case NoticeConstants.TaskType.BUG_TASK -> FieldUtils.getAllFields(BugMessageDTO.class);
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> FieldUtils.getAllFields(UiScenario.class);
             case NoticeConstants.TaskType.LOAD_TEST_TASK -> FieldUtils.getAllFields(LoadTest.class);
             case NoticeConstants.TaskType.SCHEDULE_TASK -> FieldUtils.getAllFields(Schedule.class);
             default -> new Field[0];
@@ -249,7 +247,6 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> putDomainName(domainTemplateFields, map, "test_plan_");
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> putDomainName(domainTemplateFields, map, "case_review_");
             case NoticeConstants.TaskType.BUG_TASK -> putDomainName(domainTemplateFields, map, "bug_");
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> putDomainName(domainTemplateFields, map, "ui_");
             case NoticeConstants.TaskType.LOAD_TEST_TASK -> putDomainName(domainTemplateFields, map, "load_");
             case NoticeConstants.TaskType.SCHEDULE_TASK -> putDomainName(domainTemplateFields, map, "schedule_");
             default -> {}

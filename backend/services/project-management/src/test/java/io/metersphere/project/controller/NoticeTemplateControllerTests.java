@@ -62,7 +62,6 @@ public class NoticeTemplateControllerTests extends BaseTest {
         typeList.add(NoticeConstants.TaskType.CASE_REVIEW_TASK);
         typeList.add(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
-        typeList.add(NoticeConstants.TaskType.UI_SCENARIO_TASK);
         typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
         typeList.add(NoticeConstants.TaskType.JENKINS_TASK);
         typeList.add(NoticeConstants.TaskType.SCHEDULE_TASK);
@@ -99,10 +98,6 @@ public class NoticeTemplateControllerTests extends BaseTest {
             if (s.equals(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK)) {
                 List<String> collect = projectList.stream().map(OptionDTO::getId).toList();
                 Assertions.assertFalse(collect.contains("level"));
-            }
-            if (s.equals(NoticeConstants.TaskType.UI_SCENARIO_TASK)) {
-                List<String> collect = projectList.stream().map(OptionDTO::getId).toList();
-                Assertions.assertFalse(collect.contains("age"));
             }
         }
 
