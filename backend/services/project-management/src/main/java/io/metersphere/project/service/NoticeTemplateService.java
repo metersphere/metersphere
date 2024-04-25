@@ -18,7 +18,6 @@ import io.metersphere.system.dto.sdk.*;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
-import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -86,12 +85,6 @@ public class NoticeTemplateService {
                 // TODO: 待修改, 同步仅需的字段{操作人, 触发方式}
                 // 该方法提供了统一的内置通知模板字段; {操作人, 关注人, 触发方式}
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
-            }
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(UiScenario.class);
-                addOptionDto(messageTemplateFieldDTOList, allFields, "ui_");
-                addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.UI.toString());
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(LoadTest.class);
