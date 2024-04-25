@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -1586,6 +1587,29 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSwaggerUrl("http://localhost:8080/v2/api-docs");
         paramMap.add("request", JSON.toJSONString(request));
         this.requestMultipart(IMPORT, paramMap, status().is5xxServerError());
+
+        request.setPlatform(ApiImportPlatform.Postman.name());
+        request.setCoverModule(true);
+        request.setCoverData(true);
+        paramMap.clear();
+        inputStream = new FileInputStream(new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/postman.json"))
+                        .getPath()));
+        file = new MockMultipartFile("file", "postman.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+        paramMap.clear();
+        request.setCoverModule(true);
+        request.setCoverData(true);
+        inputStream = new FileInputStream(new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/postman2.json"))
+                        .getPath()));
+        file = new MockMultipartFile("file", "postman2.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+
 
     }
 

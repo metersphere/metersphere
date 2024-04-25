@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,10 +36,10 @@ public class HttpResponse implements Serializable {
 
     @Schema(description = "响应请求头")
     @Valid
-    private List<MsHeader> headers;
+    private List<MsHeader> headers = new ArrayList<>();
 
     @Schema(description = "响应请求体")
     @Valid
-    private ResponseBody body;
+    private ResponseBody body = new ResponseBody();
 
 }

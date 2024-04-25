@@ -504,12 +504,15 @@ public class ApiDefinitionImportUtilService {
         }
     }
 
+    /**
+     * 判断数据唯一性 通过method和path判断 有重复的数据 需要覆盖
+     */
     public void methodAndPath(List<ApiDefinitionImportDetail> importData,
                               List<ApiDefinitionImportDetail> lists,
                               ApiDetailWithData apiDetailWithData) {
 
-        Map<String, ApiDefinitionImportDetail> apiDateMap = lists.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
-        Map<String, ApiDefinitionImportDetail> importDataMap = importData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
+        Map<String, ApiDefinitionImportDetail> apiDateMap = lists.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
+        Map<String, ApiDefinitionImportDetail> importDataMap = importData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
         //判断是否重复
         List<String> orgList = apiDateMap.keySet().stream().toList();
         List<String> importList = importDataMap.keySet().stream().toList();

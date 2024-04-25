@@ -1,21 +1,22 @@
 package io.metersphere.api.parser.api;
 
-import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.MsCommonElement;
-import io.metersphere.api.dto.request.http.*;
-import io.metersphere.project.dto.environment.auth.NoAuth;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.MsHeader;
+import io.metersphere.api.dto.request.http.QueryParam;
+import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.constants.PropertyConstant;
+import io.metersphere.project.dto.environment.auth.NoAuth;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -35,15 +36,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
-public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
+public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImport> {
 
     protected String projectId;
     private Components components;
@@ -53,7 +50,6 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     public static final String COOKIE = "cookie";
     public static final String QUERY = "query";
 
-    @Override
     public ApiDefinitionImport parse(InputStream source, ImportRequest request) throws Exception {
         LogUtils.info("Swagger3Parser parse");
         List<AuthorizationValue> auths = setAuths(request);
@@ -90,22 +86,6 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }
 
-    protected String getApiTestStr(InputStream source) {
-        StringBuilder testStr = null;
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8))) {
-            testStr = new StringBuilder();
-            String inputStr;
-            while ((inputStr = bufferedReader.readLine()) != null) {
-                testStr.append(inputStr);
-            }
-            source.close();
-        } catch (Exception e) {
-            LogUtils.error(e.getMessage(), e);
-            throw new MSException(e.getMessage());
-        }
-        return StringUtils.isNotBlank(testStr) ? testStr.toString() : StringUtils.EMPTY;
-    }
-
     private List<ApiDefinitionImportDetail> parseRequests(OpenAPI openAPI, ImportRequest importRequest) {
 
         Paths paths = openAPI.getPaths();
@@ -133,9 +113,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     //构建基本请求
-                    ApiDefinitionImportDetail apiDefinitionDTO = buildApiDefinition(operation, pathName, method, importRequest);
+                    ApiDefinitionImportDetail apiDefinitionDTO = buildSwaggerApiDefinition(operation, pathName, method, importRequest);
                     //构建请求参数
-                    MsHTTPElement request = buildRequest(apiDefinitionDTO.getName(), pathName, method);
+                    MsHTTPElement request = buildHttpRequest(apiDefinitionDTO.getName(), pathName, method);
                     parseParameters(operation, request);
                     parseParameters(pathItem, request);
                     //构建请求体
@@ -330,7 +310,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         }
     }
 
-    private ApiDefinitionImportDetail buildApiDefinition(Operation operation, String path, String
+    private ApiDefinitionImportDetail buildSwaggerApiDefinition(Operation operation, String path, String
             method, ImportRequest importRequest) {
         String name;
         if (StringUtils.isNotBlank(operation.getSummary())) {
@@ -340,44 +320,8 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         } else {
             name = path;
         }
-        ApiDefinitionImportDetail apiDefinition = new ApiDefinitionImportDetail();
-        apiDefinition.setName(name);
-        apiDefinition.setPath(formatPath(path));
-        apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
-        apiDefinition.setMethod(method);
-        apiDefinition.setProjectId(this.projectId);
-        apiDefinition.setCreateUser(importRequest.getUserId());
-        apiDefinition.setModulePath(CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().get(0)) : StringUtils.EMPTY);
-        apiDefinition.setResponse(new ArrayList<>());
-        return apiDefinition;
-    }
-
-    protected MsHTTPElement buildRequest(String name, String path, String method) {
-        MsHTTPElement request = new MsHTTPElement();
-        request.setName(name);
-        // 路径去掉域名/IP 地址，保留方法名称及参数
-        request.setPath(formatPath(path));
-        request.setMethod(method);
-        request.setHeaders(new ArrayList<>());
-        request.setQuery(new ArrayList<>());
-        request.setRest(new ArrayList<>());
-        request.setBody(new Body());
-        MsHTTPConfig httpConfig = new MsHTTPConfig();
-        httpConfig.setConnectTimeout(60000L);
-        httpConfig.setResponseTimeout(60000L);
-        request.setOtherConfig(httpConfig);
-        request.setAuthConfig(new NoAuth());
-        Body body = new Body();
-        body.setBinaryBody(new BinaryBody());
-        body.setFormDataBody(new FormDataBody());
-        body.setXmlBody(new XmlBody());
-        body.setRawBody(new RawBody());
-        body.setNoneBody(new NoneBody());
-        body.setJsonBody(new JsonBody());
-        body.setWwwFormBody(new WWWFormBody());
-        body.setNoneBody(new NoneBody());
-        request.setBody(body);
-        return request;
+        String modulePath = CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().get(0)) : StringUtils.EMPTY;
+        return buildApiDefinition(name, path, method, modulePath, importRequest);
     }
 
     private void parseParameters(Operation operation, MsHTTPElement request) {
@@ -754,17 +698,4 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         return jsonSchemaArray;
     }
 
-    private String formatPath(String url) {
-        try {
-            URI urlObject = new URI(url);
-            String path = StringUtils.isBlank(urlObject.getPath()) ? url : urlObject.getPath();
-            StringBuilder pathBuffer = new StringBuilder(path);
-            if (StringUtils.isNotEmpty(urlObject.getQuery())) {
-                pathBuffer.append("?").append(urlObject.getQuery());
-            }
-            return pathBuffer.toString();
-        } catch (Exception ex) {
-            return url;
-        }
-    }
 }
