@@ -17,6 +17,7 @@ export default {
   'invite.success': '注册成功',
   'invite.overTime': '邀请链接已过期',
   'personal.info': '个人信息',
+  'personal.center': '个人中心',
   'personal.switchOrg': '切换组织',
   'personal.searchOrgPlaceholder': '请输入组织名称',
   'personal.currentOrg': '当前组织',
