@@ -753,9 +753,8 @@
 
 <style lang="less" scoped>
   .page {
-    @apply bg-white;
+    @apply h-full bg-white;
 
-    height: calc(100vh - 88px);
     border-radius: var(--border-radius-large);
   }
   .env-item {

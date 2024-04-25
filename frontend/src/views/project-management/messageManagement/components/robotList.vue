@@ -1,6 +1,7 @@
 <template>
   <div>
-    <MsCard :min-width="1060" :special-height="127" simple>
+    <!-- special-height的119: 上面卡片高度103 +上面卡片高度mb的16 -->
+    <MsCard :min-width="1060" :special-height="119" simple>
       <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" closable @close="addVisited">
         {{ t('project.messageManagement.botListTips') }}
         <template #close-element>

@@ -1,5 +1,4 @@
 <template>
-  <!-- <div class="card"> -->
   <MsCard simple no-content-padding>
     <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
       <template #first>
@@ -65,7 +64,6 @@
       </template>
     </MsSplitBox>
   </MsCard>
-  <!-- </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -108,7 +106,7 @@
   const leftCollapse = ref(true);
   const leftWidth = ref('300px');
   const bottomWidth = computed(() => {
-    const width = appStore.menuCollapse ? '86px' : `${appStore.menuWidth}px`;
+    const width = appStore.menuCollapse ? `${appStore.collapsedWidth}px` : `${appStore.menuWidth}px`;
     if (leftCollapse.value) {
       return `calc(100% - ${addPixelValues(width, leftWidth.value, '20px')})`;
     }
@@ -168,13 +166,4 @@
   });
 </script>
 
-<style lang="less" scoped>
-  .card {
-    @apply overflow-hidden bg-white;
-
-    position: relative;
-    height: calc(100vh - 88px);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
-  }
-</style>
+<style lang="less" scoped></style>

@@ -512,7 +512,7 @@
     .arco-menu-inner {
       @apply flex flex-col justify-between;
 
-      padding: 16px 28px 16px 16px !important;
+      padding: 16px !important;
       .arco-menu-inline {
         &--bottom {
           @apply mt-auto;
@@ -586,7 +586,7 @@
     min-width: 60px;
   }
   .arco-menu-collapsed {
-    width: 86px;
+    width: 72px;
     .arco-avatar,
     .arco-icon {
       margin-right: 2px !important;
@@ -601,8 +601,8 @@
     .arco-menu-collapse-button {
       @apply hidden rounded-full;
 
-      top: 22px;
-      right: 4px;
+      top: 24px;
+      right: -12px;
       border: 1px solid #ffffff;
       background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
       box-shadow: 0 0 7px rgb(15 0 78 / 9%);

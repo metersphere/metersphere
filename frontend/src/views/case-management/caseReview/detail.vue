@@ -99,7 +99,8 @@
       </a-tabs>
     </div>
   </MsCard>
-  <MsCard class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
+  <!-- special-height的170: 上面卡片高度154 + mt的16 -->
+  <MsCard class="mt-[16px]" :special-height="170" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
       <template #first>
         <div class="p-[16px]">

@@ -374,9 +374,8 @@
   const { t } = useI18n();
   const { currentLocale } = useLocale();
   const appStore = useAppStore();
-  const collapsedWidth = 86;
   const menuWidth = computed(() => {
-    return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
+    return appStore.menuCollapse ? appStore.collapsedWidth : appStore.menuWidth;
   });
   const pageLoading = ref(false);
   const pageConfig = ref({ ...appStore.pageConfig, slogan: t(appStore.pageConfig.slogan) });

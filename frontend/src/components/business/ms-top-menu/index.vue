@@ -140,9 +140,24 @@
 <style lang="less" scoped>
   :deep(.arco-menu-inner) {
     overflow-y: hidden;
-    padding: 9px 0;
+    padding: 12px 16px 12px 8px;
+    .arco-menu-item {
+      @apply !bg-transparent;
+      &:not(:first-child) {
+        margin-left: 8px;
+      }
+      &:hover {
+        color: rgb(var(--primary-4));
+      }
+    }
+    .arco-menu-selected {
+      @apply !font-normal;
+
+      color: rgb(var(--primary-5));
+      background-color: var(--color-text-fff) !important;
+    }
     .arco-menu-selected-label {
-      bottom: -8px !important;
+      display: none;
     }
   }
 </style>

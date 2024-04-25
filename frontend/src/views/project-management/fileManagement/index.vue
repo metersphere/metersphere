@@ -254,10 +254,9 @@
 
 <style lang="less" scoped>
   .page {
-    @apply bg-white;
+    @apply h-full bg-white;
 
     min-width: 1000px;
-    height: calc(100vh - 76px);
     border-radius: var(--border-radius-large);
     .folder {
       @apply flex cursor-pointer items-center justify-between;

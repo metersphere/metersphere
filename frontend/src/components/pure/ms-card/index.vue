@@ -127,9 +127,8 @@
   const { t } = useI18n();
 
   const appStore = useAppStore();
-  const collapsedWidth = 86;
   const menuWidth = computed(() => {
-    return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
+    return appStore.menuCollapse ? appStore.collapsedWidth : appStore.menuWidth;
   });
 
   // 用于全屏的容器 ref
@@ -145,13 +144,19 @@
 
   const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度32
 
+  // TODO：卡片高度调整，写上数值的注释
   const cardOverHeight = computed(() => {
+    const contentPadding = 32; // 16+16 上下内容边距
+    const navbarHeight = 56; // 顶部导航高度
+    const layoutContentPaddingBottom = 16; // 卡片到底部距离
     if (isFullScreen.value) {
       return 106;
     }
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return props.noContentPadding ? 66 + _specialHeight : 114 + _specialHeight;
+      return props.noContentPadding
+        ? navbarHeight + layoutContentPaddingBottom + _specialHeight
+        : navbarHeight + layoutContentPaddingBottom + contentPadding + _specialHeight;
     }
     if (props.hideFooter) {
       // 没有底部
