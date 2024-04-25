@@ -990,12 +990,16 @@
   });
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
-  const selectTree = computed(() =>
-    filterTree(cloneDeep(props.moduleTree || []), (e) => {
-      e.draggable = false;
-      return e.type === 'MODULE';
-    })
-  );
+  const selectTree = computed(() => {
+    if (saveModalVisible.value || (!props.isCase && props.isDefinition && saveModalVisible.value)) {
+      // 调试模式打开保存弹窗，或者是接口定义模式下打开保存弹窗才进行计算，避免大数据量导致进入时就计算卡顿 TODO:worker线程处理计算任务
+      return filterTree(cloneDeep(props.moduleTree || []), (e) => {
+        e.draggable = false;
+        return e.type === 'MODULE';
+      });
+    }
+    return [];
+  });
 
   watch(
     () => saveModalVisible.value,

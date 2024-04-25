@@ -71,7 +71,8 @@ export default {
   'project.fileManagement.cancelTipContent':
     'After cancellation, files that have not been successfully uploaded will not be saved, so please operate with caution!',
   'project.fileManagement.cancelConfirm': 'Cancel upload',
-  'project.fileManagement.name': 'File name',
+  'project.fileManagement.name': 'File alias',
+  'project.fileManagement.originName': 'File original name',
   'project.fileManagement.type': 'Format',
   'project.fileManagement.fileNamePlaceholder': 'Please enter the file name and press Enter to save',
   'project.fileManagement.desc': 'Description',

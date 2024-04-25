@@ -317,13 +317,7 @@
   import useUserStore from '@/store/modules/user';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import {
-    ReviewCaseItem,
-    ReviewItem,
-    ReviewPassRule,
-    ReviewResult,
-    ReviewStatus,
-  } from '@/models/caseManagement/caseReview';
+  import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';

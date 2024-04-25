@@ -563,6 +563,11 @@
         key: 'name',
       },
       {
+        label: t('project.fileManagement.originName'),
+        value: detail.originalName,
+        key: 'originalName',
+      },
+      {
         label: t('project.fileManagement.desc'),
         value: detail.description,
         key: 'desc',

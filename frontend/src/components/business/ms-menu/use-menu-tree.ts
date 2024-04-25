@@ -20,6 +20,10 @@ export default function useMenuTree() {
       if (!_routes) return null;
 
       const collector = _routes.map((element) => {
+        if (element.meta?.hideInMenu === true) {
+          return null;
+        }
+
         // 权限校验不通过
         if (!permission.accessRouter(element)) {
           return null;
@@ -41,7 +45,7 @@ export default function useMenuTree() {
           element.children = subItem as RouteRecordRaw[];
           return element;
         }
-        // the else logic
+
         if (layer > 1) {
           element.children = subItem as RouteRecordRaw[];
           return element;

@@ -858,10 +858,10 @@
         parent.rowSpan = parent.rowSpan ? parent.rowSpan + 1 : 2;
       } else {
         // 找到第一个子节点
-        const fisrtChildNode = findFirstByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId);
-        if (fisrtChildNode) {
-          fisrtChildNode.rowSpan = fisrtChildNode.rowSpan
-            ? fisrtChildNode.rowSpan + 1
+        const firstChildNode = findFirstByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId);
+        if (firstChildNode) {
+          firstChildNode.rowSpan = firstChildNode.rowSpan
+            ? firstChildNode.rowSpan + 1
             : countNodesByGroupId(condition.value.documentAssertion.jsonAssertion, record.groupId) + 1;
         }
       }
