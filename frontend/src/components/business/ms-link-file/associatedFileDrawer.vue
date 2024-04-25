@@ -81,22 +81,22 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+  import { ref } from 'vue';
 
-import MsButton from '@/components/pure/ms-button/index.vue';
-import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-import FileTree from './fileTree.vue';
-import LinkFileTable from './linkFileTable.vue';
-import StorageList from './storageList.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import FileTree from './fileTree.vue';
+  import LinkFileTable from './linkFileTable.vue';
+  import StorageList from './storageList.vue';
 
-import {useI18n} from '@/hooks/useI18n';
+  import { useI18n } from '@/hooks/useI18n';
 
-import type {AssociatedList} from '@/models/caseManagement/featureCase';
-import type {CommonList, ModuleTreeNode, TableQueryParams} from '@/models/common';
-import {FileListQueryParams, Repository} from '@/models/projectManagement/file';
+  import type { AssociatedList } from '@/models/caseManagement/featureCase';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { FileListQueryParams, Repository } from '@/models/projectManagement/file';
 
-const { t } = useI18n();
+  const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
@@ -178,9 +178,9 @@ const { t } = useI18n();
       modulesCount.value = await props.getCountRequest(params);
       myFileCount.value = modulesCount.value.my || 0;
       allFileCount.value = modulesCount.value.all;
-      if(showType.value === 'Storage'){
+      if (showType.value === 'Storage') {
         fileAllCountByStorage.value = modulesCount.value.git;
-      }else {
+      } else {
         fileAllCountByStorage.value = modulesCount.value.minio;
       }
     } catch (error) {

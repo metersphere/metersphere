@@ -217,7 +217,7 @@
         :multiple="true"
         :fields="{
           id: 'fileId',
-          name: 'fileName',
+          name: 'fileAlias',
         }"
         :file-save-as-source-id="props.fileSaveAsSourceId"
         :file-save-as-api="props.fileSaveAsApi"
@@ -329,9 +329,9 @@
         class="ms-form-table-input"
         @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       >
-        <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">{{
-          t(item.label)
-        }}</a-option>
+        <a-option v-for="item in columnConfig.options" :key="item.value" :value="item.value">
+          {{ t(item.label) }}
+        </a-option>
       </a-select>
     </template>
     <!-- 匹配值 -->

@@ -93,4 +93,5 @@ export interface TransferFileParams {
   fileId: string;
   local: true;
   moduleId: string;
+  originalName?: string;
 }

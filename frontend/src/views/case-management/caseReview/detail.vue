@@ -385,7 +385,8 @@
     });
   }
 
-  function handleRefresh() {
+  function handleRefresh(params: ReviewDetailCaseListQueryParams) {
+    initModulesCount(params);
     initDetail();
   }
 

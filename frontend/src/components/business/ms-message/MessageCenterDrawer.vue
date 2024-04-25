@@ -111,8 +111,8 @@
               <div v-else class="ms-message-item">
                 <MSAvatar v-if="item.avatar" :avatar="item.avatar" :word="item.userName" />
                 <div class="ml-[8px] flex flex-col">
-                  <div class="flex items-center overflow-x-hidden">
-                    <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[6, -2]" class="w-full">
+                  <div class="flex items-center">
+                    <a-badge v-if="item.status === 'UNREAD'" :count="9" dot :offset="[5, 2]">
                       <a-tooltip :content="item.subject">
                         <div class="one-line-text max-w-[300px] font-medium leading-[22px] text-[var(--color-text-1)]">
                           {{ item.subject }}

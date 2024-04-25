@@ -21,7 +21,11 @@
       </template>
       <template #title="_props">
         <div class="flex w-full items-center gap-[4px] overflow-hidden">
-          <div v-if="_props.children && _props.children.length > 0" @click.stop="handleExpand(_props)">
+          <div
+            v-if="_props.children && _props.children.length > 0"
+            class="cursor-pointer"
+            @click.stop="handleExpand(_props)"
+          >
             <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
             <icon-caret-right v-else class="text-[var(--color-text-4)]" />
           </div>

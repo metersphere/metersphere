@@ -132,6 +132,7 @@
     () => innerVisible.value,
     (val) => {
       if (val && appStore.currentEnvConfig?.id) {
+        selectedKey.value = props.selectedKey || '';
         initEnvironment(appStore.currentEnvConfig?.id);
       }
     }
