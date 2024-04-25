@@ -15,7 +15,8 @@
             emit('newScenario');
           }
         "
-        >{{ t('apiScenario.createScenario') }}</a-button
+      >
+        {{ t('common.newCreate') }}</a-button
       >
     </div>
     <div class="folder" @click="setActiveFolder('all')">

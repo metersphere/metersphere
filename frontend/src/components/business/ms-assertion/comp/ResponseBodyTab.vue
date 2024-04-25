@@ -456,13 +456,13 @@
       title: 'ms.assertion.expression',
       dataIndex: 'expression',
       slotName: 'expression',
-      width: 300,
     },
     {
       title: 'ms.assertion.matchCondition',
       dataIndex: 'condition',
       slotName: 'condition',
       options: statusCodeOptions,
+      width: 150,
     },
     {
       title: 'ms.assertion.matchValue',
@@ -475,7 +475,7 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 130,
+      width: 80,
       moreAction: [
         {
           eventTag: 'copy',
@@ -702,6 +702,7 @@
     config: RegexExtract | JSONPathExtract | XPathExtract,
     matchResult: Record<string, any>
   ) {
+    debugger;
     condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
