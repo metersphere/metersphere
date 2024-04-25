@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseTest;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.dto.*;
+
 import io.metersphere.request.BaseQueryRequest;
 import io.metersphere.request.testcase.DeleteTestCaseRequest;
 import io.metersphere.request.testcase.QueryTestCaseRequest;
@@ -171,6 +172,4 @@ public interface ExtTestCaseMapper {
     List<TestCaseTest> getTestCaseRelateList(@Param("testCaseId") String testCaseId);
 
     List<TestCase> getTestCaseForLastResultLog(@Param("ids") List<String> ids);
-
-    List<TestCase> selectByRefIdsAndVersionId(@Param("refIds") List<String> refIds, @Param("versionId") String versionId);
 }

@@ -171,7 +171,6 @@ const message = {
       batch_remove_confirm: "Confirm remove {0} item use case?",
     },
     enter_issues_content: "Please enter the defect content...",
-    batch_edit_version: "The specified update version exists data will be forced to cover, please operate with caution!",
   },
   attachment: {
     preview: "Preview",

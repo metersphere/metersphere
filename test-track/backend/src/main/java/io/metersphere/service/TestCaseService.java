@@ -51,7 +51,6 @@ import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackTestCaseTemplateService;
 import io.metersphere.service.remote.ui.RelevanceUiCaseService;
 import io.metersphere.service.wapper.TrackProjectService;
-import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
@@ -85,7 +84,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -2123,9 +2121,6 @@ public class TestCaseService {
             batchEditField(request);
         } else if (StringUtils.equals("tags", request.getType())) {
             batchEditTag(request);
-        } else if (StringUtils.equals("version", request.getType())) {
-            //批量修改版本
-            this.preEditVersion(request);
         } else {
             // 批量移动
             if (request.getCondition().isSelectAll()) {
@@ -2138,99 +2133,6 @@ public class TestCaseService {
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
             bathUpdateByCondition(request, batchEdit);
-        }
-    }
-
-    private void preEditVersion(TestCaseBatchRequest request) {
-        List<TestCaseDTO> testCaseDTOS = new ArrayList<>();
-        ProjectVersion projectVersion = projectVersionMapper.selectByPrimaryKey(request.getVersionId());
-        if (projectVersion == null) {
-            return;
-        }
-
-        if (request.getCondition().isSelectAll()) {
-            // 全选则重新设置MoveIds
-            testCaseDTOS = listTestCase(request.getCondition(), true);
-        } else if (CollectionUtils.isNotEmpty(request.getIds())) {
-            testCaseDTOS = extTestCaseMapper.list(new QueryTestCaseRequest() {{
-                this.setIds(request.getIds());
-            }});
-        }
-
-        // 过滤掉当前版本的用例
-        testCaseDTOS = testCaseDTOS.stream().filter(e -> !StringUtils.equals(request.getVersionId(), e.getVersionId()))
-                .collect(Collectors.toList());
-
-        BatchProcessingUtil.testCaseBatchProcess(testCaseDTOS, projectVersion, this::batchEditVersion);
-    }
-
-    // 级联删除
-    private void cascadeDeleteTestCase(List<String> testCaseIds) {
-        //删除refTestCaseList
-        deleteTestPlanTestCaseBath(testCaseIds);
-        relationshipEdgeService.delete(testCaseIds); // 删除关系图
-        customFieldTestCaseService.deleteByResourceIds(testCaseIds); // 删除自定义字段
-        //删除执行信息
-        functionCaseExecutionInfoService.deleteBySourceIdList(testCaseIds);
-        testCaseIds.forEach(testCaseId -> { // todo 优化下效率
-            testCaseIssueService.delTestCaseIssues(testCaseId);
-            testCaseCommentService.deleteCaseComment(testCaseId);
-            TestCaseTestExample examples = new TestCaseTestExample();
-            examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
-            testCaseTestMapper.deleteByExample(examples);
-            relateDelete(testCaseId);
-            deleteFollows(testCaseId);
-        });
-
-        TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andIdIn(testCaseIds);
-        testCaseMapper.deleteByExample(example);
-        // 删除富文本框图片
-        mdFileService.deleteBySourceIds(testCaseIds);
-    }
-
-    /**
-     * 批量移动到指定版本：
-     * 1.指定版本不存在该用例时，直接移动（修改用例的version_id).
-     * 2.指定版本存在该用例时，先删除，再修改version.
-     * 2.1):删除时判断refId是否和Id相同。如果相同的话，把要修改用例的refId设置为它自己的ID.
-     * 2.2):判断latest是否为true。为true的话，要把新用例的latest设置为true.
-     */
-    private void batchEditVersion(TestCaseBatchEditDTO batchEditDTO) {
-        if (batchEditDTO.isNotEmpty()) {
-            Map<String, TestCaseDTO> refTestCaseMap = batchEditDTO.getTestCaseDTOList().stream().collect(Collectors.toMap(TestCaseDTO::getRefId, Function.identity()));
-            List<TestCase> refTestCaseList = extTestCaseMapper.selectByRefIdsAndVersionId(new ArrayList<>(refTestCaseMap.keySet()), batchEditDTO.getProjectVersion().getId());
-            //进行步骤2检查
-            if (CollectionUtils.isNotEmpty(refTestCaseList)) {
-                for (TestCase refTestCase : refTestCaseList) {
-                    TestCaseDTO oldDTO = refTestCaseMap.get(refTestCase.getRefId());
-                    if (oldDTO != null) {
-                        if (StringUtils.equals(refTestCase.getId(), refTestCase.getRefId())) {
-                            oldDTO.setRefId(oldDTO.getId());
-                        }
-                        if (BooleanUtils.isTrue(refTestCase.getLatest())) {
-                            oldDTO.setLatest(true);
-                        }
-                    }
-                }
-
-                this.cascadeDeleteTestCase(refTestCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
-            }
-
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-            for (TestCaseDTO testCaseDTO : refTestCaseMap.values()) {
-                TestCaseWithBLOBs updateCase = new TestCaseWithBLOBs();
-                updateCase.setId(testCaseDTO.getId());
-                updateCase.setVersionId(batchEditDTO.getProjectVersion().getId());
-                updateCase.setLatest(testCaseDTO.getLatest());
-                updateCase.setRefId(testCaseDTO.getRefId());
-                mapper.updateByPrimaryKeySelective(updateCase);
-            }
-            sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
         }
     }
 

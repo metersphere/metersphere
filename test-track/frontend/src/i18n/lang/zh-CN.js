@@ -170,7 +170,6 @@ const message = {
       batch_remove_confirm: "确定移除{0}项用例?",
     },
     enter_issues_content: "请输入缺陷内容...",
-    batch_edit_version: "指定的更新版本存在数据会被强制覆盖，请谨慎操作!",
   },
   attachment: {
     preview: "预览",
