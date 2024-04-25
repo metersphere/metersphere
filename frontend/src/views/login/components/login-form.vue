@@ -213,6 +213,7 @@
         console.log(err);
       } finally {
         setLoading(false);
+        userStore.getAuthentication();
       }
     }
   };
