@@ -11,19 +11,26 @@
                 allow-clear
                 :max-length="255"
               />
-              <a-dropdown position="br">
-                <a-button class="ml-2" type="primary">
-                  {{ t('common.newCreate') }}
-                </a-button>
-                <template #content>
-                  <a-doption v-permission="['FUNCTIONAL_CASE:READ+ADD']" @click="caseDetail">{{
-                    t('caseManagement.featureCase.creatingCase')
-                  }}</a-doption>
-                  <a-doption v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" @click="importCase('Excel')">{{
-                    t('caseManagement.featureCase.importExcel')
-                  }}</a-doption>
+              <a-dropdown-button
+                v-if="hasAllPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+IMPORT'])"
+                class="ml-2"
+                type="primary"
+                @click="handleSelect('newCase')"
+              >
+                {{ t('common.newCreate') }}
+                <template #icon>
+                  <icon-down />
                 </template>
-              </a-dropdown>
+                <template #content>
+                  <a-doption
+                    v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"
+                    value="Excel"
+                    @click="handleSelect('import', 'Excel')"
+                  >
+                    {{ t('caseManagement.featureCase.importExcel') }}
+                  </a-doption>
+                </template>
+              </a-dropdown-button>
             </div>
 
             <div class="case h-[38px]">
@@ -163,7 +170,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
@@ -405,6 +412,19 @@
       console.log(error);
     } finally {
       importLoading.value = false;
+    }
+  }
+
+  function handleSelect(value: string | number | Record<string, any> | undefined, type?: 'Excel' | 'Xmind') {
+    switch (value) {
+      case 'newCase':
+        caseDetail();
+        break;
+      case 'import':
+        importCase(type as 'Excel' | 'Xmind');
+        break;
+      default:
+        break;
     }
   }
 

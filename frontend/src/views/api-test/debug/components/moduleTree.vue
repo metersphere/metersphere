@@ -7,7 +7,7 @@
         type="primary"
         @click="handleSelect('newApi')"
       >
-        {{ t('apiTestDebug.newApi') }}
+        {{ t('common.newCreate') }}
         <template #icon>
           <icon-down />
         </template>

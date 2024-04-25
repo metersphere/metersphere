@@ -503,4 +503,7 @@
     height: 100%;
     height: 1000px;
   }
+  :deep(.step-tree-node-title) {
+    width: 100%;
+  }
 </style>
