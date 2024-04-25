@@ -185,7 +185,7 @@
       const isActiveSwitchOrg = ref(false);
       const personalMenus = ref([
         {
-          label: t('personal.info'),
+          label: t('personal.center'),
           icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
           event: () => {
             personalDrawerVisible.value = true;

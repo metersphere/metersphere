@@ -17,6 +17,7 @@ export default {
   'invite.success': 'Registered successfully',
   'invite.overTime': 'The invitation link has expired',
   'personal.info': 'My Info',
+  'personal.center': 'My Center',
   'personal.switchOrg': 'Switch Org',
   'personal.searchOrgPlaceholder': 'Please enter organization name',
   'personal.currentOrg': 'Current org',
