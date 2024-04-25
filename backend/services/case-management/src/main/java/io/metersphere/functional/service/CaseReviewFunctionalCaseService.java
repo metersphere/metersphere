@@ -164,8 +164,8 @@ public class CaseReviewFunctionalCaseService {
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
-                item.setReviewers(Collections.singletonList(userIdMap.get(item.getCaseId())));
-                item.setReviewNames(Collections.singletonList(userNameMap.get(item.getCaseId())));
+                item.setReviewers( new ArrayList<>(Arrays.asList(userIdMap.get(item.getCaseId()).split(","))));
+                item.setReviewNames(new ArrayList<>(Arrays.asList(userNameMap.get(item.getCaseId()).split(","))));
                 item.setCustomFields(collect.get(item.getCaseId()));
                 if (request.isViewStatusFlag()) {
                     List<CaseReviewHistory> histories = caseStatusMap.get(item.getCaseId());

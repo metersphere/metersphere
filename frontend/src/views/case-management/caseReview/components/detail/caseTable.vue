@@ -92,9 +92,33 @@
         </TableFilter>
       </template>
       <template #reviewNames="{ record }">
-        <a-tooltip :content="record.reviewNames.join('、')">
-          <div class="one-line-text">{{ record.reviewNames.join('、') }}</div>
+        <a-tooltip v-if="record.showModuleTree" :content="record.reviewNames.join('、')" position="top">
+          <a-input
+            :default-value="record.reviewNames.join('、')"
+            class="param-input one-line-text"
+            @click.stop="record.showModuleTree = false"
+          >
+            <template #suffix>
+              <icon-down />
+            </template>
+          </a-input>
         </a-tooltip>
+        <MsSelect
+          v-else
+          v-model:model-value="record.reviewers"
+          v-model:loading="dialogLoading"
+          :max-tag-count="1"
+          class="w-full"
+          :options="reviewersOptions"
+          :search-keys="['label']"
+          allow-search
+          size="mini"
+          :multiple="true"
+          :placeholder="t('project.messageManagement.receiverPlaceholder')"
+          @click.stop
+          @change="() => changeReviewer(record)"
+        >
+        </MsSelect>
       </template>
       <template #status="{ record }">
         <div class="flex items-center gap-[4px]">
@@ -281,6 +305,7 @@
 </template>
 
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
 
@@ -395,6 +420,7 @@
       title: 'caseManagement.caseReview.reviewer',
       dataIndex: 'reviewNames',
       slotName: 'reviewNames',
+      showInTable: true,
       width: 150,
     },
     {
@@ -441,6 +467,7 @@
       return {
         ...record,
         caseLevel: getCaseLevels(record.customFields),
+        showModuleTree: true,
       };
     }
   );
@@ -634,6 +661,7 @@
             ...tableParams.value,
           });
           Message.success(t('common.updateSuccess'));
+          dialogLoading.value = false;
           resetSelector();
           loadList();
           emit('refresh', tableParams.value);
@@ -683,7 +711,7 @@
   }
 
   // 批量更换评审人
-  function changeReviewer() {
+  function changeReviewer(record?: any) {
     dialogFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
@@ -691,11 +719,12 @@
           await batchChangeReviewer({
             reviewId: route.query.id as string,
             userId: props.onlyMine ? userStore.id || '' : '',
-            reviewerId: dialogForm.value.reviewer,
+            reviewerId: dialogForm.value.reviewer.length > 0 ? dialogForm.value.reviewer : record.reviewers,
             append: dialogForm.value.isAppend, // 是否追加
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             ...batchParams.value,
             ...tableParams.value,
+            selectIds: batchParams.value.selectIds.length > 0 ? batchParams.value.selectIds : [record.id],
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
@@ -705,6 +734,7 @@
           // eslint-disable-next-line no-console
           console.log(error);
         } finally {
+          record.showModuleTree = true;
           dialogLoading.value = false;
         }
       }
@@ -896,6 +926,23 @@
   }
   :deep(.arco-radio-label) {
     @apply inline-flex;
+  }
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-brand);
+      }
+      .arco-input-suffix {
+        @apply invisible;
+      }
+    }
   }
   .ms-table--special-small();
 </style>
