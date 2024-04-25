@@ -19,7 +19,7 @@
             :collapsed="collapsed"
             :collapsible="true"
             :width="menuWidth"
-            :collapsed-width="collapsedWidth"
+            :collapsed-width="appStore.collapsedWidth"
             :style="{ paddingTop: navbar ? navbarHeight : '' }"
             :hide-trigger="true"
             @collapse="setCollapsed"
@@ -113,9 +113,8 @@
   const renderMenu = computed(() => appStore.menu);
   const hideMenu = computed(() => appStore.hideMenu);
   const footer = computed(() => appStore.footer);
-  const collapsedWidth = 86;
   const menuWidth = computed(() => {
-    return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
+    return appStore.menuCollapse ? appStore.collapsedWidth : appStore.menuWidth;
   });
   const collapsed = computed(() => {
     return appStore.menuCollapse;
@@ -163,11 +162,11 @@
 
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     > :deep(.arco-layout-sider-children) {
-      @apply overflow-y-hidden;
+      @apply overflow-visible; // 防止展开收起按钮显示不全
     }
   }
   .menu-wrapper {
-    @apply h-full overflow-auto overflow-x-hidden;
+    @apply h-full overflow-visible; // 防止展开收起按钮显示不全
     :deep(.arco-menu) {
       ::-webkit-scrollbar {
         width: 12px;
@@ -205,7 +204,8 @@
     background-color: var(--color-bg-3);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
-      padding: 8px 16px 0 0;
+      overflow: hidden;
+      padding: 0 16px 16px 0;
     }
   }
   .arco-layout-sider-light {

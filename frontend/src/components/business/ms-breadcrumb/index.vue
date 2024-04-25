@@ -1,5 +1,5 @@
 <template>
-  <a-breadcrumb v-if="appStore.breadcrumbList.length > 0" class="z-10 mb-[-8px]">
+  <a-breadcrumb v-if="appStore.breadcrumbList.length > 0" class="z-10">
     <a-breadcrumb-item
       v-for="(crumb, index) of appStore.breadcrumbList"
       :key="crumb.name"

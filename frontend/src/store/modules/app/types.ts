@@ -15,6 +15,7 @@ export interface AppState {
   menuCollapse: boolean;
   footer: boolean;
   menuWidth: number;
+  collapsedWidth: number;
   globalSettings: boolean;
   device: string;
   tabBar: boolean;

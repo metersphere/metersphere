@@ -1,6 +1,6 @@
 <template>
   <div class="navbar">
-    <div class="left-side">
+    <div class="flex items-center px-[16px]">
       <a-space>
         <div class="one-line-text flex max-w-[145px] items-center">
           <img :src="props.logo" class="mr-[4px] h-[34px] w-[32px]" />
@@ -14,7 +14,6 @@
     </div>
     <div v-if="!props.isPreview" class="center-side">
       <template v-if="showProjectSelect">
-        <a-divider direction="vertical" class="ml-0" />
         <a-select
           v-model:model-value="appStore.currentProjectId"
           class="w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
@@ -40,7 +39,6 @@
             </a-option>
           </a-tooltip>
         </a-select>
-        <a-divider direction="vertical" class="mr-0" />
       </template>
       <TopMenu />
     </div>
@@ -283,26 +281,19 @@
   .navbar {
     @apply flex h-full justify-between bg-transparent;
   }
-  .left-side {
-    @apply flex items-center;
-
-    padding-left: 24px;
-    width: 185px;
-  }
   .center-side {
     @apply flex flex-1 items-center;
   }
   .right-side {
     @apply flex list-none;
 
-    padding-right: 20px;
+    padding-right: 16px;
+    gap: 8px;
     :deep(.locale-select) {
       border-radius: 20px;
     }
     li {
       @apply flex items-center;
-
-      padding-left: 10px;
       .arco-btn-secondary {
         @apply !bg-transparent;
 
@@ -340,23 +331,6 @@
   .message-popover {
     .arco-popover-content {
       @apply mt-0;
-    }
-  }
-  .arco-menu-horizontal {
-    .arco-menu-inner {
-      .arco-menu-item,
-      .arco-menu-overflow-sub-menu {
-        @apply !bg-transparent;
-      }
-      .arco-menu-selected {
-        @apply !font-normal;
-
-        color: rgb(var(--primary-5)) !important;
-        .arco-menu-selected-label {
-          bottom: -11px;
-          background-color: rgb(var(--primary-5)) !important;
-        }
-      }
     }
   }
   .arco-trigger-menu-vertical {
