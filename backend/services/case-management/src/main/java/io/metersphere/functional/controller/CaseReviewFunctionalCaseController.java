@@ -83,7 +83,7 @@ public class CaseReviewFunctionalCaseController {
     @PostMapping("/module/count")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例统计模块数量")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public Map<String, Long> moduleCount(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
         String userId = StringUtils.EMPTY;
         if (request.isViewFlag()) {
@@ -105,7 +105,7 @@ public class CaseReviewFunctionalCaseController {
     @PostMapping("/edit/pos")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-拖拽排序")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void editPos(@Validated @RequestBody CaseReviewFunctionalCasePosRequest request) {
         caseReviewFunctionalCaseService.editPos(request);
     }
