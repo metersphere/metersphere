@@ -54,6 +54,7 @@ public class UserApiKeysController {
     @Operation(summary = "系统设置-个人中心-我的设置-Api Keys-删除Api Keys")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = UserKeyLogService.class)
     public void delete(@PathVariable String id) {
+        userKeyService.checkUserKeyOwner(id, SessionUtils.getUserId());
         userKeyService.deleteUserKey(id);
     }
 
@@ -62,22 +63,25 @@ public class UserApiKeysController {
     @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserKeyLogService.class)
     public void update(@Validated @RequestBody UserKeyDTO request) {
+        userKeyService.checkUserKeyOwner(request.getId(), SessionUtils.getUserId());
         userKeyService.updateUserKey(request);
     }
 
     @GetMapping("/enable/{id}")
     @Operation(summary = "系统设置-个人中心-我的设置-Api Keys-开启Api Keys")
     @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.enableLog(#id)", msClass = UserKeyLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.enableLog(#id)", msClass = UserKeyLogService.class)
     public void enable(@PathVariable String id) {
+        userKeyService.checkUserKeyOwner(id, SessionUtils.getUserId());
         userKeyService.enableUserKey(id);
     }
 
     @GetMapping("/disable/{id}")
     @Operation(summary = "系统设置-个人中心-我的设置-Api Keys-关闭Api Keys")
     @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.disableLog(#id)", msClass = UserKeyLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.disableLog(#id)", msClass = UserKeyLogService.class)
     public void disabledUserKey(@PathVariable String id) {
+        userKeyService.checkUserKeyOwner(id, SessionUtils.getUserId());
         userKeyService.disableUserKey(id);
     }
 }
