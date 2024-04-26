@@ -1,6 +1,6 @@
 <template>
   <div :class="['p-[8px_16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-between">
+    <div class="mb-[8px] flex items-center justify-between">
       <div class="flex items-center"> </div>
       <div class="items-right flex gap-[8px]">
         <a-input-search
@@ -986,10 +986,6 @@
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
   const tableStore = useTableStore();
-
-  const activeModules = computed(() => {
-    return props.activeModule === 'all' ? [] : [props.activeModule];
-  });
 
   async function loadScenarioList(refreshTreeCount?: boolean) {
     let moduleIds: string[] = [];

@@ -44,7 +44,7 @@
             @select="caseNodeSelect"
           >
             <template #title="nodeData">
-              <div class="inline-flex w-full">
+              <div class="inline-flex w-full gap-[8px]">
                 <div class="one-line-text w-full text-[var(--color-text-1)]" @click="setFocusKey(nodeData)">{{
                   nodeData.name
                 }}</div>
