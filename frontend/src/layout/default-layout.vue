@@ -41,7 +41,7 @@
           </a-drawer>
           <a-layout class="layout-content" :style="paddingStyle">
             <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-              <a-scrollbar class="flex h-[calc(100vh-54px)] flex-col gap-[8px] overflow-auto">
+              <a-scrollbar class="flex h-[calc(100vh-56px)] flex-col gap-[8px] overflow-auto">
                 <MsBreadCrumb />
                 <a-layout-content>
                   <slot name="page">
