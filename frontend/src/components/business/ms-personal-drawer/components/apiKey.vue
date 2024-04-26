@@ -51,7 +51,7 @@
             v-if="item.showDescInput"
             v-model:model-value="item.description"
             :placeholder="t('common.pleaseInput')"
-            :max-length="255"
+            :max-length="1000"
             @blur="handleDescChange(item)"
           ></a-textarea>
           <div v-else class="desc-line api-item-value">
@@ -144,11 +144,11 @@
         />
       </a-form-item>
       <a-form-item field="desc" :label="t('ms.personal.accessKeyDesc')">
-        <a-input
+        <a-textarea
           v-model:model-value="timeForm.desc"
-          :max-length="255"
           :placeholder="t('ms.personal.accessKeyDescPlaceholder')"
-        />
+          :max-length="1000"
+        ></a-textarea>
       </a-form-item>
     </a-form>
   </a-modal>

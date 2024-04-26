@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.CodingUtils;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -28,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -65,6 +69,9 @@ public class UserApiKeysControllerTests extends BaseTest {
 
     @Test
     @Order(1)
+    @Sql(scripts = {"/dml/init_project.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAdd() throws Exception {
         requestGet(ADD);
         UserKeyExample userKeyExample = new UserKeyExample();
@@ -108,6 +115,8 @@ public class UserApiKeysControllerTests extends BaseTest {
         Assertions.assertEquals(4, userKeyMapper.countByExample(userKeyExample));
         //校验日志
         checkLog(list.get(0), OperationLogType.DELETE);
+        //处理不存在的
+        requestGet(String.format(DELETE, UUID.randomUUID().toString()), status().is5xxServerError());
         //校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_DELETE, DELETE);
     }
@@ -128,7 +137,13 @@ public class UserApiKeysControllerTests extends BaseTest {
         this.requestPost(UPDATE, userKeyDTO, status().is5xxServerError());
         userKeyDTO.setExpireTime(System.currentTimeMillis() - 1000000);
         this.requestPost(UPDATE, userKeyDTO);
+        //描述为空
+        userKeyDTO.setDescription(null);
+        this.requestPost(UPDATE, userKeyDTO);
 
+        //校验不存在的
+        userKeyDTO.setId(UUID.randomUUID().toString());
+        this.requestPost(UPDATE, userKeyDTO, status().is5xxServerError());
         //校验日志
         checkLog(userKeyId, OperationLogType.UPDATE);
     }
@@ -151,6 +166,24 @@ public class UserApiKeysControllerTests extends BaseTest {
         Assertions.assertEquals(false, userKey.getEnable());
         //校验日志
         checkLog(userKeyId, OperationLogType.UPDATE);
+        //校验不存在的
+        requestGet(String.format(DISABLE, UUID.randomUUID().toString()), status().is5xxServerError());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", "test-user-key", "test-user-key@metersphere.io"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format(DISABLE, userKeyId))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, DISABLE);
     }
 
@@ -162,6 +195,8 @@ public class UserApiKeysControllerTests extends BaseTest {
         Assertions.assertEquals(true, userKey.getEnable());
         //校验日志
         checkLog(userKeyId, OperationLogType.UPDATE);
+        //校验不存在的
+        requestGet(String.format(ENABLE, UUID.randomUUID().toString()), status().is5xxServerError());
         requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, ENABLE);
     }
 

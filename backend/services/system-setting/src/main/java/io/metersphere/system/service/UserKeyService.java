@@ -19,6 +19,7 @@ import io.metersphere.system.mapper.UserKeyMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -81,10 +82,12 @@ public class UserKeyService {
     }
 
     public void deleteUserKey(String id) {
+        checkUserKey(id);
         userKeyMapper.deleteByPrimaryKey(id);
     }
 
     public void enableUserKey(String id) {
+        checkUserKey(id);
         UserKey userKeys = new UserKey();
         userKeys.setId(id);
         userKeys.setEnable(true);
@@ -92,6 +95,7 @@ public class UserKeyService {
     }
 
     public void disableUserKey(String id) {
+        checkUserKey(id);
         UserKey userKeys = new UserKey();
         userKeys.setId(id);
         userKeys.setEnable(false);
@@ -109,18 +113,33 @@ public class UserKeyService {
     }
 
     public void updateUserKey(UserKeyDTO userKeyDTO) {
-        UserKey userKeys = new UserKey();
-        userKeys.setId(userKeyDTO.getId());
-        userKeys.setForever(userKeyDTO.getForever());
+        UserKey userKey = checkUserKey(userKeyDTO.getId());
+        userKey.setId(userKeyDTO.getId());
+        userKey.setForever(userKeyDTO.getForever());
         if (BooleanUtils.isFalse(userKeyDTO.getForever())) {
             if (userKeyDTO.getExpireTime() == null) {
                 throw new MSException(Translator.get("expire_time_not_null"));
             }
-            userKeys.setExpireTime(userKeyDTO.getExpireTime());
+            userKey.setExpireTime(userKeyDTO.getExpireTime());
         } else {
-            userKeys.setExpireTime(null);
+            userKey.setExpireTime(null);
         }
-        userKeys.setDescription(userKeyDTO.getDescription());
-        userKeyMapper.updateByPrimaryKeySelective(userKeys);
+        userKey.setDescription(userKeyDTO.getDescription());
+        userKeyMapper.updateByPrimaryKeySelective(userKey);
+    }
+
+    public UserKey checkUserKey(String id) {
+        UserKey userKey = userKeyMapper.selectByPrimaryKey(id);
+        if (userKey == null) {
+            throw new MSException(Translator.get("api_key_not_exist"));
+        }
+        return userKey;
+    }
+
+    public void checkUserKeyOwner(String id, String userId) {
+        UserKey userKey = checkUserKey(id);
+        if (!StringUtils.equals(userKey.getCreateUser(), userId)) {
+            throw new MSException(Translator.get("current_user_can_not_operation_api_key"));
+        }
     }
 }

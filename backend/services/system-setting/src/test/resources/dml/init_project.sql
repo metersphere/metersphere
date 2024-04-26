@@ -43,3 +43,13 @@ values ('resourcePoolId1', 'resourcePoolName1', 'node', 'resourcePoolDescription
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId');
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId1');
 replace into test_resource_pool_organization(id , test_resource_pool_id, org_id) value (UUID_SHORT(),'resourcePoolId', '100001');
+
+
+replace into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                  last_project_id, create_user, update_user)
+VALUES ('test-user-key', 'test-user-key', 'test-user-key@metersphere.io', MD5('test-user-key@metersphere.io'),
+        UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, '100001', '', 'LOCAL', '100001100001', 'admin', 'admin');
+
+replace INTO user_role_relation(id, user_id, role_id, source_id, organization_id, create_time, create_user)
+VALUES ('test-user-key', 'test-user-key', 'admin', 'system',
+       'system', '1684747668375', 'admin');
