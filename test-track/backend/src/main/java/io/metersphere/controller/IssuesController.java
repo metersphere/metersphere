@@ -26,6 +26,7 @@ import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.IssuesSyncService;
@@ -96,6 +97,7 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "issues")
     public IssuesWithBLOBs updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
         return issuesService.updateIssues(issuesRequest);
     }
@@ -108,6 +110,7 @@ public class IssuesController {
 
     @GetMapping("/get/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "issues")
     public IssuesWithBLOBs getIssue(@PathVariable String id) {
         return issuesService.getIssue(id);
     }
@@ -132,6 +135,7 @@ public class IssuesController {
 
     @GetMapping("/close/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
+    @CheckOwner(resourceId = "#id", resourceType = "issues")
     public void closeLocalIssue(@PathVariable String id) {
         issuesService.closeLocalIssue(id);
     }
@@ -139,6 +143,7 @@ public class IssuesController {
     @PostMapping("/delete/relate")
     @MsRequestLog(module = OperLogModule.TRACK_BUG)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "issues")
     public void deleteRelate(@RequestBody IssuesRequest request) {
         issuesService.deleteIssueRelate(request);
     }
@@ -147,6 +152,7 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.getIssue(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, subject = "缺陷通知")
+    @CheckOwner(resourceId = "#id", resourceType = "issues")
     public void delete(@PathVariable String id) {
         issuesService.delete(id);
     }
@@ -166,6 +172,7 @@ public class IssuesController {
 
     @GetMapping("/tapd/current_owner/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "issues")
     public List<String> getTapdIssueCurrentOwner(@PathVariable String id) {
         return issuesService.getTapdIssueCurrentOwner(id);
     }
@@ -202,6 +209,7 @@ public class IssuesController {
 
     @GetMapping("/follow/{issueId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @CheckOwner(resourceId = "#issueId", resourceType = "issues")
     public List<String> getFollows(@PathVariable String issueId) {
         return issuesService.getFollows(issueId);
     }
@@ -209,6 +217,7 @@ public class IssuesController {
     @PostMapping("/up/follows/{issueId}")
     @MsRequestLog(module = OperLogModule.TRACK_BUG)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
+    @CheckOwner(resourceId = "#issueId", resourceType = "issues")
     public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
         issuesService.saveFollows(issueId,follows);
     }

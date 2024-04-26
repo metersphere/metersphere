@@ -25,6 +25,7 @@ import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.TestPlanRerunService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.ScheduleRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.BaseScheduleService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.wapper.CheckPermissionService;
@@ -58,6 +59,7 @@ public class TestPlanController {
 
     @GetMapping("/auto-check/{testPlanId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public void autoCheck(@PathVariable String testPlanId) {
         testPlanService.checkTestPlanStatus(testPlanId);
     }
@@ -120,6 +122,7 @@ public class TestPlanController {
 
     @GetMapping("/get/{testPlanId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public TestPlan getTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
         return testPlanService.getTestPlan(testPlanId);
@@ -141,6 +144,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.UPDATE, subject = "测试计划通知")
+    @CheckOwner(resourceId = "#testPlanDTO.getId()", resourceType = "test_plan")
     public TestPlan editTestPlan(@RequestBody AddTestPlanRequest testPlanDTO) {
         TestPlan testPlan = testPlanService.editTestPlanWithRequest(testPlanDTO);
         testPlan.setStage(StatusReference.statusMap.containsKey(testPlan.getStage()) ? StatusReference.statusMap.get(testPlan.getStage()) : testPlan.getStage());
@@ -151,6 +155,7 @@ public class TestPlanController {
     @PostMapping("/fresh/{planId}")
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public TestPlan freshRecentPlan(@PathVariable String planId) {
         AddTestPlanRequest request = new AddTestPlanRequest();
         request.setId(planId);
@@ -161,6 +166,7 @@ public class TestPlanController {
     @PostMapping("/edit/status/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
         testPlanService.checkTestPlanStatus(planId);
@@ -176,6 +182,7 @@ public class TestPlanController {
     @PostMapping("/edit/follows/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public void editTestFollows(@PathVariable String planId, @RequestBody List<String> follows) {
         testPlanService.editTestFollows(planId, follows);
     }
@@ -185,6 +192,7 @@ public class TestPlanController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, target = "#targetClass.getTransferPlan(#testPlanId)", targetClass = TestPlanService.class,
             event = NoticeConstants.Event.DELETE, subject = "测试计划通知")
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public int deleteTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
         return testPlanService.deleteTestPlan(testPlanId);
@@ -200,12 +208,14 @@ public class TestPlanController {
     @PostMapping("/relevance")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = TestPlanService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public void testPlanRelevance(@RequestBody PlanCaseRelevanceRequest request) {
         testPlanService.testPlanRelevance(request);
     }
 
     @GetMapping("/project/name/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public String getProjectNameByPlanId(@PathVariable String planId) {
         return testPlanService.getProjectNameByPlanId(planId);
     }
@@ -231,6 +241,7 @@ public class TestPlanController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_CREATE, PermissionConstants.PROJECT_TRACK_PLAN_READ_COPY}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, subject = "测试计划通知")
+    @CheckOwner(resourceId = "#id", resourceType = "test_plan")
     public TestPlan copy(@PathVariable String id) {
         TestPlan result = testPlanService.copy(id);
         result.setStage(StatusReference.statusMap.containsKey(result.getStage()) ? StatusReference.statusMap.get(result.getStage()) : result.getStage());
@@ -264,6 +275,7 @@ public class TestPlanController {
 
     @GetMapping("/case/relevance/project/id/{testPlanId}/{caseType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public List<String> getRelevanceProjectIds(@PathVariable String testPlanId, @PathVariable String caseType) {
         return testPlanService.getRelevanceProjectIdsByCaseType(testPlanId, caseType);
     }
@@ -306,12 +318,14 @@ public class TestPlanController {
 
     @GetMapping("/report/export/{planId}/{lang}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ_EXPORT)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public void exportHtmlReport(@PathVariable String planId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         testPlanService.exportPlanReport(planId, lang, response);
     }
 
     @GetMapping("/get/report/export/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ_EXPORT)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public TestPlanReportDataStruct getExportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
         return testPlanService.buildPlanReport(planId, true);
     }
@@ -379,12 +393,14 @@ public class TestPlanController {
 
     @GetMapping("/principal/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<User> getPlanPrincipal(@PathVariable String planId) {
         return testPlanService.getPlanPrincipal(planId);
     }
 
     @GetMapping("/follow/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<User> getPlanFollow(@PathVariable String planId) {
         return testPlanService.getPlanFollow(planId);
     }
@@ -443,6 +459,7 @@ public class TestPlanController {
     @GetMapping(value = "/status/reset/{planId}")
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public void resetStatus(@PathVariable String planId) {
         testPlanService.resetStatus(planId);
     }

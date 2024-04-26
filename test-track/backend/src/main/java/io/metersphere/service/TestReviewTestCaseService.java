@@ -455,8 +455,8 @@ public class TestReviewTestCaseService {
         return comments;
     }
 
-    public TestReviewCaseDTO get(String reviewId) {
-        TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(reviewId);
+    public TestReviewCaseDTO get(String testReviewTestCaseId) {
+        TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(testReviewTestCaseId);
         testReviewCaseDTO.setFields(testCaseService.getCustomFieldByCaseId(testReviewCaseDTO.getCaseId()));
         return testReviewCaseDTO;
     }

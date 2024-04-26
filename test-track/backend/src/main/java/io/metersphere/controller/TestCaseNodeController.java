@@ -12,6 +12,7 @@ import io.metersphere.request.testcase.DragNodeRequest;
 import io.metersphere.request.testcase.QueryNodeRequest;
 import io.metersphere.request.testcase.QueryTestCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.TestCaseNodeService;
 import io.metersphere.service.wapper.CheckPermissionService;
@@ -101,6 +102,7 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/plan/{planId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ})
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
         trackCheckPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId);
@@ -108,6 +110,7 @@ public class TestCaseNodeController {
 
     @PostMapping("/list/plan/{planId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ})
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId, @RequestBody(required = false) QueryTestPlanCaseRequest request) {
         trackCheckPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId, Optional.ofNullable(request).orElse(new QueryTestPlanCaseRequest()));
@@ -141,6 +144,7 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/plan/{planId}/{runResult}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ})
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestCaseNodeDTO> getNodeByPlanIdAndRunResult(@PathVariable String planId, @PathVariable String runResult) {
         trackCheckPermissionService.checkTestPlanOwner(planId);
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
@@ -151,6 +155,7 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/review/{reviewId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_REVIEW_READ})
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public List<TestCaseNodeDTO> getNodeByReviewId(@PathVariable String reviewId) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         return testCaseNodeService.getNodeByReviewId(reviewId);
@@ -158,6 +163,7 @@ public class TestCaseNodeController {
 
     @PostMapping("/list/review/{reviewId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_REVIEW_READ})
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public List<TestCaseNodeDTO> getNodeByReviewId(@PathVariable String reviewId, @RequestBody(required = false) QueryCaseReviewRequest request) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         return testCaseNodeService.getNodeByReviewId(reviewId, Optional.ofNullable(request).orElse(new QueryCaseReviewRequest()));

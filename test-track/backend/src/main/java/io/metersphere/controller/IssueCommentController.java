@@ -11,6 +11,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.dto.IssueCommentDTO;
 import io.metersphere.request.issues.IssuesRelevanceRequest;
 import io.metersphere.request.issues.SaveIssueCommentRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.IssueCommentService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.TestCaseCommentService;
@@ -40,6 +41,7 @@ public class IssueCommentController {
 
     @GetMapping("/list/{issueId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @CheckOwner(resourceId = "#issueId", resourceType = "issues")
     public List<IssueCommentDTO> getComments(@PathVariable String issueId) {
         return issueCommentService.getComments(issueId);
     }
@@ -54,6 +56,7 @@ public class IssueCommentController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
+    @CheckOwner(resourceId = "#request.getIssueId()", resourceType = "issues")
     public IssueComment editComment(@RequestBody SaveIssueCommentRequest request) {
        return issueCommentService.edit(request);
     }

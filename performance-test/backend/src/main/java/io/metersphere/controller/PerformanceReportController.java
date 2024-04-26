@@ -61,83 +61,99 @@ public class PerformanceReportController {
 
     @GetMapping("/test/pro/info/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public ReportDTO getReportTestAndProInfo(@PathVariable String reportId) {
         return performanceReportService.getReportTestAndProInfo(reportId);
     }
 
     @GetMapping("/content/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<Statistics> getReportContent(@PathVariable String reportId) {
         return performanceReportService.getReportStatistics(reportId);
     }
 
     @GetMapping("/content/errors/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<Errors> getReportErrors(@PathVariable String reportId) {
         return performanceReportService.getReportErrors(reportId);
     }
 
     @GetMapping("/content/{reportKey}/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ChartsData> getReportChart(@PathVariable String reportKey, @PathVariable String reportId) {
         return performanceReportService.getReportChart(reportKey, reportId);
     }
 
     @GetMapping("/content/errors_top5/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ErrorsTop5> getReportErrorsTop5(@PathVariable String reportId) {
         return performanceReportService.getReportErrorsTOP5(reportId);
     }
 
     @GetMapping("/content/errors_samples/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public SamplesRecord getErrorSamples(@PathVariable String reportId) {
         return performanceReportService.getErrorSamples(reportId);
     }
 
     @GetMapping("/content/testoverview/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public TestOverview getTestOverview(@PathVariable String reportId) {
         return performanceReportService.getTestOverview(reportId);
     }
 
     @GetMapping("/content/report_time/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public ReportTimeInfo getReportTimeInfo(@PathVariable String reportId) {
         return performanceReportService.getReportTimeInfo(reportId);
     }
 
     @GetMapping("/content/load_chart/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ChartsData> getLoadChartData(@PathVariable String reportId) {
         return performanceReportService.getLoadChartData(reportId);
     }
 
     @GetMapping("/content/res_chart/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ChartsData> getResponseTimeChartData(@PathVariable String reportId) {
         return performanceReportService.getResponseTimeChartData(reportId);
     }
 
     @GetMapping("/content/error_chart/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ChartsData> getErrorChartData(@PathVariable String reportId) {
         return performanceReportService.getErrorChartData(reportId);
     }
 
     @GetMapping("/content/response_code_chart/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<ChartsData> getResponseCodeChartData(@PathVariable String reportId) {
         return performanceReportService.getResponseCodeChartData(reportId);
     }
 
     @GetMapping("/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String reportId) {
         return performanceReportService.getLoadTestReport(reportId);
     }
 
     @GetMapping("log/resource/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<LogDetailDTO> getResourceIds(@PathVariable String reportId) {
         return performanceReportService.getReportLogResource(reportId);
     }
 
     @GetMapping("log/{reportId}/{resourceId}/{goPage}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public Pager<List<LoadTestReportLog>> logs(@PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
         Page<Object> page = PageHelper.startPage(goPage, 5, true);
         return PageUtils.setPageInfo(page, performanceReportService.getReportLogs(reportId, resourceId));
     }
 
     @GetMapping("log/download/{reportId}/{resourceId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
         performanceReportService.downloadLog(response, reportId, resourceId);
     }
@@ -153,18 +169,21 @@ public class PerformanceReportController {
 
     @GetMapping("get-jmx-content/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String reportId) {
         return performanceReportService.getJmxContent(reportId);
     }
 
     @GetMapping("/get-load-config/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public String getLoadConfiguration(@PathVariable String reportId) {
         return performanceReportService.getLoadConfiguration(reportId);
     }
 
     @GetMapping("/get-advanced-config/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public String getAdvancedConfiguration(@PathVariable String reportId) {
         return performanceReportService.getAdvancedConfiguration(reportId);
     }

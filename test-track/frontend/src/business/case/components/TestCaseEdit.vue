@@ -818,15 +818,17 @@ export default {
         });
       }
 
-      getTestCaseFollow(this.caseId).then((response) => {
-        this.form.follows = response.data;
-        for (let i = 0; i < response.data.length; i++) {
-          if (response.data[i] === this.currentUser().id) {
-            this.showFollow = true;
-            break;
+      if (this.caseId) {
+        getTestCaseFollow(this.caseId).then((response) => {
+          this.form.follows = response.data;
+          for (let i = 0; i < response.data.length; i++) {
+            if (response.data[i] === this.currentUser().id) {
+              this.showFollow = true;
+              break;
+            }
           }
-        }
-      });
+        });
+      }
 
       getProjectApplicationConfig("CASE_PUBLIC", this.projectId).then((res) => {
         let data = res.data;

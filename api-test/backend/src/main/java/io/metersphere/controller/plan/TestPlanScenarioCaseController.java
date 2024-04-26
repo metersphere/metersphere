@@ -19,6 +19,7 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import jakarta.annotation.Resource;
@@ -43,26 +44,31 @@ public class TestPlanScenarioCaseController {
     }
 
     @GetMapping("/list/failure/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanScenarioDTO> getFailureList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/error-report/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanScenarioDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/pending/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
         return testPlanScenarioCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanScenarioDTO> getAllList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getAllCases(planId);
     }
 
     @GetMapping("/list/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<ApiScenarioDTO> getByPlanId(@PathVariable String planId) {
         TestPlanScenarioRequest request = new TestPlanScenarioRequest();
         request.setPlanId(planId);
@@ -227,6 +233,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/list/module/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<ApiScenarioModuleDTO> getNodeByPlanId(@PathVariable String planId, @RequestBody List<String> projectIds) {
         return testPlanScenarioCaseService.getNodeByPlanId(projectIds, planId);
     }

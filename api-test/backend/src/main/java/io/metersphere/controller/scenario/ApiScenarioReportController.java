@@ -18,6 +18,7 @@ import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.ApiCheckPermissionService;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
@@ -40,6 +41,7 @@ public class ApiScenarioReportController {
     private ApiCheckPermissionService apiCheckPermissionService;
 
     @GetMapping("/get/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
     public ApiScenarioReportResult get(@PathVariable String reportId) {
         return apiReportService.get(reportId, false);
     }
@@ -51,6 +53,7 @@ public class ApiScenarioReportController {
     }
 
     @GetMapping("/get/detail/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
     public ApiScenarioReportResult getAll(@PathVariable String reportId) {
         return apiReportService.get(reportId, true);
     }
