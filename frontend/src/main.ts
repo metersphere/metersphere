@@ -1,7 +1,7 @@
 /* eslint-disable simple-import-sort/imports */
 import { createApp } from 'vue';
 import ArcoVue from '@arco-design/web-vue';
-import '@arco-themes/vue-ms-theme-default/index.less';
+import '@arco-themes/vue-metersphere-v3/index.less';
 
 import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 import SvgIcon from '@/components/pure/svg-icon/index.vue';

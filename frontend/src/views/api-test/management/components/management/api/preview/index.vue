@@ -68,17 +68,14 @@
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { toggleFollowDefinition } from '@/api/modules/api-test/management';
-  import { findNodeByKey } from '@/utils';
 
   import { ProtocolItem } from '@/models/apiTest/common';
-  import { ModuleTreeNode } from '@/models/common';
   import { RequestMethods } from '@/enums/apiEnum';
 
   import { getValidRequestTableParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     detail: RequestParam;
-    moduleTree: ModuleTreeNode[];
     protocols: ProtocolItem[];
   }>();
   const emit = defineEmits(['updateFollow']);
@@ -140,7 +137,7 @@
     {
       key: 'belongModule',
       locale: 'apiTestManagement.belongModule',
-      value: findNodeByKey<ModuleTreeNode>(props.moduleTree, previewDetail.value.moduleId, 'id')?.path,
+      value: previewDetail.value.path,
     },
     {
       key: 'creator',

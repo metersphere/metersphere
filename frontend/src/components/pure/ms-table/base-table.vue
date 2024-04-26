@@ -224,7 +224,7 @@
           {{ t('msTable.batch.clear') }}
         </a-button>
       </span>
-      <div class="flex flex-grow">
+      <div class="flex flex-grow items-center">
         <batch-action
           v-if="showBatchAction"
           class="flex-1"

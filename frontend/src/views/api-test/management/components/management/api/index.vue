@@ -57,7 +57,6 @@
           <preview
             v-if="activeApiTab.definitionActiveKey === 'preview'"
             :detail="activeApiTab"
-            :module-tree="props.moduleTree"
             :protocols="protocols"
             @update-follow="activeApiTab.follow = !activeApiTab.follow"
           />
