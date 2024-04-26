@@ -147,7 +147,7 @@
             <if test="request.keyword != null">
                 and (
                 o.name like concat('%', #{request.keyword},'%')
-                or o.id like concat('%', #{request.keyword},'%')
+                or o.num like concat('%', #{request.keyword},'%')
                 )
             </if>
             <include refid="filter"/>

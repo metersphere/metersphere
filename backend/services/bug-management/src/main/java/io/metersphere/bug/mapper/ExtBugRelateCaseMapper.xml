@@ -3,34 +3,55 @@
 <mapper namespace="io.metersphere.bug.mapper.ExtBugRelateCaseMapper">
     <select id="getRelateCaseModule" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         select
-        distinct fcm.id,
-        fcm.parent_id as parentId,
-        fcm.name,
-        fcm.pos,
-        fcm.project_id
-        from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
-        where fcm.project_id = #{request.projectId}
-            and fc.id not in
+        distinct mt.id,
+        mt.parent_id as parentId,
+        mt.name,
+        mt.pos,
+        mt.project_id
+        from ${moduleTable} mt
+        <if test="caseTable != null and caseTable != '' and caseTable != 'api_test_case'">
+            left join ${caseTable} ct on ct.module_id = mt.id
+        </if>
+        <if test="caseTable != null and caseTable != '' and caseTable == 'api_test_case'">
+            left join api_definition ad on ad.module_id = mt.id
+            left join api_test_case ct on ct.api_definition_id = ad.id
+        </if>
+        where mt.project_id = #{request.projectId}
+            and ct.id not in
             (
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
             )
         <include refid="queryModuleWhereCondition"/>
-        order by pos
+        order by mt.pos
     </select>
 
     <select id="countRelateCaseModuleTree" resultType="io.metersphere.project.dto.ModuleCountDTO">
         select
-        fc.module_id AS moduleId,
-        count(fc.id) as dataCount
-        from functional_case fc
-            where fc.deleted = #{deleted}
-            and fc.project_id = #{request.projectId}
-            and fc.id not in
-            (
-                select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
-            )
-            <include refid="queryModuleWhereCondition"/>
-        group by fc.module_id
+        <if test="caseTable != null and caseTable != '' and caseTable == 'api_test_case'">
+            ad.module_id as moduleId,
+            count(ad.id) as dataCount
+        </if>
+        <if test="caseTable != null and caseTable != '' and caseTable != 'api_test_case'">
+            ct.module_id as moduleId,
+            count(ct.id) as dataCount
+        </if>
+        from ${caseTable} ct
+        <if test="caseTable != null and caseTable != '' and caseTable == 'api_test_case'">
+            join api_definition ad on ct.api_definition_id = ad.id
+        </if>
+        where ct.deleted = #{deleted}
+        and ct.project_id = #{request.projectId}
+        and ct.id not in
+        (
+            select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+        )
+        <include refid="queryModuleWhereCondition"/>
+        <if test="caseTable != null and caseTable != '' and caseTable == 'api_test_case'">
+            group by ad.module_id
+        </if>
+        <if test="caseTable != null and caseTable != '' and caseTable != 'api_test_case'">
+            group by ct.module_id
+        </if>
     </select>
 
     <select id="countRelationCases" resultType="io.metersphere.bug.dto.response.BugRelateCaseCountDTO">
@@ -45,15 +66,22 @@
     <select id="list" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
         select brc.id relateId, fc.id relateCaseId, fc.num relateCaseNum, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
                brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
-        from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
-        where brc.bug_id = #{request.bugId} and fc.deleted = false
+        from bug_relation_case brc
+        left join functional_case fc on ((brc.case_id = fc.id or brc.test_plan_case_id = fc.id) and fc.deleted = false)
+        left join api_test_case atc on ((brc.case_id = atc.id or brc.test_plan_case_id = atc.id) and atc.deleted = false)
+        left join api_scenario ao on ((brc.case_id = ao.id or brc.test_plan_case_id = ao.id) and ao.deleted = false)
+        where brc.bug_id = #{request.bugId}
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            fc.name like concat('%', #{request.keyword}, '%')
-            or fc.num like concat('%', #{request.keyword}, '%')
+                fc.name like concat('%', #{request.keyword}, '%')
+                or fc.num like concat('%', #{request.keyword}, '%')
+                or atc.name like concat('%', #{request.keyword}, '%')
+                or atc.num like concat('%', #{request.keyword}, '%')
+                or ao.name like concat('%', #{request.keyword}, '%')
+                or ao.num like concat('%', #{request.keyword}, '%')
             )
         </if>
-        order by brc.id desc
+        order by brc.create_time desc
     </select>
 
     <select id="getRelateCase" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
@@ -171,17 +199,27 @@
     </sql>
 
     <sql id="queryModuleWhereCondition">
-        <!-- 待补充关联Case弹窗中的高级搜索条件 -->
+        <!-- 待补充关联Case弹窗中的高级搜索条件filter, combine -->
         <if test="request.keyword != null and request.keyword != ''">
             and (
-                fc.num like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+                ct.num like concat('%', #{request.keyword}, '%')
+                or ct.name like concat('%', #{request.keyword}, '%')
+                or ct.tags like concat('%', #{request.keyword}, '%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and fc.module_id in
-            <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
-                #{moduleId}
-            </foreach>
+            <if test="caseTable != null and caseTable != '' and caseTable == 'api_test_case'">
+                and ad.module_id in
+                <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
+                    #{moduleId}
+                </foreach>
+            </if>
+            <if test="caseTable != null and caseTable != '' and caseTable != 'api_test_case'">
+                and ct.module_id in
+                <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
+                    #{moduleId}
+                </foreach>
+            </if>
         </if>
     </sql>
 </mapper>

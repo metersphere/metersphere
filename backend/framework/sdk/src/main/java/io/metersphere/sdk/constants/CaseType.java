@@ -1,6 +1,5 @@
 package io.metersphere.sdk.constants;
 
-import io.metersphere.sdk.util.Translator;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,41 +9,41 @@ public enum CaseType {
     /**
      * 功能用例
      */
-    FUNCTIONAL_CASE("FUNCTIONAL", "test_case"),
+    FUNCTIONAL_CASE("FUNCTIONAL", "test_case", PermissionConstants.FUNCTIONAL_CASE_READ, "functional_case", "functional_case_module", "functional_case.module.default.name"),
     /**
      * 接口用例
      */
-    API_CASE("API", "api_case"),
+    API_CASE("API", "api_case", PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, "api_test_case", "api_definition_module", "api_unplanned_request"),
     /**
-     * 性能用例
+     * 场景用例
      */
-    SCENARIO_CASE("SCENARIO", "scenario_case"),
-    /**
-     * UI用例
-     */
-    UI_CASE("UI", "ui_case"),
-    /**
-     * 性能用例
-     */
-    PERFORMANCE_CASE("PERFORMANCE", "performance_case");
+    SCENARIO_CASE("SCENARIO", "scenario_case", PermissionConstants.PROJECT_API_SCENARIO_READ, "api_scenario", "api_scenario_module", "api_unplanned_scenario");
 
     private final String key;
 
-    private final String value;
+    private final String type;
 
-    CaseType(String key, String value) {
+    private final String usePermission;
+
+    private final String caseTable;
+
+    private final String moduleTable;
+
+    private final String unPlanName;
+
+    CaseType(String key, String type, String usePermission, String caseTable, String moduleTable, String unPlanName) {
         this.key = key;
-        this.value = value;
+        this.type = type;
+        this.usePermission = usePermission;
+        this.caseTable = caseTable;
+        this.moduleTable = moduleTable;
+        this.unPlanName = unPlanName;
     }
 
-    public String getValue() {
-        return Translator.get(value);
-    }
-
-    public static String getValue(String key) {
+    public static CaseType getType(String key) {
         for (CaseType caseType : CaseType.values()) {
             if (StringUtils.equals(caseType.getKey(), key)) {
-                return caseType.getValue();
+                return caseType;
             }
         }
         return null;

@@ -555,6 +555,49 @@
         GROUP BY api_scenario.module_id
     </select>
 
+    <select id="listUnRelatedCaseWithBug" resultMap="TestCaseProviderDTO">
+        select
+        ao.id,
+        ao.num,
+        ao.name,
+        ao.priority,
+        ao.project_id,
+        ao.tags,
+        pv.name as versionName,
+        ao.create_user,
+        u.name as createUserName,
+        ao.create_time
+        from api_scenario ao
+        left join project_version pv ON ao.version_id = pv.id
+        left join user u ON ao.create_user = u.id
+        where ao.deleted = #{deleted}
+        and ao.project_id = #{request.projectId}
+        and ao.id not in
+        (
+            select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+        )
+        <include refid="queryByTestCaseProviderParam"/>
+        order by
+        <if test="sort != null and sort != ''">
+            ao.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            ao.create_time desc
+        </if>
+    </select>
+
+    <select id="getSelectIdsByAssociateParam" resultType="java.lang.String">
+        select ac.id
+        from api_test_case ac
+        where ac.deleted = #{deleted}
+        and ac.project_id = #{request.projectId}
+        and ac.id not in
+        (
+        select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+        )
+        <include refid="queryByAssociateParam"/>
+    </select>
+
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">
@@ -574,6 +617,40 @@
                         </when>
                     </choose>
                 </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryByTestCaseProviderParam">
+        <!-- 待补充关联Case弹窗中的高级搜索条件filter, combine -->
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            ao.num like concat('%', #{request.keyword}, '%')
+            or ao.name like concat('%', #{request.keyword}, '%')
+            or ao.tags like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and ao.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryByAssociateParam">
+        <!-- 待补充关联Case弹窗中的高级搜索条件filter, combine -->
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            ao.num like concat('%', #{request.keyword}, '%')
+            or ao.name like concat('%', #{request.keyword}, '%')
+            or ao.tags like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and ao.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
             </foreach>
         </if>
     </sql>

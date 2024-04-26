@@ -7,7 +7,6 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateCaseModuleRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,17 +20,20 @@ public interface ExtBugRelateCaseMapper {
     /**
      * 获取缺陷关联的用例模块树
      * @param request 请求参数
+     * @param caseTable 关联用例表
+     * @param moduleTable 关联用例模块表
      * @return 模块树集合
      */
-    List<BaseTreeNode> getRelateCaseModule(@Param("request") AssociateCaseModuleRequest request);
+    List<BaseTreeNode> getRelateCaseModule(@Param("request") AssociateCaseModuleRequest request, @Param("caseTable") String caseTable, @Param("moduleTable") String moduleTable);
 
     /**
      * 获取缺陷关联的用例模块树数量
      * @param request 请求参数
      * @param deleted 是否删除状态
+     * @param caseTable 关联用例表
      * @return 模块树数量
      */
-    List<ModuleCountDTO> countRelateCaseModuleTree(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+    List<ModuleCountDTO> countRelateCaseModuleTree(@Param("request") AssociateCaseModuleRequest request, @Param("deleted") boolean deleted, @Param("caseTable") String caseTable);
 
     /**
      * 统计缺陷关联的用例数量

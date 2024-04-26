@@ -8,6 +8,7 @@ import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.provider.BaseAssociateApiProvider;
+import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.Translator;
@@ -16,12 +17,13 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-@Service
-public class AssociateApiProvider implements BaseAssociateApiProvider {
+@Service("API")
+public class AssociateApiProvider implements BaseAssociateApiProvider, BaseAssociateCaseProvider {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
@@ -88,4 +90,26 @@ public class AssociateApiProvider implements BaseAssociateApiProvider {
         return moduleTreeService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED_API));
     }
 
+
+    @Override
+    public List<TestCaseProviderDTO> listUnRelatedTestCaseList(TestCasePageProviderRequest request) {
+        List<TestCaseProviderDTO> apiCases = extApiTestCaseMapper.listUnRelatedCaseWithBug(request, false, request.getSortString());
+        if (CollectionUtils.isEmpty(apiCases)) {
+            return new ArrayList<>();
+        }
+        return apiCases;
+    }
+
+    @Override
+    public List<String> getRelatedIdsByParam(AssociateOtherCaseRequest request, boolean deleted) {
+        if (request.isSelectAll()) {
+            List<String> relatedIds = extApiTestCaseMapper.getSelectIdsByAssociateParam(request, deleted);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                relatedIds = relatedIds.stream().filter(id -> !request.getExcludeIds().contains(id)).toList();
+            }
+            return relatedIds;
+        } else {
+            return request.getSelectIds();
+        }
+    }
 }
