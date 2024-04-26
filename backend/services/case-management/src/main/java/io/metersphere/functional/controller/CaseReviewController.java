@@ -84,7 +84,7 @@ public class CaseReviewController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "case_review")
     public void editCaseReview(@Validated({Updated.class}) @RequestBody CaseReviewRequest request) {
         caseReviewService.editCaseReview(request, SessionUtils.getUserId());
     }
@@ -110,7 +110,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-关联用例")
     @Log(type = OperationLogType.ASSOCIATE, expression = "#msClass.associateCaseLog(#request)", msClass = CaseReviewLogService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
         caseReviewService.associateCase(request, SessionUtils.getUserId());
     }
@@ -135,7 +135,7 @@ public class CaseReviewController {
     @GetMapping("/detail/{id}")
     @Operation(summary = "用例管理-用例评审-查看评审详情")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
-    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    @CheckOwner(resourceId = "#id", resourceType = "case_review")
     public CaseReviewDTO getCaseReviewDetail(@PathVariable String id) {
         return caseReviewService.getCaseReviewDetail(id, SessionUtils.getUserId());
     }
@@ -143,7 +143,7 @@ public class CaseReviewController {
     @PostMapping("/batch/move")
     @Operation(summary = "用例管理-用例评审-批量移动用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "case_review")
     public void batchMoveCaseReview(@Validated @RequestBody CaseReviewBatchRequest request) {
         caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
     }
@@ -153,7 +153,7 @@ public class CaseReviewController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_DELETE)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getMainCaseReview(#reviewId)", targetClass = CaseReviewNoticeService.class)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#reviewId)", msClass = CaseReviewLogService.class)
-    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public void deleteCaseReview(@PathVariable String reviewId, @PathVariable String projectId) {
         caseReviewService.deleteCaseReview(reviewId, projectId);
     }

@@ -37,7 +37,7 @@ public class FunctionalCaseCommentController {
     @PostMapping("/update")
     @Operation(summary = "用例管理-功能用例-用例评论-修改评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
-    @CheckOwner(resourceId = "#functionalCaseCommentRequest.getCaseId()", resourceType = "functional_case")
+    @CheckOwner(resourceId = "#functionalCaseCommentRequest.getId()", resourceType = "functional_case_comment")
     public FunctionalCaseComment updateComment(@Validated({Updated.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         return functionalCaseCommentService.updateComment(functionalCaseCommentRequest, SessionUtils.getUserId());
     }
