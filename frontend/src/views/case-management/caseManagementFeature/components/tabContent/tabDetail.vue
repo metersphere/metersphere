@@ -148,6 +148,15 @@
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <SaveAsFilePopover
+                v-model:visible="transferVisible"
+                :saving-file="activeTransferFileParams"
+                :file-save-as-source-id="(form.id as string)"
+                :file-save-as-api="transferFileRequest"
+                :file-module-options-api="getTransferFileTree"
+                source-id-key="caseId"
+                @finish="emit('updateSuccess')"
+              />
               <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFileHandler(item)">
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
@@ -225,12 +234,6 @@
     />
   </div>
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
-  <TransferModal
-    v-model:visible="transferVisible"
-    :request-fun="transferFileRequest"
-    :params="activeTransferFileParams"
-    @success="emit('updateSuccess')"
-  />
 </template>
 
 <script setup lang="ts">
@@ -244,17 +247,17 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import SaveAsFilePopover from '@/components/business/ms-add-attachment/saveAsFilePopover.vue';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from '../addStep.vue';
-  import TransferModal from './transferModal.vue';
 
-  import { deleteRecycleCase } from '@/api/modules/api-test/management';
   import {
     checkFileIsUpdateRequest,
     deleteFileOrCancelAssociation,
     downloadFileRequest,
     editorUploadFile,
     getAssociatedFileListUrl,
+    getTransferFileTree,
     previewFile,
     transferFileRequest,
     updateCaseRequest,
@@ -269,7 +272,7 @@
   import { downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { AssociatedList, DetailCase, OperationFile, StepList } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
 
   import { convertToFile } from '../utils';
@@ -492,15 +495,6 @@
 
   const fileListRef = ref<InstanceType<typeof MsFileList>>();
 
-  function beforeUpload(file: File) {
-    const _maxSize = 50 * 1024 * 1024;
-    if (file.size > _maxSize) {
-      Message.warning(t('ms.upload.overSize'));
-      return Promise.resolve(false);
-    }
-    return Promise.resolve(true);
-  }
-
   // 删除本地文件
   async function deleteFileHandler(item: MsFileItem) {
     if (!item.local) {
@@ -613,6 +607,7 @@
 
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
+
   // 预览
   async function handlePreview(item: MsFileItem) {
     try {
@@ -635,19 +630,11 @@
     fileListRef.value?.startUpload();
   }
 
-  const activeTransferFileParams = ref<OperationFile>({
-    projectId: '',
-    caseId: '',
-    fileId: '',
-    local: true,
-  });
+  const activeTransferFileParams = ref<MsFileItem>();
 
   function transferFileHandler(item: MsFileItem) {
     activeTransferFileParams.value = {
-      projectId: currentProjectId.value,
-      caseId: props.form.id,
-      fileId: item.uid,
-      local: true,
+      ...item,
     };
     transferVisible.value = true;
   }
@@ -691,7 +678,6 @@
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    // const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     fileList.value.push(...fileResultList);
     const fileIds = fileResultList.map((item: any) => item.uid);

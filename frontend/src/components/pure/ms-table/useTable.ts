@@ -293,6 +293,7 @@ export default function useTableProps<T>(
 
   // 重置选择器
   const resetSelector = (isNone = true) => {
+    const { rowKey } = propsRes.value;
     if (isNone) {
       propsRes.value.selectorStatus = SelectAllEnum.NONE;
       // 清空选中项
@@ -301,8 +302,8 @@ export default function useTableProps<T>(
     } else {
       // 取消当前页的选中项
       propsRes.value.data.forEach((item) => {
-        propsRes.value.selectedKeys.delete(item.id);
-        propsRes.value.excludeKeys.delete(item.id);
+        propsRes.value.selectedKeys.delete(item[rowKey]);
+        propsRes.value.excludeKeys.delete(item[rowKey]);
       });
     }
   };

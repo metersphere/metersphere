@@ -1,6 +1,5 @@
 <template>
   <MsCard :loading="loading" simple>
-    <ExpireAlert />
     <div class="mb-4 flex items-center justify-between">
       <a-button v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+ADD']" v-xpack type="primary" @click="addPool">
         {{ t('system.resourcePool.createPool') }}
@@ -92,7 +91,6 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';

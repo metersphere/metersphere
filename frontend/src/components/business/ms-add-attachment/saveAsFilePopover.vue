@@ -71,12 +71,14 @@
       visible: boolean;
       savingFile?: MsFileItem;
       fileSaveAsSourceId: string | number;
+      sourceIdKey?: string; // 资源id对应key
       fileIdKey?: string;
       fileSaveAsApi?: (params: TransferFileParams) => Promise<string>;
       fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
     }>(),
     {
       fileIdKey: 'fileId',
+      sourceIdKey: 'sourceId',
     }
   );
   const emit = defineEmits<{
@@ -148,7 +150,7 @@
         saveLoading.value = true;
         const res = await props.fileSaveAsApi({
           projectId: appStore.currentProjectId,
-          sourceId: props.fileSaveAsSourceId || '',
+          [props.sourceIdKey || 'sourceId']: props.fileSaveAsSourceId || '',
           fileId: props.savingFile[props.fileIdKey] || props.savingFile.uid,
           local: true,
           moduleId: saveFileForm.value.moduleId,

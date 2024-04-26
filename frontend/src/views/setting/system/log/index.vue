@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-full flex-col">
-    <ExpireAlert />
     <logCards class="flex-1" mode="SYSTEM"></logCards>
   </div>
 </template>
@@ -10,7 +9,6 @@
    * @description 系统设置-日志
    */
   import logCards from './components/logCards.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 </script>
 
 <style lang="less" scoped></style>

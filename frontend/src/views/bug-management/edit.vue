@@ -96,20 +96,18 @@
                   type="button"
                   status="primary"
                   class="!mr-[4px]"
-                  @click="transferFile"
+                  @click="transferFile(item)"
                 >
                   {{ t('caseManagement.featureCase.storage') }}
                 </MsButton>
-                <TransferModal
+                <SaveAsFilePopover
                   v-model:visible="transferVisible"
-                  :request-fun="transferFileRequest"
-                  :params="{
-                    projectId: currentProjectId,
-                    bugId: bugId as string,
-                    fileId: item.uid,
-                    associated: !item.local,
-                  }"
-                  @success="getDetailInfo()"
+                  :saving-file="activeTransferFileParams"
+                  :file-save-as-source-id="(form.id as string)"
+                  :file-save-as-api="transferFileRequest"
+                  :file-module-options-api="getTransferFileTree"
+                  source-id-key="bugId"
+                  @finish="getDetailInfo()"
                 />
                 <MsButton
                   v-if="item.status !== 'init'"
@@ -223,8 +221,8 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import SaveAsFilePopover from '@/components/business/ms-add-attachment/saveAsFilePopover.vue';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
-  import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
   import {
     checkFileIsUpdateRequest,
@@ -239,6 +237,7 @@
     transferFileRequest,
     updateFile,
   } from '@/api/modules/bug-management';
+  import { getTransferFileTree } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
@@ -329,6 +328,9 @@
   const { getIsVisited } = useVisit(visitedKey);
 
   const title = computed(() => {
+    if (isCopy.value) {
+      return t('bugManagement.copyBug');
+    }
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
   });
   const isLoading = ref<boolean>(true);
@@ -368,8 +370,12 @@
   );
 
   const transferVisible = ref<boolean>(false);
+  const activeTransferFileParams = ref<MsFileItem>();
   // 转存
-  function transferFile() {
+  function transferFile(item: MsFileItem) {
+    activeTransferFileParams.value = {
+      ...item,
+    };
     transferVisible.value = true;
   }
 
@@ -761,10 +767,18 @@
       });
     }
     const { platformSystemFields } = form.value;
+
+    let copyName = '';
+    if (isCopy.value) {
+      copyName = `copy_${res.title}`;
+      if (copyName.length > 255) {
+        form.value.title = copyName.slice(0, 255);
+      }
+    }
     // 表单赋值
     form.value = {
       id: res.id,
-      title: res.title,
+      title: isCopy.value ? copyName : res.title,
       description: res.description,
       templateId: res.templateId,
       tags: res.tags || [],
@@ -801,15 +815,6 @@
     { deep: true }
   );
 
-  function renameCopyBug() {
-    if (isCopy.value) {
-      const copyName = `copy_${form.value.title}`;
-      if (copyName.length > 255) {
-        form.value.title = copyName.slice(0, 255);
-      }
-    }
-  }
-
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
       fileList: [file],
@@ -822,7 +827,6 @@
     if (isEditOrCopy.value) {
       // 详情
       await getDetailInfo();
-      renameCopyBug();
     }
   });
 </script>

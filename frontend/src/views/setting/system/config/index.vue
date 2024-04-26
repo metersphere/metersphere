@@ -1,5 +1,4 @@
 <template>
-  <ExpireAlert />
   <MsTabCard v-model:active-tab="activeTab" :title="t('system.config.parameterConfig')" :tab-list="tabList" />
   <baseConfig v-if="activeTab === 'baseConfig'" v-show="activeTab === 'baseConfig'" />
   <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
@@ -14,7 +13,6 @@
   import { useRoute } from 'vue-router';
 
   import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useLicenseStore from '@/store/modules/setting/license';

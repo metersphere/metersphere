@@ -1,6 +1,5 @@
 <template>
   <MsCard simple>
-    <ExpireAlert />
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
@@ -53,7 +52,6 @@
   import AddProjectModal from './components/addProjectModal.vue';
   import SystemOrganization from './components/systemOrganization.vue';
   import SystemProject from './components/systemProject.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { getOrgAndProjectCount } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
