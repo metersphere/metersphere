@@ -99,7 +99,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request,  #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "functional_case")
     public FunctionalCase updateFunctionalCase(@Validated @RequestPart("request") FunctionalCaseEditRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.updateFunctionalCase(request, files, userId);
@@ -109,6 +109,7 @@ public class FunctionalCaseController {
     @PostMapping("/edit/follower")
     @Operation(summary = "用例管理-功能用例-关注/取消关注用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getFunctionalCaseId()", resourceType = "functional_case")
     public void editFollower(@Validated @RequestBody FunctionalCaseFollowerRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.editFollower(request.getFunctionalCaseId(), userId);
@@ -129,7 +130,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDeleteFunctionalCaseDTO(#request.id)", targetClass = FunctionalCaseNoticeService.class)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "functional_case")
     public void deleteFunctionalCase(@Validated @RequestBody FunctionalCaseDeleteRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.deleteFunctionalCase(request, userId);
@@ -207,7 +208,7 @@ public class FunctionalCaseController {
     @PostMapping("edit/pos")
     @Operation(summary = "用例管理-功能用例-拖拽排序")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "functional_case")
     public void editPos(@Validated @RequestBody PosRequest request) {
         functionalCaseService.editPos(request);
     }
@@ -233,6 +234,7 @@ public class FunctionalCaseController {
     @PostMapping("/import/excel")
     @Operation(summary = "用例管理-功能用例-excel导入")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         SessionUser user = SessionUtils.getUser();
         return functionalCaseFileService.importExcel(request, user, file);
