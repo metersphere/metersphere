@@ -42,9 +42,10 @@
           <a-form-item :label="t('apiTestManagement.belongModule')">
             <a-tree-select
               v-model:modelValue="importForm.moduleId"
-              :data="moduleTree"
+              :data="props.moduleTree"
               class="w-[436px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
+              :draggable="false"
               allow-search
               allow-clear
             >
@@ -247,7 +248,7 @@
           <a-form-item :label="t('apiTestManagement.belongModule')">
             <a-tree-select
               v-model:modelValue="importForm.moduleId"
-              :data="moduleTree"
+              :data="props.moduleTree"
               class="w-[500px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
@@ -361,7 +362,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { mapTree } from '@/utils';
 
   import type { ImportApiDefinitionParams, ImportApiDefinitionRequest } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
@@ -433,7 +433,6 @@
     }
     return !importForm.value.name || !importForm.value.swaggerUrl;
   });
-  const moduleTree = computed(() => mapTree(props.moduleTree, (node) => ({ ...node, draggable: false })));
   const syncFrequencyOptions = [
     { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
     { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },

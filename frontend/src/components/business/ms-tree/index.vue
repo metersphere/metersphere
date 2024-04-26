@@ -479,16 +479,6 @@
               @apply flex-1 overflow-hidden;
             }
           }
-          .arco-tree-node-drag-icon {
-            @apply hidden;
-
-            // top: 50%;
-            // right: 16px;
-            // transform: translateY(-50%);
-            // .arco-icon {
-            //   font-size: 14px;
-            // }
-          }
         }
         .arco-tree-node-title-block {
           width: 60%;
@@ -581,5 +571,9 @@
         }
       }
     }
+  }
+  // 为了让挂载在 body 下非 app 内的树节点生效
+  .arco-tree-node-drag-icon {
+    @apply hidden;
   }
 </style>

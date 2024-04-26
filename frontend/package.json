@@ -38,8 +38,8 @@
   "dependencies": {
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
-    "@arco-design/web-vue": "^2.55.0",
-    "@arco-themes/vue-ms-theme-default": "^0.0.30",
+    "@arco-design/web-vue": "^2.55.1",
+    "@arco-themes/vue-metersphere-v3": "^0.0.1",
     "@form-create/arco-design": "^3.1.23",
     "@halo-dev/richtext-editor": "0.0.0-alpha.33",
     "@tanstack/vue-query": "^5.17.15",
