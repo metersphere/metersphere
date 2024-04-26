@@ -1,6 +1,6 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.provider.AssociateCaseProvider;
+import io.metersphere.functional.provider.AssociateFunctionalProvider;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.base.BaseTest;
@@ -22,7 +22,7 @@ import java.util.List;
 public class AssociateCaseProviderTests extends BaseTest {
 
     @Resource
-    AssociateCaseProvider associateCaseProvider;
+    AssociateFunctionalProvider functionalProvider;
 
     @Test
     @Order(1)
@@ -33,17 +33,18 @@ public class AssociateCaseProviderTests extends BaseTest {
         request.setVersionId("test-ver");
         request.setSourceId("test-source-id");
         request.setSourceType("test-source-type");
-        associateCaseProvider.listUnRelatedTestCaseList(request);
+        functionalProvider.listUnRelatedTestCaseList(request);
         AssociateOtherCaseRequest associateRequest = new AssociateOtherCaseRequest();
         associateRequest.setSelectAll(true);
         associateRequest.setProjectId("select-case-pro");
         associateRequest.setVersionId("v1.0.0");
         associateRequest.setSourceId("test-source-id");
         associateRequest.setSourceType("test-source-type");
-        associateCaseProvider.getRelatedIdsByParam(associateRequest, false);
+        functionalProvider.getRelatedIdsByParam(associateRequest, false);
         associateRequest.setExcludeIds(List.of("select-case"));
-        associateCaseProvider.getRelatedIdsByParam(associateRequest, false);
+        functionalProvider.getRelatedIdsByParam(associateRequest, false);
         associateRequest.setSelectAll(false);
         associateRequest.setSelectIds(List.of("select-case"));
+        functionalProvider.getRelatedIdsByParam(associateRequest, false);
     }
 }

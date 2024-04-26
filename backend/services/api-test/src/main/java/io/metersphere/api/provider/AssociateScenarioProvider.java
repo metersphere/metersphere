@@ -7,6 +7,7 @@ import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
@@ -16,11 +17,12 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Service
-public class AssociateScenarioProvider implements BaseAssociateScenarioProvider {
+@Service("SCENARIO")
+public class AssociateScenarioProvider implements BaseAssociateScenarioProvider, BaseAssociateCaseProvider {
 
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
@@ -86,5 +88,27 @@ public class AssociateScenarioProvider implements BaseAssociateScenarioProvider 
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extApiScenarioMapper.selectIdAndParentIdByProjectId(request.getProjectId());
         return apiScenarioModuleService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED_SCENARIO));
+    }
+
+    @Override
+    public List<TestCaseProviderDTO> listUnRelatedTestCaseList(TestCasePageProviderRequest request) {
+        List<TestCaseProviderDTO> apiScenarios = extApiScenarioMapper.listUnRelatedCaseWithBug(request, false, request.getSortString());
+        if (CollectionUtils.isEmpty(apiScenarios)) {
+            return new ArrayList<>();
+        }
+        return apiScenarios;
+    }
+
+    @Override
+    public List<String> getRelatedIdsByParam(AssociateOtherCaseRequest request, boolean deleted) {
+        if (request.isSelectAll()) {
+            List<String> relatedIds = extApiScenarioMapper.getSelectIdsByAssociateParam(request, deleted);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                relatedIds = relatedIds.stream().filter(id -> !request.getExcludeIds().contains(id)).toList();
+            }
+            return relatedIds;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

@@ -4,6 +4,7 @@ import io.metersphere.bug.dto.BugCaseCheckResult;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
+import io.metersphere.context.AssociateCaseFactory;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
@@ -36,6 +37,7 @@ public class BugRelateCaseControllerTests extends BaseTest {
 
     @Resource
     BaseAssociateCaseProvider functionalCaseProvider;
+
     @Resource
     BugRelateCaseCommonService bugRelateCaseCommonService;
 
@@ -85,6 +87,7 @@ public class BugRelateCaseControllerTests extends BaseTest {
         request.setVersionId("default_bug_version");
         request.setSourceId("default-relate-bug-id");
         request.setSourceType("FUNCTIONAL");
+        AssociateCaseFactory.PROVIDER_MAP.put("FUNCTIONAL", functionalCaseProvider);
         Mockito.when(functionalCaseProvider.getRelatedIdsByParam(request, false)).thenReturn(Collections.emptyList());
         this.requestPostWithOk(BUG_CASE_RELATE, request);
         request.setExcludeIds(null);
@@ -173,10 +176,7 @@ public class BugRelateCaseControllerTests extends BaseTest {
     @Order(8)
     void testBugRelateCheckPermissionError() throws Exception {
         // 非功能用例类型参数
-        MvcResult mvcResult = this.requestGetAndReturn(BUG_CASE_CHECK + "/100001100001/API");
-        BugCaseCheckResult resultData = getResultData(mvcResult, BugCaseCheckResult.class);
-        Assertions.assertFalse(resultData.getPass());
-        Assertions.assertEquals(resultData.getMsg(), Translator.get("bug_relate_case_type_unknown"));
+        this.requestGet(BUG_CASE_CHECK + "/100001100001/UI", status().is5xxServerError());
     }
 
     @Test

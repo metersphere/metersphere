@@ -6,6 +6,9 @@ import io.metersphere.request.TestCasePageProviderRequest;
 
 import java.util.List;
 
+/**
+ * 多个实现(关联用例基础接口)
+ */
 public interface BaseAssociateCaseProvider {
 
     /**

@@ -7,6 +7,7 @@ import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
 import io.metersphere.bug.service.BugRelateCaseLogService;
+import io.metersphere.context.AssociateCaseFactory;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateCaseModuleRequest;
@@ -37,23 +38,22 @@ public class BugRelateCaseController {
 
     @Resource
     private BugRelateCaseCommonService bugRelateCaseCommonService;
-    @Resource
-    private BaseAssociateCaseProvider functionalCaseProvider;
 
     @PostMapping("/un-relate/page")
     @Operation(description = "缺陷管理-关联用例-未关联用例-列表分页")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<TestCaseProviderDTO>> unRelatedPage(@Validated @RequestBody TestCasePageProviderRequest request) {
-        // 目前只保留功能用例的Provider接口, 后续其他用例根据RelateCaseType扩展
+        bugRelateCaseCommonService.checkCaseTypeParamIllegal(request.getSourceType());
+        BaseAssociateCaseProvider associateCaseProvider = AssociateCaseFactory.getInstance(request.getSourceType());
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
-        return PageUtils.setPageInfo(page, functionalCaseProvider.listUnRelatedTestCaseList(request));
+        return PageUtils.setPageInfo(page, associateCaseProvider.listUnRelatedTestCaseList(request));
     }
 
     @PostMapping("/un-relate/module/count")
     @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树数量")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public Map<String, Long> countTree(@RequestBody @Validated TestCasePageProviderRequest request) {
+    public Map<String, Long> countTree(@RequestBody @Validated AssociateCaseModuleRequest request) {
         return bugRelateCaseCommonService.countTree(request);
     }
 

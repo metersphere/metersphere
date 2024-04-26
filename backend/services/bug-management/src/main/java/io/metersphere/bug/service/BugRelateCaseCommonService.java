@@ -7,6 +7,7 @@ import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.context.AssociateCaseFactory;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectVersion;
@@ -19,11 +20,8 @@ import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
@@ -40,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +57,27 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
     private ExtBugRelateCaseMapper extBugRelateCaseMapper;
     @Resource
     private PermissionCheckService permissionCheckService;
-    @Resource
-    private BaseAssociateCaseProvider functionalCaseProvider;
+
+    /**
+     * 获取关联用例模块树数量
+     * @param request 请求参数
+     * @return 模块树集合
+     */
+    public Map<String, Long> countTree(AssociateCaseModuleRequest request) {
+        // 用例类型参数非法校验
+        this.checkCaseTypeParamIllegal(request.getSourceType());
+        // 统计模块数量不用传模块ID
+        request.setModuleIds(null);
+        List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false, Objects.requireNonNull(CaseType.getType(request.getSourceType())).getCaseTable());
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request,
+                Objects.requireNonNull(CaseType.getType(request.getSourceType())).getCaseTable(), Objects.requireNonNull(CaseType.getType(request.getSourceType())).getModuleTable());
+        List<BaseTreeNode> relateCaseModuleWithCount = buildTreeAndCountResource(relateCaseModules, moduleCounts, true,
+                Translator.get(Objects.requireNonNull(CaseType.getType(request.getSourceType())).getUnPlanName()));
+        Map<String, Long> moduleCountMap = getIdCountMapByBreadth(relateCaseModuleWithCount);
+        long total = getAllCount(moduleCounts);
+        moduleCountMap.put("total", total);
+        return moduleCountMap;
+    }
 
     /**
      * 获取关联用例模块树(不包括数量)
@@ -67,30 +85,12 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @return 模块树集合
      */
     public List<BaseTreeNode> getRelateCaseTree(AssociateCaseModuleRequest request) {
-        // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
-        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request);
+        // 用例类型参数非法校验
+        this.checkCaseTypeParamIllegal(request.getSourceType());
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request,
+                Objects.requireNonNull(CaseType.getType(request.getSourceType())).getCaseTable(), Objects.requireNonNull(CaseType.getType(request.getSourceType())).getModuleTable());
         // 构建模块树层级数量为通用逻辑
-        return super.buildTreeAndCountResource(relateCaseModules, true, Translator.get("api_unplanned_request"));
-    }
-
-    /**
-     * 获取关联用例模块树数量
-     * @param request 请求参数
-     * @return 模块树集合
-     */
-    public Map<String, Long> countTree(TestCasePageProviderRequest request) {
-        // 统计模块数量不用传模块ID
-        request.setModuleIds(null);
-        // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
-        List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false);
-        AssociateCaseModuleRequest moduleRequest = new AssociateCaseModuleRequest();
-        BeanUtils.copyBean(moduleRequest, request);
-        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(moduleRequest);
-        List<BaseTreeNode> relateCaseModuleWithCount = buildTreeAndCountResource(relateCaseModules, moduleCounts, true, Translator.get("api_unplanned_request"));
-        Map<String, Long> moduleCountMap = getIdCountMapByBreadth(relateCaseModuleWithCount);
-        long total = getAllCount(moduleCounts);
-        moduleCountMap.put("total", total);
-        return moduleCountMap;
+        return super.buildTreeAndCountResource(relateCaseModules, true, Translator.get(Objects.requireNonNull(CaseType.getType(request.getSourceType())).getUnPlanName()));
     }
 
     /**
@@ -100,8 +100,11 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param currentUser 当前用户
      */
     public void relateCase(AssociateOtherCaseRequest request, boolean deleted, String currentUser) {
+        // 用例类型参数非法校验
+        this.checkCaseTypeParamIllegal(request.getSourceType());
         // 目前只需根据关联条件获取功能用例ID, 后续扩展
-        List<String> relatedIds = functionalCaseProvider.getRelatedIdsByParam(request, deleted);
+        BaseAssociateCaseProvider caseProvider = AssociateCaseFactory.getInstance(request.getSourceType());
+        List<String> relatedIds = caseProvider.getRelatedIdsByParam(request, deleted);
         // 缺陷关联用例通用逻辑
         if (CollectionUtils.isEmpty(relatedIds)) {
             return;
@@ -114,6 +117,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         List<BugRelationCase> planRelatedCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         Map<String, String> planRelatedMap = planRelatedCases.stream().collect(Collectors.toMap(BugRelationCase::getTestPlanCaseId, BugRelationCase::getId));
         bugRelationCaseExample.clear();
+        // 根据用例ID筛选出已直接关联缺陷的用例(防止重复关联)
         bugRelationCaseExample.createCriteria().andBugIdEqualTo(request.getSourceId()).andCaseIdIn(relatedIds);
         List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         Map<String, String> bugRelatedMap = bugRelationCases.stream().collect(Collectors.toMap(BugRelationCase::getCaseId, BugRelationCase::getId));
@@ -124,7 +128,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
                 continue;
             }
             if (planRelatedMap.containsKey(relatedId)) {
-                // 计划已关联, 补全用例ID
+                // 计划已关联, 补充用例ID
                 record.setId(planRelatedMap.get(relatedId));
                 record.setCaseId(relatedId);
                 record.setUpdateTime(System.currentTimeMillis());
@@ -150,7 +154,6 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param request 请求参数
      */
     public List<BugRelateCaseDTO> page(BugRelatedCasePageRequest request) {
-        // 目前只查关联的功能用例类型, 后续多个用例类型SQL扩展
         List<BugRelateCaseDTO> relateCases = extBugRelateCaseMapper.list(request);
         if (CollectionUtils.isEmpty(relateCases)) {
             return new ArrayList<>();
@@ -160,7 +163,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         relateCases.forEach(relateCase -> {
             relateCase.setProjectName(projectMap.get(relateCase.getProjectId()));
             relateCase.setVersionName(versionMap.get(relateCase.getVersionId()));
-            relateCase.setRelateCaseTypeName(CaseType.getValue(relateCase.getRelateCaseType()));
+            relateCase.setRelateCaseTypeName(Translator.get(Objects.requireNonNull(CaseType.getType(relateCase.getRelateCaseType())).getType()));
         });
         return relateCases;
     }
@@ -189,12 +192,9 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param caseType 用例类型
      */
     public BugCaseCheckResult checkPermission(String projectId, String currentUser, String caseType) {
-        // 校验关联用例的查看权限, 目前只支持功能用例的查看权限, 后续支持除功能用例外的其他类型用例
-        if (!CaseType.FUNCTIONAL_CASE.getKey().equals(caseType)) {
-            // 关联的用例类型未知
-            return BugCaseCheckResult.builder().pass(false).msg(Translator.get("bug_relate_case_type_unknown")).build();
-        }
-        boolean hasPermission = permissionCheckService.userHasProjectPermission(currentUser, projectId, PermissionConstants.FUNCTIONAL_CASE_READ);
+        // 校验用例类型是否合法
+        this.checkCaseTypeParamIllegal(caseType);
+        boolean hasPermission = permissionCheckService.userHasProjectPermission(currentUser, projectId, Objects.requireNonNull(CaseType.getType(caseType)).getUsePermission());
         if (!hasPermission) {
             // 没有该用例的访问权限
             return BugCaseCheckResult.builder().pass(false).msg(Translator.get("bug_relate_case_permission_error")).build();
@@ -247,5 +247,15 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
     @Override
     public void refreshPos(String parentId) {
 
+    }
+
+    /**
+     * 校验用例类型字段是否合法
+     * @param caseType 用例类型
+     */
+    public void checkCaseTypeParamIllegal(String caseType) {
+        if (CaseType.getType(caseType) == null) {
+            throw new MSException(Translator.get("unknown_case_type_of_relate_case"));
+        }
     }
 }

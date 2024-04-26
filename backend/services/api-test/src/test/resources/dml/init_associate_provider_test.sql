@@ -1,0 +1,11 @@
+INSERT INTO `api_definition` (`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`)
+VALUES ('api-definition-tmp', 'test31931', 'HTTP', 'POST', '/api/test', 'PROCESSING', 1000001, '[\"test3\",\"te\"]', 1, 'test-associate-pro', 'root', b'1', '100570499574136985', '1001', NULL, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', NULL, NULL, false);
+
+INSERT INTO `api_definition` (`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`)
+VALUES ('api-definition-associate-1', 'test31931313', 'HTTP', 'POST', '/api/test', 'PROCESSING', 1000001, '[\"test3\",\"te\"]', 1, 'test-associate-pro', 'root', b'1', '100570499574136985', '1001', NULL, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', NULL, NULL, false);
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
+VALUES ('api-case-associate-1','test4938131', 'P0', 10000023131, null, 'Underway', 'PENDING', null, 1, 'test-associate-pro', 'api-definition-associate-1', '100570499574136985', 'test_associate_env_id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', null, null, false);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time, deleted)
+VALUES ('api-scenario-associate-1', 'test323131', 'p1', 'test-api-status',  'PENDING', null, 1000001, 1, 'v1.10', 'api-scenario-associate-rid', 'test-associate-pro', 'root', null, null, 'admin',  UNIX_TIMESTAMP() * 1000, null, null, 'admin', UNIX_TIMESTAMP() * 1000, false);

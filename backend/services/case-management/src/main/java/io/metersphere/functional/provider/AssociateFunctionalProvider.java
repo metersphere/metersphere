@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Service
-public class AssociateCaseProvider implements BaseAssociateCaseProvider {
+@Service("FUNCTIONAL")
+public class AssociateFunctionalProvider implements BaseAssociateCaseProvider {
 
     @Resource
     private FunctionalCaseService functionalCaseService;
@@ -35,13 +35,13 @@ public class AssociateCaseProvider implements BaseAssociateCaseProvider {
         Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids, testCasePageProviderRequest.getProjectId());
         functionalCases.forEach(functionalCase -> {
             List<FunctionalCaseCustomFieldDTO> customFields = caseCustomFiledMap.get(functionalCase.getId());
-            List<BaseCaseCustomFieldDTO> baseCaseCustomFieldDTOS = new ArrayList<>();
+            List<BaseCaseCustomFieldDTO> customs = new ArrayList<>();
             for (FunctionalCaseCustomFieldDTO customField : customFields) {
                 BaseCaseCustomFieldDTO baseCaseCustomFieldDTO = new BaseCaseCustomFieldDTO();
                 BeanUtils.copyBean(baseCaseCustomFieldDTO, customField);
-                baseCaseCustomFieldDTOS.add(baseCaseCustomFieldDTO);
+                customs.add(baseCaseCustomFieldDTO);
             }
-            functionalCase.setCustomFields(baseCaseCustomFieldDTOS);
+            functionalCase.setCustomFields(customs);
         });
         return functionalCases;
     }
