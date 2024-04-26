@@ -164,8 +164,21 @@ public class CaseReviewFunctionalCaseService {
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
-                item.setReviewers(Collections.singletonList(userIdMap.get(item.getCaseId())));
-                item.setReviewNames(Collections.singletonList(userNameMap.get(item.getCaseId())));
+                String reviewer = userIdMap.get(item.getCaseId());
+                if (StringUtils.isNotBlank(reviewer)) {
+                    item.setReviewers(new ArrayList<>(Arrays.asList(reviewer.split(","))));
+                }
+                if (StringUtils.isNotBlank(reviewer)) {
+                    item.setReviewers(new ArrayList<>(Arrays.asList(reviewer.split(","))));
+                } else {
+                    item.setReviewers(new ArrayList<>());
+                }
+                String reviewName = userNameMap.get(item.getCaseId());
+                if (StringUtils.isNotBlank(reviewName)) {
+                    item.setReviewNames(new ArrayList<>(Arrays.asList(reviewName.split(","))));
+                } else {
+                    item.setReviewNames(new ArrayList<>());
+                }
                 item.setCustomFields(collect.get(item.getCaseId()));
                 if (request.isViewStatusFlag()) {
                     List<CaseReviewHistory> histories = caseStatusMap.get(item.getCaseId());
