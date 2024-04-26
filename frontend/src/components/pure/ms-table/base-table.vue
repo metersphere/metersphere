@@ -215,7 +215,7 @@
     <div
       v-if="showBatchAction || !!attrs.showPagination"
       id="ms-table-footer-wrapper"
-      class="mt-[16px] flex h-[32px] w-full flex-row flex-nowrap items-center overflow-hidden"
+      class="mt-[16px] flex w-full flex-row flex-nowrap items-center overflow-hidden"
       :class="{ 'justify-between': showBatchAction }"
     >
       <span v-if="props.actionConfig && selectedCount > 0 && !showBatchAction" class="title text-[var(--color-text-2)]">

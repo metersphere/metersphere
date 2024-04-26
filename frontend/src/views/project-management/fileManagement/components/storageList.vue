@@ -10,7 +10,7 @@
     <MsList
       v-model:focus-item-key="focusItemKey"
       :virtual-list-props="{
-        height: 'calc(100vh - 325px)',
+        height: 'calc(100vh - 275px)',
       }"
       :data="storageList"
       :bordered="false"

@@ -127,7 +127,7 @@
             <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
             <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           </div>
-          <div v-else :id="nodeData.id" class="inline-flex w-full">
+          <div v-else :id="nodeData.id" class="inline-flex w-full gap-[8px]">
             <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
             <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">
               {{ modulesCount[nodeData.id] || 0 }}
@@ -286,7 +286,7 @@
       };
     }
     return {
-      height: 'calc(100vh - 305px)',
+      height: 'calc(100vh - 298px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题

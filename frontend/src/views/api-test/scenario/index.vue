@@ -648,7 +648,7 @@
 
 <style scoped lang="less">
   .pageWrap {
-    height: calc(100% - 54px);
+    height: calc(100% - 50px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .case {

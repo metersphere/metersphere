@@ -68,7 +68,7 @@
         @drop="handleDrop"
       >
         <template #title="nodeData">
-          <div class="inline-flex w-full">
+          <div class="inline-flex w-full gap-[8px]">
             <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
             <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">
               {{ nodeData.count || 0 }}
@@ -148,7 +148,7 @@
       };
     }
     return {
-      height: 'calc(100vh - 325px)',
+      height: 'calc(100vh - 218px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题

@@ -27,12 +27,11 @@
       @select="folderNodeSelect"
     >
       <template #title="nodeData">
-        <div class="inline-flex w-full">
+        <div class="inline-flex w-full gap-[8px]">
           <div class="one-line-text w-full text-[var(--color-text-1)]">
-            <MsIcon type="icon-icon_folder_filled1" size="14" class="mr-1 text-[var(--color-text-4)]" />{{
-              nodeData.name
-            }}</div
-          >
+            <MsIcon type="icon-icon_folder_filled1" size="14" class="mr-1 text-[var(--color-text-4)]" />
+            {{ nodeData.name }}
+          </div>
           <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
         </div>
       </template>
