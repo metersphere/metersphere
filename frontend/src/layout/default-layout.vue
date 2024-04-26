@@ -41,7 +41,7 @@
           </a-drawer>
           <a-layout class="layout-content" :style="paddingStyle">
             <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-              <a-scrollbar class="flex h-[calc(100vh-56px)] flex-col gap-[8px] overflow-auto">
+              <a-scrollbar class="flex h-[calc(100vh-54px)] flex-col gap-[8px] overflow-auto">
                 <MsBreadCrumb />
                 <a-layout-content>
                   <slot name="page">
@@ -68,13 +68,14 @@
   import Footer from '@/components/pure/footer/index.vue';
   import NavBar from '@/components/pure/navbar/index.vue';
   import MsBreadCrumb from '@/components/business/ms-breadcrumb/index.vue';
+  import ExpireAlert from '@/components/business/ms-expire-alert/index.vue';
   import MsMenu from '@/components/business/ms-menu/index.vue';
   import PageLayout from './page-layout.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';
   import usePermission from '@/hooks/usePermission';
   import { useAppStore, useUserStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   interface Props {
     isPreview?: boolean;
@@ -86,7 +87,7 @@
   const props = defineProps<Props>();
 
   const innerProps = ref<Props>(props);
-
+  const licenseStore = useLicenseStore();
   watch(
     () => props.logo,
     () => {

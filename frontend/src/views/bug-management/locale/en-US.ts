@@ -1,6 +1,7 @@
 export default {
   bugManagement: {
     createBug: 'Create Bug',
+    copyBug: 'Copy Bug',
     syncBug: 'Sync Bug',
     ID: 'ID',
     project: 'Project',
