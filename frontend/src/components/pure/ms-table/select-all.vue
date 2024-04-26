@@ -42,12 +42,14 @@
       showSelectAll: boolean;
       disabled: boolean;
       excludeKeys: string[];
+      rowKey?: string;
     }>(),
     {
       current: 0,
       total: 0,
       showSelectAll: true,
       disabled: false,
+      rowKey: 'id',
     }
   );
 
@@ -79,7 +81,7 @@
   };
 
   const handleCheckChange = () => {
-    if (props.currentData.some((item) => !props.selectedKeys.has(item.id))) {
+    if (props.currentData.some((item) => !props.selectedKeys.has(item[props.rowKey]))) {
       // 当前页有数据没有勾选上，此时点击全选按钮代表全部选中
       handleSelect(SelectAllEnum.CURRENT);
     } else {

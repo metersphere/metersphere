@@ -45,6 +45,8 @@
                 <MsBreadCrumb />
                 <a-layout-content>
                   <slot name="page">
+                    <!-- 授权到期在系统菜单展示提示 -->
+                    <ExpireAlert v-if="isShowExpireTime" />
                     <PageLayout v-if="!props.isPreview" />
                   </slot>
                   <slot></slot>
@@ -68,6 +70,7 @@
   import MsBreadCrumb from '@/components/business/ms-breadcrumb/index.vue';
   import MsMenu from '@/components/business/ms-menu/index.vue';
   import PageLayout from './page-layout.vue';
+  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';
   import usePermission from '@/hooks/usePermission';
@@ -123,6 +126,9 @@
     const paddingLeft = renderMenu.value && !hideMenu.value ? { paddingLeft: `${menuWidth.value}px` } : {};
     const paddingTop = navbar.value ? { paddingTop: navbarHeight } : {};
     return { ...paddingLeft, ...paddingTop };
+  });
+  const isShowExpireTime = computed(() => {
+    return route.path.includes('/setting/system');
   });
   const setCollapsed = (val: boolean) => {
     if (!isInit.value) return; // for page initialization menu state problem

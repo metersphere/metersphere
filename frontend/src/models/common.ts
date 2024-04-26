@@ -88,10 +88,11 @@ export interface DragSortParams {
 // 文件转存入参
 export interface TransferFileParams {
   projectId: string;
-  sourceId: string | number;
+  sourceId?: string | number;
   fileName?: string;
   fileId: string;
   local: true;
   moduleId: string;
   originalName?: string;
+  [x: string]: any;
 }

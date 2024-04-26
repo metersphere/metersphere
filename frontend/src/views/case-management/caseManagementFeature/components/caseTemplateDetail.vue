@@ -103,6 +103,15 @@
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <SaveAsFilePopover
+                v-model:visible="transferVisible"
+                :saving-file="activeTransferFileParams"
+                :file-save-as-source-id="(form.id as string)"
+                :file-save-as-api="transferFileRequest"
+                :file-module-options-api="getTransferFileTree"
+                source-id-key="caseId"
+                @finish="getCaseInfo()"
+              />
               <MsButton
                 v-if="item.status !== 'init'"
                 type="button"
@@ -239,12 +248,6 @@
     @save="saveSelectAssociatedFile"
   />
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
-  <TransferModal
-    v-model:visible="transferVisible"
-    :request-fun="transferFileRequest"
-    :params="activeTransferFileParams"
-    @success="getCaseInfo()"
-  />
 </template>
 
 <script setup lang="ts">
@@ -261,9 +264,9 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import SaveAsFilePopover from '@/components/business/ms-add-attachment/saveAsFilePopover.vue';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from './addStep.vue';
-  import TransferModal from './tabContent/transferModal.vue';
 
   import {
     checkFileIsUpdateRequest,
@@ -273,6 +276,7 @@
     getCaseDefaultFields,
     getCaseDetail,
     getCaseModuleTree,
+    getTransferFileTree,
     previewFile,
     transferFileRequest,
     updateFile,
@@ -291,7 +295,6 @@
     CreateOrUpdateCase,
     CustomAttributes,
     DetailCase,
-    OperationFile,
     OptionsFieldId,
     StepList,
   } from '@/models/caseManagement/featureCase';
@@ -692,21 +695,11 @@
 
   const transferVisible = ref<boolean>(false);
 
-  const activeTransferFileParams = ref<OperationFile>({
-    projectId: '',
-    caseId: '',
-    fileId: '',
-    local: true,
-  });
+  const activeTransferFileParams = ref<MsFileItem>();
 
   // 转存
   function transferFile(item: MsFileItem) {
-    activeTransferFileParams.value = {
-      projectId: currentProjectId.value,
-      caseId: form.value.id,
-      fileId: item.uid,
-      local: true,
-    };
+    activeTransferFileParams.value = { ...item };
     transferVisible.value = true;
   }
 
@@ -807,16 +800,6 @@
       initDefaultFields();
     }
   });
-
-  // onMounted(() => {
-  //   nextTick(() => {
-  //     console.log(document.querySelector('.preview-left'));
-
-  //     scrollIntoView(document.querySelector('.preview-left'), { block: 'center' });
-  //     console.log(caseFormRef.value?.$el.querySelector('.arco-form-item-message'));
-
-  //   });
-  // });
 
   defineExpose({
     caseFormRef,

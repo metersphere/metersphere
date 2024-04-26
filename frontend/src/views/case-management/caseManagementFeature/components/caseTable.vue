@@ -28,10 +28,11 @@
       </a-popover>
     </template>
     <template #right>
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
+      <!-- TODO 暂时先不展示了 -->
+      <!-- <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
         <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
-        <!--        <a-radio value="xMind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>-->
-      </a-radio-group>
+        <a-radio value="xMind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>
+      </a-radio-group> -->
     </template>
   </MsAdvanceFilter>
   <ms-base-table
@@ -226,6 +227,8 @@
       <a-tree-select
         v-if="record.showModuleTree"
         v-model:modelValue="record.moduleId"
+        dropdown-class-name="tree-dropdown"
+        class="param-input w-full"
         :data="caseTreeData"
         :allow-search="true"
         :field-names="{
@@ -233,19 +236,18 @@
           key: 'id',
           children: 'children',
         }"
+        size="mini"
         :tree-props="{
           virtualListProps: {
             height: 200,
           },
         }"
-        size="mini"
-        :filter-tree-node="filterTreeNode"
         @click.stop
         @change="(value) => handleChangeModule(record, value)"
       >
         <template #tree-slot-title="node">
           <a-tooltip :content="`${node.name}`" position="tl">
-            <div class="one-line-text text-[var(--color-text-1)]">{{ node.name }}</div>
+            <div class="one-line-text max-w-[200px] text-[var(--color-text-1)]">{{ node.name }}</div>
           </a-tooltip>
         </template>
       </a-tree-select>
@@ -450,7 +452,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit, findNodeByKey, findNodePathByKey } from '@/utils';
+  import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -503,7 +505,14 @@
     },
   ]);
 
-  const caseTreeData = computed(() => featureCaseStore.caseTree);
+  const caseTreeData = computed(() => {
+    return mapTree<ModuleTreeNode>(featureCaseStore.caseTree, (e) => {
+      return {
+        ...e,
+        draggable: false,
+      };
+    });
+  });
   const moduleId = computed(() => featureCaseStore.moduleId[0]);
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -1738,4 +1747,9 @@
     justify-content: space-between;
   }
   .ms-table--special-small();
+  .tree-dropdown {
+    .arco-tree-select-tree-wrapper {
+      width: 200px !important;
+    }
+  }
 </style>

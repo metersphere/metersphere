@@ -1,5 +1,5 @@
 <template>
-  <div v-expire class="mb-4" :class="props.styleClass">
+  <div v-expire class="mb-2" :class="props.styleClass">
     <a-alert type="warning">{{
       licenseStore.expiredDays >= 0 && licenseStore.expiredDays <= 30
         ? t('system.authorized.LicenseExpirationPromptLessThanThirty', { day: licenseStore.expiredDays })

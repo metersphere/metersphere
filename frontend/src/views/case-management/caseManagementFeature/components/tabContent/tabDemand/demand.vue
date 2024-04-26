@@ -207,6 +207,7 @@
     scroll: { x: '100%' },
     heightUsed: 290,
     selectable: true,
+    showSelectorAll: true,
     showSetting: false,
   });
 

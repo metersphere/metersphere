@@ -109,6 +109,15 @@
             >
               {{ t('caseManagement.featureCase.storage') }}
             </MsButton>
+            <SaveAsFilePopover
+              v-model:visible="transferVisible"
+              :saving-file="activeTransferFileParams"
+              :file-save-as-source-id="props.detailInfo.id"
+              :file-save-as-api="transferFileRequest"
+              :file-module-options-api="getTransferFileTree"
+              source-id-key="bugId"
+              @finish="emit('updateSuccess')"
+            />
             <MsButton
               v-if="item.status === 'done'"
               type="button"
@@ -186,12 +195,6 @@
     @save="saveSelectAssociatedFile"
   />
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
-  <TransferModal
-    v-model:visible="transferVisible"
-    :request-fun="transferFileRequest"
-    :params="activeTransferFileParams"
-    @success="emit('updateSuccess')"
-  />
 </template>
 
 <script setup lang="ts">
@@ -205,8 +208,8 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
+  import SaveAsFilePopover from '@/components/business/ms-add-attachment/saveAsFilePopover.vue';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
-  import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
   import {
     checkFileIsUpdateRequest,
@@ -221,6 +224,7 @@
     updateFile,
     uploadOrAssociationFile,
   } from '@/api/modules/bug-management';
+  import { getTransferFileTree } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
@@ -230,7 +234,6 @@
   import { findParents, Option } from '@/utils/recursion';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
-  import type { OperationFile } from '@/models/caseManagement/featureCase';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
@@ -347,15 +350,6 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-
-  function beforeUpload(file: File) {
-    const _maxSize = 50 * 1024 * 1024;
-    if (file.size > _maxSize) {
-      Message.warning(t('ms.upload.overSize'));
-      return Promise.resolve(false);
-    }
-    return Promise.resolve(true);
   }
 
   // 预览图片
@@ -536,19 +530,12 @@
     await handleFileFunc(attachments);
     Message.success(t('common.linkSuccess'));
   }
-  const activeTransferFileParams = ref<OperationFile>({
-    projectId: '',
-    bugId: '',
-    fileId: '',
-    local: true,
-  });
+
+  const activeTransferFileParams = ref<MsFileItem>();
 
   function transferHandler(item: MsFileItem) {
     activeTransferFileParams.value = {
-      projectId: currentProjectId.value,
-      fileId: item.uid,
-      bugId: props.detailInfo.id,
-      local: true,
+      ...item,
     };
     transferVisible.value = true;
   }

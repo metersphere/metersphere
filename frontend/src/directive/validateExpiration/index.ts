@@ -1,4 +1,3 @@
-import { useAppStore } from '@/store';
 import useLicenseStore from '@/store/modules/setting/license';
 
 /**
@@ -8,8 +7,7 @@ import useLicenseStore from '@/store/modules/setting/license';
 
 function checkHasLicenseExpiration(el: HTMLElement) {
   const licenseStore = useLicenseStore();
-  const appStore = useAppStore();
-  const isValid = licenseStore.expiredDuring && appStore.packageType === 'enterprise';
+  const isValid = licenseStore.expiredDuring;
 
   if (!isValid && el.parentNode) {
     el.parentNode.removeChild(el);

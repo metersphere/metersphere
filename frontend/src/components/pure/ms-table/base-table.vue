@@ -37,6 +37,7 @@
               :current-data="attrs.data as Record<string,any>[]"
               :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
+              :row-key="rowKey"
               @change="handleSelectAllChange"
             />
           </template>
@@ -92,12 +93,20 @@
                 @init-data="handleInitColumn"
               />
               <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
-                <DefaultFilter
+                <!-- <DefaultFilter
                   class="ml-[4px]"
                   :options="item.filterConfig.options"
-                  :multiple="(item.filterConfig.multiple as boolean)"
-                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.filterConfig?.multiple || false,item.isCustomParam || false)"
-                />
+                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
+                /> -->
+                <!-- TODO 待办 过滤选项不生效 -->
+                <!-- <TableFilter
+                  v-bind="item.filterConfig"
+                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string,item.isCustomParam || false)"
+                >
+                  <template #item="{ item: itemValue, index }">
+                    <slot name="filter-content" :item="itemValue" :index="index"> </slot>
+                  </template>
+                </TableFilter> -->
               </slot>
             </div>
           </template>
@@ -271,7 +280,9 @@
   import BatchAction from './batchAction.vue';
   import ColumnSelector from './columnSelector.vue';
   import columnSelectorIcon from './columnSelectorIcon.vue';
-  import DefaultFilter from './comp/defaultFilter.vue';
+  // TODO待办
+  // import DefaultFilter from './comp/defaultFilter.vue';
+  // import TableFilter from './comp/tableFilter.vue';
   import SelectALL from './select-all.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -335,7 +346,7 @@
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
-    (e: 'filterChange', dataIndex: string, value: (string | number)[], multiple: boolean, isCustomParam: boolean): void;
+    (e: 'filterChange', dataIndex: string, value: (string | number)[], isCustomParam: boolean): void;
     (e: 'moduleChange'): void;
     (e: 'initEnd'): void;
   }>();
@@ -445,7 +456,7 @@
 
   function handleRadioChange(val: boolean, record: TableData) {
     if (val) {
-      selectedKey.value = record.id;
+      selectedKey.value = record[rowKey as string];
       record.tableChecked = true;
       tempRecord.value.tableChecked = false;
       tempRecord.value = record;
@@ -617,14 +628,9 @@
     columnSelectorVisible.value = true;
   };
 
-  const handleFilterConfirm = (
-    value: (string | number)[],
-    dataIndex: string,
-    multiple: boolean,
-    isCustomParam: boolean
-  ) => {
-    emit('filterChange', dataIndex, value, multiple, isCustomParam);
-  };
+  // const handleFilterConfirm = (value: (string | number)[], dataIndex: string, isCustomParam: boolean) => {
+  //   emit('filterChange', dataIndex, value, isCustomParam);
+  // };
 
   onMounted(async () => {
     await initColumn();

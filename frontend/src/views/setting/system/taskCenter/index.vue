@@ -1,5 +1,4 @@
 <template>
-  <ExpireAlert />
   <MsCard simple no-content-padding>
     <TaskCenter group="system" />
   </MsCard>
@@ -10,7 +9,6 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import TaskCenter from '@/views/project-management/taskCenter/component/taskCom.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 </script>
 
 <style scoped lang="less">

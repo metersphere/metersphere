@@ -1,6 +1,5 @@
 <template>
   <MsCard simple>
-    <ExpireAlert />
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
@@ -312,7 +311,6 @@
   import MsSelect from '@/components/business/ms-select';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
-  import ExpireAlert from '@/views/setting/system/authorizedManagement/components/expireAlert.vue';
 
   import {
     batchCreateUser,
