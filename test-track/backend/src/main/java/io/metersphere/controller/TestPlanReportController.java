@@ -20,6 +20,7 @@ import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.TestPlanReportSaveRequest;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
+import io.metersphere.security.CheckOwner;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -48,12 +49,14 @@ public class TestPlanReportController {
 
     @GetMapping("/getMetric/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public TestPlanReportDTO getMetric(@PathVariable String planId) {
         return testPlanReportService.getMetric(planId);
     }
 
     @GetMapping("/real-time/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public TestPlanReportDataStruct getRealTimeReport(@PathVariable String planId) {
         return testPlanReportService.getRealTimeReport(planId);
     }
@@ -66,6 +69,7 @@ public class TestPlanReportController {
 
     @GetMapping("/status/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public String getStatus(@PathVariable String planId) {
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
         String status = report.getStatus();
@@ -89,6 +93,7 @@ public class TestPlanReportController {
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ_EDIT)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public String saveTestPlanReport(@PathVariable String planId, @PathVariable String triggerMode) {
         String userId = SessionUtils.getUser().getId();
         String reportId = UUID.randomUUID().toString();

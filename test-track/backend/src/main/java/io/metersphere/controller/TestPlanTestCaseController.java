@@ -18,6 +18,7 @@ import io.metersphere.plan.request.function.TestPlanFuncCaseBatchRequest;
 import io.metersphere.plan.request.function.TestPlanFuncCaseEditRequest;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -36,6 +37,7 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request) {
         QueryTestPlanCaseRequest paramRequest = testPlanTestCaseService.setCustomNumOrderParam(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -46,6 +48,7 @@ public class TestPlanTestCaseController {
     /*jenkins测试计划下全部用例*/
     @GetMapping("/list/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCaseDTO> getTestPlanCaseByPlanId(@PathVariable String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
@@ -55,6 +58,7 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/list/minder")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public List<TestPlanCaseDTO> listForMinder(@RequestBody QueryTestPlanCaseRequest request) {
         return testPlanTestCaseService.listForMinder(request);
     }
@@ -68,6 +72,7 @@ public class TestPlanTestCaseController {
 
     @GetMapping("/list/node/{planId}/{nodePaths}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePath(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", "/");
         String[] array = nodePath.split(",");
@@ -81,6 +86,7 @@ public class TestPlanTestCaseController {
 
     @GetMapping("/list/node/all/{planId}/{nodePaths}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePaths(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", StringUtils.EMPTY);
         String[] array = nodePath.split(",");
@@ -132,6 +138,7 @@ public class TestPlanTestCaseController {
     @PostMapping("/minder/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.MINDER_OPERATION, content = "#msClass.getCaseLogDetails(#testPlanTestCases)", msClass = TestPlanTestCaseService.class)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public void editTestCaseForMinder(@RequestBody List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
         testPlanTestCaseService.editTestCaseForMinder(testPlanTestCases);
     }
@@ -139,6 +146,7 @@ public class TestPlanTestCaseController {
     @PostMapping("/batch/edit")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN, PermissionConstants.PROJECT_TRACK_PLAN_READ_CASE_BATCH_EDIT}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.editTestCaseBath(request);
     }
@@ -159,12 +167,14 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/list/all/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCaseDTO> getFailureCases(@PathVariable String planId, @RequestBody(required = false) List<String> statusList) {
         return testPlanTestCaseService.getAllCasesByStatusList(planId, statusList);
     }
 
     @GetMapping("/list/all/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCaseDTO> getAllCases(@PathVariable String planId) {
         return testPlanTestCaseService.getAllCases(planId);
     }

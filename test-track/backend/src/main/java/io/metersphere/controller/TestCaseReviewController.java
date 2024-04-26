@@ -18,6 +18,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.testreview.*;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.TestCaseReviewService;
 import io.metersphere.service.TestReviewProjectService;
 import io.metersphere.service.wapper.CheckPermissionService;
@@ -87,6 +88,7 @@ public class TestCaseReviewController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testCaseReview.id)", title = "#testCaseReview.name", content = "#msClass.getLogDetails(#testCaseReview.id)", msClass = TestCaseReviewService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, subject = "测试评审通知")
+    @CheckOwner(resourceId = "#testCaseReview.getId()", resourceType = "test_case_review")
     public TestCaseReview editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         return testCaseReviewService.editCaseReview(testCaseReview);
     }
@@ -96,6 +98,7 @@ public class TestCaseReviewController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reviewId)", msClass = TestCaseReviewService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#reviewId)", targetClass = TestCaseReviewService.class,
             event = NoticeConstants.Event.DELETE, subject = "测试评审通知")
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public void deleteCaseReview(@PathVariable String reviewId) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.deleteCaseReview(reviewId);
@@ -134,6 +137,7 @@ public class TestCaseReviewController {
 
     @GetMapping("/get/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public TestCaseReview getTestReview(@PathVariable String reviewId) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         return testCaseReviewService.getTestReview(reviewId);
@@ -142,6 +146,7 @@ public class TestCaseReviewController {
     @PostMapping("/edit/status/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public void editTestPlanStatus(@PathVariable String reviewId) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);

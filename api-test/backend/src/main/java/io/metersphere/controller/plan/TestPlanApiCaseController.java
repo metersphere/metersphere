@@ -20,6 +20,7 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -37,32 +38,38 @@ public class TestPlanApiCaseController {
     TestPlanApiCaseService testPlanApiCaseService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanApiCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanApiCaseService.list(request));
     }
 
     @GetMapping("/list/failure/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanApiDTO> getFailureList(@PathVariable String planId) {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/errorReport/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanApiDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/unExecute/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanApiDTO> getUnExecuteCases(@PathVariable String planId) {
         return testPlanApiCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanApiDTO> getAllList(@PathVariable String planId) {
         return testPlanApiCaseService.getAllCases(planId);
     }
 
     @GetMapping("/list/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanApiCaseDTO> getByPlanId(@PathVariable String planId) {
         ApiTestCaseRequest request = new ApiTestCaseRequest();
         request.setPlanId(planId);
@@ -70,6 +77,7 @@ public class TestPlanApiCaseController {
     }
 
     @GetMapping("/plan/exec/result/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<String> getExecResultByPlanId(@PathVariable String planId) {
         return testPlanApiCaseService.getExecResultByPlanId(planId);
     }
@@ -86,11 +94,13 @@ public class TestPlanApiCaseController {
 
     @PostMapping("/relevance/{planId}")
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public void testPlanRelevance(@RequestBody List<String> ids, @PathVariable("planId") String planId) {
         testPlanApiCaseService.relevanceByTestIds(ids, planId);
     }
 
     @GetMapping("/status/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<String> getStatusByTestPlanId(@PathVariable("planId") String planId) {
         return testPlanApiCaseService.getStatusByTestPlanId(planId);
     }
@@ -207,11 +217,13 @@ public class TestPlanApiCaseController {
     }
 
     @GetMapping("/get/report/ext/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(@PathVariable("planId") String planId) {
         return testPlanApiCaseService.selectExtForPlanReport(planId);
     }
 
     @GetMapping("/get/report/scenario/ext/{planId}")
+    @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<ApiScenarioReportWithBLOBs> selectExtForPlanScenarioReport(@PathVariable("planId") String planId) {
         return testPlanApiCaseService.selectExtForPlanScenarioReport(planId);
     }

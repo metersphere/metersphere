@@ -18,6 +18,7 @@ import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.TestReviewTestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ public class TestReviewTestCaseController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "test_case_review")
     public Pager<List<TestReviewCaseDTO>> getTestReviewCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testReviewTestCaseService.list(request));
@@ -70,18 +72,21 @@ public class TestReviewTestCaseController {
     @PostMapping("/minder/edit/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#testCases)", msClass = TestReviewTestCaseService.class)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "test_case_review")
     public void editTestCaseForMinder(@PathVariable("reviewId") String reviewId, @RequestBody List<TestCaseReviewTestCase> testCases) {
         testReviewTestCaseService.editTestCaseForMinder(reviewId, testCases);
     }
 
     @PostMapping("/list/minder")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "test_case_review")
     public List<TestReviewCaseDTO> listForMinder(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.listForMinder(request);
     }
 
     @PostMapping("/list/minder/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "test_case_review")
     public Pager<List<TestReviewCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testReviewTestCaseService.listForMinder(request));
@@ -90,6 +95,7 @@ public class TestReviewTestCaseController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_REVIEW)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
+    @CheckOwner(resourceId = "#testCaseReviewTestCase.getReviewId()", resourceType = "test_case_review")
     public TestReviewTestCaseEditResult editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
         return testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
