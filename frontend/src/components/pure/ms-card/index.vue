@@ -147,7 +147,7 @@
   // TODO：卡片高度调整，写上数值的注释
   const cardOverHeight = computed(() => {
     const contentPadding = 32; // 16+16 上下内容边距
-    const navbarHeight = 54; // 顶部导航高度
+    const navbarHeight = 56; // 顶部导航高度
     const layoutContentPaddingBottom = 16; // 卡片到底部距离
     if (isFullScreen.value) {
       return 106;
