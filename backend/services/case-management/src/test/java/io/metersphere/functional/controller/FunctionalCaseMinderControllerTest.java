@@ -1,7 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.MinderReviewFunctionalCasePageRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -31,17 +32,13 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     @Order(1)
     @Sql(scripts = {"/dml/init_file_minder_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetPageList() throws Exception {
-        FunctionalCasePageRequest request = new FunctionalCasePageRequest();
+        FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
-        request.setCurrent(1);
-        request.setPageSize(10);
-        request.setSort(new HashMap<>() {{
-            put("createTime", "desc");
-        }});
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        FunctionalMinderTreeDTO baseTreeNodes = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
        String jsonString = JSON.toJSONString(baseTreeNodes);
         System.out.println(jsonString);

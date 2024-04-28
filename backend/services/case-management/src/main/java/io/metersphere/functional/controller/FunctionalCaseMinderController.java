@@ -2,7 +2,7 @@ package io.metersphere.functional.controller;
 
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.MinderReviewFunctionalCasePageRequest;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * @author guoyuqi
  */
@@ -30,12 +32,14 @@ public class FunctionalCaseMinderController {
     private FunctionalCaseMinderService functionalCaseMinderService;
 
     @PostMapping("/list")
-    @Operation(summary = "用例管理-功能用例-脑图用例列表查询")
+    @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public FunctionalMinderTreeDTO getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCasePageRequest request) {
-        return functionalCaseMinderService.getFunctionalCasePage(request, false);
+    @CheckOwner(resourceId = "#projectId()", resourceType = "project")
+    public List<FunctionalMinderTreeDTO> getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
+        return functionalCaseMinderService.getMindFunctionalCase(request, false);
     }
+
+
 
     @PostMapping("/review/list")
     @Operation(summary = "用例管理-用例评审-脑图用例列表查询")
