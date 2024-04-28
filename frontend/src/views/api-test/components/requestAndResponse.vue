@@ -456,6 +456,7 @@
       ).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
+        requestVModel.value.responseDefinition,
         requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
         requestVModel.value.linkFileIds // 外面解析详情的时候传入
       );

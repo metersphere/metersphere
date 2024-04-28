@@ -92,6 +92,7 @@ export const defaultResponseItem: ResponseDefinition = {
     binaryBody: {
       description: '',
       file: undefined,
+      sendAsBody: false,
     },
   },
 };
@@ -112,6 +113,7 @@ export const defaultBodyParams: ExecuteBody = {
   binaryBody: {
     description: '',
     file: undefined,
+    sendAsBody: false,
   },
   rawBody: { value: '' },
 };

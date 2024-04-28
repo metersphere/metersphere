@@ -380,7 +380,7 @@
 
   async function handleFileChange() {
     try {
-      if (fileList.value[0]?.local && fileList.value[0].file && props.uploadTempFileApi) {
+      if (fileList.value[0] && fileList.value[0].local && fileList.value[0].file && props.uploadTempFileApi) {
         appStore.showLoading();
         const res = await props.uploadTempFileApi(fileList.value[0].file);
         activeResponse.value.body.binaryBody.file = {
@@ -391,7 +391,7 @@
           local: true,
         };
         appStore.hideLoading();
-      } else {
+      } else if (fileList.value[0]) {
         activeResponse.value.body.binaryBody.file = {
           ...fileList.value[0],
           fileId: fileList.value[0].uid,
@@ -399,8 +399,7 @@
           fileAlias: fileList.value[0]?.name || '',
           local: false,
         };
-      }
-      if (activeResponse.value.body.binaryBody.file && !activeResponse.value.body.binaryBody.file.fileId) {
+      } else {
         activeResponse.value.body.binaryBody.file = undefined;
       }
       emit('change');

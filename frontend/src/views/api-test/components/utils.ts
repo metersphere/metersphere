@@ -1,13 +1,17 @@
 import { cloneDeep, isEqual } from 'lodash-es';
 
-import { type ExecuteAssertionConfig, ExecuteBody, type ExecuteConditionConfig } from '@/models/apiTest/common';
-import { RequestConditionProcessor, RequestParamsType, ResponseBodyAssertionType } from '@/enums/apiEnum';
+import {
+  type ExecuteAssertionConfig,
+  ExecuteBody,
+  type ExecuteConditionConfig,
+  type ResponseDefinition,
+} from '@/models/apiTest/common';
+import { RequestConditionProcessor, RequestParamsType } from '@/enums/apiEnum';
 
 import {
   assertDefaultParamsItem,
   defaultAssertParamsItem,
   defaultBodyParamsItem,
-  defaultExtractParamItem,
   defaultHeaderParamsItem,
   defaultKeyValueParamItem,
   defaultRequestParamsItem,
@@ -29,6 +33,7 @@ export interface ParseResult {
  */
 export function parseRequestBodyFiles(
   body: ExecuteBody,
+  response?: ResponseDefinition[],
   saveUploadFileIds?: string[],
   saveLinkFileIds?: string[]
 ): ParseResult {
@@ -106,6 +111,40 @@ export function parseRequestBodyFiles(
       // 关联的文件
       linkFileIds.add(fileId);
     }
+  }
+  if (response) {
+    response.forEach((res) => {
+      if (res.body.binaryBody && res.body.binaryBody.file) {
+        const { fileId } = res.body.binaryBody.file;
+        if (res.body.binaryBody.file?.local) {
+          if (saveUploadFileIds) {
+            // 如果有已保存的上传文件id集合
+            if (saveUploadFileIds.includes(fileId)) {
+              // 当前文件是已保存的文件，存入 tempSaveUploadFileIds
+              tempSaveUploadFileIds.add(fileId);
+            } else {
+              // 当前文件不是已保存的文件，存入 uploadFileIds
+              uploadFileIds.add(fileId);
+            }
+          } else {
+            // 没有已保存的文件id集合，直接存入 uploadFileIds
+            uploadFileIds.add(fileId);
+          }
+        } else if (saveLinkFileIds) {
+          // 如果有已保存的关联文件id集合
+          if (saveLinkFileIds.includes(fileId)) {
+            // 当前文件是已保存的文件，存入
+            tempSaveLinkFileIds.add(fileId);
+          } else {
+            // 当前文件不是已保存的文件，存入 uploadFileIds
+            linkFileIds.add(fileId);
+          }
+        } else {
+          // 关联的文件
+          linkFileIds.add(fileId);
+        }
+      }
+    });
   }
   return {
     uploadFileIds: Array.from(uploadFileIds),

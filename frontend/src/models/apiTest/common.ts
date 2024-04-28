@@ -115,7 +115,7 @@ export interface RequestFileInfo {
 export interface ExecuteBinaryBody {
   description: string;
   file?: RequestFileInfo;
-  sendAsBody?: boolean; // 是否作为正文发送，只有 mock 有此字段
+  sendAsBody?: boolean; // 是否作为正文发送，只有 定义/mock 的响应体有此字段
 }
 // 接口请求-JsonSchema
 export interface JsonSchema {

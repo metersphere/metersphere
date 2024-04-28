@@ -163,6 +163,7 @@
           item.body.binaryBody = {
             description: '',
             file: undefined,
+            sendAsBody: false,
           };
           hasInvalid = true;
         }
