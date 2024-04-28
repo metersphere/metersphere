@@ -491,8 +491,7 @@
       },
       onBeforeOk: async () => {
         try {
-          console.log(getBatchParams(), ' getBatchParams() getBatchParams()');
-          // await batchCleanOutDefinition(await getBatchParams());
+          await batchCleanOutDefinition(await getBatchParams());
           Message.success(t('common.deleteSuccess'));
           resetSelector();
           loadApiList(true);

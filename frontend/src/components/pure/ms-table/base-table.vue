@@ -675,6 +675,19 @@
         }
       }
     }
+    :deep(.arco-table-th):hover {
+      .arco-table-column-handle {
+        @apply inline-block;
+
+        top: 50%;
+        margin: 0 3px;
+        padding: 4px 0;
+        width: 2px;
+        height: 24px;
+        background-color: var(--color-text-n8);
+        transform: translateY(-50%);
+      }
+    }
     .setting-icon {
       color: var(--color-text-4);
       background-color: var(--color-text-10);
