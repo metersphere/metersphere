@@ -22,6 +22,9 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -84,6 +87,7 @@ public class BugRelateCaseController {
     @GetMapping("/un-relate/{id}")
     @Operation(description = "缺陷管理-关联用例-取消关联用例")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @Parameter(name = "id", description = "ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.getRelateLog(#id)", msClass = BugRelateCaseLogService.class)
     public void unRelate(@PathVariable String id) {
         bugRelateCaseCommonService.unRelate(id);
@@ -91,6 +95,10 @@ public class BugRelateCaseController {
 
     @GetMapping("/check-permission/{projectId}/{caseType}")
     @Operation(description = "缺陷管理-关联用例-查看用例权限校验")
+    @Parameters({
+            @Parameter(name = "projectId", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+            @Parameter(name = "caseType", description = "关联用例类型(FUNCTIONAL, API, SCENARIO)", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    })
     public BugCaseCheckResult checkPermission(@PathVariable String projectId, @PathVariable String caseType) {
         return bugRelateCaseCommonService.checkPermission(projectId, SessionUtils.getUserId(), caseType);
     }

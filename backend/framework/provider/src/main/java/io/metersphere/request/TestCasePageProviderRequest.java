@@ -58,7 +58,7 @@ public class TestCasePageProviderRequest extends BaseProviderCondition implement
     @Schema(description = "版本来源")
     private String refId;
 
-    @Schema(description = "关联关系表里主ID eg:功能用例关联接口用例时为功能用例id")
+    @Schema(description = "关联关系表里主ID eg:功能用例关联接口用例时为功能用例id, 缺陷关联用例时为缺陷ID")
     @NotBlank(message = "{relate_source_id_not_blank}")
     @Size(min = 1, max = 50, message = "{relate_source_id_length_range}")
     private String sourceId;
