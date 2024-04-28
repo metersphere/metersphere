@@ -106,12 +106,8 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
         List<SelectOption> headerHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         associateBugs.forEach(item -> {
-            headerHandlerOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getHandleUser())).findFirst().ifPresent(option -> {
-                item.setHandleUserName(option.getText());
-            });
-            statusOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getStatus())).findFirst().ifPresent(option -> {
-                item.setStatusName(option.getText());
-            });
+            headerHandlerOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getHandleUser())).findFirst().ifPresent(option -> item.setHandleUserName(option.getText()));
+            statusOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getStatus())).findFirst().ifPresent(option -> item.setStatusName(option.getText()));
         });
         return associateBugs;
     }
