@@ -1083,6 +1083,7 @@
       ).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
+        requestVModel.value.responseDefinition,
         requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
         requestVModel.value.linkFileIds // 外面解析详情的时候传入
       );
@@ -1292,6 +1293,12 @@
       Message.success(t('common.updateSuccess'));
       requestVModel.value.updateTime = res.updateTime;
       requestVModel.value.unSaved = false;
+      const parseRequestBodyResult = parseRequestBodyFiles(
+        requestVModel.value.body,
+        requestVModel.value.responseDefinition
+      );
+      requestVModel.value.uploadFileIds = parseRequestBodyResult.uploadFileIds;
+      requestVModel.value.linkFileIds = parseRequestBodyResult.linkFileIds;
       emit('addDone');
     } catch (error) {
       // eslint-disable-next-line no-console

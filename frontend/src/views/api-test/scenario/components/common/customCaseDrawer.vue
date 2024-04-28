@@ -860,6 +860,7 @@
         // 复制 case 才能编辑，才需要计算
         parseRequestBodyResult = parseRequestBodyFiles(
           requestVModel.value.body,
+          undefined,
           props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
           props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
         );

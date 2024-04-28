@@ -1022,6 +1022,7 @@
       ).validParams;
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
+        undefined,
         props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
         props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
       );
@@ -1220,7 +1221,7 @@
       const res = await getDefinitionDetail(props.step?.resourceId || '');
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body, res.response); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
       requestVModel.value = {
         executeLoading: false,
