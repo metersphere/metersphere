@@ -25,4 +25,5 @@ public class ApiDefinitionExecuteInfo {
      * 资源id，接口定义，接口用例等
      */
     private String resourceId;
+    private Long num;
 }

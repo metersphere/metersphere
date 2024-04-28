@@ -147,10 +147,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Resource
     private OperationHistoryMapper operationHistoryMapper;
     @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
-    @Resource
-    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
-    @Resource
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
@@ -422,6 +418,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             msHTTPElement.setMethod(apiDefinition.getMethod());
             msHTTPElement.setPath(apiDefinition.getPath());
             msHTTPElement.setModuleId(apiDefinition.getModuleId());
+            msHTTPElement.setNum(apiDefinition.getNum());
             copyApiDefinitionDTO.setRequest(msTestElement);
             List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class);
             for (HttpResponse httpResponse : httpResponses) {
@@ -434,6 +431,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(msHTTPElement.getMethod(), apiDefinition.getMethod());
         Assertions.assertEquals(msHTTPElement.getPath(), apiDefinition.getPath());
         Assertions.assertEquals(msHTTPElement.getModuleId(), apiDefinition.getModuleId());
+        Assertions.assertEquals(msHTTPElement.getNum(), apiDefinition.getNum());
+
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
         assertErrorCode(this.requestGet(GET + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);

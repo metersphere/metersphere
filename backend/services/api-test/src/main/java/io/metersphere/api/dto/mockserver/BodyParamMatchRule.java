@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class BodyParamMatchRole {
+public class BodyParamMatchRule {
     @Schema(description = "参数类型(kv/json/xml/raw  默认为raw)")
     private String paramType;
     @Schema(description = "formData的匹配规则")
-    private keyValueMatchRole formDataMatch;
+    private keyValueMatchRule formDataMatch;
     @Schema(description = "文本匹配规则")
     private String raw;
 

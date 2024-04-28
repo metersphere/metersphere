@@ -68,4 +68,8 @@ public class MsHTTPElement extends AbstractMsProtocolTestElement {
      * 运行时参数，接口无需设置
      */
     private String moduleId;
+    /**
+     * mock执行需要的接口编号
+     */
+    private Long num;
 }

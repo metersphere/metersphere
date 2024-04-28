@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -50,6 +51,9 @@ public class ApiDefinitionMock implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_mock.api_definition_id.length_range}", groups = {Created.class, Updated.class})
     private String apiDefinitionId;
 
+    @Schema(description = "")
+    private Integer statusCode;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -62,7 +66,8 @@ public class ApiDefinitionMock implements Serializable {
         enable("enable", "enable", "BIT", true),
         expectNum("expect_num", "expectNum", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        apiDefinitionId("api_definition_id", "apiDefinitionId", "VARCHAR", false);
+        apiDefinitionId("api_definition_id", "apiDefinitionId", "VARCHAR", false),
+        statusCode("status_code", "statusCode", "INTEGER", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

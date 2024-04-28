@@ -15,7 +15,7 @@ public class TempFileUtils {
     }
 
     public static boolean isImage(String type) {
-        return StringUtils.equalsAnyIgnoreCase(type, "jpg", "jpeg", "png", "gif", "bmp", "svg", "ico");
+        return StringUtils.equalsAnyIgnoreCase(type, "jpg", "jpeg", "png", "gif", "bmp", "svg", "ico", "webp", "apng", "avif");
     }
 
     public static String getFileNameByPath(String filePath) {

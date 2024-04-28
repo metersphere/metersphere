@@ -156,6 +156,25 @@
             @change="handleFileChange"
           />
         </div>
+        <div class="flex items-center">
+          <a-switch
+            v-model:model-value="activeResponse.body.binaryBody.sendAsBody"
+            class="mr-[8px]"
+            size="small"
+            type="line"
+          ></a-switch>
+          <span>{{ t('apiTestDebug.sendAsMainText') }}</span>
+          <a-tooltip position="right">
+            <template #content>
+              <div>{{ t('apiTestDebug.sendAsMainTextTip1') }}</div>
+              <div>{{ t('apiTestDebug.sendAsMainTextTip2') }}</div>
+            </template>
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
       </div>
     </template>
     <paramTable

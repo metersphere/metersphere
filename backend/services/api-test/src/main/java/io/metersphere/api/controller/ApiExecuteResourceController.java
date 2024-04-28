@@ -6,6 +6,8 @@ import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/execute/resource")
+@Tag(name = "接口测试-执行-资源")
 public class ApiExecuteResourceController {
 
     @Resource
@@ -39,6 +42,7 @@ public class ApiExecuteResourceController {
      * @return
      */
     @GetMapping("script")
+    @Operation(summary = "获取执行脚本")
     public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
         String key = apiExecuteService.getScriptRedisKey(reportId, testId);
         LogUtils.info("获取执行脚本: {}", key);
@@ -55,6 +59,7 @@ public class ApiExecuteResourceController {
      * @return
      */
     @PostMapping("/file")
+    @Operation(summary = "下载执行所需的文件")
     public void downloadFile(@RequestParam("reportId") String reportId,
                              @RequestParam("testId") String testId,
                              @RequestBody FileRequest fileRequest,

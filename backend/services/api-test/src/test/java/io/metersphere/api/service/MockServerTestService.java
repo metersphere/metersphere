@@ -136,7 +136,7 @@ public class MockServerTestService {
     public MockMatchRule genMockMatchRule(String valuePrefix, boolean hasQuery, boolean hasHeader, String bodyParamType, boolean matchAll) {
         MockMatchRule mockMatchRule = new MockMatchRule();
 
-        keyValueMatchRole restMatchRule = new keyValueMatchRole();
+        keyValueMatchRule restMatchRule = new keyValueMatchRule();
         restMatchRule.setMatchAll(matchAll);
         restMatchRule.setMatchRules(new ArrayList<>() {{
             this.add(new KeyValueInfo() {{
@@ -151,7 +151,7 @@ public class MockServerTestService {
         mockMatchRule.setRest(restMatchRule);
 
         if (hasQuery) {
-            keyValueMatchRole queryMatchRule = new keyValueMatchRole();
+            keyValueMatchRule queryMatchRule = new keyValueMatchRule();
             queryMatchRule.setMatchAll(matchAll);
             queryMatchRule.setMatchRules(new ArrayList<>() {{
                 this.add(new KeyValueInfo() {{
@@ -171,7 +171,7 @@ public class MockServerTestService {
         }
 
         if (hasHeader) {
-            keyValueMatchRole headerMatchRule = new keyValueMatchRole();
+            keyValueMatchRule headerMatchRule = new keyValueMatchRule();
             headerMatchRule.setMatchAll(matchAll);
             headerMatchRule.setMatchRules(new ArrayList<>() {{
                 this.add(new KeyValueInfo() {{
@@ -191,9 +191,9 @@ public class MockServerTestService {
         }
 
         if (StringUtils.equalsIgnoreCase(bodyParamType, "kv")) {
-            mockMatchRule.setBody(new BodyParamMatchRole() {{
+            mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setParamType(Body.BodyType.FORM_DATA.name());
-                this.setFormDataMatch(new keyValueMatchRole() {{
+                this.setFormDataMatch(new keyValueMatchRule() {{
                     this.setMatchAll(matchAll);
                     this.setMatchRules(new ArrayList<>() {{
                         this.add(new KeyValueInfo() {{
@@ -212,17 +212,17 @@ public class MockServerTestService {
                 }});
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "raw")) {
-            mockMatchRule.setBody(new BodyParamMatchRole() {{
+            mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setParamType(Body.BodyType.RAW.name());
                 this.setRaw(valuePrefix + "_inputRawBody");
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "json")) {
-            mockMatchRule.setBody(new BodyParamMatchRole() {{
+            mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setParamType(Body.BodyType.JSON.name());
                 this.setRaw("{\"inputAge\":123}");
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "xml")) {
-            mockMatchRule.setBody(new BodyParamMatchRole() {{
+            mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setParamType(Body.BodyType.XML.name());
                 this.setRaw("<xml>input123</xml>");
             }});

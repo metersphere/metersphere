@@ -7,6 +7,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,13 +53,13 @@ public class MockServerUtils {
         requestParam.setRaw(requestPostString);
 
         //解析paramType
-        if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/json")) {
+        if (StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.APPLICATION_JSON_VALUE)) {
             requestParam.setJsonParam(requestPostString);
         } else if (StringUtils.endsWith(request.getContentType(), "/xml")) {
             requestParam.setXmlParam(requestPostString);
-        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/x-www-form-urlencoded")) {
+        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
             requestParam.setParamType(Body.BodyType.FORM_DATA.name());
-        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/plain")) {
+        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.TEXT_PLAIN_VALUE)) {
             requestParam.setParamType(Body.BodyType.RAW.name());
         } else if (isPost) {
             requestParam.setParamType(Body.BodyType.RAW.name());

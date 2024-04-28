@@ -554,6 +554,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         msHTTPElement.setMethod(apiDefinition.getMethod());
         msHTTPElement.setPath(apiDefinition.getPath());
         msHTTPElement.setModuleId(apiDefinition.getModuleId());
+        msHTTPElement.setNum(apiDefinition.getNum());
         copyApiDebugDTO.setRequest(msTestElement);
 
         msHTTPElement = (MsHTTPElement) apiDebugDTO.getRequest();

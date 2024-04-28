@@ -59,10 +59,10 @@ public class MockServerService {
     }
 
 
-    public Object execute(String method, Map<String, String> requestHeaderMap, String projectNum, String apiNumInfo, HttpServletRequest request, HttpServletResponse response) {
-        ApiDefinition apiDefinition = extApiDefinitionMapper.selectByProjectNumAndApiNum(projectNum, apiNumInfo);
+    public Object execute(String method, Map<String, String> requestHeaderMap, String projectNum, String apiNum, HttpServletRequest request, HttpServletResponse response) {
+        ApiDefinition apiDefinition = extApiDefinitionMapper.selectByProjectNumAndApiNum(projectNum, apiNum);
         String url = request.getRequestURL().toString();
-        String requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNumInfo), request);
+        String requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNum), request);
         if (apiDefinition == null) {
             requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum), request);
             apiDefinition = this.selectByProjectNumAndUrl(projectNum, method, requestUrlSuffix);
@@ -201,12 +201,13 @@ public class MockServerService {
                         return StringUtils.EMPTY;
                     }
                 } else {
-                    ApiFileResource apiFileResource = apiFileResourceMapper.selectByPrimaryKey(compareMockConfig.getId(), fileId);
+                    String resourceId = compareMockConfig != null ? compareMockConfig.getId() : apiId;
+                    ApiFileResource apiFileResource = apiFileResourceMapper.selectByPrimaryKey(resourceId, fileId);
                     if (apiFileResource != null) {
                         FileRepository defaultRepository = FileCenter.getDefaultRepository();
                         FileRequest fileRequest = new FileRequest();
                         fileRequest.setFileName(apiFileResource.getFileName());
-                        fileRequest.setFolder(DefaultRepositoryDir.getApiDefinitionDir(projectId, compareMockConfig.getId()) + "/" + fileId);
+                        fileRequest.setFolder(DefaultRepositoryDir.getApiDefinitionDir(projectId, resourceId) + "/" + fileId);
                         try {
                             bytes = defaultRepository.getFile(fileRequest);
                         } catch (Exception ignore) {
