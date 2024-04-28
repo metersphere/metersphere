@@ -186,14 +186,6 @@ public class ProjectService {
                 criteria.andApiTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
             }
-            case ApplicationScope.UI_TEST -> {
-                criteria.andUiTestEqualTo(true);
-                yield testResourcePoolMapper.selectByExample(example);
-            }
-            case ApplicationScope.LOAD_TEST -> {
-                criteria.andLoadTestEqualTo(true);
-                yield testResourcePoolMapper.selectByExample(example);
-            }
             default -> new ArrayList<>();
         };
         return testResourcePools.stream().map(testResourcePool ->

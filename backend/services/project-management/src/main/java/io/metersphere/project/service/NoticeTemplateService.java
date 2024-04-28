@@ -1,7 +1,6 @@
 package io.metersphere.project.service;
 
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
@@ -85,11 +84,6 @@ public class NoticeTemplateService {
                 // TODO: 待修改, 同步仅需的字段{操作人, 触发方式}
                 // 该方法提供了统一的内置通知模板字段; {操作人, 关注人, 触发方式}
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
-            }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(LoadTest.class);
-                addOptionDto(messageTemplateFieldDTOList, allFields, "load_");
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.SCHEDULE_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(Schedule.class);

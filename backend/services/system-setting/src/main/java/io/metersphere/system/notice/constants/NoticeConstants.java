@@ -32,12 +32,6 @@ public interface NoticeConstants {
         @Schema(description = "message.report_task")
         String API_REPORT_TASK = "API_REPORT_TASK";
 
-        //性能测试模块的任务
-        @Schema(description = "message.load_test_task")
-        String LOAD_TEST_TASK = "LOAD_TEST_TASK";
-        @Schema(description = "message.report_task")
-        String LOAD_REPORT_TASK = "LOAD_REPORT_TASK";
-
         //jenkins任务
         @Schema(description = "message.jenkins_task")
         String JENKINS_TASK = "JENKINS_TASK";

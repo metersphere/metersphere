@@ -25,6 +25,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class ProjectApplicationController {
     @Operation(summary = "UI测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
     public List<OptionDTO> getUiPoolOptions(@PathVariable String projectId) {
-        return projectService.getPoolOptions(projectId, ApplicationScope.UI_TEST);
+        return  new ArrayList<>();
     }
 
 

@@ -1,7 +1,6 @@
 package io.metersphere.system.notice.utils;
 
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -149,7 +148,6 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> FieldUtils.getAllFields(CaseReview.class);
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             case NoticeConstants.TaskType.BUG_TASK -> FieldUtils.getAllFields(BugMessageDTO.class);
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> FieldUtils.getAllFields(LoadTest.class);
             case NoticeConstants.TaskType.SCHEDULE_TASK -> FieldUtils.getAllFields(Schedule.class);
             default -> new Field[0];
         };
@@ -247,7 +245,6 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> putDomainName(domainTemplateFields, map, "test_plan_");
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> putDomainName(domainTemplateFields, map, "case_review_");
             case NoticeConstants.TaskType.BUG_TASK -> putDomainName(domainTemplateFields, map, "bug_");
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> putDomainName(domainTemplateFields, map, "load_");
             case NoticeConstants.TaskType.SCHEDULE_TASK -> putDomainName(domainTemplateFields, map, "schedule_");
             default -> {}
         }
