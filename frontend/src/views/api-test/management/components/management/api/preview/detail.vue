@@ -778,8 +778,7 @@
     background-color: rgb(var(--primary-1));
   }
   .arco-collapse {
-    @apply h-full overflow-y-auto;
-    .ms-scroll-bar();
+    @apply h-full;
 
     border-radius: 0;
     :deep(.arco-collapse-item-icon-hover) {
@@ -795,10 +794,7 @@
       }
     }
     .detail-collapse-item {
-      @apply overflow-y-auto;
-
       margin-bottom: 16px;
-      .ms-scroll-bar();
     }
   }
   .detail-item {

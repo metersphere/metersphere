@@ -1,5 +1,5 @@
 <template>
-  <div class="history-container">
+  <div>
     <a-input-search
       v-model:model-value="keyword"
       :placeholder="t('apiTestManagement.quoteSearchPlaceholder')"
@@ -124,10 +124,4 @@
   });
 </script>
 
-<style lang="less" scoped>
-  .history-container {
-    @apply h-full overflow-y-auto;
-
-    .ms-scroll-bar();
-  }
-</style>
+<style lang="less" scoped></style>

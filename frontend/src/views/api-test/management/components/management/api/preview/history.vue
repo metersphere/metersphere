@@ -1,5 +1,5 @@
 <template>
-  <div class="history-container">
+  <div>
     <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
       {{ t('apiTestManagement.historyListTip') }}
       <template #close-element>
@@ -115,10 +115,4 @@
   // }
 </script>
 
-<style lang="less" scoped>
-  .history-container {
-    @apply h-full overflow-y-auto;
-
-    .ms-scroll-bar();
-  }
-</style>
+<style lang="less" scoped></style>

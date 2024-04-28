@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full overflow-hidden">
+  <div class="preview">
     <div class="px-[18px] pt-[16px]">
       <MsDetailCard
         :title="`【${previewDetail.num}】${previewDetail.name}`"
@@ -33,21 +33,19 @@
         </template>
       </MsDetailCard>
     </div>
-    <div class="h-[calc(100%-124px)]">
-      <a-tabs v-model:active-key="activeKey" class="h-full" animation lazy-load>
-        <a-tab-pane key="detail" :title="t('apiTestManagement.detail')" class="px-[18px] py-[16px]">
-          <detailTab :detail="previewDetail" :protocols="props.protocols" />
-        </a-tab-pane>
-        <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
-          <quote :source-id="previewDetail.id" />
-        </a-tab-pane>
-        <!-- <a-tab-pane key="dependencies" :title="t('apiTestManagement.dependencies')" class="px-[18px] py-[16px]">
+    <a-tabs v-model:active-key="activeKey" animation lazy-load>
+      <a-tab-pane key="detail" :title="t('apiTestManagement.detail')" class="px-[18px] py-[16px]">
+        <detailTab :detail="previewDetail" :protocols="props.protocols" />
+      </a-tab-pane>
+      <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
+        <quote :source-id="previewDetail.id" />
+      </a-tab-pane>
+      <!-- <a-tab-pane key="dependencies" :title="t('apiTestManagement.dependencies')" class="px-[18px] py-[16px]">
         </a-tab-pane> -->
-        <a-tab-pane key="changeHistory" :title="t('apiTestManagement.changeHistory')" class="px-[18px] py-[16px]">
-          <history :source-id="previewDetail.id" />
-        </a-tab-pane>
-      </a-tabs>
-    </div>
+      <a-tab-pane key="changeHistory" :title="t('apiTestManagement.changeHistory')" class="px-[18px] py-[16px]">
+        <history :source-id="previewDetail.id" />
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
@@ -187,3 +185,13 @@
 
   const activeKey = ref('detail');
 </script>
+
+<style lang="less" scoped>
+  .preview {
+    @apply h-full w-full overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
+    :deep(.arco-tabs-pane) {
+      @apply h-auto;
+    }
+  }
+</style>

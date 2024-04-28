@@ -1,5 +1,5 @@
 <template>
-  <MsCard :min-width="1180" simple no-content-padding>
+  <MsCard has-breadcrumb simple no-content-padding>
     <MsSplitBox :size="300" :max="0.5">
       <template #first>
         <div class="p-[24px]">
