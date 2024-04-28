@@ -226,6 +226,10 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 if (ObjectUtils.isNotEmpty(value.getExample())) {
                     jsonBody.setJsonValue(ApiDataUtils.toJSONString(value.getExample()));
                 }
+                String jsonString = JSON.toJSONString(jsonSchemaItem);
+                if (StringUtils.isNotBlank(jsonString)) {
+                    jsonBody.setJsonValue(JsonSchemaBuilder.jsonSchemaToJson(jsonString));
+                }
                 body.setJsonBody(jsonBody);
             }
             case MediaType.APPLICATION_XML_VALUE -> {

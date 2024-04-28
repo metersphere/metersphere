@@ -10,6 +10,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
@@ -22,6 +23,7 @@ import io.metersphere.api.parser.api.postman.PostmanItem;
 import io.metersphere.api.parser.api.postman.PostmanKeyValue;
 import io.metersphere.api.parser.api.postman.PostmanRequest;
 import io.metersphere.api.parser.api.postman.PostmanResponse;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.auth.BasicAuth;
 import io.metersphere.project.dto.environment.auth.DigestAuth;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
@@ -31,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractParser<T> {
@@ -88,6 +91,11 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         request.getOtherConfig().setFollowRedirects(protocolProfileBehavior != null &&
                 BooleanUtils.isTrue(protocolProfileBehavior.getFollowRedirects()));
         request.getOtherConfig().setAutoRedirects(!request.getOtherConfig().getFollowRedirects());
+
+        //构造 children
+        LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+        children.add(new MsCommonElement());
+        request.setChildren(children);
 
         detail.setRequest(request);
 
