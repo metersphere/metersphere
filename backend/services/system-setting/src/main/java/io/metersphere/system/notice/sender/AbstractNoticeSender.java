@@ -13,11 +13,6 @@ import io.metersphere.functional.mapper.CaseReviewFollowerMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.load.domain.LoadTest;
-import io.metersphere.load.domain.LoadTestFollower;
-import io.metersphere.load.domain.LoadTestFollowerExample;
-import io.metersphere.load.mapper.LoadTestFollowerMapper;
-import io.metersphere.load.mapper.LoadTestMapper;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFollower;
 import io.metersphere.plan.domain.TestPlanFollowerExample;
@@ -67,10 +62,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private ApiDefinitionFollowerMapper apiDefinitionFollowerMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
-    @Resource
-    private LoadTestFollowerMapper loadTestFollowerMapper;
-    @Resource
-    private LoadTestMapper loadTestMapper;
     @Resource
     private CaseReviewFollowerMapper caseReviewFollowerMapper;
     @Resource
@@ -213,12 +204,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     receiver = new Receiver(apiDefinition.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
                 }
             }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
-                LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
-                if (loadTest != null) {
-                    receiver = new Receiver(loadTest.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
-                }
-            }
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
                 FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
                 if (functionalCase != null) {
@@ -293,15 +278,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 apiDefinitionFollowerExample.createCriteria().andApiDefinitionIdEqualTo(id);
                 List<ApiDefinitionFollower> apiDefinitionFollowers = apiDefinitionFollowerMapper.selectByExample(apiDefinitionFollowerExample);
                 receivers = apiDefinitionFollowers
-                        .stream()
-                        .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
-                        .collect(Collectors.toList());
-            }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
-                LoadTestFollowerExample loadTestFollowerExample = new LoadTestFollowerExample();
-                loadTestFollowerExample.createCriteria().andTestIdEqualTo(id);
-                List<LoadTestFollower> loadTestFollowers = loadTestFollowerMapper.selectByExample(loadTestFollowerExample);
-                receivers = loadTestFollowers
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());

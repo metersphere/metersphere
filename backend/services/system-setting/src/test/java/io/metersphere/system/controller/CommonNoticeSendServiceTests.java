@@ -11,7 +11,6 @@ import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
 import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.BeanUtils;
@@ -274,58 +273,6 @@ public class CommonNoticeSendServiceTests extends BaseTest {
 
         for (String event : eventList) {
             commonNoticeSendService.sendNotice(caseReviewTask, event,resources, user, "100001100001");
-        }
-
-    }
-
-    @Test
-    @Order(6)
-    public void LoadTestTaskTaskNoticeSuccess() {
-        String loadTestTask = NoticeConstants.TaskType.LOAD_TEST_TASK;
-
-        List<String>eventList = new ArrayList<>();
-        getTypeList(eventList);
-        LoadTest loadTest = new LoadTest();
-        loadTest.setId("aspect_gyq_load_test_one");
-        loadTest.setProjectId("100001100001");
-        loadTest.setName("load_test");
-        loadTest.setCreateTime(System.currentTimeMillis());
-        loadTest.setUpdateTime(System.currentTimeMillis());
-        loadTest.setStatus("Starting");
-        loadTest.setTestResourcePoolId("test_pool");
-        loadTest.setNum(10001);
-        loadTest.setCreateUser("admin");
-        loadTest.setPos(1L);
-        loadTest.setVersionId("v1.10");
-        loadTest.setRefId("aspect_gyq_load_test_one");
-        loadTest.setLatest(true);
-
-        String jsonObject = JSON.toJSONString(loadTest);
-        if (!StringUtils.equals("{}", jsonObject) && !StringUtils.equals("[]", jsonObject)) {
-            source.set(JSON.toJSONString(loadTest));
-        }
-
-        List<Map> resources = new ArrayList<>();
-        String v = source.get();
-        if (StringUtils.isNotBlank(v)) {
-            // array
-            if (StringUtils.startsWith(v, "[")) {
-                resources.addAll(JSON.parseArray(v, Map.class));
-            }
-            // map
-            else {
-                Map<?, ?> value = JSON.parseObject(v, Map.class);
-                resources.add(value);
-            }
-        }
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(sessionId);
-        userDTO.setName("admin");
-        SessionUser user = SessionUser.fromUser(userDTO, sessionId);
-
-        for (String event : eventList) {
-            commonNoticeSendService.sendNotice(loadTestTask, event,resources, user, "100001100001");
         }
 
     }

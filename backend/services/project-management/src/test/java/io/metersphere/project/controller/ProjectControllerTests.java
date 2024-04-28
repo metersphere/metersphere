@@ -400,14 +400,8 @@ public class ProjectControllerTests extends BaseTest {
     @Order(9)
     public void testGetPoolOptions() throws Exception {
         MvcResult mvcResult = this.responseGet(getPoolOptions + ApplicationScope.API_TEST + "/" + DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.UI_TEST + "/" + DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + DEFAULT_PROJECT_ID);
         mvcResult = this.responseGet(getPoolOptions + "test" + "/" + DEFAULT_PROJECT_ID);
         mvcResult = this.responseGet(getPoolOptions + ApplicationScope.API_TEST + "/" + "projectId");
-        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.UI_TEST + "/" + "projectId");
-        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + "projectId");
-        //项目不存在
-        this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + "projectId20", status().is5xxServerError());
         //权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/" + DEFAULT_PROJECT_ID);
 

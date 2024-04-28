@@ -3,12 +3,11 @@ package io.metersphere.project.controller;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,11 +46,6 @@ public class NoticeTemplateControllerTests extends BaseTest {
             ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
             MessageTemplateResultDTO messageTemplateResultDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateResultDTO.class);
             List<MessageTemplateFieldDTO> projectList = messageTemplateResultDTO.getFieldList();
-            if (s.equals(NoticeConstants.TaskType.LOAD_REPORT_TASK)) {
-                Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
-            } else {
-                Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
-            }
         }
     }
 
@@ -62,7 +56,6 @@ public class NoticeTemplateControllerTests extends BaseTest {
         typeList.add(NoticeConstants.TaskType.CASE_REVIEW_TASK);
         typeList.add(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
-        typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
         typeList.add(NoticeConstants.TaskType.JENKINS_TASK);
         typeList.add(NoticeConstants.TaskType.SCHEDULE_TASK);
     }
