@@ -381,6 +381,7 @@ public class ApiCommonService {
             httpElement.setModuleId(definitionExecuteInfo.getModuleId());
             httpElement.setMethod(definitionExecuteInfo.getMethod());
             httpElement.setPath(definitionExecuteInfo.getPath());
+            httpElement.setNum(definitionExecuteInfo.getNum());
         }
     }
 

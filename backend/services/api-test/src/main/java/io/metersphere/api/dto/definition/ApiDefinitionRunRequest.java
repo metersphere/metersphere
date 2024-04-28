@@ -21,4 +21,7 @@ public class ApiDefinitionRunRequest extends ApiDebugRunRequest {
 
     @Schema(description = "模块fk")
     private String moduleId;
+
+    @Schema(description = "接口编号  mock执行需要")
+    private Long num;
 }

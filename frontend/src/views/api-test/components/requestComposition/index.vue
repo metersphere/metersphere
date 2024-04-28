@@ -1141,13 +1141,13 @@
 
     // 处理断言参数
     const { assertionConfig } = requestVModel.value.children[0];
-
     return {
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
       environmentId: appStore.currentEnvConfig?.id || '',
       name: requestName,
       moduleId: requestModuleId,
+      num: requestVModel.value.num,
       ...apiDefinitionParams,
       protocol: requestVModel.value.protocol,
       method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,

@@ -807,6 +807,66 @@ public class ApiDefinitionMockExample {
             addCriterion("api_definition_id not between", value1, value2, "apiDefinitionId");
             return (Criteria) this;
         }
+
+        public Criteria andStatusCodeIsNull() {
+            addCriterion("status_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeIsNotNull() {
+            addCriterion("status_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeEqualTo(Integer value) {
+            addCriterion("status_code =", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeNotEqualTo(Integer value) {
+            addCriterion("status_code <>", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeGreaterThan(Integer value) {
+            addCriterion("status_code >", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("status_code >=", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeLessThan(Integer value) {
+            addCriterion("status_code <", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeLessThanOrEqualTo(Integer value) {
+            addCriterion("status_code <=", value, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeIn(List<Integer> values) {
+            addCriterion("status_code in", values, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeNotIn(List<Integer> values) {
+            addCriterion("status_code not in", values, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeBetween(Integer value1, Integer value2) {
+            addCriterion("status_code between", value1, value2, "statusCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusCodeNotBetween(Integer value1, Integer value2) {
+            addCriterion("status_code not between", value1, value2, "statusCode");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

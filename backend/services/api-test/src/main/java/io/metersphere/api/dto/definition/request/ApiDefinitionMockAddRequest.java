@@ -32,6 +32,9 @@ public class ApiDefinitionMockAddRequest implements Serializable {
     @Size(min = 1, max = 255, message = "{api_definition_mock.name.length_range}")
     private String name;
 
+    @Schema(description = "响应码")
+    private int statusCode;
+
     @Schema(description = "标签")
     private LinkedHashSet<
             @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")

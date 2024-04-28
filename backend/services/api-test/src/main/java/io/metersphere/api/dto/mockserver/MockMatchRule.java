@@ -15,16 +15,16 @@ public class MockMatchRule implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "请求头匹配规则")
-    private keyValueMatchRole header = new keyValueMatchRole();
+    private keyValueMatchRule header = new keyValueMatchRule();
     @Schema(description = "query参数匹配规则")
-    private keyValueMatchRole query = new keyValueMatchRole();
+    private keyValueMatchRule query = new keyValueMatchRule();
     @Schema(description = "REST参数匹配规则")
-    private keyValueMatchRole rest = new keyValueMatchRole();
+    private keyValueMatchRule rest = new keyValueMatchRule();
     @Schema(description = "body参数匹配规则")
-    private BodyParamMatchRole body = new BodyParamMatchRole();
+    private BodyParamMatchRule body = new BodyParamMatchRule();
 
     public boolean keyValueMatch(String matchType, Map<String, String> matchParam) {
-        keyValueMatchRole matchRole = null;
+        keyValueMatchRule matchRole = null;
         switch (matchType) {
             case "header":
                 matchRole = header;
