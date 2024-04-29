@@ -186,7 +186,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             responseBody.forEach((key, value) -> {
                 HttpResponse httpResponse = new HttpResponse();
                 //TODO headers
-                httpResponse.setStatusCode(key);
+                httpResponse.setStatusCode(StringUtils.equals("default", key) ? "200" :key);
                 ResponseBody body = new ResponseBody();
                 Map<String, io.swagger.v3.oas.models.headers.Header> headers = value.getHeaders();
                 if (MapUtils.isNotEmpty(headers)) {

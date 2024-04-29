@@ -183,11 +183,14 @@ public class MockServerService {
                 String fileId = responseBody.getBinaryBody().getFile().getFileId();
                 String fileName = responseBody.getBinaryBody().getFile().getFileName();
                 String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
-                MediaType mediaType = MediaType.parseMediaType("application/octet-stream");
+                MediaType mediaType = MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
                 if (responseBody.getBinaryBody().isSendAsBody()) {
-                    String contentType = "text/plain";
+                    String contentType = MediaType.TEXT_PLAIN_VALUE;
                     if (TempFileUtils.isImage(fileType)) {
                         contentType = "image/" + fileType;
+                       if (StringUtils.equalsIgnoreCase(fileType, "pdf")) {
+                            contentType = MediaType.APPLICATION_PDF_VALUE;
+                        }
                     }
                     mediaType = MediaType.parseMediaType(contentType);
                 }
