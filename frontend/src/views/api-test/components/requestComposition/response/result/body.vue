@@ -1,18 +1,26 @@
 <template>
-  <div v-if="showImg">
+  <div v-if="showImg || isPdf" :class="showType === 'text' ? '' : 'h-full'">
     <div class="mb-[8px] flex items-center gap-[16px]">
       <a-button type="outline" class="arco-btn-outline--secondary" size="mini" @click="handleDownload">
         {{ t('common.download') }}
       </a-button>
       <a-radio-group v-model:model-value="showType" type="button" size="small">
-        <a-radio value="image">{{ t('common.image') }}</a-radio>
+        <a-radio v-if="isPdf" value="pdf">pdf</a-radio>
+        <a-radio v-else value="image">{{ t('common.image') }}</a-radio>
         <a-radio value="text">{{ t('common.text') }}</a-radio>
       </a-radio-group>
     </div>
-    <a-image v-show="showType === 'image'" :src="imageUrl"></a-image>
+    <object
+      v-if="isPdf && showType === 'pdf'"
+      :data="imageUrl"
+      type="application/pdf"
+      width="100%"
+      style="height: calc(100% - 30px)"
+    ></object>
+    <a-image v-else-if="showType === 'image'" :src="imageUrl"></a-image>
   </div>
   <MsCodeEditor
-    v-show="!showImg || showType === 'text'"
+    v-show="(!showImg && !isPdf) || showType === 'text'"
     ref="responseEditorRef"
     :model-value="props.requestResult?.responseResult.body || ''"
     :language="responseLanguage"
@@ -81,6 +89,12 @@
     }
     return false;
   });
+  const isPdf = computed(() => {
+    if (props.requestResult) {
+      return props.requestResult.responseResult.contentType === 'application/pdf';
+    }
+    return false;
+  });
   const imageUrl = computed(() => {
     if (props.requestResult) {
       return `data:${props.requestResult?.responseResult.contentType};base64,${props.requestResult?.responseResult.imageUrl}`;
@@ -88,10 +102,24 @@
     return '';
   });
 
-  const showType = ref<'image' | 'text'>('image');
+  const showType = ref<'image' | 'pdf' | 'text'>('image');
+
+  watchEffect(() => {
+    if (props.requestResult) {
+      if (showImg.value) {
+        showType.value = 'image';
+      } else if (isPdf.value) {
+        showType.value = 'pdf';
+      } else {
+        showType.value = 'text';
+      }
+    }
+  });
 
   function handleDownload() {
-    if (imageUrl.value) {
+    if (isPdf.value) {
+      downloadUrlFile(imageUrl.value, 'response.pdf');
+    } else if (imageUrl.value) {
       downloadUrlFile(imageUrl.value, `response.${props.requestResult?.responseResult.contentType.split('/')[1]}`);
     }
   }

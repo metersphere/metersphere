@@ -1,7 +1,15 @@
 <template>
-  <div :class="['p-[16px_22px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-end">
-      <div class="flex items-center gap-[8px]">
+  <div :class="['p-[8px_22px]', props.class]">
+    <div :class="['mb-[8px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
+      <a-button
+        v-show="props.isApi"
+        v-permission="['PROJECT_API_DEFINITION_MOCK:READ+ADD']"
+        type="primary"
+        @click="createMock"
+      >
+        {{ t('mockManagement.createMock') }}
+      </a-button>
+      <div class="flex gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('apiTestManagement.searchPlaceholder')"
@@ -11,6 +19,11 @@
           @press-enter="loadMockList"
           @clear="loadMockList"
         />
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadMockList">
+          <template #icon>
+            <icon-refresh class="text-[var(--color-text-4)]" />
+          </template>
+        </a-button>
       </div>
     </div>
     <ms-base-table
@@ -23,24 +36,45 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #action="{ record }">
+      <template #num="{ record }">
+        <MsButton type="text" @click="openMockDetailDrawer(record)">
+          {{ record.num }}
+        </MsButton>
+      </template>
+      <template #enable="{ record }">
         <a-switch
           v-model="record.enable"
           size="small"
           type="line"
           @change="(value) => changeDefault(value, record)"
         ></a-switch>
+      </template>
+      <template #action="{ record }">
+        <MsButton type="text" @click="debugMock(record)">
+          {{ t('apiTestManagement.debug') }}
+        </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
+      <template v-if="hasAnyPermission(['PROJECT_API_DEFINITION_MOCK:READ+ADD']) && props.isApi" #empty>
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          {{ t('apiTestManagement.tableNoDataAndPlease') }}
+          <MsButton class="ml-[8px]" @click="createMock">
+            {{ t('mockManagement.createMock') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
   </div>
+  <mockDetailDrawer v-model:visible="mockDetailDrawerVisible" />
+  <mockDebugDrawer v-model:visible="mockDebugDrawerVisible" />
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -56,12 +90,17 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
   import { OrdTemplateManagement } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  const mockDetailDrawer = defineAsyncComponent(() => import('./mockDetailDrawer.vue'));
+  const mockDebugDrawer = defineAsyncComponent(() => import('./mockDebugDrawer.vue'));
+
   const props = defineProps<{
+    isApi?: boolean; // 接口定义详情的case tab下
     class?: string;
     activeModule: string;
     offspringIds: string[];
@@ -77,8 +116,6 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const showSubdirectory = ref(false);
-  const checkedEnv = ref('DEV');
   const keyword = ref('');
 
   let columns: MsTableColumn = [
@@ -117,6 +154,12 @@
       slotName: 'apiPath',
       showTooltip: true,
       width: 200,
+    },
+    {
+      title: 'common.status',
+      dataIndex: 'enable',
+      slotName: 'enable',
+      width: 100,
     },
     {
       title: 'mockManagement.operationUser',
@@ -231,6 +274,7 @@
       Message.success(t('system.orgTemplate.setSuccessfully'));
       loadMockList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -332,6 +376,25 @@
       default:
         break;
     }
+  }
+
+  const mockDetailDrawerVisible = ref(false);
+  const activeMockRecord = ref<ApiDefinitionMockDetail>();
+
+  function createMock() {
+    activeMockRecord.value = undefined;
+    mockDetailDrawerVisible.value = true;
+  }
+
+  function openMockDetailDrawer(record: ApiDefinitionMockDetail) {
+    activeMockRecord.value = record;
+    mockDetailDrawerVisible.value = true;
+  }
+
+  const mockDebugDrawerVisible = ref(false);
+  function debugMock(record: ApiDefinitionMockDetail) {
+    activeMockRecord.value = record;
+    mockDebugDrawerVisible.value = true;
   }
 
   defineExpose({

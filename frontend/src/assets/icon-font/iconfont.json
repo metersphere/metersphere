@@ -6,6 +6,20 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "39725024",
+      "name": "icon_menu_unfold",
+      "font_class": "icon_menu_unfold",
+      "unicode": "e7a9",
+      "unicode_decimal": 59305
+    },
+    {
+      "icon_id": "39725023",
+      "name": "icon_menu_fold",
+      "font_class": "icon_menu_fold",
+      "unicode": "e7aa",
+      "unicode_decimal": 59306
+    },
+    {
       "icon_id": "39710057",
       "name": "icon_stop",
       "font_class": "icon_stop",
