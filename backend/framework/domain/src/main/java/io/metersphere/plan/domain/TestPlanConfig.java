@@ -27,8 +27,10 @@ public class TestPlanConfig implements Serializable {
     @NotNull(message = "{test_plan_config.pass_threshold.not_blank}", groups = {Created.class})
     private Double passThreshold;
 
-    @Schema(description = "运行模式")
-    private String runModeConfig;
+    @Schema(description = "是否开启测试规划", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_config.test_planning.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 1, message = "{test_plan_config.test_planning.length_range}", groups = {Created.class, Updated.class})
+    private Boolean testPlanning;
 
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +39,7 @@ public class TestPlanConfig implements Serializable {
         automaticStatusUpdate("automatic_status_update", "automaticStatusUpdate", "BIT", false),
         repeatCase("repeat_case", "repeatCase", "BIT", false),
         passThreshold("pass_threshold", "passThreshold", "DOUBLE", false),
-        runModeConfig("run_mode_config", "runModeConfig", "LONGVARCHAR", false);
+        testPlanning("test_planning", "testPlanning", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -17,18 +16,13 @@ public class TestPlanTableRequest extends BasePageRequest {
     private List<String> moduleIds;
 
     @Schema(description = "项目ID")
-    @NotBlank(message = "{id must not be blank}")
+    @NotBlank(message = "{test_plan.project_id.not_blank}")
     private String projectId;
 
-    public TestPlanTableRequest() {
-        this.setCurrent(1);
-        this.setPageSize(5);
-    }
+    @Schema(description = "类型", allowableValues = {"ALL", "TEST_PLAN", "GROUP"}, requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan.type.not_blank}")
+    private String type;
 
-    //没有查询条件
-    public boolean conditionIsEmpty() {
-        return StringUtils.isEmpty(this.getKeyword()) && MapUtils.isEmpty(this.getFilter()) && MapUtils.isEmpty(this.getCombine());
-    }
 
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {

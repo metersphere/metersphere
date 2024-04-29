@@ -6,9 +6,7 @@
     <result column="automatic_status_update" jdbcType="BIT" property="automaticStatusUpdate" />
     <result column="repeat_case" jdbcType="BIT" property="repeatCase" />
     <result column="pass_threshold" jdbcType="DOUBLE" property="passThreshold" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanConfig">
-    <result column="run_mode_config" jdbcType="LONGVARCHAR" property="runModeConfig" />
+    <result column="test_planning" jdbcType="BIT" property="testPlanning" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,27 +67,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_plan_id, automatic_status_update, repeat_case, pass_threshold
+    test_plan_id, automatic_status_update, repeat_case, pass_threshold, test_planning
   </sql>
-  <sql id="Blob_Column_List">
-    run_mode_config
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanConfigExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from test_plan_config
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanConfigExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -104,11 +83,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from test_plan_config
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
   </select>
@@ -124,9 +101,9 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanConfig">
     insert into test_plan_config (test_plan_id, automatic_status_update, repeat_case, 
-      pass_threshold, run_mode_config)
+      pass_threshold, test_planning)
     values (#{testPlanId,jdbcType=VARCHAR}, #{automaticStatusUpdate,jdbcType=BIT}, #{repeatCase,jdbcType=BIT}, 
-      #{passThreshold,jdbcType=DOUBLE}, #{runModeConfig,jdbcType=LONGVARCHAR})
+      #{passThreshold,jdbcType=DOUBLE}, #{testPlanning,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanConfig">
     insert into test_plan_config
@@ -143,8 +120,8 @@
       <if test="passThreshold != null">
         pass_threshold,
       </if>
-      <if test="runModeConfig != null">
-        run_mode_config,
+      <if test="testPlanning != null">
+        test_planning,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -160,8 +137,8 @@
       <if test="passThreshold != null">
         #{passThreshold,jdbcType=DOUBLE},
       </if>
-      <if test="runModeConfig != null">
-        #{runModeConfig,jdbcType=LONGVARCHAR},
+      <if test="testPlanning != null">
+        #{testPlanning,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -186,21 +163,10 @@
       <if test="record.passThreshold != null">
         pass_threshold = #{record.passThreshold,jdbcType=DOUBLE},
       </if>
-      <if test="record.runModeConfig != null">
-        run_mode_config = #{record.runModeConfig,jdbcType=LONGVARCHAR},
+      <if test="record.testPlanning != null">
+        test_planning = #{record.testPlanning,jdbcType=BIT},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update test_plan_config
-    set test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
-      automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
-      repeat_case = #{record.repeatCase,jdbcType=BIT},
-      pass_threshold = #{record.passThreshold,jdbcType=DOUBLE},
-      run_mode_config = #{record.runModeConfig,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -210,7 +176,8 @@
     set test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{record.repeatCase,jdbcType=BIT},
-      pass_threshold = #{record.passThreshold,jdbcType=DOUBLE}
+      pass_threshold = #{record.passThreshold,jdbcType=DOUBLE},
+      test_planning = #{record.testPlanning,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,35 +194,28 @@
       <if test="passThreshold != null">
         pass_threshold = #{passThreshold,jdbcType=DOUBLE},
       </if>
-      <if test="runModeConfig != null">
-        run_mode_config = #{runModeConfig,jdbcType=LONGVARCHAR},
+      <if test="testPlanning != null">
+        test_planning = #{testPlanning,jdbcType=BIT},
       </if>
     </set>
-    where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanConfig">
-    update test_plan_config
-    set automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
-      repeat_case = #{repeatCase,jdbcType=BIT},
-      pass_threshold = #{passThreshold,jdbcType=DOUBLE},
-      run_mode_config = #{runModeConfig,jdbcType=LONGVARCHAR}
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanConfig">
     update test_plan_config
     set automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{repeatCase,jdbcType=BIT},
-      pass_threshold = #{passThreshold,jdbcType=DOUBLE}
+      pass_threshold = #{passThreshold,jdbcType=DOUBLE},
+      test_planning = #{testPlanning,jdbcType=BIT}
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_config
-    (test_plan_id, automatic_status_update, repeat_case, pass_threshold, run_mode_config
+    (test_plan_id, automatic_status_update, repeat_case, pass_threshold, test_planning
       )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.testPlanId,jdbcType=VARCHAR}, #{item.automaticStatusUpdate,jdbcType=BIT}, 
-        #{item.repeatCase,jdbcType=BIT}, #{item.passThreshold,jdbcType=DOUBLE}, #{item.runModeConfig,jdbcType=LONGVARCHAR}
+        #{item.repeatCase,jdbcType=BIT}, #{item.passThreshold,jdbcType=DOUBLE}, #{item.testPlanning,jdbcType=BIT}
         )
     </foreach>
   </insert>
@@ -281,8 +241,8 @@
         <if test="'pass_threshold'.toString() == column.value">
           #{item.passThreshold,jdbcType=DOUBLE}
         </if>
-        <if test="'run_mode_config'.toString() == column.value">
-          #{item.runModeConfig,jdbcType=LONGVARCHAR}
+        <if test="'test_planning'.toString() == column.value">
+          #{item.testPlanning,jdbcType=BIT}
         </if>
       </foreach>
       )

@@ -178,6 +178,9 @@ public class TestPlanTests extends BaseTest {
         //查询测试计划列表
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
+        testPlanTableRequest.setCurrent(1);
+        testPlanTableRequest.setPageSize(10);
+        testPlanTableRequest.setType("ALL");
 
         //先测试一下没有开启模块时接口能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
@@ -504,6 +507,7 @@ public class TestPlanTests extends BaseTest {
         assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
         TestPlanCreateRequest request = new TestPlanCreateRequest();
         request.setProjectId(project.getId());
+        request.setTestPlanning(false);
 
         for (int i = 0; i < 999; i++) {
             String moduleId;
@@ -650,6 +654,9 @@ public class TestPlanTests extends BaseTest {
     public void testPlanPageCountTest() throws Exception {
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
+        testPlanTableRequest.setType("ALL");
+        testPlanTableRequest.setPageSize(10);
+        testPlanTableRequest.setCurrent(1);
 
         //测试项目没有开启测试计划模块时能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
@@ -934,6 +941,9 @@ public class TestPlanTests extends BaseTest {
         //因为有条数据被移动了测试计划组里，所以检查一下moduleCount.
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
+        testPlanTableRequest.setCurrent(1);
+        testPlanTableRequest.setPageSize(10);
+        testPlanTableRequest.setType("ALL");
         MvcResult moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
         String moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         Map<String, Object> moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);

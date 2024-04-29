@@ -94,6 +94,7 @@ public class TestPlanService {
         testPlanConfig.setAutomaticStatusUpdate(testPlanCreateRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(testPlanCreateRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(testPlanCreateRequest.getPassThreshold());
+        testPlanConfig.setTestPlanning(testPlanCreateRequest.isTestPlanning());
 
         if (testPlanCreateRequest.isGroupOption()) {
             testPlanXPackFactory.getTestPlanGroupService().validateGroup(createTestPlan, testPlanConfig);

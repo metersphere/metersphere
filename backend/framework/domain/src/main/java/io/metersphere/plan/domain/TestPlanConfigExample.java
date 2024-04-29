@@ -353,6 +353,66 @@ public class TestPlanConfigExample {
             addCriterion("pass_threshold not between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
+
+        public Criteria andTestPlanningIsNull() {
+            addCriterion("test_planning is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningIsNotNull() {
+            addCriterion("test_planning is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningEqualTo(Boolean value) {
+            addCriterion("test_planning =", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningNotEqualTo(Boolean value) {
+            addCriterion("test_planning <>", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningGreaterThan(Boolean value) {
+            addCriterion("test_planning >", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("test_planning >=", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningLessThan(Boolean value) {
+            addCriterion("test_planning <", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningLessThanOrEqualTo(Boolean value) {
+            addCriterion("test_planning <=", value, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningIn(List<Boolean> values) {
+            addCriterion("test_planning in", values, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningNotIn(List<Boolean> values) {
+            addCriterion("test_planning not in", values, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningBetween(Boolean value1, Boolean value2) {
+            addCriterion("test_planning between", value1, value2, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanningNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("test_planning not between", value1, value2, "testPlanning");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
