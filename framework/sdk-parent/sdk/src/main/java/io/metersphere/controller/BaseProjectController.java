@@ -11,6 +11,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.service.BaseProjectService;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +44,7 @@ public class BaseProjectController {
     }
 
     @GetMapping("/get/{id}")
+    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.PROJECT_MANAGER_READ}, logical = Logical.OR)
     public Project getProject(@PathVariable String id) {
         return baseProjectService.getProjectById(id);
     }

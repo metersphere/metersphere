@@ -5,17 +5,19 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.request.testreview.SaveCommentRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.TestCaseCommentService;
 import io.metersphere.service.TestCaseService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/test/case/comment")
@@ -30,6 +32,7 @@ public class TestCaseCommentController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.COMMENT, subject = "测试用例通知")
+    @CheckOwner(resourceId = "#request.caseId", resourceType = "test_case")
     public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
         return testCaseCommentService.saveComment(request);
     }
@@ -59,13 +62,14 @@ public class TestCaseCommentController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#commentId)", msClass = TestCaseCommentService.class)
     public void deleteComment(@PathVariable String commentId) {
-        testCaseCommentService.delete(commentId);
+        testCaseCommentService.delete(commentId, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
+    @CheckOwner(resourceId = "#request.caseId", resourceType = "test_case")
     public TestCaseComment editComment(@RequestBody SaveCommentRequest request) {
-       return testCaseCommentService.edit(request);
+       return testCaseCommentService.edit(request, SessionUtils.getCurrentProjectId());
     }
 }

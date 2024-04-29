@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
@@ -19,12 +20,12 @@ import io.metersphere.plan.request.function.TestPlanFuncCaseEditRequest;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.security.CheckOwner;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 
@@ -101,7 +102,7 @@ public class TestPlanTestCaseController {
     @GetMapping("/get/{caseId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId) {
-        return testPlanTestCaseService.get(caseId);
+        return testPlanTestCaseService.get(caseId, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("recent/{count}")

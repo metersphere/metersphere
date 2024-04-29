@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseTestMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtCheckOwnerMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.MicroServiceName;
@@ -16,9 +17,9 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.StatusReference;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.function.*;
@@ -91,6 +92,8 @@ public class TestPlanTestCaseService {
     private CustomFieldTestCaseService customFieldTestCaseService;
     @Resource
     private TestCaseSyncStatusService testCaseSyncStatusService;
+    @Resource
+    private ExtCheckOwnerMapper extCheckOwnerMapper;
 
     private static final String CUSTOM_NUM = "custom_num";
     private static final String NUM = "num";
@@ -306,8 +309,9 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
-    public TestPlanCaseDTO get(String id) {
+    public TestPlanCaseDTO get(String id, String currentProjectId) {
         TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(id);
+        checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), currentProjectId);
         ServiceUtils.buildCustomNumInfo(testPlanCaseDTO);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(this::setTestName);
@@ -548,7 +552,7 @@ public class TestPlanTestCaseService {
     public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanTestCaseMapper.selectForPlanReport(planId);
-            this.calculatePlanReport(planReportCaseDTOS, report);
+            calculatePlanReport(planReportCaseDTOS, report);
         } catch (MSException e) {
             LogUtil.error(e);
         }
@@ -574,7 +578,7 @@ public class TestPlanTestCaseService {
                     }
 
                 }
-                this.calculatePlanReport(planReportCaseDTOList, report);
+                calculatePlanReport(planReportCaseDTOList, report);
             }
         } catch (MSException e) {
             LogUtil.error(e);
@@ -599,7 +603,7 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> getAllCases(String planId) {
-        return buildCaseInfo(this.getAllCasesByStatusList(planId, null));
+        return buildCaseInfo(getAllCasesByStatusList(planId, null));
     }
 
     public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {
@@ -646,5 +650,12 @@ public class TestPlanTestCaseService {
 
     public int reduction(List<String> caseIds) {
         return updateIsDel(caseIds, false);
+    }
+
+    private void checkPlanCaseOwner(String caseId, String currentProjectId) {
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentProjectId, List.of(caseId));
+        if (!hasPermission) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
     }
 }
