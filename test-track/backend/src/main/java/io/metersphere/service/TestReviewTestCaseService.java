@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtCheckOwnerMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
@@ -16,6 +17,7 @@ import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewCaseDTO;
 import io.metersphere.dto.TestReviewTestCaseEditResult;
 import io.metersphere.excel.converter.TestReviewCaseStatus;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
@@ -67,6 +69,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewTestCaseUsersMapper testCaseReviewTestCaseUsersMapper;
     @Resource
     TestCaseReviewTestCaseUsersService testCaseReviewTestCaseUsersService;
+    @Resource
+    ExtCheckOwnerMapper extCheckOwnerMapper;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -455,8 +459,9 @@ public class TestReviewTestCaseService {
         return comments;
     }
 
-    public TestReviewCaseDTO get(String testReviewTestCaseId) {
+    public TestReviewCaseDTO get(String testReviewTestCaseId, String currentProjectId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(testReviewTestCaseId);
+        checkReviewCaseOwner(testReviewCaseDTO.getCaseId(), currentProjectId);
         testReviewCaseDTO.setFields(testCaseService.getCustomFieldByCaseId(testReviewCaseDTO.getCaseId()));
         return testReviewCaseDTO;
     }
@@ -873,6 +878,13 @@ public class TestReviewTestCaseService {
             review.setStatus(TestPlanStatus.Finished.name());
             testCaseReviewMapper.updateByExampleSelective(review, example);
             testCaseReviewDTO.setStatus(TestPlanStatus.Finished.name());
+        }
+    }
+
+    private void checkReviewCaseOwner(String caseId, String currentProjectId) {
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentProjectId, List.of(caseId));
+        if (!hasPermission) {
+            MSException.throwException(Translator.get("check_owner_case"));
         }
     }
 }

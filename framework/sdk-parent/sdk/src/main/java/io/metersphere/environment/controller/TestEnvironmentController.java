@@ -20,6 +20,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.EnvironmentRequest;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.json.JSONArray;
@@ -60,7 +61,11 @@ public class TestEnvironmentController {
      * @return
      */
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(value = PermissionConstants.PROJECT_ENVIRONMENT_READ)
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
+        if (CollectionUtils.isEmpty(environmentRequest.getProjectIds()) || !environmentRequest.getProjectIds().contains(SessionUtils.getCurrentProjectId())) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseEnvironmentService.listByConditions(environmentRequest));
     }

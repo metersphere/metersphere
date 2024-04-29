@@ -9,9 +9,10 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.TestReviewCaseDTO;
 import io.metersphere.dto.TestReviewTestCaseEditResult;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.dto.TestReviewCaseDTO;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
@@ -20,10 +21,10 @@ import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
 import io.metersphere.security.CheckOwner;
 import io.metersphere.service.TestReviewTestCaseService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/test/review/case")
@@ -103,7 +104,7 @@ public class TestReviewTestCaseController {
     @GetMapping("/get/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public TestReviewCaseDTO get(@PathVariable String reviewId) {
-        return testReviewTestCaseService.get(reviewId);
+        return testReviewTestCaseService.get(reviewId, SessionUtils.getCurrentProjectId());
     }
 
     @GetMapping("/reviewer/status/{id}")

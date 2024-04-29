@@ -133,8 +133,8 @@ public class TestCaseCommentService {
         return "测试评审任务通知：" + user.getName() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
     }
 
-    public void delete(String commentId) {
-        checkCommentOwner(commentId);
+    public void delete(String commentId, String currentProjectId) {
+        checkCommentOwner(commentId, currentProjectId);
         testCaseCommentMapper.deleteByPrimaryKey(commentId);
         mdFileService.deleteBySourceId(commentId);
     }
@@ -147,18 +147,22 @@ public class TestCaseCommentService {
         testCaseCommentMapper.deleteByExample(example);
     }
 
-    public TestCaseComment edit(SaveCommentRequest request) {
-        checkCommentOwner(request.getId());
+    public TestCaseComment edit(SaveCommentRequest request, String currentProjectId) {
+        checkCommentOwner(request.getId(), currentProjectId);
         testCaseCommentMapper.updateByPrimaryKeySelective(request);
         return testCaseCommentMapper.selectByPrimaryKey(request.getId());
     }
 
-    private void checkCommentOwner(String commentId) {
+    private void checkCommentOwner(String commentId, String currentProjectId) {
         TestCaseComment comment = testCaseCommentMapper.selectByPrimaryKey(commentId);
         if (comment == null) {
             MSException.throwException(Translator.get("resource_not_exist"));
         }
         if (!StringUtils.equals(comment.getAuthor(), SessionUtils.getUser().getId())) {
+            MSException.throwException(Translator.get("check_owner_comment"));
+        }
+        TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(comment.getCaseId());
+        if (testCase == null || !StringUtils.equals(testCase.getProjectId(), currentProjectId)) {
             MSException.throwException(Translator.get("check_owner_comment"));
         }
     }

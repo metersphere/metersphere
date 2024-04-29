@@ -435,6 +435,7 @@ public class ApiScenarioController {
     }
 
     @GetMapping("versions/{scenarioId}")
+    @CheckOwner(resourceId = "#scenarioId", resourceType = "api_scenario")
     public List<ApiScenarioDTO> getApiScenarioVersions(@PathVariable String scenarioId) {
         return apiAutomationService.getApiScenarioVersions(scenarioId);
     }
