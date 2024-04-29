@@ -20,7 +20,7 @@
   import { getFirstRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
 
-  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
+  import { ProjectManagementRouteEnum, RouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
@@ -122,6 +122,11 @@
           openKeys.value = [...keySet];
 
           selectedKey.value = [activeMenu || menuOpenKeys[menuOpenKeys.length - 1]];
+        }
+        if (newRoute.fullPath.includes(RouteEnum.SETTING)) {
+          appStore.updateSettings({ menuCollapse: false });
+        } else {
+          appStore.updateSettings({ menuCollapse: true });
         }
       }, true);
       const setCollapse = (val: boolean) => {

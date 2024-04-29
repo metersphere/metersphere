@@ -47,9 +47,9 @@
         </div>
       </template>
       <template #num="{ record }">
-        <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">{{
-          record.num
-        }}</MsButton>
+        <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">
+          {{ record.num }}
+        </MsButton>
       </template>
       <template #caseLevel="{ record }">
         <a-select

@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1711511079663') format('woff2'), url('iconfont.woff?t=1711511079663') format('woff'),
-    url('iconfont.ttf?t=1711511079663') format('truetype'), url('iconfont.svg?t=1711511079663#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1714372635707') format('woff2'), url('iconfont.woff?t=1714372635707') format('woff'),
+    url('iconfont.ttf?t=1714372635707') format('truetype'), url('iconfont.svg?t=1714372635707#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,12 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_menu_unfold::before {
+  content: '\e7a9';
+}
+.icon-icon_menu_fold::before {
+  content: '\e7aa';
 }
 .icon-icon_stop::before {
   content: '\e7a8';

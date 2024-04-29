@@ -59,6 +59,12 @@
     :member-options="memberOptions"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
   />
+  <MockTable
+    v-if="activeApiTab.id === 'all' && currentTab === 'mock'"
+    :active-module="props.activeModule"
+    :offspring-ids="props.offspringIds"
+    :protocol="props.protocol"
+  />
 </template>
 
 <script setup lang="ts">
@@ -71,7 +77,6 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  // import MockTable from '@/views/api-test/management/components/management/mock/mockTable.vue';
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
@@ -90,6 +95,10 @@
   } from '@/enums/apiEnum';
 
   import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
+
+  const MockTable = defineAsyncComponent(
+    () => import('@/views/api-test/management/components/management/mock/mockTable.vue')
+  );
 
   const props = defineProps<{
     activeModule: string;
@@ -113,6 +122,7 @@
   const tabOptions = [
     { label: 'API', value: 'api' },
     ...(hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ']) ? [{ label: 'CASE', value: 'case' }] : []),
+    ...(hasAnyPermission(['PROJECT_API_DEFINITION_MOCK:READ']) ? [{ label: 'MOCK', value: 'mock' }] : []),
   ];
 
   const apiRef = ref<InstanceType<typeof api>>();
@@ -229,7 +239,13 @@
 
   // 下拉框切换
   function currentTabChange(val: any) {
-    apiTabs.value[0].label = val === 'api' ? t('apiTestManagement.allApi') : t('case.allCase');
+    if (val === 'api') {
+      apiTabs.value[0].label = t('apiTestManagement.allApi');
+    } else if (val === 'case') {
+      apiTabs.value[0].label = t('case.allCase');
+    } else {
+      apiTabs.value[0].label = t('mockManagement.allMock');
+    }
     changeActiveApiTabToFirst();
   }
 

@@ -105,7 +105,19 @@
             :member-options="memberOptions"
           />
         </a-tab-pane>
-        <!-- <a-tab-pane v-if="!activeApiTab.isNew" key="mock" title="MOCK" class="ms-api-tab-pane"> </a-tab-pane> -->
+        <a-tab-pane
+          v-if="!activeApiTab.isNew && activeApiTab.protocol === 'HTTP'"
+          key="mock"
+          title="MOCK"
+          class="ms-api-tab-pane"
+        >
+          <mockTable
+            :active-module="props.activeModule"
+            :offspring-ids="props.offspringIds"
+            :protocol="activeApiTab.protocol"
+            is-api
+          />
+        </a-tab-pane>
       </a-tabs>
     </div>
   </div>
@@ -115,7 +127,6 @@
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  import caseTable from '../case/caseTable.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
@@ -156,6 +167,8 @@
     () => import('@/views/api-test/components/requestComposition/index.vue')
   );
   const preview = defineAsyncComponent(() => import('./preview/index.vue'));
+  const mockTable = defineAsyncComponent(() => import('../mock/mockTable.vue'));
+  const caseTable = defineAsyncComponent(() => import('../case/caseTable.vue'));
 
   const props = defineProps<{
     activeModule: string;

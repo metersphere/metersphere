@@ -3,7 +3,7 @@
     <div :class="['response-head', props.isExpanded ? '' : 'border-t']">
       <slot name="titleLeft">
         <div class="flex items-center justify-between">
-          <template v-if="props.activeLayout === 'vertical'">
+          <template v-if="activeLayout === 'vertical'">
             <MsButton
               v-if="props.isExpanded"
               type="icon"
@@ -44,7 +44,7 @@
           <div v-else class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
           <a-radio-group
             v-if="!props.hideLayoutSwitch"
-            v-model:model-value="innerLayout"
+            v-model:model-value="activeLayout"
             type="button"
             size="small"
             @change="(val) => emit('changeLayout', val as Direction)"
@@ -62,14 +62,14 @@
       :class="[isResponseModel ? 'h-[381px] w-full' : 'h-[calc(100%-35px)] w-full px-[16px] pb-[16px]']"
     >
       <edit
-        v-if="props.isEdit && activeResponseType === 'content' && innerResponseDefinition"
-        v-model:response-definition="innerResponseDefinition"
+        v-if="props.isEdit && activeResponseType === 'content' && responseDefinition"
+        v-model:response-definition="responseDefinition"
         :upload-temp-file-api="props.uploadTempFileApi"
         @change="handleResponseChange"
       />
       <result
         v-else-if="!props.isEdit || (props.isEdit && activeResponseType === 'result')"
-        v-model:active-tab="innerActiveTab"
+        v-model:active-tab="activeTab"
         :request-result="props.requestResult"
         :console="props.console"
         :is-http-protocol="props.isHttpProtocol"
@@ -97,13 +97,10 @@
 
   const props = withDefaults(
     defineProps<{
-      activeTab: ResponseComposition;
       isExpanded?: boolean;
       isPriorityLocalExec?: boolean;
       requestUrl?: string;
       isHttpProtocol?: boolean;
-      activeLayout?: Direction;
-      responseDefinition?: ResponseItem[];
       requestResult?: RequestResult;
       console?: string;
       hideLayoutSwitch?: boolean; // 隐藏布局切换
@@ -117,7 +114,6 @@
     }>(),
     {
       isExpanded: true,
-      activeLayout: 'vertical',
       hideLayoutSwitch: false,
       showEmpty: true,
     }
@@ -131,21 +127,21 @@
 
   const { t } = useI18n();
 
-  const innerLayout = defineModel<Direction>('activeLayout', {
+  const activeLayout = defineModel<Direction>('activeLayout', {
     default: 'vertical',
   });
-  const innerActiveTab = defineModel<ResponseComposition>('activeTab', {
+  const activeTab = defineModel<ResponseComposition>('activeTab', {
     required: true,
   });
-  const innerResponseDefinition = defineModel<ResponseItem[]>('responseDefinition', {
+  const responseDefinition = defineModel<ResponseItem[]>('responseDefinition', {
     default: [],
   });
   watchEffect(() => {
     // 过滤无效数据后的有效响应数据；当接口导入时会存在部分字段为 null 的数据，需要设置默认值
     let hasInvalid = false;
     let validResponseDefinition: ResponseItem[] = [];
-    if (props.responseDefinition && props.responseDefinition.length > 0) {
-      validResponseDefinition = props.responseDefinition.map((item, i) => {
+    if (responseDefinition.value.length > 0) {
+      validResponseDefinition = responseDefinition.value.map((item, i) => {
         // 某些字段在导入时接口返回 null，需要设置默认值
         if (!item.headers) {
           item.headers = [];
@@ -189,7 +185,7 @@
       });
     }
     if (hasInvalid) {
-      innerResponseDefinition.value = validResponseDefinition;
+      responseDefinition.value = validResponseDefinition;
     }
   });
 

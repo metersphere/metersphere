@@ -222,7 +222,6 @@
   import { defaultKeyValueParamItem, defaultResponseItem, statusCodes } from '../../config';
 
   const props = defineProps<{
-    responseDefinition: ResponseDefinition[];
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
   }>();
   const emit = defineEmits<{
@@ -240,15 +239,25 @@
   const responseTabs = defineModel<ResponseItem[]>('responseDefinition', {
     required: true,
   });
-  const activeResponse = ref<ResponseItem>(responseTabs.value[0] || defaultResponseItem);
+  const activeResponse = ref<ResponseItem>(responseTabs.value[0] || cloneDeep(defaultResponseItem));
+
+  watch(
+    () => responseTabs.value,
+    (arr) => {
+      if (arr.length > 0) {
+        [activeResponse.value] = arr;
+      }
+    }
+  );
 
   function addResponseTab(defaultProps?: Partial<ResponseItem>) {
+    const id = new Date().getTime();
     responseTabs.value.push({
       ...cloneDeep(defaultResponseItem),
       label: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
       name: t('apiTestManagement.response', { count: responseTabs.value.length + 1 }),
       ...defaultProps,
-      id: new Date().getTime(),
+      id,
       defaultFlag: false,
       showPopConfirm: false,
       showRenamePopConfirm: false,
