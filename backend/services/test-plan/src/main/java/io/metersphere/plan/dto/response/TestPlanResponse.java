@@ -33,7 +33,9 @@ public class TestPlanResponse {
     private String moduleId;
     @Schema(description = "测试计划组内的测试计划")
     List<TestPlanResponse> children;
+    @Schema(description = "组内计划数量")
+    private Integer childrenCount;
 
     @Schema(description = "测试计划组Id")
-    private String testPlanGroupId;
+    private String groupId;
 }

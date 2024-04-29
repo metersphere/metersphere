@@ -11,6 +11,7 @@
         <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
         <result column="create_time" jdbcType="BIGINT" property="createTime"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="group_id" jdbcType="VARCHAR" property="groupId"/>
     </resultMap>
 
     <update id="updateDefaultGroupId">
@@ -33,10 +34,9 @@
     </select>
 
     <select id="selectByConditions"
-            parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
             resultMap="testPlanBaseInfo">
         SELECT
-        t.id,t.num,t.name,t.status,
+        t.id,t.num,t.name,t.status,t.group_id,
         createUser.name AS createUser,
         t.create_time,
         t.module_id,
@@ -44,8 +44,191 @@
         t.tags
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
-        <include refid="test_plan_page_request"/>
+        WHERE t.project_id = #{request.projectId}
+        <if test="groupIds != null and groupIds.size() > 0">
+            and t.group_id IN
+            <foreach collection="groupIds" item="groupId" separator="," open="(" close=")">
+                #{groupId}
+            </foreach>
+        </if>
+        <include refid="queryWhereCondition"/>
     </select>
+
+    <sql id="queryWhereCondition">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and t.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            t.name like concat('%', #{request.keyword},'%')
+            or t.num like concat('%', #{request.keyword},'%')
+            or t.tags like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.type != null and request.type != ''">
+            <choose>
+                <when test="request.type == 'ALL'">
+                    and t.group_id = 'NONE'
+                </when>
+                <when test="request.type == 'TEST_PLAN'">
+                    and t.group_id = 'NONE'
+                    and t.type = 'TEST_PLAN'
+                </when>
+                <when test="request.type == 'GROUP'">
+                    and t.group_id = 'NONE'
+                    and t.type = 'GTOUP'
+                </when>
+            </choose>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryCombine"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryCombine"/>
+                )
+            </when>
+        </choose>
+    </sql>
+
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 状态 -->
+                        <when test="key=='status'">
+                            and t.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <sql id="queryCombine">
+        <if test="request.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        1=1
+    </sql>
+
+    <sql id="combine">
+        <!-- 名称 -->
+        <if test='${condition}.name != null'>
+            t.name
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- id -->
+        <if test='${condition}.id != null'>
+            t.num
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 所属模块 -->
+        <if test='${condition}.moduleId != null'>
+            t.moduleId
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.moduleId"/>
+            </include>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 创建人 -->
+        <if test='${condition}.createUser != null'>
+            t.create_user
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.createUser"/>
+            </include>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 创建时间 -->
+        <if test='${condition}.createTime != null'>
+            t.create_time
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 标签 -->
+        <if test='${condition}.tags != null'>
+            <include refid="queryTag">
+                <property name="searchMode" value="${searchMode}"/>
+                <property name="combineTag" value="${condition}.tags"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                AND
+            </when>
+            <when test='${searchMode} == "OR"'>
+                OR
+            </when>
+        </choose>
+    </sql>
+
+
+    <sql id="queryTag">
+        <!-- 不包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "not like"'>
+            (
+            t.tags is null or t.tags = '[]' or
+            <foreach collection="${combineTag}.value" item="tag" separator="and" open="(" close=")">
+                !JSON_CONTAINS(t.tags, JSON_ARRAY(#{tag}))
+            </foreach>
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "like"'>
+            <foreach collection="${combineTag}.value" item="tag" separator="or" open="(" close=")">
+                JSON_CONTAINS(t.tags, JSON_ARRAY(#{tag}))
+            </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+        <!-- 空 -->
+        <if test='${combineTag}.operator == "is null"'>
+            (t.tags is null or t.tags = '[]')
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+        </if>
+    </sql>
+
 
     <select id="countModuleIdByConditions"
             parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"

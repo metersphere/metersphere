@@ -51,6 +51,9 @@ public class TestPlanCreateRequest {
     @Schema(description = "描述")
     private String description;
 
+    @Schema(description = "是否开启测试规划", requiredMode = Schema.RequiredMode.REQUIRED)
+    private boolean testPlanning;
+
     @Schema(description =  "是否自定更新功能用例状态", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean automaticStatusUpdate;
 
@@ -61,7 +64,7 @@ public class TestPlanCreateRequest {
     @Max(value = 100, message = "{test_plan.pass_threshold.max}")
     @Min(value = 0)
     private double passThreshold = 100;
-    @Schema(description = "测试计划类型")
+    @Schema(description = "测试计划类型",allowableValues ={"TEST_PLAN", "GROUP"}, requiredMode = Schema.RequiredMode.REQUIRED )
     private String type = TestPlanConstants.TEST_PLAN_TYPE_PLAN;
 
     public List<String> getTags() {

@@ -16,21 +16,15 @@ public interface TestPlanConfigMapper {
 
     int insertSelective(TestPlanConfig record);
 
-    List<TestPlanConfig> selectByExampleWithBLOBs(TestPlanConfigExample example);
-
     List<TestPlanConfig> selectByExample(TestPlanConfigExample example);
 
     TestPlanConfig selectByPrimaryKey(String testPlanId);
 
     int updateByExampleSelective(@Param("record") TestPlanConfig record, @Param("example") TestPlanConfigExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") TestPlanConfig record, @Param("example") TestPlanConfigExample example);
-
     int updateByExample(@Param("record") TestPlanConfig record, @Param("example") TestPlanConfigExample example);
 
     int updateByPrimaryKeySelective(TestPlanConfig record);
-
-    int updateByPrimaryKeyWithBLOBs(TestPlanConfig record);
 
     int updateByPrimaryKey(TestPlanConfig record);
 

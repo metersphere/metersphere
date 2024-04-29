@@ -15,17 +15,17 @@ import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,8 +37,6 @@ public class TestPlanManagementService {
     @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
     @Resource
-    private CommonProjectService commonProjectService;
-    @Resource
     private TestPlanModuleService testPlanModuleService;
 
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
@@ -49,51 +47,54 @@ public class TestPlanManagementService {
         return moduleCountMap;
     }
 
-    public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
-        TestPlanQueryConditions queryConditions = this.generateTestPlanConditions(request);
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "t.update_time desc");
-        return PageUtils.setPageInfo(page, this.getTableList(queryConditions));
-    }
-
     /**
-     * 生成查询条件
+     * 测试计划列表查询
      *
-     * @param request 前端传来的筛选条件
+     * @param request
      * @return
      */
-    private TestPlanQueryConditions generateTestPlanConditions(TestPlanTableRequest request) {
-        TestPlanQueryConditions conditions = new TestPlanQueryConditions(request.getModuleIds(), request.getProjectId(), request);
-        if (!request.conditionIsEmpty()) {
-            //查询符合匹配的子节点时不需要传入groupId
-            conditions.setGroupId(null);
-            List<String> includeGroupIds = extTestPlanMapper.selectGroupIdByConditions(conditions);
-            conditions.setIncludeIds(includeGroupIds);
-        }
-        return conditions;
+    public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "t.update_time desc");
+        return PageUtils.setPageInfo(page, this.getTableList(request));
     }
 
-    private List<TestPlanResponse> getTableList(TestPlanQueryConditions request) {
-        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
-        testPlanResponses.forEach(item -> {
-            if (StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                TestPlanQueryConditions childrenCondition = new TestPlanQueryConditions();
-                childrenCondition.setProjectId(request.getProjectId());
-                childrenCondition.setGroupId(item.getId());
-                item.setChildren(extTestPlanMapper.selectByConditions(childrenCondition));
-            }
-            this.initTestPlanResponse(item);
-        });
+    private List<TestPlanResponse> getTableList(TestPlanTableRequest request) {
+        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request, null);
+        handChildren(testPlanResponses,request.getProjectId());
         return testPlanResponses;
     }
 
-    private void initTestPlanResponse(TestPlanResponse testPlanResponse) {
-        testPlanResponse.setModuleName(testPlanModuleService.getNameById(testPlanResponse.getModuleId()));
-        //todo 定时任务相关信息处理
+    /**
+     * 计划组子节点
+     *
+     * @param testPlanResponses
+     */
+    private void handChildren(List<TestPlanResponse> testPlanResponses,String projectId) {
+        List<String> groupIds = testPlanResponses.stream().filter(item -> StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).map(TestPlanResponse::getId).toList();
+        TestPlanTableRequest request = new TestPlanTableRequest();
+        request.setProjectId(projectId);
+        List<TestPlanResponse> childrenList = extTestPlanMapper.selectByConditions(request, groupIds);
+        Map<String, List<TestPlanResponse>> collect = childrenList.stream().collect(Collectors.groupingBy(TestPlanResponse::getGroupId));
+        testPlanResponses.forEach(item -> {
+            if (collect.containsKey(item.getId())) {
+                //存在子节点
+                List<TestPlanResponse> list = collect.get(item.getId());
+                calculateData(list);
+                item.setChildren(list);
+                item.setChildrenCount(list.size());
+            }
+            calculateData(Arrays.asList(item));
+        });
+    }
 
-        if (CollectionUtils.isNotEmpty(testPlanResponse.getChildren())) {
-            testPlanResponse.getChildren().forEach(this::initTestPlanResponse);
-        }
+    /**
+     * 计算各种指标
+     *
+     * @param list
+     */
+    private void calculateData(List<TestPlanResponse> list) {
+        //TODO 查询计划下面关联的用例数量，用于各种计算  什么通过率 进度 用例数
     }
 
     public void checkModuleIsOpen(String resourceId, String resourceType, List<String> moduleMenus) {
