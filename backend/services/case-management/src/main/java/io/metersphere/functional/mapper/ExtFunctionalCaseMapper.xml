@@ -779,4 +779,26 @@
             </foreach>
         </if>
     </sql>
+
+    <select id="getMinderCaseList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
+        SELECT
+            fc.id, fc.name, fc.project_id, fc.module_id, fc.template_id, fc.review_status,
+            fcb.steps, fcb.expected_result, fcb.prerequisite, fcb.description, fccf.value as priority
+        FROM
+        functional_case fc
+            LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
+            LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
+            LEFT JOIN custom_field cf ON cf.id = fccf.field_id
+        WHERE
+            fc.deleted = false
+        AND
+            fc.project_Id = #{request.projectId}
+        AND
+            fc.module_id = #{request.moduleId}
+          AND
+            cf.name = 'functional_priority'
+          AND cf.scene = 'FUNCTIONAL'
+          AND cf.internal= true
+    </select>
+
 </mapper>
