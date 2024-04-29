@@ -207,21 +207,7 @@
       </a-trigger>
     </template>
     <template #lastExecuteResult="{ record }">
-      <a-select
-        v-model:model-value="record.lastExecuteResult"
-        :placeholder="t('common.pleaseSelect')"
-        class="param-input w-full"
-        size="mini"
-        @click.stop
-        @change="() => handleStatusChange(record)"
-      >
-        <template #label>
-          <executeResult :execute-result="record.lastExecuteResult" />
-        </template>
-        <a-option v-for="item of LastExecuteResults" :key="item" :value="item">
-          <executeResult :execute-result="item" />
-        </a-option>
-      </a-select>
+      <executeResult :execute-result="record.lastExecuteResult" />
     </template>
     <template #moduleId="{ record }">
       <a-tree-select
