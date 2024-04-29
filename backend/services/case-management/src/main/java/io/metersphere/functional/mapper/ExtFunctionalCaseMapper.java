@@ -3,9 +3,11 @@ package io.metersphere.functional.mapper;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
+import io.metersphere.functional.dto.FunctionalCaseMindDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
+import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
@@ -63,18 +65,25 @@ public interface ExtFunctionalCaseMapper {
 
     /**
      * 获取缺陷未关联的功能用例列表
+     *
      * @param request provider参数
      * @param deleted 是否删除状态
-     * @param sort 排序
+     * @param sort    排序
      * @return 通用的列表Case集合
      */
     List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     /**
      * 根据关联条件获取关联的用例ID
+     *
      * @param request 关联参数
      * @param deleted 是否删除状态
      * @return 关联的用例ID集合
      */
-    List<String> getSelectIdsByAssociateParam(@Param("request")AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+    List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+
+    /**
+     *  根据模块ID获取脑图展示数据
+     */
+    List<FunctionalCaseMindDTO> getMinderCaseList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
 }
