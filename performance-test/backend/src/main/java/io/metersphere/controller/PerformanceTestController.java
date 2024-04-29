@@ -129,6 +129,7 @@ public class PerformanceTestController {
 
     @GetMapping("/get/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @CheckOwner(resourceId = "#testId", resourceType = "load_test")
     public LoadTestDTO get(@PathVariable String testId) {
         LoadTestDTO loadTestDTO = performanceTestService.get(testId);
         loadTestDTO.setIsNeedUpdate(apiPerformanceService.isNeedUpdate(loadTestDTO.getId()));
@@ -137,18 +138,21 @@ public class PerformanceTestController {
 
     @GetMapping("/get-advanced-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @CheckOwner(resourceId = "#testId", resourceType = "load_test")
     public String getAdvancedConfiguration(@PathVariable String testId) {
         return performanceTestService.getAdvancedConfiguration(testId);
     }
 
     @GetMapping("/get-load-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @CheckOwner(resourceId = "#testId", resourceType = "load_test")
     public String getLoadConfiguration(@PathVariable String testId) {
         return performanceTestService.getLoadConfiguration(testId);
     }
 
     @GetMapping("/get-jmx-content/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @CheckOwner(resourceId = "#testId", resourceType = "load_test")
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String testId) {
         return performanceTestService.getJmxContent(testId);
     }
