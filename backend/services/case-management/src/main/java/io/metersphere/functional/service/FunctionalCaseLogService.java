@@ -13,12 +13,18 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,9 +57,13 @@ public class FunctionalCaseLogService {
     private FileAssociationMapper fileAssociationMapper;
 
     @Resource
+    private CustomFieldMapper customFieldMapper;
+
+    @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private BugMapper bugMapper;
+
 
     /**
      * 更新用例 日志
@@ -63,17 +73,7 @@ public class FunctionalCaseLogService {
      */
     public LogDTO updateFunctionalCaseFileLog(FunctionalCaseAssociationFileRequest request) {
         FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getCaseId());
-        LogDTO dto = new LogDTO(
-                request.getProjectId(),
-                null,
-                request.getCaseId(),
-                null,
-                OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                historyLogDTO.getFunctionalCase().getName());
-        dto.setHistory(true);
-        dto.setPath("/attachment/upload/file");
-        dto.setMethod(HttpMethodConstants.POST.name());
+        LogDTO dto = getUpdateLogDTO(request.getProjectId(), request.getCaseId(), historyLogDTO.getFunctionalCase().getName(), "/attachment/upload/file");
         dto.setModifiedValue(JSON.toJSONBytes(request));
         dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
         return dto;
@@ -88,17 +88,7 @@ public class FunctionalCaseLogService {
      */
     public LogDTO deleteFunctionalCaseFileLog(FunctionalCaseDeleteFileRequest request) {
         FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getCaseId());
-        LogDTO dto = new LogDTO(
-                request.getProjectId(),
-                null,
-                request.getCaseId(),
-                null,
-                OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                historyLogDTO.getFunctionalCase().getName());
-        dto.setHistory(true);
-        dto.setPath("/attachment/delete/file");
-        dto.setMethod(HttpMethodConstants.POST.name());
+        LogDTO dto = getUpdateLogDTO(request.getProjectId(), request.getCaseId(), historyLogDTO.getFunctionalCase().getName(), "/attachment/delete/file");
         dto.setModifiedValue(JSON.toJSONBytes(request));
         dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
         return dto;
@@ -114,17 +104,7 @@ public class FunctionalCaseLogService {
      */
     public LogDTO updateFunctionalCaseLog(FunctionalCaseEditRequest requests, List<MultipartFile> files) {
         FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(requests.getId());
-        LogDTO dto = new LogDTO(
-                requests.getProjectId(),
-                null,
-                requests.getId(),
-                null,
-                OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                requests.getName());
-        dto.setHistory(true);
-        dto.setPath("/functional/case/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
+        LogDTO dto = getUpdateLogDTO(requests.getProjectId(), requests.getId(), requests.getName(), "/functional/case/update");
         dto.setModifiedValue(JSON.toJSONBytes(requests));
         dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
         return dto;
@@ -348,17 +328,7 @@ public class FunctionalCaseLogService {
             List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
             functionalCases.forEach(functionalCase -> {
                 FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(functionalCase.getId());
-                LogDTO dto = new LogDTO(
-                        functionalCase.getProjectId(),
-                        null,
-                        functionalCase.getId(),
-                        null,
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
-                        functionalCase.getName());
-                dto.setHistory(true);
-                dto.setPath("/functional/case/batch/edit");
-                dto.setMethod(HttpMethodConstants.POST.name());
+                LogDTO dto = getUpdateLogDTO(functionalCase.getProjectId(), functionalCase.getId(), functionalCase.getName(), "/functional/case/batch/edit");
                 dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
                 dtoList.add(dto);
             });
@@ -443,5 +413,47 @@ public class FunctionalCaseLogService {
             return dto;
         }
         return null;
+    }
+
+    public LogDTO updateMinderFunctionalCaseLog(FunctionalCaseMinderEditRequest request) {
+        FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getId());
+        LogDTO dto = getUpdateLogDTO(request.getProjectId(), request.getId(), request.getName(), "/functional/case/update");
+        dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
+        FunctionalCaseHistoryLogDTO newDto = new FunctionalCaseHistoryLogDTO();
+        BeanUtils.copyBean(newDto, historyLogDTO);
+        if (StringUtils.isNotBlank(request.getName())) {
+            newDto.getFunctionalCase().setName(request.getName());
+        }
+        if (StringUtils.isNotBlank(request.getPriority())) {
+            List<FunctionalCaseCustomField> functionalCaseCustomFields = newDto.getCustomFields();
+            CustomFieldExample example = new CustomFieldExample();
+            example.createCriteria().andNameEqualTo("functional_priority").andSceneEqualTo("FUNCTIONAL").andScopeIdEqualTo(request.getProjectId());
+            List<CustomField> customFields = customFieldMapper.selectByExample(example);
+            String field = customFields.get(0).getId();
+            for (FunctionalCaseCustomField customField : functionalCaseCustomFields) {
+                if (StringUtils.equalsIgnoreCase(customField.getFieldId(), field)) {
+                    customField.setValue(request.getPriority());
+                }
+            }
+            newDto.setCustomFields(functionalCaseCustomFields);
+        }
+        dto.setModifiedValue(JSON.toJSONBytes(newDto));
+        return dto;
+    }
+
+    @NotNull
+    private static LogDTO getUpdateLogDTO(String projectId, String sourceId, String content, String path) {
+        LogDTO dto = new LogDTO(
+                projectId,
+                null,
+                sourceId,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.FUNCTIONAL_CASE,
+                content);
+        dto.setHistory(true);
+        dto.setPath(path);
+        dto.setMethod(HttpMethodConstants.POST.name());
+        return dto;
     }
 }

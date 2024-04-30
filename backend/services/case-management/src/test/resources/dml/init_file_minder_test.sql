@@ -16,6 +16,8 @@ INSERT INTO functional_case_blob(id, steps, text_description, expected_result, p
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'custom_field_minder_gyq_id_3', 'P0');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'custom_field_minder_gyq_id_3', 'P3');
+INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'custom_field_minder_gyq_id_3', 'P2');
+
 
 
 INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user)
@@ -27,8 +29,10 @@ VALUES
     ('TEST_MINDER_MODULE_ID_GYQ5', 'project-case-minder-test', '测试所属模块5', 'TEST_MINDER_MODULE_ID_GYQ4', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
 
-INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUE
-    ('custom_field_minder_gyq_id_3', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', true, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
+INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUES
+    ('custom_field_minder_gyq_id_2', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', true, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001'),
+    ('custom_field_minder_gyq_id_3', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', true, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-case-minder-test');
+
 
 
 INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, update_user)
