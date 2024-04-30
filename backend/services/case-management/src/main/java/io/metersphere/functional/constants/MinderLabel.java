@@ -13,8 +13,14 @@ public enum MinderLabel {
      * 前置条件标签
      */
     PREREQUISITE,
+
     /**
      * 步骤描述标签
+     */
+    STEPS,
+
+    /**
+     * 文本描述标签
      */
     TEXT_DESCRIPTION,
     /**
