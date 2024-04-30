@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -45,8 +46,15 @@ public class FunctionalCaseMindDTO {
     @Schema(description =  "用例等级")
     private String priority;
 
+    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
     private byte[] steps;
+
+    @Schema(description =  "步骤描述，step_model 为 Text 时启用")
+    private byte[] textDescription;
 
     @Schema(description =  "预期结果，step_model 为 Text  时启用")
     private byte[] expectedResult;

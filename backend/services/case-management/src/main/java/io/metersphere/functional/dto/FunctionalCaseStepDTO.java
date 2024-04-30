@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class FunctionalCaseStepDTO {
 
+    private String id;
+
     private Integer num;
 
     private String desc;

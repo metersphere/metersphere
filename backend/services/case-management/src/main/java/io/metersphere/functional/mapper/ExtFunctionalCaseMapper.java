@@ -9,6 +9,7 @@ import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
@@ -86,4 +87,10 @@ public interface ExtFunctionalCaseMapper {
      *  根据模块ID获取脑图展示数据
      */
     List<FunctionalCaseMindDTO> getMinderCaseList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
+
+    /**
+     *  根据模块ID获取用例评审脑图展示数据
+     */
+    List<FunctionalCaseMindDTO> getMinderCaseReviewList(@Param("request") FunctionalCaseReviewMindRequest request, @Param("deleted") boolean delete, @Param("userId") String userId, @Param("viewStatusUserId") boolean viewStatusUserId);
+
 }
