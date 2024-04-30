@@ -1,14 +1,23 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.constants.MinderLabel;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.FunctionalCaseMindDTO;
 import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.dto.FunctionalMinderTreeNodeDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
+import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +38,14 @@ public class FunctionalCaseMinderService {
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+
+    @Resource
+    private CustomFieldMapper customFieldMapper;
+
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
     /**
      * 功能用例-脑图用例列表查询
@@ -109,4 +126,35 @@ public class FunctionalCaseMinderService {
         return functionalMinderTreeDTO;
     }
 
+    public FunctionalCase updateFunctionalCase(FunctionalCaseMinderEditRequest request, String userId) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setName(request.getName());
+            buildUpdateCaseParam(request, userId, functionalCase);
+            functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+            return functionalCase;
+        }
+        if (StringUtils.isNotBlank(request.getPriority())) {
+            CustomFieldExample example = new CustomFieldExample();
+            example.createCriteria().andNameEqualTo("functional_priority").andSceneEqualTo("FUNCTIONAL").andScopeIdEqualTo(request.getProjectId());
+            List<CustomField> customFields = customFieldMapper.selectByExample(example);
+            String field = customFields.get(0).getId();
+            FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
+            customField.setCaseId(request.getId());
+            customField.setFieldId(field);
+            customField.setValue(request.getPriority());
+            functionalCaseCustomFieldMapper.updateByPrimaryKeySelective(customField);
+            FunctionalCase functionalCase = new FunctionalCase();
+            buildUpdateCaseParam(request, userId, functionalCase);
+            functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+            return functionalCase;
+        }
+        return new FunctionalCase();
+    }
+
+    private static void buildUpdateCaseParam(FunctionalCaseMinderEditRequest request, String userId, FunctionalCase functionalCase) {
+        functionalCase.setId(request.getId());
+        functionalCase.setUpdateUser(userId);
+        functionalCase.setUpdateTime(System.currentTimeMillis());
+    }
 }

@@ -10,6 +10,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
+import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
@@ -249,6 +250,43 @@ public class FunctionalCaseNoticeService {
             //TODO:设置测试计划名称
         }
         return dtoList;
+    }
+
+    public FunctionalCaseDTO  getMainFunctionalCaseMinderDTO(FunctionalCaseMinderEditRequest request) {
+        FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
+        BeanUtils.copyBean(functionalCaseDTO, functionalCase);
+        setReviewName(request.getId(), functionalCaseDTO);
+        functionalCaseDTO.setTriggerMode(NoticeConstants.TriggerMode.MANUAL_EXECUTION);
+        List<OptionDTO> fields = new ArrayList<>();
+        FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
+        fieldExample.createCriteria().andCaseIdEqualTo(request.getId());
+        List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andNameEqualTo("functional_priority").andSceneEqualTo("FUNCTIONAL").andScopeIdEqualTo(request.getProjectId());
+        List<CustomField> customFields = customFieldMapper.selectByExample(example);
+        String field = customFields.get(0).getId();
+
+        if (CollectionUtils.isNotEmpty(functionalCaseCustomFields)) {
+            for (FunctionalCaseCustomField customFieldDTO : functionalCaseCustomFields) {
+                OptionDTO optionDTO = new OptionDTO();
+                CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldDTO.getFieldId());
+                if (customField == null) {
+                    continue;
+                }
+                optionDTO.setId(customField.getName());
+                if (StringUtils.equalsIgnoreCase(customField.getId(),field) && StringUtils.isNotBlank(request.getPriority())) {
+                    optionDTO.setName(request.getPriority());
+                } else {
+                    optionDTO.setName(customFieldDTO.getValue());
+                }
+                fields.add(optionDTO);
+            }
+        }
+        functionalCaseDTO.setFields(fields);
+        //TODO:设置测试计划名称
+        return functionalCaseDTO;
+
     }
 
 }
