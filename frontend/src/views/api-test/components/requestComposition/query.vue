@@ -15,7 +15,6 @@
     :disabled-param-value="props.disabledParamValue"
     :disabled-except-param="props.disabledExceptParam"
     :columns="columns"
-    :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_QUERY"
@@ -51,11 +50,8 @@
 
   const props = defineProps<{
     params: ExecuteRequestCommonParam[];
-    layout: 'horizontal' | 'vertical';
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
-    secondBoxHeight: number;
-    isDrawer?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;
@@ -124,30 +120,6 @@
   ]);
 
   const batchAddKeyValVisible = ref(false);
-  const heightUsed = ref<number | undefined>(undefined);
-
-  watch(
-    () => props.layout,
-    (val) => {
-      const otherHeight = props.isDrawer ? 328 : 372;
-      heightUsed.value = val === 'horizontal' ? otherHeight : otherHeight + props.secondBoxHeight;
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
-    () => props.secondBoxHeight,
-    (val) => {
-      if (props.layout === 'vertical') {
-        heightUsed.value = (props.isDrawer ? 328 : 372) + val;
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 
   /**
    * 批量参数代码转换为参数表格数据

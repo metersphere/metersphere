@@ -1,25 +1,25 @@
 <template>
-  <div class="response flex h-full min-w-[300px] flex-col">
-    <div :class="['response-head', props.isExpanded ? '' : 'border-t']">
+  <div class="response flex min-w-[300px] flex-col">
+    <div :class="['response-head', activeLayout === 'vertical' ? 'border-t' : '']">
       <slot name="titleLeft">
         <div class="flex items-center justify-between">
           <template v-if="activeLayout === 'vertical'">
             <MsButton
-              v-if="props.isExpanded"
+              v-show="innerIsExpanded"
               type="icon"
               class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
               size="small"
-              @click="emit('changeExpand', false)"
+              @click="changeExpand(false)"
             >
               <icon-down :size="8" />
             </MsButton>
             <MsButton
-              v-else
+              v-show="!innerIsExpanded"
               type="icon"
               status="secondary"
               class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
               size="small"
-              @click="emit('changeExpand', true)"
+              @click="changeExpand(true)"
             >
               <icon-right :size="8" />
             </MsButton>
@@ -58,8 +58,9 @@
       <responseCodeTimeSize :request-result="props.requestResult" />
     </div>
     <a-spin
+      v-show="innerIsExpanded"
       :loading="props.loading"
-      :class="[isResponseModel ? 'h-[381px] w-full' : 'h-[calc(100%-35px)] w-full px-[16px] pb-[16px]']"
+      :class="[isResponseModel ? 'h-[381px] w-full' : 'w-full px-[16px] pb-[16px]']"
     >
       <edit
         v-if="props.isEdit && activeResponseType === 'content' && responseDefinition"
@@ -119,7 +120,6 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'changeExpand', value: boolean): void;
     (e: 'changeLayout', value: Direction): void;
     (e: 'change'): void;
     (e: 'execute', executeType: 'localExec' | 'serverExec'): void;
@@ -136,6 +136,23 @@
   const responseDefinition = defineModel<ResponseItem[]>('responseDefinition', {
     default: [],
   });
+  const innerIsExpanded = defineModel<boolean>('isExpanded', {
+    default: true,
+  });
+
+  function changeExpand(isExpanded: boolean) {
+    innerIsExpanded.value = isExpanded;
+  }
+
+  watch(
+    () => activeLayout.value,
+    (val) => {
+      if (val === 'horizontal') {
+        changeExpand(true);
+      }
+    }
+  );
+
   watchEffect(() => {
     // 过滤无效数据后的有效响应数据；当接口导入时会存在部分字段为 null 的数据，需要设置默认值
     let hasInvalid = false;
@@ -210,6 +227,7 @@
 
   defineExpose({
     setActiveResponse,
+    changeExpand,
   });
 </script>
 

@@ -135,9 +135,7 @@
 
 <style lang="less" scoped>
   .response-container {
-    overflow: hidden;
     margin-top: 8px;
-    height: calc(100% - 48px);
   }
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);

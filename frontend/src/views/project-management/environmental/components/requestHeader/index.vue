@@ -4,7 +4,6 @@
     :layout="activeLayout"
     :disabled-param-value="props.disabledParamValue"
     :disabled-except-param="props.disabledExceptParam"
-    :second-box-height="secondBoxHeight"
     @change="emit('change')"
   />
 </template>
@@ -32,7 +31,6 @@
   }>();
 
   const innerParams = useVModel(props, 'params', emit);
-  const secondBoxHeight = ref(0);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
 </script>
 

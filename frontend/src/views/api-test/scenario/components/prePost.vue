@@ -24,7 +24,6 @@
       <postcondition
         v-model:config="postProcessorConfig"
         :is-definition="false"
-        :layout="activeLayout"
         sql-code-editor-height="300px"
         :tip-content="t('apiScenario.openGlobalPostConditionTip')"
         is-scenario
@@ -57,7 +56,6 @@
 
   const { t } = useI18n();
 
-  const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const preProcessorConfig = defineModel<ExecuteConditionConfig>('preProcessorConfig', {
     required: true,
   });

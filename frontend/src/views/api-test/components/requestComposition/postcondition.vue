@@ -6,7 +6,6 @@
     add-text="apiTestDebug.postCondition"
     :response="props.response"
     :disabled="props.disabled"
-    :height-used="heightUsed"
     :sql-code-editor-height="props.sqlCodeEditorHeight"
     @change="emit('change')"
   >
@@ -43,8 +42,6 @@
 
   const props = defineProps<{
     config: ExecuteConditionConfig;
-    secondBoxHeight?: number;
-    layout: 'horizontal' | 'vertical';
     response?: string; // 响应内容
     isDefinition?: boolean; // 是否是定义页面
     isScenario?: boolean; // 是否是场景页面
@@ -59,12 +56,6 @@
 
   const { t } = useI18n();
   const innerConfig = useVModel(props, 'config', emit);
-  const heightUsed = computed(() => {
-    if (props.layout === 'horizontal') {
-      return 328;
-    }
-    return 328 + (props.secondBoxHeight || 0);
-  });
 
   const conditionTypes = computed(() => {
     if (props.isDefinition) {

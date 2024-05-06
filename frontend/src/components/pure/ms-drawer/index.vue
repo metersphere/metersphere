@@ -342,7 +342,7 @@
   .handle {
     @apply absolute left-0 top-0 flex h-full items-center;
 
-    z-index: 10;
+    z-index: 200;
     width: 8px;
     background-color: var(--color-neutral-3);
     cursor: col-resize;

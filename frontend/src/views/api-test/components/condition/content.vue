@@ -231,7 +231,6 @@
               :disabled-param-value="props.disabled"
               :scroll="{ x: '100%' }"
               :columns="scriptColumns"
-              :height-used="heightUsed"
               :selectable="false"
               @change="() => emit('change')"
             />
@@ -375,7 +374,6 @@
         :selectable="false"
         :scroll="{ x: '700px' }"
         :response="props.response"
-        :height-used="props.heightUsed"
         @change="handleExtractParamTableChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
@@ -529,7 +527,6 @@
     defineProps<{
       disabled?: boolean;
       response?: string; // 响应内容
-      heightUsed?: number;
       isBuildIn?: boolean; // 是否是内置的条件
       showAssociatedScene?: boolean; // 是否展示关联场景结果
       requestRadioTextProps?: Record<string, any>; // 前后置请求前后置按钮文本

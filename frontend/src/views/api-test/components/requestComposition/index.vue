@@ -187,153 +187,122 @@
     <div v-if="isUrlError" class="url-input-tip">
       <span>{{ t('apiTestDebug.apiUrlRequired') }}</span>
     </div>
-    <div class="px-[16px]">
+    <div :class="`${!props.isCase ? 'request-tab-and-response' : ''} mt-[8px] flex-1`">
       <MsTab
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
         :get-text-func="getTabBadge"
-        class="no-content relative mt-[8px] border-b"
+        class="sticky-content no-content relative top-0 border-b px-[16px]"
       />
-    </div>
-    <div ref="splitContainerRef" class="request-and-response h-[calc(100%-92px)]">
-      <MsSplitBox
-        ref="verticalSplitBoxRef"
-        v-model:size="splitBoxSize"
-        :max="!showResponse ? 1 : 0.98"
-        min="10px"
-        :direction="activeLayout"
-        second-container-class="!overflow-y-hidden"
-        :class="!showResponse ? 'hidden-second' : 'show-second'"
-        @expand-change="handleVerticalExpandChange"
-      >
-        <template #first>
-          <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
-            <div
-              :class="`flex h-full min-w-[800px] flex-col p-[16px] ${
-                activeLayout === 'horizontal' ? ' pr-[16px]' : ''
-              }`"
+      <div :class="`request-content-and-response ${activeLayout}`">
+        <a-spin class="request" :loading="requestVModel.executeLoading || loading">
+          <div class="request-tab-pane flex flex-col p-[16px]">
+            <apiBaseForm
+              v-if="!props.isCase && props.isDefinition"
+              v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
+              ref="apiBaseFormRef"
+              v-model:requestVModel="requestVModel"
+              :select-tree="selectTree as ModuleTreeNode[]"
+            />
+            <a-spin
+              v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
+              :loading="pluginLoading"
+              class="min-h-[100px] w-full"
             >
-              <div class="tab-pane-container">
-                <apiBaseForm
-                  v-if="!props.isCase && props.isDefinition"
-                  v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
-                  ref="apiBaseFormRef"
-                  v-model:requestVModel="requestVModel"
-                  :select-tree="selectTree as ModuleTreeNode[]"
-                />
-                <a-spin
-                  v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
-                  :loading="pluginLoading"
-                  class="min-h-[100px] w-full"
-                >
-                  <MsFormCreate
-                    v-model:api="fApi"
-                    :rule="currentPluginScript"
-                    :option="currentPluginOptions"
-                    @change="
-                      () => {
-                        if (isInitPluginForm) {
-                          handlePluginFormChange();
-                        }
-                      }
-                    "
-                  />
-                </a-spin>
-                <httpHeader
-                  v-if="requestVModel.activeTab === RequestComposition.HEADER"
-                  v-model:params="requestVModel.headers"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <httpBody
-                  v-else-if="requestVModel.activeTab === RequestComposition.BODY"
-                  v-model:params="requestVModel.body"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  :upload-temp-file-api="props.uploadTempFileApi"
-                  :file-save-as-source-id="props.fileSaveAsSourceId"
-                  :file-save-as-api="props.fileSaveAsApi"
-                  :file-module-options-api="props.fileModuleOptionsApi"
-                  @change="handleActiveDebugChange"
-                />
-                <httpQuery
-                  v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
-                  v-model:params="requestVModel.query"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <httpRest
-                  v-else-if="requestVModel.activeTab === RequestComposition.REST"
-                  v-model:params="requestVModel.rest"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  @change="handleActiveDebugChange"
-                />
-                <precondition
-                  v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
-                  v-model:config="requestVModel.children[0].preProcessorConfig"
-                  :is-definition="props.isDefinition"
-                  @change="handleActiveDebugChange"
-                />
-                <postcondition
-                  v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
-                  v-model:config="requestVModel.children[0].postProcessorConfig"
-                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
-                  :layout="activeLayout"
-                  :second-box-height="secondBoxHeight"
-                  :is-definition="props.isDefinition"
-                  @change="handleActiveDebugChange"
-                />
-                <assertion
-                  v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
-                  v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                  :is-definition="props.isDefinition"
-                  :response="requestVModel.response?.requestResults[0]?.responseResult.body"
-                  :assertion-config="requestVModel.children[0].assertionConfig"
-                  :show-extraction="true"
-                />
-                <auth
-                  v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
-                  v-model:params="requestVModel.authConfig"
-                  @change="handleActiveDebugChange"
-                />
-                <setting
-                  v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
-                  v-model:params="requestVModel.otherConfig"
-                  @change="handleActiveDebugChange"
-                />
-              </div>
-            </div>
-          </a-spin>
-        </template>
-        <template #second>
-          <response
-            v-show="showResponse"
-            ref="responseRef"
-            v-model:active-layout="activeLayout"
-            v-model:active-tab="requestVModel.responseActiveTab"
-            v-model:response-definition="requestVModel.responseDefinition"
-            :show-response-result-button="requestVModel.mode === 'debug'"
-            :is-http-protocol="isHttpProtocol"
-            :is-priority-local-exec="isPriorityLocalExec"
-            :request-url="requestVModel.url"
-            :is-expanded="isVerticalExpanded"
-            :hide-layout-switch="props.hideResponseLayoutSwitch"
-            :request-result="requestVModel.response?.requestResults[0]"
-            :console="requestVModel.response?.console"
-            :is-edit="props.isDefinition && isHttpProtocol && !props.isCase"
-            :upload-temp-file-api="props.uploadTempFileApi"
-            :loading="requestVModel.executeLoading || loading"
-            :is-definition="props.isDefinition"
-            @change-expand="changeVerticalExpand"
-            @change-layout="handleActiveLayoutChange"
-            @change="handleActiveDebugChange"
-            @execute="(executeType) => (props.isCase ? emit('execute', executeType) : execute(executeType))"
-          />
-        </template>
-      </MsSplitBox>
+              <MsFormCreate
+                v-model:api="fApi"
+                :rule="currentPluginScript"
+                :option="currentPluginOptions"
+                @change="
+                  () => {
+                    if (isInitPluginForm) {
+                      handlePluginFormChange();
+                    }
+                  }
+                "
+              />
+            </a-spin>
+            <httpHeader
+              v-if="requestVModel.activeTab === RequestComposition.HEADER"
+              v-model:params="requestVModel.headers"
+              :layout="activeLayout"
+              @change="handleActiveDebugChange"
+            />
+            <httpBody
+              v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+              v-model:params="requestVModel.body"
+              :upload-temp-file-api="props.uploadTempFileApi"
+              :file-save-as-source-id="props.fileSaveAsSourceId"
+              :file-save-as-api="props.fileSaveAsApi"
+              :file-module-options-api="props.fileModuleOptionsApi"
+              @change="handleActiveDebugChange"
+            />
+            <httpQuery
+              v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+              v-model:params="requestVModel.query"
+              @change="handleActiveDebugChange"
+            />
+            <httpRest
+              v-else-if="requestVModel.activeTab === RequestComposition.REST"
+              v-model:params="requestVModel.rest"
+              @change="handleActiveDebugChange"
+            />
+            <precondition
+              v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+              v-model:config="requestVModel.children[0].preProcessorConfig"
+              :is-definition="props.isDefinition"
+              @change="handleActiveDebugChange"
+            />
+            <postcondition
+              v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+              v-model:config="requestVModel.children[0].postProcessorConfig"
+              :response="requestVModel.response?.requestResults[0]?.responseResult.body"
+              :is-definition="props.isDefinition"
+              @change="handleActiveDebugChange"
+            />
+            <assertion
+              v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
+              v-model:params="requestVModel.children[0].assertionConfig.assertions"
+              :is-definition="props.isDefinition"
+              :response="requestVModel.response?.requestResults[0]?.responseResult.body"
+              :assertion-config="requestVModel.children[0].assertionConfig"
+              :show-extraction="true"
+            />
+            <auth
+              v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+              v-model:params="requestVModel.authConfig"
+              @change="handleActiveDebugChange"
+            />
+            <setting
+              v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+              v-model:params="requestVModel.otherConfig"
+              @change="handleActiveDebugChange"
+            />
+          </div>
+        </a-spin>
+        <response
+          v-show="showResponse"
+          ref="responseRef"
+          v-model:active-layout="activeLayout"
+          v-model:active-tab="requestVModel.responseActiveTab"
+          v-model:response-definition="requestVModel.responseDefinition"
+          class="response"
+          :show-response-result-button="requestVModel.mode === 'debug'"
+          :is-http-protocol="isHttpProtocol"
+          :is-priority-local-exec="isPriorityLocalExec"
+          :request-url="requestVModel.url"
+          :is-expanded="isVerticalExpanded"
+          :hide-layout-switch="props.hideResponseLayoutSwitch"
+          :request-result="requestVModel.response?.requestResults[0]"
+          :console="requestVModel.response?.console"
+          :is-edit="props.isDefinition && isHttpProtocol && !props.isCase"
+          :upload-temp-file-api="props.uploadTempFileApi"
+          :loading="requestVModel.executeLoading || loading"
+          :is-definition="props.isDefinition"
+          @change="handleActiveDebugChange"
+          @execute="(executeType) => (props.isCase ? emit('execute', executeType) : execute(executeType))"
+        />
+      </div>
     </div>
   </div>
   <a-modal
@@ -461,7 +430,6 @@
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
@@ -913,58 +881,12 @@
       requestVModel.value.response?.requestResults[0]?.responseResult.responseCode ||
       props.isCase
   );
-  const splitBoxSize = ref<string | number>(!showResponse.value ? 1 : 0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
-  const splitContainerRef = ref<HTMLElement>();
-  const secondBoxHeight = ref(0);
-
-  watch(
-    () => showResponse.value,
-    (val) => {
-      if (val) {
-        splitBoxSize.value = 0.6;
-      } else {
-        splitBoxSize.value = 1;
-      }
-    }
-  );
-
-  watch(
-    () => splitBoxSize.value,
-    debounce((val) => {
-      // 动画 300ms
-      if (splitContainerRef.value) {
-        if (typeof val === 'string' && val.includes('px')) {
-          val = Number(val.split('px')[0]);
-          secondBoxHeight.value = splitContainerRef.value.clientHeight - val;
-        } else {
-          secondBoxHeight.value = splitContainerRef.value.clientHeight * (1 - val);
-        }
-      }
-    }, 300),
-    {
-      immediate: true,
-    }
-  );
-
-  const verticalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
-  const isVerticalExpanded = ref(true);
-  function handleVerticalExpandChange(val: boolean) {
-    isVerticalExpanded.value = val;
-  }
+  const responseRef = ref<InstanceType<typeof response>>();
+  const isVerticalExpanded = computed(() => activeLayout.value === 'vertical');
   function changeVerticalExpand(val: boolean) {
-    isVerticalExpanded.value = val;
-    if (val) {
-      verticalSplitBoxRef.value?.expand(0.6);
-    } else {
-      verticalSplitBoxRef.value?.collapse(
-        splitContainerRef.value
-          ? `${splitContainerRef.value.clientHeight - (props.hideResponseLayoutSwitch ? 37 : 42)}px`
-          : 0
-      );
-    }
+    responseRef.value?.changeExpand(val);
   }
-
   watch(
     () => showResponse.value,
     (val) => {
@@ -975,12 +897,6 @@
       }
     }
   );
-
-  function handleActiveLayoutChange() {
-    isVerticalExpanded.value = true;
-    splitBoxSize.value = 0.6;
-    verticalSplitBoxRef.value?.expand(0.6);
-  }
 
   const saveModalVisible = ref(false);
   const saveModalForm = ref({
@@ -1231,8 +1147,6 @@
     websocket.value?.close();
     requestVModel.value.executeLoading = false;
   }
-
-  const responseRef = ref<InstanceType<typeof response>>();
 
   watch(
     () => requestVModel.value.id,
@@ -1696,10 +1610,6 @@
       .btn-base-primary-disabled();
     }
   }
-  .tab-pane-container {
-    @apply flex-1 overflow-y-auto;
-    .ms-scroll-bar();
-  }
   :deep(.no-content) {
     .arco-tabs-content {
       display: none;
@@ -1711,21 +1621,52 @@
   :deep(.arco-tabs-tab) {
     @apply leading-none;
   }
-  .hidden-second {
-    :deep(.arco-split-trigger) {
-      @apply hidden;
-    }
-  }
-  .show-second {
-    :deep(.arco-split-trigger) {
-      @apply block;
-    }
-  }
   .url-input-tip {
     margin-top: 2px 0 250px;
     font-size: 12px;
     color: rgb(var(--danger-6));
     line-height: 16px;
     @apply flex flex-col flex-nowrap items-center justify-start;
+  }
+  .request-tab-and-response {
+    overflow-x: hidden;
+    overflow-y: auto;
+    .ms-scroll-bar();
+  }
+  .sticky-content {
+    @apply sticky bg-white;
+
+    z-index: 101; // .arco-scrollbar-track是100
+  }
+  .request-content-and-response {
+    display: flex;
+    &.vertical {
+      flex-direction: column;
+      .response :deep(.response-head) {
+        @apply sticky bg-white;
+
+        top: 48px; // 请求参数tab高度(不算border-bottom)
+        z-index: 11;
+      }
+      .request-tab-pane {
+        min-height: 400px;
+      }
+    }
+    &.horizontal {
+      flex-direction: row;
+      min-height: calc(100% - 49px); // 49px:请求参数tab高度
+      .request {
+        flex: 1;
+        overflow-x: auto;
+        .ms-scroll-bar();
+        .request-tab-pane {
+          min-width: 800px;
+        }
+      }
+      .response {
+        width: 500px;
+        border-left: 1px solid var(--color-text-n8);
+      }
+    }
   }
 </style>

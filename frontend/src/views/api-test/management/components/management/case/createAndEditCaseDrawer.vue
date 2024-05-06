@@ -14,65 +14,61 @@
     @cancel="handleSaveCaseCancel"
   >
     <div class="flex h-full flex-col overflow-hidden">
-      <div class="px-[16px] pt-[16px]">
-        <MsDetailCard
-          :title="`【${apiDetailInfo.num}】${apiDetailInfo.name}`"
-          :description="description"
-          class="!flex-row justify-between"
-        >
-          <template #type="{ value }">
-            <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
-          </template>
-        </MsDetailCard>
-        <a-form ref="formRef" class="mt-[16px]" :model="detailForm" layout="vertical">
-          <a-form-item field="name" label="" :rules="[{ required: true, message: t('case.caseNameRequired') }]">
-            <div class="flex w-full items-center gap-[8px]">
-              <a-input
-                v-model:model-value="detailForm.name"
-                :placeholder="t('case.caseNamePlaceholder')"
-                allow-clear
-                :max-length="255"
-                show-word-limit
-              />
-              <MsEnvironmentSelect ref="environmentSelectRef" :env="environmentId" />
-              <executeButton
-                ref="executeRef"
-                v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
-                :execute-loading="detailForm.executeLoading"
-                @stop-debug="stopDebug"
-                @execute="handleExecute"
-              />
-            </div>
+      <MsDetailCard
+        :title="`【${apiDetailInfo.num}】${apiDetailInfo.name}`"
+        :description="description"
+        class="m-[16px] !flex-row justify-between"
+      >
+        <template #type="{ value }">
+          <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
+        </template>
+      </MsDetailCard>
+      <a-form ref="formNameRef" class="flex-row items-start gap-[8px] px-[16px]" :model="detailForm" layout="vertical">
+        <a-form-item field="name" label="" :rules="[{ required: true, message: t('case.caseNameRequired') }]">
+          <a-input
+            v-model:model-value="detailForm.name"
+            :placeholder="t('case.caseNamePlaceholder')"
+            allow-clear
+            :max-length="255"
+            show-word-limit
+          />
+        </a-form-item>
+        <MsEnvironmentSelect ref="environmentSelectRef" :env="environmentId" />
+        <executeButton
+          ref="executeRef"
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          :execute-loading="detailForm.executeLoading"
+          @stop-debug="stopDebug"
+          @execute="handleExecute"
+        />
+      </a-form>
+      <div class="request-tab-and-response flex-1">
+        <a-form ref="formRef" class="flex-row gap-[16px] px-[16px]" :model="detailForm" layout="vertical">
+          <a-form-item field="priority" :label="t('case.caseLevel')">
+            <a-select v-model:model-value="detailForm.priority" :placeholder="t('common.pleaseSelect')">
+              <template #label>
+                <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="detailForm.priority" /></span>
+              </template>
+              <a-option v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
+                <caseLevel :case-level="item.label as CaseLevel" />
+              </a-option>
+            </a-select>
           </a-form-item>
-          <div class="flex gap-[16px]">
-            <a-form-item field="priority" :label="t('case.caseLevel')">
-              <a-select v-model:model-value="detailForm.priority" :placeholder="t('common.pleaseSelect')">
-                <template #label>
-                  <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="detailForm.priority" /></span>
-                </template>
-                <a-option v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
-                  <caseLevel :case-level="item.label as CaseLevel" />
-                </a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item field="status" :label="t('apiTestManagement.apiStatus')">
-              <a-select v-model:model-value="detailForm.status" :placeholder="t('common.pleaseSelect')">
-                <template #label>
-                  <apiStatus :status="detailForm.status" size="small" />
-                </template>
-                <a-option v-for="item of Object.values(RequestCaseStatus)" :key="item" :value="item">
-                  <apiStatus :status="item" size="small" />
-                </a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item field="tags" :label="t('common.tag')">
-              <MsTagsInput v-model:model-value="detailForm.tags" :max-tag-count="1" />
-            </a-form-item>
-          </div>
+          <a-form-item field="status" :label="t('apiTestManagement.apiStatus')">
+            <a-select v-model:model-value="detailForm.status" :placeholder="t('common.pleaseSelect')">
+              <template #label>
+                <apiStatus :status="detailForm.status" size="small" />
+              </template>
+              <a-option v-for="item of Object.values(RequestCaseStatus)" :key="item" :value="item">
+                <apiStatus :status="item" size="small" />
+              </a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item field="tags" :label="t('common.tag')">
+            <MsTagsInput v-model:model-value="detailForm.tags" :max-tag-count="1" />
+          </a-form-item>
         </a-form>
-      </div>
-      <div class="px-[16px] font-medium">{{ t('apiTestManagement.requestParams') }}</div>
-      <div class="flex-1 overflow-hidden">
+        <div class="px-[16px] font-medium">{{ t('apiTestManagement.requestParams') }}</div>
         <requestComposition
           ref="requestCompositionRef"
           v-model:request="detailForm"
@@ -174,6 +170,7 @@
   );
 
   const formRef = ref<FormInstance>();
+  const formNameRef = ref<FormInstance>();
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
   const defaultDetail = computed<RequestParam>(() => {
@@ -239,10 +236,11 @@
     isEdit.value = false;
     innerVisible.value = false;
     formRef.value?.resetFields();
+    formNameRef.value?.resetFields();
   }
 
   function handleDrawerConfirm(isContinue: boolean) {
-    formRef.value?.validate(async (errors) => {
+    formNameRef.value?.validate(async (errors) => {
       if (!errors) {
         // 检查全部的校验信息
         if (requestCompositionRef.value?.getFlattenedMessages()?.length) {
@@ -393,10 +391,12 @@
       max-width: 50%;
     }
   }
-  :deep(.arco-form > .arco-form-item):nth-child(1) .arco-form-item-label-col {
+  :deep(.arco-form):nth-of-type(1) > .arco-form-item .arco-form-item-label-col {
     display: none;
   }
-  :deep(.request-and-response) {
-    height: calc(100% - 56px);
+  .request-tab-and-response {
+    overflow-x: hidden;
+    overflow-y: auto;
+    .ms-scroll-bar();
   }
 </style>

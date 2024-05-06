@@ -100,260 +100,227 @@
       </template>
     </a-empty>
     <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
-      <div class="px-[18px] pt-[8px]">
-        <div class="flex flex-wrap items-center justify-between gap-[12px]">
-          <div class="flex flex-1 items-center gap-[16px]">
-            <a-select
-              v-if="requestVModel.isNew"
-              v-model:model-value="requestVModel.protocol"
-              :options="protocolOptions"
-              :loading="protocolLoading"
-              :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
-              class="w-[90px]"
-              @change="(val) => handleActiveDebugProtocolChange(val as string)"
+      <div class="flex flex-wrap items-center justify-between gap-[12px] px-[18px] pt-[8px]">
+        <div class="flex flex-1 items-center gap-[16px]">
+          <a-select
+            v-if="requestVModel.isNew"
+            v-model:model-value="requestVModel.protocol"
+            :options="protocolOptions"
+            :loading="protocolLoading"
+            :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
+            class="w-[90px]"
+            @change="(val) => handleActiveDebugProtocolChange(val as string)"
+          />
+          <div v-else class="flex items-center gap-[4px]">
+            <apiMethodName
+              :method="(requestVModel.protocol as RequestMethods)"
+              tag-background-color="rgb(var(--link-7))"
+              tag-text-color="white"
+              is-tag
+              class="flex items-center"
             />
-            <div v-else class="flex items-center gap-[4px]">
-              <apiMethodName
-                :method="(requestVModel.protocol as RequestMethods)"
-                tag-background-color="rgb(var(--link-7))"
-                tag-text-color="white"
-                is-tag
-                class="flex items-center"
-              />
-              <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.name" :mouse-enter-delay="500">
-                <div class="one-line-text max-w-[350px]"> {{ requestVModel.name }}</div>
-              </a-tooltip>
-            </div>
-            <a-input-group v-if="isHttpProtocol" class="flex-1">
-              <apiMethodSelect
-                v-model:model-value="requestVModel.method"
-                class="w-[140px]"
-                :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
-                @change="handleActiveDebugChange"
-              />
-              <a-input
-                v-model:model-value="requestVModel.url"
-                :max-length="255"
-                :placeholder="showEnvPrefix ? t('apiScenario.pleaseInputUrl') : t('apiTestDebug.urlPlaceholder')"
-                allow-clear
-                class="hover:z-10"
-                :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
-                :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
-                @input="() => (isUrlError = false)"
-                @change="handleUrlChange"
-              >
-                <template v-if="showEnvPrefix" #prefix>
-                  {{ (appStore.currentEnvConfig as EnvConfig)?.httpConfig.find((e) => e.type === 'NONE')?.url }}
-                </template>
-              </a-input>
-            </a-input-group>
+            <a-tooltip v-if="!isHttpProtocol" :content="requestVModel.name" :mouse-enter-delay="500">
+              <div class="one-line-text max-w-[350px]"> {{ requestVModel.name }}</div>
+            </a-tooltip>
           </div>
-          <div v-permission="[props.permissionMap?.execute]">
-            <template v-if="hasLocalExec">
-              <a-dropdown-button
-                v-if="!requestVModel.executeLoading"
-                :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
-                class="exec-btn"
-                @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
-                @select="execute"
-              >
-                {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
-                <template #icon>
-                  <icon-down />
-                </template>
-                <template #content>
-                  <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
-                    {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
-                  </a-doption>
-                </template>
-              </a-dropdown-button>
-              <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
-                {{ t('common.stop') }}
-              </a-button>
-            </template>
-            <a-button
-              v-else-if="!requestVModel.executeLoading"
-              class="mr-[12px]"
-              type="primary"
-              @click="() => execute('serverExec')"
+          <a-input-group v-if="isHttpProtocol" class="flex-1">
+            <apiMethodSelect
+              v-model:model-value="requestVModel.method"
+              class="w-[140px]"
+              :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
+              @change="handleActiveDebugChange"
+            />
+            <a-input
+              v-model:model-value="requestVModel.url"
+              :max-length="255"
+              :placeholder="showEnvPrefix ? t('apiScenario.pleaseInputUrl') : t('apiTestDebug.urlPlaceholder')"
+              allow-clear
+              class="hover:z-10"
+              :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6);z-index: 10' : ''"
+              :disabled="_stepType.isQuoteApi || props.step?.isQuoteScenarioStep"
+              @input="() => (isUrlError = false)"
+              @change="handleUrlChange"
             >
-              {{ t('apiTestDebug.serverExec') }}
-            </a-button>
+              <template v-if="showEnvPrefix" #prefix>
+                {{ (appStore.currentEnvConfig as EnvConfig)?.httpConfig.find((e) => e.type === 'NONE')?.url }}
+              </template>
+            </a-input>
+          </a-input-group>
+        </div>
+        <div v-permission="[props.permissionMap?.execute]">
+          <template v-if="hasLocalExec">
+            <a-dropdown-button
+              v-if="!requestVModel.executeLoading"
+              :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+              class="exec-btn"
+              @click="() => execute(isPriorityLocalExec ? 'localExec' : 'serverExec')"
+              @select="execute"
+            >
+              {{ isPriorityLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption :value="isPriorityLocalExec ? 'serverExec' : 'localExec'">
+                  {{ isPriorityLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
             <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
               {{ t('common.stop') }}
             </a-button>
-          </div>
+          </template>
+          <a-button
+            v-else-if="!requestVModel.executeLoading"
+            class="mr-[12px]"
+            type="primary"
+            @click="() => execute('serverExec')"
+          >
+            {{ t('apiTestDebug.serverExec') }}
+          </a-button>
+          <a-button v-else type="primary" class="mr-[12px]" @click="stopDebug">
+            {{ t('common.stop') }}
+          </a-button>
         </div>
-        <a-input
-          v-if="props.step?.stepType && _stepType.isQuoteApi && isHttpProtocol"
-          v-model:model-value="requestVModel.name"
-          :max-length="255"
-          :placeholder="t('apiTestManagement.apiNamePlaceholder')"
-          :disabled="!isEditableApi"
-          allow-clear
-          class="mt-[8px]"
-        />
       </div>
-      <div class="px-[16px]">
+      <div class="request-tab-and-response flex-1">
+        <div class="px-[18px]">
+          <a-input
+            v-if="props.step?.stepType && _stepType.isQuoteApi && isHttpProtocol"
+            v-model:model-value="requestVModel.name"
+            :max-length="255"
+            :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+            :disabled="!isEditableApi"
+            allow-clear
+            class="my-[8px]"
+          />
+        </div>
         <MsTab
           v-if="requestVModel.activeTab"
           v-model:active-key="requestVModel.activeTab"
           :content-tab-list="contentTabList"
           :get-text-func="getTabBadge"
-          class="no-content relative mt-[8px] border-b"
+          class="sticky-content no-content relative top-0 mx-[16px] border-b"
         />
-      </div>
-      <div ref="splitContainerRef" class="h-[calc(100%-97px)]">
-        <MsSplitBox
-          ref="verticalSplitBoxRef"
-          v-model:size="splitBoxSize"
-          :max="!showResponse ? 1 : 0.98"
-          min="10px"
-          :direction="activeLayout"
-          second-container-class="!overflow-y-hidden"
-          :class="!showResponse ? 'hidden-second' : 'show-second'"
-          @expand-change="handleVerticalExpandChange"
-        >
-          <template #first>
-            <a-spin class="block h-full w-full" :loading="requestVModel.executeLoading || loading">
-              <div
-                :class="`flex h-full min-w-[800px] flex-col p-[16px] ${
-                  activeLayout === 'horizontal' ? ' pr-[16px]' : ''
-                }`"
+        <div :class="`request-content-and-response ${activeLayout}`">
+          <a-spin class="request block h-full w-full" :loading="requestVModel.executeLoading || loading">
+            <div class="request-tab-pane flex flex-col p-[16px]">
+              <a-spin
+                v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
+                :loading="pluginLoading"
+                class="min-h-[100px] w-full"
               >
-                <div class="tab-pane-container">
-                  <a-spin
-                    v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
-                    :loading="pluginLoading"
-                    class="min-h-[100px] w-full"
-                  >
-                    <MsFormCreate
-                      v-model:api="fApi"
-                      :rule="currentPluginScript"
-                      :option="currentPluginOptions"
-                      @change="
-                        () => {
-                          if (isInitPluginForm) {
-                            handlePluginFormChange();
-                          }
-                        }
-                      "
-                    />
-                  </a-spin>
-                  <httpHeader
-                    v-if="requestVModel.activeTab === RequestComposition.HEADER"
-                    v-model:params="requestVModel.headers"
-                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
-                    :disabled-except-param="!isEditableApi"
-                    :layout="activeLayout"
-                    :second-box-height="secondBoxHeight"
-                    is-drawer
-                    @change="handleActiveDebugChange"
-                  />
-                  <httpBody
-                    v-else-if="requestVModel.activeTab === RequestComposition.BODY"
-                    v-model:params="requestVModel.body"
-                    :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
-                    :disabled-except-param="!isEditableApi"
-                    :second-box-height="secondBoxHeight"
-                    :upload-temp-file-api="uploadTempFile"
-                    :file-save-as-source-id="scenarioId"
-                    :file-save-as-api="transferFile"
-                    :file-module-options-api="getTransferOptions"
-                    is-drawer
-                    @change="handleActiveDebugChange"
-                  />
-                  <httpQuery
-                    v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
-                    v-model:params="requestVModel.query"
-                    :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
-                    :disabled-except-param="!isEditableApi"
-                    :second-box-height="secondBoxHeight"
-                    is-drawer
-                    @change="handleActiveDebugChange"
-                  />
-                  <httpRest
-                    v-else-if="requestVModel.activeTab === RequestComposition.REST"
-                    v-model:params="requestVModel.rest"
-                    :layout="activeLayout"
-                    :disabled-param-value="!isEditableApi && !isEditableParamValue"
-                    :disabled-except-param="!isEditableApi"
-                    :second-box-height="secondBoxHeight"
-                    is-drawer
-                    @change="handleActiveDebugChange"
-                  />
-                  <precondition
-                    v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
-                    v-model:config="requestVModel.children[0].preProcessorConfig"
-                    is-definition
-                    :disabled="!isEditableApi"
-                    :tip-content="t('apiScenario.openGlobalPreConditionTip')"
-                    @change="handleActiveDebugChange"
-                  />
-                  <postcondition
-                    v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
-                    v-model:config="requestVModel.children[0].postProcessorConfig"
-                    :response="responseResultBody"
-                    :layout="activeLayout"
-                    :disabled="!isEditableApi"
-                    :second-box-height="secondBoxHeight"
-                    :tip-content="t('apiScenario.openGlobalPostConditionTip')"
-                    is-definition
-                    @change="handleActiveDebugChange"
-                  />
-                  <assertion
-                    v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
-                    v-model:params="requestVModel.children[0].assertionConfig.assertions"
-                    :response="responseResultBody"
-                    is-definition
-                    :disabled="!isEditableApi"
-                    :assertion-config="requestVModel.children[0].assertionConfig"
-                    :show-extraction="true"
-                  />
-                  <auth
-                    v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
-                    v-model:params="requestVModel.authConfig"
-                    :disabled="!isEditableApi"
-                    @change="handleActiveDebugChange"
-                  />
-                  <setting
-                    v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
-                    v-model:params="requestVModel.otherConfig"
-                    :disabled="!isEditableApi"
-                    @change="handleActiveDebugChange"
-                  />
-                </div>
-              </div>
-            </a-spin>
-          </template>
-          <template #second>
-            <response
-              v-if="visible"
-              v-show="showResponse"
-              v-model:active-layout="activeLayout"
-              v-model:active-tab="requestVModel.responseActiveTab"
-              :is-http-protocol="isHttpProtocol"
-              :is-priority-local-exec="isPriorityLocalExec"
-              :request-url="requestVModel.url"
-              :is-expanded="isVerticalExpanded"
-              :request-result="currentResponse"
-              :console="currentResponse?.console"
-              :is-edit="false"
-              is-definition
-              hide-layout-switch
-              :loading="requestVModel.executeLoading || loading"
-              @change-expand="changeVerticalExpand"
-              @change-layout="handleActiveLayoutChange"
-              @execute="execute"
-            >
-              <template #titleRight>
-                <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
-              </template>
-            </response>
-          </template>
-        </MsSplitBox>
+                <MsFormCreate
+                  v-model:api="fApi"
+                  :rule="currentPluginScript"
+                  :option="currentPluginOptions"
+                  @change="
+                    () => {
+                      if (isInitPluginForm) {
+                        handlePluginFormChange();
+                      }
+                    }
+                  "
+                />
+              </a-spin>
+              <httpHeader
+                v-if="requestVModel.activeTab === RequestComposition.HEADER"
+                v-model:params="requestVModel.headers"
+                :disabled-param-value="!isEditableApi && !isEditableParamValue"
+                :disabled-except-param="!isEditableApi"
+                :layout="activeLayout"
+                @change="handleActiveDebugChange"
+              />
+              <httpBody
+                v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+                v-model:params="requestVModel.body"
+                :disabled-param-value="!isEditableApi && !isEditableParamValue"
+                :disabled-except-param="!isEditableApi"
+                :upload-temp-file-api="uploadTempFile"
+                :file-save-as-source-id="scenarioId"
+                :file-save-as-api="transferFile"
+                :file-module-options-api="getTransferOptions"
+                @change="handleActiveDebugChange"
+              />
+              <httpQuery
+                v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+                v-model:params="requestVModel.query"
+                :disabled-param-value="!isEditableApi && !isEditableParamValue"
+                :disabled-except-param="!isEditableApi"
+                @change="handleActiveDebugChange"
+              />
+              <httpRest
+                v-else-if="requestVModel.activeTab === RequestComposition.REST"
+                v-model:params="requestVModel.rest"
+                :disabled-param-value="!isEditableApi && !isEditableParamValue"
+                :disabled-except-param="!isEditableApi"
+                @change="handleActiveDebugChange"
+              />
+              <precondition
+                v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+                v-model:config="requestVModel.children[0].preProcessorConfig"
+                is-definition
+                :disabled="!isEditableApi"
+                :tip-content="t('apiScenario.openGlobalPreConditionTip')"
+                @change="handleActiveDebugChange"
+              />
+              <postcondition
+                v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+                v-model:config="requestVModel.children[0].postProcessorConfig"
+                :response="responseResultBody"
+                :disabled="!isEditableApi"
+                :tip-content="t('apiScenario.openGlobalPostConditionTip')"
+                is-definition
+                @change="handleActiveDebugChange"
+              />
+              <assertion
+                v-else-if="requestVModel.activeTab === RequestComposition.ASSERTION"
+                v-model:params="requestVModel.children[0].assertionConfig.assertions"
+                :response="responseResultBody"
+                is-definition
+                :disabled="!isEditableApi"
+                :assertion-config="requestVModel.children[0].assertionConfig"
+                :show-extraction="true"
+              />
+              <auth
+                v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+                v-model:params="requestVModel.authConfig"
+                :disabled="!isEditableApi"
+                @change="handleActiveDebugChange"
+              />
+              <setting
+                v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+                v-model:params="requestVModel.otherConfig"
+                :disabled="!isEditableApi"
+                @change="handleActiveDebugChange"
+              />
+            </div>
+          </a-spin>
+
+          <response
+            v-if="visible"
+            v-show="showResponse"
+            ref="responseRef"
+            v-model:active-layout="activeLayout"
+            v-model:active-tab="requestVModel.responseActiveTab"
+            class="response"
+            :is-http-protocol="isHttpProtocol"
+            :is-priority-local-exec="isPriorityLocalExec"
+            :request-url="requestVModel.url"
+            :is-expanded="isVerticalExpanded"
+            :request-result="currentResponse"
+            :console="currentResponse?.console"
+            :is-edit="false"
+            is-definition
+            hide-layout-switch
+            :loading="requestVModel.executeLoading || loading"
+            @execute="execute"
+          >
+            <template #titleRight>
+              <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+            </template>
+          </response>
+        </div>
       </div>
     </div>
     <!-- <addDependencyDrawer v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" /> -->
@@ -368,7 +335,6 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
   import loopPagination from './loopPagination.vue';
@@ -936,47 +902,13 @@
   const showResponse = computed(
     () => isHttpProtocol.value || requestVModel.value.response?.requestResults[0]?.responseResult.responseCode
   );
-  const splitBoxSize = ref<string | number>(!showResponse.value ? 1 : 0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
-  const splitContainerRef = ref<HTMLElement>();
-  const secondBoxHeight = ref(0);
-
-  watch(
-    () => splitBoxSize.value,
-    debounce((val) => {
-      // 动画 300ms
-      if (splitContainerRef.value) {
-        if (typeof val === 'string' && val.includes('px')) {
-          val = Number(val.split('px')[0]);
-          secondBoxHeight.value = splitContainerRef.value.clientHeight - val;
-        } else {
-          secondBoxHeight.value = splitContainerRef.value.clientHeight * (1 - val);
-        }
-      }
-    }, 300),
-    {
-      immediate: true,
-    }
-  );
-
-  const verticalSplitBoxRef = ref<InstanceType<typeof MsSplitBox>>();
-  const isVerticalExpanded = ref(true);
-
-  function handleVerticalExpandChange(val: boolean) {
-    isVerticalExpanded.value = val;
-  }
+  const isVerticalExpanded = computed(() => activeLayout.value === 'vertical');
+  const responseRef = ref<InstanceType<typeof response>>();
 
   function changeVerticalExpand(val: boolean) {
-    isVerticalExpanded.value = val;
-    if (val) {
-      verticalSplitBoxRef.value?.expand(0.6);
-    } else {
-      verticalSplitBoxRef.value?.collapse(
-        splitContainerRef.value ? `${splitContainerRef.value.clientHeight - 42}px` : 0
-      );
-    }
+    responseRef.value?.changeExpand(val);
   }
-
   watch(
     () => showResponse.value,
     (val) => {
@@ -984,18 +916,11 @@
         if (val) {
           changeVerticalExpand(true);
         } else {
-          isVerticalExpanded.value = false;
-          verticalSplitBoxRef.value?.collapse(1);
+          changeVerticalExpand(false);
         }
       });
     }
   );
-
-  function handleActiveLayoutChange() {
-    isVerticalExpanded.value = true;
-    splitBoxSize.value = 0.6;
-    verticalSplitBoxRef.value?.expand(0.6);
-  }
 
   /**
    * 生成请求参数
@@ -1373,10 +1298,6 @@
       .btn-base-primary-disabled();
     }
   }
-  .tab-pane-container {
-    @apply flex-1 overflow-y-auto;
-    .ms-scroll-bar();
-  }
   :deep(.no-content) {
     .arco-tabs-content {
       display: none;
@@ -1387,5 +1308,30 @@
   }
   :deep(.arco-tabs-tab) {
     @apply leading-none;
+  }
+  .request-tab-and-response {
+    overflow-x: hidden;
+    overflow-y: auto;
+    .ms-scroll-bar();
+  }
+  .sticky-content {
+    @apply sticky bg-white;
+
+    z-index: 101;
+  }
+  .request-content-and-response {
+    display: flex;
+    &.vertical {
+      flex-direction: column;
+      .response :deep(.response-head) {
+        @apply sticky bg-white;
+
+        top: 48px; // 请求参数tab高度(不算border-bottom)
+        z-index: 11;
+      }
+      .request-tab-pane {
+        min-height: 400px;
+      }
+    }
   }
 </style>
