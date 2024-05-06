@@ -71,8 +71,7 @@
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v20.8.1</node.version>
-        <npm.version>10.1.0</npm.version>
-        <pnpm.version>8.9.2</pnpm.version>
+        <pnpm.version>9.0.6</pnpm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <jacoco.version>0.8.10</jacoco.version>
