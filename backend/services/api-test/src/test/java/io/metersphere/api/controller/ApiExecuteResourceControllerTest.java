@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
@@ -40,6 +41,8 @@ public class ApiExecuteResourceControllerTest extends BaseTest {
     private ApiExecuteService apiExecuteService;
     @Resource
     private ApiDebugService apiDebugService;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     @Override
     public String getBasePath() {
@@ -55,7 +58,7 @@ public class ApiExecuteResourceControllerTest extends BaseTest {
     public void downloadFile() throws Exception {
         String fileName = IDGenerator.nextStr() + "_file_upload.JPG";
         MockMultipartFile file = new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
-        String fileId = apiDebugService.uploadTempFile(file);
+        String fileId = apiFileResourceService.uploadTempFile(file);
         FileRequest fileRequest = new FileCopyRequest();
         fileRequest.setFileName(fileName);
         fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);

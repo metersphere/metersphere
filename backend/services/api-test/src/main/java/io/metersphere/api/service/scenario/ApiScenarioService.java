@@ -1284,11 +1284,6 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenario checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(apiScenarioMapper.selectByPrimaryKey(id), "permission.system_api_scenario.name");
     }
-
-    public String uploadTempFile(MultipartFile file) {
-        return apiFileResourceService.uploadTempFile(file);
-    }
-
     public TaskRequestDTO debug(ApiScenarioDebugRequest request) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
         boolean hasSave = apiScenario != null;

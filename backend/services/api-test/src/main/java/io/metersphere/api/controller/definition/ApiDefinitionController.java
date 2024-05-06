@@ -3,6 +3,7 @@ package io.metersphere.api.controller.definition;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -10,6 +11,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
@@ -54,6 +56,8 @@ public class ApiDefinitionController {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private FileModuleService fileModuleService;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
@@ -201,7 +205,7 @@ public class ApiDefinitionController {
     @Operation(summary = "上传接口定义所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_ADD, PermissionConstants.PROJECT_API_DEFINITION_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
-        return apiDefinitionService.uploadTempFile(file);
+        return apiFileResourceService.uploadTempFile(file);
     }
 
     @PostMapping("/doc")
@@ -257,7 +261,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/transfer/options/{projectId}")
     @Operation(summary = "接口测试-接口管理-接口-附件-转存目录下拉框")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
@@ -265,10 +269,10 @@ public class ApiDefinitionController {
 
     @PostMapping("/transfer")
     @Operation(summary = "接口测试-接口管理-接口-附件-文件转存")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiDefinitionService.transfer(request, SessionUtils.getUserId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API.name());
     }
 
     @PostMapping("/preview")

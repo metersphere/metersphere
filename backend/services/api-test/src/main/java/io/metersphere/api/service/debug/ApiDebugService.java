@@ -9,7 +9,6 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
-import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
@@ -44,7 +43,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -209,10 +207,6 @@ public class ApiDebugService extends MoveNodeService {
         return ServiceUtils.checkResourceExist(apiDebugMapper.selectByPrimaryKey(id), "permission.api_debug.name");
     }
 
-    public String uploadTempFile(MultipartFile file) {
-        return apiFileResourceService.uploadTempFile(file);
-    }
-
     public TaskRequestDTO debug(ApiDebugRunRequest request) {
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
@@ -304,9 +298,5 @@ public class ApiDebugService extends MoveNodeService {
             apiDebugBlob.setResponse(null);
             apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
         }
-    }
-
-    public String transfer(ApiTransferRequest request, String userId) {
-        return apiFileResourceService.transfer(request, userId, ApiResourceType.API_DEBUG.name());
     }
 }

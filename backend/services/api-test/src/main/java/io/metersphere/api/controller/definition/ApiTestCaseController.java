@@ -2,11 +2,13 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -50,6 +52,8 @@ public class ApiTestCaseController {
     private FileModuleService fileModuleService;
     @Resource
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-接口用例-新增")
@@ -213,7 +217,7 @@ public class ApiTestCaseController {
     @Operation(summary = "上传接口调试所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
-        return apiTestCaseService.uploadTempFile(file);
+        return apiFileResourceService.uploadTempFile(file);
     }
 
     @PostMapping("/execute/page")
@@ -238,15 +242,15 @@ public class ApiTestCaseController {
 
     @PostMapping("/transfer")
     @Operation(summary = "接口测试-接口管理-接口用例-附件-文件转存")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiTestCaseService.transfer(request, SessionUtils.getUserId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_CASE.name());
     }
 
     @GetMapping("/transfer/options/{projectId}")
     @Operation(summary = "接口测试-接口管理-接口用例-附件-转存目录下拉框")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);

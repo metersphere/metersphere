@@ -1,9 +1,11 @@
 package io.metersphere.api.controller.debug;
 
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.project.service.FileModuleService;
@@ -38,6 +40,8 @@ public class ApiDebugController {
     private ApiDebugService apiDebugService;
     @Resource
     private FileModuleService fileModuleService;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     @GetMapping("/list/{protocol}")
     @Operation(summary = "获取接口调试列表")
@@ -65,7 +69,7 @@ public class ApiDebugController {
     @Operation(summary = "上传接口调试所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEBUG_ADD, PermissionConstants.PROJECT_API_DEBUG_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
-        return apiDebugService.uploadTempFile(file);
+        return apiFileResourceService.uploadTempFile(file);
     }
 
     @PostMapping("/update")
@@ -102,15 +106,15 @@ public class ApiDebugController {
 
     @PostMapping("/transfer")
     @Operation(summary = "接口测试-接口调试-附件-文件转存")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiDebugService.transfer(request, SessionUtils.getUserId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_DEBUG.name());
     }
 
     @GetMapping("/transfer/options/{projectId}")
     @Operation(summary = "接口测试-接口调试-附件-转存目录下拉框")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
