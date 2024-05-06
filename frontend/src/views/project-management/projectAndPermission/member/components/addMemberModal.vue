@@ -107,7 +107,7 @@
   // 初始化项目成员
   const initProjectMemberOptions = async () => {
     try {
-      if (lastProjectId) {
+      if (lastProjectId.value) {
         const result = await getProjectMemberOptions(lastProjectId.value);
         memberList.value = result;
       }

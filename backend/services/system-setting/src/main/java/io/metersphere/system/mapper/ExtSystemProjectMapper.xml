@@ -224,4 +224,14 @@
             </foreach>
         </if>
     </select>
+    <select id="getSystemProject" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select id, name
+        from project
+        where enable = 1
+        <if test="keyword != null and keyword != ''">
+            and name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        order by update_time desc
+        limit 1000
+    </select>
 </mapper>

@@ -102,7 +102,7 @@
           </template>
         </TableFilter>
       </template>
-      <template v-if="appStore.packageType === 'enterprise'" #orgFilterName="{ columnConfig }">
+      <template v-if="appStore.packageType === 'enterprise' && xPack" #orgFilterName="{ columnConfig }">
         <TableFilter
           v-model:visible="orgFilterVisible"
           v-model:status-filters="orgFiltersMap[props.moduleType]"
@@ -110,13 +110,26 @@
           mode="remote"
           value-key="id"
           label-key="name"
-          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_LIST"
+          :type="
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
+              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
+              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
+          "
           :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
           @search="initData()"
         >
         </TableFilter>
       </template>
-      <template #projectFilterName="{ columnConfig }">
+      <template
+        v-if="
+          hasAnyPermission(
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_API_CASE_SYSTEM
+              ? ['SYSTEM_ORGANIZATION_PROJECT:READ']
+              : ['ORGANIZATION_PROJECT:READ']
+          )
+        "
+        #projectFilterName="{ columnConfig }"
+      >
         <TableFilter
           v-model:visible="projectFilterVisible"
           v-model:status-filters="projectFiltersMap[props.moduleType]"
@@ -124,7 +137,11 @@
           mode="remote"
           :load-option-params="{ organizationId: appStore.currentOrgId }"
           :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
-          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+          :type="
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_API_CASE_SYSTEM
+              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
+              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
+          "
           @search="initData()"
         >
         </TableFilter>
@@ -179,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -208,6 +225,7 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore, useTableStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -455,6 +473,8 @@
     API_CASE: projectApiCaseFilter.value,
     API_SCENARIO: projectApiScenarioFilter.value,
   });
+  const licenseStore = useLicenseStore();
+  const xPack = computed(() => licenseStore.hasLicense());
 
   function initData() {
     setLoadListParams({
@@ -469,7 +489,6 @@
     });
     loadList();
   }
-
   function handleFilterReset() {
     statusFiltersMap.value[props.moduleType] = [];
     statusFilterVisible.value = false;
@@ -517,7 +536,7 @@
           await loadRealMap.value[props.group].batchStop({
             moduleType: props.moduleType,
             selectIds: selectIds || [],
-            selectAll: !!selectAll,
+            selectAll,
             excludeIds: excludeIds || [],
             condition: {
               keyword: keyword.value,

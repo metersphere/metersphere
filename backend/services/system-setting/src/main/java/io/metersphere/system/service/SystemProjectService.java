@@ -105,4 +105,9 @@ public class SystemProjectService {
     public void rename(UpdateProjectNameRequest project, String userId) {
         commonProjectService.rename(project, userId);
     }
+
+    public List<OptionDTO> list(String keyword) {
+        return extSystemProjectMapper.getSystemProject(keyword);
+
+    }
 }

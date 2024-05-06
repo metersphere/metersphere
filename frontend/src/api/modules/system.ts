@@ -1,5 +1,6 @@
 // 系统全局类的接口
 import MSR from '@/api/http/index';
+import { getSystemProjectListUrl } from '@/api/requrls/setting/member';
 import {
   GetVersionUrl,
   OrgOptionsUrl,
@@ -31,4 +32,8 @@ export function getPackageType() {
 // 获取当前用户是否具备项目权限
 export function getUserHasProjectPermission(userId: string) {
   return MSR.get({ url: `${userHasProjectPermissionUrl}/${userId}` });
+}
+
+export function getSystemProjectList(keyword: string) {
+  return MSR.get({ url: getSystemProjectListUrl, params: { keyword } });
 }

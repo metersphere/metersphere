@@ -6,6 +6,7 @@ import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.ProjectResourcePoolDTO;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -34,4 +35,6 @@ public interface ExtSystemProjectMapper {
     List<UserExtendDTO> getMemberByProjectId(@Param("projectId") String projectId, @Param("keyword") String keyword);
 
     List<User> getProjectMemberByUserId(@Param("projectId") String projectId, @Param("userIds") List<String> userIds);
+    List<OptionDTO> getSystemProject(@Param("keyword") String keyword);
+
 }
