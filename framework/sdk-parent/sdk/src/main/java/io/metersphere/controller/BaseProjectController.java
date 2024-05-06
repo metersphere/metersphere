@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ProjectRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.BaseProjectService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
@@ -44,6 +45,7 @@ public class BaseProjectController {
     }
 
     @GetMapping("/get/{id}")
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.PROJECT_MANAGER_READ}, logical = Logical.OR)
     public Project getProject(@PathVariable String id) {
         return baseProjectService.getProjectById(id);
