@@ -1761,6 +1761,7 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
         request.setProjectId(project.getId());
         request.setSelectIds(testPlanList.stream().map(TestPlan::getId).collect(Collectors.toList()));
+        request.setType("ALL");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         allDataInDB = allDataInDB - 10;
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
@@ -1786,6 +1787,7 @@ public class TestPlanTests extends BaseTest {
         request.setProjectId(project.getId());
         request.setSelectAll(true);
         request.getCondition().initKeyword("plan_2");
+        request.setType("ALL");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         allDataInDB = allDataInDB - (1 + 10 + 100);
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
@@ -1794,6 +1796,7 @@ public class TestPlanTests extends BaseTest {
         request = new TestPlanBatchProcessRequest();
         request.setSelectIds(Collections.singletonList(groupTestPlanId15));
         request.setProjectId(project.getId());
+        request.setType("ALL");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         allDataInDB--;
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
@@ -1807,6 +1810,7 @@ public class TestPlanTests extends BaseTest {
         request.setSelectAll(true);
         request.setModuleIds(Arrays.asList(a1a1Node.getId()));
         request.setProjectId(project.getId());
+        request.setType("ALL");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         allDataInDB = allDataInDB - 50;
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
@@ -1818,6 +1822,7 @@ public class TestPlanTests extends BaseTest {
         request.setModuleIds(Arrays.asList(a1b1Node.getId()));
         request.getCondition().initKeyword("planSty");
         request.setProjectId(project.getId());
+        request.setType("ALL");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
         Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
     }

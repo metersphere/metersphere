@@ -75,7 +75,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "测试计划-创建测试计划")
+    @Operation(summary = "测试计划-更新测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan")
     public String add(@Validated @RequestBody TestPlanUpdateRequest request) {

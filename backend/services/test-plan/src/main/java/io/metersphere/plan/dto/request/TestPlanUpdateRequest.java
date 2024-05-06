@@ -34,6 +34,9 @@ public class TestPlanUpdateRequest {
     @Schema(description = "描述")
     private String description;
 
+    @Schema(description = "是否开启测试规划")
+    private Boolean testPlanning;
+
     @Schema(description = "是否自定更新功能用例状态")
     private Boolean automaticStatusUpdate;
 

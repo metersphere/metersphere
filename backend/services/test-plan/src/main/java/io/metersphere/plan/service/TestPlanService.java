@@ -173,9 +173,7 @@ public class TestPlanService {
     public void batchDelete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
         List<String> deleteIdList = request.getSelectIds();
         if (request.isSelectAll()) {
-            TestPlanQueryConditions testPlanQueryConditions = new TestPlanQueryConditions(request.getModuleIds(), request.getProjectId(), request.getCondition());
-            testPlanQueryConditions.setHiddenIds(request.getExcludeIds());
-            deleteIdList = extTestPlanMapper.selectIdByConditions(testPlanQueryConditions);
+            deleteIdList = extTestPlanMapper.selectIdByConditions(request);
         }
         if (CollectionUtils.isEmpty(deleteIdList)) {
             return;
@@ -203,11 +201,7 @@ public class TestPlanService {
         //删除当前计划对应的资源
         Map<String, TestPlanResourceService> subTypes = CommonBeanFactory.getBeansOfType(TestPlanResourceService.class);
         subTypes.forEach((k, t) -> {
-            try {
-                t.deleteBatchByTestPlanId(testPlanIds);
-            } catch (Exception e) {
-                LogUtils.error(e);
-            }
+            t.deleteBatchByTestPlanId(testPlanIds);
         });
         //删除测试计划配置
         TestPlanConfigExample configExample = new TestPlanConfigExample();
@@ -219,7 +213,7 @@ public class TestPlanService {
         testPlanFollowerMapper.deleteByExample(testPlanFollowerExample);
         /*
         todo
-            删除计划定时任务
+            删除计划定时任务  执行相关配置
          */
 
     }
@@ -271,12 +265,13 @@ public class TestPlanService {
             testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
         }
 
-        if (!ObjectUtils.allNull(request.getAutomaticStatusUpdate(), request.getRepeatCase(), request.getPassThreshold())) {
+        if (!ObjectUtils.allNull(request.getAutomaticStatusUpdate(), request.getRepeatCase(), request.getPassThreshold(), request.getTestPlanning())) {
             TestPlanConfig testPlanConfig = new TestPlanConfig();
             testPlanConfig.setTestPlanId(request.getId());
             testPlanConfig.setAutomaticStatusUpdate(request.getAutomaticStatusUpdate());
             testPlanConfig.setRepeatCase(request.getRepeatCase());
             testPlanConfig.setPassThreshold(request.getPassThreshold());
+            testPlanConfig.setTestPlanning(request.getTestPlanning());
             testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
         }
         testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
