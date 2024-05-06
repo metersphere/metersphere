@@ -65,7 +65,7 @@
           </a-option>
         </a-select>
       </template>
-      <template v-if="appStore.packageType === 'enterprise'" #orgFilterName="{ columnConfig }">
+      <template v-if="appStore.packageType === 'enterprise' && xPack" #orgFilterName="{ columnConfig }">
         <TableFilter
           v-model:visible="orgFilterVisible"
           v-model:status-filters="orgFiltersMap[props.moduleType]"
@@ -79,7 +79,16 @@
         >
         </TableFilter>
       </template>
-      <template #projectFilterName="{ columnConfig }">
+      <template
+        v-if="
+          hasAnyPermission(
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
+              ? ['SYSTEM_ORGANIZATION_PROJECT:READ']
+              : ['ORGANIZATION_PROJECT:READ']
+          )
+        "
+        #projectFilterName="{ columnConfig }"
+      >
         <TableFilter
           v-model:visible="projectFilterVisible"
           v-model:status-filters="projectFiltersMap[props.moduleType]"
@@ -87,7 +96,11 @@
           mode="remote"
           :load-option-params="{ organizationId: appStore.currentOrgId }"
           :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
-          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+          :type="
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
+              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
+              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
+          "
           @search="initData()"
         >
         </TableFilter>
@@ -118,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -154,6 +167,7 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore, useTableStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
@@ -351,6 +365,9 @@
   });
 
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
+
+  const licenseStore = useLicenseStore();
+  const xPack = computed(() => licenseStore.hasLicense());
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,

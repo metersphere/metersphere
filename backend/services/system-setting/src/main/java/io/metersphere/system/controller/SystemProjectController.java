@@ -175,4 +175,12 @@ public class SystemProjectController {
         systemProjectService.rename(request, SessionUtils.getUserId());
     }
 
+    @GetMapping("/list")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-获取所有项目")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public List<OptionDTO> getProjectList(@Schema(description = "查询关键字，根据项目名查询", requiredMode = Schema.RequiredMode.REQUIRED) @RequestParam(value = "keyword", required = false) String keyword) {
+        return systemProjectService.list(keyword);
+    }
+
+
 }

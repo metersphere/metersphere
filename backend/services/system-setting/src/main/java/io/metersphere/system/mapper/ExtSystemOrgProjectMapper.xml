@@ -5,7 +5,7 @@
     <select id="selectListProjectByOrg" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         select id, name
         from project
-        where deleted = 0
+        where enable = 1
         and organization_id = #{organizationId}
         <if test="keyword != null and keyword != ''">
             and name LIKE CONCAT('%', #{keyword}, '%')

@@ -16,6 +16,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
@@ -1217,4 +1218,19 @@ public class SystemProjectControllerTests extends BaseTest {
         apiTestCaseMapper.deleteByPrimaryKey(anotherCase.getId());
     }
 
+
+    @Test
+    @Order(17)
+    public void getProjectListByOrgSuccess() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(prefix + "/list")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
+    }
 }
