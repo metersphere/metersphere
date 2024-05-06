@@ -1,10 +1,7 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
-import io.metersphere.plan.dto.request.TestPlanCreateRequest;
-import io.metersphere.plan.dto.request.TestPlanTableRequest;
-import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -96,11 +93,21 @@ public class TestPlanController {
 
     @PostMapping(value = "/batch-delete")
     @Operation(summary = "测试计划-批量删除")
-    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
+    }
+
+
+    @PostMapping("/edit/follower")
+    @Operation(summary = "测试计划-关注/取消关注")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void editFollower(@Validated @RequestBody TestPlanFollowerRequest request) {
+        String userId = SessionUtils.getUserId();
+        testPlanService.editFollower(request.getTestPlanId(), userId);
     }
 
 
