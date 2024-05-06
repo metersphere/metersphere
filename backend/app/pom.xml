@@ -26,11 +26,6 @@
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-load-test</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.metersphere</groupId>
             <artifactId>metersphere-project-management</artifactId>
             <version>${revision}</version>
         </dependency>
