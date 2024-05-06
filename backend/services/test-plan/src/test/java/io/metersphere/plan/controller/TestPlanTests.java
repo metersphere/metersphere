@@ -43,6 +43,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -116,6 +118,8 @@ public class TestPlanTests extends BaseTest {
     //测试计划资源-场景用例
     private static final String URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION = "/test-plan/api/scenario/association";
     private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/test-plan/api/scenario/sort";
+
+    private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -2025,5 +2029,26 @@ public class TestPlanTests extends BaseTest {
             methodHasError = true;
         }
         Assertions.assertTrue(methodHasError);
+    }
+
+
+    @Test
+    @Order(300)
+    @Sql(scripts = {"/dml/init_test_plan_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testEditFollower() throws Exception {
+        TestPlanFollowerRequest testPlanFollowerRequest = new TestPlanFollowerRequest();
+        testPlanFollowerRequest.setTestPlanId("wx_test_plan_id_1");
+        testPlanFollowerRequest.setUserId("wx");
+        //关注
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_TEST_PLAN_EDIT_FOLLOWER, testPlanFollowerRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        //取消关注
+        MvcResult editMvcResult = this.requestPostWithOkAndReturn(URL_TEST_PLAN_EDIT_FOLLOWER, testPlanFollowerRequest);
+        String editReturnData = editMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder editResultHolder = JSON.parseObject(editReturnData, ResultHolder.class);
+        Assertions.assertNotNull(editResultHolder);
     }
 }

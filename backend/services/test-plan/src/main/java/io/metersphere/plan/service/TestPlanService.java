@@ -1,7 +1,6 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
@@ -17,7 +16,6 @@ import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
@@ -72,6 +70,16 @@ public class TestPlanService {
         }
     }
 
+
+    /**
+     * 创建测试计划
+     *
+     * @param testPlanCreateRequest
+     * @param operator
+     * @param requestUrl
+     * @param requestMethod
+     * @return
+     */
     public String add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
         //检查模块的合法性
         this.checkModule(testPlanCreateRequest.getModuleId());
@@ -130,6 +138,15 @@ public class TestPlanService {
         }
     }
 
+
+    /**
+     * 删除测试计划
+     *
+     * @param id
+     * @param operator
+     * @param requestUrl
+     * @param requestMethod
+     */
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
@@ -170,6 +187,14 @@ public class TestPlanService {
     }
 
 
+    /**
+     * 批量删除测试计划
+     *
+     * @param request
+     * @param operator
+     * @param requestUrl
+     * @param requestMethod
+     */
     public void batchDelete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
         List<String> deleteIdList = request.getSelectIds();
         if (request.isSelectAll()) {
@@ -234,6 +259,16 @@ public class TestPlanService {
         return response;
     }
 
+
+    /**
+     * 更新测试计划
+     *
+     * @param request
+     * @param userId
+     * @param requestUrl
+     * @param requestMethod
+     * @return
+     */
     public String update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
@@ -278,4 +313,23 @@ public class TestPlanService {
         return request.getId();
     }
 
+
+    /**
+     * 关注/取消关注 测试计划
+     *
+     * @param testPlanId
+     * @param userId
+     */
+    public void editFollower(String testPlanId, String userId) {
+        TestPlanFollowerExample example = new TestPlanFollowerExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId).andUserIdEqualTo(userId);
+        if (testPlanFollowerMapper.countByExample(example) > 0) {
+            testPlanFollowerMapper.deleteByPrimaryKey(testPlanId, userId);
+        } else {
+            TestPlanFollower testPlanFollower = new TestPlanFollower();
+            testPlanFollower.setTestPlanId(testPlanId);
+            testPlanFollower.setUserId(userId);
+            testPlanFollowerMapper.insert(testPlanFollower);
+        }
+    }
 }
