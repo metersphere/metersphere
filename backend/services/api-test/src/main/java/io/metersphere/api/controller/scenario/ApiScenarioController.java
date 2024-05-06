@@ -3,6 +3,7 @@ package io.metersphere.api.controller.scenario;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.constants.ApiResource;
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -10,6 +11,7 @@ import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
@@ -51,6 +53,8 @@ public class ApiScenarioController {
     private ApiValidateService apiValidateService;
     @Resource
     private FileModuleService fileModuleService;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口场景管理-场景列表(deleted 状态为 1 时为回收站数据)")
@@ -94,7 +98,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-上传场景所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_SCENARIO_ADD, PermissionConstants.PROJECT_API_SCENARIO_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
-        return apiScenarioService.uploadTempFile(file);
+        return apiFileResourceService.uploadTempFile(file);
     }
 
     @PostMapping("/update")
@@ -268,15 +272,15 @@ public class ApiScenarioController {
 
     @PostMapping("/transfer")
     @Operation(summary = "接口测试-接口场景管理-场景-附件-文件转存")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiScenarioService.transfer(request, SessionUtils.getUserId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_SCENARIO.name());
     }
 
     @GetMapping("/transfer/options/{projectId}")
     @Operation(summary = "接口测试-接口场景管理-场景-附件-转存目录下拉框")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);

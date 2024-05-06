@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
 import io.metersphere.api.dto.mockserver.KeyValueInfo;
 import io.metersphere.api.dto.mockserver.MockMatchRule;
 import io.metersphere.api.dto.mockserver.MockResponse;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -195,6 +196,14 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         }
     }
 
+    private static MockMultipartFile getMockMultipartFile(String fileName) {
+        return new MockMultipartFile(
+                "file",
+                fileName,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+    }
 
     @Test
     @Order(1)
@@ -227,8 +236,23 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         // 校验请求成功数据
         ApiDefinitionMock resultData = getResultData(mvcResult, ApiDefinitionMock.class);
         apiDefinitionMock = mockServerTestService.assertAddApiDefinitionMock(request, mockMatchRule, resultData.getId());
-        mockServerTestService.assertUploadFile(apiDefinitionMock.getId(), List.of(uploadFileId));
-        mockServerTestService.assertLinkFile(apiDefinitionMock.getId(), List.of(fileMetadataId));
+        MockServerTestService.assertUploadFile(apiDefinitionMock.getId(), List.of(uploadFileId));
+        MockServerTestService.assertLinkFile(apiDefinitionMock.getId(), List.of(fileMetadataId));
+
+        this.requestGetWithOk(BASE_PATH + "transfer/options/" + DEFAULT_PROJECT_ID);
+        ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
+        apiTransferRequest.setSourceId(apiDefinitionMock.getId());
+        apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiTransferRequest.setModuleId("root");
+        apiTransferRequest.setLocal(true);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile("api-mock_upload.JPG"));
+        apiTransferRequest.setFileId(uploadFileId);
+        apiTransferRequest.setFileName(org.apache.commons.lang3.StringUtils.EMPTY);
+        apiTransferRequest.setOriginalName("api-mock_upload.JPG");
+        this.requestPost(BASE_PATH+ "transfer", apiTransferRequest).andExpect(status().isOk());
+        //文件不存在
+        apiTransferRequest.setFileId("111");
+        this.requestPost(BASE_PATH+ "transfer", apiTransferRequest).andExpect(status().is5xxServerError());
 
         // 再插入一条数据，便于修改时重名校验
         request.setName("重名接口定义test");

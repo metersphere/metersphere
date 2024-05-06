@@ -392,6 +392,8 @@ public class ApiFileResourceService {
                     DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
             case API_SCENARIO ->
                     DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
+            case API_MOCK ->
+                    DefaultRepositoryDir.getApiMockDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
             default -> throw new MSException("file type error!");
         };
         if (CollectionUtils.isEmpty(apiFileResources)) {

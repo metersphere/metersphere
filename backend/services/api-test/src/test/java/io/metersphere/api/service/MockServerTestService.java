@@ -89,7 +89,7 @@ public class MockServerTestService {
             List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
             Assertions.assertEquals(apiFileResources.size(), fileIds.size());
 
-            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(DEFAULT_PROJECT_ID, id);
+            String apiDefinitionDir = DefaultRepositoryDir.getApiMockDir(DEFAULT_PROJECT_ID, id);
             FileRequest fileRequest = new FileRequest();
             if (!fileIds.isEmpty()) {
                 for (ApiFileResource apiFileResource : apiFileResources) {

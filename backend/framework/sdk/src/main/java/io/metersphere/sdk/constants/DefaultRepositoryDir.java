@@ -44,6 +44,7 @@ public class DefaultRepositoryDir {
      * project/{projectId}/apiCase/{apiCaseId}
      */
     private static final String PROJECT_API_CASE_DIR = PROJECT_DIR + "/api-case/%s";
+    private static final String PROJECT_API_MOCK_DIR = PROJECT_DIR + "/api-mock/%s";
     private static final String PROJECT_ENV_SSL_DIR = PROJECT_DIR + "/environment/%s";
     private static final String PROJECT_FUNCTIONAL_CASE_DIR = PROJECT_DIR + "/functional-case/%s";
     private static final String PROJECT_FUNCTIONAL_CASE_PREVIEW_DIR = PROJECT_DIR + "/functional-case/preview/%s";
@@ -70,6 +71,10 @@ public class DefaultRepositoryDir {
 
     public static String getApiCaseDir(String projectId, String apiCaseId) {
         return String.format(PROJECT_API_CASE_DIR, projectId, apiCaseId);
+    }
+
+    public static String getApiMockDir(String projectId, String apiMockId) {
+        return String.format(PROJECT_API_MOCK_DIR, projectId, apiMockId);
     }
 
     public static String getEnvSslDir(String projectId, String envId) {

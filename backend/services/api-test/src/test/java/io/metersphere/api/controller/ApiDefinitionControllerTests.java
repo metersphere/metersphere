@@ -1,9 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.constants.ApiConstants;
-import io.metersphere.api.constants.ApiDefinitionDocType;
-import io.metersphere.api.constants.ApiDefinitionStatus;
-import io.metersphere.api.constants.ApiImportPlatform;
+import io.metersphere.api.constants.*;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -210,6 +207,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Test
     @Order(1)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testAdd() throws Exception {
         LogUtils.info("create api test");
         // 创建测试数据
@@ -299,6 +297,13 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.ADD, ADD));
 
+        mockMvc.perform(MockMvcRequestBuilders.post(BASE_PATH + "transfer", apiTransferRequest)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
@@ -385,7 +390,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Test
     @Order(2)
-    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void get() throws Exception {
         if (apiDefinition == null) {
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");

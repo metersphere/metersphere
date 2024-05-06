@@ -3,18 +3,22 @@ package io.metersphere.api.controller.definition;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.constants.ApiResource;
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDefinitionMock;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
+import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.definition.ApiDefinitionMockLogService;
 import io.metersphere.api.service.definition.ApiDefinitionMockNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionMockService;
+import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -50,6 +54,8 @@ public class ApiDefinitionMockController {
     private ApiFileResourceService apiFileResourceService;
     @Resource
     private ApiValidateService apiValidateService;
+    @Resource
+    private FileModuleService fileModuleService;
 
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口管理-接口 Mock")
@@ -130,4 +136,22 @@ public class ApiDefinitionMockController {
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
     }
+
+    @GetMapping("/transfer/options/{projectId}")
+    @Operation(summary = "接口测试-接口管理-接口-附件-转存目录下拉框")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<BaseTreeNode> options(@PathVariable String projectId) {
+        return fileModuleService.getTree(projectId);
+    }
+
+    @PostMapping("/transfer")
+    @Operation(summary = "接口测试-接口管理-接口-附件-文件转存")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
+    public String transfer(@Validated @RequestBody ApiTransferRequest request) {
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_MOCK.name());
+    }
+
+
 }

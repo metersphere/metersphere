@@ -141,7 +141,7 @@ public class ApiDefinitionMockService {
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceRequest(String sourceId, String projectId, String operator) {
-        String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, sourceId);
+        String apiDefinitionMockDir = DefaultRepositoryDir.getApiMockDir(projectId, sourceId);
         ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDefinitionMockDir);
@@ -205,7 +205,7 @@ public class ApiDefinitionMockService {
 
     public void delete(ApiDefinitionMockRequest request, String userId) {
         checkApiDefinitionMock(request.getId());
-        String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getId());
+        String apiDefinitionMockDir = DefaultRepositoryDir.getApiMockDir(request.getProjectId(), request.getId());
         apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, request.getId(), request.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
         apiDefinitionMockConfigMapper.deleteByPrimaryKey(request.getId());
         apiDefinitionMockMapper.deleteByPrimaryKey(request.getId());
@@ -232,8 +232,8 @@ public class ApiDefinitionMockService {
             apiDefinitionMockConfigMapper.insertSelective(apiDefinitionMockConfig);
         });
 
-        String sourceDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinitionMock.getProjectId(), request.getId());
-        String targetDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinitionMock.getProjectId(), apiDefinitionMock.getId());
+        String sourceDir = DefaultRepositoryDir.getApiMockDir(apiDefinitionMock.getProjectId(), request.getId());
+        String targetDir = DefaultRepositoryDir.getApiMockDir(apiDefinitionMock.getProjectId(), apiDefinitionMock.getId());
         apiFileResourceService.copyFileByResourceId(request.getId(), sourceDir, apiDefinitionMock.getId(), targetDir);
 
         return apiDefinitionMock;
@@ -264,7 +264,7 @@ public class ApiDefinitionMockService {
 
         if (!apiDefinitionMocks.isEmpty()) {
             List<String> mockIds = apiDefinitionMocks.stream().map(ApiDefinitionMock::getId).toList();
-            String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, StringUtils.EMPTY);
+            String apiDefinitionMockDir = DefaultRepositoryDir.getApiMockDir(projectId, StringUtils.EMPTY);
             apiFileResourceService.deleteByResourceIds(apiDefinitionMockDir, mockIds, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
 
             ApiDefinitionMockConfigExample apiDefinitionMockConfigExample = new ApiDefinitionMockConfigExample();
@@ -274,4 +274,5 @@ public class ApiDefinitionMockService {
             apiDefinitionMockMapper.deleteByExample(apiDefinitionMockExample);
         }
     }
+
 }

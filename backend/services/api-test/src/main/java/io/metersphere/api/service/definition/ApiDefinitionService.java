@@ -890,10 +890,6 @@ public class ApiDefinitionService extends MoveNodeService {
         }
     }
 
-    public String uploadTempFile(MultipartFile file) {
-        return apiFileResourceService.uploadTempFile(file);
-    }
-
     public ApiDefinitionDTO getApiDefinitionInfo(String id, String userId, ApiDefinition apiDefinition) {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);

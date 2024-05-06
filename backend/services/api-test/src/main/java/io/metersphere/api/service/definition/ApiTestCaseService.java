@@ -535,11 +535,6 @@ public class ApiTestCaseService extends MoveNodeService {
         mapper.updateByExampleSelective(updateCase, example);
     }
 
-
-    public String uploadTempFile(MultipartFile file) {
-        return apiFileResourceService.uploadTempFile(file);
-    }
-
     public List<ApiTestCaseBlob> getBlobByIds(List<String> apiCaseIds) {
         if (CollectionUtils.isEmpty(apiCaseIds)) {
             return Collections.emptyList();
