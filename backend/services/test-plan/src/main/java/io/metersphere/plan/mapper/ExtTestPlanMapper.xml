@@ -245,9 +245,64 @@
         SELECT
         t.id
         FROM test_plan t
-        INNER JOIN user createUser ON t.create_user = createUser.id
-        <include refid="test_plan_page_request"/>
+        WHERE t.project_id = #{request.projectId}
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and t.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            t.name like concat('%', #{request.condition.keyword},'%')
+            or t.num like concat('%', #{request.condition.keyword},'%')
+            or t.tags like concat('%', #{request.condition.keyword}, '%')
+            )
+        </if>
+        <if test="request.type != null and request.type != ''">
+            <choose>
+                <when test="request.type == 'ALL'">
+                    and t.group_id = 'NONE'
+                </when>
+                <when test="request.type == 'TEST_PLAN'">
+                    and t.group_id = 'NONE'
+                    and t.type = 'TEST_PLAN'
+                </when>
+                <when test="request.type == 'GROUP'">
+                    and t.group_id = 'NONE'
+                    and t.type = 'GTOUP'
+                </when>
+            </choose>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+        <choose>
+            <when test='request.condition.searchMode == "AND"'>
+                AND <include refid="baseQueryCombine"/>
+            </when>
+            <when test='request.condition.searchMode == "OR"'>
+                and (
+                <include refid="baseQueryCombine"/>
+                )
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="baseQueryCombine">
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.condition.combine"/>
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        1=1
+    </sql>
+
 
     <select id="selectGroupIdByConditions"
             parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
