@@ -46,6 +46,7 @@ public class BaseProjectController {
     @GetMapping("/get/{id}")
     @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.PROJECT_MANAGER_READ}, logical = Logical.OR)
     public Project getProject(@PathVariable String id) {
+        baseProjectService.checkProjectOwner(id, SessionUtils.getUser().getUserGroups());
         return baseProjectService.getProjectById(id);
     }
 

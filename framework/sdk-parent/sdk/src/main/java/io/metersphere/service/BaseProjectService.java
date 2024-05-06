@@ -4,10 +4,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.base.mapper.ext.BaseProjectMapper;
-import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
-import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
-import io.metersphere.base.mapper.ext.BaseUserMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
@@ -239,6 +236,20 @@ public class BaseProjectService {
             }
         }
         return project;
+    }
+
+    public void checkProjectOwner(String projectId, List<UserGroup> userGroups) {
+        boolean hasPermission = false;
+        for (UserGroup userGroup : userGroups) {
+            // 校验是否有当前项目的用户组
+            if (StringUtils.equals(userGroup.getSourceId(), projectId)) {
+                hasPermission = true;
+                break;
+            }
+        }
+        if (!hasPermission) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
     }
 
     public List<Project> getByCaseTemplateId(String templateId) {
