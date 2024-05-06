@@ -364,9 +364,10 @@
 <style lang="less" scoped>
   .ms-code-editor {
     @apply z-10;
-
+    // TODO: 高度改为自适应
     width: v-bind(width);
     height: v-bind(height);
+    min-height: 200px;
     // &.MS-text[data-mode-id='plaintext'] {
     //   :deep(.mtk1) {
     //     color: rgb(var(--primary-5));

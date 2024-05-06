@@ -25,7 +25,6 @@
     :draggable="!props.disabledExceptParam"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
-    :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
     :default-param-item="defaultBodyParamsItem"
@@ -44,7 +43,6 @@
     :draggable="!props.disabledExceptParam"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
-    :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
     :default-param-item="defaultBodyParamsItem"
@@ -135,11 +133,8 @@
 
   const props = defineProps<{
     params: ExecuteBody;
-    layout: 'horizontal' | 'vertical';
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
-    secondBoxHeight: number;
-    isDrawer?: boolean;
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
@@ -259,31 +254,6 @@
           ]),
     ];
   });
-
-  const heightUsed = ref<number | undefined>(undefined);
-
-  watch(
-    () => props.layout,
-    (val) => {
-      const otherHeight = props.isDrawer ? 328 : 372;
-      heightUsed.value = val === 'horizontal' ? otherHeight : otherHeight + props.secondBoxHeight;
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
-    () => props.secondBoxHeight,
-    (val) => {
-      if (props.layout === 'vertical') {
-        heightUsed.value = (props.isDrawer ? 328 : 372) + val;
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 
   const showParamTable = computed(() => {
     // 仅当格式为FORM_DATA或X_WWW_FORM_URLENCODED时，显示参数表格

@@ -39,7 +39,6 @@
       :disabled="props.disabled"
       :total-list="list"
       :response="props.response"
-      :height-used="props.heightUsed"
       :show-associated-scene="props.showAssociatedScene"
       :show-pre-post-request="props.showPrePostRequest"
       :request-radio-text-props="props.requestRadioTextProps"
@@ -70,7 +69,6 @@
       conditionTypes: Array<ConditionType>;
       addText: string;
       requestRadioTextProps?: Record<string, any>;
-      heightUsed?: number;
       response?: string; // 响应内容
       showAssociatedScene?: boolean;
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项

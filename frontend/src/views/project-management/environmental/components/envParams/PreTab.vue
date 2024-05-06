@@ -4,7 +4,6 @@
     :condition-types="[RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL]"
     add-text="apiTestDebug.precondition"
     response=""
-    :height-used="600"
     :show-associated-scene="props.showAssociatedScene"
     :show-pre-post-request="props.showPrePostRequest"
     :request-radio-text-props="props.requestRadioTextProps"

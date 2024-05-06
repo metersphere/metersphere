@@ -117,7 +117,6 @@
             activeResponse.body.bodyType
           )
         "
-        class="h-[calc(100%-35px)]"
       >
         <!-- <MsJsonSchema
           v-if="activeResponse.body.jsonBody.enableJsonSchema"
@@ -129,7 +128,6 @@
           v-model:model-value="currentBodyCode"
           :language="currentCodeLanguage"
           theme="vs"
-          height="100%"
           :show-full-screen="false"
           :show-theme-change="false"
           :show-language-change="false"
@@ -477,11 +475,7 @@
 
 <style lang="less" scoped>
   .response-container {
-    @apply overflow-y-auto;
-    .ms-scroll-bar();
-
     margin-top: 8px;
-    height: calc(100% - 88px);
   }
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);

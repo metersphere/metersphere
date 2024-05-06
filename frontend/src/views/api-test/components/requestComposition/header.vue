@@ -7,7 +7,6 @@
     :disabled-param-value="props.disabledParamValue"
     :disabled-except-param="props.disabledExceptParam"
     :columns="columns"
-    :height-used="heightUsed"
     :scroll="scroll"
     :default-param-item="defaultHeaderParamsItem"
     :draggable="!props.disabledExceptParam"
@@ -41,11 +40,9 @@
   const props = defineProps<{
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
-    secondBoxHeight: number;
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     typeTitle?: string;
-    isDrawer?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:selectedKeys', value: string[]): void;
@@ -88,12 +85,6 @@
   ]);
 
   const batchAddKeyValVisible = ref(false);
-  const heightUsed = computed(() => {
-    if (props.layout === 'horizontal') {
-      return props.isDrawer ? 328 : 372;
-    }
-    return (props.isDrawer ? 328 : 372) + props.secondBoxHeight;
-  });
   const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
 
   /**

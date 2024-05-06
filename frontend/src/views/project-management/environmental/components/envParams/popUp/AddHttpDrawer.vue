@@ -175,7 +175,6 @@
         :layout="activeLayout"
         :disabled-param-value="false"
         :disabled-except-param="false"
-        :second-box-height="secondBoxHeight"
         :type-title="t('project.environmental.requestHeader')"
       />
       <a-form-item class="mt-4" asterisk-position="end" field="path" :label="t('project.environmental.http.authType')">
@@ -303,7 +302,6 @@
 
   const form = ref<HttpForm>({ ...initForm });
   const hostType = ref<string>('http://');
-  const secondBoxHeight = ref(0);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
 
   const httpRef = ref();
