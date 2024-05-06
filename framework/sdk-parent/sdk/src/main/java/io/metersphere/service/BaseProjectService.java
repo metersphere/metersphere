@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.BaseProjectMapper;
 import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
 import io.metersphere.base.mapper.ext.BaseUserMapper;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
@@ -229,6 +230,7 @@ public class BaseProjectService {
 
     public Project getProjectById(String id) {
         Project project = projectMapper.selectByPrimaryKey(id);
+        checkProjectOwner(project);
         if (project != null) {
             String createUser = project.getCreateUser();
             if (StringUtils.isNotBlank(createUser)) {
@@ -239,6 +241,12 @@ public class BaseProjectService {
             }
         }
         return project;
+    }
+
+    private void checkProjectOwner(Project project) {
+        if (!SessionUtils.hasPermission(project.getWorkspaceId(), project.getId(), PermissionConstants.PROJECT_TRACK_CASE_READ)) {
+            MSException.throwException(Translator.get("check_owner_project"));
+        }
     }
 
     public List<Project> getByCaseTemplateId(String templateId) {
