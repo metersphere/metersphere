@@ -359,4 +359,14 @@
         </if>
     </sql>
 
+
+    <update id="batchUpdateStatus">
+        UPDATE test_plan
+        SET status = #{status}, update_user = #{userId}, update_time = #{updateTime}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
 </mapper>

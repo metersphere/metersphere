@@ -120,6 +120,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/test-plan/api/scenario/sort";
 
     private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
+    private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -2079,6 +2080,18 @@ public class TestPlanTests extends BaseTest {
         ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
         String returnId = holder.getData().toString();
         Assertions.assertNotNull(returnId);
+    }
+
+    @Test
+    @Order(302)
+    public void testArchived() throws Exception {
+        //计划
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
+        //计划组
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2"));
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_3"));
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5"));
+
     }
 
 }

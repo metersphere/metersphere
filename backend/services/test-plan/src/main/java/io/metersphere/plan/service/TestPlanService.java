@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -359,5 +360,47 @@ public class TestPlanService {
             testPlanFollower.setUserId(userId);
             testPlanFollowerMapper.insert(testPlanFollower);
         }
+    }
+
+
+    /**
+     * 测试计划归档
+     *
+     * @param id
+     * @param userId
+     */
+    public void archived(String id, String userId) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //测试计划组归档
+            updateGroupStatus(testPlan.getId(), userId);
+        } else {
+            //测试计划
+            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            testPlan.setUpdateUser(userId);
+            testPlan.setUpdateTime(System.currentTimeMillis());
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        }
+
+    }
+
+    /**
+     * 测试计划组归档
+     *
+     * @param id
+     * @param userId
+     */
+    private void updateGroupStatus(String id, String userId) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andGroupIdEqualTo(id);
+        List<TestPlan> testPlanList = testPlanMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(testPlanList)) {
+            throw new MSException(Translator.get("test_plan.group.not_plan"));
+        }
+        List<String> ids = testPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)).map(TestPlan::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(ids)) {
+            throw new MSException(Translator.get("test_plan.group.not_plan"));
+        }
+        extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
     }
 }
