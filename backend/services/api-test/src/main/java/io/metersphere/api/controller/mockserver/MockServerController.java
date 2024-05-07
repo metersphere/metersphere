@@ -1,13 +1,12 @@
 package io.metersphere.api.controller.mockserver;
 
 import io.metersphere.api.service.mockserver.MockServerService;
-import io.metersphere.api.utils.MockServerUtils;
 import io.metersphere.system.controller.handler.annotation.NoResultHolder;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,66 +19,54 @@ public class MockServerController {
 
     @RequestMapping(method = RequestMethod.OPTIONS)
     @NoResultHolder
-    public Object optionsRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                 HttpServletRequest request, HttpServletResponse response) {
-        var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
-        return mockServerService.execute(HttpMethod.OPTIONS.name(), requestHeaderMap, projectNum, apiNum, request, response);
+    public ResponseEntity<?> optionsRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return mockServerService.execute(HttpMethod.OPTIONS.name(), projectNum, apiNum, request);
     }
 
     @RequestMapping(method = RequestMethod.HEAD)
     @NoResultHolder
-    public Object headerRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                 HttpServletRequest request, HttpServletResponse response) {
-        var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
-        return mockServerService.execute(HttpMethod.HEAD.name(), requestHeaderMap, projectNum, apiNum, request, response);
+    public ResponseEntity<?> headerRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return mockServerService.execute(HttpMethod.HEAD.name(), projectNum, apiNum, request);
     }
 
     @RequestMapping(method = RequestMethod.TRACE)
     @NoResultHolder
-    public Object traceRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                HttpServletRequest request, HttpServletResponse response) {
-        var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
-        return mockServerService.execute(HttpMethod.TRACE.name(), requestHeaderMap, projectNum, apiNum, request, response);
+    public ResponseEntity<?> traceRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return mockServerService.execute(HttpMethod.TRACE.name(), projectNum, apiNum, request);
     }
+
     @GetMapping
     @NoResultHolder
-    public Object getMockRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                 HttpServletRequest request, HttpServletResponse response) {
-        return handleMockRequest(HttpMethod.GET.name(), projectNum, apiNum, request, response);
+    public ResponseEntity<?> getMockRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return handleMockRequest(HttpMethod.GET.name(), projectNum, apiNum, request);
     }
 
     @PostMapping
     @NoResultHolder
-    public Object postMockRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                  HttpServletRequest request, HttpServletResponse response) {
-        return handleMockRequest(HttpMethod.POST.name(), projectNum, apiNum, request, response);
+    public ResponseEntity<?> postMockRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return handleMockRequest(HttpMethod.POST.name(), projectNum, apiNum, request);
     }
 
     @PutMapping
     @NoResultHolder
-    public Object putMockRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                 HttpServletRequest request, HttpServletResponse response) {
-        return handleMockRequest(HttpMethod.PUT.name(), projectNum, apiNum, request, response);
+    public ResponseEntity<?> putMockRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return handleMockRequest(HttpMethod.PUT.name(), projectNum, apiNum, request);
     }
 
     @DeleteMapping
     @NoResultHolder
-    public Object deleteMockRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                    HttpServletRequest request, HttpServletResponse response) {
-        return handleMockRequest(HttpMethod.DELETE.name(), projectNum, apiNum, request, response);
+    public ResponseEntity<?> deleteMockRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return handleMockRequest(HttpMethod.DELETE.name(), projectNum, apiNum, request);
     }
 
     @PatchMapping
     @NoResultHolder
-    public Object patchMockRequest(@PathVariable String projectNum, @PathVariable String apiNum,
-                                   HttpServletRequest request, HttpServletResponse response) {
-        return handleMockRequest(HttpMethod.PATCH.name(), projectNum, apiNum, request, response);
+    public ResponseEntity<?> patchMockRequest(@PathVariable String projectNum, @PathVariable String apiNum, HttpServletRequest request) {
+        return handleMockRequest(HttpMethod.PATCH.name(), projectNum, apiNum, request);
     }
 
-    private Object handleMockRequest(String method, String projectNum, String apiNum,
-                                     HttpServletRequest request, HttpServletResponse response) {
-        var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
-        return mockServerService.execute(method, requestHeaderMap, projectNum, apiNum, request, response);
+    private ResponseEntity<?> handleMockRequest(String method, String projectNum, String apiNum, HttpServletRequest request) {
+        return mockServerService.execute(method, projectNum, apiNum, request);
     }
 
 }
