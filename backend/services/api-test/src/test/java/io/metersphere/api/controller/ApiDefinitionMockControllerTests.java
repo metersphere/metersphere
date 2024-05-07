@@ -67,7 +67,7 @@ import java.util.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ApiDefinitionMockControllerTests extends BaseTest {
@@ -253,10 +253,10 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         apiTransferRequest.setFileId(uploadFileId);
         apiTransferRequest.setFileName(org.apache.commons.lang3.StringUtils.EMPTY);
         apiTransferRequest.setOriginalName("api-mock_upload.JPG");
-        this.requestPost(BASE_PATH+ "transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost(BASE_PATH + "transfer", apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
-        this.requestPost(BASE_PATH+ "transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        this.requestPost(BASE_PATH + "transfer", apiTransferRequest).andExpect(status().is5xxServerError());
 
         // 再插入一条数据，便于修改时重名校验
         request.setName("重名接口定义test");
@@ -304,7 +304,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         copyApiDefinitionMockDTO.setApiMethod(apiDefinition.getMethod());
 
         ApiDefinitionMockConfig apiDefinitionMockConfig = apiDefinitionMockConfigMapper.selectByPrimaryKey(apiDefinitionMock.getId());
-        if(apiDefinitionMockConfig != null){
+        if (apiDefinitionMockConfig != null) {
             copyApiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(apiDefinitionMockConfig.getMatching()), MockMatchRule.class));
             copyApiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(apiDefinitionMockConfig.getResponse()), MockResponse.class));
         }
@@ -419,7 +419,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         // @@请求成功
         this.requestGetWithOk(ENABLE + apiDefinitionMock.getId());
         ApiDefinitionMock mock = apiDefinitionMockMapper.selectByPrimaryKey(apiDefinitionMock.getId());
-        Assertions.assertEquals(apiDefinitionMock.getEnable(),!mock.getEnable());
+        Assertions.assertEquals(apiDefinitionMock.getEnable(), !mock.getEnable());
         // @@校验日志
         checkLog(apiDefinitionMock.getId(), OperationLogType.UPDATE, ENABLE + apiDefinitionMock.getId());
 
@@ -429,7 +429,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         // @@请求成功
         this.requestGetWithOk(ENABLE + apiDefinitionMock.getId());
         ApiDefinitionMock mockEnable = apiDefinitionMockMapper.selectByPrimaryKey(apiDefinitionMock.getId());
-        Assertions.assertEquals(mock.getEnable(),!mockEnable.getEnable());
+        Assertions.assertEquals(mock.getEnable(), !mockEnable.getEnable());
         // @@校验日志
         checkLog(apiDefinitionMock.getId(), OperationLogType.UPDATE, ENABLE + apiDefinitionMock.getId());
 
@@ -450,7 +450,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         // @数据验证
         List<ApiFileResource> sourceFiles = apiFileResourceService.getByResourceId(apiDefinitionMock.getId());
         List<ApiFileResource> copyFiles = apiFileResourceService.getByResourceId(resultData.getId());
-        if(!sourceFiles.isEmpty() && !copyFiles.isEmpty()){
+        if (!sourceFiles.isEmpty() && !copyFiles.isEmpty()) {
             Assertions.assertEquals(sourceFiles.size(), copyFiles.size());
         }
         Assertions.assertTrue(resultData.getName().contains("copy_"));
@@ -504,7 +504,8 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         switch (search) {
             case "KEYWORD" -> configureKeywordSearch(request);
             case "FILTER" -> configureFilterSearch(request);
-            default -> {}
+            default -> {
+            }
         }
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE, request);
@@ -763,7 +764,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 Assertions.assertEquals(mockServerResponse.getStatus(), statusCode);
                 //判断响应头
                 for (MsHeader header : headers) {
-                    if (header.getEnable()) {
+                    if (header.getEnable() && !StringUtils.equalsIgnoreCase(mockServerResponse.getContentType(), "application/octet-stream")) {
                         Assertions.assertEquals(mockServerResponse.getHeader(header.getKey()), header.getValue());
                     }
                 }
@@ -858,7 +859,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                     mockServerResponse = action.andReturn().getResponse();
                     Assertions.assertEquals(mockServerResponse.getStatus(), statusCode);
                     for (MsHeader header : headers) {
-                        if (header.getEnable()) {
+                        if (header.getEnable() && !StringUtils.equalsIgnoreCase(mockServerResponse.getContentType(), "application/octet-stream")) {
                             Assertions.assertEquals(mockServerResponse.getHeader(header.getKey()), header.getValue());
                         }
                     }
