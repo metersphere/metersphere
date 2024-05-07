@@ -4,10 +4,13 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.service.TestPlanLogService;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -110,5 +113,15 @@ public class TestPlanController {
         testPlanService.editFollower(request.getTestPlanId(), userId);
     }
 
+
+    @GetMapping("/archived/{id}")
+    @Operation(summary = "测试计划-归档")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#id", resourceType = "test_plan")
+    @Log(type = OperationLogType.ARCHIVED, expression = "#msClass.archivedLog(#id)", msClass = TestPlanLogService.class)
+    public void archived(@NotBlank @PathVariable String id) {
+        String userId = SessionUtils.getUserId();
+        testPlanService.archived(id, userId);
+    }
 
 }

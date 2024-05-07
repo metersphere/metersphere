@@ -1,8 +1,10 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -29,6 +31,8 @@ public class TestPlanLogService {
     private ProjectMapper projectMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     public void saveAddLog(TestPlan module, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
@@ -115,7 +119,7 @@ public class TestPlanLogService {
 
     private String generateTestPlanDeleteContent(TestPlan deleteTestPlan) {
         StringBuilder content = new StringBuilder();
-        if(StringUtils.equals(deleteTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)){
+        if (StringUtils.equals(deleteTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             content.append(Translator.get("log.delete.test_plan_group")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
         } else {
             content.append(Translator.get("log.delete.test_plan")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
@@ -123,4 +127,25 @@ public class TestPlanLogService {
         return content.toString();
     }
 
+    /**
+     * 归档日志
+     *
+     * @param id
+     * @return
+     */
+    public LogDTO archivedLog(String id) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        LogDTO dto = new LogDTO(
+                testPlan.getProjectId(),
+                null,
+                testPlan.getId(),
+                null,
+                OperationLogType.ARCHIVED.name(),
+                logModule,
+                testPlan.getName());
+        dto.setPath("/test-plan/archived");
+        dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(testPlan));
+        return dto;
+    }
 }

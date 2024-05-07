@@ -28,4 +28,6 @@ public interface ExtTestPlanMapper {
     long updateDefaultGroupId(@Param("list") List<String> groupIds);
 
     String selectProjectIdByTestPlanId(String testPlanId);
+
+    void batchUpdateStatus(@Param("status") String status, @Param("userId") String userId, @Param("updateTime") Long updateTime, @Param("ids") List<String> ids);
 }
