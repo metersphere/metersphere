@@ -10,3 +10,5 @@ export const MoveTestPlanModuleUrl = '/test-plan/module/move';
 export const DeleteTestPlanModuleUrl = '/test-plan/module/delete';
 // 测试计划模块树数量
 export const GetTestPlanModuleCountUrl = '/test-plan/module/count';
+// 测试计划列表
+export const GetTestPlanListUrl = '/test-plan/page';

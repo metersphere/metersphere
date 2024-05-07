@@ -66,7 +66,7 @@
   const getTagWidth = (tag: { [x: string]: any }) => {
     const tagStr = props.isStringTag ? tag : tag[props.nameKey];
 
-    const tagWidth = tagStr.length;
+    const tagWidth = tagStr ? tagStr.length : 0;
     // 16个中文字符
     return tagWidth < 16 ? tagWidth : 16;
   };

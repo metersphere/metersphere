@@ -2,17 +2,21 @@ import MSR from '@/api/http/index';
 import {
   addTestPlanModuleUrl,
   DeleteTestPlanModuleUrl,
+  GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   MoveTestPlanModuleUrl,
   updateTestPlanModuleUrl,
 } from '@/api/requrls/test-plan/testPlan';
 
-import type { CreateOrUpdateModule, ModulesTreeType, UpdateModule } from '@/models/caseManagement/featureCase';
+import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
+import { ModuleTreeNode } from '@/models/common';
+import type { TestPlanItem } from '@/models/testPlan/testPlan';
+
 // 获取模块树
 export function getTestPlanModule(params: TableQueryParams) {
-  return MSR.get<ModulesTreeType[]>({ url: `${GetTestPlanModuleUrl}/${params.projectId}` });
+  return MSR.get<ModuleTreeNode[]>({ url: `${GetTestPlanModuleUrl}/${params.projectId}` });
 }
 
 // 创建模块树
@@ -38,4 +42,9 @@ export function deletePlanModuleTree(id: string) {
 // 获取模块数量
 export function getPlanModulesCounts(data: TableQueryParams) {
   return MSR.post({ url: GetTestPlanModuleCountUrl, data });
+}
+
+// 获取计划列表
+export function getTestPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<TestPlanItem>>({ url: GetTestPlanListUrl, data });
 }

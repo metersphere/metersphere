@@ -80,8 +80,21 @@
     emit('change', v as SelectAllEnum);
   };
 
+  function hasUnselectedChildren(
+    data: MsTableDataItem<Record<string, any>>[],
+    selectedKeys: Set<string>,
+    rowKey: string
+  ): boolean {
+    return data.some((item: any) => {
+      if (item.children && item.children.length > 0) {
+        return hasUnselectedChildren(item.children, selectedKeys, rowKey);
+      }
+      return !selectedKeys.has(item[rowKey]);
+    });
+  }
+
   const handleCheckChange = () => {
-    if (props.currentData.some((item) => !props.selectedKeys.has(item[props.rowKey]))) {
+    if (hasUnselectedChildren(props.currentData, props.selectedKeys, props.rowKey)) {
       // 当前页有数据没有勾选上，此时点击全选按钮代表全部选中
       handleSelect(SelectAllEnum.CURRENT);
     } else {
