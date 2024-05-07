@@ -7,7 +7,8 @@
       class="mr-[16px] w-[208px] min-w-[208px] bg-white p-[16px]"
       @toggle-menu="toggleMenu"
     />
-    <MsCard simple :other-width="290" :min-width="700" :loading="isLoading">
+    <!-- 272:左边MsMenuPanel的宽度224+边距16*3 -->
+    <MsCard simple :other-width="272" :min-width="700" :loading="isLoading">
       <router-view></router-view>
     </MsCard>
   </div>
