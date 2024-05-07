@@ -107,7 +107,7 @@ pipeline {
                     LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                     # echo $LOCAL_REPOSITORY
 
-                    libraries=('metersphere-api-test-impl' 'metersphere-load-test-impl' 'general-xpack-impl')
+                    libraries=('metersphere-api-test-impl' 'general-xpack-impl')
                     for library in "${libraries[@]}";
                     do
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
