@@ -1,11 +1,11 @@
 package io.metersphere.sdk.plugin;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pf4j.ManifestPluginDescriptorFinder;
 import org.pf4j.PluginDescriptor;
 import org.pf4j.PluginRuntimeException;
 import org.pf4j.util.FileUtils;
-import org.pf4j.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,18 +61,32 @@ public class JdbcDriverPluginDescriptorFinder extends ManifestPluginDescriptorFi
         // 将类名作为ID
         String id = driverClass;
         pluginDescriptor.setPluginId(id.split("\n")[0]);
-        if (StringUtils.isNullOrEmpty(id)) {
+        if (StringUtils.isBlank(id)) {
             return null;
         }
         String description = attributes.getValue("Plugin-Description");
-        if (StringUtils.isNullOrEmpty(description)) {
+        if (StringUtils.isBlank(description)) {
             pluginDescriptor.setPluginDescription("");
         } else {
             pluginDescriptor.setPluginDescription(description);
         }
         String version = attributes.getValue("Implementation-Version");
-        if (StringUtils.isNotNullOrEmpty(version)) {
+        if (StringUtils.isNotBlank(version)) {
             pluginDescriptor.setPluginVersion(version);
+        } else {
+            // 如果没有 Implementation-Version 属性，就查找是否有版本相关的属性，设置为版本
+            for (Object key : attributes.keySet()) {
+                Object var = attributes.get(key);
+                if (key != null && var != null && StringUtils.containsIgnoreCase(key.toString(), "Version")) {
+                    pluginDescriptor.setPluginVersion(var.toString());
+                    break;
+                }
+            }
+        }
+
+        if (StringUtils.isBlank(version)) {
+            // 没有版本相关的属性，就用id兜底
+            pluginDescriptor.setPluginVersion(id);
         }
 
         String provider = attributes.getValue("Implementation-Vendor");
