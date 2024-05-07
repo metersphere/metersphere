@@ -10,7 +10,7 @@ pipeline {
         pollSCM('50 * * * *')
     }
     environment {
-        IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
+        IMAGE_PREFIX = 'registry.fit2cloud.com/metersphere'
         IMAGE_NAME = 'metersphere'
         JAVA_HOME = '/opt/jdk-21'
     }
@@ -90,7 +90,7 @@ pipeline {
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                     done
     
-                    docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-community -t metersphere/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-community --platform linux/amd64,linux/arm64 . --push
+                    docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-community --platform linux/amd64,linux/arm64 . --push
                     '''
                 }
             }
@@ -117,7 +117,7 @@ pipeline {
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/target/lib/* backend/app/target/dependency/BOOT-INF/lib/
                     done
 
-                    docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-enterprise -t metersphere/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-enterprise --platform linux/amd64,linux/arm64 . --push
+                    docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-enterprise --platform linux/amd64,linux/arm64 . --push
                     '''
                 }
             }
