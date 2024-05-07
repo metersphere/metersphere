@@ -189,13 +189,22 @@ public class TaskCenterService {
         return organization;
     }
 
-    public void delete(String id, String userId, String path, String module) {
+    public void delete(String id,String moduleType, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
-        if (ScheduleTagType.API_IMPORT.getNames().contains(schedule.getResourceType())) {
+        String logModule = getLogModule(moduleType, module);
+        if (StringUtils.equals(schedule.getResourceType(), ScheduleTagType.API_IMPORT.name())) {
             extSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
         }
         scheduleService.deleteByResourceId(schedule.getResourceId(), schedule.getJob());
-        saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.DELETE.name());
+        saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), logModule, OperationLogType.DELETE.name());
+    }
+
+    private static String getLogModule(String moduleType, String module) {
+        return switch (ScheduleTagType.valueOf(moduleType)) {
+            case ScheduleTagType.API_IMPORT -> StringUtils.join(module, "_TIME_API_IMPORT");
+            case ScheduleTagType.API_SCENARIO -> StringUtils.join(module, "_TIME_API_SCENARIO");
+            default -> throw new MSException(Translator.get("module_type_error"));
+        };
     }
 
     private Schedule checkScheduleExit(String id) {
@@ -206,23 +215,25 @@ public class TaskCenterService {
         return schedule;
     }
 
-    public void enable(String id, String userId, String path, String module) {
+    public void enable(String id,String moduleType, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
         schedule.setEnable(!schedule.getEnable());
         scheduleService.editSchedule(schedule);
         scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
                 new TriggerKey(schedule.getKey(), schedule.getJob()), BaseScheduleJob.class);
         apiScheduleNoticeService.sendScheduleNotice(schedule, userId);
-        saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.UPDATE.name());
+        String logModule = getLogModule(moduleType, module);
+        saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), logModule, OperationLogType.UPDATE.name());
     }
 
-    public void update(String id, String cron, String userId, String path, String module) {
+    public void update(String id,String moduleType, String cron, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
         schedule.setValue(cron);
         scheduleService.editSchedule(schedule);
         scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
                 new TriggerKey(schedule.getKey(), schedule.getJob()), schedule.getJob().getClass());
-        saveLog(List.of(schedule), userId, path, HttpMethodConstants.POST.name(), module, OperationLogType.UPDATE.name());
+        String logModule = getLogModule(moduleType, module);
+        saveLog(List.of(schedule), userId, path, HttpMethodConstants.POST.name(), logModule, OperationLogType.UPDATE.name());
     }
 
     private void saveLog(List<Schedule> scheduleList, String userId, String path, String method, String module, String operationType) {
@@ -293,7 +304,8 @@ public class TaskCenterService {
         });
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         apiScheduleNoticeService.batchSendNotice(projectId, scheduleList, userMapper.selectByPrimaryKey(userId), enable ? NoticeConstants.Event.OPEN : NoticeConstants.Event.CLOSE);
-        saveLog(scheduleList, userId, path, HttpMethodConstants.POST.name(), module, OperationLogType.UPDATE.name());
+        String logModule = getLogModule(request.getScheduleTagType(), module);
+        saveLog(scheduleList, userId, path, HttpMethodConstants.POST.name(), logModule, OperationLogType.UPDATE.name());
     }
 
     public void batchEnableProject(TaskCenterScheduleBatchRequest request, String userId, String projectId, String path, String module, boolean enable) {

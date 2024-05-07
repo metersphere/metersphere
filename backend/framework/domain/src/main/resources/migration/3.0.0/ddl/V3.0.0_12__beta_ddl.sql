@@ -15,6 +15,10 @@ ALTER TABLE test_plan_config ADD COLUMN test_planning BIT NOT NULL  DEFAULT 0 CO
 
 ALTER TABLE api_definition_mock ADD COLUMN update_user VARCHAR(50) COMMENT '更新人';
 
+ALTER TABLE operation_history MODIFY COLUMN module VARCHAR(100);
+
+ALTER TABLE operation_log MODIFY COLUMN module VARCHAR(100);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

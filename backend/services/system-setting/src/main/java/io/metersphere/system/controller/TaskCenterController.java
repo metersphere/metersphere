@@ -66,7 +66,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void delete(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(SYSTEM, moduleType);
-        taskCenterService.delete(id, SessionUtils.getUserId(), "/task/center/system/schedule/delete/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        taskCenterService.delete(id, moduleType, SessionUtils.getUserId(), "/task/center/system/schedule/delete/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @GetMapping("/org/schedule/delete/{moduleType}/{id}")
@@ -74,7 +74,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void deleteOrg(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(ORG, moduleType);
-        taskCenterService.delete(id, SessionUtils.getUserId(), "/task/center/org/schedule/delete/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+        taskCenterService.delete(id, moduleType,SessionUtils.getUserId(), "/task/center/org/schedule/delete/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
     @GetMapping("/project/schedule/delete/{moduleType}/{id}")
@@ -82,7 +82,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void deleteProject(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(PROJECT, moduleType);
-        taskCenterService.delete(id, SessionUtils.getUserId(), "/task/center/project/schedule/delete/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+        taskCenterService.delete(id, moduleType,SessionUtils.getUserId(), "/task/center/project/schedule/delete/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @GetMapping("/system/schedule/switch/{moduleType}/{id}")
@@ -90,7 +90,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void enable(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(SYSTEM, moduleType);
-        taskCenterService.enable(id, SessionUtils.getUserId(), "/task/center/system/schedule/switch/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        taskCenterService.enable(id, moduleType,SessionUtils.getUserId(), "/task/center/system/schedule/switch/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
 
@@ -99,7 +99,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void enableOrg(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(ORG, moduleType);
-        taskCenterService.enable(id, SessionUtils.getUserId(), "/task/center/org/schedule/switch/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+        taskCenterService.enable(id, moduleType,SessionUtils.getUserId(), "/task/center/org/schedule/switch/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
     @GetMapping("/project/schedule/switch/{moduleType}/{id}")
@@ -107,7 +107,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void enableProject(@PathVariable String moduleType, @PathVariable String id) {
         hasPermission(PROJECT, moduleType);
-        taskCenterService.enable(id, SessionUtils.getUserId(), "/task/center/project/schedule/switch/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+        taskCenterService.enable(id, moduleType,SessionUtils.getUserId(), "/task/center/project/schedule/switch/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @PostMapping("/system/schedule/update/{moduleType}/{id}")
@@ -115,7 +115,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void update(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
         hasPermission(SYSTEM, moduleType);
-        taskCenterService.update(id, cron.toString(), SessionUtils.getUserId(), "/task/center/system/schedule/update/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        taskCenterService.update(id, moduleType,cron.toString(), SessionUtils.getUserId(), "/task/center/system/schedule/update/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @PostMapping("/org/schedule/update/{moduleType}/{id}")
@@ -123,7 +123,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void updateOrg(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
         hasPermission(ORG, moduleType);
-        taskCenterService.update(id, cron.toString(), SessionUtils.getUserId(), "/task/center/org/schedule/update/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+        taskCenterService.update(id, moduleType,cron.toString(), SessionUtils.getUserId(), "/task/center/org/schedule/update/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
     @PostMapping("/project/schedule/update/{moduleType}/{id}")
@@ -131,7 +131,7 @@ public class TaskCenterController {
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void updateProject(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
         hasPermission(PROJECT, moduleType);
-        taskCenterService.update(id, cron.toString(), SessionUtils.getUserId(), "/task/center/project/schedule/update/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+        taskCenterService.update(id, moduleType,cron.toString(), SessionUtils.getUserId(), "/task/center/project/schedule/update/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @PostMapping("/system/schedule/batch-enable")
